@@ -1,0 +1,22 @@
+{
+  "name": "ainumbers-mcp-apps",
+  "version": "0.2.0",
+  "description": "",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "generate": "node generate.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.7.4",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "express": "^5.2.1"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}
