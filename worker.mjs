@@ -101,9 +101,24 @@ function buildServer({ manifests, widgets, catalog }) {
   return server;
 }
 
+// Origin allowlist (MCP streamable-HTTP spec: servers MUST validate Origin — anti-DNS-rebinding).
+// Server-to-server clients (Claude's backend) send no Origin and pass; browser requests from
+// unlisted origins get 403. Extend the list if a legitimate browser-based MCP host needs access.
+const ALLOWED_ORIGINS = new Set([
+  'https://claude.ai',
+  'https://claude.com',
+  'https://mcp.ainumbers.co',
+  'https://ainumbers.co',
+]);
+
 export default {
   async fetch(request, env, _ctx) {
     const url = new URL(request.url);
+
+    const origin = request.headers.get('Origin');
+    if (origin && !ALLOWED_ORIGINS.has(origin)) {
+      return Response.json({ error: 'forbidden origin' }, { status: 403 });
+    }
 
     if (url.pathname === '/healthz') {
       return Response.json({ ok: true, widgets: PILOT.length, runtime: 'cloudflare-workers' });
