@@ -1,0 +1,16 @@
+{
+  // AINumbers MCP Apps — Cloudflare Workers config.
+  // First deploy: `npx wrangler deploy` → test at the printed workers.dev URL.
+  // Cutover: uncomment "routes" below, delete the existing mcp CNAME → Render in the
+  // Cloudflare DNS dashboard, then `npx wrangler deploy` again (creates the custom-domain record).
+  "name": "ainumbers-mcp",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./data",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
+  // "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }]
+}

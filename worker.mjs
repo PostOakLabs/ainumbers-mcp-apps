@@ -1,26 +1,16 @@
-// AINumbers MCP Apps server — WIRED PoC (target: https://mcp.ainumbers.co)
-// SDK: @modelcontextprotocol/sdk 1.29 + ext-apps 1.7 (SEP-1865 / 2026-01-26 spec)
-// Run:  node server.mjs   → streamable HTTP MCP endpoint at http://localhost:3300/mcp
-// Test: MCPJam / Postman / `npx @modelcontextprotocol/inspector` → connect to /mcp
+// AINumbers MCP Apps server — Cloudflare Workers runtime.
+// Same tool surface as server.mjs (Render/express); stateless streamable-HTTP via fetch-to-node.
+// Deploy: npx wrangler deploy   (data/ vendored by generate.mjs is served via the ASSETS binding)
+// Test locally: node test-worker.mjs (simulates the Workers env in plain Node)
 
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
-
-const ROOT = dirname(fileURLToPath(import.meta.url));
-// Standalone deploys (Render etc.) read vendored ./data; local dev falls back to ../repo.
-import { existsSync } from 'node:fs';
-const REPO = existsSync(resolve(dirname(fileURLToPath(import.meta.url)), 'data', 'mcp', 'catalog.json'))
-  ? resolve(dirname(fileURLToPath(import.meta.url)), 'data')
-  : resolve(dirname(fileURLToPath(import.meta.url)), '..', 'repo');
-const BASE_URL = 'https://ainumbers.co';
-
 import { PILOT } from './pilot.mjs';
+
+const BASE_URL = 'https://ainumbers.co';
 
 // Widget-side glue: drives the AIN Bridge already inside every tool.
 const WIDGET_GLUE = `
@@ -39,14 +29,30 @@ app.ontoolresult = (result) => {
 await app.connect();
 </script>`;
 
-const manifest = (slug) => JSON.parse(readFileSync(resolve(REPO, 'manifests', slug + '.manifest.json'), 'utf8'));
-const widgetHtml = (slug) => readFileSync(resolve(REPO, 'tools', slug + '.html'), 'utf8') + WIDGET_GLUE;
+// Module-scope cache: assets are immutable per deploy, so load once per isolate.
+let dataCache = null;
+async function loadData(env) {
+  if (dataCache) return dataCache;
+  const get = async (path) => {
+    const r = await env.ASSETS.fetch('https://assets.local/' + path);
+    if (!r.ok) throw new Error('asset miss: ' + path + ' → ' + r.status);
+    return r;
+  };
+  const manifests = {}, widgets = {};
+  for (const slug of PILOT) {
+    manifests[slug] = await (await get('manifests/' + slug + '.manifest.json')).json();
+    widgets[slug] = (await (await get('tools/' + slug + '.html')).text()) + WIDGET_GLUE;
+  }
+  const catalog = await (await get('mcp/catalog.json')).json();
+  dataCache = { manifests, widgets, catalog };
+  return dataCache;
+}
 
-function buildServer() {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.2.0' });
+function buildServer({ manifests, widgets, catalog }) {
+  const server = new McpServer({ name: 'ainumbers-apps', version: '0.3.0' });
 
   for (const slug of PILOT) {
-    const m = manifest(slug);
+    const m = manifests[slug];
     const uri = 'ui://ainumbers/' + slug;
     const name = m.mcp_tool_definition?.name ?? slug.replace(/-/g, '_');
 
@@ -64,14 +70,13 @@ function buildServer() {
     }));
 
     registerAppResource(server, m.title, uri, {}, async () => ({
-      contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: widgetHtml(slug) }],
+      contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: widgets[slug] }],
     }));
   }
 
-  const catalog = JSON.parse(readFileSync(resolve(REPO, 'mcp', 'catalog.json'), 'utf8'));
   server.registerTool('list_ainumbers_tools', {
     title: 'List AINumbers tools',
-    description: 'Search the AINumbers catalog (420 client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
+    description: 'Search the AINumbers catalog (420+ client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
     inputSchema: { query: z.string().optional(), category: z.string().optional(), limit: z.number().optional() },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, limit }) => {
@@ -87,20 +92,35 @@ function buildServer() {
   return server;
 }
 
-const app = express();
-app.use(express.json({ limit: '4mb' }));
-app.post('/mcp', async (req, res) => {
-  try {
-    const server = buildServer();
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-    res.on('close', () => { transport.close(); server.close(); });
-    await server.connect(transport);
-    await transport.handleRequest(req, res, req.body);
-  } catch (e) {
-    if (!res.headersSent) res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null });
-  }
-});
-app.get('/healthz', (_req, res) => res.json({ ok: true, widgets: PILOT.length }));
+export default {
+  async fetch(request, env, _ctx) {
+    const url = new URL(request.url);
 
-const PORT = process.env.PORT ?? 3300;
-app.listen(PORT, () => console.log('ainumbers-apps MCP server → http://localhost:' + PORT + '/mcp  (' + PILOT.length + ' widget tools + catalog)'));
+    if (url.pathname === '/healthz') {
+      return Response.json({ ok: true, widgets: PILOT.length, runtime: 'cloudflare-workers' });
+    }
+    if (url.pathname !== '/mcp') {
+      return new Response('Not found', { status: 404 });
+    }
+
+    try {
+      const data = await loadData(env);
+      const server = buildServer(data);
+      const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+      await server.connect(transport);
+
+      const body = request.method === 'POST' ? await request.clone().json() : undefined;
+      const { req, res } = toReqRes(request);
+      // fetch() strips the Host header; the MCP SDK needs it to reconstruct the request URL.
+      req.headers.host = url.host;
+      res.on('close', () => { transport.close(); server.close(); });
+      await transport.handleRequest(req, res, body);
+      return await toFetchResponse(res);
+    } catch (e) {
+      return Response.json(
+        { jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null },
+        { status: 500 },
+      );
+    }
+  },
+};
