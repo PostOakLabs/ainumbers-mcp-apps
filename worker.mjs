@@ -123,6 +123,14 @@ export default {
     if (url.pathname === '/healthz') {
       return Response.json({ ok: true, widgets: PILOT.length, runtime: 'cloudflare-workers' });
     }
+    // Glama directory ownership claim — email must match the maintainer's Glama account.
+    // Glama polls this path on the connector's server domain and auto-verifies within minutes.
+    if (url.pathname === '/.well-known/glama.json') {
+      return Response.json({
+        $schema: 'https://glama.ai/mcp/schemas/connector.json',
+        maintainers: [{ email: 'tim@postoaklabs.com' }],
+      });
+    }
     // Favicon + minimal root page so favicon crawlers (and humans) get something sensible.
     if (url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
       const r = await env.ASSETS.fetch('https://assets.local/favicon.png');
