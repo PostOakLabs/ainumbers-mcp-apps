@@ -1,6 +1,6 @@
 # AINumbers MCP Apps Server — Spec & Scaffold (DRAFT)
 **Date:** 2026-06-06 · **Owner:** AINumbers (part of the AINumbers project; lives beside repo/ pending a decision on folding it into the repo)
-**Status:** WIRED & smoke-tested locally 2026-06-06 (SDK 1.29.0 + ext-apps 1.7.4). Domain decision: **mcp.ainumbers.co**. Not yet deployed.
+**Status:** LIVE at **https://mcp.ainumbers.co/mcp** (deployed 2026-06-06; Render free tier, auto-deploy from GitHub master; Cloudflare DNS, CNAME DNS-only). SDK 1.29.0 + ext-apps 1.7.4.
 **Verified:** initialize / tools/list (8 tools) / tools/call with structuredContent / resources/read serving tool HTML as `text/html;profile=mcp-app` with AIN Bridge + widget glue. Run `node server.mjs`, test at `http://localhost:3300/mcp`.
 
 ## What this is
@@ -11,7 +11,7 @@ A thin MCP server that exposes selected AINumbers tools as **MCP Apps** — inte
 Claude / ChatGPT / Copilot (MCP Apps host)
         │  MCP (streamable HTTP)
         ▼
-  mcp-apps-poc server (Node, mcp.ainumbers.co)
+  this server (Node on Render free tier, https://mcp.ainumbers.co)
         │  reads at build time (no runtime fetch to ainumbers.co needed)
         ▼
   AINumbers repo artifacts:
