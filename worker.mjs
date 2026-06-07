@@ -123,6 +123,17 @@ export default {
     if (url.pathname === '/healthz') {
       return Response.json({ ok: true, widgets: PILOT.length, runtime: 'cloudflare-workers' });
     }
+    // Favicon + minimal root page so favicon crawlers (and humans) get something sensible.
+    if (url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
+      const r = await env.ASSETS.fetch('https://assets.local/favicon.png');
+      return new Response(r.body, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' } });
+    }
+    if (url.pathname === '/') {
+      return new Response('<!DOCTYPE html><html><head><title>AINumbers MCP</title><link rel="icon" type="image/png" href="/favicon.png"></head>' +
+        '<body><p>AINumbers Fintech Intelligence Suite — MCP server. Endpoint: <code>/mcp</code> (streamable HTTP, no auth). ' +
+        'Docs: <a href="https://ainumbers.co/mcp.html">ainumbers.co/mcp.html</a></p></body></html>',
+        { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
     if (url.pathname !== '/mcp') {
       return new Response('Not found', { status: 404 });
     }
