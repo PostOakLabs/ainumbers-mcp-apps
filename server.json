@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "co.ainumbers/tools",
+  "title": "AINumbers Fintech Intelligence Suite",
+  "description": "420 deterministic, client-side fintech tools (ISO 20022, AML/KYC, BaaS, DORA, agentic payments — AP2/ACP/x402, MCP dev tooling) as MCP widgets + catalog search. Zero PII, zero server calls.",
+  "repository": {
+    "url": "https://github.com/PostOakLabs/ainumbers-mcp-apps",
+    "source": "github"
+  },
+  "version": "0.2.0",
+  "websiteUrl": "https://ainumbers.co",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.ainumbers.co/mcp"
+    }
+  ]
+}

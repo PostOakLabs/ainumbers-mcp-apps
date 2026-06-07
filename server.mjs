@@ -64,6 +64,7 @@ function buildServer() {
         ' Renders the interactive AINumbers tool as a widget; inputs are applied via the AIN Bridge and the tool runs client-side (zero PII, zero network).',
       inputSchema: { inputs: z.record(z.any()).optional()
         .describe('Map of tool input element IDs to values (see manifest input_schema). Applied via AIN Bridge prefill.') },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
       _meta: { ui: { resourceUri: uri } },
     }, async ({ inputs }) => ({
       content: [{ type: 'text', text: 'Opened ' + m.title + '. ' + (inputs ? Object.keys(inputs).length + ' inputs applied via AIN Bridge.' : 'Configure inputs in the widget.') + ' Tool runs deterministically in the widget sandbox; export a Policy Mandate for the audit trail.' }],
@@ -78,8 +79,9 @@ function buildServer() {
   const catalog = JSON.parse(readFileSync(resolve(REPO, 'mcp', 'catalog.json'), 'utf8'));
   server.registerTool('list_ainumbers_tools', {
     title: 'List AINumbers tools',
-    description: 'Search the AINumbers catalog (~344 client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
+    description: 'Search the AINumbers catalog (420 client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
     inputSchema: { query: z.string().optional(), category: z.string().optional(), limit: z.number().optional() },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, limit }) => {
     const q = (query ?? '').toLowerCase();
     const rows = (catalog.tools ?? [])
