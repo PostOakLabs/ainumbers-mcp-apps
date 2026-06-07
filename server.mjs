@@ -23,9 +23,20 @@ const BASE_URL = 'https://ainumbers.co';
 import { PILOT } from './pilot.mjs';
 
 // Widget-side glue: drives the AIN Bridge already inside every tool.
+// SDK is inlined (export-free transform of app-with-deps.js) — CDN imports are blocked by the
+// host's widget sandbox CSP and by the tools' own CSP meta. Keep in sync with worker.mjs.
+const sdkInline = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), 'node_modules', '@modelcontextprotocol', 'ext-apps', 'dist', 'src', 'app-with-deps.js'), 'utf8')
+  .replace(/export\{([\s\S]*?)\};?\s*$/, (_, names) => {
+    const props = names.split(',').map(s => s.trim()).filter(Boolean).map(s => {
+      const m = s.split(/\s+as\s+/);
+      return m.length === 2 ? `${m[1]}:${m[0]}` : `${s}:${s}`;
+    }).join(',');
+    return `globalThis.__EXT_APPS__={${props}};`;
+  });
 const WIDGET_GLUE = `
 <script type="module">
-import { App } from 'https://esm.sh/@modelcontextprotocol/ext-apps@1.7.4';
+${sdkInline}
+const { App } = globalThis.__EXT_APPS__;
 const app = new App({ name: 'ainumbers-widget', version: '1.0.0' });
 app.ontoolresult = (result) => {
   try {
@@ -39,8 +50,9 @@ app.ontoolresult = (result) => {
 await app.connect();
 </script>`;
 
+const stripCspMeta = (html) => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/i, '');
 const manifest = (slug) => JSON.parse(readFileSync(resolve(REPO, 'manifests', slug + '.manifest.json'), 'utf8'));
-const widgetHtml = (slug) => readFileSync(resolve(REPO, 'tools', slug + '.html'), 'utf8') + WIDGET_GLUE;
+const widgetHtml = (slug) => stripCspMeta(readFileSync(resolve(REPO, 'tools', slug + '.html'), 'utf8')) + WIDGET_GLUE;
 
 function buildServer() {
   const server = new McpServer({ name: 'ainumbers-apps', version: '0.2.0' });

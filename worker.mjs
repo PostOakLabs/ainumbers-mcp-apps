@@ -13,9 +13,13 @@ import { PILOT } from './pilot.mjs';
 const BASE_URL = 'https://ainumbers.co';
 
 // Widget-side glue: drives the AIN Bridge already inside every tool.
-const WIDGET_GLUE = `
+// The ext-apps SDK is INLINED (vendored by generate.mjs as data/ext-apps-inline.js): the widget
+// sandbox CSP and the tools' own CSP meta both block third-party CDN imports (esm.sh), which
+// left app.connect() never firing and the widget iframe stuck invisible at its placeholder size.
+const widgetGlue = (sdkInline) => `
 <script type="module">
-import { App } from 'https://esm.sh/@modelcontextprotocol/ext-apps@1.7.4';
+${sdkInline}
+const { App } = globalThis.__EXT_APPS__;
 const app = new App({ name: 'ainumbers-widget', version: '1.0.0' });
 app.ontoolresult = (result) => {
   try {
@@ -29,6 +33,10 @@ app.ontoolresult = (result) => {
 await app.connect();
 </script>`;
 
+// The vendored tool pages ship a strict CSP meta for serving on ainumbers.co; inside the host's
+// sandboxed widget iframe it would fight the inline glue. The host enforces its own CSP — strip ours.
+const stripCspMeta = (html) => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/i, '');
+
 // Module-scope cache: assets are immutable per deploy, so load once per isolate.
 let dataCache = null;
 async function loadData(env) {
@@ -38,10 +46,11 @@ async function loadData(env) {
     if (!r.ok) throw new Error('asset miss: ' + path + ' → ' + r.status);
     return r;
   };
+  const glue = widgetGlue(await (await get('ext-apps-inline.js')).text());
   const manifests = {}, widgets = {};
   for (const slug of PILOT) {
     manifests[slug] = await (await get('manifests/' + slug + '.manifest.json')).json();
-    widgets[slug] = (await (await get('tools/' + slug + '.html')).text()) + WIDGET_GLUE;
+    widgets[slug] = stripCspMeta(await (await get('tools/' + slug + '.html')).text()) + glue;
   }
   const catalog = await (await get('mcp/catalog.json')).json();
   dataCache = { manifests, widgets, catalog };

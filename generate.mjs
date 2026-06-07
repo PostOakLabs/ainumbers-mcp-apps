@@ -19,4 +19,18 @@ for (const slug of PILOT) {
   writeFileSync(resolve(DATA,'manifests',slug+'.manifest.json'), readFileSync(resolve(REPO,'manifests',slug+'.manifest.json')));
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
-console.log('vendored', PILOT.length, 'tools + manifests + catalog into ./data');
+
+// Vendor the ext-apps browser SDK as an export-free inlinable script for the widget glue.
+// Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
+// SDK must be inlined into the widget HTML rather than imported from esm.sh at runtime.
+const sdkSrc = readFileSync(resolve(ROOT,'node_modules','@modelcontextprotocol','ext-apps','dist','src','app-with-deps.js'),'utf8');
+const sdkInline = sdkSrc.replace(/export\{([\s\S]*?)\};?\s*$/, (_, names) => {
+  const props = names.split(',').map(s => s.trim()).filter(Boolean).map(s => {
+    const m = s.split(/\s+as\s+/);
+    return m.length === 2 ? `${m[1]}:${m[0]}` : `${s}:${s}`;
+  }).join(',');
+  return `globalThis.__EXT_APPS__={${props}};`;
+});
+if (!sdkInline.includes('__EXT_APPS__')) throw new Error('ext-apps SDK export transform failed — check app-with-deps.js export shape');
+writeFileSync(resolve(DATA,'ext-apps-inline.js'), sdkInline);
+console.log('vendored', PILOT.length, 'tools + manifests + catalog + ext-apps-inline.js into ./data');
