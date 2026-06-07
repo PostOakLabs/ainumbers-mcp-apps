@@ -7,10 +7,11 @@
   "main": "worker.mjs",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
   "assets": {
     "directory": "./data",
     "binding": "ASSETS",
     "run_worker_first": true
-  }
-  // "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }]
+  },
+  "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }]
 }
