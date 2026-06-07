@@ -1,2 +1,9 @@
 node_modules/
 nohup.out
+
+# MCP registry publishing — never commit key material or the CLI binary
+key.pem
+pub.der
+mcp-registry-auth
+mcp-publisher.exe
+mcp-publisher.tar.gz
