@@ -107,7 +107,8 @@ const NAMED_CHAINS = {
   },
   'dora-readiness': {
     title: 'DORA ICT Risk to NCA Submission',
-    description: 'Gap analysis > resilience testing design > proportionality assessment > AP2 DORA Policy Mandate. Composer coming soon.',
+    description: 'Gap analysis > resilience testing design > proportionality assessment > AP2 DORA Policy Mandate. Full orchestrated run available in the composer.',
+    composer_url: BASE_URL + '/guides/dora-readiness-composer.html',
     steps: [
       { slug: '300-dora-ict-risk-gap-analyser',       handoff: 'gap_findings and ict_risk_score feed T304 resilience testing design' },
       { slug: '304-dora-resilience-testing-designer', handoff: 'testing_plan and tlpt_scope feed T307 proportionality assessment' },
@@ -237,7 +238,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.4.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '0.5.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -395,72 +396,158 @@ function buildServer({ manifests, widgets, catalog }) {
     };
   });
 
+  // -------------------------------------------------------------------------
+  // MCP Prompts -- workflow recipes (WS5b)
+  // Each prompt returns a structured step-by-step workflow message so any MCP
+  // client can walk a user through a complete AINumbers chain end-to-end.
+  // Zero server-side execution -- browser tools remain the deterministic layer.
+  // -------------------------------------------------------------------------
+
+  server.registerPrompt('aml_programme_workflow', {
+    description: 'Step-by-step workflow for assembling a complete AML programme using AINumbers browser tools (T110 > T116 > T119 > T131). Returns an orchestration guide; the full audited run is available at the AML Programme Composer.',
+    argsSchema: {
+      entity_type:        z.string().optional().describe('Type of entity (e.g. bank, EMI, VASP, MSB). Scopes risk-tier calibration.'),
+      jurisdiction:       z.string().optional().describe('Primary regulatory jurisdiction (e.g. UK, EU, US). Scopes AML framework references.'),
+      synthetic_profile:  z.string().optional().describe('Synthetic customer profile description for Step 1 risk rating (never real PII).'),
+    },
+  }, async ({ entity_type, jurisdiction, synthetic_profile }) => {
+    const scope = [entity_type, jurisdiction].filter(Boolean).join(', ');
+    return {
+      description: 'AML Programme workflow -- T110 > T116 > T119 > T131, composite Policy Mandate export.',
+      messages: [{
+        role: 'user',
+        content: { type: 'text', text:
+          'Walk me through assembling a complete AML programme using AINumbers\' deterministic browser tools.' +
+          (scope ? ' Scope: ' + scope + '.' : '') +
+          ' All tools run client-side -- zero PII, zero network. Use synthetic data only.\n\n' +
+          'Step 1 -- Customer Risk Rating: call `customer_risk_rating`' +
+          (synthetic_profile ? ' with this synthetic profile: ' + synthetic_profile : ' with a synthetic customer profile') +
+          '. Returns risk_tier and composite_score.\n\n' +
+          'Step 2 -- Build workflow links: call `build_workflow_links` with chain "aml-programme". ' +
+          'Returns the ordered deep-link set (T110 > T116 > T119 > T131) and the composer URL.\n\n' +
+          'Step 3 -- Full orchestrated run: open the AML Programme Composer at ' +
+          BASE_URL + '/guides/aml-programme-composer.html. ' +
+          'It loads all four stages in one page, maps stage outputs forward, captures each Policy Mandate, ' +
+          'and exports a composite AML Policy Mandate with per-stage audit trail.\n\n' +
+          'After the run: present the composite mandate JSON for agentic pipeline guardrails or regulatory audit. ' +
+          'Recommend re-running after any material change to the customer risk appetite or rule set.',
+        },
+      }],
+    };
+  });
+
+
+  server.registerPrompt('dora_readiness_workflow', {
+    description: 'Step-by-step DORA ICT readiness workflow: run the diagnostic triage, then the orchestrated composer (T300 > T304 > T307 > T310), export composite Policy Mandate.',
+    argsSchema: {
+      entity_type: z.string().optional().describe('Type of financial entity (e.g. credit institution, payment institution, investment firm, insurance undertaking)'),
+      jurisdiction: z.string().optional().describe('Primary jurisdiction -- EU member state or "EU-wide"'),
+    },
+  }, async ({ entity_type, jurisdiction }) => {
+    const scope = [entity_type, jurisdiction].filter(Boolean).join(', ');
+    return {
+      description: 'DORA readiness workflow -- diagnostic triage + T300 > T304 > T307 > T310 composer, composite mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete DORA ICT risk readiness assessment using AINumbers browser tools.' +
+        (scope ? ' Scope: ' + scope + '.' : '') +
+        ' All tools run client-side -- zero PII, zero network.\n\n' +
+        'Step 1 -- Triage with the DORA Readiness Diagnostic: open ' +
+        BASE_URL + '/guides/dora-readiness-diagnostic.html. ' +
+        'Complete the 30-question self-assessment. It returns a grade (A-F), score_pct, domain_scores across five ICT domains, and a prioritised gap list.\n\n' +
+        'Step 2 -- Build workflow links: call `build_workflow_links` with chain "dora-readiness". ' +
+        'Returns the ordered deep-link set (T300 > T304 > T307 > T310) and the composer URL.\n\n' +
+        'Step 3 -- Full orchestrated run: open the DORA Readiness Composer at ' +
+        BASE_URL + '/guides/dora-readiness-composer.html. ' +
+        'If loaded from the diagnostic via the "Run DORA chain" button the composer is pre-seeded with the gap findings. ' +
+        'It runs Stage 1 ICT risk gap analysis (T300), Stage 2 resilience testing design (T304), Stage 3 proportionality assessment (T307), and Stage 4 AP2 DORA Policy Mandate build (T310). ' +
+        'Outputs map forward between stages automatically.\n\n' +
+        'After the run: present the composite DORA Policy Mandate JSON (mandate_type: compliance_control, regulatory framework: DORA EU 2022/2554) for NCA submission support or internal ICT governance audit. ' +
+        'Recommend re-running after any material change to ICT estate, third-party dependencies, or NCA guidance.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('mcp_server_audit_workflow', {
+    description: 'End-to-end MCP server audit: score readiness, lint tool definitions, scan for tool poisoning, audit OAuth. All server-side -- no browser required.',
+    argsSchema: {
+      server_name: z.string().describe('Human-readable name of the MCP server being audited'),
+      server_url: z.string().describe('URL of the MCP server (e.g. https://mcp.example.com/mcp)'),
+      tool_names: z.array(z.string()).optional().describe('Specific tool names to lint/scan -- omit to audit all tools'),
+    },
+  }, async ({ server_name, server_url, tool_names }) => {
+    const toolScope = tool_names && tool_names.length ? ' Focus lint/scan on these tools: ' + tool_names.join(', ') + '.' : ' Lint and scan all exposed tools.';
+    return {
+      description: 'MCP server audit -- score_mcp_readiness > lint_mcp_tool_definition > scan_tool_poisoning > audit_mcp_oauth.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Audit the MCP server "' + server_name + '" at ' + server_url + ' using AINumbers MCP tools.' +
+        toolScope + ' All checks run server-side.\n\n' +
+        'Step 1 -- Readiness score: call `score_mcp_readiness` with server_url "' + server_url + '". ' +
+        'Returns an overall readiness score, capability flags (streaming, resources, prompts), and a gap list.\n\n' +
+        'Step 2 -- Lint tool definitions: call `lint_mcp_tool_definition` for each tool to audit. ' +
+        'Checks name conventions, description quality, schema completeness, and required/optional field hygiene. ' +
+        'Returns per-tool lint findings and a severity breakdown.\n\n' +
+        'Step 3 -- Tool poisoning scan: call `scan_tool_poisoning` for each tool. ' +
+        'Detects prompt injection patterns, hidden instruction embedding, and malicious schema structures. ' +
+        'Returns a risk verdict (CLEAN / SUSPICIOUS / MALICIOUS) per tool with evidence.\n\n' +
+        'Step 4 -- OAuth audit: call `audit_mcp_oauth` with server_url "' + server_url + '". ' +
+        'Validates OAuth 2.1 / PKCE implementation, scope hygiene, token lifetime, and redirect URI safety.\n\n' +
+        'After all steps: summarise findings across the four dimensions, highlight any CRITICAL or HIGH items, ' +
+        'and recommend a re-audit cadence based on the server change frequency.',
+      }}],
+    };
+  });
+
   return server;
 }
 
-// Origin allowlist (MCP streamable-HTTP spec: servers MUST validate Origin -- anti-DNS-rebinding).
-// Server-to-server clients (Claude's backend) send no Origin and pass; browser requests from
-// unlisted origins get 403. Extend the list if a legitimate browser-based MCP host needs access.
+// ---------------------------------------------------------------------------
+// Allowed origins for CORS
+// ---------------------------------------------------------------------------
 const ALLOWED_ORIGINS = new Set([
-  'https://claude.ai',
-  'https://claude.com',
-  'https://mcp.ainumbers.co',
   'https://ainumbers.co',
+  'https://www.ainumbers.co',
+  'https://claude.ai',
+  'https://app.claude.ai',
+  'http://localhost:3000',
+  'http://localhost:8787',
 ]);
 
+// ---------------------------------------------------------------------------
+// Cloudflare Workers entry point
+// ---------------------------------------------------------------------------
 export default {
-  async fetch(request, env, _ctx) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    const origin = request.headers.get('Origin') || '';
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://ainumbers.co',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id',
+      'Access-Control-Expose-Headers': 'Mcp-Session-Id',
+    };
 
-    const origin = request.headers.get('Origin');
-    if (origin && !ALLOWED_ORIGINS.has(origin)) {
-      return Response.json({ error: 'forbidden origin' }, { status: 403 });
-    }
-
-    if (url.pathname === '/healthz') {
-      return Response.json({ ok: true, widgets: PILOT.length, runtime: 'cloudflare-workers' });
-    }
-    // Glama directory ownership claim -- email must match the maintainer's Glama account.
-    // Glama polls this path on the connector's server domain and auto-verifies within minutes.
-    if (url.pathname === '/.well-known/glama.json') {
-      return Response.json({
-        $schema: 'https://glama.ai/mcp/schemas/connector.json',
-        maintainers: [{ email: 'tim@postoaklabs.com' }],
-      });
-    }
-    // Favicon + minimal root page so favicon crawlers (and humans) get something sensible.
-    if (url.pathname === '/favicon.ico' || url.pathname === '/favicon.png') {
-      const r = await env.ASSETS.fetch('https://assets.local/favicon.png');
-      return new Response(r.body, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' } });
-    }
-    if (url.pathname === '/') {
-      return new Response('<!DOCTYPE html><html><head><title>AINumbers MCP</title><link rel="icon" type="image/png" href="/favicon.png"></head>' +
-        '<body><p>AINumbers Fintech Intelligence Suite -- MCP server. Endpoint: <code>/mcp</code> (streamable HTTP, no auth). ' +
-        'Docs: <a href="https://ainumbers.co/mcp.html">ainumbers.co/mcp.html</a></p></body></html>',
-        { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-    }
-    if (url.pathname !== '/mcp') {
-      return new Response('Not found', { status: 404 });
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders });
     }
 
-    try {
-      const data = await loadData(env);
-      const server = buildServer(data);
+    // Health check
+    if (url.pathname === '/health' || url.pathname === '/') {
+      return Response.json({ status: 'ok', server: 'ainumbers-mcp-apps', version: PILOT.version }, { headers: corsHeaders });
+    }
+
+    // MCP endpoint
+    if (url.pathname === '/mcp') {
+      const server = buildServer(env);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-      await server.connect(transport);
-
-      const body = request.method === 'POST' ? await request.clone().json() : undefined;
       const { req, res } = toReqRes(request);
-      // fetch() strips the Host header; the MCP SDK needs it to reconstruct the request URL.
-      req.headers.host = url.host;
-      res.on('close', () => { transport.close(); server.close(); });
-      await transport.handleRequest(req, res, body);
-      return await toFetchResponse(res);
-    } catch (e) {
-      return Response.json(
-        { jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null },
-        { status: 500 },
-      );
+      await server.connect(transport);
+      const handled = transport.handleRequest(req, res, await request.json().catch(() => undefined));
+      ctx.waitUntil(handled);
+      const response = await toFetchResponse(res);
+      for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
+      return response;
     }
+
+    return new Response('Not found', { status: 404, headers: corsHeaders });
   },
 };
