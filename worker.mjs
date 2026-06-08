@@ -651,23 +651,23 @@ function buildServer({ manifests, widgets, catalog }) {
   });
 
   server.registerPrompt('fraud_decisioning_workflow', {
-    description: 'Step-by-step fraud & scam decisioning workflow: fraud scoring > TM rule building > fraud investigation > APP fraud check, composite velocity-rule Policy Mandate.',
+    description: 'Step-by-step fraud & scam decisioning workflow: velocity rule building > structuring pattern detection > fraud investigation > APP-scam scoring, composite velocity-rule Policy Mandate.',
     argsSchema: {},
   }, async () => {
     return {
-      description: 'Fraud & Scam Decisioning workflow -- T256 > T116 > T80 > T322, composite Policy Mandate export.',
+      description: 'Fraud & Scam Decisioning workflow -- T256 > T117 > T80 > T322, composite Policy Mandate export.',
       messages: [{ role: 'user', content: { type: 'text', text:
         'Walk me through a complete fraud & scam decisioning run using AINumbers browser tools. All tools run client-side -- zero PII, zero network. Use synthetic data only.\n\n' +
         'Step 1 -- Build workflow links: call `build_workflow_links` with chain "fraud-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
         'Step 2 -- Orchestrated run: open the Fraud Decisioning Composer at ' + BASE_URL + '/guides/fraud-decisioning-composer.html. ' +
-        'Stage 1 (T256) scores real-time fraud risk. Stage 2 (T116) builds TM velocity rules calibrated to Stage 1 signals. Stage 3 (T80) runs fraud investigation and typology matching. Stage 4 (T322) checks APP fraud (UK PSR PS25/5 / FCA-PSR Joint Framework). Mandate type: velocity_rule_mandate.\n\n' +
+        'Stage 1 (T256) builds real-time fraud velocity/limit rules. Stage 2 (T117) detects structuring and layering patterns against the ruled flows. Stage 3 (T80) runs fraud investigation and typology matching on flagged cases. Stage 4 (T322) scores APP-scam risk and reimbursement liability (UK PSR PS25/5 / FCA-PSR Joint Framework). Mandate type: velocity_rule_mandate.\n\n' +
         'After the run: present the composite Policy Mandate JSON for payment-engine guardrails. Recommend re-running after any material change to fraud typologies, velocity thresholds, or PSR guidance.',
       }}],
     };
   });
 
   server.registerPrompt('credit_decisioning_workflow', {
-    description: 'Step-by-step credit decisioning workflow: PD/LGD modelling > Basel RWA > RAROC pricing > covenant compliance > IFRS 9 ECL staging, composite credit Policy Mandate.',
+    description: 'Step-by-step credit decisioning workflow: PD/LGD modelling > Basel RWA > RAROC pricing > covenant compliance > facility structuring, composite credit Policy Mandate.',
     argsSchema: {},
   }, async () => {
     return {
@@ -676,7 +676,7 @@ function buildServer({ manifests, widgets, catalog }) {
         'Walk me through a complete credit decisioning run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
         'Step 1 -- Build workflow links: call `build_workflow_links` with chain "credit-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
         'Step 2 -- Orchestrated run: open the Credit Decisioning Composer at ' + BASE_URL + '/guides/credit-decisioning-composer.html. ' +
-        'Stage 1 (T198) models PD/LGD/EAD under Basel IRB. Stage 2 (T201) calculates RWA and capital requirements. Stage 3 (T437) prices RAROC and verifies hurdle rate. Stage 4 (T199) checks financial covenant compliance. Stage 5 (T435) stages IFRS 9 ECL. Mandate type: credit_assessment, valid 180 days.\n\n' +
+        'Stage 1 (T198) models PD/LGD/EAD under Basel IRB. Stage 2 (T201) calculates RWA and capital requirements. Stage 3 (T437) prices RAROC and verifies hurdle rate. Stage 4 (T199) checks financial covenant compliance. Stage 5 (T435) structures the credit facility (limits, tranches, covenant package). Mandate type: credit_assessment, valid 180 days.\n\n' +
         'IMPORTANT: Do NOT independently compute capital or pricing figures -- use Stage 2 and Stage 3 tool outputs only.\n\n' +
         'After the run: present the composite Policy Mandate JSON as the credit committee decision record. Re-run after any material change to PD models, capital floors, or EBA GL/2020/06 guidance.',
       }}],
@@ -684,7 +684,7 @@ function buildServer({ manifests, widgets, catalog }) {
   });
 
   server.registerPrompt('consumer_protection_workflow', {
-    description: 'Step-by-step FCA Consumer Duty workflow: gap assessment > fair value > vulnerability > disclosure > MiFID II cost disclosure, composite consumer-protection Policy Mandate.',
+    description: 'Step-by-step FCA Consumer Duty workflow: vulnerability assessment > fair value > MiFID costs & charges > PRIIPs KID > Consumer Duty board MI, composite consumer-protection Policy Mandate.',
     argsSchema: {},
   }, async () => {
     return {
@@ -693,14 +693,14 @@ function buildServer({ manifests, widgets, catalog }) {
         'Walk me through a complete FCA Consumer Duty compliance run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
         'Step 1 -- Build workflow links: call `build_workflow_links` with chain "consumer-protection". Returns the ordered deep-link set and the composer URL.\n\n' +
         'Step 2 -- Orchestrated run: open the Consumer Protection Composer at ' + BASE_URL + '/guides/consumer-protection-composer.html. ' +
-        'Stage 1 (T395) assesses Consumer Duty gaps against FCA PS22/9. Stage 2 (T396) evaluates product fair value outcomes. Stage 3 (T428) identifies customer vulnerability indicators. Stage 4 (T448) generates consumer disclosures (PRIIPs 1286/2014). Stage 5 (T397) produces MiFID II cost and charges disclosures. Mandate type: disclosure_template, valid 365 days.\n\n' +
+        'Stage 1 (T395) builds the Consumer Duty vulnerability assessment (FCA PS22/9). Stage 2 (T396) evaluates product price & fair-value outcomes. Stage 3 (T428) calculates MiFID II costs & charges. Stage 4 (T448) checks PRIIPs KID disclosure compliance (PRIIPs 1286/2014). Stage 5 (T397) builds the Consumer Duty board MI framework. Mandate type: disclosure_template, valid 365 days.\n\n' +
         'After the run: present the composite Policy Mandate JSON for product governance review. Re-run annually or after any material product or pricing change.',
       }}],
     };
   });
 
   server.registerPrompt('stablecoin_compliance_workflow', {
-    description: 'Step-by-step stablecoin compliance workflow: reserve check > transaction monitoring > MiCA EMT authorisation > cross-border framework, composite stablecoin compliance Policy Mandate.',
+    description: 'Step-by-step stablecoin compliance workflow: issuance architecture > reserve stress test > GENIUS Act compliance > MiCA white paper, composite stablecoin compliance Policy Mandate.',
     argsSchema: {},
   }, async () => {
     return {
@@ -709,7 +709,7 @@ function buildServer({ manifests, widgets, catalog }) {
         'Walk me through a complete stablecoin compliance run using AINumbers browser tools. Covers US GENIUS Act and EU MiCA. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
         'Step 1 -- Build workflow links: call `build_workflow_links` with chain "stablecoin-compliance". Returns the ordered deep-link set and the composer URL.\n\n' +
         'Step 2 -- Orchestrated run: open the Stablecoin Compliance Composer at ' + BASE_URL + '/guides/stablecoin-compliance-composer.html. ' +
-        'Stage 1 (T53) checks reserve composition and redemption obligations (GENIUS Act / MiCA 2023/1114). Stage 2 (T388) monitors stablecoin transaction velocity and AML flags. Stage 3 (T386) validates MiCA EMT authorisation requirements. Stage 4 (T390) maps the cross-border stablecoin regulatory framework. Mandate type: compliance_control, valid 180 days.\n\n' +
+        'Stage 1 (T53) compares issuance/architecture models. Stage 2 (T388) stress-tests reserve composition and adequacy. Stage 3 (T386) checks US GENIUS Act payment-stablecoin compliance. Stage 4 (T390) builds the EU MiCA white paper / CASP path (MiCA 2023/1114). Mandate type: compliance_control, valid 180 days.\n\n' +
         'NOTE: GENIUS Act effective date is approximately 18 Jan 2027 (120 days after OCC/FinCEN final rules). Verify the current implementation timeline before reliance.\n\n' +
         'After the run: present the composite Policy Mandate JSON for legal/compliance sign-off. Re-run after any material change to reserve composition, issuer structure, or OCC/FinCEN rule updates.',
       }}],
