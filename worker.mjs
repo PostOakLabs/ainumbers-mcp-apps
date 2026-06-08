@@ -182,6 +182,64 @@ const NAMED_CHAINS = {
       { slug: '228-3ds-emv-compliance-checker',               handoff: 'Exports card interchange Policy Mandate -- final stage' },
     ],
   },
+  // Wave 2 high-TAM workflow composers
+  'fraud-decisioning': {
+    title: 'Fraud & Scam Decisioning',
+    description: 'Real-time fraud scoring > TM rule building > FATF travel rule check > sanctions screening > fraud velocity mandate.',
+    composer_url: BASE_URL + '/guides/fraud-decisioning-composer.html',
+    steps: [
+      { slug: '256-fraud-risk-score-engine',         handoff: 'fraud_score and risk_signals feed Stage 2 TM rule calibration' },
+      { slug: '116-tm-rule-builder',                 handoff: 'rule_set and velocity_thresholds feed Stage 3 FATF travel rule check' },
+      { slug: '80-fraud-investigation-lab',          handoff: 'investigation_findings and typology_flags feed Stage 4 sanctions screening' },
+      { slug: '322-authorised-push-payment-checker', handoff: 'Exports fraud decisioning Policy Mandate -- final stage' },
+    ],
+  },
+  'credit-decisioning': {
+    title: 'Credit Decisioning',
+    description: 'PD/LGD/EAD modelling > Basel RWA calculation > RAROC pricing > covenant compliance check > IFRS 9 ECL staging > composite credit mandate.',
+    composer_url: BASE_URL + '/guides/credit-decisioning-composer.html',
+    steps: [
+      { slug: '198-pd-lgd-ead-modeller',                   handoff: 'pd, lgd, ead values feed Stage 2 Basel RWA calculation' },
+      { slug: '201-basel-rwa-calculator',                  handoff: 'rwa_total and capital_requirement feed Stage 3 RAROC pricing' },
+      { slug: '437-raroc-loan-pricing',                    handoff: 'raroc and hurdle_rate feed Stage 4 covenant compliance' },
+      { slug: '199-financial-covenant-compliance-checker', handoff: 'covenant_status and breach_flags feed Stage 5 IFRS 9 staging' },
+      { slug: '435-ifrs9-ecl-staging-tool',                handoff: 'Exports credit decisioning Policy Mandate -- final stage' },
+    ],
+  },
+  'consumer-protection': {
+    title: 'Consumer Protection & FCA Consumer Duty',
+    description: 'Consumer Duty gap assessment > product fair value assessment > vulnerability identification > disclosure generator > MiFID II cost disclosure > composite consumer-duty mandate.',
+    composer_url: BASE_URL + '/guides/consumer-protection-composer.html',
+    steps: [
+      { slug: '395-fca-consumer-duty-gap-assessor',        handoff: 'duty_gaps and priority_actions feed Stage 2 fair value assessment' },
+      { slug: '396-product-fair-value-assessor',           handoff: 'value_outcome and pricing_flags feed Stage 3 vulnerability identification' },
+      { slug: '428-vulnerability-identification-tool',     handoff: 'vulnerability_indicators feed Stage 4 disclosure generation' },
+      { slug: '448-consumer-disclosure-generator',         handoff: 'disclosure_draft and required_fields feed Stage 5 cost disclosure' },
+      { slug: '397-mifid-ii-cost-disclosure-tool',         handoff: 'Exports consumer protection Policy Mandate -- final stage' },
+    ],
+  },
+  'stablecoin-compliance': {
+    title: 'Stablecoin Compliance (GENIUS Act / MiCA)',
+    description: 'GENIUS Act / MiCA reserve compliance > stablecoin transaction monitoring > MiCA EMT authorisation > cross-border stablecoin framework > composite stablecoin compliance mandate.',
+    composer_url: BASE_URL + '/guides/stablecoin-compliance-composer.html',
+    steps: [
+      { slug: '53-stablecoin-compliance-checker',       handoff: 'compliance_gaps and reserve_shortfalls feed Stage 2 transaction monitoring' },
+      { slug: '388-stablecoin-transaction-monitor',     handoff: 'monitoring_alerts and velocity_flags feed Stage 3 MiCA authorisation check' },
+      { slug: '386-mica-emt-authorisation-checker',     handoff: 'authorisation_status and mica_gaps feed Stage 4 cross-border framework' },
+      { slug: '390-cross-border-stablecoin-framework',  handoff: 'Exports stablecoin compliance Policy Mandate -- final stage' },
+    ],
+  },
+  'model-risk-governance': {
+    title: 'Model Risk & AI-Fairness Governance',
+    description: 'EU AI Act risk classification > SR 11-7 MRM gap assessment > fair-lending bias testing > AI Act Art.9 risk-management system > AI-governance mandate.',
+    composer_url: BASE_URL + '/guides/model-risk-governance-composer.html',
+    steps: [
+      { slug: '327-eu-ai-act-risk-class-mapper',               handoff: 'risk_tier and obligations feed Stage 2 MRM gap assessment' },
+      { slug: '451-sr11-7-model-risk-management-gap-assessor', handoff: 'mrm_gaps and severity feed Stage 3 fair-lending testing' },
+      { slug: '452-fair-lending-ai-bias-assessment',           handoff: 'disparate_impact_metrics feed Stage 4 Art.9 RMS build' },
+      { slug: '333-eu-ai-act-article9-risk-mgmt-builder',      handoff: 'Exports AI-governance Policy Mandate -- final stage' },
+    ],
+  },
 };
 
 // base64url-encode a plain object into an #in= fragment value.
@@ -238,7 +296,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.5.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '0.6.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -463,6 +521,89 @@ function buildServer({ manifests, widgets, catalog }) {
         'Outputs map forward between stages automatically.\n\n' +
         'After the run: present the composite DORA Policy Mandate JSON (mandate_type: compliance_control, regulatory framework: DORA EU 2022/2554) for NCA submission support or internal ICT governance audit. ' +
         'Recommend re-running after any material change to ICT estate, third-party dependencies, or NCA guidance.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('fraud_decisioning_workflow', {
+    description: 'Step-by-step fraud & scam decisioning workflow: fraud scoring > TM rule building > fraud investigation > APP fraud check, composite velocity-rule Policy Mandate.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Fraud & Scam Decisioning workflow -- T256 > T116 > T80 > T322, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete fraud & scam decisioning run using AINumbers browser tools. All tools run client-side -- zero PII, zero network. Use synthetic data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "fraud-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Fraud Decisioning Composer at ' + BASE_URL + '/guides/fraud-decisioning-composer.html. ' +
+        'Stage 1 (T256) scores real-time fraud risk. Stage 2 (T116) builds TM velocity rules calibrated to Stage 1 signals. Stage 3 (T80) runs fraud investigation and typology matching. Stage 4 (T322) checks APP fraud (UK PSR PS25/5 / FCA-PSR Joint Framework). Mandate type: velocity_rule_mandate.\n\n' +
+        'After the run: present the composite Policy Mandate JSON for payment-engine guardrails. Recommend re-running after any material change to fraud typologies, velocity thresholds, or PSR guidance.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('credit_decisioning_workflow', {
+    description: 'Step-by-step credit decisioning workflow: PD/LGD modelling > Basel RWA > RAROC pricing > covenant compliance > IFRS 9 ECL staging, composite credit Policy Mandate.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Credit Decisioning workflow -- T198 > T201 > T437 > T199 > T435, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete credit decisioning run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "credit-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Credit Decisioning Composer at ' + BASE_URL + '/guides/credit-decisioning-composer.html. ' +
+        'Stage 1 (T198) models PD/LGD/EAD under Basel IRB. Stage 2 (T201) calculates RWA and capital requirements. Stage 3 (T437) prices RAROC and verifies hurdle rate. Stage 4 (T199) checks financial covenant compliance. Stage 5 (T435) stages IFRS 9 ECL. Mandate type: credit_assessment, valid 180 days.\n\n' +
+        'IMPORTANT: Do NOT independently compute capital or pricing figures -- use Stage 2 and Stage 3 tool outputs only.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the credit committee decision record. Re-run after any material change to PD models, capital floors, or EBA GL/2020/06 guidance.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('consumer_protection_workflow', {
+    description: 'Step-by-step FCA Consumer Duty workflow: gap assessment > fair value > vulnerability > disclosure > MiFID II cost disclosure, composite consumer-protection Policy Mandate.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Consumer Protection workflow -- T395 > T396 > T428 > T448 > T397, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete FCA Consumer Duty compliance run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "consumer-protection". Returns the ordered deep-link set and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Consumer Protection Composer at ' + BASE_URL + '/guides/consumer-protection-composer.html. ' +
+        'Stage 1 (T395) assesses Consumer Duty gaps against FCA PS22/9. Stage 2 (T396) evaluates product fair value outcomes. Stage 3 (T428) identifies customer vulnerability indicators. Stage 4 (T448) generates consumer disclosures (PRIIPs 1286/2014). Stage 5 (T397) produces MiFID II cost and charges disclosures. Mandate type: disclosure_template, valid 365 days.\n\n' +
+        'After the run: present the composite Policy Mandate JSON for product governance review. Re-run annually or after any material product or pricing change.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('stablecoin_compliance_workflow', {
+    description: 'Step-by-step stablecoin compliance workflow: reserve check > transaction monitoring > MiCA EMT authorisation > cross-border framework, composite stablecoin compliance Policy Mandate.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Stablecoin Compliance workflow -- T53 > T388 > T386 > T390, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete stablecoin compliance run using AINumbers browser tools. Covers US GENIUS Act and EU MiCA. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "stablecoin-compliance". Returns the ordered deep-link set and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Stablecoin Compliance Composer at ' + BASE_URL + '/guides/stablecoin-compliance-composer.html. ' +
+        'Stage 1 (T53) checks reserve composition and redemption obligations (GENIUS Act / MiCA 2023/1114). Stage 2 (T388) monitors stablecoin transaction velocity and AML flags. Stage 3 (T386) validates MiCA EMT authorisation requirements. Stage 4 (T390) maps the cross-border stablecoin regulatory framework. Mandate type: compliance_control, valid 180 days.\n\n' +
+        'NOTE: GENIUS Act effective date is approximately 18 Jan 2027 (120 days after OCC/FinCEN final rules). Verify the current implementation timeline before reliance.\n\n' +
+        'After the run: present the composite Policy Mandate JSON for legal/compliance sign-off. Re-run after any material change to reserve composition, issuer structure, or OCC/FinCEN rule updates.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('model_risk_governance_workflow', {
+    description: 'Step-by-step model risk & AI-fairness governance workflow: EU AI Act classification > SR 11-7 MRM gaps > fair-lending bias testing > Art.9 risk-management system, composite AI-governance mandate.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Model Risk & AI-Fairness Governance workflow -- T327 > T451 > T452 > T333, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete model risk and AI-fairness governance run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "model-risk-governance". Returns the ordered deep-link set and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Model Risk & AI-Fairness Governance Composer at ' + BASE_URL + '/guides/model-risk-governance-composer.html. ' +
+        'Stage 1 (T327) classifies the model\'s EU AI Act risk tier and obligations (EU AI Act 2024/1689). Stage 2 (T451) assesses SR 11-7 model risk management gaps (development, validation, ongoing monitoring). Stage 3 (T452) tests for fair-lending disparate impact and protected-class adverse-action rates (ECOA/FHA). Stage 4 (T333) builds the Art.9 risk-management system (technical documentation, conformity assessment). Mandate type: agent_guardrail_mandate.\n\n' +
+        'Do NOT deploy a HIGH-risk AI system (Stage 1) without Stage 2 gaps resolved and Stage 3 disparate-impact metrics within acceptable bounds. Escalate any Stage 3 protected-class flags to legal/compliance before deployment.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the model risk committee record and input to the EU AI Act conformity assessment file.',
       }}],
     };
   });
