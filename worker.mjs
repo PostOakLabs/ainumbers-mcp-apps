@@ -185,48 +185,48 @@ const NAMED_CHAINS = {
   // Wave 2 high-TAM workflow composers
   'fraud-decisioning': {
     title: 'Fraud & Scam Decisioning',
-    description: 'Real-time fraud scoring > TM rule building > FATF travel rule check > sanctions screening > fraud velocity mandate.',
+    description: 'Velocity rule building > structuring pattern detection > fraud investigation > APP-scam risk scoring > fraud/velocity policy mandate.',
     composer_url: BASE_URL + '/guides/fraud-decisioning-composer.html',
     steps: [
-      { slug: '256-fraud-risk-score-engine',         handoff: 'fraud_score and risk_signals feed Stage 2 TM rule calibration' },
-      { slug: '116-tm-rule-builder',                 handoff: 'rule_set and velocity_thresholds feed Stage 3 FATF travel rule check' },
-      { slug: '80-fraud-investigation-lab',          handoff: 'investigation_findings and typology_flags feed Stage 4 sanctions screening' },
-      { slug: '322-authorised-push-payment-checker', handoff: 'Exports fraud decisioning Policy Mandate -- final stage' },
+      { slug: '256-rtp-fraud-velocity-rule-builder', handoff: 'rule_set and velocity_thresholds feed Stage 2 structuring pattern detection' },
+      { slug: '117-structuring-pattern-detector',    handoff: 'detected_patterns and risk_flags feed Stage 3 fraud investigation' },
+      { slug: '80-fraud-investigation-lab',          handoff: 'investigation_findings and disposition feed Stage 4 APP-scam scoring' },
+      { slug: '322-app-scam-risk-assessor',          handoff: 'Exports fraud/velocity Policy Mandate -- final stage' },
     ],
   },
   'credit-decisioning': {
     title: 'Credit Decisioning',
-    description: 'PD/LGD/EAD modelling > Basel RWA calculation > RAROC pricing > covenant compliance check > IFRS 9 ECL staging > composite credit mandate.',
+    description: 'PD/LGD/EAD modelling > Basel RWA calculation > RAROC pricing > covenant compliance check > facility structuring > composite credit mandate.',
     composer_url: BASE_URL + '/guides/credit-decisioning-composer.html',
     steps: [
       { slug: '198-pd-lgd-ead-modeller',                   handoff: 'pd, lgd, ead values feed Stage 2 Basel RWA calculation' },
       { slug: '201-basel-rwa-calculator',                  handoff: 'rwa_total and capital_requirement feed Stage 3 RAROC pricing' },
       { slug: '437-raroc-loan-pricing',                    handoff: 'raroc and hurdle_rate feed Stage 4 covenant compliance' },
-      { slug: '199-financial-covenant-compliance-checker', handoff: 'covenant_status and breach_flags feed Stage 5 IFRS 9 staging' },
-      { slug: '435-ifrs9-ecl-staging-tool',                handoff: 'Exports credit decisioning Policy Mandate -- final stage' },
+      { slug: '199-financial-covenant-compliance-checker', handoff: 'covenant_status and breach_flags feed Stage 5 facility structuring' },
+      { slug: '435-credit-facility-structuring',           handoff: 'Exports credit decisioning Policy Mandate -- final stage' },
     ],
   },
   'consumer-protection': {
     title: 'Consumer Protection & FCA Consumer Duty',
-    description: 'Consumer Duty gap assessment > product fair value assessment > vulnerability identification > disclosure generator > MiFID II cost disclosure > composite consumer-duty mandate.',
+    description: 'Vulnerability assessment > fair-value assessment > MiFID costs & charges > PRIIPs KID compliance > Consumer Duty board MI > composite consumer-duty mandate.',
     composer_url: BASE_URL + '/guides/consumer-protection-composer.html',
     steps: [
-      { slug: '395-fca-consumer-duty-gap-assessor',        handoff: 'duty_gaps and priority_actions feed Stage 2 fair value assessment' },
-      { slug: '396-product-fair-value-assessor',           handoff: 'value_outcome and pricing_flags feed Stage 3 vulnerability identification' },
-      { slug: '428-vulnerability-identification-tool',     handoff: 'vulnerability_indicators feed Stage 4 disclosure generation' },
-      { slug: '448-consumer-disclosure-generator',         handoff: 'disclosure_draft and required_fields feed Stage 5 cost disclosure' },
-      { slug: '397-mifid-ii-cost-disclosure-tool',         handoff: 'Exports consumer protection Policy Mandate -- final stage' },
+      { slug: '395-consumer-duty-vulnerability-assessment-builder', handoff: 'vulnerability_segments feed Stage 2 fair-value assessment' },
+      { slug: '396-consumer-duty-price-value-assessment',           handoff: 'value_rating and outlier_flags feed Stage 3 costs aggregation' },
+      { slug: '428-mifid-costs-charges-calculator',                 handoff: 'total_cost_ratio and cost_breakdown feed Stage 4 KID check' },
+      { slug: '448-priips-kid-compliance-checker',                  handoff: 'kid_compliance_status feeds Stage 5 board MI framework' },
+      { slug: '397-consumer-duty-mi-framework-builder',             handoff: 'Exports consumer protection Policy Mandate -- final stage' },
     ],
   },
   'stablecoin-compliance': {
     title: 'Stablecoin Compliance (GENIUS Act / MiCA)',
-    description: 'GENIUS Act / MiCA reserve compliance > stablecoin transaction monitoring > MiCA EMT authorisation > cross-border stablecoin framework > composite stablecoin compliance mandate.',
+    description: 'Issuance architecture > reserve stress testing > GENIUS Act compliance > MiCA white paper / CASP > composite stablecoin compliance mandate.',
     composer_url: BASE_URL + '/guides/stablecoin-compliance-composer.html',
     steps: [
-      { slug: '53-stablecoin-compliance-checker',       handoff: 'compliance_gaps and reserve_shortfalls feed Stage 2 transaction monitoring' },
-      { slug: '388-stablecoin-transaction-monitor',     handoff: 'monitoring_alerts and velocity_flags feed Stage 3 MiCA authorisation check' },
-      { slug: '386-mica-emt-authorisation-checker',     handoff: 'authorisation_status and mica_gaps feed Stage 4 cross-border framework' },
-      { slug: '390-cross-border-stablecoin-framework',  handoff: 'Exports stablecoin compliance Policy Mandate -- final stage' },
+      { slug: '53-cbdc-architecture-comparator',                      handoff: 'architecture_choice feeds Stage 2 reserve stress testing' },
+      { slug: '388-stablecoin-reserve-stress-test-modeller',          handoff: 'reserve_adequacy and stress_results feed Stage 3 GENIUS Act check' },
+      { slug: '386-genius-act-payment-stablecoin-compliance-checker', handoff: 'genius_compliance_status feeds Stage 4 MiCA white paper' },
+      { slug: '390-mica-white-paper-builder',                         handoff: 'Exports stablecoin compliance Policy Mandate -- final stage' },
     ],
   },
   'model-risk-governance': {
@@ -238,6 +238,131 @@ const NAMED_CHAINS = {
       { slug: '451-sr11-7-model-risk-management-gap-assessor', handoff: 'mrm_gaps and severity feed Stage 3 fair-lending testing' },
       { slug: '452-fair-lending-ai-bias-assessment',           handoff: 'disparate_impact_metrics feed Stage 4 Art.9 RMS build' },
       { slug: '333-eu-ai-act-article9-risk-mgmt-builder',      handoff: 'Exports AI-governance Policy Mandate -- final stage' },
+    ],
+  },
+  // Wave 3 high-TAM workflow composers
+  'instant-payments-vop': {
+    title: 'Instant Payments & Verification of Payee Readiness',
+    description: 'Rail participation readiness > Verification of Payee simulation > intraday liquidity sizing > IPR annual report > instant-payments policy mandate. EU Instant Payments Regulation (VoP mandatory since Oct 2025). Full audited run in the composer.',
+    composer_url: BASE_URL + '/guides/instant-payments-vop-composer.html',
+    steps: [
+      { slug: '229-rtp-network-participation-checker',   handoff: 'participation_gaps feed Stage 2 VoP simulation' },
+      { slug: '289-verification-of-payee-simulator',     handoff: 'vop_match_rates and response_timing feed Stage 3 liquidity sizing' },
+      { slug: '258-intraday-credit-facility-sizer',      handoff: 'intraday_facility_size feeds Stage 4 IPR report' },
+      { slug: '349-sepa-ipr-annual-report-builder',      handoff: 'ipr_report_data feeds Stage 5 RTP policy mandate' },
+      { slug: '259-ap2-rtp-policy-builder',              handoff: 'Exports instant-payments Policy Mandate -- final stage' },
+    ],
+  },
+  'baas-sponsor-bank': {
+    title: 'BaaS / Sponsor-Bank Oversight & Readiness',
+    description: 'Provider selection > FBO account structure > ledger architecture > BSA/AML control mapping > sponsor-bank readiness score. Post-Synapse third-party oversight; full audited run in the composer.',
+    composer_url: BASE_URL + '/guides/baas-sponsor-bank-composer.html',
+    steps: [
+      { slug: '152-baas-provider-comparator',           handoff: 'provider_shortlist feeds Stage 2 FBO structuring' },
+      { slug: '153-fbo-account-structure-simulator',    handoff: 'fbo_structure and reconciliation_model feed Stage 3 ledger design' },
+      { slug: '154-ledger-architecture-builder',        handoff: 'ledger_topology feeds Stage 4 control mapping' },
+      { slug: '158-fintech-compliance-control-mapper',  handoff: 'control_gaps feed Stage 5 readiness scoring' },
+      { slug: '162-sponsor-bank-readiness-scorer',      handoff: 'Exports BaaS programme Policy Mandate -- final stage' },
+    ],
+  },
+  'einvoicing-vida': {
+    title: 'E-Invoicing & ViDA Digital Reporting',
+    description: 'DRR readiness > B2B e-invoice compliance (EN16931) > Peppol XML audit > invoice-to-ISO20022 bridge > e-invoicing compliance mandate. EU ViDA phased mandates 2026-2030.',
+    composer_url: BASE_URL + '/guides/einvoicing-vida-composer.html',
+    steps: [
+      { slug: '179-vida-drr-readiness-scorer',      handoff: 'drr_gaps feed Stage 2 e-invoice compliance scoring' },
+      { slug: '180-b2b-einvoice-compliance-scorer', handoff: 'compliance_score and field_errors feed Stage 3 XML audit' },
+      { slug: '174-peppol-xml-auditor',             handoff: 'xml_validation_results feed Stage 4 ISO 20022 bridge' },
+      { slug: '178-invoice-to-iso20022-bridge',     handoff: 'Exports e-invoicing Policy Mandate -- final stage' },
+    ],
+  },
+  'us-banking-compliance': {
+    title: 'US Consumer-Banking Compliance',
+    description: 'HMDA reportability > BSA/SAR filing adequacy > Reg E dispute timelines > Durbin interchange analysis > consumer-banking compliance mandate.',
+    composer_url: BASE_URL + '/guides/us-banking-compliance-composer.html',
+    steps: [
+      { slug: '444-hmda-reportability-checker',            handoff: 'reportable_loans and data_gaps feed Stage 2 BSA/SAR check' },
+      { slug: '445-bsa-sar-filing-adequacy-checker',       handoff: 'sar_adequacy_flags feed Stage 3 Reg E workflow' },
+      { slug: '442-reg-e-dispute-workflow-builder',        handoff: 'dispute_timelines feed Stage 4 Durbin analysis' },
+      { slug: '443-durbin-amendment-interchange-analyzer', handoff: 'Exports consumer-banking compliance Policy Mandate -- final stage' },
+    ],
+  },
+
+  // Wave 4 composers
+  'wealth-advisory-regbi': {
+    title: 'US Wealth & Advisory — Reg BI Suitability',
+    description: 'Model portfolio risk > Reg BI best-interest check (T463 NEW) > portfolio construction/rebalancing > costs & fee disclosure > Form CRS (T464 NEW). SEC Reg BI 2026 FINRA enforcement priority.',
+    composer_url: BASE_URL + '/guides/wealth-advisory-regbi-composer.html',
+    steps: [
+      { slug: '429-model-portfolio-risk-analytics',       handoff: 'risk_profile and model_allocation feed Stage 2 Reg BI best-interest check' },
+      { slug: '463-reg-bi-best-interest-checker',         handoff: 'reg_bi_verdict and obligation_gaps feed Stage 3 portfolio construction' },
+      { slug: '432-portfolio-drift-rebalancing',          handoff: 'rebalancing_trades and cost_estimates feed Stage 4 costs disclosure' },
+      { slug: '428-mifid-costs-charges-calculator',       handoff: 'total_cost_bps and riy feed Stage 5 Form CRS' },
+      { slug: '464-form-crs-generator',                   handoff: 'Exports composite Reg BI suitability Policy Mandate -- final stage' },
+    ],
+  },
+
+  'bnpl-programme': {
+    title: 'BNPL Programme — FCA Regulation',
+    description: 'FCA BNPL readiness > affordability modelling > APR calculation > disclosure templates > arrears & collections policy. FCA BNPL regulation in force 15 Jul 2026.',
+    composer_url: BASE_URL + '/guides/bnpl-programme-composer.html',
+    steps: [
+      { slug: '187-bnpl-fca-readiness-checker',               handoff: 'readiness_score and gap_list feed Stage 2 affordability model' },
+      { slug: '190-bnpl-affordability-assessment-modeller',   handoff: 'affordability_result and repayment_schedule feed Stage 3 APR calc' },
+      { slug: '193-bnpl-apr-calculator',                      handoff: 'representative_apr and total_charge feed Stage 4 disclosure templates' },
+      { slug: '191-bnpl-disclosure-template-generator',       handoff: 'pcci_template and summary_box feed Stage 5 arrears assessment' },
+      { slug: '192-bnpl-arrears-collections-checker',         handoff: 'Exports composite BNPL programme Policy Mandate -- final stage' },
+    ],
+  },
+
+  'pi-emi-authorisation': {
+    title: 'PI/EMI Authorisation — PSD2/PSRs',
+    description: 'PI authorisation readiness > EMI capital requirements > PI own funds (PSD2 Art.9) > PSP safeguarding assessment > PSR APP reimbursement liability. FCA/EBA payment services perimeter.',
+    composer_url: BASE_URL + '/guides/pi-emi-authorisation-composer.html',
+    steps: [
+      { slug: '404-payment-institution-authorisation-readiness-checker', handoff: 'readiness_gaps and business_volumes feed Stage 2 capital calc' },
+      { slug: '405-emi-capital-requirements-calculator',                  handoff: 'emi_capital_requirement and method_results feed Stage 3 own funds' },
+      { slug: '418-pi-own-funds-calculator',                             handoff: 'own_funds_requirement feeds Stage 4 safeguarding assessment' },
+      { slug: '269-psp-safeguarding-assessment',                         handoff: 'safeguarding_method and shortfall feed Stage 5 APP liability' },
+      { slug: '406-psr-app-reimbursement-liability-splitter',            handoff: 'Exports composite PI/EMI authorisation Policy Mandate -- final stage' },
+    ],
+  },
+
+  // Wave 5 high-TAM workflow composers
+  'crypto-tax-reporting': {
+    title: 'Crypto-Asset Tax Reporting (CARF / DAC8 / 1099-DA)',
+    description: 'End-to-end crypto-asset tax reporting workflow: CARF/DAC8 reportable classification > cost-basis and gain/loss calculation > IRS Form 1099-DA assembly > CASP readiness scoring. Covers OECD CARF, EU DAC8, and US TD 9996 (1099-DA). ⚠ US-CARF exchange not effective until 2027.',
+    composer_url: BASE_URL + '/guides/crypto-tax-reporting-composer.html',
+    steps: [
+      { slug: '465-carf-dac8-reportable-classifier',        handoff: 'reportable_users and reportable_txns feed Stage 2 basis calc' },
+      { slug: '466-crypto-cost-basis-gain-calculator',      handoff: 'gain_loss_schedule feeds Stage 3 1099-DA assembly' },
+      { slug: '467-form-1099-da-generator',                 handoff: 'filing_records feed Stage 4 readiness scoring' },
+      { slug: '468-casp-tax-reporting-readiness-scorer',    handoff: 'Exports crypto-tax reporting Policy Mandate -- final stage' },
+    ],
+  },
+
+  'bank-capital-liquidity': {
+    title: 'Bank Capital & Liquidity (Basel III)',
+    description: 'Full Basel III capital and liquidity workflow: RWA calculation > LCR > NSFR > leverage ratio > Pillar 3 disclosure. Covers BCBS 189, 238, 295, 270/360, 309/400.',
+    composer_url: BASE_URL + '/guides/bank-capital-liquidity-composer.html',
+    steps: [
+      { slug: '201-basel-rwa-calculator',             handoff: 'rwa_total and credit/market/ops breakdown feed Stage 2 LCR' },
+      { slug: '469-lcr-calculator',                   handoff: 'hqla_total and nco feed Stage 3 NSFR' },
+      { slug: '470-nsfr-calculator',                  handoff: 'asf and rsf totals feed Stage 4 leverage ratio' },
+      { slug: '471-leverage-ratio-calculator',        handoff: 'tier1 and exposure measure feed Stage 5 Pillar 3 disclosure' },
+      { slug: '472-pillar-3-disclosure-builder',      handoff: 'Exports composite Basel III capital & liquidity Policy Mandate -- final stage' },
+    ],
+  },
+
+  'pillar-two-globe': {
+    title: 'Pillar Two GloBE Minimum Tax',
+    description: 'OECD Pillar Two GloBE end-to-end workflow: ETR per jurisdiction > top-up tax and QDMTT/IIR/UTPR allocation > safe harbour eligibility > GloBE Information Return (GIR). 15% global minimum ETR. ⚠ US-HQ groups exempt from IIR and UTPR per the OECD January 2026 side-by-side package. First GIR filings due 30 June 2026.',
+    composer_url: BASE_URL + '/guides/pillar-two-globe-composer.html',
+    steps: [
+      { slug: '473-globe-etr-jurisdiction-calculator',      handoff: 'etr_by_jur and sbie_amounts feed Stage 2 top-up tax calc' },
+      { slug: '474-topup-tax-qdmtt-calculator',             handoff: 'topup_amounts and qdmtt_allocation feed Stage 3 safe harbour check' },
+      { slug: '475-pillar-two-safe-harbour-checker',        handoff: 'safe_harbour_flags feed Stage 4 GIR Builder' },
+      { slug: '476-gir-builder',                            handoff: 'Exports composite Pillar Two GloBE Policy Mandate -- final stage' },
     ],
   },
 };
@@ -296,7 +421,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.6.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '0.9.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -604,6 +729,288 @@ function buildServer({ manifests, widgets, catalog }) {
         'Stage 1 (T327) classifies the model\'s EU AI Act risk tier and obligations (EU AI Act 2024/1689). Stage 2 (T451) assesses SR 11-7 model risk management gaps (development, validation, ongoing monitoring). Stage 3 (T452) tests for fair-lending disparate impact and protected-class adverse-action rates (ECOA/FHA). Stage 4 (T333) builds the Art.9 risk-management system (technical documentation, conformity assessment). Mandate type: agent_guardrail_mandate.\n\n' +
         'Do NOT deploy a HIGH-risk AI system (Stage 1) without Stage 2 gaps resolved and Stage 3 disparate-impact metrics within acceptable bounds. Escalate any Stage 3 protected-class flags to legal/compliance before deployment.\n\n' +
         'After the run: present the composite Policy Mandate JSON as the model risk committee record and input to the EU AI Act conformity assessment file.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('instant_payments_vop_workflow', {
+    title: 'Instant Payments & VoP Readiness Workflow',
+    description: 'Walk a PSP through EU Instant Payments Regulation readiness: rail participation, Verification of Payee, intraday liquidity, and the IPR annual report.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'Instant Payments & VoP workflow -- T229 > T289 > T258 > T349 > T259, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a PSP/EMI assess EU Instant Payments Regulation readiness using AINumbers deterministic tools (VoP mandatory since 9 Oct 2025). ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic payment data only -- never real account details.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "instant-payments-vop". Returns the ordered deep-link set (T229 > T289 > T258 > T349 > T259) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the Instant Payments & VoP Composer at ' + BASE_URL + '/guides/instant-payments-vop-composer.html. ' +
+        'Stage 1 (T229) checks RTP/SEPA Instant rail participation readiness. ' +
+        'Stage 2 (T289) simulates VoP match/close-match/no-match flows and response timing (mandatory since 9 Oct 2025). ' +
+        'Stage 3 (T258) sizes the intraday credit facility for 24/7 instant settlement. ' +
+        'Stage 4 (T349) assembles the SEPA IPR annual compliance report. ' +
+        'Stage 5 (T259) builds the RTP routing policy mandate. Mandate type: routing_policy_mandate.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the IPR readiness artefact. Re-run after any material change to participation status, VoP match rates, or intraday credit limits.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('baas_sponsor_bank_workflow', {
+    title: 'BaaS / Sponsor-Bank Readiness Workflow',
+    description: 'Walk a fintech or sponsor bank through BaaS programme design: provider selection, FBO/ledger architecture, BSA/AML controls, and readiness scoring.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'BaaS / Sponsor-Bank workflow -- T152 > T153 > T154 > T158 > T162, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a fintech or sponsor bank build a defensible BaaS programme using AINumbers deterministic tools (post-Synapse, focus on reconciliation and third-party BSA/AML oversight). ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic programme data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "baas-sponsor-bank". Returns the ordered deep-link set (T152 > T153 > T154 > T158 > T162) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the BaaS / Sponsor-Bank Composer at ' + BASE_URL + '/guides/baas-sponsor-bank-composer.html. ' +
+        'Stage 1 (T152) scores and compares BaaS providers/sponsor-bank partners. ' +
+        'Stage 2 (T153) models the FBO account structure and reconciliation architecture (the Synapse failure point). ' +
+        'Stage 3 (T154) designs the ledger topology supporting the FBO model. ' +
+        'Stage 4 (T158) maps BSA/AML and consumer-protection controls (third-party oversight gaps cited in post-Synapse enforcement actions). ' +
+        'Stage 5 (T162) scores sponsor-bank programme readiness. Mandate type: compliance_control.\n\n' +
+        'CRITICAL: Do not launch a BaaS programme until Stage 4 control_gaps are fully remediated and Stage 5 readiness_score exceeds threshold. ' +
+        'Re-run after any change to partner structure, ledger architecture, or FinCEN/OCC/FDIC guidance.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('einvoicing_vida_workflow', {
+    title: 'E-Invoicing & ViDA Workflow',
+    description: 'Walk a finance/tax user through EU ViDA digital-reporting readiness, e-invoice compliance, Peppol XML, and ISO 20022 mapping.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'E-Invoicing & ViDA workflow -- T179 > T180 > T174 > T178, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a finance/tax team prepare for EU ViDA e-invoicing and digital reporting using AINumbers deterministic tools (member-state mandates 2026-2028, EU-wide 2030). ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic invoice data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "einvoicing-vida". Returns the ordered deep-link set (T179 > T180 > T174 > T178) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the E-Invoicing & ViDA Composer at ' + BASE_URL + '/guides/einvoicing-vida-composer.html. ' +
+        'Stage 1 (T179) scores readiness against ViDA Digital Reporting Requirements. ' +
+        'Stage 2 (T180) checks B2B e-invoice compliance against EN16931 (mandatory semantic data model). ' +
+        'Stage 3 (T174) audits the Peppol/UBL XML structure against BIS Billing 3.0 rules. ' +
+        'Stage 4 (T178) maps the validated invoice to ISO 20022 payment instruction for STP. Mandate type: compliance_control.\n\n' +
+        'Member-state mandate deadlines: Belgium Jan 2026, Poland Feb 2026, France Sept 2026, Germany Jan 2027, EU-wide intra-B2B 1 Jul 2030. Verify jurisdiction-specific deadline before reliance.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the ViDA readiness artefact. Re-run after any ERP/billing system change or member-state guidance update.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('us_banking_compliance_workflow', {
+    title: 'US Consumer-Banking Compliance Workflow',
+    description: 'Walk a US bank/credit-union compliance user through HMDA, BSA/SAR, Reg E, and Durbin checks.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'US Consumer-Banking Compliance workflow -- T444 > T445 > T442 > T443, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a US bank/credit-union compliance user using AINumbers deterministic tools -- do not guess thresholds, call the tools. ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic data only -- never real customer PII.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "us-banking-compliance". Returns the ordered deep-link set (T444 > T445 > T442 > T443) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the US Consumer-Banking Compliance Composer at ' + BASE_URL + '/guides/us-banking-compliance-composer.html. ' +
+        'Stage 1 (T444) checks HMDA reportability and LAR data-field completeness (12 CFR Part 1003). ' +
+        'Stage 2 (T445) checks BSA/SAR filing adequacy against FinCEN thresholds (31 CFR 1020.320). ' +
+        'Stage 3 (T442) builds Reg E error-resolution timelines (12 CFR Part 1005 §1005.11). ' +
+        'Stage 4 (T443) analyses Durbin Amendment interchange eligibility and cap economics (12 CFR Part 235). Mandate type: compliance_control.\n\n' +
+        'Threshold note: Durbin cap ($0.21 + 0.05%) applies to issuers with ≥$10B assets -- verify current asset threshold annually. ' +
+        'SAR filing window: 30 days from detection (60 days complex cases). HMDA LAR deadline: 1 March of the following calendar year.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the consumer-banking compliance record. Re-run after any regulatory guidance update or material change to loan volumes, account structures, or interchange programmes.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('wealth_advisory_regbi_workflow', {
+    title: 'US Wealth & Advisory Reg BI Suitability Workflow',
+    description: 'Walk a US broker-dealer or RIA through the SEC Reg BI suitability chain: model portfolio risk, best-interest four-obligation check, portfolio construction/rebalancing, costs disclosure, and Form CRS generation.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'US Wealth & Advisory Reg BI Suitability workflow -- T429 > T463 > T432 > T428 > T464, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a US broker-dealer or investment adviser compliance team run the SEC Regulation Best Interest suitability chain using AINumbers deterministic tools. ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised client data only -- never real customer PII.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "wealth-advisory-regbi". Returns the ordered deep-link set (T429 > T463 > T432 > T428 > T464) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the US Wealth & Advisory Reg BI Suitability Composer at ' + BASE_URL + '/guides/wealth-advisory-regbi-composer.html. ' +
+        'Stage 1 (T429) calculates model portfolio risk metrics: expected return, volatility, Sharpe, VaR 95%, and tracking error. ' +
+        'Stage 2 (T463) scores the recommendation against all four Reg BI obligations (Disclosure, Care, Conflict of Interest, Compliance) -- verdict must be BEST_INTEREST_MET or ATTENTION to proceed. ' +
+        'Stage 3 (T432) constructs or rebalances the portfolio to the target allocation and estimates rebalancing trade costs. ' +
+        'Stage 4 (T428) calculates ex-ante costs and charges under MiFID II / PRIIPs KID methodology: total cost, RIY, and standardised disclosure table. ' +
+        'Stage 5 (T464) generates the Form CRS with SEC-prescribed headings and verbatim conversation-starter questions; checks page-count compliance (2-page BD/IA; 4-page dual-registrant). Mandate type: compliance_control.\n\n' +
+        'Reg BI scope note: Exchange Act Rule 15l-1 applies to all US broker-dealer recommendations to retail customers (natural persons with accounts primarily for personal, family, or household purposes). ' +
+        '2026 FINRA examination priorities explicitly list Reg BI and Form CRS -- re-run after any material change to the recommendation or client profile.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the Reg BI suitability record. Form CRS must be delivered to the retail customer at or before the recommendation.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('bnpl_programme_workflow', {
+    title: 'BNPL Programme — FCA Regulation Workflow',
+    description: 'Walk a BNPL lender or fintech through the UK FCA BNPL programme chain: FCA readiness, affordability modelling, APR calculation, disclosure templates, and arrears/collections policy assessment.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'BNPL Programme FCA regulation workflow -- T187 > T190 > T193 > T191 > T192, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a BNPL lender or fintech prepare for UK FCA BNPL regulation using AINumbers deterministic tools. ' +
+        'FCA BNPL regulation comes into force 15 July 2026. ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised programme data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "bnpl-programme". Returns the ordered deep-link set (T187 > T190 > T193 > T191 > T192) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the BNPL Programme Composer at ' + BASE_URL + '/guides/bnpl-programme-composer.html. ' +
+        'Stage 1 (T187) assesses FCA BNPL regulatory readiness: Consumer Duty gaps, programme authorisation gaps, affordability policy review. ' +
+        'Stage 2 (T190) models customer affordability: income-to-repayment stress test, existing credit commitments, CCA-compliant capacity check. ' +
+        'Stage 3 (T193) calculates the representative APR and total charge for credit under FCA CCA / Consumer Credit Directive methodology. ' +
+        'Stage 4 (T191) generates FCA-required pre-contract disclosure templates: PCCI, Financial Promotions compliance checklist, Summary Box. APR from Stage 3 must appear in all disclosure fields. ' +
+        'Stage 5 (T192) evaluates arrears management and collections policy against FCA Consumer Duty, CONC 7, and FCA BNPL collections requirements. Mandate type: compliance_control.\n\n' +
+        'Key deadlines: FCA BNPL regulation in force 15 Jul 2026 (PS26/5). Firms offering BNPL products without FCA authorisation after that date are operating unlawfully. ' +
+        'Consumer Duty effective from 31 Jul 2023 -- a CONC 5 affordability assessment must be proportionate to the credit risk.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the BNPL programme compliance record. Re-run whenever product terms, customer profile, or programme policies change materially.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('pi_emi_authorisation_workflow', {
+    title: 'PI/EMI Authorisation — PSD2/PSRs Workflow',
+    description: 'Walk a UK/EU fintech through the PI/EMI authorisation chain: FCA/EBA authorisation readiness, EMI capital requirements, PI own funds, PSP safeguarding, and PSR APP reimbursement liability.',
+    argsSchema: {},
+  }, async () => {
+    return {
+      description: 'PI/EMI Authorisation PSD2/PSRs workflow -- T404 > T405 > T418 > T269 > T406, composite Policy Mandate export.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'You are helping a UK/EU fintech or payments startup through FCA Payment Institution or E-Money Institution authorisation using AINumbers deterministic tools. ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised firm data only.\n\n' +
+        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "pi-emi-authorisation". Returns the ordered deep-link set (T404 > T405 > T418 > T269 > T406) and the composer URL.\n\n' +
+        'Step 2 -- Orchestrated run: open the PI/EMI Authorisation Composer at ' + BASE_URL + '/guides/pi-emi-authorisation-composer.html. ' +
+        'Stage 1 (T404) assesses PI authorisation readiness against PSRs 2017 Schedule 2: programme of operations, safeguarding, governance, and risk management gaps. ' +
+        'Stage 2 (T405) calculates EMI initial capital (EUR 350,000 full / EUR 50,000 small) and ongoing own funds under EMD2 Methods A, B, and C. ' +
+        'Stage 3 (T418) calculates PI own funds requirements under PSD2 Article 9 / PSRs 2017; the higher of Methods A, B, and C applies at all times. ' +
+        'Stage 4 (T269) assesses PSP customer fund safeguarding: segregation method vs. insurance/guarantee method; identifies shortfalls and FCA monitoring gaps. ' +
+        'Stage 5 (T406) models PSR Mandatory APP reimbursement liability (effective 7 Oct 2024): Sending PSP / Receiving PSP 50/50 split up to GBP 85,000 per claim. Mandate type: compliance_control.\n\n' +
+        'Authorisation timeline note: FCA PI authorisation typically takes 3-6 months from complete application. Critical gaps from Stage 1 must be remediated before submission. ' +
+        'Safeguarding arrangements (Stage 4) must be live before any customer funds are received.\n\n' +
+        'After the run: present the composite Policy Mandate JSON as the PI/EMI authorisation readiness record. Re-run annually or on any material change to business model, payment volumes, or authorisation scope.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('crypto_tax_reporting_workflow', {
+    title: 'Crypto-Asset Tax Reporting Workflow (CARF / DAC8 / 1099-DA)',
+    description: 'Walk a CASP or tax team through end-to-end crypto-asset tax reporting: CARF/DAC8 reportable classification, cost-basis and gain/loss calculation, IRS Form 1099-DA assembly, and CASP readiness scoring. Covers OECD CARF (52 jurisdictions, effective 1 Jan 2026), EU DAC8 (FY2026, first reports 31 Jan 2027), and US TD 9996 1099-DA (gross proceeds from 1 Jan 2025, basis from 1 Jan 2026). ⚠ US-CARF exchange not effective until 2027.',
+    argsSchema: {
+      entity_type:    z.string().optional().describe('Type of entity (e.g. CEX, DEX, custodian, brokerage, CASP). Scopes reportable obligations.'),
+      jurisdiction:   z.string().optional().describe('Primary jurisdiction(s) (e.g. EU, UK, US, OECD). Determines which frameworks apply.'),
+      tax_year:       z.string().optional().describe('Tax year under review (e.g. 2025, 2026). Affects 1099-DA good-faith relief and SBIE transitional rates.'),
+    },
+  }, async ({ entity_type, jurisdiction, tax_year }) => {
+    const scope = [entity_type, jurisdiction, tax_year ? 'FY' + tax_year : null].filter(Boolean).join(', ');
+    return {
+      description: 'Crypto-asset tax reporting workflow: T465 CARF/DAC8 classifier > T466 cost-basis calc > T467 Form 1099-DA generator > T468 CASP readiness scorer.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through end-to-end crypto-asset tax reporting' + (scope ? ' for ' + scope : '') + ' using AINumbers tools.\n\n' +
+        'Step 1 — CARF/DAC8 Reportable Classifier (T465): open https://ainumbers.co/tools/465-carf-dac8-reportable-classifier.html. ' +
+        'Classify each user and transaction as reportable or not under OECD CARF and EU DAC8. ' +
+        'CARF applies in 52 jurisdictions from 1 Jan 2026. DAC8: EU FY2026, first reports 31 Jan 2027. ' +
+        'Export the classification Policy Mandate before proceeding.\n\n' +
+        'Step 2 — Crypto Cost-Basis & Gain/Loss Calculator (T466): open https://ainumbers.co/tools/466-crypto-cost-basis-gain-calculator.html. ' +
+        'Compute cost basis (FIFO, LIFO, specific ID) and short/long-term gain/loss per IRC §1222 for each reportable disposal. ' +
+        'Rev. Proc. 2024-28 per-wallet basis tracking applies from 2025. ' +
+        'Export the gain/loss schedule Policy Mandate.\n\n' +
+        'Step 3 — Form 1099-DA Generator (T467): open https://ainumbers.co/tools/467-form-1099-da-generator.html. ' +
+        'Assemble IRS Form 1099-DA records (Box 1a–1e, Box 2 term, Box 3 asset identifier) per TD 9996. ' +
+        'Good-faith transitional penalty relief applies for 2025 (IRS Notice 2025-7). ' +
+        'Export filing-ready CSV and Policy Mandate.\n\n' +
+        'Step 4 — CASP Tax Reporting Readiness Scorer (T468): open https://ainumbers.co/tools/468-casp-tax-reporting-readiness-scorer.html. ' +
+        'Score readiness across 5 domains: due diligence & customer ID, data completeness, technical infrastructure, governance, and US compliance. ' +
+        'Export the readiness scorecard Policy Mandate.\n\n' +
+        'Or open the composer for a single-page orchestrated run: https://ainumbers.co/guides/crypto-tax-reporting-composer.html\n\n' +
+        'After all stages: export the composite Policy Mandate and present a gap-priority remediation list.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('bank_capital_liquidity_workflow', {
+    title: 'Bank Capital & Liquidity (Basel III) Workflow',
+    description: 'Walk a bank treasury or capital team through the full Basel III capital and liquidity stack: RWA calculation, LCR, NSFR, leverage ratio, and Pillar 3 disclosure assembly. Covers BCBS 189 (capital), 238 (LCR), 295 (NSFR), 270/360 (leverage), 309/400 (Pillar 3).',
+    argsSchema: {
+      bank_type:      z.string().optional().describe('Type of institution (e.g. G-SIB, national bank, regional bank, branch). Affects G-SIB surcharge and buffer levels.'),
+      jurisdiction:   z.string().optional().describe('Regulatory jurisdiction (e.g. EU CRR3, UK PRA, US Fed). Scopes applicable calibrations.'),
+      period:         z.string().optional().describe('Reporting period (e.g. Q1 2026, FY2025). Used for Pillar 3 disclosure header.'),
+    },
+  }, async ({ bank_type, jurisdiction, period }) => {
+    const scope = [bank_type, jurisdiction, period].filter(Boolean).join(', ');
+    return {
+      description: 'Basel III capital and liquidity workflow: T201 RWA > T469 LCR > T470 NSFR > T471 leverage ratio > T472 Pillar 3 disclosure.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through the full Basel III capital and liquidity workflow' + (scope ? ' for ' + scope : '') + ' using AINumbers tools.\n\n' +
+        'Step 1 — Basel RWA Calculator (T201): open https://ainumbers.co/tools/201-basel-rwa-calculator.html. ' +
+        'Compute credit, market, and operational risk RWA per BCBS 189. Outputs total RWA, CET1/T1/TC ratios, and capital requirements. ' +
+        'Export Policy Mandate before proceeding.\n\n' +
+        'Step 2 — LCR Calculator (T469): open https://ainumbers.co/tools/469-lcr-calculator.html. ' +
+        'Build HQLA buffer (L1/L2A/L2B with cap logic) and net cash outflows per BCBS 238. LCR ≥ 100% required. ' +
+        'Export Policy Mandate.\n\n' +
+        'Step 3 — NSFR Calculator (T470): open https://ainumbers.co/tools/470-nsfr-calculator.html. ' +
+        'Calculate Available Stable Funding (ASF) and Required Stable Funding (RSF) per BCBS 295. NSFR ≥ 100% required. ' +
+        'Export Policy Mandate.\n\n' +
+        'Step 4 — Leverage Ratio Calculator (T471): open https://ainumbers.co/tools/471-leverage-ratio-calculator.html. ' +
+        'Compute Tier 1 / Total Exposure ≥ 3% per BCBS 360. G-SIB buffer = 50% of G-SIB surcharge. ' +
+        'Export Policy Mandate.\n\n' +
+        'Step 5 — Pillar 3 Disclosure Builder (T472): open https://ainumbers.co/tools/472-pillar-3-disclosure-builder.html. ' +
+        'Assemble KM1, OV1, LIQ1, LIQ2 tables per BCBS 309/400 from the outputs of Steps 1–4. ' +
+        'Verify row definitions against EBA ITS (EU) or PRA rules (UK) before use in actual disclosures. ' +
+        'Export composite Policy Mandate.\n\n' +
+        'Or open the composer: https://ainumbers.co/guides/bank-capital-liquidity-composer.html\n\n' +
+        'After all stages: export the composite Policy Mandate for the capital and liquidity regulatory reporting record.',
+      }}],
+    };
+  });
+
+  server.registerPrompt('pillar_two_globe_workflow', {
+    title: 'Pillar Two GloBE Minimum Tax Workflow',
+    description: 'Walk a tax team through the OECD Pillar Two GloBE end-to-end workflow: effective tax rate by jurisdiction, top-up tax and QDMTT/IIR/UTPR allocation, transitional safe harbour eligibility, and GloBE Information Return (GIR) assembly. 15% global minimum ETR. ⚠ CRITICAL: US-headquartered MNE groups are EXEMPT from IIR and UTPR per the OECD January 2026 side-by-side package. Do NOT apply IIR/UTPR to US-parented groups. QDMTT exposure applies to all groups. First GIR filings due 30 June 2026.',
+    argsSchema: {
+      parent_hq:      z.string().optional().describe('Parent HQ jurisdiction ISO-3 (e.g. DE, GB, JP, US). If US, IIR/UTPR exemption applies.'),
+      fy:             z.string().optional().describe('Fiscal year under analysis (e.g. 2024, 2025, 2026).'),
+      revenue_scope:  z.string().optional().describe('Estimated consolidated revenue in €m (to confirm ≥ €750M GloBE scope).'),
+    },
+  }, async ({ parent_hq, fy, revenue_scope }) => {
+    const us_hq = (parent_hq || '').toUpperCase() === 'US';
+    const scope = [parent_hq ? 'HQ: ' + parent_hq.toUpperCase() : null, fy ? 'FY' + fy : null, revenue_scope ? '€' + revenue_scope + 'm revenue' : null].filter(Boolean).join(', ');
+    return {
+      description: 'Pillar Two GloBE workflow: T473 ETR by jurisdiction > T474 top-up tax/QDMTT > T475 safe harbours > T476 GIR Builder.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        '⚠ CRITICAL US EXEMPTION: US-headquartered MNE groups are EXEMPT from IIR (Income Inclusion Rule) and UTPR (Under-Taxed Profits Rule) per the OECD January 2026 side-by-side package.' + (us_hq ? ' This group is US-headquartered — do NOT compute IIR or UTPR charges.' : '') + ' QDMTT exposure remains for all groups in GloBE-implementing jurisdictions.\n\n' +
+        'Walk me through the Pillar Two GloBE minimum tax workflow' + (scope ? ' for ' + scope : '') + ' using AINumbers tools.\n\n' +
+        'Step 1 — GloBE ETR Jurisdiction Calculator (T473): open https://ainumbers.co/tools/473-globe-etr-jurisdiction-calculator.html. ' +
+        'Calculate GloBE ETR = Adjusted Covered Taxes / GloBE Income per Art. 5.1.1 for each jurisdiction. ' +
+        'Apply SBIE deduction (transitional rates: FY2026 = 9.4% payroll + 5% assets per Art. 9.1). ' +
+        'Minimum rate: 15% (Art. 5.2.4). Identify jurisdictions below 15% for top-up tax. ' +
+        'Export Policy Mandate.\n\n' +
+        'Step 2 — Top-up Tax / QDMTT Calculator (T474): open https://ainumbers.co/tools/474-topup-tax-qdmtt-calculator.html. ' +
+        'Top-up tax = (15% − ETR) × GloBE income net SBIE (Art. 5.2.1). ' +
+        'Allocate across QDMTT (Art. 11.3 — local collection, credited against IIR), IIR (Art. 2.1 — parent), UTPR (Art. 2.4 — backstop). ' +
+        (us_hq ? '⚠ Set parent_hq = US — IIR and UTPR boxes will show EXEMPT. ' : '') +
+        'Export Policy Mandate.\n\n' +
+        'Step 3 — Safe Harbour Checker (T475): open https://ainumbers.co/tools/475-pillar-two-safe-harbour-checker.html. ' +
+        'Three transitional CbCR tests (OECD agreed guidance, December 2022, available FY2024–FY2026): ' +
+        '(1) de minimis — revenue < €10M AND PBT < €1M; ' +
+        '(2) simplified ETR — CbCR taxes/PBT ≥ 16% (FY2026); ' +
+        '(3) routine profits — CbCR PBT ≤ SBIE. ' +
+        'Permanent safe harbour: GloBE ETR ≥ 15%. ' +
+        '⚠ Safe harbour does not eliminate GIR disclosure obligation. ' +
+        'Export Policy Mandate.\n\n' +
+        'Step 4 — GloBE Information Return Builder (T476): open https://ainumbers.co/tools/476-gir-builder.html. ' +
+        'Assemble GIR skeleton (Parts I, II, V) per OECD GIR Standard (November 2022). ' +
+        'Required for groups with consolidated revenue ≥ €750M. ' +
+        'First filing: FY2024 groups due 30 June 2026 (18-month transitional period). ' +
+        (us_hq ? '⚠ Mark US jurisdictions as IIR/UTPR exempt. Verify local GIR filing obligations. ' : '') +
+        'Actual XML filing requires authorised local tax software. ' +
+        'Export composite Policy Mandate.\n\n' +
+        'Or open the composer for a single-page orchestrated run: https://ainumbers.co/guides/pillar-two-globe-composer.html\n\n' +
+        'After all stages: export the composite GloBE Policy Mandate and review for any jurisdictions requiring top-up tax remediation. ' +
+        '⚠ Consult a qualified tax adviser before any real filing. Verify current OECD guidance at oecd.org/en/topics/sub-issues/global-minimum-tax/',
       }}],
     };
   });
