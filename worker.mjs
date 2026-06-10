@@ -365,6 +365,46 @@ const NAMED_CHAINS = {
       { slug: '476-gir-builder',                            handoff: 'Exports composite Pillar Two GloBE Policy Mandate -- final stage' },
     ],
   },
+
+  // Wave 6 — EU Consumer Credit (CCD2)
+  'ccd2-consumer-credit': {
+    title: 'EU Consumer Credit (CCD2)',
+    description: 'Scope classification > Art. 18 creditworthiness > SECCI pre-contractual disclosure > readiness. CCD2 (Directive (EU) 2023/2225) applies from 20 Nov 2026; brings BNPL and interest-free instalments into scope EU-wide. Full audited run in the composer.',
+    composer_url: BASE_URL + '/guides/ccd2-consumer-credit-composer.html',
+    steps: [
+      { slug: '481-ccd2-scope-classifier',                          handoff: 'in_scope_products and obligation_tier feed Stage 2' },
+      { slug: '482-ccd2-creditworthiness-assessment-builder',       handoff: 'assessment_framework feeds Stage 3 disclosure' },
+      { slug: '483-ccd2-secci-precontractual-disclosure-generator', handoff: 'disclosure_set feeds Stage 4 readiness scoring' },
+      { slug: '484-ccd2-readiness-scorer',                          handoff: 'Exports CCD2 Policy Mandate -- final stage' },
+    ],
+  },
+
+  // Wave 6 — EU AML Single Rulebook (AMLR)
+  'amlr-single-rulebook': {
+    title: 'EU AML Single Rulebook (AMLR)',
+    description: 'Obliged-entity scope > UBO / beneficial ownership > cash limit & EDD classification > CDD policy > readiness. AMLR (Regulation (EU) 2024/1624) applies from 10 Jul 2027; football-club provisions 2029.',
+    composer_url: BASE_URL + '/guides/amlr-single-rulebook-composer.html',
+    steps: [
+      { slug: '485-amlr-obliged-entity-scope-mapper',          handoff: 'entity_type and obligations feed Stage 2 UBO mapping' },
+      { slug: '486-amlr-ubo-beneficial-ownership-mapper',      handoff: 'ubo_tier and edd_triggers feed Stage 3 cash/EDD classifier' },
+      { slug: '487-amlr-cash-limit-edd-classifier',            handoff: 'cash_verdict and edd_flags feed Stage 4 CDD policy builder' },
+      { slug: '488-amlr-cdd-policy-builder',                   handoff: 'cdd_tier_config feeds Stage 5 readiness' },
+      { slug: '350-amla-2027-readiness-gap-analyzer',          handoff: 'Exports composite AML Policy Mandate -- final stage' },
+    ],
+  },
+
+  // Wave 6 — eIDAS 2.0 / EUDI Wallet acceptance
+  'eudi-wallet-acceptance': {
+    title: 'eIDAS 2.0 / EUDI Wallet Acceptance',
+    description: 'Attribute attestation mapping > wallet-based KYC flow design > RP registration check > readiness scoring. eIDAS 2.0 (Regulation (EU) 2024/1183); EUDI Wallet available all EU MS 31 Dec 2026; FI SCA acceptance ~Dec 2027 (Art. 5f).',
+    composer_url: BASE_URL + '/guides/eudi-wallet-acceptance-composer.html',
+    steps: [
+      { slug: '489-eudi-attribute-attestation-mapper',              handoff: 'pid_attributes and qeaa_map feed Stage 2 KYC flow' },
+      { slug: '490-eudi-kyc-flow-designer',                        handoff: 'kyc_flow_steps feed Stage 3 RP registration check' },
+      { slug: '491-eudi-relying-party-registration-checker',       handoff: 'rp_registration_status feeds Stage 4 readiness' },
+      { slug: '348-eidas2-eudi-wallet-relying-party-readiness-scorer', handoff: 'Exports EUDI Acceptance Mandate -- final stage' },
+    ],
+  },
 };
 
 // base64url-encode a plain object into an #in= fragment value.
@@ -421,7 +461,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.9.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '0.10.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -1044,6 +1084,55 @@ function buildServer({ manifests, widgets, catalog }) {
       }}],
     };
   });
+
+  // Wave 6 prompts
+
+  server.registerPrompt('ccd2_consumer_credit_workflow', {
+    title: 'EU Consumer Credit (CCD2) Workflow',
+    description: 'Walk an EU consumer-credit / BNPL provider through CCD2 scope, Article 18 creditworthiness, SECCI disclosure, and readiness.',
+    argsSchema: {},
+  }, () => ({
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'You are helping an EU consumer-credit / BNPL / point-of-sale-finance provider prepare for CCD2 (Directive (EU) 2023/2225, applies 20 Nov 2026) using AINumbers deterministic tools -- do not guess scope or APR, call the tools. ' +
+      'Step 1 -- ccd2-scope-classifier: open https://ainumbers.co/tools/481-ccd2-scope-classifier.html ' +
+      'Step 2 -- ccd2-creditworthiness-assessment-builder: https://ainumbers.co/tools/482-ccd2-creditworthiness-assessment-builder.html ' +
+      'Step 3 -- ccd2-secci-precontractual-disclosure-generator: https://ainumbers.co/tools/483-ccd2-secci-precontractual-disclosure-generator.html ' +
+      'Step 4 -- ccd2-readiness-scorer: https://ainumbers.co/tools/484-ccd2-readiness-scorer.html ' +
+      'Then call build_workflow_links with chain "ccd2-consumer-credit" and present the composer URL. ' +
+      'CCD2 is the EU regime -- distinct from the UK FCA BNPL rules (T187-T194); do not conflate them. Synthetic data only -- never real borrower PII.'
+    } }],
+  }));
+
+  server.registerPrompt('amlr_single_rulebook_workflow', {
+    title: 'EU AML Single Rulebook (AMLR) Workflow',
+    description: 'Walk an EU obliged entity through AMLR scope, UBO mapping, cash/EDD classification, CDD policy, and readiness. AMLR applies 10 Jul 2027.',
+    argsSchema: {},
+  }, () => ({
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'You are helping an EU obliged entity prepare for the AMLR (Regulation (EU) 2024/1624, EU AML Single Rulebook, applies 10 Jul 2027; football-club provisions 2029) using AINumbers deterministic tools. ' +
+      'Step 1 -- amlr-obliged-entity-scope-mapper: https://ainumbers.co/tools/485-amlr-obliged-entity-scope-mapper.html ' +
+      'Step 2 -- amlr-ubo-beneficial-ownership-mapper: https://ainumbers.co/tools/486-amlr-ubo-beneficial-ownership-mapper.html ' +
+      'Step 3 -- amlr-cash-limit-edd-classifier: https://ainumbers.co/tools/487-amlr-cash-limit-edd-classifier.html ' +
+      'Step 4 -- amlr-cdd-policy-builder: https://ainumbers.co/tools/488-amlr-cdd-policy-builder.html ' +
+      'Step 5 -- amla-2027-readiness-gap-analyzer (T350): https://ainumbers.co/tools/350-amla-2027-readiness-gap-analyzer.html ' +
+      'Then call build_workflow_links with chain "amlr-single-rulebook" and present the composer URL. Synthetic data only -- never real customer PII.'
+    } }],
+  }));
+
+  server.registerPrompt('eudi_wallet_acceptance_workflow', {
+    title: 'eIDAS 2.0 / EUDI Wallet Acceptance Workflow',
+    description: 'Walk an EU relying party through EUDI Wallet attribute attestation mapping, KYC flow design, RP registration, and readiness. EUDI Wallet available 31 Dec 2026; FI SCA acceptance ~Dec 2027.',
+    argsSchema: {},
+  }, () => ({
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'You are helping an EU relying party (FI, payment institution, or other regulated entity) prepare to accept the EUDI Wallet under eIDAS 2.0 (Regulation (EU) 2024/1183). EUDI Wallet available in all EU MS by 31 Dec 2026. Regulated FIs performing SCA must accept EUDI Wallet credentials by ~Dec 2027 (Art. 5f -- 36 months from implementing acts). ' +
+      'Step 1 -- eudi-attribute-attestation-mapper: https://ainumbers.co/tools/489-eudi-attribute-attestation-mapper.html ' +
+      'Step 2 -- eudi-kyc-flow-designer: https://ainumbers.co/tools/490-eudi-kyc-flow-designer.html ' +
+      'Step 3 -- eudi-relying-party-registration-checker: https://ainumbers.co/tools/491-eudi-relying-party-registration-checker.html ' +
+      'Step 4 -- eidas2-eudi-wallet-relying-party-readiness-scorer (T348): https://ainumbers.co/tools/348-eidas2-eudi-wallet-relying-party-readiness-scorer.html ' +
+      'Then call build_workflow_links with chain "eudi-wallet-acceptance" and present the composer URL. Synthetic data only -- never real customer PII.'
+    } }],
+  }));
 
   return server;
 }
