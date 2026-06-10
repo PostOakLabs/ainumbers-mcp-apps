@@ -405,6 +405,18 @@ const NAMED_CHAINS = {
       { slug: '348-eidas2-eudi-wallet-relying-party-readiness-scorer', handoff: 'Exports EUDI Acceptance Mandate -- final stage' },
     ],
   },
+
+  // Wave 6 — Nacha Phase 2 ACH Fraud Monitoring (effective 2026-06-22)
+  'ach-fraud-monitoring': {
+    title: 'ACH Fraud Monitoring (Nacha Phase 2)',
+    description: 'Procedure builder (role-based) > false-pretenses scenario simulator > annual audit pack generator. Nacha Phase 2 removes the $5M volume threshold; effective 2026-06-22. All RDFI, Originator, TPSP, TPS, and ODFI participants must have risk-based credit-entry fraud monitoring in place.',
+    composer_url: BASE_URL + '/guides/ach-fraud-monitoring-composer.html',
+    steps: [
+      { slug: '492-ach-fraud-monitoring-procedure-builder',      handoff: 'roles and risk_tier feed Stage 2 scenario simulator and Stage 3 audit pack' },
+      { slug: '493-ach-false-pretenses-credit-entry-simulator',  handoff: 'scenario obligations and recovery path inform Stage 3 gap identification' },
+      { slug: '494-ach-fraud-monitoring-audit-pack-generator',   handoff: 'Exports annual review audit binder + composite ACH Fraud Policy Mandate -- final stage' },
+    ],
+  },
 };
 
 // base64url-encode a plain object into an #in= fragment value.
@@ -1131,6 +1143,20 @@ function buildServer({ manifests, widgets, catalog }) {
       'Step 3 -- eudi-relying-party-registration-checker: https://ainumbers.co/tools/491-eudi-relying-party-registration-checker.html ' +
       'Step 4 -- eidas2-eudi-wallet-relying-party-readiness-scorer (T348): https://ainumbers.co/tools/348-eidas2-eudi-wallet-relying-party-readiness-scorer.html ' +
       'Then call build_workflow_links with chain "eudi-wallet-acceptance" and present the composer URL. Synthetic data only -- never real customer PII.'
+    } }],
+  }));
+
+  server.registerPrompt('ach_fraud_monitoring_workflow', {
+    title: 'ACH Fraud Monitoring Workflow (Nacha Phase 2)',
+    description: 'Walk any ACH participant (RDFI, Originator, TPSP, TPS, ODFI) through Nacha Phase 2 credit-entry fraud monitoring compliance: procedure builder, false-pretenses simulator, annual audit pack. Effective 2026-06-22.',
+    argsSchema: {},
+  }, () => ({
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'You are helping an ACH network participant achieve Nacha Phase 2 credit-entry fraud monitoring compliance (effective 2026-06-22). Phase 2 removes the $5M volume threshold -- every RDFI, non-consumer Originator, TPSP, TPS, and ODFI must have risk-based monitoring in place. ' +
+      'Step 1 -- ach-fraud-monitoring-procedure-builder (T492): https://ainumbers.co/tools/492-ach-fraud-monitoring-procedure-builder.html ' +
+      'Step 2 -- ach-false-pretenses-credit-entry-simulator (T493): https://ainumbers.co/tools/493-ach-false-pretenses-credit-entry-simulator.html ' +
+      'Step 3 -- ach-fraud-monitoring-audit-pack-generator (T494): https://ainumbers.co/tools/494-ach-fraud-monitoring-audit-pack-generator.html ' +
+      'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
 
