@@ -5,7 +5,8 @@
   "main": "server.mjs",
   "scripts": {
     "start": "node server.mjs",
-    "generate": "node generate.mjs"
+    "generate": "node generate.mjs",
+    "validate:chains": "node scripts/validate-chains.mjs"
   },
   "keywords": [],
   "author": "",

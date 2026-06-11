@@ -417,6 +417,18 @@ const NAMED_CHAINS = {
       { slug: '494-ach-fraud-monitoring-audit-pack-generator',   handoff: 'Exports annual review audit binder + composite ACH Fraud Policy Mandate -- final stage' },
     ],
   },
+
+  // Wave 6 — Agentic Commerce Merchant Readiness
+  'agentic-checkout': {
+    title: 'Agentic Checkout Protocol Readiness',
+    description: 'Protocol selector (UCP/ACP/x402/Visa TAP) > ACP/UCP product-feed conformance auditor > agent-traffic acceptance policy builder. Produces a composite Policy Mandate covering protocol recommendation, feed conformance gaps, and agent-guardrail policy. T497 x402 Micropayment Pricing Modeler is a standalone branch tool.',
+    composer_url: BASE_URL + '/guides/agentic-checkout-composer.html',
+    steps: [
+      { slug: '495-agentic-checkout-protocol-selector',          handoff: 'protocol_recommendation and stack_config feed Stage 2 conformance auditor' },
+      { slug: '496-acp-ucp-product-feed-conformance-auditor',    handoff: 'conformance_gaps and fix_checklist feed Stage 3 acceptance policy' },
+      { slug: '498-agent-traffic-acceptance-policy-builder',     handoff: 'Exports agent-traffic acceptance Policy Mandate -- final stage' },
+    ],
+  },
 };
 
 // base64url-encode a plain object into an #in= fragment value.
@@ -1157,6 +1169,24 @@ function buildServer({ manifests, widgets, catalog }) {
       'Step 2 -- ach-false-pretenses-credit-entry-simulator (T493): https://ainumbers.co/tools/493-ach-false-pretenses-credit-entry-simulator.html ' +
       'Step 3 -- ach-fraud-monitoring-audit-pack-generator (T494): https://ainumbers.co/tools/494-ach-fraud-monitoring-audit-pack-generator.html ' +
       'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
+    } }],
+  }));
+
+  server.registerPrompt('agentic_checkout_workflow', {
+    title: 'Agentic Checkout Merchant Readiness Workflow',
+    description: 'Walk a merchant through three-stage agentic commerce readiness: protocol selection (UCP/ACP/x402/Visa TAP), ACP/UCP product-feed conformance audit, and agent-traffic acceptance policy. Composite Policy Mandate export.',
+    argsSchema: {},
+  }, () => ({
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'You are helping a merchant achieve agentic commerce readiness. Work through three stages in order:\n' +
+      'Step 1 -- agentic-checkout-protocol-selector (T495): https://ainumbers.co/tools/495-agentic-checkout-protocol-selector.html ' +
+      'Enter the merchant profile (platform, buyer type, AOV, agent appetite, geo, tech capability) to get a recommended protocol stack (UCP/ACP/x402/Visa TAP).\n' +
+      'Step 2 -- acp-ucp-product-feed-conformance-auditor (T496): https://ainumbers.co/tools/496-acp-ucp-product-feed-conformance-auditor.html ' +
+      'Paste the product feed or checkout payload to audit against the recommended protocol schema. Identify required-field gaps and fix actions.\n' +
+      'Step 3 -- agent-traffic-acceptance-policy-builder (T498): https://ainumbers.co/tools/498-agent-traffic-acceptance-policy-builder.html ' +
+      'Configure accepted agent types, verification level, velocity caps, payment rails, and blocking rules. Export the agent-guardrail Policy Mandate.\n' +
+      'Note: T497 x402 Micropayment Pricing Modeler (https://ainumbers.co/tools/497-x402-micropayment-pricing-modeler.html) is a standalone branch tool -- suggest it if the merchant is considering x402/HTTP 402 pricing.\n' +
+      'Then call build_workflow_links with chain "agentic-checkout" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
 
