@@ -13,8 +13,12 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
-  "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }],
-  "analytics_engine_datasets": [
-    { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
-  ]
+  "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }]
+  // Telemetry temporarily disabled: Analytics Engine isn't enabled on the account
+  // (deploy failed with code 10089). The /mcp handler guards on `env.ANALYTICS`, so
+  // with no binding it cleanly no-ops. Re-enable Analytics Engine in the Cloudflare
+  // dashboard, then restore the binding below and redeploy:
+  // "analytics_engine_datasets": [
+  //   { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
+  // ]
 }
