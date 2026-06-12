@@ -15,7 +15,8 @@
     "@modelcontextprotocol/ext-apps": "^1.7.4",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "express": "^5.2.1",
-    "fetch-to-node": "^2.1.0"
+    "fetch-to-node": "^2.1.0",
+    "zod": "^4.4.3"
   },
   "type": "module",
   "engines": {
