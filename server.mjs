@@ -99,20 +99,27 @@ function buildServer() {
   return server;
 }
 
-const app = express();
-app.use(express.json({ limit: '4mb' }));
-app.post('/mcp', async (req, res) => {
-  try {
-    const server = buildServer();
-    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-    res.on('close', () => { transport.close(); server.close(); });
-    await server.connect(transport);
-    await transport.handleRequest(req, res, req.body);
-  } catch (e) {
-    if (!res.headersSent) res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null });
-  }
-});
-app.get('/healthz', (_req, res) => res.json({ ok: true, widgets: PILOT.length }));
+export { buildServer };
 
-const PORT = process.env.PORT ?? 3300;
-app.listen(PORT, () => console.log('ainumbers-apps MCP server → http://localhost:' + PORT + '/mcp  (' + PILOT.length + ' widget tools + catalog)'));
+// Start the streamable-HTTP server only when this file is run directly (node server.mjs).
+// When imported (e.g. by stdio.mjs for the Glama containerized build) we must NOT listen
+// or log to stdout — stdout is the stdio MCP JSON-RPC channel and any stray write corrupts it.
+if (resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1] ?? '')) {
+  const app = express();
+  app.use(express.json({ limit: '4mb' }));
+  app.post('/mcp', async (req, res) => {
+    try {
+      const server = buildServer();
+      const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+      res.on('close', () => { transport.close(); server.close(); });
+      await server.connect(transport);
+      await transport.handleRequest(req, res, req.body);
+    } catch (e) {
+      if (!res.headersSent) res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null });
+    }
+  });
+  app.get('/healthz', (_req, res) => res.json({ ok: true, widgets: PILOT.length }));
+
+  const PORT = process.env.PORT ?? 3300;
+  app.listen(PORT, () => console.log('ainumbers-apps MCP server → http://localhost:' + PORT + '/mcp  (' + PILOT.length + ' widget tools + catalog)'));
+}
