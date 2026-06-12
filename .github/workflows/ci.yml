@@ -88,4 +88,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.99.0'   # project uses Wrangler 4 features (run_worker_first, assets binding); v3 default rejects them
           command: deploy
