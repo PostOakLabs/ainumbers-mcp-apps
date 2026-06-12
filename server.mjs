@@ -55,7 +55,7 @@ const manifest = (slug) => JSON.parse(readFileSync(resolve(REPO, 'manifests', sl
 const widgetHtml = (slug) => stripCspMeta(readFileSync(resolve(REPO, 'tools', slug + '.html'), 'utf8')) + WIDGET_GLUE;
 
 function buildServer() {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '0.2.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '1.0.0' });
 
   for (const slug of PILOT) {
     const m = manifest(slug);
