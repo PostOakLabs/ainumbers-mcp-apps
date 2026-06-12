@@ -1230,14 +1230,47 @@ export default {
 
     // MCP endpoint
     if (url.pathname === '/mcp') {
+      // Parse body once -- needed for both the MCP handler and telemetry extraction.
+      const body = await request.json().catch(() => undefined);
+
+      // Extract telemetry fields from tools/call requests.
+      // Never log payloads, parameters, or outputs -- only structural metadata.
+      const isToolCall = body?.method === 'tools/call';
+      const toolName   = isToolCall ? (body?.params?.name ?? 'unknown') : null;
+      const chainDepth = isToolCall ? (body?.params?.arguments?.chain_depth ?? 0) : null;
+
+      const t0 = Date.now();
       const server = buildServer(env);
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       const { req, res } = toReqRes(request);
       await server.connect(transport);
-      const handled = transport.handleRequest(req, res, await request.json().catch(() => undefined));
+      const handled = transport.handleRequest(req, res, body);
       ctx.waitUntil(handled);
       const response = await toFetchResponse(res);
       for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
+
+      // Fire-and-forget telemetry write -- never blocks the response.
+      // Logs structural metadata only; no payloads, parameters, or outputs.
+      if (isToolCall && env.ANALYTICS) {
+        const latencyMs = Date.now() - t0;
+        const success   = response.status < 500;
+        // Salted caller hash: forward-deploy compatible, no PII, no reversible identifier.
+        const callerRaw = request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '';
+        const callerBuf = await crypto.subtle.digest('SHA-256',
+          new TextEncoder().encode('ain-mcp-v1:' + callerRaw));
+        const callerHash = 'sha256:' + Array.from(new Uint8Array(callerBuf)).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 16);
+
+        ctx.waitUntil(Promise.resolve().then(() => {
+          try {
+            env.ANALYTICS.writeDataPoint({
+              blobs:   [toolName, callerHash, success ? 'ok' : 'error'],
+              doubles: [latencyMs, chainDepth ?? 0],
+              indexes: [toolName],
+            });
+          } catch (_) { /* telemetry is best-effort; never affect the response */ }
+        }));
+      }
+
       return response;
     }
 

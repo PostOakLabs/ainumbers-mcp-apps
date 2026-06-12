@@ -13,5 +13,8 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
-  "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }]
+  "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }],
+  "analytics_engine_datasets": [
+    { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
+  ]
 }
