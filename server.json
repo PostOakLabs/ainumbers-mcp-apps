@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "co.ainumbers/tools",
   "title": "AINumbers Fintech Intelligence Suite",
-  "description": "420+ client-side fintech tools (ISO 20022, AML, DORA, agentic payments) as MCP widgets. Zero PII.",
+  "description": "468+ zero-egress fintech tools + 19 ChainGraph AP2-emitting decision tools. ISO 20022, AML, DORA. Zero PII.",
   "repository": {
     "url": "https://github.com/PostOakLabs/ainumbers-mcp-apps",
     "source": "github"
   },
-  "version": "0.2.0",
+  "version": "0.3.0",
   "websiteUrl": "https://ainumbers.co",
   "remotes": [
     {

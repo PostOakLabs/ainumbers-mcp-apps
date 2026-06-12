@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  validate:
+    name: Validate MCP server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔗 Validate named chains
+        run: node scripts/validate-chains.mjs
+
+      - name: 📋 Pilot tool count
+        run: |
+          node -e "
+            import('./pilot.mjs').then(({ PILOT }) => {
+              console.log('Pilot tools: ' + PILOT.length);
+            });
+          "
+
+      - name: 🏷 Registry sync check (dry run)
+        # Verifies server.json description is ≤100 chars and version is semver.
+        # Does NOT write — just confirms a --write run would succeed.
+        # Run  node scripts/sync-registry.mjs --write  locally before publishing.
+        run: node scripts/sync-registry.mjs
+
+      - name: 📐 server.json schema check
+        run: |
+          node -e "
+            import { readFileSync } from 'fs';
+            const s = JSON.parse(readFileSync('server.json', 'utf8'));
+            const checks = [
+              ['\$schema' in s,    'missing \$schema'],
+              [!!s.name,           'missing name'],
+              [!!s.version,        'missing version'],
+              [!!s.description,    'missing description'],
+              [s.description.length <= 100, 'description > 100 chars (' + s.description?.length + ')'],
+              [Array.isArray(s.remotes) && s.remotes.length > 0, 'missing remotes'],
+            ];
+            let ok = true;
+            for (const [pass, msg] of checks) {
+              if (!pass) { console.error('❌ ' + msg); ok = false; }
+              else        { console.log('✅ ' + (msg.split(' ').slice(1).join(' ') || 'ok')); }
+            }
+            if (!ok) process.exit(1);
+          "

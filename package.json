@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.mjs",
     "generate": "node generate.mjs",
-    "validate:chains": "node scripts/validate-chains.mjs"
+    "validate:chains": "node scripts/validate-chains.mjs",
+    "sync:registry": "node scripts/sync-registry.mjs --write"
   },
   "keywords": [],
   "author": "",
