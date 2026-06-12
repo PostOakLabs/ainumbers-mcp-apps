@@ -1240,7 +1240,7 @@ export default {
       const chainDepth = isToolCall ? (body?.params?.arguments?.chain_depth ?? 0) : null;
 
       const t0 = Date.now();
-      const server = buildServer(env);
+      const server = buildServer(await loadData(env));
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       const { req, res } = toReqRes(request);
       await server.connect(transport);
