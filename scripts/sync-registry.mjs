@@ -74,8 +74,10 @@ console.log('──────────────────────�
 if (write) {
   writeFileSync(serverJsonPath, JSON.stringify(updated, null, 2) + '\n', 'utf8');
   console.log(`✅  server.json written (v${newVersion})`);
-  console.log('    Next: git add server.json && git commit -m "chore: bump registry to v' + newVersion + '"');
-  console.log('    Then: .\\mcp-publisher.exe publish');
+  console.log('    Next: commit and push (Cloudflare auto-deploys):');
+  console.log('      git add server.json');
+  console.log('      git commit -m "chore: bump registry to v' + newVersion + '"');
+  console.log('      git push origin master');
 } else {
   console.log('ℹ️   Dry run — no files written.  Pass --write to apply.');
 }
