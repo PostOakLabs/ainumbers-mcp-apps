@@ -418,6 +418,19 @@ const NAMED_CHAINS = {
     ],
   },
 
+  // Wave 7 — Post-Quantum Cryptography Migration
+  'pqc-migration': {
+    title: 'Post-Quantum Cryptography Migration',
+    description: 'End-to-end PQC migration workflow: crypto asset inventory (NISTIR 8547 classification) > HNDL quantum risk scoring > phased migration roadmap (FIPS 203/204/205) > crypto-agility readiness score. Composite PQC migration mandate. RSA/ECDSA/ECDH/DH deprecated 2030, disallowed 2035; DSA already disallowed.',
+    composer_url: BASE_URL + '/guides/pqc-migration-composer.html',
+    steps: [
+      { slug: '499-crypto-asset-inventory-classifier',  handoff: 'classified_assets and algorithm_status feed Stage 2 HNDL risk scoring' },
+      { slug: '500-hndl-quantum-risk-scorer',           handoff: 'hndl_priority per system (immediate/within_2_years/within_5_years/post_2030/monitor) feed Stage 3 roadmap' },
+      { slug: '501-pqc-migration-roadmap-builder',      handoff: 'migration_phases and target_algorithms (ML-KEM/ML-DSA/SLH-DSA) feed Stage 4 agility assessment' },
+      { slug: '502-crypto-agility-readiness-scorer',    handoff: 'Exports composite PQC migration Policy Mandate -- final stage' },
+    ],
+  },
+
   // Wave 6 — Agentic Commerce Merchant Readiness
   'agentic-checkout': {
     title: 'Agentic Checkout Protocol Readiness',
@@ -1172,6 +1185,50 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
+
+  // Wave 7 prompts
+
+  server.registerPrompt('pqc_migration_workflow', {
+    title: 'Post-Quantum Cryptography Migration Workflow',
+    description: 'End-to-end PQC migration: classify cryptographic assets (NISTIR 8547) > score HNDL quantum risk > build phased migration roadmap (FIPS 203/204/205) > score crypto-agility readiness. RSA/ECDSA/ECDH/DH deprecated 2030, disallowed 2035; DSA already disallowed. CRQC horizon ~2035.',
+    argsSchema: {
+      org_type:   z.string().optional().describe('Type of institution (e.g. bank, payment processor, asset manager, central bank). Scopes algorithm use cases.'),
+      urgency:    z.string().optional().describe('Migration urgency (e.g. immediate -- HNDL-sensitive data at rest, planned -- standard lifecycle). Guides phase 1 prioritisation.'),
+    },
+  }, async ({ org_type, urgency }) => {
+    const scope = [org_type, urgency].filter(Boolean).join(', ');
+    return {
+      description: 'PQC migration workflow: T499 crypto inventory > T500 HNDL risk scorer > T501 migration roadmap > T502 crypto-agility readiness.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through a complete Post-Quantum Cryptography migration workflow' + (scope ? ' for ' + scope : '') + ' using AINumbers deterministic tools. ' +
+        'Standards: NISTIR 8547 · FIPS 203 (ML-KEM / Kyber) · FIPS 204 (ML-DSA / Dilithium) · FIPS 205 (SLH-DSA / SPHINCS+). ' +
+        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised cryptographic inventory data only.\n\n' +
+        'Step 1 — Crypto Asset Inventory Classifier (T499): open https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html. ' +
+        'Classify each cryptographic asset by algorithm, use case, key length, and shelf life. ' +
+        'Status taxonomy: QUANTUM_SAFE (ML-KEM/ML-DSA/SLH-DSA/SHA-3/AES-256) · DEPRECATED (RSA/ECDSA/ECDH/DH — disallowed 2035) · DISALLOWED (DSA — already disallowed) · UPGRADE_REC · COND_SAFE · REVIEW_REQUIRED. ' +
+        'Flags HNDL-risk assets (Harvest-Now-Decrypt-Later). Satisfies PCI-DSS 12.3.3 cryptographic algorithm inventory step. ' +
+        'Export the crypto_inventory Policy Mandate before proceeding.\n\n' +
+        'Step 2 — HNDL Quantum Risk Scorer (T500): open https://ainumbers.co/tools/500-hndl-quantum-risk-scorer.html. ' +
+        'Score each system\'s HNDL exposure: sensitivity × algorithm weight × time_exposure (shelf_life / CRQC_horizon) × internet/HVT multiplier. ' +
+        'Risk tiers: CRITICAL (≥80) / HIGH (≥60) / MEDIUM (≥35) / LOW (≥10) / NEGLIGIBLE (<10). ' +
+        'Phase mapping: CRITICAL → immediate (pre-2027), HIGH → within_2_years (2027-28), MEDIUM → within_5_years (2029-30), LOW → post_2030, NEGLIGIBLE → monitor. ' +
+        'Default CRQC horizon: 2035. AIN Bridge accepts T499 mandate to auto-populate systems. ' +
+        'Export the risk_assessment Policy Mandate.\n\n' +
+        'Step 3 — PQC Migration Roadmap Builder (T501): open https://ainumbers.co/tools/501-pqc-migration-roadmap-builder.html. ' +
+        'Map each system to its FIPS replacement by use case: key_exchange/TLS → ML-KEM (FIPS 203) · signature/certificate → ML-DSA (FIPS 204) + SLH-DSA backup (FIPS 205) · symmetric → AES-256 · hash/MAC → SHA-384/512. ' +
+        'Enable hybrid mode (classical + PQC) for transition safety. Target Security Category 3 (192-bit quantum security) unless constraints require Cat 1 or 5. ' +
+        'Assigns Phase 1–4 windows and flags vendor and library gaps. AIN Bridge accepts T500 mandate. ' +
+        'Export the migration_plan Policy Mandate.\n\n' +
+        'Step 4 — Crypto-Agility Readiness Scorer (T502): open https://ainumbers.co/tools/502-crypto-agility-readiness-scorer.html. ' +
+        'Self-assess across 8 control dimensions (0–5 each, 40 max): inventory · tooling · policy · testing · vendor · governance · monitoring · incident response. ' +
+        'Maturity levels: Level 1 (<8) to Level 5 (≥32). Regulated institutions should target Level 4 (≥24/40) before Q4 2026. ' +
+        'Export the compliance_control Policy Mandate.\n\n' +
+        'Or open the composer for a single-page orchestrated run: https://ainumbers.co/guides/pqc-migration-composer.html\n\n' +
+        '⚠ ALGORITHM DEPRECATION TIMELINE: DSA — DISALLOWED now · RSA/ECDSA/ECDH/DH — DEPRECATED (disallowed 2035) · Phase 1 migration window closes pre-2027 for HNDL-critical systems.\n\n' +
+        'After all stages: export the composite Policy Mandate and present priority gaps, Phase 1 system list, and recommended engagement cadence with vendors. Re-run quarterly.',
+      }}],
+    };
+  });
 
   // -------------------------------------------------------------------------
   // ChainGraph Suite -- one MCP tool per live node in chaingraph.json
