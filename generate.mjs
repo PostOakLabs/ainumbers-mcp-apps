@@ -14,11 +14,13 @@ const DATA = resolve(ROOT, 'data');
 mkdirSync(resolve(DATA,'tools'),{recursive:true});
 mkdirSync(resolve(DATA,'manifests'),{recursive:true});
 mkdirSync(resolve(DATA,'mcp'),{recursive:true});
+mkdirSync(resolve(DATA,'chaingraph'),{recursive:true});
 for (const slug of PILOT) {
   writeFileSync(resolve(DATA,'tools',slug+'.html'), readFileSync(resolve(REPO,'tools',slug+'.html')));
   writeFileSync(resolve(DATA,'manifests',slug+'.manifest.json'), readFileSync(resolve(REPO,'manifests',slug+'.manifest.json')));
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
+writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
 
 // Vendor the ext-apps browser SDK as an export-free inlinable script for the widget glue.
 // Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
@@ -33,4 +35,5 @@ const sdkInline = sdkSrc.replace(/export\{([\s\S]*?)\};?\s*$/, (_, names) => {
 });
 if (!sdkInline.includes('__EXT_APPS__')) throw new Error('ext-apps SDK export transform failed — check app-with-deps.js export shape');
 writeFileSync(resolve(DATA,'ext-apps-inline.js'), sdkInline);
-console.log('vendored', PILOT.length, 'tools + manifests + catalog + ext-apps-inline.js into ./data');
+const cgNodes = JSON.parse(readFileSync(resolve(REPO,'chaingraph','chaingraph.json'),'utf8')).nodes ?? [];
+console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + cgNodes.length + ' nodes) + ext-apps-inline.js into ./data');

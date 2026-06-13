@@ -480,11 +480,12 @@ async function loadData(env) {
     widgets[slug] = stripCspMeta(await (await get('tools/' + slug + '.html')).text()) + glue;
   }
   const catalog = await (await get('mcp/catalog.json')).json();
-  dataCache = { manifests, widgets, catalog };
+  const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
+  dataCache = { manifests, widgets, catalog, chaingraph };
   return dataCache;
 }
 
-function buildServer({ manifests, widgets, catalog }) {
+function buildServer({ manifests, widgets, catalog, chaingraph }) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.0.0' });
 
   for (const slug of PILOT) {
@@ -1171,6 +1172,65 @@ function buildServer({ manifests, widgets, catalog }) {
       'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
+
+  // -------------------------------------------------------------------------
+  // ChainGraph Suite -- one MCP tool per live node in chaingraph.json
+  // All simulation runs in-browser; the tool returns the URL + structured
+  // metadata so an agent can navigate, run, and chain AP2 artifacts.
+  // Source of truth: repo/chaingraph/chaingraph.json (vendored into data/).
+  // -------------------------------------------------------------------------
+  for (const node of (chaingraph?.nodes ?? [])) {
+    if (node.status !== 'live') continue;
+    const toolName = node.mcp_name;
+    const consumes = node.consumes ?? [];
+    const feeds = node.feeds ?? [];
+    const waveLabel = 'Wave ' + (node.wave ?? '?');
+    const deadlineNote = node.deadline ? ' Regulatory deadline: ' + node.deadline + (node.deadline_note ? ' (' + node.deadline_note + ').' : '.') : '';
+    server.registerTool(toolName, {
+      title: node.display_name,
+      description:
+        node.display_name + ' — ChainGraph ' + waveLabel + ' tool (' + node.mandate_type + ').' + deadlineNote +
+        ' Runs deterministically in-browser; zero PII, zero egress. Exports an AP2 artifact with execution_hash for chain provenance.' +
+        (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
+        (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
+        ' Open at: ' + node.url,
+      inputSchema: {
+        parent_hashes: z.array(z.string()).optional()
+          .describe('execution_hash values from upstream ChainGraph AP2 artifacts to chain from (sets chain.parent_hashes in the export).'),
+        parent_tool_ids: z.array(z.string()).optional()
+          .describe('tool_id values matching parent_hashes, in the same order.'),
+        inputs: z.record(z.any()).optional()
+          .describe('Simulation parameters for this tool\'s input fields. See the tool\'s embedded manifest for field names.'),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    }, ({ parent_hashes, parent_tool_ids, inputs }) => {
+      const chainNote = (parent_hashes && parent_hashes.length)
+        ? '\nChain from: ' + parent_hashes.join(', ') + (parent_tool_ids ? ' (' + parent_tool_ids.join(', ') + ')' : '')
+        : '';
+      return {
+        content: [{ type: 'text', text:
+          'ChainGraph tool: ' + node.display_name + '\n' +
+          'URL: ' + node.url + '\n' +
+          'Open in browser, configure inputs, and run the simulation. ' +
+          'Export the AP2 artifact (JSON with execution_hash) for downstream chaining.' +
+          chainNote,
+        }],
+        structuredContent: {
+          tool_id:      node.tool_id,
+          mcp_name:     toolName,
+          wave:         node.wave,
+          mandate_type: node.mandate_type,
+          url:          node.url,
+          consumes,
+          feeds,
+          parent_hashes:   parent_hashes   ?? [],
+          parent_tool_ids: parent_tool_ids ?? [],
+          inputs:          inputs          ?? {},
+          instruction: 'Open the URL, run the simulation with provided inputs, export the AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.',
+        },
+      };
+    });
+  }
 
   server.registerPrompt('agentic_checkout_workflow', {
     title: 'Agentic Checkout Merchant Readiness Workflow',
