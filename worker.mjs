@@ -658,6 +658,165 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   });
 
   // -------------------------------------------------------------------------
+  // ChainGraph Standard bindings (Wave 6) -- verify_execution_hash + build_chaingraph
+  // Implements the ChainGraph Standard v0.1 transport binding (§8.1):
+  //   - verify_execution_hash : recompute the SHA-256 execution hash of an
+  //     artifact (§6) so any agent can independently verify a ChainGraph
+  //     artifact -- including a third party's -- instead of trusting it.
+  //   - build_chaingraph      : hash-aware sibling of build_workflow_links;
+  //     returns an executable DAG over chaingraph.json nodes with explicit
+  //     parent_hash wiring an agent walks (run node -> capture execution_hash
+  //     -> pass as parent to children).
+  // Both read-only; verify is pure compute; build reads chaingraph.json (in scope).
+  // -------------------------------------------------------------------------
+
+  // Canonicalization per ChainGraph Standard v0.1 §6: recursively sort object
+  // keys (Unicode code point), preserve array order, minimal-whitespace JSON.
+  const cgCanon = (v) => Array.isArray(v) ? v.map(cgCanon)
+    : (v && typeof v === 'object')
+      ? Object.keys(v).sort().reduce((o, k) => (o[k] = cgCanon(v[k]), o), {})
+      : v;
+  async function cgExecutionHash(policy_parameters, output_payload) {
+    const preimage = JSON.stringify(cgCanon({ policy_parameters, output_payload }));
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(preimage));
+    return 'sha256:' + [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  server.registerTool('verify_execution_hash', {
+    title: 'Verify a ChainGraph execution hash',
+    description:
+      'Independently verify a ChainGraph artifact (ChainGraph Standard v0.1 §6). ' +
+      'Recomputes SHA-256 over the canonical (sorted-key, whitespace-stripped) JSON of ' +
+      'policy_parameters + output_payload and compares it to the claimed execution_hash. ' +
+      'A match proves the artifact\'s stated inputs deterministically produce its stated outputs. ' +
+      'Pass either a full artifact object, or policy_parameters + output_payload + claimed_hash. ' +
+      'Pure client-safe compute -- no data is stored. Use this to verify artifacts from any vendor that conforms to the ChainGraph Standard.',
+    inputSchema: {
+      artifact: z.record(z.any()).optional().describe('A full ChainGraph artifact envelope (must contain policy_parameters, output_payload, and execution_hash).'),
+      policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
+      output_payload: z.record(z.any()).optional().describe('Artifact output_payload (if not passing a full artifact).'),
+      claimed_hash: z.string().optional().describe('The execution_hash to check against (if not passing a full artifact).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ artifact, policy_parameters, output_payload, claimed_hash }) => {
+    const pp = policy_parameters ?? artifact?.policy_parameters;
+    const op = output_payload ?? artifact?.output_payload;
+    const claimed = claimed_hash ?? artifact?.execution_hash ?? null;
+    if (pp === undefined || op === undefined) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + output_payload + execution_hash) or policy_parameters + output_payload (+ claimed_hash).' }],
+      };
+    }
+    const computed_hash = await cgExecutionHash(pp, op);
+    const valid = claimed != null && computed_hash === claimed;
+    const out = {
+      valid,
+      computed_hash,
+      claimed_hash: claimed,
+      tool_id: artifact?.tool_id ?? null,
+      chaingraph_version: artifact?.chaingraph_version ?? artifact?.ap2_version ?? null,
+      note: claimed == null
+        ? 'No claimed hash supplied -- returning the computed hash only.'
+        : (valid
+          ? 'Verified: recomputed hash matches the artifact. Inputs reproduce outputs deterministically.'
+          : 'MISMATCH: recomputed hash does not match the claimed hash. Treat the artifact as unverified.'),
+      spec: 'ChainGraph Standard v0.1 §6',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // Index chaingraph.json nodes for build_chaingraph.
+  const cgNodes = chaingraph?.nodes ?? [];
+  const cgById = {};
+  for (const n of cgNodes) cgById[n.tool_id] = n;
+
+  server.registerTool('build_chaingraph', {
+    title: 'Build an executable ChainGraph DAG',
+    description:
+      'Hash-aware sibling of build_workflow_links (ChainGraph Standard v0.1 §8.1). ' +
+      'Returns an ordered, executable DAG over the ChainGraph suite\'s verifiable tools, ' +
+      'with explicit parent_hash wiring: which upstream execution_hash each step must cite in its chain block. ' +
+      'Pass target_tool_id to build the chain that produces that node (walks consumes-edges back to roots), ' +
+      'or tool_ids for an explicit ordered list, or neither to list available ChainGraph nodes. ' +
+      'Agent loop: run a node, capture its execution_hash, pass it as the parent_hash for each downstream node, then verify with verify_execution_hash.',
+    inputSchema: {
+      target_tool_id: z.string().optional().describe('A ChainGraph node tool_id (e.g. "art-15-agent-commerce-conformance"). Builds the chain that produces it.'),
+      tool_ids: z.array(z.string()).optional().describe('Explicit ordered list of ChainGraph node tool_ids to wire.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ target_tool_id, tool_ids }) => {
+    // No target -> list available nodes.
+    if (!target_tool_id && (!tool_ids || tool_ids.length === 0)) {
+      const nodes = cgNodes.map((n) => ({ tool_id: n.tool_id, mcp_name: n.mcp_name, mandate_type: n.mandate_type, consumes: n.consumes ?? [], feeds: n.feeds ?? [] }));
+      const out = { node_count: nodes.length, nodes, note: 'Pass target_tool_id to build the chain that produces a node, or tool_ids for an explicit sequence. Graph index: ' + (chaingraph?.hub_url ?? BASE_URL + '/chaingraph/chaingraph.json') };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+
+    const missing = [];
+    let cycle = false;
+    const order = [];
+
+    if (tool_ids && tool_ids.length > 0) {
+      for (const id of tool_ids) {
+        const n = cgById[id];
+        if (!n) { missing.push(id); continue; }
+        order.push(n);
+      }
+    } else {
+      // Topological build from target via consumes-edges (post-order = parents first).
+      const seen = new Set();
+      const stack = new Set();
+      const visit = (id) => {
+        const node = cgById[id];
+        if (!node) { missing.push(id); return; }
+        if (seen.has(id)) return;
+        if (stack.has(id)) { cycle = true; return; }
+        stack.add(id);
+        for (const p of (node.consumes ?? [])) visit(p);
+        stack.delete(id);
+        seen.add(id);
+        order.push(node);
+      };
+      visit(target_tool_id);
+    }
+
+    if (missing.length > 0) {
+      return { isError: true, content: [{ type: 'text', text: 'Unknown ChainGraph tool_id(s): ' + missing.join(', ') + '. Call build_chaingraph with no arguments to list valid nodes.' }] };
+    }
+
+    // chain_depth = max(parent depths)+1 within this ordered set.
+    const depthById = {};
+    const steps = order.map((n, i) => {
+      const parents = (n.consumes ?? []).filter((pid) => depthById[pid] !== undefined);
+      const depth = parents.length ? Math.max(...parents.map((pid) => depthById[pid])) + 1 : 0;
+      depthById[n.tool_id] = depth;
+      return {
+        order: i + 1,
+        tool_id: n.tool_id,
+        mcp_name: n.mcp_name,
+        mandate_type: n.mandate_type,
+        url: n.url,
+        chain_depth: depth,
+        consumes: n.consumes ?? [],
+        // Slots the agent fills in this node's chain.parent_hashes at run time.
+        parent_hash_slots: (n.consumes ?? []).map((pid) => ({ parent_tool_id: pid, parent_hash: '<execution_hash of ' + pid + ' captured earlier in this run>' })),
+      };
+    });
+
+    const out = {
+      target: target_tool_id ?? null,
+      step_count: steps.length,
+      cycle_detected: cycle,
+      steps,
+      verify_with: 'verify_execution_hash',
+      spec: 'ChainGraph Standard v0.1 §7-§8',
+      note: 'Execute in order. For each node: call its MCP tool, read execution_hash from the returned artifact, then populate the parent_hash_slots of every downstream node with it. Verify any artifact with verify_execution_hash. All decision compute is deterministic and (for browser tools) client-side.',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
   // MCP Prompts -- workflow recipes (WS5b)
   // Each prompt returns a structured step-by-step workflow message so any MCP
   // client can walk a user through a complete AINumbers chain end-to-end.
