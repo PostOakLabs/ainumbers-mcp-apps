@@ -499,7 +499,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog, chaingraph }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '1.0.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '1.1.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
