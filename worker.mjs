@@ -442,6 +442,19 @@ const NAMED_CHAINS = {
       { slug: '498-agent-traffic-acceptance-policy-builder',     handoff: 'Exports agent-traffic acceptance Policy Mandate -- final stage' },
     ],
   },
+
+  // Wave 6 ChainGraph — Agent Commerce Cross-Protocol Conformance
+  'agent-commerce-conformance': {
+    title: 'Agent Commerce Cross-Protocol Conformance',
+    description: 'AP2 v0.2 mandate chain > ACP checkout conformance > x402 settlement modelling > unified cross-protocol conformance verdict. Validates one agent purchase end-to-end: AP2 Intent→Cart→Payment + ACP CheckoutRequest + Visa TAP RFC 9421 HTTP Message Signature + x402 settlement leg. Issues a single execution_hash receipt covering all four protocols (ChainGraph Standard v0.1).',
+    composer_url: BASE_URL + '/guides/agent-commerce-conformance-composer.html',
+    steps: [
+      { slug: 'art-01-ap2-mandate-chain-validator',          handoff: 'ap2_mandate and execution_hash (H1) feed Stage 2 ACP checkout conformance' },
+      { slug: 'art-12-acp-checkout-conformance-validator',   handoff: 'acp_verdict and conformance_flags + execution_hash (H2) feed Stage 3 x402 settlement model' },
+      { slug: 'art-03-x402-settlement-modeler',              handoff: 'x402_payload and settlement execution_hash (H3) feed Stage 4 cross-protocol validator' },
+      { slug: 'art-30-agent-commerce-conformance-validator', handoff: 'Exports unified AP2+ACP+TAP+x402 cross-protocol conformance mandate; execution_hash (H4) covers full transaction -- final stage' },
+    ],
+  },
 };
 
 // base64url-encode a plain object into an #in= fragment value.
@@ -606,11 +619,27 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     for (let i = 0; i < rawSteps.length; i++) {
       const rs = rawSteps[i];
       // Look up by slug first, then by tool_id
-      const entry = bySlug[rs.tool_id] ?? byToolId[rs.tool_id];
+      let entry = bySlug[rs.tool_id] ?? byToolId[rs.tool_id];
+      if (!entry) {
+        // Fallback: ChainGraph nodes are served from /chaingraph/, not in catalog.json
+        const cgNode = cgById[rs.tool_id];
+        if (cgNode) {
+          entry = {
+            name: cgNode.display_name ?? cgNode.title ?? rs.tool_id,
+            description: cgNode.description ?? '',
+            metadata: {
+              tool_id: cgNode.tool_id,
+              url: cgNode.url ?? (BASE_URL + '/chaingraph/' + cgNode.tool_id + '.html'),
+              prefill: false,
+              ap2_export: true,
+            },
+          };
+        }
+      }
       if (!entry) {
         return {
           isError: true,
-          content: [{ type: 'text', text: 'Unknown tool_id "' + rs.tool_id + '" at step ' + (i + 1) + '. Check mcp/catalog.json for valid slugs/tool_ids.' }],
+          content: [{ type: 'text', text: 'Unknown tool_id "' + rs.tool_id + '" at step ' + (i + 1) + '. Check mcp/catalog.json for catalog tools or chaingraph.json for ChainGraph node tool_ids.' }],
         };
       }
       const prefill = !!entry.metadata?.prefill;
@@ -812,6 +841,177 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       verify_with: 'verify_execution_hash',
       spec: 'ChainGraph Standard v0.1 §7-§8',
       note: 'Execute in order. For each node: call its MCP tool, read execution_hash from the returned artifact, then populate the parent_hash_slots of every downstream node with it. Verify any artifact with verify_execution_hash. All decision compute is deterministic and (for browser tools) client-side.',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
+  // emit_chaingraph_artifact — ChainGraph Standard v0.1 §3.1
+  // Makes every ChainGraph tool agent-callable as a structured artifact.
+  //
+  // Mode 1 — pre_computed_artifact supplied:
+  //   Validates §4 required fields, recomputes execution_hash, returns verified
+  //   structuredContent. Use when the browser tool has already run and exported.
+  //
+  // Mode 2 — tool_id + policy_parameters supplied:
+  //   Returns an artifact template envelope and browser prefill URL.
+  //   GPU sims always delegate to the browser (§9.2 locked; zero server-side MC).
+  //
+  // Mode 3 — tool_id only:
+  //   Returns node metadata and artifact schema scaffold.
+  //
+  // readOnlyHint: true. Zero PII, zero payload logging.
+  // -------------------------------------------------------------------------
+  server.registerTool('emit_chaingraph_artifact', {
+    title: 'Emit a ChainGraph artifact envelope',
+    description:
+      'Makes ChainGraph tools agent-callable (ChainGraph Standard v0.1 §3.1). ' +
+      'Mode 1 — supply pre_computed_artifact (exported from the browser tool): validates §4 schema fields, recomputes execution_hash via SHA-256 over canonical {policy_parameters, output_payload}, returns verified structuredContent. ' +
+      'Mode 2 — supply tool_id + policy_parameters: returns an artifact template envelope and browser prefill URL so an agent can hand the user a pre-filled link; GPU sims always delegate to the browser per §9.2. ' +
+      'Mode 3 — supply tool_id only: returns node metadata and artifact schema scaffold. ' +
+      'readOnlyHint: true. Zero PII, zero payload logging. ' +
+      'Pair with verify_execution_hash (independent hash verification) and build_chaingraph (DAG wiring).',
+    inputSchema: {
+      tool_id: z.string().optional().describe(
+        'ChainGraph node tool_id (e.g. "art-30-agent-commerce-conformance-validator"). ' +
+        'Looked up in chaingraph.json nodes. Required unless pre_computed_artifact is supplied.'
+      ),
+      policy_parameters: z.record(z.any()).optional().describe(
+        'Input parameters for the tool (mirrors the tool\'s Policy Mandate input fields). ' +
+        'Used to build the artifact template and browser prefill URL (#in= fragment).'
+      ),
+      parent_hashes: z.array(z.string()).optional().describe(
+        'execution_hash values from upstream ChainGraph artifacts this call chains from. ' +
+        'Placed into artifact_template.chain.parent_hashes (ChainGraph Standard v0.1 §5 chain block).'
+      ),
+      parent_tool_ids: z.array(z.string()).optional().describe(
+        'tool_ids corresponding to parent_hashes, in the same order.'
+      ),
+      pre_computed_artifact: z.record(z.any()).optional().describe(
+        'A full ChainGraph artifact envelope previously exported from the browser tool via "Export Policy Mandate". ' +
+        'When supplied, the worker validates §4 required fields, recomputes execution_hash, and returns a verified structuredContent. ' +
+        'This is the recommended path: run the tool in-browser, export JSON, call emit_chaingraph_artifact to verify and receive a structured receipt.'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ tool_id, policy_parameters, parent_hashes, parent_tool_ids, pre_computed_artifact }) => {
+    const AP2_VERSION = '1.0.0';
+    const REQUIRED_FIELDS = ['ap2_version', 'mandate_type', 'tool_id', 'tool_version', 'generated_at', 'execution_hash', 'chain', 'policy_parameters', 'output_payload'];
+
+    // --- Mode 1: pre_computed_artifact supplied ---
+    if (pre_computed_artifact) {
+      const missing = REQUIRED_FIELDS.filter((f) => !(f in pre_computed_artifact));
+      if (missing.length > 0) {
+        return {
+          isError: true,
+          content: [{ type: 'text', text: 'Artifact missing required ChainGraph Standard v0.1 §4 fields: ' + missing.join(', ') + '.' }],
+        };
+      }
+      const pp = pre_computed_artifact.policy_parameters;
+      const op = pre_computed_artifact.output_payload;
+      const claimed = pre_computed_artifact.execution_hash ?? null;
+      const computed_hash = await cgExecutionHash(pp, op);
+      const hash_valid = claimed != null && computed_hash === claimed;
+      const out = {
+        mode: 'pre_computed',
+        schema_valid: true,
+        hash_valid,
+        computed_hash,
+        claimed_hash: claimed,
+        hash_mismatch: !hash_valid
+          ? 'Recomputed hash does not match claimed execution_hash — artifact may be modified or was hashed with a different canonicalization.'
+          : null,
+        artifact: pre_computed_artifact,
+        note: 'Pass artifact.execution_hash as parent_hashes when calling downstream ChainGraph tools. Use verify_execution_hash for independent verification.',
+        spec: 'ChainGraph Standard v0.1 §4',
+      };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+
+    // --- Modes 2 & 3: tool_id required ---
+    if (!tool_id) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: 'Provide either pre_computed_artifact or tool_id. To list available ChainGraph tool_ids call build_chaingraph.' }],
+      };
+    }
+
+    const node = cgById[tool_id];
+    if (!node) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: 'Unknown tool_id "' + tool_id + '". Run build_chaingraph or inspect chaingraph.json for live node tool_ids.' }],
+      };
+    }
+
+    const browser_url = node.url ?? (BASE_URL + '/chaingraph/' + tool_id + '.html');
+    const gpu = !!node.gpu;
+    const chain_block = {
+      parent_hashes: parent_hashes ?? [],
+      parent_tool_ids: parent_tool_ids ?? [],
+      chain_depth: node.chain_depth ?? 0,
+    };
+
+    // --- Mode 3: tool_id only, no policy_parameters ---
+    if (!policy_parameters) {
+      const out = {
+        mode: 'node_metadata',
+        tool_id,
+        title: node.display_name ?? node.title ?? tool_id,
+        mandate_type: node.mandate_type,
+        gpu,
+        wave: node.wave,
+        consumes: node.consumes ?? [],
+        feeds: node.feeds ?? [],
+        browser_url,
+        artifact_schema: {
+          ap2_version: AP2_VERSION,
+          mandate_type: node.mandate_type,
+          tool_id,
+          tool_version: '1.0.0',
+          chain: chain_block,
+          note: 'Run the tool in the browser, export the Policy Mandate JSON, then call emit_chaingraph_artifact({ pre_computed_artifact: <json> }) to verify and receive a structured receipt.',
+        },
+        spec: 'ChainGraph Standard v0.1 §4',
+      };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+
+    // --- Mode 2: tool_id + policy_parameters ---
+    const artifact_template = {
+      ap2_version: AP2_VERSION,
+      mandate_type: node.mandate_type,
+      tool_id,
+      tool_version: '1.0.0',
+      generated_at: null,
+      execution_hash: null,
+      chain: chain_block,
+      policy_parameters,
+      output_payload: null,
+      compliance_flags: [],
+      audit_signature: null,
+    };
+    const prefill_url = browser_url + '#in=' + base64urlEncode(policy_parameters);
+    const out = {
+      mode: gpu ? 'browser_delegation_gpu' : 'browser_delegation',
+      tool_id,
+      title: node.display_name ?? node.title ?? tool_id,
+      mandate_type: node.mandate_type,
+      gpu,
+      browser_url,
+      prefill_url,
+      artifact_template,
+      next_steps: [
+        '1. Open prefill_url in a browser (inputs pre-filled via AIN Bridge #in= fragment).',
+        '2. Run the tool — all compute is client-side, zero egress.',
+        '3. Click "Export Policy Mandate" to download the artifact JSON.',
+        '4. Call emit_chaingraph_artifact({ pre_computed_artifact: <json> }) to validate schema and verify execution_hash.',
+        '5. Pass artifact.execution_hash as parent_hashes to downstream ChainGraph tools.',
+      ],
+      reason: gpu
+        ? 'GPU Monte-Carlo simulation — compute must remain client-side per ChainGraph Standard v0.1 §9.2. Return the Task handle or browser deep-link to the agent; do not move sim compute server-side.'
+        : null,
+      spec: 'ChainGraph Standard v0.1 §4',
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
@@ -1344,6 +1544,45 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
+
+  server.registerPrompt('agent_commerce_conformance_workflow', {
+    title: 'Agent Commerce Cross-Protocol Conformance Workflow',
+    description: 'Walk an agent commerce implementer through AP2 v0.2 mandate chain validation, ACP checkout conformance, x402 settlement modelling, and unified cross-protocol conformance. Issues a single execution_hash receipt (H4) covering AP2 + ACP + Visa TAP RFC 9421 + x402. ChainGraph Standard v0.1.',
+    argsSchema: {
+      protocol_stack: z.string().optional().describe('Protocol stack in use (e.g. "AP2+ACP+x402", "AP2+Visa TAP", "ACP only"). Scopes conformance checks.'),
+      entity_type:    z.string().optional().describe('Entity type (e.g. merchant, payment agent, wallet provider, acquirer). Scopes AP2 mandate type.'),
+    },
+  }, async ({ protocol_stack, entity_type }) => {
+    const scope = [entity_type, protocol_stack].filter(Boolean).join(' · ');
+    return {
+      description: 'Agent Commerce Conformance: ART-01 → ART-12 → ART-03 → ART-30. Single execution_hash (H4) covers AP2 + ACP + TAP + x402.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        'Walk me through the Agent Commerce Cross-Protocol Conformance workflow' + (scope ? ' for ' + scope : '') + ' using AINumbers ChainGraph tools. ' +
+        'This chain validates one agent purchase end-to-end across the converged agentic commerce stack: ' +
+        'AP2 v0.2 Intent→Cart→Payment (FIDO Alliance, 60+ orgs) + ACP CheckoutRequest/Response (OpenAI/Stripe) + Visa TAP RFC 9421 HTTP Message Signature + x402 settlement leg (Coinbase CDP, ~69k agents, 165M+ txns 2026). ' +
+        'All ChainGraph tools run client-side — zero PII, zero egress. Use synthetic transaction payloads only.\n\n' +
+        'Step 1 — AP2 Mandate Chain Validator (ART-01): open https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html. ' +
+        'Validate the AP2 v0.2 Intent→Cart→Payment mandate trio. ' +
+        'Export the AP2 artifact JSON (execution_hash = H1). Or call validate_ap2_mandate_chain via MCP.\n\n' +
+        'Step 2 — ACP Checkout Conformance Validator (ART-12): open https://ainumbers.co/chaingraph/art-12-acp-checkout-conformance-validator.html. ' +
+        'Validate ACP CheckoutRequest/Response structure and Shared Payment Token. ' +
+        'Set chain.parent_hashes = [H1]. Export artifact (execution_hash = H2). Or call validate_acp_checkout via MCP.\n\n' +
+        'Step 3 — x402 Settlement Modeler (ART-03): open https://ainumbers.co/chaingraph/art-03-x402-settlement-modeler.html. ' +
+        'Model the x402 HTTP 402-based settlement leg. ' +
+        'Set chain.parent_hashes = [H2]. Export artifact (execution_hash = H3). Or call model_x402_settlement via MCP.\n\n' +
+        'Step 4 — Agent Commerce Cross-Protocol Conformance Validator (ART-30): open https://ainumbers.co/chaingraph/art-30-agent-commerce-conformance-validator.html. ' +
+        'Runs AP2 + ACP + Visa TAP RFC 9421 HTTP Message Signature + x402 in one unified validator. ' +
+        'Set chain.parent_hashes = [H1, H2, H3]. ' +
+        'Emits one execution_hash receipt (H4) covering the full transaction. Download cross-protocol test-vector fixtures.\n\n' +
+        'After Step 4: call emit_chaingraph_artifact({ pre_computed_artifact: <H4 json> }) to verify the hash and receive the structured ChainGraph receipt. ' +
+        'Then call build_chaingraph with chain "agent-commerce-conformance" to inspect the full DAG with parent_hash_slots.\n\n' +
+        'Or open the composer for a single-page orchestrated run: https://ainumbers.co/guides/agent-commerce-conformance-composer.html\n\n' +
+        '⚑ PROTOCOL SOURCES (2026-06-14 sweep): AP2 v0.2 — ap2-protocol.org · ACP — OpenAI/Stripe (agentic commerce protocol) · Visa TAP — RFC 9421 HTTP Message Signatures · x402 — x402.org (Coinbase CDP). ' +
+        'These protocols are converging but are distinct standards — validate against each official spec before implementing. ' +
+        'Synthetic payloads only — never real card, account, or payment credentials.',
+      }}],
+    };
+  });
 
   // Wave 7 prompts
 
