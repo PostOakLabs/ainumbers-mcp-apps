@@ -447,12 +447,47 @@ const NAMED_CHAINS = {
   'agent-commerce-conformance': {
     title: 'Agent Commerce Cross-Protocol Conformance',
     description: 'AP2 v0.2 mandate chain > ACP checkout conformance > x402 settlement modelling > unified cross-protocol conformance verdict. Validates one agent purchase end-to-end: AP2 Intent→Cart→Payment + ACP CheckoutRequest + Visa TAP RFC 9421 HTTP Message Signature + x402 settlement leg. Issues a single execution_hash receipt covering all four protocols (ChainGraph Standard v0.1).',
-    composer_url: BASE_URL + '/guides/agent-commerce-conformance-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/agent-commerce-conformance.html',
     steps: [
       { slug: 'art-01-ap2-mandate-chain-validator',          handoff: 'ap2_mandate and execution_hash (H1) feed Stage 2 ACP checkout conformance' },
       { slug: 'art-12-acp-checkout-conformance-validator',   handoff: 'acp_verdict and conformance_flags + execution_hash (H2) feed Stage 3 x402 settlement model' },
       { slug: 'art-03-x402-settlement-modeler',              handoff: 'x402_payload and settlement execution_hash (H3) feed Stage 4 cross-protocol validator' },
       { slug: 'art-30-agent-commerce-conformance-validator', handoff: 'Exports unified AP2+ACP+TAP+x402 cross-protocol conformance mandate; execution_hash (H4) covers full transaction -- final stage' },
+    ],
+  },
+
+  // Wave 6 ChainGraph — Agent Identity & Trust-Chain
+  'agent-identity-trust': {
+    title: 'Agent Identity & Trust-Chain',
+    description: 'A2A agent-card + delegated-authority trust-chain validation > KYA-OS identity attestation > spend-policy simulation. The horizontal agent-to-agent trust complement: who is the agent, what is it authorized to do, does its spend policy hold. Each node emits a hash-anchored ChainGraph artifact.',
+    composer_url: BASE_URL + '/chaingraph/chains/agent-identity-trust.html',
+    steps: [
+      { slug: 'art-32-a2a-agent-card-trust-chain-validator', handoff: 'a2a_card + trust-chain verdict and execution_hash feed Stage 2 KYA attestation' },
+      { slug: 'art-04-agent-identity-attestation-checker',   handoff: 'attestation verdict and execution_hash feed Stage 3 spend-policy simulation' },
+      { slug: 'art-02-agent-spend-policy-simulator',         handoff: 'Exports the agent-identity-trust policy artifact -- final stage' },
+    ],
+  },
+
+  // Wave 6 ChainGraph — MCP Server Attestation
+  'mcp-server-attestation': {
+    title: 'MCP Server Attestation',
+    description: 'MCP deployability diagnostic > developer readiness scorecard > signed server self-attestation (composite A-F grade). Dogfooding -- the AINumbers MCP server can attest itself. Each node emits a hash-anchored ChainGraph artifact.',
+    composer_url: BASE_URL + '/chaingraph/chains/mcp-server-attestation.html',
+    steps: [
+      { slug: 'art-28-mcp-server-deployability-diagnostic', handoff: 'deployability grade and execution_hash feed Stage 2 readiness scorecard' },
+      { slug: 'art-18-mcp-developer-readiness-scorecard',   handoff: 'readiness score and execution_hash feed Stage 3 self-attestation' },
+      { slug: 'art-33-mcp-server-self-attestation-pack',    handoff: 'Exports the composite MCP server attestation artifact -- final stage' },
+    ],
+  },
+
+  // Wave 6 ChainGraph — Agent Session Receipt (links-only aggregator)
+  'agent-session-receipt': {
+    title: 'Agent Session Receipt',
+    description: 'Aggregate N execution_hashes from an agent session into one SHA-256 Merkle-root session receipt (CRY-05) > regulator-framed prompt (PTG-01). One tamper-evident audit object for EU AI Act Art. 12 / DORA.',
+    composer_url: BASE_URL + '/chaingraph/chains/agent-session-receipt.html',
+    steps: [
+      { slug: 'cry-05-agent-action-audit-trail-aggregator', handoff: 'session_receipt_root (Merkle root over all session execution_hashes) feeds Stage 2 prompt generation' },
+      { slug: 'ptg-01-ap2-prompt-template-generator',       handoff: 'Generates a regulator-framed prompt citing the full session receipt -- final stage' },
     ],
   },
 };
@@ -1576,13 +1611,62 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         'Emits one execution_hash receipt (H4) covering the full transaction. Download cross-protocol test-vector fixtures.\n\n' +
         'After Step 4: call emit_chaingraph_artifact({ pre_computed_artifact: <H4 json> }) to verify the hash and receive the structured ChainGraph receipt. ' +
         'Then call build_chaingraph with chain "agent-commerce-conformance" to inspect the full DAG with parent_hash_slots.\n\n' +
-        'Or open the composer for a single-page orchestrated run: https://ainumbers.co/guides/agent-commerce-conformance-composer.html\n\n' +
+        'Or open the chain page for the full orchestrated walkthrough: https://ainumbers.co/chaingraph/chains/agent-commerce-conformance.html\n\n' +
         '⚑ PROTOCOL SOURCES (2026-06-14 sweep): AP2 v0.2 — ap2-protocol.org · ACP — OpenAI/Stripe (agentic commerce protocol) · Visa TAP — RFC 9421 HTTP Message Signatures · x402 — x402.org (Coinbase CDP). ' +
         'These protocols are converging but are distinct standards — validate against each official spec before implementing. ' +
         'Synthetic payloads only — never real card, account, or payment credentials.',
       }}],
     };
   });
+
+  server.registerPrompt('agent_identity_trust_workflow', {
+    title: 'Agent Identity & Trust-Chain Workflow',
+    description: 'Validate an A2A agent card + delegated-authority trust chain (ART-32), attest agent identity via KYA-OS (ART-04), then simulate the spend policy (ART-02). Establishes who an agent is, what it is authorized to do, and whether its spend policy holds. ChainGraph Standard v0.1.',
+    argsSchema: {
+      agent_role: z.string().optional().describe('The delegated agent role (e.g. procurement agent, treasury agent). Scopes scope-escalation checks.'),
+    },
+  }, async ({ agent_role }) => ({
+    description: 'Agent Identity & Trust-Chain: ART-32 -> ART-04 -> ART-02.',
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'Walk me through the Agent Identity & Trust-Chain workflow' + (agent_role ? ' for a ' + agent_role : '') + ' using AINumbers ChainGraph tools. Synthetic agent cards only; zero PII, zero egress.\n\n' +
+      'Step 1 — A2A Agent-Card Trust-Chain Validator (ART-32): open https://ainumbers.co/chaingraph/art-32-a2a-agent-card-trust-chain-validator.html. Validate the A2A v1.0 agent card + delegated-authority chain (depth <= 4, no scope escalation, validity <= 90 days). Export the artifact (execution_hash = H1), or call validate_a2a_trust_chain via MCP.\n\n' +
+      'Step 2 — Agent Identity & Authorization Attestation Checker (ART-04): open https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html. Check the KYA-OS credential-chain attestation. Set chain.parent_hashes = [H1]. Export (H2), or call check_agent_attestation.\n\n' +
+      'Step 3 — Agent Spend-Policy Simulator (ART-02): open https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html. Simulate the spend policy against the attested agent. Set chain.parent_hashes = [H2]. Export the final artifact (H3), or call simulate_spend_policy.\n\n' +
+      'Then call build_chaingraph with chain "agent-identity-trust" to inspect the DAG, or aggregate_execution_receipts (CRY-05) to bundle H1-H3 into one session receipt. Full walkthrough: https://ainumbers.co/chaingraph/chains/agent-identity-trust.html\n\n' +
+      'SOURCES: A2A — a2a-protocol.org (Linux Foundation) · KYA-OS — DIF Trusted AI Agents WG. Synthetic data only.',
+    }}],
+  }));
+
+  server.registerPrompt('mcp_server_attestation_workflow', {
+    title: 'MCP Server Attestation Workflow',
+    description: 'Score MCP server deployability (ART-28) and developer readiness (ART-18), then fold both into one signed self-attestation with a composite A-F grade (ART-33). Useful before publishing or relying on an MCP server. ChainGraph Standard v0.1.',
+    argsSchema: {
+      server_url: z.string().optional().describe('Target MCP server URL (synthetic or your own). Scopes the attestation.'),
+    },
+  }, async ({ server_url }) => ({
+    description: 'MCP Server Attestation: ART-28 -> ART-18 -> ART-33.',
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'Walk me through the MCP Server Attestation workflow' + (server_url ? ' for ' + server_url : '') + ' using AINumbers ChainGraph tools. Paste synthetic server.json / tool definitions; zero egress.\n\n' +
+      'Step 1 — MCP Server Deployability Diagnostic (ART-28): open https://ainumbers.co/chaingraph/art-28-mcp-server-deployability-diagnostic.html. Export (H1), or call run_mcp_deployability_diagnostic.\n\n' +
+      'Step 2 — MCP Developer Readiness Scorecard (ART-18): open https://ainumbers.co/chaingraph/art-18-mcp-developer-readiness-scorecard.html. Set chain.parent_hashes = [H1]. Export (H2), or call score_mcp_readiness.\n\n' +
+      'Step 3 — MCP Server Self-Attestation Pack (ART-33): open https://ainumbers.co/chaingraph/art-33-mcp-server-self-attestation-pack.html. Combines tool-definition lint + server.json validation + OAuth 2.1 audit (RFC 9728/8707) + tool-poisoning scan + ops into one composite A-F grade. Set chain.parent_hashes = [H2]. Export the signed attestation (H3), or call attest_mcp_server.\n\n' +
+      'Full walkthrough: https://ainumbers.co/chaingraph/chains/mcp-server-attestation.html · SOURCES: MCP server.json schema 2025-12-11; OAuth 2.1 RFC 9728/8707; MCP 2026-07-28 spec hardening.',
+    }}],
+  }));
+
+  server.registerPrompt('agent_session_receipt_workflow', {
+    title: 'Agent Session Receipt Workflow',
+    description: 'Aggregate every execution_hash an agent produced in a session into one SHA-256 Merkle-root session receipt (CRY-05), then generate a regulator-framed prompt (PTG-01). The tamper-evident audit object for EU AI Act Art. 12 record-keeping + DORA. ChainGraph Standard v0.1 section 7.4.',
+    argsSchema: {},
+  }, async () => ({
+    description: 'Agent Session Receipt: CRY-05 (Merkle aggregate) -> PTG-01.',
+    messages: [{ role: 'user', content: { type: 'text', text:
+      'Walk me through producing an agent session receipt using AINumbers ChainGraph tools. Collect the ChainGraph artifacts (or their execution_hashes) your agent produced this session — synthetic only.\n\n' +
+      'Step 1 — Agent-Action Audit-Trail Aggregator (CRY-05): open https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html. Paste the JSON array of session artifacts/hashes. It builds a SHA-256 Merkle tree, returns the merkle_root (session_receipt_root) + per-leaf inclusion proofs + chain-depth map. Or call aggregate_execution_receipts via MCP.\n\n' +
+      'Step 2 — AP2 Prompt Template Generator (PTG-01): open https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html. Generate a regulator-framed prompt citing the full session receipt + parent hash chain. Or call compose_ap2_prompt.\n\n' +
+      'Verify any leaf with verify_execution_hash. Full walkthrough: https://ainumbers.co/chaingraph/chains/agent-session-receipt.html · SOURCES: EU AI Act Art. 12 (record-keeping); DORA ICT incident logging.',
+    }}],
+  }));
 
   // Wave 7 prompts
 
