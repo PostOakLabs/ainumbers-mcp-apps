@@ -986,6 +986,16 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       parent_tool_ids: parent_tool_ids ?? [],
       chain_depth: node.chain_depth ?? 0,
     };
+    // v0.3.1: resolve the node's ISO 20022 profile token to its dereferenceable
+    // dct:conformsTo URI (W3C Content Negotiation by Profile token->URI map).
+    // Outside the execution_hash preimage — framing only.
+    const OCG_PROFILE_URIS = {
+      'iso20022:pacs.008-subset': 'https://openchain.graph/profiles/iso20022/pacs.008-subset',
+      'iso20022:party-identification': 'https://openchain.graph/profiles/iso20022/party-identification',
+    };
+    const profile_conforms_to = node.semantic_profile && OCG_PROFILE_URIS[node.semantic_profile]
+      ? [OCG_PROFILE_URIS[node.semantic_profile]]
+      : null;
 
     // --- Mode 3: tool_id only, no policy_parameters ---
     if (!policy_parameters) {
@@ -999,12 +1009,14 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         consumes: node.consumes ?? [],
         feeds: node.feeds ?? [],
         browser_url,
+        semantic_profile: node.semantic_profile ?? null,
         artifact_schema: {
           ap2_version: AP2_VERSION,
           mandate_type: node.mandate_type,
           tool_id,
           tool_version: '1.0.0',
           chain: chain_block,
+          ...(profile_conforms_to ? { 'dct:conformsTo': profile_conforms_to } : {}),
           note: 'Run the tool in the browser, export the Policy Mandate JSON, then call emit_chaingraph_artifact({ pre_computed_artifact: <json> }) to verify and receive a structured receipt.',
         },
         spec: 'ChainGraph Standard v0.1 §4',
@@ -1021,6 +1033,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       generated_at: null,
       execution_hash: null,
       chain: chain_block,
+      ...(profile_conforms_to ? { 'dct:conformsTo': profile_conforms_to } : {}),
       policy_parameters,
       output_payload: null,
       compliance_flags: [],
