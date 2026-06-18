@@ -480,6 +480,80 @@ const NAMED_CHAINS = {
     ],
   },
 
+  // Wave 9 ChainGraph — Tempo Network
+  'tempo-fit': {
+    title: 'Tempo Fit Diagnostic',
+    description: 'Single-node D0 diagnostic grading an organisation A–F across four Tempo use cases (Issue/TIP-20, Payments rail, Agent/MPP, Commerce/checkout). Routes to W-A, W-B, W-C, or W-D chain based on dimension scores.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-fit.html',
+    steps: [
+      { slug: 'art-34-tempo-fit-diagnostic', handoff: 'dim_scores and primary_recommendation route to tempo-payments / tempo-issuance / tempo-mpp-agent / tempo-agentic-checkout chains' },
+    ],
+  },
+
+  'tempo-payments': {
+    title: 'Tempo Payments Business Case',
+    description: 'W-A chain. Models CFO-level cost savings of migrating payroll, remittance, or merchant settlement to Tempo vs card/SWIFT/ACH/SEPA. Outputs annual savings ($, bps), break-even months, finality improvement, and a CFO memo.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-payments.html',
+    steps: [
+      { slug: 'art-35-tempo-payments-business-case', handoff: 'annual_savings, per_tx_saving, break_even_months, and cfο_memo feed downstream issuance or agent chains' },
+    ],
+  },
+
+  'tempo-mpp-agent': {
+    title: 'Tempo MPP Agent Mandate',
+    description: 'W-C chain. Decode MPP session → AP2 mandate chain validation → agent spend-policy simulation → KYA identity attestation. The agent emits the mandate; the merchant re-verifies execution_hash before honoring the HTTP-402 response.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-mpp-agent.html',
+    steps: [
+      { slug: 'art-36-tempo-mpp-agent-mandate',      handoff: 'session_mandate and execution_hash (H1) + AP2 mapping feed Stage 2 mandate validation' },
+      { slug: 'art-01-ap2-mandate-chain-validator',  handoff: 'ap2_mandate verdict and execution_hash (H2) feed Stage 3 spend-policy simulation' },
+      { slug: 'art-02-agent-spend-policy-simulator', handoff: 'spend_policy verdict and execution_hash (H3) feed Stage 4 KYA attestation' },
+      { slug: 'art-04-agent-identity-attestation-checker', handoff: 'Exports composite MPP agent mandate with execution_hash (H4) -- final stage' },
+    ],
+  },
+
+  'tempo-issuance': {
+    title: 'Tempo Stablecoin Issuance',
+    description: 'W-B chain. TIP-20 config lint + TIP-403 policy design → GENIUS Act reserve pre-check → AML typology pre-screen. Dual US GENIUS PPSI + EU MiCA EMT compliance. GENIUS Act enacted; GENIUS PPSI AML Rule Fed. Reg. 2026-06963 NPRM.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-issuance.html',
+    steps: [
+      { slug: 'art-37-tempo-stablecoin-issuance',         handoff: 'genius_checks, mica_checks, overall_verdict, and issuer_lei feed Stage 2 reserve pre-check' },
+      { slug: 'art-06-genius-act-reserve-attestation',    handoff: 'reserve_attestation verdict feeds Stage 3 AML pre-screen' },
+      { slug: 'art-10-amla-transaction-typology-risk-scorer', handoff: 'Exports composite stablecoin issuance compliance mandate -- final stage' },
+    ],
+  },
+
+  'tempo-onchain-aml': {
+    title: 'Tempo On-Chain AML',
+    description: 'W-E chain. TIP-403 freeze/allowlist pre-check → TIP-20 batch AML + FATF Travel Rule screening → typology risk scoring. Bilateral: sending VASP emits Travel Rule attestation; receiving VASP re-verifies. FATF ≥$3,000; BSA SAR ≥$5,000.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-onchain-aml.html',
+    steps: [
+      { slug: 'art-37-tempo-stablecoin-issuance',             handoff: 'tip403_controls verified before batch screening' },
+      { slug: 'art-38-tempo-onchain-aml',                     handoff: 'sar_determination, travel_rule_attestation, and execution_hash feed Stage 3 typology scoring' },
+      { slug: 'art-10-amla-transaction-typology-risk-scorer', handoff: 'Exports composite AML + Travel Rule mandate -- final stage' },
+    ],
+  },
+
+  'tempo-zone-disclosure': {
+    title: 'Tempo Zone Disclosure',
+    description: 'W-F chain. Operator AML screen on full Zone tx set → selective-disclosure attestation → ZK compliance proof. Confirms TIP-403 propagates cross-zone. Zones: operator sees all, users see own, outsiders see ZK proofs (June 2026).',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-zone-disclosure.html',
+    steps: [
+      { slug: 'art-38-tempo-onchain-aml',         handoff: 'aml_verdict and execution_hash (H1) feed Stage 2 zone disclosure attestation' },
+      { slug: 'art-39-tempo-zone-disclosure',     handoff: 'zone_attestation verdict and execution_hash (H2) feed Stage 3 ZK proof generation' },
+      { slug: 'cry-01-zk-compliance-proof-generator', handoff: 'Exports privacy-and-auditability attestation + ZK proof -- final stage' },
+    ],
+  },
+
+  'tempo-agentic-checkout': {
+    title: 'Tempo Agentic Checkout',
+    description: 'W-D chain. x402/MPP protocol decode → TIP-20 settlement mapper. ART-40 is the canonical OCG v0.3 pacs.008-subset tool: maps 32-byte Tempo memo → ISO 20022 remittance_information. Merchant emits; agent re-verifies execution_hash before honoring settlement.',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-agentic-checkout.html',
+    steps: [
+      { slug: 'art-26-x402-payload-decoder-flow-simulator', handoff: 'protocol_decode and payment_details feed Stage 2 TIP-20 settlement mapping' },
+      { slug: 'art-40-tempo-agentic-checkout',              handoff: 'Exports TIP-20 settlement artifact with execution_hash; memo → remittance_information crosswalk -- final stage' },
+    ],
+  },
+
   // Wave 6 ChainGraph — Agent Session Receipt (links-only aggregator)
   'agent-session-receipt': {
     title: 'Agent Session Receipt',
@@ -1001,7 +1075,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     // dct:conformsTo URI (W3C Content Negotiation by Profile token->URI map).
     // Outside the execution_hash preimage — framing only.
     const OCG_PROFILE_URIS = {
-      'iso20022:pacs.008-subset': 'https://ainumbers.co/chaingraph/profiles/iso20022/pacs.008-subset.jsonld',
+      'iso20022:pacs.008-subset': 'https://ainumbers.co/chaingraph/profiles/iso20022/pacs008-subset.jsonld',
       'iso20022:party-identification': 'https://ainumbers.co/chaingraph/profiles/iso20022/party-identification.jsonld',
     };
     const profile_conforms_to = node.semantic_profile && OCG_PROFILE_URIS[node.semantic_profile]
