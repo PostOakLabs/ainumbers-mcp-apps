@@ -564,6 +564,63 @@ const NAMED_CHAINS = {
     ],
   },
 
+  // Wave 8 — Canton / Tokenized Market Infrastructure
+  'canton-capital-efficiency': {
+    title: 'Canton Capital Efficiency Chain',
+    description: 'Assess Canton pilot readiness and compute settlement-risk capital savings. Steps: Canton Readiness Diagnostic → Capital Optimizer → Basel 3.1 RWA → XVA/CVA → LCR/NSFR.',
+    composer_url: BASE_URL + '/guides/canton-capital-efficiency-composer.html',
+    steps: [
+      { slug: '503-canton-tokenization-readiness-diagnostic', handoff: 'entity_type,grade,gaps feed Stage 2 capital optimizer' },
+      { slug: '504-settlement-risk-capital-optimizer',        handoff: 'total_rwa_delta,annual_saving_bps feeds downstream Basel 3.1/XVA/LCR chain -- final stage' },
+    ],
+  },
+  'canton-dvp-readiness': {
+    title: 'Canton DvP Readiness Chain',
+    description: 'Validate DvP atomicity and collateral eligibility for Canton settlement. PFMI P12 atomicity model + DTC/Fed/HQLA eligibility verdict.',
+    composer_url: BASE_URL + '/guides/canton-dvp-readiness-composer.html',
+    steps: [
+      { slug: '507-canton-dvp-atomicity-validator',           handoff: 'dvp_verdict,atomicity_model,finality_model feed Stage 2 collateral eligibility' },
+      { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,dtc_eligible,haircut_pct -- Exports DvP readiness mandate -- final stage' },
+    ],
+  },
+  'canton-repo-mobility': {
+    title: 'Canton Repo Collateral Mobility Chain',
+    description: 'Compute repo haircut with Canton 24/7 valuation, verify collateral and cash-leg finality. CRE22 supervisory haircuts + d349 SFT floors.',
+    composer_url: BASE_URL + '/guides/canton-repo-mobility-composer.html',
+    steps: [
+      { slug: '508-repo-haircut-collateral-calculator',       handoff: 'total_haircut_pct,initial_margin,canton_247 feed Stage 2 collateral eligibility' },
+      { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,dtc_eligible feed Stage 3 cash-leg finality' },
+      { slug: '506-onchain-cash-leg-finality-checker',        handoff: 'finality_verdict,genius_status -- Exports repo collateral mandate -- final stage' },
+    ],
+  },
+  'canton-counterparty-onboarding': {
+    title: 'Canton Counterparty Onboarding Chain',
+    description: 'KYA screening and party allowlist validation for Canton Network onboarding. FATF Travel Rule compliance and AMLAR KYA obligations.',
+    composer_url: BASE_URL + '/guides/canton-counterparty-onboarding-composer.html',
+    steps: [
+      { slug: '509-canton-party-allowlist-validator', handoff: 'allowlist_verdict,fatf_flags,parties_approved -- Exports counterparty onboarding mandate -- final stage' },
+    ],
+  },
+  'canton-securities-issuance': {
+    title: 'Canton Securities Issuance Chain',
+    description: 'Regulatory classification and Daml lifecycle validation for tokenized securities. GENIUS/MiCA/MiFID II/DLT Pilot classification then lifecycle coverage.',
+    composer_url: BASE_URL + '/guides/canton-securities-issuance-composer.html',
+    steps: [
+      { slug: '510-digital-asset-regulatory-classifier',      handoff: 'frameworks_applied,mifid_instrument,dlt_pilot_eligible feed Stage 2 lifecycle validator' },
+      { slug: '512-tokenized-security-lifecycle-validator',   handoff: 'lifecycle_verdict,daml_gaps -- Exports securities issuance mandate -- final stage' },
+    ],
+  },
+  'canton-margin-call': {
+    title: 'Canton Margin Call & Collateral Mobilization Chain',
+    description: 'Margin computation (UMR/d499 for derivatives; GMRA/d349 for repo/SFT), collateral eligibility, and cash-leg finality. Never mixes UMR and GMRA branches.',
+    composer_url: BASE_URL + '/guides/canton-margin-call-composer.html',
+    steps: [
+      { slug: '513-margin-call-collateral-mobilizer',         handoff: 'branch,margin_required,collateral_gap feed Stage 2 collateral eligibility' },
+      { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,eligible_value feed Stage 3 cash-leg finality' },
+      { slug: '506-onchain-cash-leg-finality-checker',        handoff: 'finality_verdict -- Exports margin call collateral mandate -- final stage' },
+    ],
+  },
+
   // Wave 6 ChainGraph — Agent Session Receipt (links-only aggregator)
   'agent-session-receipt': {
     title: 'Agent Session Receipt',
@@ -1825,6 +1882,36 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       }}],
     };
   });
+
+  // Wave 8 prompts
+
+  server.registerPrompt('canton_capital_efficiency_workflow', {
+    title: 'Canton Capital Efficiency Workflow',
+    description: 'Guide for assessing Canton Network pilot readiness and computing settlement-risk capital savings. Runs T503 readiness diagnostic → T504 capital optimizer → Basel 3.1 RWA → XVA/CVA → LCR/NSFR chain.',
+    argsSchema: {
+      entity_type: z.string().optional().describe('Entity type (g_sib/regional_bank/broker_dealer/asset_manager)'),
+    },
+  }, async ({ entity_type }) => ({
+    messages: [{
+      role: 'user',
+      content: {
+        type: 'text',
+        text:
+          'Run the Canton Capital Efficiency Chain for a ' + (entity_type || 'financial institution') + '.\n\n' +
+          'Step 1 — Canton Tokenization Readiness Diagnostic (T503): open https://ainumbers.co/tools/503-canton-tokenization-readiness-diagnostic.html. ' +
+          'Answer 12 weighted questions across 6 domains: settlement ops, custody, cash-leg, privacy, AML/KYA, and capital readiness. ' +
+          'The diagnostic grades A–F per domain and routes to the correct Canton chain based on gaps. Export the readiness_diagnostic Policy Mandate.\n\n' +
+          'Step 2 — Settlement-Risk Capital Efficiency Optimizer (T504): open https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html. ' +
+          'Feed the T503 readiness mandate (entity_type, grade, gaps). Compute RWA delta and annual capital saving in bps-of-notional from atomic DvP elimination of settlement risk. ' +
+          'Regulatory basis: BCBS CRE70 (settlement risk capital); CRE52 (SA-CCR netting). Export the capital_assessment Policy Mandate.\n\n' +
+          'Step 3 — Feed the capital delta to the Basel 3.1 RWA, XVA/CVA, and LCR/NSFR tools for the full regulatory picture. ' +
+          'Use compute_rwa_scenarios for Basel 3.1 RWA impact, compute_options_greeks / calculate_xva for CVA/XVA, and run_liquidity_stress_test for LCR/NSFR.\n\n' +
+          'Chain composer: https://ainumbers.co/guides/canton-capital-efficiency-composer.html\n\n' +
+          'All tools run client-side — zero PII, zero network. Use synthetic or anonymised data only. ' +
+          'Export a Policy Mandate at each stage and chain execution_hashes for a full audit trail.',
+      },
+    }],
+  }));
 
   // -------------------------------------------------------------------------
   // ChainGraph Suite -- one MCP tool per live node in chaingraph.json
