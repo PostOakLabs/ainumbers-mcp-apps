@@ -554,6 +554,16 @@ const NAMED_CHAINS = {
     ],
   },
 
+  // Wave 9 fast-follow — Tempo Validator Readiness (standalone node, no chain page)
+  'tempo-validator-readiness': {
+    title: 'Tempo Validator Readiness',
+    description: 'ART-41 standalone node. 12-question infrastructure readiness scorer for prospective Tempo validators across hardware, OS/software, key management, telemetry, and upgrade cadence. Flags permissioned entry (partners@tempo.xyz required). infrastructure_mandate.',
+    composer_url: BASE_URL + '/chaingraph/art-41-tempo-validator-readiness.html',
+    steps: [
+      { slug: 'art-41-tempo-validator-readiness', handoff: 'Exports infrastructure_mandate artifact with execution_hash and permissioning notice -- standalone node' },
+    ],
+  },
+
   // Wave 6 ChainGraph — Agent Session Receipt (links-only aggregator)
   'agent-session-receipt': {
     title: 'Agent Session Receipt',
