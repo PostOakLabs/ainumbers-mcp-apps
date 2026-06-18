@@ -930,16 +930,27 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ tool_id, policy_parameters, parent_hashes, parent_tool_ids, pre_computed_artifact }) => {
-    const AP2_VERSION = '1.0.0';
-    const REQUIRED_FIELDS = ['ap2_version', 'mandate_type', 'tool_id', 'tool_version', 'generated_at', 'execution_hash', 'chain', 'policy_parameters', 'output_payload'];
+    // v0.3.1 envelope harmonization (expand-migrate-contract, additive):
+    // chaingraph_version + @context are canonical (match ChainGraph Standard §1);
+    // ap2_version retained as a DEPRECATED ALIAS for back-compat with existing browser exports.
+    const CHAINGRAPH_VERSION = '0.3.1';
+    const AP2_VERSION = '1.0.0'; // deprecated alias of chaingraph_version (retained, not emitted as canonical)
+    const BASE_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld';
+    const ISO_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/iso20022-context.jsonld';
+    // Lenient acceptance: an artifact is valid with EITHER version field present.
+    const VERSION_FIELDS = ['chaingraph_version', 'ap2_version'];
+    const REQUIRED_FIELDS = ['mandate_type', 'tool_id', 'tool_version', 'generated_at', 'execution_hash', 'chain', 'policy_parameters', 'output_payload'];
 
     // --- Mode 1: pre_computed_artifact supplied ---
     if (pre_computed_artifact) {
       const missing = REQUIRED_FIELDS.filter((f) => !(f in pre_computed_artifact));
-      if (missing.length > 0) {
+      const hasVersion = VERSION_FIELDS.some((f) => f in pre_computed_artifact);
+      if (missing.length > 0 || !hasVersion) {
+        const problems = [...missing];
+        if (!hasVersion) problems.push('one of: chaingraph_version | ap2_version');
         return {
           isError: true,
-          content: [{ type: 'text', text: 'Artifact missing required ChainGraph Standard v0.1 §4 fields: ' + missing.join(', ') + '.' }],
+          content: [{ type: 'text', text: 'Artifact missing required ChainGraph Standard fields: ' + problems.join(', ') + '.' }],
         };
       }
       const pp = pre_computed_artifact.policy_parameters;
@@ -990,12 +1001,14 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     // dct:conformsTo URI (W3C Content Negotiation by Profile token->URI map).
     // Outside the execution_hash preimage — framing only.
     const OCG_PROFILE_URIS = {
-      'iso20022:pacs.008-subset': 'https://openchain.graph/profiles/iso20022/pacs.008-subset',
-      'iso20022:party-identification': 'https://openchain.graph/profiles/iso20022/party-identification',
+      'iso20022:pacs.008-subset': 'https://ainumbers.co/chaingraph/profiles/iso20022/pacs.008-subset.jsonld',
+      'iso20022:party-identification': 'https://ainumbers.co/chaingraph/profiles/iso20022/party-identification.jsonld',
     };
     const profile_conforms_to = node.semantic_profile && OCG_PROFILE_URIS[node.semantic_profile]
       ? [OCG_PROFILE_URIS[node.semantic_profile]]
       : null;
+    // @context: base context always; add the ISO 20022 overlay only when a profile applies.
+    const envelope_context = profile_conforms_to ? [BASE_CONTEXT, ISO_CONTEXT] : BASE_CONTEXT;
 
     // --- Mode 3: tool_id only, no policy_parameters ---
     if (!policy_parameters) {
@@ -1011,6 +1024,8 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         browser_url,
         semantic_profile: node.semantic_profile ?? null,
         artifact_schema: {
+          '@context': envelope_context,
+          chaingraph_version: CHAINGRAPH_VERSION,
           ap2_version: AP2_VERSION,
           mandate_type: node.mandate_type,
           tool_id,
@@ -1026,6 +1041,8 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
 
     // --- Mode 2: tool_id + policy_parameters ---
     const artifact_template = {
+      '@context': envelope_context,
+      chaingraph_version: CHAINGRAPH_VERSION,
       ap2_version: AP2_VERSION,
       mandate_type: node.mandate_type,
       tool_id,
