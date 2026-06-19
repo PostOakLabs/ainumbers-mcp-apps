@@ -39,6 +39,13 @@ jobs:
         # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
         run: node scripts/check-tool-names.mjs
 
+      - name: 🧩 Kernel coverage check (CONTRACT §A4)
+        # Fails if any chaingraph node with compute_capability:"server" (gpu:false)
+        # lacks a matching *.kernel.mjs in vendored kernels/. Enforces full agent-native
+        # coverage — any new server node without a kernel breaks CI here before deploy.
+        # --strict also fails on orphan kernel files (kernel with no matching server node).
+        run: node scripts/kernel-coverage.mjs --strict
+
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
