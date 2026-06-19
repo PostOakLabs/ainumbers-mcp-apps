@@ -877,6 +877,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
 
   // Canonicalization per ChainGraph Standard v0.1 §6: recursively sort object
   // keys (Unicode code point), preserve array order, minimal-whitespace JSON.
+  // PARITY: byte-identical to repo/chaingraph/kernels/_hash.mjs (vendored to
+  // ./data/kernels/_hash.mjs by generate.mjs). Every browser tool now uses that
+  // same recursive canonicalizer, so a tool's exported artifact reproduces here
+  // under verify_execution_hash. Do not edit one copy without the other.
   const cgCanon = (v) => Array.isArray(v) ? v.map(cgCanon)
     : (v && typeof v === 'object')
       ? Object.keys(v).sort().reduce((o, k) => (o[k] = cgCanon(v[k]), o), {})
@@ -914,7 +918,9 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       };
     }
     const computed_hash = await cgExecutionHash(pp, op);
-    const valid = claimed != null && computed_hash === claimed;
+    // Tolerate the optional "sha256:" prefix (OCG spec convention) on either side.
+    const __norm = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
+    const valid = claimed != null && __norm(computed_hash) === __norm(claimed);
     const out = {
       valid,
       computed_hash,
@@ -1098,7 +1104,9 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       const op = pre_computed_artifact.output_payload;
       const claimed = pre_computed_artifact.execution_hash ?? null;
       const computed_hash = await cgExecutionHash(pp, op);
-      const hash_valid = claimed != null && computed_hash === claimed;
+      // Tolerate the optional "sha256:" prefix (OCG spec convention) on either side.
+      const __normH = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
+      const hash_valid = claimed != null && __normH(computed_hash) === __normH(claimed);
       const out = {
         mode: 'pre_computed',
         schema_valid: true,

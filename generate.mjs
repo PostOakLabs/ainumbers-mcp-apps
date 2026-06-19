@@ -22,6 +22,14 @@ for (const slug of PILOT) {
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
 
+// Vendor the shared OCG hash module so the Worker imports the SAME canonicalizer
+// the browser tools use (repo/chaingraph/kernels/_hash.mjs). worker.mjs cgCanon
+// MUST stay byte-identical to this — the parity test in kernels/ enforces it.
+mkdirSync(resolve(DATA,'kernels'),{recursive:true});
+for (const k of ['_hash.mjs']) {
+  writeFileSync(resolve(DATA,'kernels',k), readFileSync(resolve(REPO,'chaingraph','kernels',k)));
+}
+
 // Vendor the ext-apps browser SDK as an export-free inlinable script for the widget glue.
 // Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
 // SDK must be inlined into the widget HTML rather than imported from esm.sh at runtime.
