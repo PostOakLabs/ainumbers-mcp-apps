@@ -43,6 +43,23 @@ for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
 }
 
 // ---------------------------------------------------------------------------
+// Vendor OCG exporter modules (chaingraph_export, OCG §13) — same two targets
+// as kernels: data/exporters/ (assets) + ./exporters/ (bundled into the Worker
+// via the static import in worker.mjs). All *.mjs except *.test.mjs.
+// ---------------------------------------------------------------------------
+const EXPORTERS_SRC    = resolve(REPO, 'chaingraph', 'exporters');
+const EXPORTERS_DATA   = resolve(DATA, 'exporters');
+const EXPORTERS_BUNDLE = resolve(ROOT, 'exporters');
+mkdirSync(EXPORTERS_DATA,   { recursive: true });
+mkdirSync(EXPORTERS_BUNDLE, { recursive: true });
+const EXPORTER_FILE_RE = /^(?!.*\.test\.mjs$)[a-z0-9_-]+\.mjs$/;
+for (const f of readdirSync(EXPORTERS_SRC).filter(f => EXPORTER_FILE_RE.test(f))) {
+  const src = readFileSync(resolve(EXPORTERS_SRC, f));
+  writeFileSync(resolve(EXPORTERS_DATA, f), src);
+  writeFileSync(resolve(EXPORTERS_BUNDLE, f), src);
+}
+
+// ---------------------------------------------------------------------------
 // Emit data/counts.json — single source of truth for all numeric stats used
 // in mcp.html, chaingraph-hub.html, JSON-LD, og:description, i18n strings.
 // build_workflow_links chain names are read from chaingraph.json.chains (after F).
@@ -54,7 +71,7 @@ const cgChains = cgJson.chains ?? [];
 const liveNodes = cgNodes.filter(n => n.status === 'live').length;
 const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
 // Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools (list/build/verify/emit/receipt=6)
-const UTIL_TOOL_COUNT = 6; // list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph, emit_chaingraph_artifact, build_session_receipt
+const UTIL_TOOL_COUNT = 7; // list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph, emit_chaingraph_artifact, build_session_receipt, export_artifact
 const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
 const counts = {
   chaingraph_nodes_live: liveNodes,

@@ -23,6 +23,7 @@ const DATA = resolve(ROOT, 'data');
 const UTILITY_TOOLS = [
   'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
   'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
+  'export_artifact',
 ];
 
 const names = new Map(); // name -> [sources]

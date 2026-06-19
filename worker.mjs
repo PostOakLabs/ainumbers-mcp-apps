@@ -10,6 +10,7 @@ import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@model
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
+import { registerExportArtifact } from './exporters/index.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
@@ -1374,6 +1375,20 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
     return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
   });
+
+  // -------------------------------------------------------------------------
+  // export_artifact -- chaingraph_export profiles (OCG Standard §13). 7th utility tool.
+  // Renders a verified v0.4 artifact to xlsx / csv / pdf / xbrl, server-side, hash-excluded.
+  // Per-node export_capability gate (additive: a node with no declared export_capability
+  // still allows exports; flip the default to `false` once export_capability is back-filled
+  // catalog-wide for hard §13.4 enforcement).
+  // -------------------------------------------------------------------------
+  const isFormatAllowed = (tool_id, format) => {
+    const cap = cgById[tool_id]?.export_capability;
+    if (!cap || !cap.length) return true;
+    return cap.some((c) => c === format || c.startsWith(format + ':')); // e.g. 'xbrl:eba-corep-own-funds'
+  };
+  registerExportArtifact(server, z, { isFormatAllowed });
 
   // -------------------------------------------------------------------------
   // MCP Prompts -- workflow recipes (WS5b)
