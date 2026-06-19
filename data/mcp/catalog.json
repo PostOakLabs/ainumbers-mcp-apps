@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "422 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "483 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-06-07",
-  "tool_count": 422,
+  "generated": "2026-06-18",
+  "tool_count": 483,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -8815,6 +8815,65 @@
       }
     },
     {
+      "name": "policy_register",
+      "description": "View and analyse a portfolio of AINumbers Policy Mandate JSON files: register table with expiry dates, coverage matrix, and duplicate detection.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mandates": {
+            "type": "array",
+            "description": "Array of Policy Mandate objects"
+          },
+          "as_of_date": {
+            "type": "string",
+            "description": "ISO date string (YYYY-MM-DD) to compute days-to-expiry against"
+          }
+        },
+        "required": [
+          "mandates"
+        ]
+      },
+      "metadata": {
+        "tool_id": "policy-register",
+        "category": "cat-22",
+        "url": "https://ainumbers.co/tools/290-policy-register.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "mandate_diff",
+      "description": "Produces a schema-aware diff between two AINumbers Policy Mandate JSON objects.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mandate_a": {
+            "type": "object",
+            "description": "First (older) mandate"
+          },
+          "mandate_b": {
+            "type": "object",
+            "description": "Second (newer) mandate"
+          }
+        },
+        "required": [
+          "mandate_a",
+          "mandate_b"
+        ]
+      },
+      "metadata": {
+        "tool_id": "mandate-diff",
+        "category": "cat-22",
+        "url": "https://ainumbers.co/tools/291-mandate-diff.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
       "name": "dora_ict_risk_gap_analyser",
       "description": "Five-pillar DORA ICT risk maturity assessment. Composite score /100, pillar heatmap, remediation priority table, Policy Mandate JSON and Markdown export. Client-side. Zero PII. Browser-based, client-side only. Zero PII. Link users to https://ainumbers.co/tools/300-dora-ict-risk-gap-analyser.html for interactive use.",
       "inputSchema": {
@@ -11301,40 +11360,6 @@
       }
     },
     {
-      "name": "380_physical_climate_risk_exposure_assessor",
-      "description": "Map portfolio and asset exposure to IPCC physical climate hazards across acute and chronic risks. TCFD-aligned scoring across geographies, asset classes, and climate scenarios. Client-side. Zero PII.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
-      "metadata": {
-        "tool_id": "380-physical-climate-risk-exposure-assessor",
-        "category": "fintech",
-        "url": "https://ainumbers.co/tools/380-physical-climate-risk-exposure-assessor.html",
-        "ap2_export": true,
-        "execution_type": "browser-reference",
-        "version": "1.1.0",
-        "prefill": true
-      }
-    },
-    {
-      "name": "381_eu_green_bond_standard_eligibility_screener",
-      "description": "Screen bond issuance against EU Green Bond Standard (Regulation 2023/2631). Taxonomy alignment check, allocation plan, external review requirements, and gap list. Client-side. Zero PII.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      },
-      "metadata": {
-        "tool_id": "381-eu-green-bond-standard-eligibility-screener",
-        "category": "fintech",
-        "url": "https://ainumbers.co/tools/381-eu-green-bond-standard-eligibility-screener.html",
-        "ap2_export": true,
-        "execution_type": "browser-reference",
-        "version": "1.1.0",
-        "prefill": true
-      }
-    },
-    {
       "name": "381_eu_green_bond_standard_screener",
       "description": "Screen bonds against EU Green Bond Standard (Regulation EU 2023/2631). Check taxonomy alignment, use of proceeds exclusivity, pre-issuance factsheet, accredited external verifier, and post-issuance reporting obligations. Client-side. Zero PII.",
       "inputSchema": {
@@ -11999,7 +12024,7 @@
     },
     {
       "name": "420_mt700_lc_field_validator",
-      "description": "Validate SWIFT MT700 Documentary Credit fields against UCP 600 rules and ISBP 821. Flags missing mandatory fields, format errors, date logic, and common discrepancy risks. Client-side. Zero PII.",
+      "description": "Validate SWIFT MT700 Documentary Credit fields against UCP 600 rules and ISBP 821, and run a presented-document UCP 600 discrepancy check (TF-02 rules R01-R14) comparing presented documents against the captured LC terms. Flags missing mandatory fields, format errors, date logic, common discrepancy risks, and produces a per-rule PASS/FAIL/WARNING/N-A report with article citations, a discrepancy-count badge, an informational readiness score, and CSV export. Client-side. Zero PII.",
       "inputSchema": {
         "type": "object",
         "properties": {}
@@ -12010,7 +12035,7 @@
         "url": "https://ainumbers.co/tools/420-mt700-lc-field-validator.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "prefill": true
       }
     },
@@ -12050,7 +12075,7 @@
     },
     {
       "name": "423_dc_vs_lc_analyzer",
-      "description": "Compare total cost and risk exposure of Documentary Collections (D/P, D/A) against Letters of Credit (Sight, Usance, SBLC) for trade transactions. Risk-adjusted recommendation. Client-side. Zero PII.",
+      "description": "Compare total cost and risk exposure of Documentary Collections (D/P, D/A) against Letters of Credit (Sight, Usance, SBLC) for trade transactions. Risk-adjusted recommendation, URC 522 compliance checklist, and jurisdiction D/A enforceability flags. Client-side. Zero PII.",
       "inputSchema": {
         "type": "object",
         "properties": {}
@@ -12061,7 +12086,7 @@
         "url": "https://ainumbers.co/tools/423-dc-vs-lc-analyzer.html",
         "ap2_export": false,
         "execution_type": "browser-reference",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "prefill": true
       }
     },
@@ -12713,6 +12738,3833 @@
         "ap2_export": false,
         "execution_type": "browser-reference",
         "version": "1.1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "analyze_pc_combined_ratio",
+      "description": "Compute P&C Loss Ratio = (incurred losses + LAE) / earned premium, Expense Ratio = underwriting expenses / (written or earned premium), Combined Ratio = loss + expense, and optional Operating Ratio = combined - investment yield. Benchmark the combined ratio against published industry medians (AM Best 2024/2025, NAIC 2024) by line of business, assign a colour-coded adequacy zone (green <95%, amber 95-105%, red >105%), and flag the NAIC IRIS solvency-screening threshold (combined ratio > 115%). Returns ratios, zone, IRIS flag, and benchmark deltas.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "lob",
+          "earnedPremium",
+          "incurredLosses",
+          "uwExpenses"
+        ],
+        "properties": {
+          "lob": {
+            "type": "string"
+          },
+          "earnedPremium": {
+            "type": "number"
+          },
+          "writtenPremium": {
+            "type": "number"
+          },
+          "incurredLosses": {
+            "type": "number"
+          },
+          "lae": {
+            "type": "number"
+          },
+          "uwExpenses": {
+            "type": "number"
+          },
+          "acqCosts": {
+            "type": "number"
+          },
+          "basis": {
+            "type": "string"
+          },
+          "invYield": {
+            "type": "number"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "455-pc-combined-ratio-analyzer",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/455-pc-combined-ratio-analyzer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "price_reinsurance_burning_cost",
+      "description": "Price an excess-of-loss reinsurance layer by the burning cost method. Trends historical ground-up losses to the prospective period, applies an IBNR load and exposure adjustment, computes the as-if layer loss per accident year (min(max(developed-attachment,0),limit)), and divides total layer losses by total subject premium to get the burning cost rate. Returns technical rate (BC / target loss ratio), technical premium, expected layer loss, reinstatement cost, and a low-credibility flag. Use when an agent needs an experience-rated indicative price for a treaty XL layer. Supplement with exposure rating for thin/high layers.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "attach",
+          "limit",
+          "targetLR"
+        ],
+        "properties": {
+          "attach": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "treatyType": {
+            "type": "string",
+            "enum": [
+              "per_occ",
+              "aggregate"
+            ]
+          },
+          "trend": {
+            "type": "number"
+          },
+          "trendYears": {
+            "type": "number"
+          },
+          "ibnr": {
+            "type": "number"
+          },
+          "targetLR": {
+            "type": "number"
+          },
+          "prospPrem": {
+            "type": "number"
+          },
+          "loss_experience": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "456-reinsurance-burning-cost-pricer",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/456-reinsurance-burning-cost-pricer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "calculate_naic_rbc_ratio",
+      "description": "Calculate a simplified NAIC Risk-Based Capital (RBC) ratio for a US P&C insurer. Computes asset risk charges (R0 affiliates 10%, R1 fixed income weighted rate, R2 equity 15%, R3 credit 5\u201310%) and underwriting risk charges (R4 reserves, R5 premium by line of business), applies the covariance square-root aggregation RBC_after_cov = R0 + sqrt(R1^2+R2^2+R3^2+R4^2+R5^2), derives Authorized Control Level RBC = RBC_after_cov/2, and returns the RBC ratio against the NAIC action levels (CAL 200%, RAL 150%, ACL 100%, MCL 70%). Simplified standard formula \u2014 indicative.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "surplus",
+          "admittedDebt",
+          "r1Base",
+          "r1Rate",
+          "r4Base",
+          "r5Base",
+          "lineSelect"
+        ],
+        "properties": {
+          "surplus": {
+            "type": "number"
+          },
+          "admittedDebt": {
+            "type": "number"
+          },
+          "capAdj": {
+            "type": "number"
+          },
+          "r0Base": {
+            "type": "number"
+          },
+          "r1Base": {
+            "type": "number"
+          },
+          "r1Rate": {
+            "type": "number"
+          },
+          "r2Base": {
+            "type": "number"
+          },
+          "r3Base": {
+            "type": "number"
+          },
+          "r3Rate": {
+            "type": "number"
+          },
+          "r4Base": {
+            "type": "number"
+          },
+          "r5Base": {
+            "type": "number"
+          },
+          "lineSelect": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "457-naic-rbc-calculator",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/457-naic-rbc-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "design_parametric_trigger",
+      "description": "Design a parametric insurance / catastrophe bond trigger structure and estimate basis risk. Computes expected annual payout = (freq_attach + freq_exhaust)/2 \u00d7 avg_payout_factor \u00d7 limit; risk premium = E[Payout] \u00d7 (1 + risk_load); technical rate on line = premium / limit; basis risk via expected basis risk loss = (1 \u2212 r\u00b2) \u00d7 loss-spread proxy, expressed as % of limit; and a settlement speed score by trigger type. Returns probability summary, premium indication at multiple risk loads, basis risk dashboard, and trigger-type comparison. Premium is illustrative only \u2014 not a binding quote.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "attach",
+          "exhaust",
+          "limit",
+          "corrR"
+        ],
+        "properties": {
+          "triggerType": {
+            "type": "string"
+          },
+          "peril": {
+            "type": "string"
+          },
+          "territory": {
+            "type": "string"
+          },
+          "attach": {
+            "type": "number"
+          },
+          "exhaust": {
+            "type": "number"
+          },
+          "payAttach": {
+            "type": "number"
+          },
+          "payExhaust": {
+            "type": "number"
+          },
+          "payoutFn": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "reinstate": {
+            "type": "number"
+          },
+          "freqAttach": {
+            "type": "number"
+          },
+          "freqExhaust": {
+            "type": "number"
+          },
+          "lossExhaust": {
+            "type": "number"
+          },
+          "lossAttach": {
+            "type": "number"
+          },
+          "corrR": {
+            "type": "number"
+          },
+          "riskLoad": {
+            "type": "number"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "458-parametric-trigger-designer",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/458-parametric-trigger-designer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "test_ratemaking_adequacy",
+      "description": "Test P&C insurance rate adequacy with the pure premium / loss-ratio method (CAS Exam 5; CAS Statement of Principles). Supply up to 10 accident-year rows (earned exposures, earned premium, incurred losses+LAE, claim counts, current rate level factor), loss/premium trend, variable & fixed expense and profit provisions, and credibility settings (square-root or full; default full-credibility 1,082 claims). Returns on-level premium, exposure-weighted trended pure premium, permissible loss ratio, indicated rate change, credibility weight Z = min(sqrt(n/n_full),1), the credibility-weighted indication, an adequacy verdict, and a trend/PLR sensitivity grid. On-level factors and loss development must be supplied by the caller. Deterministic, client-side, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "lossTrend",
+          "trendPeriod",
+          "varExp",
+          "fixedExp",
+          "profit",
+          "fullCred"
+        ],
+        "properties": {
+          "lossTrend": {
+            "type": "number"
+          },
+          "trendPeriod": {
+            "type": "number"
+          },
+          "premTrend": {
+            "type": "number"
+          },
+          "varExp": {
+            "type": "number"
+          },
+          "fixedExp": {
+            "type": "number"
+          },
+          "profit": {
+            "type": "number"
+          },
+          "credMethod": {
+            "type": "string"
+          },
+          "fullCred": {
+            "type": "number"
+          },
+          "complementType": {
+            "type": "string"
+          },
+          "complementVal": {
+            "type": "number"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "459-insurance-ratemaking-adequacy",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/459-insurance-ratemaking-adequacy.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compare_solvency_regimes",
+      "description": "Compare required and available insurer capital across four international solvency regimes \u2014 EU Solvency II SCR (simplified standard formula per CDR 2015/35), NAIC RBC (simplified R0\u2013R5 + covariance), Bermuda BSCR Class E (market+insurance+credit -> ECR), and IRDAI Solvency Margin (RSM = max(50% NWP, prescribed % net claims)) \u2014 from one shared simplified balance sheet. Returns a regime comparison table, the binding capital constraint, per-regime solvency ratios and excess buffers, and a sensitivity view. Simplified approximation \u2014 indicative only; use T447 for full Solvency II SCR and T457 for full NAIC RBC.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "totalAssets",
+          "nwp",
+          "netReserves"
+        ],
+        "properties": {
+          "totalAssets": {
+            "type": "number"
+          },
+          "techProvisions": {
+            "type": "number"
+          },
+          "otherLiab": {
+            "type": "number"
+          },
+          "nwp": {
+            "type": "number"
+          },
+          "nep": {
+            "type": "number"
+          },
+          "netReserves": {
+            "type": "number"
+          },
+          "grossReserves": {
+            "type": "number"
+          },
+          "netClaims": {
+            "type": "number"
+          },
+          "opex": {
+            "type": "number"
+          },
+          "bonds": {
+            "type": "number"
+          },
+          "equities": {
+            "type": "number"
+          },
+          "property": {
+            "type": "number"
+          },
+          "reinsRecov": {
+            "type": "number"
+          },
+          "premLoading": {
+            "type": "string"
+          },
+          "resLoading": {
+            "type": "string"
+          },
+          "catRisk": {
+            "type": "string"
+          },
+          "mktProfile": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "460-solvency-regime-comparator",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/460-solvency-regime-comparator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "model_cyber_accumulation_pml",
+      "description": "Estimate portfolio-level cyber PML at multiple return periods (1-in-10/50/100/250) by systemic scenario (mass ransomware, cloud outage, critical infrastructure, supply chain) using published severity curves (IBM/Ponemon 2024, FBI IC3 2024) and Lloyd's RDS 2024 scalars. Returns attritional expected loss, per-scenario and combined PML, loss-ratio stress, concentration indicators, and an accumulation alert at >25% of aggregate limit. Inputs are synthetic aggregates only \u2014 never policyholder-level data.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "numRisks",
+          "avgRevenue",
+          "avgLimit",
+          "aggLimit",
+          "avgPremium"
+        ],
+        "properties": {
+          "numRisks": {
+            "type": "number"
+          },
+          "avgRevenue": {
+            "type": "number"
+          },
+          "revDist": {
+            "type": "string"
+          },
+          "sector": {
+            "type": "string"
+          },
+          "avgLimit": {
+            "type": "number"
+          },
+          "avgRetention": {
+            "type": "number"
+          },
+          "avgPremium": {
+            "type": "number"
+          },
+          "aggLimit": {
+            "type": "number"
+          },
+          "mixRansomNum": {
+            "type": "number"
+          },
+          "mixBreachNum": {
+            "type": "number"
+          },
+          "mixBINum": {
+            "type": "number"
+          },
+          "mixLiabNum": {
+            "type": "number"
+          },
+          "mixFTFNum": {
+            "type": "number"
+          },
+          "correlation": {
+            "type": "string"
+          },
+          "cspConc": {
+            "type": "string"
+          },
+          "scaExp": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "461-cyber-insurance-accumulation-modeler",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/461-cyber-insurance-accumulation-modeler.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "check_claims_reserve_adequacy",
+      "description": "Run Chain Ladder (development) and Bornhuetter-Ferguson reserving on a cumulative loss development triangle. Computes volume-weighted/simple/3yr/5yr/manual age-to-age factors with optional tail factor and latest-diagonal exclusion, LDFs to ultimate, % unreported, chain-ladder and B-F ultimates and IBNR by accident year, a blended selected IBNR, and a reserve adequacy signal (redundancy/deficiency) versus a booked reserve. Flags CL-vs-BF divergence beyond 15% and low-credibility triangles (<5 accident years or <3 development ages). Methods per CAS/Friedland (2010) and Bornhuetter-Ferguson (1972). Deterministic, client-side, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "triangle",
+          "ldfMethod"
+        ],
+        "properties": {
+          "triangle": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          },
+          "ldfMethod": {
+            "type": "string",
+            "enum": [
+              "vw",
+              "simple",
+              "vw3",
+              "vw5",
+              "manual"
+            ]
+          },
+          "tailFactor": {
+            "type": "number"
+          },
+          "excludeDiag": {
+            "type": "boolean"
+          },
+          "elr": {
+            "type": "number"
+          },
+          "clWeight": {
+            "type": "number"
+          },
+          "earnedPremium": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "bookedReserve": {
+            "type": "number"
+          },
+          "priorReserve": {
+            "type": "number"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "462-claims-reserve-adequacy-checker",
+        "category": "cat-30",
+        "url": "https://ainumbers.co/tools/462-claims-reserve-adequacy-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "reg_bi_best_interest_checker",
+      "description": "Assess a securities recommendation against SEC Regulation Best Interest (17 CFR 240.15l-1). Scores all four component obligations: Disclosure (Rule 15l-1(a)(2)(i)), Care (Rule 15l-1(a)(2)(ii)), Conflict of Interest (Rule 15l-1(a)(2)(iii)), and Compliance (Rule 15l-1(a)(2)(iv)). Returns PASS/GAP per obligation, overall best-interest verdict (BEST_INTEREST_MET / ATTENTION / NOT_MET / OUT_OF_SCOPE), and ordered remediation steps. Deterministic. 2026 FINRA enforcement priority. Use with synthetic inputs only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "recommendation_type": {
+            "type": "string",
+            "enum": [
+              "security_transaction",
+              "investment_strategy",
+              "account_type",
+              "rollover",
+              "margin"
+            ],
+            "description": "Type of recommendation being assessed"
+          },
+          "retail_customer": {
+            "type": "boolean",
+            "description": "True if the recommendation is made to a retail customer (required for Reg BI scope)"
+          },
+          "reasonably_available_alternatives_considered": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of reasonably available alternatives considered before making the recommendation"
+          },
+          "total_cost_bps": {
+            "type": "number",
+            "description": "Total cost to the retail customer in basis points"
+          },
+          "lower_cost_alternative_exists": {
+            "type": "boolean",
+            "description": "True if a lower-cost alternative was identified in the considered set"
+          },
+          "conflicts_disclosed": {
+            "type": "boolean",
+            "description": "True if material conflicts of interest were disclosed in writing"
+          },
+          "conflicts_mitigated": {
+            "type": "boolean",
+            "description": "True if conflicts of interest were mitigated or eliminated through written policies"
+          },
+          "form_crs_delivered": {
+            "type": "boolean",
+            "description": "True if Form CRS was delivered to the retail customer at or before the recommendation"
+          },
+          "rationale_documented": {
+            "type": "boolean",
+            "description": "True if the recommendation rationale (basis for best interest) was documented"
+          },
+          "compliance_program_in_place": {
+            "type": "boolean",
+            "description": "True if a written compliance program reasonably designed to achieve Reg BI compliance is in place"
+          }
+        },
+        "required": [
+          "recommendation_type",
+          "retail_customer"
+        ]
+      },
+      "metadata": {
+        "tool_id": "463-reg-bi-best-interest-checker",
+        "category": "fintech",
+        "url": "https://ainumbers.co/tools/463-reg-bi-best-interest-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "form_crs_generator",
+      "description": "Generate a Form CRS (Customer Relationship Summary) with SEC-prescribed headings and verbatim conversation-starter questions (SEC Form CRS General Instructions \u00a7E). Checks page-length compliance: 2-page limit for standalone broker-dealers or investment advisers; 4-page limit for dual registrants. Required Reg BI disclosure for every retail investor engagement. Markdown export is the filing-ready deliverable. Use with synthetic firm data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "firm_type": {
+            "type": "string",
+            "enum": [
+              "broker_dealer",
+              "investment_adviser",
+              "dual_registrant"
+            ],
+            "description": "Type of registered firm"
+          },
+          "fee_model": {
+            "type": "string",
+            "enum": [
+              "commission",
+              "aum_fee",
+              "wrap_fee",
+              "hourly",
+              "flat",
+              "mixed"
+            ],
+            "description": "Primary fee model"
+          },
+          "services_offered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of investment services offered to retail investors"
+          },
+          "account_minimums": {
+            "type": "string",
+            "description": "Account minimum requirements"
+          },
+          "monitoring_offered": {
+            "type": "boolean",
+            "description": "True if ongoing account monitoring is offered"
+          },
+          "discretionary_authority": {
+            "type": "boolean",
+            "description": "True if the firm exercises discretionary authority"
+          },
+          "material_conflicts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of material conflicts of interest to disclose"
+          },
+          "disciplinary_history": {
+            "type": "boolean",
+            "description": "True if the firm or its professionals have legal or disciplinary history"
+          }
+        },
+        "required": [
+          "firm_type",
+          "fee_model"
+        ]
+      },
+      "metadata": {
+        "tool_id": "464-form-crs-generator",
+        "category": "fintech",
+        "url": "https://ainumbers.co/tools/464-form-crs-generator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "carf_dac8_reportable_classifier",
+      "description": "Classify a CASP and its users/transactions as reportable under OECD CARF and EU DAC8. Determines Reporting-CASP status per CARF \u00a7II; classifies user residency against the 52-jurisdiction CARF participating list (Jan 2026); classifies transactions by type (exchanges always reportable; retail payments \u2265 USD 50,000; unhosted wallet transfers). CARF effective 1 Jan 2026; DAC8 (EU Directive 2023/2226) for FY2026. US implementing CARF exchange from 2027. Use synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "broker",
+              "wallet_provider",
+              "atm_operator",
+              "other"
+            ],
+            "description": "CASP entity type per CARF \u00a7II Reporting CASP definition"
+          },
+          "regime": {
+            "type": "string",
+            "enum": [
+              "carf",
+              "dac8",
+              "both"
+            ],
+            "description": "Applicable regime: carf (non-EU jurisdictions), dac8 (EU member states), or both"
+          },
+          "user_residencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ISO 3166-1 alpha-2 residency codes for each user to classify"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "crypto_to_fiat",
+                    "fiat_to_crypto",
+                    "crypto_to_crypto",
+                    "transfer_out",
+                    "retail_payment"
+                  ]
+                },
+                "amount_usd": {
+                  "type": "number"
+                },
+                "counterparty_hosted": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Transactions to classify; retail_payment threshold is USD 50,000 per CARF \u00a7II.D.3"
+          }
+        },
+        "required": [
+          "entity_type",
+          "regime"
+        ]
+      },
+      "metadata": {
+        "tool_id": "465-carf-dac8-reportable-classifier",
+        "category": "dlt-tokenization",
+        "url": "https://ainumbers.co/tools/465-carf-dac8-reportable-classifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "crypto_cost_basis_gain_calculator",
+      "description": "Compute crypto-asset cost basis and realized gain/loss per disposal. Supports FIFO, LIFO, HIFO, and specific-identification lot matching. Enforces per-wallet basis tracking when enabled (required for US taxpayers from 2025 per IRS Rev. Proc. 2024-28). Short/long-term split at 12-month threshold (IRC \u00a71222). Output gain_loss_schedule feeds IRS Form 1099-DA generation (T467) and CARF/DAC8 reporting. Deterministic lot accounting \u2014 do not estimate gains with an LLM; use this tool. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "FIFO",
+              "LIFO",
+              "HIFO",
+              "spec_id"
+            ],
+            "description": "Lot-matching method: FIFO=first-in-first-out; LIFO=last-in; HIFO=highest-cost-first; spec_id=taxpayer designates each lot"
+          },
+          "wallet_by_wallet": {
+            "type": "boolean",
+            "description": "Restrict lot matching to same wallet (required for US from 2025)"
+          },
+          "lots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lot_id": {
+                  "type": "string"
+                },
+                "asset": {
+                  "type": "string"
+                },
+                "wallet": {
+                  "type": "string"
+                },
+                "date_acquired": {
+                  "type": "string",
+                  "description": "YYYY-MM-DD"
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "cost_usd": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Acquisition lots"
+          },
+          "disposals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "disposal_id": {
+                  "type": "string"
+                },
+                "asset": {
+                  "type": "string"
+                },
+                "wallet": {
+                  "type": "string"
+                },
+                "date_disposed": {
+                  "type": "string",
+                  "description": "YYYY-MM-DD"
+                },
+                "qty": {
+                  "type": "number"
+                },
+                "proceeds_usd": {
+                  "type": "number"
+                },
+                "spec_lot_id": {
+                  "type": "string",
+                  "description": "Required for spec_id method"
+                }
+              }
+            },
+            "description": "Disposals to match"
+          }
+        },
+        "required": [
+          "method",
+          "lots",
+          "disposals"
+        ]
+      },
+      "metadata": {
+        "tool_id": "466-crypto-cost-basis-gain-calculator",
+        "category": "dlt-tokenization",
+        "url": "https://ainumbers.co/tools/466-crypto-cost-basis-gain-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "form_1099_da_generator",
+      "description": "Assemble IRS Form 1099-DA records from digital asset disposal and basis data. Validates completeness per IRS final broker-reporting regulations (TD 9996, June 2024). Gross-proceeds reporting required from 1 Jan 2025; basis (Box 1d) required for covered digital assets acquired on/after 1 Jan 2026. Applies IRS Notice 2025-7 transitional penalty relief notation for tax year 2025. Output contains complete/incomplete flags for each record and a filing CSV extract. Consumes output from T466 crypto-cost-basis-gain-calculator. Verify box numbers against current IRS Form 1099-DA instructions before filing. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "broker_name": {
+            "type": "string",
+            "description": "Synthetic broker name"
+          },
+          "broker_ein": {
+            "type": "string",
+            "description": "Synthetic broker EIN"
+          },
+          "tax_year": {
+            "type": "integer",
+            "description": "Tax year (2025 or later)"
+          },
+          "covered_status": {
+            "type": "string",
+            "enum": [
+              "covered",
+              "noncovered",
+              "transferred"
+            ],
+            "description": "Covered/noncovered status per TD 9996 \u00a71.6045-1(a)(19)"
+          },
+          "disposals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "recipient_id": {
+                  "type": "string"
+                },
+                "asset": {
+                  "type": "string"
+                },
+                "date_acquired": {
+                  "type": "string",
+                  "description": "YYYY-MM-DD"
+                },
+                "date_sold": {
+                  "type": "string",
+                  "description": "YYYY-MM-DD"
+                },
+                "proceeds_usd": {
+                  "type": "number"
+                },
+                "basis_usd": {
+                  "type": "number"
+                },
+                "wash_sale_adj_usd": {
+                  "type": "number"
+                },
+                "term": {
+                  "type": "string",
+                  "enum": [
+                    "short",
+                    "long",
+                    "unknown"
+                  ]
+                },
+                "is_nft": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "recipient_id",
+                "asset",
+                "date_sold",
+                "proceeds_usd"
+              ]
+            },
+            "description": "Disposal records to assemble into 1099-DA entries; typically sourced from T466 gain/loss schedule"
+          }
+        },
+        "required": [
+          "tax_year",
+          "covered_status",
+          "disposals"
+        ]
+      },
+      "metadata": {
+        "tool_id": "467-form-1099-da-generator",
+        "category": "dlt-tokenization",
+        "url": "https://ainumbers.co/tools/467-form-1099-da-generator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "casp_tax_reporting_readiness_scorer",
+      "description": "Assess a CASP's readiness for CARF (OECD, effective 1 Jan 2026), DAC8 (EU Directive 2023/2226, FY2026), and IRS Form 1099-DA (TD 9996) reporting obligations. Scores five weighted domains and returns an A\u2013F grade with a prioritised gap list linked to T465 (CARF classifier), T466 (cost-basis calculator), and T467 (1099-DA generator). Use at programme-initiation or quarterly readiness review. Synthetic inputs only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "exchange",
+              "broker",
+              "wallet_provider",
+              "atm_operator",
+              "other"
+            ]
+          },
+          "regime": {
+            "type": "string",
+            "enum": [
+              "both",
+              "carf_only",
+              "dac8_only",
+              "us_only"
+            ],
+            "description": "Regime scope: both=CARF+DAC8+1099-DA; carf_only; dac8_only; us_only=IRS 1099-DA only"
+          }
+        },
+        "required": [
+          "entity_type",
+          "regime"
+        ]
+      },
+      "metadata": {
+        "tool_id": "468-casp-tax-reporting-readiness-scorer",
+        "category": "dlt-tokenization",
+        "url": "https://ainumbers.co/tools/468-casp-tax-reporting-readiness-scorer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "lcr_calculator",
+      "description": "Calculate the Basel III Liquidity Coverage Ratio (LCR) per BCBS 238. LCR = HQLA (after haircut and caps) / Net Cash Outflows (30-day stress, inflow cap 75%) \u2265 100%. HQLA haircuts: Level 1 = 0%; Level 2A = 15%; Level 2B = 25\u201350%. Outputs compliant flag, surplus/(shortfall), and feeds Pillar 3 LIQ1 (T472). Verify haircut and outflow rates against applicable jurisdiction LCR rules. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "hqla_items": {
+            "type": "array",
+            "description": "HQLA stock \u2014 level, asset description, and market value",
+            "items": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "string",
+                  "enum": [
+                    "l1",
+                    "l2a",
+                    "l2b_25",
+                    "l2b_40",
+                    "l2b_50"
+                  ]
+                },
+                "asset": {
+                  "type": "string"
+                },
+                "market_value_m": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "outflow_items": {
+            "type": "array",
+            "description": "30-day stress outflow categories",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "balance_m": {
+                  "type": "number"
+                },
+                "outflow_rate_pct": {
+                  "type": "number",
+                  "description": "Outflow rate 0\u2013100%"
+                }
+              }
+            }
+          },
+          "inflow_items": {
+            "type": "array",
+            "description": "30-day stress inflow categories (capped at 75% of outflows)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "balance_m": {
+                  "type": "number"
+                },
+                "inflow_rate_pct": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "hqla_items",
+          "outflow_items"
+        ]
+      },
+      "metadata": {
+        "tool_id": "469-lcr-calculator",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/469-lcr-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "nsfr_calculator",
+      "description": "Calculate the Basel III Net Stable Funding Ratio (NSFR) per BCBS 295. NSFR = ASF / RSF \u2265 100%. ASF and RSF factors per BCBS 295 Tables 1\u20132. Outputs compliant flag, ASF/RSF totals, surplus/(shortfall), and feeds Pillar 3 LIQ2 (T472). Verify factors against applicable jurisdiction rules (CRR2 EU; PRA UK). Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asf_items": {
+            "type": "array",
+            "description": "Available Stable Funding items with ASF factor",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "amount_m": {
+                  "type": "number"
+                },
+                "asf_factor_pct": {
+                  "type": "number",
+                  "description": "ASF factor 0\u2013100"
+                }
+              }
+            }
+          },
+          "rsf_items": {
+            "type": "array",
+            "description": "Required Stable Funding items with RSF factor",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "amount_m": {
+                  "type": "number"
+                },
+                "rsf_factor_pct": {
+                  "type": "number",
+                  "description": "RSF factor 0\u2013100"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "asf_items",
+          "rsf_items"
+        ]
+      },
+      "metadata": {
+        "tool_id": "470-nsfr-calculator",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/470-nsfr-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "leverage_ratio_calculator",
+      "description": "Calculate the Basel III leverage ratio per BCBS 360. LR = Tier 1 / Total Exposure Measure \u2265 3% (G-SIB leverage buffer additional per \u00a712). Total exposure = on-BS + derivative (SA-CCR RC+PFE) + SFT + OBS (CCF-adjusted). Outputs ratio, minimum threshold, compliant flag. Feeds Pillar 3 KM1 row h (T472). Verify against CRR3/EU, PRA, or Fed SLR as applicable. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cet1": {
+            "type": "number",
+            "description": "CET1 capital (m)"
+          },
+          "at1": {
+            "type": "number",
+            "description": "Additional Tier 1 capital (m); defaults to 0"
+          },
+          "gsib_bucket": {
+            "type": "number",
+            "enum": [
+              0,
+              1,
+              1.5,
+              2,
+              2.5,
+              3.5
+            ],
+            "description": "G-SIB surcharge bucket; 0 = not G-SIB"
+          },
+          "obs_exp": {
+            "type": "number",
+            "description": "On-balance-sheet gross exposures (m)"
+          },
+          "deriv_exp": {
+            "type": "number",
+            "description": "Derivative exposure measure (SA-CCR RC+PFE, m)"
+          },
+          "sft_exp": {
+            "type": "number",
+            "description": "SFT exposure measure (m)"
+          },
+          "offbs_exp": {
+            "type": "number",
+            "description": "Off-balance-sheet CCF-adjusted exposures (m)"
+          },
+          "other_exp": {
+            "type": "number",
+            "description": "Other adjustments (m)"
+          }
+        },
+        "required": [
+          "cet1",
+          "obs_exp"
+        ]
+      },
+      "metadata": {
+        "tool_id": "471-leverage-ratio-calculator",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/471-leverage-ratio-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "pillar_3_disclosure_builder",
+      "description": "Assemble Basel III Pillar 3 disclosure tables (KM1, OV1, LIQ1, LIQ2) per BCBS 309/400. Consumes inputs from T201 (RWA), T469 (LCR), T470 (NSFR), T471 (leverage ratio). Final step in the bank-capital-liquidity composer chain. Verify row definitions against EBA ITS (EU) or PRA rules (UK) before use in actual disclosures. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bank_name": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "cet1_ratio": {
+            "type": "number",
+            "description": "CET1 ratio %"
+          },
+          "t1_ratio": {
+            "type": "number"
+          },
+          "tc_ratio": {
+            "type": "number"
+          },
+          "rwa": {
+            "type": "number",
+            "description": "Total RWA (m)"
+          },
+          "lr_pct": {
+            "type": "number",
+            "description": "Leverage ratio %"
+          },
+          "lcr_pct": {
+            "type": "number",
+            "description": "LCR %"
+          },
+          "nsfr_pct": {
+            "type": "number",
+            "description": "NSFR %"
+          },
+          "cr_rwa": {
+            "type": "number"
+          },
+          "mr_rwa": {
+            "type": "number"
+          },
+          "or_rwa": {
+            "type": "number"
+          },
+          "hqla_m": {
+            "type": "number"
+          },
+          "gross_out": {
+            "type": "number"
+          },
+          "net_inf": {
+            "type": "number"
+          },
+          "nco": {
+            "type": "number"
+          },
+          "asf_m": {
+            "type": "number"
+          },
+          "rsf_m": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "cet1_ratio",
+          "t1_ratio",
+          "tc_ratio",
+          "rwa",
+          "lcr_pct",
+          "nsfr_pct",
+          "lr_pct"
+        ]
+      },
+      "metadata": {
+        "tool_id": "472-pillar-3-disclosure-builder",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/472-pillar-3-disclosure-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "globe_etr_jurisdiction_calculator",
+      "description": "Calculate GloBE effective tax rate (ETR) per jurisdiction per OECD Pillar Two (Art. 5.1.1). ETR = Adjusted Covered Taxes / GloBE Income. Minimum 15%. SBIE deduction applied (Art. 5.3 transitional rates). Identifies jurisdictions below 15% for top-up tax (T474). \u26a0 US-HQ groups exempt from IIR/UTPR per January 2026 OECD side-by-side package \u2014 do not apply IIR/UTPR to US-parented groups. Verify SBIE rates against current OECD Administrative Guidance. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jurisdictions": {
+            "type": "array",
+            "description": "List of jurisdictions with GloBE income data",
+            "items": {
+              "type": "object",
+              "properties": {
+                "jur": {
+                  "type": "string",
+                  "description": "ISO-3 jurisdiction code (e.g. DE, IE, SG)"
+                },
+                "income": {
+                  "type": "number",
+                  "description": "GloBE income (m)"
+                },
+                "taxes": {
+                  "type": "number",
+                  "description": "Adjusted covered taxes (m)"
+                },
+                "payroll": {
+                  "type": "number",
+                  "description": "Qualifying payroll (m); used for SBIE"
+                },
+                "assets": {
+                  "type": "number",
+                  "description": "Qualifying tangible assets (m); used for SBIE"
+                },
+                "sbie_payroll_rate_pct": {
+                  "type": "number",
+                  "description": "SBIE payroll rate % \u2014 FY2024: 9.8, FY2025: 9.6, FY2026: 9.4, FY2027+: 5.0"
+                }
+              },
+              "required": [
+                "jur",
+                "income",
+                "taxes"
+              ]
+            }
+          }
+        },
+        "required": [
+          "jurisdictions"
+        ]
+      },
+      "metadata": {
+        "tool_id": "473-globe-etr-jurisdiction-calculator",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/473-globe-etr-jurisdiction-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "topup_tax_qdmtt_calculator",
+      "description": "Compute Pillar Two top-up tax per jurisdiction (Art. 5.2.1) and allocate across QDMTT (Art. 11.3), IIR (Art. 2.1), and UTPR (Art. 2.4). \u26a0 US-HQ groups are exempt from IIR and UTPR per the OECD January 2026 side-by-side package \u2014 set parent_hq='US' to apply exemption automatically. QDMTT exposure remains for all groups in jurisdictions with enacted QDMTT. Consumes T473 outputs. Feeds T476. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parent_hq": {
+            "type": "string",
+            "description": "Parent HQ ISO-3 code \u2014 use 'US' to apply IIR/UTPR exemption"
+          },
+          "fy": {
+            "type": "integer",
+            "description": "Fiscal year (affects SBIE transitional rates)"
+          },
+          "jurisdictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "jur": {
+                  "type": "string"
+                },
+                "income": {
+                  "type": "number",
+                  "description": "GloBE income (m)"
+                },
+                "taxes": {
+                  "type": "number",
+                  "description": "Covered taxes (m)"
+                },
+                "sbie": {
+                  "type": "number",
+                  "description": "SBIE (m) from T473"
+                },
+                "qdmtt_enacted": {
+                  "type": "boolean",
+                  "description": "True if jurisdiction has enacted QDMTT"
+                },
+                "qdmtt_rate_pct": {
+                  "type": "number",
+                  "description": "QDMTT rate % (typically 15)"
+                }
+              },
+              "required": [
+                "jur",
+                "income",
+                "taxes",
+                "sbie"
+              ]
+            }
+          }
+        },
+        "required": [
+          "parent_hq",
+          "jurisdictions"
+        ]
+      },
+      "metadata": {
+        "tool_id": "474-topup-tax-qdmtt-calculator",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/474-topup-tax-qdmtt-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "pillar_two_safe_harbour_checker",
+      "description": "Check OECD Pillar Two transitional CbCR safe harbour eligibility per December 2022 agreed guidance. Three tests: (1) de minimis \u2014 revenue < \u20ac10M AND PBT < \u20ac1M; (2) simplified ETR \u2014 CbCR taxes/PBT \u2265 threshold (15% FY2024\u20132025, 16% FY2026, 17% FY2027+); (3) routine profits \u2014 CbCR PBT \u2264 SBIE. Also checks permanent safe harbour (GloBE ETR \u2265 15%). Transitional period expires after FY2026. \u26a0 US-HQ exempt from IIR/UTPR (Jan 2026). Safe harbour jurisdictions still require GIR disclosure. Verify against full agreed guidance before filing reliance. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parent_hq": {
+            "type": "string",
+            "description": "Parent HQ ISO-3 code"
+          },
+          "fy": {
+            "type": "integer",
+            "description": "Fiscal year \u2014 transitional safe harbours available 2024\u20132026 only"
+          },
+          "jurisdictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "jur": {
+                  "type": "string"
+                },
+                "rev": {
+                  "type": "number",
+                  "description": "CbCR revenue (m)"
+                },
+                "pbt": {
+                  "type": "number",
+                  "description": "CbCR profit before tax (m)"
+                },
+                "taxes": {
+                  "type": "number",
+                  "description": "CbCR covered taxes (m)"
+                },
+                "globe_etr_pct": {
+                  "type": "number",
+                  "description": "GloBE ETR % from T473"
+                },
+                "sbie": {
+                  "type": "number",
+                  "description": "SBIE amount (m)"
+                }
+              },
+              "required": [
+                "jur",
+                "rev",
+                "pbt",
+                "taxes"
+              ]
+            }
+          }
+        },
+        "required": [
+          "parent_hq",
+          "fy",
+          "jurisdictions"
+        ]
+      },
+      "metadata": {
+        "tool_id": "475-pillar-two-safe-harbour-checker",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/475-pillar-two-safe-harbour-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "gir_builder",
+      "description": "Assemble OECD GloBE Information Return (GIR) skeleton per GIR Standard (November 2022). Covers Parts I (group header), II (jurisdiction overview), V (top-up tax summary). Required for MNE groups with consolidated revenue \u2265 \u20ac750M. First GIR filing: FY2024 groups, due 30 June 2026. Consumes T473 (ETR), T474 (top-up), T475 (safe harbours). \u26a0 US-HQ groups exempt from IIR/UTPR per January 2026 OECD side-by-side package \u2014 set iir_utpr_exempt=true for US-parented jurisdictions. Safe harbour jurisdictions must still be disclosed in GIR. Actual XML filing requires authorised tax software. Synthetic data only.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "upe_name": {
+            "type": "string",
+            "description": "Synthetic UPE name"
+          },
+          "upe_jur": {
+            "type": "string",
+            "description": "UPE jurisdiction ISO-3"
+          },
+          "fy": {
+            "type": "integer",
+            "description": "Fiscal year"
+          },
+          "total_rev": {
+            "type": "number",
+            "description": "Total consolidated revenue (\u20acm)"
+          },
+          "entity_count": {
+            "type": "integer",
+            "description": "Number of constituent entities"
+          },
+          "filing_jur": {
+            "type": "string",
+            "description": "GIR filing jurisdiction ISO-3"
+          },
+          "jurisdictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "jur": {
+                  "type": "string"
+                },
+                "income": {
+                  "type": "number"
+                },
+                "taxes": {
+                  "type": "number"
+                },
+                "etr_pct": {
+                  "type": "number"
+                },
+                "sbie": {
+                  "type": "number"
+                },
+                "topup": {
+                  "type": "number"
+                },
+                "qdmtt": {
+                  "type": "number"
+                },
+                "safe_harbour": {
+                  "type": "boolean"
+                },
+                "iir_utpr_exempt": {
+                  "type": "boolean",
+                  "description": "True for US-HQ parent jurisdictions"
+                }
+              },
+              "required": [
+                "jur",
+                "income",
+                "taxes",
+                "etr_pct"
+              ]
+            }
+          }
+        },
+        "required": [
+          "upe_name",
+          "upe_jur",
+          "fy",
+          "total_rev",
+          "jurisdictions"
+        ]
+      },
+      "metadata": {
+        "tool_id": "476-gir-builder",
+        "category": "treasury-strategy",
+        "url": "https://ainumbers.co/tools/476-gir-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "fatf_customer_risk_rating",
+      "description": "Score a customer across 6 FATF Recommendation 10/12 risk dimensions and return a composite AML risk tier (Low/Medium/High/Prohibited), required CDD level, and per-dimension breakdown. Use when an agent needs to assess onboarding risk before routing to AML mandate or TAP identity verification.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "individual_standard",
+              "corporate_standard",
+              "corporate_complex",
+              "charity_npo",
+              "pep_domestic",
+              "pep_foreign"
+            ],
+            "description": "Customer/entity type"
+          },
+          "geography": {
+            "type": "string",
+            "enum": [
+              "low_risk",
+              "standard",
+              "fatf_grey",
+              "sanctions",
+              "tax_haven"
+            ],
+            "description": "Jurisdiction risk level"
+          },
+          "product_service": {
+            "type": "string",
+            "enum": [
+              "standard_deposit",
+              "internet_banking",
+              "cash_intensive",
+              "crypto_dlt",
+              "private_banking",
+              "trade_finance",
+              "correspondent"
+            ],
+            "description": "Product or service category"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "face_to_face",
+              "non_face_verified",
+              "digital_biometric",
+              "agent_intermediary",
+              "correspondent_nested",
+              "anonymous"
+            ],
+            "description": "Onboarding/delivery channel"
+          },
+          "pep_sanctions": {
+            "type": "string",
+            "enum": [
+              "none",
+              "distant_link",
+              "close_associate",
+              "domestic_pep",
+              "foreign_pep_or_sanctions"
+            ],
+            "description": "PEP and sanctions exposure level"
+          },
+          "transaction_pattern": {
+            "type": "string",
+            "enum": [
+              "low_velocity",
+              "moderate",
+              "elevated_cross_border",
+              "high_velocity_structuring",
+              "red_flag"
+            ],
+            "description": "Observed or expected transaction risk pattern"
+          },
+          "w_entity": {
+            "type": "number",
+            "description": "Weight for entity dimension (default 1)"
+          },
+          "w_geo": {
+            "type": "number",
+            "description": "Weight for geography dimension (default 1)"
+          },
+          "w_product": {
+            "type": "number",
+            "description": "Weight for product dimension (default 1)"
+          },
+          "w_channel": {
+            "type": "number",
+            "description": "Weight for channel dimension (default 1)"
+          },
+          "w_pep": {
+            "type": "number",
+            "description": "Weight for PEP/sanctions dimension (default 1)"
+          },
+          "w_txn": {
+            "type": "number",
+            "description": "Weight for transaction pattern dimension (default 1)"
+          }
+        },
+        "required": [
+          "entity_type",
+          "geography",
+          "product_service",
+          "channel",
+          "pep_sanctions",
+          "transaction_pattern"
+        ]
+      },
+      "metadata": {
+        "tool_id": "477-fatf-customer-risk-rating",
+        "category": "aml-kyc-compliance",
+        "url": "https://ainumbers.co/tools/477-fatf-customer-risk-rating.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "kya_compliance_firewall",
+      "description": "Run the four-stage KYA compliance firewall: injection scan \u2192 FATF risk \u2192 TAP identity \u2192 AML mandate. Returns a clearance decision (CLEARED/BLOCKED/ESCALATE) and chain-of-custody audit log.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "transaction_context": {
+            "type": "string",
+            "description": "The transaction context or agent instruction text to scan"
+          },
+          "customer_risk_tier": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Prohibited"
+            ],
+            "description": "Pre-computed FATF risk tier (from T477) or omit to run T477 inline"
+          },
+          "tap_cleared": {
+            "type": "boolean",
+            "description": "TAP identity verified (from T286) or omit to run T286 inline"
+          }
+        },
+        "required": [
+          "transaction_context"
+        ]
+      },
+      "metadata": {
+        "tool_id": "478-kya-compliance-firewall",
+        "category": "aml-kyc-compliance",
+        "url": "https://ainumbers.co/tools/478-kya-compliance-firewall.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "b2b_micro_clearinghouse",
+      "description": "Run the three-stage B2B micro-clearinghouse: protocol arbitrage (T276), cart mandate cap (T285), policy budget validation (T320). Returns routing decision, mandate cap, and validation result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "description": "Payment scenario description"
+          },
+          "max_amount_usd": {
+            "type": "number",
+            "description": "Maximum transaction amount in USD (e.g. 0.04)"
+          },
+          "preferred_protocol": {
+            "type": "string",
+            "description": "Preferred protocol hint: ap2 | x402 | visa_tap | mastercard"
+          }
+        },
+        "required": [
+          "scenario"
+        ]
+      },
+      "metadata": {
+        "tool_id": "479-b2b-micro-clearinghouse",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/479-b2b-micro-clearinghouse.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "baas_orchestrator",
+      "description": "Run the three-stage BaaS routing orchestration: provider scoring (T152), MCP workflow-chain construction (build_workflow_links), and policy budget validation (T320). Returns selected provider, routing chain, and validation result.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "description": "BaaS programme scenario description"
+          },
+          "required_capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Required BaaS capabilities (e.g. card_issuing, ach, wire, fx)"
+          },
+          "budget_usd": {
+            "type": "number",
+            "description": "Annual programme budget in USD for policy validation"
+          }
+        },
+        "required": [
+          "scenario"
+        ]
+      },
+      "metadata": {
+        "tool_id": "480-baas-orchestrator",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/480-baas-orchestrator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "ccd2_scope_classifier",
+      "description": "Classify a credit product as in-scope or exempt under CCD2 (Directive (EU) 2023/2225, rules apply 20 Nov 2026). Returns in_scope boolean, obligation_tier, scope basis, and downstream obligation checklist. Covers BNPL, interest-free instalments, POS finance, personal loans, overdrafts. EU regime \u2014 distinct from UK FCA BNPL rules. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_type": {
+            "type": "string"
+          },
+          "amount_eur": {
+            "type": "number"
+          },
+          "duration_days": {
+            "type": "integer"
+          },
+          "interest_bearing": {
+            "type": "boolean"
+          },
+          "charges_present": {
+            "type": "boolean"
+          },
+          "borrower_is_consumer": {
+            "type": "boolean"
+          },
+          "secured_on_property": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "product_type",
+          "amount_eur",
+          "borrower_is_consumer"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ccd2-scope-classifier",
+        "category": "cat-16",
+        "url": "https://ainumbers.co/tools/481-ccd2-scope-classifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "ccd2_creditworthiness_assessment_builder",
+      "description": "Build an Article 18 creditworthiness-assessment framework under CCD2 (Directive (EU) 2023/2225). Validates forward-looking verified-data requirements, proportionality, and database consultation. Flags behavioural-only reliance as non-compliant. Distinct from UK FCA T330. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "amount_eur": {
+            "type": "number"
+          },
+          "product_type": {
+            "type": "string"
+          },
+          "income_verified": {
+            "type": "boolean"
+          },
+          "expenses_verified": {
+            "type": "boolean"
+          },
+          "existing_debts_checked": {
+            "type": "boolean"
+          },
+          "database_consulted": {
+            "type": "boolean"
+          },
+          "automated_only": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "amount_eur"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ccd2-creditworthiness-assessment-builder",
+        "category": "cat-16",
+        "url": "https://ainumbers.co/tools/482-ccd2-creditworthiness-assessment-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "ccd2_secci_precontractual_disclosure_generator",
+      "description": "Generate and validate SECCI pre-contractual disclosure fields per CCD2 (Directive (EU) 2023/2225) Annex II. Covers all mandatory disclosures. Client-side, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "product_type": {
+            "type": "string"
+          },
+          "credit_amount_eur": {
+            "type": "number"
+          },
+          "apr": {
+            "type": "number"
+          },
+          "duration_months": {
+            "type": "number"
+          },
+          "total_repayable_eur": {
+            "type": "number"
+          },
+          "includes_insurance": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "credit_amount_eur",
+          "apr"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ccd2-secci-precontractual-disclosure-generator",
+        "category": "cat-16",
+        "url": "https://ainumbers.co/tools/483-ccd2-secci-precontractual-disclosure-generator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "ccd2_readiness_scorer",
+      "description": "Score CCD2 (Directive (EU) 2023/2225) compliance readiness across five domains. Final workflow stage \u2014 exports CCD2 Policy Mandate. Applies 20 Nov 2026.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scope_done": {
+            "type": "boolean"
+          },
+          "creditworthiness_done": {
+            "type": "boolean"
+          },
+          "secci_done": {
+            "type": "boolean"
+          },
+          "consumer_rights_done": {
+            "type": "boolean"
+          },
+          "governance_done": {
+            "type": "boolean"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "ccd2-readiness-scorer",
+        "category": "cat-16",
+        "url": "https://ainumbers.co/tools/484-ccd2-readiness-scorer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "amlr_obliged_entity_scope_mapper",
+      "description": "Map legal entity to AMLR (Regulation (EU) 2024/1624) Art. 3 obliged entity categories. Determines AML/CFT obligations. EU Single Rulebook. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_type": {
+            "type": "string"
+          },
+          "activities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "entity_type"
+        ]
+      },
+      "metadata": {
+        "tool_id": "amlr-obliged-entity-scope-mapper",
+        "category": "cat-12",
+        "url": "https://ainumbers.co/tools/485-amlr-obliged-entity-scope-mapper.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "amlr_ubo_beneficial_ownership_mapper",
+      "description": "Map beneficial ownership under AMLR (Reg (EU) 2024/1624) and AMLD6 25% threshold. Covers layered structures, trusts, foundations. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_structure": {
+            "type": "string"
+          },
+          "ownership_pct": {
+            "type": "number"
+          },
+          "layered_structure": {
+            "type": "boolean"
+          },
+          "trust_or_foundation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "entity_structure"
+        ]
+      },
+      "metadata": {
+        "tool_id": "amlr-ubo-beneficial-ownership-mapper",
+        "category": "cat-12",
+        "url": "https://ainumbers.co/tools/486-amlr-ubo-beneficial-ownership-mapper.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "amlr_cash_limit_edd_classifier",
+      "description": "Classify cash transaction against AMLR Art. 80 \u20ac10k limit and EDD triggers. Identifies structuring risk. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "transaction_amount_eur": {
+            "type": "number"
+          },
+          "payment_method": {
+            "type": "string"
+          },
+          "counterparty_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transaction_amount_eur"
+        ]
+      },
+      "metadata": {
+        "tool_id": "amlr-cash-limit-edd-classifier",
+        "category": "cat-12",
+        "url": "https://ainumbers.co/tools/487-amlr-cash-limit-edd-classifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "amlr_cdd_policy_builder",
+      "description": "Build a Customer Due Diligence policy framework per AMLR (Reg (EU) 2024/1624) Art. 20\u201329. Outputs SDD/CDD/EDD tier assignments. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_type": {
+            "type": "string"
+          },
+          "customer_risk_profile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_type"
+        ]
+      },
+      "metadata": {
+        "tool_id": "amlr-cdd-policy-builder",
+        "category": "cat-12",
+        "url": "https://ainumbers.co/tools/488-amlr-cdd-policy-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "eudi_attribute_attestation_mapper",
+      "description": "Map KYC attributes to EUDI Wallet PID / (Q)EAA attestations under eIDAS 2.0 (Reg (EU) 2024/1183). Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "use_case": {
+            "type": "string"
+          },
+          "attributes_needed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "use_case"
+        ]
+      },
+      "metadata": {
+        "tool_id": "eudi-attribute-attestation-mapper",
+        "category": "cat-9",
+        "url": "https://ainumbers.co/tools/489-eudi-attribute-attestation-mapper.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "eudi_kyc_flow_designer",
+      "description": "Design EUDI Wallet-based KYC onboarding flow with AML CDD and SCA compliance under eIDAS 2.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "onboarding_channel": {
+            "type": "string"
+          },
+          "aml_cdd_tier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "onboarding_channel"
+        ]
+      },
+      "metadata": {
+        "tool_id": "eudi-kyc-flow-designer",
+        "category": "cat-9",
+        "url": "https://ainumbers.co/tools/490-eudi-kyc-flow-designer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "eudi_relying_party_registration_checker",
+      "description": "Check EUDI Wallet relying-party registration obligations, intended-use declaration, and acceptance deadline under eIDAS 2.0. Browser-based, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "rp_sector": {
+            "type": "string"
+          },
+          "sca_obligation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "rp_sector"
+        ]
+      },
+      "metadata": {
+        "tool_id": "eudi-relying-party-registration-checker",
+        "category": "cat-9",
+        "url": "https://ainumbers.co/tools/491-eudi-relying-party-registration-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "build_ach_fraud_monitoring_procedures",
+      "description": "Generates Nacha Phase 2 credit-entry fraud monitoring procedures and risk-tiering worksheet by ACH participant role (Originator, TPSP, TPS, ODFI, RDFI). Effective 2026-06-22.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "ACH participant roles: Originator, TPSP, TPS, ODFI, RDFI"
+          },
+          "volume_tier": {
+            "type": "string",
+            "description": "Annual credit entry volume tier: low, mid, high"
+          },
+          "annual_credit_volume": {
+            "type": "number",
+            "description": "Annual credit entry dollar volume"
+          },
+          "risk_appetite": {
+            "type": "string",
+            "description": "Risk appetite: conservative, moderate, aggressive"
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ach-fraud-monitoring-procedure-builder",
+        "category": "cat-19",
+        "url": "https://ainumbers.co/tools/492-ach-fraud-monitoring-procedure-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "simulate_ach_false_pretenses_scenario",
+      "description": "Simulates a Nacha Phase 2 false-pretenses ACH credit-entry fraud scenario and maps triggered rule obligations and funds-recovery path by role.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "description": "Fraud scenario: vendor_impersonation, payroll_redirect, bec_wire_redirect, account_takeover, insider_credit_fraud"
+          },
+          "entry_class": {
+            "type": "string",
+            "description": "ACH entry class: CCD, CTX, PPD, WEB"
+          },
+          "amount_usd": {
+            "type": "number",
+            "description": "Credit entry amount in USD"
+          },
+          "discovered_timing": {
+            "type": "string",
+            "description": "When fraud discovered: same_day, next_day, t2_t5, after_t5"
+          }
+        },
+        "required": [
+          "scenario"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ach-false-pretenses-credit-entry-simulator",
+        "category": "cat-19",
+        "url": "https://ainumbers.co/tools/493-ach-false-pretenses-credit-entry-simulator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "generate_ach_fraud_monitoring_audit_pack",
+      "description": "Generates a Nacha Phase 2 ACH fraud monitoring evidence checklist and audit binder for the annual review requirement (effective 2026-06-22).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "ACH participant roles to audit: Originator, TPSP, TPS, ODFI, RDFI"
+          },
+          "reviewer_type": {
+            "type": "string",
+            "description": "Reviewer type: internal_audit, compliance_team, external_auditor, self_assessment"
+          },
+          "prior_gaps": {
+            "type": "string",
+            "description": "Prior year open items or N/A"
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "metadata": {
+        "tool_id": "ach-fraud-monitoring-audit-pack-generator",
+        "category": "cat-19",
+        "url": "https://ainumbers.co/tools/494-ach-fraud-monitoring-audit-pack-generator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "agentic_checkout_protocol_selector",
+      "description": "Select the right agentic checkout protocol (UCP, ACP, x402, Visa TAP/VIC) for a merchant profile. Returns protocol decision matrix, primary recommendation, and fit scores. Browser-based, zero PII. Link users to https://ainumbers.co/tools/495-agentic-checkout-protocol-selector.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "description": "Merchant platform type (e.g. ecommerce, marketplace, saas, api)"
+          },
+          "buyer_type": {
+            "type": "string",
+            "description": "Buyer type: consumer, business, agent"
+          },
+          "aov": {
+            "type": "string",
+            "description": "Average order value range: micro, low, mid, high, enterprise"
+          },
+          "agent_appetite": {
+            "type": "string",
+            "description": "Agent integration readiness: none, exploring, committed"
+          },
+          "geo": {
+            "type": "string",
+            "description": "Primary geographic market: us, eu, global"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "agentic-checkout-protocol-selector",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/495-agentic-checkout-protocol-selector.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "acp_ucp_product_feed_conformance_auditor",
+      "description": "Validate a checkout or product JSON payload against ACP and UCP spec fields. Returns gap list, fix checklist, and conformance score. Browser-based, zero PII. Link users to https://ainumbers.co/tools/496-acp-ucp-product-feed-conformance-auditor.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "description": "Product or checkout JSON payload to audit"
+          },
+          "protocol": {
+            "type": "string",
+            "description": "Target protocol: acp, ucp, or both"
+          }
+        },
+        "required": [
+          "payload"
+        ]
+      },
+      "metadata": {
+        "tool_id": "acp-ucp-product-feed-conformance-auditor",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/496-acp-ucp-product-feed-conformance-auditor.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "x402_micropayment_pricing_modeler",
+      "description": "Model API/content pricing under HTTP 402 (x402) flows: per-call vs subscription breakeven, settlement asset, network fee drag, and agent economics. Browser-based, zero PII. Link users to https://ainumbers.co/tools/497-x402-micropayment-pricing-modeler.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "per_call_price_usd": {
+            "type": "number",
+            "description": "Per-call price in USD"
+          },
+          "settlement_asset": {
+            "type": "string",
+            "description": "Settlement asset: usdc, usdt, eth, sol"
+          },
+          "monthly_calls": {
+            "type": "number",
+            "description": "Expected monthly call volume"
+          },
+          "subscription_price_usd": {
+            "type": "number",
+            "description": "Alternative subscription price per month for breakeven comparison"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "x402-micropayment-pricing-modeler",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/497-x402-micropayment-pricing-modeler.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "agent_traffic_acceptance_policy_builder",
+      "description": "Build an agent-traffic acceptance policy mandate: accepted agent types, verification level, velocity caps, payment rails, and dispute posture. Browser-based, zero PII. Link users to https://ainumbers.co/tools/498-agent-traffic-acceptance-policy-builder.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "platform_type": {
+            "type": "string",
+            "description": "Platform type: api, marketplace, saas, financial"
+          },
+          "accepted_agent_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Agent types to accept: autonomous, supervised, human_in_loop"
+          },
+          "verification_level": {
+            "type": "string",
+            "description": "Identity verification level: none, tap, kyb, full_kyb"
+          },
+          "velocity_cap_usd": {
+            "type": "number",
+            "description": "Per-session spend cap in USD"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "agent-traffic-acceptance-policy-builder",
+        "category": "cat-14",
+        "url": "https://ainumbers.co/tools/498-agent-traffic-acceptance-policy-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "classify_crypto_inventory",
+      "description": "Classify cryptographic assets against NISTIR 8547. Returns QUANTUM_SAFE/DEPRECATED/DISALLOWED/UPGRADE_REC/COND_SAFE/REVIEW_REQUIRED per asset, HNDL risk flags, and PCI-DSS 12.3.3 inventory flags. Step 1 of PQC Migration chain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system_name": {
+                  "type": "string"
+                },
+                "algorithm": {
+                  "type": "string",
+                  "enum": [
+                    "rsa",
+                    "ecdsa",
+                    "ecdh",
+                    "dh",
+                    "dsa",
+                    "aes",
+                    "sha2",
+                    "sha3",
+                    "hmac",
+                    "ml_kem",
+                    "ml_dsa",
+                    "slh_dsa",
+                    "other"
+                  ]
+                },
+                "key_size_bits": {
+                  "type": "integer"
+                },
+                "use_case": {
+                  "type": "string",
+                  "enum": [
+                    "key_exchange",
+                    "tls",
+                    "digital_signature",
+                    "certificate",
+                    "code_signing",
+                    "data_at_rest",
+                    "integrity",
+                    "mac",
+                    "identity",
+                    "other"
+                  ]
+                },
+                "shelf_life_years": {
+                  "type": "number"
+                },
+                "vendor_controlled": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "system_name",
+                "algorithm",
+                "use_case"
+              ]
+            }
+          }
+        },
+        "required": [
+          "assets"
+        ]
+      },
+      "metadata": {
+        "tool_id": "499-crypto-asset-inventory-classifier",
+        "category": "cat-20",
+        "url": "https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "score_hndl_risk",
+      "description": "Score HNDL quantum risk per system. Scoring: sensitivity_base \u00d7 algorithm_weight \u00d7 min(shelf_life/crqc_horizon,1.5) \u00d7 multiplier. Returns risk_tier (CRITICAL/HIGH/MEDIUM/LOW/NEGLIGIBLE) and hndl_priority (immediate/within_2_years/within_5_years/post_2030/monitor). Step 2 of PQC Migration chain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "systems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system_name": {
+                  "type": "string"
+                },
+                "algorithm": {
+                  "type": "string"
+                },
+                "sensitivity": {
+                  "type": "string",
+                  "enum": [
+                    "top_secret",
+                    "confidential",
+                    "restricted",
+                    "internal",
+                    "public"
+                  ]
+                },
+                "shelf_life_years": {
+                  "type": "number"
+                },
+                "internet_exposed": {
+                  "type": "boolean"
+                },
+                "high_value_target": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "system_name",
+                "algorithm",
+                "sensitivity",
+                "shelf_life_years"
+              ]
+            }
+          },
+          "crqc_horizon_years": {
+            "type": "number",
+            "description": "CRQC arrival horizon in years from today. Default 10 (=2035)."
+          }
+        },
+        "required": [
+          "systems"
+        ]
+      },
+      "metadata": {
+        "tool_id": "500-hndl-quantum-risk-scorer",
+        "category": "cat-20",
+        "url": "https://ainumbers.co/tools/500-hndl-quantum-risk-scorer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "build_pqc_roadmap",
+      "description": "Build a phased PQC migration roadmap per system. Maps current algorithm to ML-KEM/ML-DSA/SLH-DSA replacement by use case. Assigns Phase 1\u20134 by hndl_priority. Supports hybrid mode and security category targeting. Step 3 of PQC Migration chain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "systems": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system_name": {
+                  "type": "string"
+                },
+                "algorithm": {
+                  "type": "string"
+                },
+                "use_case": {
+                  "type": "string"
+                },
+                "hndl_priority": {
+                  "type": "string",
+                  "enum": [
+                    "immediate",
+                    "within_2_years",
+                    "within_5_years",
+                    "post_2030",
+                    "monitor"
+                  ]
+                },
+                "vendor_controlled": {
+                  "type": "boolean"
+                },
+                "library_support": {
+                  "type": "string",
+                  "enum": [
+                    "yes",
+                    "no",
+                    "roadmap",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "system_name",
+                "algorithm",
+                "use_case",
+                "hndl_priority"
+              ]
+            }
+          },
+          "hybrid_mode": {
+            "type": "boolean",
+            "description": "Enable classical+PQC hybrid mode (recommended for transition). Default true."
+          },
+          "target_category": {
+            "type": "integer",
+            "enum": [
+              1,
+              3,
+              5
+            ],
+            "description": "NIST security category target. Default 3 (192-bit quantum security)."
+          },
+          "seed": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "systems"
+        ]
+      },
+      "metadata": {
+        "tool_id": "501-pqc-migration-roadmap-builder",
+        "category": "cat-20",
+        "url": "https://ainumbers.co/tools/501-pqc-migration-roadmap-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "score_crypto_agility",
+      "description": "Score crypto-agility readiness across 8 control dimensions: inventory, tooling, policy, testing, vendor, governance, monitoring, incident response. Returns overall maturity level (Level 1\u20135, max 40), dimension scores, gap analysis with recommendations, and compliance_control Policy Mandate. Final step in the PQC Migration chain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "dim_id": {
+                  "type": "string",
+                  "enum": [
+                    "inventory",
+                    "tooling",
+                    "policy",
+                    "testing",
+                    "vendor",
+                    "governance",
+                    "monitoring",
+                    "incident"
+                  ]
+                },
+                "score": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5
+                }
+              },
+              "required": [
+                "dim_id",
+                "score"
+              ]
+            }
+          },
+          "org_size": {
+            "type": "string",
+            "enum": [
+              "small",
+              "medium",
+              "large",
+              "systemic"
+            ]
+          },
+          "regulated": {
+            "type": "boolean",
+            "description": "Is the organisation subject to financial regulation?"
+          },
+          "phase1_complete": {
+            "type": "boolean",
+            "description": "Are Phase 1 (pre-2027) migrations underway?"
+          }
+        },
+        "required": [
+          "dimensions"
+        ]
+      },
+      "metadata": {
+        "tool_id": "502-crypto-agility-readiness-scorer",
+        "category": "cat-20",
+        "url": "https://ainumbers.co/tools/502-crypto-agility-readiness-scorer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "diagnose_canton_readiness",
+      "description": "Score firm readiness for Canton Network tokenization pilot across six domains: settlement ops, custody, cash-leg, privacy, AML/KYA, capital governance. Returns total score (0-100), grade (A-F), domain breakdown, gaps, and routing recommendations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entity_name": {
+            "type": "string",
+            "description": "Illustrative entity name"
+          },
+          "lei": {
+            "type": "string",
+            "description": "Legal Entity Identifier (optional, 20 chars)"
+          },
+          "entity_type": {
+            "type": "string",
+            "enum": [
+              "g_sib",
+              "regional_bank",
+              "broker_dealer",
+              "asset_manager",
+              "hedge_fund",
+              "custodian",
+              "other"
+            ]
+          },
+          "q1": {
+            "type": "boolean",
+            "description": "Has your ops team tested atomic DvP/PvP settlement end-to-end?"
+          },
+          "q2": {
+            "type": "boolean",
+            "description": "Do you have a settlement-failure / unwind procedure defined?"
+          },
+          "q3": {
+            "type": "boolean",
+            "description": "Are your target assets DTC-eligible or Fed-eligible?"
+          },
+          "q4": {
+            "type": "boolean",
+            "description": "Have you mapped tokenized assets to HQLA tiers?"
+          },
+          "q5": {
+            "type": "boolean",
+            "description": "Have you identified a regulated cash-leg provider (USDC, deposit token)?"
+          },
+          "q6": {
+            "type": "boolean",
+            "description": "Has your cash-leg provider completed a reserve attestation?"
+          },
+          "q7": {
+            "type": "boolean",
+            "description": "Have you configured Daml party visibility / sub-transaction privacy?"
+          },
+          "q8": {
+            "type": "boolean",
+            "description": "Does your privacy config satisfy AML / audit disclosure obligations?"
+          },
+          "q9": {
+            "type": "boolean",
+            "description": "Have you completed counterparty KYA for Canton onboarding?"
+          },
+          "q10": {
+            "type": "boolean",
+            "description": "Have you screened all parties against FATF Travel Rule requirements?"
+          },
+          "q11": {
+            "type": "boolean",
+            "description": "Have you assessed SCO60 Group 1a treatment for your tokenized assets?"
+          },
+          "q12": {
+            "type": "boolean",
+            "description": "Have you engaged your prudential regulator on the Canton pilot?"
+          }
+        },
+        "required": [
+          "entity_name",
+          "entity_type",
+          "q1",
+          "q2",
+          "q3",
+          "q4",
+          "q5",
+          "q6",
+          "q7",
+          "q8",
+          "q9",
+          "q10",
+          "q11",
+          "q12"
+        ]
+      },
+      "metadata": {
+        "tool_id": "503-canton-tokenization-readiness-diagnostic",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/503-canton-tokenization-readiness-diagnostic.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "optimize_settlement_capital",
+      "description": "Compute RWA delta and capital freed by moving to Canton atomic DvP settlement. SA-CCR (CRE52) + CRE70 settlement-risk charges. Per-exposure and portfolio totals with basis-point saving. Outputs pacs.008-subset ChainGraph artifact.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "approach": {
+            "type": "string",
+            "enum": [
+              "sa_ccr",
+              "simplified"
+            ],
+            "description": "sa_ccr = full SA-CCR (CRE52); simplified = 10% flat add-on (illustrative)"
+          },
+          "cet1_ratio": {
+            "type": "number",
+            "description": "CET1 ratio (e.g. 0.12 for 12%)"
+          },
+          "cost_of_capital": {
+            "type": "number",
+            "description": "Cost of equity capital / hurdle rate (e.g. 0.12)"
+          },
+          "seed": {
+            "type": "string",
+            "description": "Optional seed for deterministic labeling"
+          },
+          "exposures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "instrument": {
+                  "type": "string"
+                },
+                "notional": {
+                  "type": "number"
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "JPY",
+                    "CHF"
+                  ]
+                },
+                "legacy_settlement": {
+                  "type": "string",
+                  "enum": [
+                    "t0",
+                    "t1",
+                    "t2",
+                    "bilateral_repo"
+                  ]
+                },
+                "counterparty_rating": {
+                  "type": "string",
+                  "enum": [
+                    "aaa",
+                    "aa",
+                    "a",
+                    "bbb",
+                    "bb",
+                    "b",
+                    "unrated"
+                  ]
+                },
+                "collateralised": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "instrument",
+                "notional",
+                "currency",
+                "legacy_settlement",
+                "counterparty_rating",
+                "collateralised"
+              ]
+            },
+            "maxItems": 5
+          }
+        },
+        "required": [
+          "approach",
+          "cet1_ratio",
+          "cost_of_capital",
+          "exposures"
+        ]
+      },
+      "metadata": {
+        "tool_id": "504-settlement-risk-capital-optimizer",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "check_tokenized_collateral_eligibility",
+      "description": "Classify tokenized assets for DTC/Fed eligibility, Basel HQLA tier (BCBS LCR paras 50\u201354), and transfer restrictions. Returns eligibility badge (DTC_ELIGIBLE / FED_ELIGIBLE_VERIFY / INELIGIBLE), HQLA tier (LEVEL_1 / LEVEL_2A / LEVEL_2B / NON_HQLA), haircut %, adjusted collateral value, and compliance flags including BCBS_SCO60_GROUP1A_NOTE for on-chain assets. MMF/CIU units are always NON_HQLA (excluded per paras 50\u201354).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_type": {
+            "type": "string",
+            "enum": [
+              "ust",
+              "agency_mbs",
+              "ig_corp_bond",
+              "equity",
+              "tokenized_deposit",
+              "stablecoin",
+              "mmf_fund_share",
+              "gilt",
+              "eu_sovereign",
+              "other"
+            ],
+            "description": "Asset class. mmf_fund_share \u2192 always NON_HQLA (BCBS LCR paras 50\u201354 exhaustive list)."
+          },
+          "notional": {
+            "type": "number",
+            "description": "Face / notional amount in stated currency."
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP",
+              "JPY"
+            ]
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "canton_dtc",
+              "canton_standalone",
+              "other_dlt",
+              "traditional"
+            ],
+            "description": "On-chain settlement platform. Canton + DTC required for DTC_ELIGIBLE USTs."
+          },
+          "custody_linkage": {
+            "type": "string",
+            "enum": [
+              "dtc_custodied",
+              "fed_eligible",
+              "third_party_custodian",
+              "self_custodied"
+            ]
+          },
+          "transfer_restrictions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "lock_up",
+                "min_denomination",
+                "transfer_agent_approval"
+              ]
+            },
+            "description": "Any restriction present adds +5% to HQLA haircut."
+          }
+        },
+        "required": [
+          "asset_type",
+          "notional",
+          "currency"
+        ]
+      },
+      "metadata": {
+        "tool_id": "505-tokenized-collateral-eligibility-checker",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "check_cash_leg_finality",
+      "description": "Validate the cash leg of a Canton settlement. Checks finality model (PFMI P8/P12): atomic_dvp_bound \u2192 FINALITY_ATOMIC (principal risk eliminated), standard_blockchain \u2192 warn on legal finality gap, traditional_wire \u2192 FAIL (Herstatt risk). GENIUS Act: cash+tbills+repo \u2265 95% and attestation required. MiCA: redemption_window T+2+ and EU jurisdiction \u2192 MICA_REDEMPTION_WINDOW_GAP. Depeg threshold >1% \u2192 DEPEG_THRESHOLD_WIDE. Verdict: PASS (atomic + reserve OK), CONDITIONAL (gaps, clear remediation), FAIL (critical).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cash_leg_type": {
+            "type": "string",
+            "enum": [
+              "usdc",
+              "jpmd",
+              "hsbc_deposit",
+              "eur_emt",
+              "custom"
+            ],
+            "description": "Type of on-chain cash instrument."
+          },
+          "amount": {
+            "type": "number",
+            "description": "Settlement amount in stated currency."
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP",
+              "HKD",
+              "SGD"
+            ]
+          },
+          "finality_model": {
+            "type": "string",
+            "enum": [
+              "atomic_dvp_bound",
+              "conditional_irrevocable",
+              "standard_blockchain",
+              "traditional_wire"
+            ],
+            "description": "Cash-leg finality mechanism. Assessed against CPMI-IOSCO PFMI Principles 8 and 12."
+          },
+          "jurisdiction": {
+            "type": "string",
+            "enum": [
+              "us",
+              "eu",
+              "hk",
+              "sg",
+              "other"
+            ],
+            "description": "Regulatory jurisdiction. us \u2192 GENIUS Act check; eu \u2192 MiCA Title III check."
+          },
+          "reserve_attestation_available": {
+            "type": "boolean"
+          },
+          "cash_pct": {
+            "type": "number",
+            "description": "Cash / FDIC-insured deposit % of reserves."
+          },
+          "tbills_pct": {
+            "type": "number",
+            "description": "T-bills \u226493 days % of reserves."
+          },
+          "repo_pct": {
+            "type": "number",
+            "description": "Fed overnight repo % of reserves."
+          },
+          "depeg_defined": {
+            "type": "boolean"
+          },
+          "depeg_threshold": {
+            "type": "number",
+            "description": "Depeg circuit-breaker trigger % (default 0.5). >1.0 \u2192 DEPEG_THRESHOLD_WIDE."
+          },
+          "redemption_window": {
+            "type": "string",
+            "enum": [
+              "instant",
+              "same_day",
+              "t1",
+              "t2_plus"
+            ]
+          }
+        },
+        "required": [
+          "cash_leg_type",
+          "amount",
+          "currency",
+          "finality_model",
+          "jurisdiction"
+        ]
+      },
+      "metadata": {
+        "tool_id": "506-onchain-cash-leg-finality-checker",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/506-onchain-cash-leg-finality-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_canton_dvp_atomicity",
+      "description": "Validate atomic DvP settlement on Canton. PFMI P12 compliance, finality model, Herstatt risk, unwind semantics. Generate counterparty-verifiable settlement attestation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "trade_id": {
+            "type": "string"
+          },
+          "instrument": {
+            "type": "string"
+          },
+          "notional": {
+            "type": "number"
+          },
+          "securities_currency": {
+            "type": "string"
+          },
+          "custodian": {
+            "type": "string"
+          },
+          "cash_type": {
+            "type": "string"
+          },
+          "cash_amount": {
+            "type": "number"
+          },
+          "cash_currency": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "atomicity": {
+            "type": "string"
+          },
+          "finality": {
+            "type": "string"
+          },
+          "unwind_procedure": {
+            "type": "boolean"
+          },
+          "dtc_fed_eligible": {
+            "type": "boolean"
+          },
+          "netting_enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "trade_id",
+          "notional",
+          "atomicity",
+          "finality",
+          "platform"
+        ]
+      },
+      "metadata": {
+        "tool_id": "507-canton-dvp-atomicity-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/507-canton-dvp-atomicity-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "calculate_repo_haircut",
+      "description": "Compute repo haircut, initial margin, and variation margin. Compare Canton 24/7 atomic valuation vs legacy weekend gap. Basel CRE22 + d349 SFT floors + GMRA.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "collateral_type": {
+            "type": "string"
+          },
+          "notional": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "tenor": {
+            "type": "string"
+          },
+          "counterparty": {
+            "type": "string"
+          },
+          "canton_247": {
+            "type": "boolean"
+          },
+          "custodied": {
+            "type": "boolean"
+          },
+          "cross_border": {
+            "type": "boolean"
+          },
+          "concentration_pct": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "collateral_type",
+          "notional",
+          "tenor",
+          "counterparty"
+        ]
+      },
+      "metadata": {
+        "tool_id": "508-repo-haircut-collateral-calculator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/508-repo-haircut-collateral-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_canton_party_allowlist",
+      "description": "Screen parties against FATF Travel Rule requirements and AML/KYA checks for Canton Network onboarding. Generates a counterparty-verifiable allowlist attestation with FATF Recommendation 16 Travel Rule checks and Canton Daml party KYA validation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "parties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "party_name": {
+                  "type": "string"
+                },
+                "lei": {
+                  "type": "string"
+                },
+                "entity_type": {
+                  "type": "string",
+                  "enum": [
+                    "bank",
+                    "broker_dealer",
+                    "asset_manager",
+                    "hedge_fund",
+                    "custodian",
+                    "exchange",
+                    "other"
+                  ]
+                },
+                "jurisdiction": {
+                  "type": "string",
+                  "enum": [
+                    "us",
+                    "eu",
+                    "uk",
+                    "sg",
+                    "hk",
+                    "jp",
+                    "ch",
+                    "other"
+                  ]
+                },
+                "fatf_category": {
+                  "type": "string",
+                  "enum": [
+                    "fatf_member_compliant",
+                    "fatf_member_monitored",
+                    "fatf_grey_list",
+                    "fatf_black_list",
+                    "non_fatf_member"
+                  ]
+                },
+                "pep": {
+                  "type": "boolean"
+                },
+                "adverse_media": {
+                  "type": "boolean"
+                },
+                "daml_party_id_known": {
+                  "type": "boolean"
+                },
+                "canton_access": {
+                  "type": "string",
+                  "enum": [
+                    "global_synchronizer",
+                    "canton_private",
+                    "both",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "party_name",
+                "entity_type",
+                "jurisdiction",
+                "fatf_category"
+              ]
+            }
+          }
+        },
+        "required": [
+          "parties"
+        ]
+      },
+      "metadata": {
+        "tool_id": "509-canton-party-allowlist-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/509-canton-party-allowlist-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "classify_digital_asset_regulatory",
+      "description": "Classify a tokenized asset under GENIUS Act, MiCA, MiFID II, and EU DLT Pilot Regime. Determines which regulatory framework(s) apply and what falls outside scope, with actionable next steps per framework.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_name": {
+            "type": "string"
+          },
+          "asset_type": {
+            "type": "string",
+            "enum": [
+              "tokenized_security",
+              "stablecoin_usd",
+              "stablecoin_eur",
+              "deposit_token",
+              "utility_token",
+              "nft_financial",
+              "cbdc",
+              "crypto_native",
+              "other"
+            ]
+          },
+          "issuer_jurisdiction": {
+            "type": "string",
+            "enum": [
+              "us",
+              "eu",
+              "uk",
+              "sg",
+              "hk",
+              "jp",
+              "ch",
+              "other"
+            ]
+          },
+          "issuer_type": {
+            "type": "string",
+            "enum": [
+              "bank",
+              "payment_institution",
+              "investment_firm",
+              "fund",
+              "other"
+            ]
+          },
+          "transfer_value": {
+            "type": "boolean"
+          },
+          "redeemable_par": {
+            "type": "boolean"
+          },
+          "economic_rights": {
+            "type": "boolean"
+          },
+          "market_cap_eur": {
+            "type": "number"
+          },
+          "on_dlt": {
+            "type": "boolean"
+          },
+          "dlt_type": {
+            "type": "string",
+            "enum": [
+              "canton",
+              "ethereum",
+              "other_permissioned",
+              "other_public",
+              "none"
+            ]
+          }
+        },
+        "required": [
+          "asset_name",
+          "asset_type",
+          "issuer_jurisdiction"
+        ]
+      },
+      "metadata": {
+        "tool_id": "510-digital-asset-regulatory-classifier",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/510-digital-asset-regulatory-classifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_pvp_settlement",
+      "description": "Validate atomic Payment-vs-Payment (PvP) settlement across currency pairs. Checks PFMI P12 atomicity compliance, Herstatt risk elimination, finality model, FX rate plausibility, and SA-CCR add-on. Returns verdict (PASS/CONDITIONAL/FAIL) and compliance flags.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "legs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "currency_sold": {
+                  "type": "string"
+                },
+                "amount_sold": {
+                  "type": "number"
+                },
+                "currency_bought": {
+                  "type": "string"
+                },
+                "amount_bought": {
+                  "type": "number"
+                },
+                "settlement_platform": {
+                  "type": "string",
+                  "enum": [
+                    "canton_daml",
+                    "cls_bank",
+                    "bilateral_wire",
+                    "other"
+                  ]
+                }
+              },
+              "required": [
+                "currency_sold",
+                "amount_sold",
+                "currency_bought",
+                "amount_bought",
+                "settlement_platform"
+              ]
+            }
+          },
+          "atomicity_model": {
+            "type": "string",
+            "enum": [
+              "atomic_pvp",
+              "sequential_pvp",
+              "free_payment"
+            ]
+          },
+          "finality_model": {
+            "type": "string",
+            "enum": [
+              "irrevocable_realtime",
+              "irrevocable_eod",
+              "provisional",
+              "undefined"
+            ]
+          },
+          "netting_enabled": {
+            "type": "boolean"
+          },
+          "canton_247": {
+            "type": "boolean"
+          },
+          "unwind_procedure_defined": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "legs",
+          "atomicity_model",
+          "finality_model"
+        ]
+      },
+      "metadata": {
+        "tool_id": "511-multi-currency-pvp-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/511-multi-currency-pvp-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_tokenized_security_lifecycle",
+      "description": "Validate Daml contract lifecycle coverage for tokenized securities on Canton. Checks required events (issuance, coupon, corporate action, transfer, redemption, default) by security type. EU DLT Pilot Regime and prospectus requirement checks included.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "security_name": {
+            "type": "string"
+          },
+          "security_type": {
+            "type": "string",
+            "enum": [
+              "ust",
+              "corporate_bond",
+              "equity",
+              "fund_unit",
+              "govt_bond",
+              "structured_note"
+            ]
+          },
+          "issuance_jurisdiction": {
+            "type": "string",
+            "enum": [
+              "us",
+              "eu",
+              "uk",
+              "sg",
+              "hk",
+              "other"
+            ]
+          },
+          "daml_contract_defined": {
+            "type": "boolean"
+          },
+          "daml_events_covered": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "issuance",
+                "coupon_payment",
+                "corporate_action",
+                "transfer",
+                "maturity_redemption",
+                "default_handling"
+              ]
+            }
+          },
+          "issuance_amount_usd": {
+            "type": "number"
+          },
+          "custodian_model": {
+            "type": "string",
+            "enum": [
+              "dtc_custodied",
+              "third_party_csd",
+              "self_custodied",
+              "canton_native"
+            ]
+          },
+          "prospectus_filed": {
+            "type": "boolean"
+          },
+          "isin_assigned": {
+            "type": "boolean"
+          },
+          "corporate_actions_expected": {
+            "type": "string",
+            "enum": [
+              "none",
+              "coupon_only",
+              "coupon_and_redemption",
+              "equity_events",
+              "complex"
+            ]
+          }
+        },
+        "required": [
+          "security_type",
+          "issuance_jurisdiction",
+          "daml_events_covered"
+        ]
+      },
+      "metadata": {
+        "tool_id": "512-tokenized-security-lifecycle-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/512-tokenized-security-lifecycle-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "mobilize_margin_collateral",
+      "description": "Compute margin requirements and eligible collateral for derivatives (UMR/d499) or repo/SFT (GMRA/d349). Branches automatically by instrument type. Returns IM/VM requirements, eligible collateral table, gap/surplus, and Canton on-chain mobilization flag.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "instrument_type": {
+            "type": "string",
+            "enum": [
+              "interest_rate_swap",
+              "cds",
+              "fx_forward",
+              "equity_option",
+              "commodity_swap",
+              "swaption",
+              "repo",
+              "reverse_repo",
+              "securities_lending",
+              "buy_sell_back"
+            ]
+          },
+          "portfolio_mtm": {
+            "type": "number"
+          },
+          "aana_eur": {
+            "type": "number"
+          },
+          "counterparty_type": {
+            "type": "string",
+            "enum": [
+              "bank",
+              "investment_firm",
+              "fund",
+              "non_financial_counterparty"
+            ]
+          },
+          "collateral": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "asset_type": {
+                  "type": "string",
+                  "enum": [
+                    "ust",
+                    "gilt",
+                    "ig_corp",
+                    "equity",
+                    "cash_usd",
+                    "cash_eur"
+                  ]
+                },
+                "notional": {
+                  "type": "number"
+                },
+                "already_posted": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "asset_type",
+                "notional"
+              ]
+            }
+          },
+          "on_chain_mobilization": {
+            "type": "boolean"
+          },
+          "bilateral_csa": {
+            "type": "boolean"
+          },
+          "ccp_cleared": {
+            "type": "boolean"
+          },
+          "mta_eur": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "instrument_type",
+          "portfolio_mtm"
+        ]
+      },
+      "metadata": {
+        "tool_id": "513-margin-call-collateral-mobilizer",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/513-margin-call-collateral-mobilizer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_fund_collateral",
+      "description": "Validate tokenized MMF / CNAV / LVNAV / VNAV fund shares as collateral. Applies SEC Rule 2a-7, EU MMFR, and Basel LCR HQLA exclusion rules. Outputs eligibility determination, compliance flags, and pacs.008 payload.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "fund_name": {
+            "type": "string"
+          },
+          "fund_type": {
+            "type": "string",
+            "enum": [
+              "sec_govt_mmf",
+              "sec_retail_prime_mmf",
+              "sec_inst_prime_mmf",
+              "eu_cnav",
+              "eu_lvnav",
+              "eu_vnav",
+              "other_govt_fund"
+            ]
+          },
+          "nav_per_share": {
+            "type": "number"
+          },
+          "units_held": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP"
+            ]
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "canton_benji",
+              "canton_other",
+              "other_dlt",
+              "traditional"
+            ]
+          },
+          "redemption_window": {
+            "type": "string",
+            "enum": [
+              "instant",
+              "same_day",
+              "t1",
+              "t2_plus"
+            ]
+          },
+          "collateral_use": {
+            "type": "string",
+            "enum": [
+              "repo_collateral",
+              "im_derivative",
+              "vm_derivative",
+              "lender_collateral",
+              "other"
+            ]
+          },
+          "wla_pct": {
+            "type": "number"
+          },
+          "dla_pct": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fund_type",
+          "nav_per_share",
+          "units_held",
+          "currency",
+          "collateral_use"
+        ]
+      },
+      "metadata": {
+        "tool_id": "514-tokenized-fund-collateral-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/514-tokenized-fund-collateral-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "validate_collateral_swap_eligibility",
+      "description": "Validate a collateral swap (upgrade/downgrade trade) under GMSLA, GMRA, and SFTR Art 15 collateral reuse rules. Determines HQLA tier impact and swap eligibility.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asset_type_a": {
+            "type": "string",
+            "enum": [
+              "ust",
+              "gilt",
+              "eu_sovereign",
+              "agency_mbs",
+              "ig_corp_bond",
+              "equity",
+              "cash_usd",
+              "cash_eur",
+              "mmf_fund_share"
+            ]
+          },
+          "notional_a": {
+            "type": "number"
+          },
+          "currency_a": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP"
+            ]
+          },
+          "asset_type_b": {
+            "type": "string",
+            "enum": [
+              "ust",
+              "gilt",
+              "eu_sovereign",
+              "agency_mbs",
+              "ig_corp_bond",
+              "equity",
+              "cash_usd",
+              "cash_eur",
+              "mmf_fund_share"
+            ]
+          },
+          "notional_b": {
+            "type": "number"
+          },
+          "currency_b": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP"
+            ]
+          },
+          "swap_direction": {
+            "type": "string",
+            "enum": [
+              "upgrade",
+              "downgrade",
+              "neutral"
+            ]
+          },
+          "governing_agreement": {
+            "type": "string",
+            "enum": [
+              "gmsla",
+              "gmra",
+              "bespoke_csa",
+              "undefined"
+            ]
+          },
+          "sftr_consent": {
+            "type": "boolean"
+          },
+          "collateral_reuse": {
+            "type": "boolean"
+          },
+          "haircut_a": {
+            "type": "number"
+          },
+          "haircut_b": {
+            "type": "number"
+          },
+          "provider_informed": {
+            "type": "boolean"
+          },
+          "eu_counterparty": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "asset_type_a",
+          "notional_a",
+          "asset_type_b",
+          "notional_b",
+          "swap_direction",
+          "governing_agreement"
+        ]
+      },
+      "metadata": {
+        "tool_id": "515-collateral-swap-eligibility-validator",
+        "category": "capital-markets",
+        "url": "https://ainumbers.co/tools/515-collateral-swap-eligibility-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
         "prefill": true
       }
     },
