@@ -34,6 +34,11 @@ jobs:
         # broken bundle now blocks the deploy instead of taking the worker down.
         run: npx wrangler@4.99.0 deploy --dry-run --outdir /tmp/worker-build
 
+      - name: 🏷 Tool-name collision check (CONTRACT §A4.1)
+        # Fails on a fatal mcp_name collision (node-vs-node, pilot-vs-pilot, or utility
+        # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
+        run: node scripts/check-tool-names.mjs
+
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
