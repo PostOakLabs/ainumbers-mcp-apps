@@ -898,7 +898,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   async function cgExecutionHash(policy_parameters, output_payload) {
     const preimage = JSON.stringify(cgCanon({ policy_parameters, output_payload }));
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(preimage));
-    return 'sha256:' + [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+    // Bare hex — no 'sha256:' prefix. Matches _hash.mjs::executionHash() so kernel
+    // artifacts self-verify correctly. The 'sha256:' prefix is an OPTIONAL display
+    // convention used at call sites when presenting to the user (e.g. in receipts).
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
   server.registerTool('verify_execution_hash', {
@@ -2069,9 +2072,16 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   // metadata so an agent can navigate, run, and chain AP2 artifacts.
   // Source of truth: repo/chaingraph/chaingraph.json (vendored into data/).
   // -------------------------------------------------------------------------
+  // Guard against duplicate mcp_name registrations (would throw and abort buildServer).
+  // Canonical fix is unique mcp_names in chaingraph.json; this is a belt-and-suspenders
+  // safety net so a future collision degrades gracefully instead of taking the server down.
+  const _registeredMcpNames = new Set();
+
   for (const node of (chaingraph?.nodes ?? [])) {
     if (node.status !== 'live') continue;
     const toolName = node.mcp_name;
+    if (!toolName || _registeredMcpNames.has(toolName)) continue;
+    _registeredMcpNames.add(toolName);
     const consumes = node.consumes ?? [];
     const feeds = node.feeds ?? [];
     const waveLabel = 'Wave ' + (node.wave ?? '?');
