@@ -2075,7 +2075,17 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   // Guard against duplicate mcp_name registrations (would throw and abort buildServer).
   // Canonical fix is unique mcp_names in chaingraph.json; this is a belt-and-suspenders
   // safety net so a future collision degrades gracefully instead of taking the server down.
-  const _registeredMcpNames = new Set();
+  // Seed with names ALREADY registered above — the PILOT widget tools (registerAppTool)
+  // and the utility tools — not just node-vs-node. A ChainGraph node whose mcp_name
+  // duplicates one of those is the SAME logical tool (e.g. pilot 276 / node art-22 both
+  // = compare_agentic_payment_protocols; pilot 285 / art-21 = build_google_ap2_mandate;
+  // 277/art-26, 283/art-25, 286/art-23). Registering it twice throws "Tool X is already
+  // registered" and took the whole /mcp handshake down (2026-06-19). Skip, don't throw.
+  const _registeredMcpNames = new Set([
+    ...PILOT.map((slug) => manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_')),
+    'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
+    'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
+  ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
     if (node.status !== 'live') continue;
