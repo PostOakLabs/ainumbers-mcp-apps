@@ -71,7 +71,7 @@ writeFileSync(resolve(DATA,'counts.json'), JSON.stringify(counts, null, 2) + '\n
 // Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
 // SDK must be inlined into the widget HTML rather than imported from esm.sh at runtime.
 const sdkSrc = readFileSync(resolve(ROOT,'node_modules','@modelcontextprotocol','ext-apps','dist','src','app-with-deps.js'),'utf8');
-const sdkInline = sdkSrc.replace(/export\{([\s\S]*?)\};?\s*$/, (_, names) => {
+const sdkInline = sdkSrc.replace(/export\{([^}]*)\};?\s*$/, (_, names) => {
   const props = names.split(',').map(s => s.trim()).filter(Boolean).map(s => {
     const m = s.split(/\s+as\s+/);
     return m.length === 2 ? `${m[1]}:${m[0]}` : `${s}:${s}`;
