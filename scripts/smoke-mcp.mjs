@@ -48,7 +48,8 @@ async function attempt() {
     try {
       const info = await attempt();
       console.log(`✓ /mcp initialize OK — ${info.name} v${info.version} (${URL})`);
-      process.exit(0);
+      process.exitCode = 0;
+      return;
     } catch (e) {
       lastErr = e;
       console.error(`  attempt ${i}/${RETRIES} failed: ${e.message}`);
