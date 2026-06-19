@@ -9,14 +9,17 @@ import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
+import { getKernel } from './kernels/index.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
 // ---------------------------------------------------------------------------
-// build_workflow_links -- named chain definitions
-// Steps keyed by file slug (filename without .html). handoff describes which
-// upstream outputs the next step consumes. composer_url present when a live
-// Runner page orchestrates the chain.
+// NAMED_CHAINS: Workstream F MIGRATION IN PROGRESS.
+// The canonical source of truth is now chaingraph.json → "chains" array.
+// build_workflow_links reads from namedChains (built from chaingraph.chains inside
+// buildServer). NAMED_CHAINS retained here for reference; scheduled for removal
+// after the next deploy confirms the canonical source is stable.
+// Steps in chaingraph.chains use tool_id (not slug).
 // ---------------------------------------------------------------------------
 const NAMED_CHAINS = {
   // Live composers
@@ -688,7 +691,7 @@ async function loadData(env) {
 }
 
 function buildServer({ manifests, widgets, catalog, chaingraph }) {
-  const server = new McpServer({ name: 'ainumbers-apps', version: '1.1.0' });
+  const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -731,6 +734,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   // build_workflow_links
   // Build a slug-indexed and tool_id-indexed lookup from the catalog.
   // Done once inside buildServer (catalog is already loaded).
+  // namedChains is built from chaingraph.chains (Workstream F canonical source).
   const bySlug = {}, byToolId = {};
   for (const t of catalog.tools ?? []) {
     const url = t.metadata?.url ?? '';
@@ -738,6 +742,12 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     if (slug) bySlug[slug] = t;
     if (t.metadata?.tool_id) byToolId[t.metadata.tool_id] = t;
   }
+  // Canonical chain index: read from chaingraph.json chains array (not NAMED_CHAINS literal).
+  const namedChains = {};
+  for (const c of chaingraph?.chains ?? []) {
+    if (c.name) namedChains[c.name] = c;
+  }
+  const namedChainNames = Object.keys(namedChains);
 
   server.registerTool('build_workflow_links', {
     title: 'Build AINumbers workflow deep-links',
@@ -748,10 +758,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Zero server-side execution -- all tool logic runs deterministically in the user\'s browser. ' +
       'Use this to hand a user a complete workflow: open step 1, run it, export its Policy Mandate, ' +
       'open step 2 (pre-filled from step 1 outputs), repeat. ' +
-      'Named chains: ' + Object.keys(NAMED_CHAINS).join(', ') + '.',
+      'Named chains: ' + namedChainNames.join(', ') + '.',
     inputSchema: {
       chain: z.string().optional().describe(
-        'Name of a pre-defined chain. One of: ' + Object.keys(NAMED_CHAINS).join(', ') +
+        'Name of a pre-defined chain. One of: ' + namedChainNames.join(', ') +
         '. Mutually exclusive with steps.'
       ),
       steps: z.array(z.object({
@@ -773,14 +783,14 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       };
     }
     if (chain) {
-      chainMeta = NAMED_CHAINS[chain];
+      chainMeta = namedChains[chain];
       if (!chainMeta) {
         return {
           isError: true,
-          content: [{ type: 'text', text: 'Unknown chain "' + chain + '". Available: ' + Object.keys(NAMED_CHAINS).join(', ') }],
+          content: [{ type: 'text', text: 'Unknown chain "' + chain + '". Available: ' + namedChainNames.join(', ') }],
         };
       }
-      rawSteps = chainMeta.steps.map((s) => ({ tool_id: s.slug, fields: undefined, _handoff: s.handoff }));
+      rawSteps = chainMeta.steps.map((s) => ({ tool_id: s.tool_id, fields: undefined, _handoff: s.handoff }));
     } else if (steps && steps.length > 0) {
       rawSteps = steps.map((s) => ({ tool_id: s.tool_id, fields: s.fields, _handoff: null }));
     } else {
@@ -1051,20 +1061,24 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Mode 1 — supply pre_computed_artifact (exported from the browser tool): validates §4 schema fields, recomputes execution_hash via SHA-256 over canonical {policy_parameters, output_payload}, returns verified structuredContent. ' +
       'Mode 2 — supply tool_id + policy_parameters: returns an artifact template envelope and browser prefill URL so an agent can hand the user a pre-filled link; GPU sims always delegate to the browser per §9.2. ' +
       'Mode 3 — supply tool_id only: returns node metadata and artifact schema scaffold. ' +
+      'Mode 4 (Compute Binding, v0.4) — supply tool_id + policy_parameters + compute:"server" (or compute:"auto" for gpu:false nodes): runs the registered kernel server-side and returns a verified v0.4 artifact with execution_hash + output_payload in one round-trip. No browser required. gpu:true nodes always delegate to browser. ' +
       'readOnlyHint: true. Zero PII, zero payload logging. ' +
       'Pair with verify_execution_hash (independent hash verification) and build_chaingraph (DAG wiring).',
     inputSchema: {
       tool_id: z.string().optional().describe(
-        'ChainGraph node tool_id (e.g. "art-30-agent-commerce-conformance-validator"). ' +
+        'ChainGraph node tool_id (e.g. "art-01-ap2-mandate-chain-validator"). ' +
         'Looked up in chaingraph.json nodes. Required unless pre_computed_artifact is supplied.'
       ),
       policy_parameters: z.record(z.any()).optional().describe(
         'Input parameters for the tool (mirrors the tool\'s Policy Mandate input fields). ' +
-        'Used to build the artifact template and browser prefill URL (#in= fragment).'
+        'Used for Mode 2 browser prefill and Mode 4 server-side compute.'
+      ),
+      compute: z.enum(['auto', 'server', 'browser']).optional().describe(
+        'Compute mode (v0.4 Compute Binding). "auto" = server for gpu:false nodes (default); "server" = force server-side; "browser" = always return browser delegation URL. gpu:true nodes always use browser regardless of this flag.'
       ),
       parent_hashes: z.array(z.string()).optional().describe(
         'execution_hash values from upstream ChainGraph artifacts this call chains from. ' +
-        'Placed into artifact_template.chain.parent_hashes (ChainGraph Standard v0.1 §5 chain block).'
+        'Placed into artifact.chain.parent_hashes (ChainGraph Standard v0.1 §5 chain block).'
       ),
       parent_tool_ids: z.array(z.string()).optional().describe(
         'tool_ids corresponding to parent_hashes, in the same order.'
@@ -1076,11 +1090,11 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       ),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ tool_id, policy_parameters, parent_hashes, parent_tool_ids, pre_computed_artifact }) => {
-    // v0.3.1 envelope harmonization (expand-migrate-contract, additive):
+  }, async ({ tool_id, policy_parameters, compute, parent_hashes, parent_tool_ids, pre_computed_artifact }) => {
+    // v0.4.0 envelope: adds compute_mode + server-side kernel dispatch (Mode 4).
     // chaingraph_version + @context are canonical (match ChainGraph Standard §1);
     // ap2_version retained as a DEPRECATED ALIAS for back-compat with existing browser exports.
-    const CHAINGRAPH_VERSION = '0.3.1';
+    const CHAINGRAPH_VERSION = '0.4.0';
     const AP2_VERSION = '1.0.0'; // deprecated alias of chaingraph_version (retained, not emitted as canonical)
     const BASE_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld';
     const ISO_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/iso20022-context.jsonld';
@@ -1188,7 +1202,51 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
     }
 
-    // --- Mode 2: tool_id + policy_parameters ---
+    // --- Mode 4: server-side kernel dispatch (v0.4 Compute Binding) ---
+    // Conditions: policy_parameters provided AND compute != 'browser' AND node.gpu === false
+    // AND a kernel is registered for this tool_id.
+    const effectiveCompute = compute ?? 'auto';
+    if (policy_parameters && effectiveCompute !== 'browser' && !gpu) {
+      const kernel = getKernel(tool_id);
+      if (kernel) {
+        try {
+          const now = new Date().toISOString();
+          const artifact = await kernel.buildArtifact(policy_parameters, {
+            now,
+            parent_hashes: parent_hashes ?? [],
+            parent_tool_ids: parent_tool_ids ?? [],
+            chain_depth: node.chain_depth ?? 0,
+          });
+          // Verify the hash we just produced (round-trip self-check).
+          const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
+          const hash_valid = recomputed === artifact.execution_hash;
+          const out = {
+            mode: 'server_compute',
+            compute_mode: 'server',
+            chaingraph_version: CHAINGRAPH_VERSION,
+            tool_id,
+            title: node.display_name ?? node.title ?? tool_id,
+            mandate_type: node.mandate_type,
+            gpu: false,
+            browser_url,
+            hash_valid,
+            computed_hash: recomputed,
+            artifact,
+            note: 'Kernel computed server-side. execution_hash verified. Pass artifact.execution_hash as parent_hashes to downstream ChainGraph tools. Use verify_execution_hash for independent third-party verification.',
+            spec: 'ChainGraph Standard v0.4 §3 Compute Binding',
+          };
+          return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+        } catch (err) {
+          return {
+            isError: true,
+            content: [{ type: 'text', text: 'Kernel compute error for "' + tool_id + '": ' + String(err?.message ?? err) }],
+          };
+        }
+      }
+      // No kernel registered — fall through to Mode 2 (browser delegation).
+    }
+
+    // --- Mode 2: tool_id + policy_parameters (browser delegation) ---
     const artifact_template = {
       '@context': envelope_context,
       chaingraph_version: CHAINGRAPH_VERSION,
@@ -1228,6 +1286,90 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       spec: 'ChainGraph Standard v0.1 §4',
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
+  // build_session_receipt (Workstream C — v0.4 Compute Binding)
+  // Aggregates N execution_hashes from one agent session into a single
+  // SHA-256 Merkle root. Returns a tamper-evident session receipt suitable
+  // for EU AI Act Art. 12 / DORA audit trails, plus a PTG-01 regulator-framed prompt.
+  // Mirrors CRY-05 kernel logic (no kernel dependency here — pure Worker compute).
+  // -------------------------------------------------------------------------
+  server.registerTool('build_session_receipt', {
+    title: 'Build a session audit receipt (Merkle root)',
+    description:
+      'Aggregates execution_hashes from N ChainGraph tool calls in one agent session into a ' +
+      'single SHA-256 Merkle root (session_receipt_root). Returns a tamper-evident session receipt ' +
+      'and a regulator-framed PTG-01 audit prompt. ' +
+      'One receipt covers an entire agent session: supply all execution_hashes in call order. ' +
+      'The Merkle root is deterministic — the same hashes in the same order always produce the same root. ' +
+      'Compliant with EU AI Act Art. 12 (transparency) and DORA ICT audit-trail requirements.',
+    inputSchema: {
+      execution_hashes: z.array(z.string()).describe(
+        'Ordered list of execution_hash values from ChainGraph tool calls in this session (each produced by emit_chaingraph_artifact or a kernel tool). Minimum 1.'
+      ),
+      tool_ids: z.array(z.string()).optional().describe(
+        'tool_id values corresponding to execution_hashes, in the same order. Used for the audit narrative.'
+      ),
+      session_id: z.string().optional().describe(
+        'Optional agent session identifier for the audit narrative (e.g. a UUID or timestamp).'
+      ),
+      framing: z.string().optional().describe(
+        'Optional framing context for the PTG-01 regulator prompt (e.g. "DORA incident review" or "EU AI Act Art.12 transparency log").'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ execution_hashes, tool_ids, session_id, framing }) => {
+    if (!execution_hashes || execution_hashes.length === 0) {
+      return { isError: true, content: [{ type: 'text', text: 'execution_hashes must be a non-empty array.' }] };
+    }
+    // Merkle tree: SHA-256 of concatenated hex strings (no prefix), binary tree, duplicate last leaf if odd.
+    const normalize = (h) => String(h).replace(/^sha256:/, '').toLowerCase();
+    const hashPair = async (a, b) => {
+      const combined = normalize(a) + normalize(b);
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(combined));
+      return 'sha256:' + [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join('');
+    };
+    let level = execution_hashes.map(normalize).map((h) => 'sha256:' + h.replace(/^sha256:/, ''));
+    while (level.length > 1) {
+      const next = [];
+      for (let i = 0; i < level.length; i += 2) {
+        const left = level[i];
+        const right = level[i + 1] ?? level[i]; // duplicate last if odd
+        next.push(await hashPair(left, right));
+      }
+      level = next;
+    }
+    const session_receipt_root = level[0];
+    const generated_at = new Date().toISOString();
+    const framingStr = framing ?? 'Agent session audit trail';
+    const toolList = (tool_ids ?? []).map((id, i) => '  ' + (i + 1) + '. ' + id + ' → ' + execution_hashes[i]).join('\n');
+    const ptg01_prompt =
+      framingStr + '\n\n' +
+      'Session receipt root (SHA-256 Merkle): ' + session_receipt_root + '\n' +
+      'Generated at: ' + generated_at + '\n' +
+      (session_id ? 'Session ID: ' + session_id + '\n' : '') +
+      'Tools executed (' + execution_hashes.length + '):\n' +
+      (toolList || execution_hashes.map((h, i) => '  ' + (i + 1) + '. ' + h).join('\n')) + '\n\n' +
+      'This receipt covers ' + execution_hashes.length + ' verifiable ChainGraph tool call(s). ' +
+      'Each execution_hash is independently verifiable via verify_execution_hash. ' +
+      'The Merkle root proves the complete set of tool calls in this session has not been tampered with. ' +
+      'Regulatory alignment: EU AI Act Art. 12 (transparency log); DORA ICT audit trail; ChainGraph Standard v0.4 §C (session receipt).';
+    const receipt = {
+      chaingraph_version: '0.4.0',
+      receipt_type: 'session_receipt',
+      session_receipt_root,
+      hash_count: execution_hashes.length,
+      execution_hashes,
+      tool_ids: tool_ids ?? null,
+      session_id: session_id ?? null,
+      generated_at,
+      framing: framingStr,
+      merkle_algorithm: 'SHA-256 binary tree, duplicate-last-leaf padding',
+      ptg01_prompt,
+      spec: 'ChainGraph Standard v0.4 §C',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
   });
 
   // -------------------------------------------------------------------------
@@ -1943,15 +2085,52 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
         ' Open at: ' + node.url,
       inputSchema: {
+        policy_parameters: z.record(z.any()).optional()
+          .describe('Input parameters for this tool\'s decision function. For gpu:false nodes with a registered kernel, these are computed server-side when compute is "auto" or "server". See the tool\'s manifest for field names.'),
+        compute: z.enum(['auto', 'server', 'browser']).optional()
+          .describe('Compute mode (v0.4 Compute Binding). "auto" (default) = server for gpu:false nodes with registered kernels; "server" = force server-side; "browser" = always return browser delegation URL. gpu:true nodes always delegate.'),
         parent_hashes: z.array(z.string()).optional()
           .describe('execution_hash values from upstream ChainGraph AP2 artifacts to chain from (sets chain.parent_hashes in the export).'),
         parent_tool_ids: z.array(z.string()).optional()
           .describe('tool_id values matching parent_hashes, in the same order.'),
-        inputs: z.record(z.any()).optional()
-          .describe('Simulation parameters for this tool\'s input fields. See the tool\'s embedded manifest for field names.'),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-    }, ({ parent_hashes, parent_tool_ids, inputs }) => {
+    }, async ({ policy_parameters, compute, parent_hashes, parent_tool_ids }) => {
+      // --- Compute Binding (v0.4): server-side dispatch for gpu:false nodes ---
+      const effectiveCompute = compute ?? 'auto';
+      if (policy_parameters && effectiveCompute !== 'browser' && !node.gpu) {
+        const kernel = getKernel(node.tool_id);
+        if (kernel) {
+          try {
+            const now = new Date().toISOString();
+            const artifact = await kernel.buildArtifact(policy_parameters, {
+              now,
+              parent_hashes: parent_hashes ?? [],
+              parent_tool_ids: parent_tool_ids ?? [],
+              chain_depth: node.chain_depth ?? 0,
+            });
+            // Inline canonical hasher (parity copy; same as cgExecutionHash above)
+            const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
+            const hash_valid = recomputed === artifact.execution_hash;
+            return {
+              content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
+              structuredContent: {
+                compute_mode: 'server',
+                hash_valid,
+                computed_hash: recomputed,
+                artifact,
+                note: 'Kernel computed server-side. Pass artifact.execution_hash as parent_hashes to downstream tools.',
+              },
+            };
+          } catch (err) {
+            return {
+              isError: true,
+              content: [{ type: 'text', text: 'Kernel compute error: ' + String(err?.message ?? err) }],
+            };
+          }
+        }
+      }
+      // --- Browser delegation (gpu:true or no kernel or compute:"browser") ---
       const chainNote = (parent_hashes && parent_hashes.length)
         ? '\nChain from: ' + parent_hashes.join(', ') + (parent_tool_ids ? ' (' + parent_tool_ids.join(', ') + ')' : '')
         : '';
@@ -1968,13 +2147,16 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
           mcp_name:     toolName,
           wave:         node.wave,
           mandate_type: node.mandate_type,
+          gpu:          !!node.gpu,
           url:          node.url,
           consumes,
           feeds,
           parent_hashes:   parent_hashes   ?? [],
           parent_tool_ids: parent_tool_ids ?? [],
-          inputs:          inputs          ?? {},
-          instruction: 'Open the URL, run the simulation with provided inputs, export the AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.',
+          policy_parameters: policy_parameters ?? {},
+          instruction: node.gpu
+            ? 'GPU simulation — runs client-side only per ChainGraph Standard v0.4 §9.2. Open URL, run with provided inputs, export artifact.'
+            : 'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.',
         },
       };
     });

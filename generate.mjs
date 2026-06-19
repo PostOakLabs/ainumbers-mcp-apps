@@ -2,7 +2,7 @@
 // from ../repo into ./data so the server deploys standalone (Render web service AND
 // Cloudflare Workers static assets both read ./data).
 // Re-run after any AINumbers deploy that touches the pilot tools:  node generate.mjs
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
@@ -22,13 +22,50 @@ for (const slug of PILOT) {
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
 
-// Vendor the shared OCG hash module so the Worker imports the SAME canonicalizer
-// the browser tools use (repo/chaingraph/kernels/_hash.mjs). worker.mjs cgCanon
-// MUST stay byte-identical to this — the parity test in kernels/ enforces it.
-mkdirSync(resolve(DATA,'kernels'),{recursive:true});
-for (const k of ['_hash.mjs']) {
-  writeFileSync(resolve(DATA,'kernels',k), readFileSync(resolve(REPO,'chaingraph','kernels',k)));
+// ---------------------------------------------------------------------------
+// Vendor OCG kernel modules in two places:
+//   1. data/kernels/  — ASSETS binding (served to browsers via HTTP)
+//   2. kernels/       — bundled into the Worker by wrangler/esbuild (static import)
+// Only kernel files are vendored (*.kernel.mjs, _hash.mjs, index.mjs).
+// Test/lint/fix scripts are excluded from both targets.
+// ---------------------------------------------------------------------------
+const KERNELS_SRC  = resolve(REPO, 'chaingraph', 'kernels');
+const KERNELS_DATA = resolve(DATA, 'kernels');
+const KERNELS_BUNDLE = resolve(ROOT, 'kernels'); // alongside worker.mjs → bundled by wrangler
+mkdirSync(KERNELS_DATA,   { recursive: true });
+mkdirSync(KERNELS_BUNDLE, { recursive: true });
+
+const KERNEL_FILE_RE = /^((_hash|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
+for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
+  const src = readFileSync(resolve(KERNELS_SRC, f));
+  writeFileSync(resolve(KERNELS_DATA, f), src);
+  writeFileSync(resolve(KERNELS_BUNDLE, f), src);
 }
+
+// ---------------------------------------------------------------------------
+// Emit data/counts.json — single source of truth for all numeric stats used
+// in mcp.html, chaingraph-hub.html, JSON-LD, og:description, i18n strings.
+// build_workflow_links chain names are read from chaingraph.json.chains (after F).
+// ---------------------------------------------------------------------------
+const cgJson   = JSON.parse(readFileSync(resolve(DATA,'chaingraph','chaingraph.json'),'utf8'));
+const catJson  = JSON.parse(readFileSync(resolve(DATA,'mcp','catalog.json'),'utf8'));
+const cgNodes  = cgJson.nodes ?? [];
+const cgChains = cgJson.chains ?? [];
+const liveNodes = cgNodes.filter(n => n.status === 'live').length;
+const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
+// Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools (list/build/verify/emit/receipt=6)
+const UTIL_TOOL_COUNT = 6; // list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph, emit_chaingraph_artifact, build_session_receipt
+const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
+const counts = {
+  chaingraph_nodes_live: liveNodes,
+  chaingraph_nodes_gpu_false: gpuFalseNodes,
+  pilot_widgets: PILOT.length,
+  catalog_tools: (catJson.tools ?? []).length,
+  named_chains: cgChains.length,
+  mcp_tools_total: mcpToolsTotal,
+  generated_at: new Date().toISOString(),
+};
+writeFileSync(resolve(DATA,'counts.json'), JSON.stringify(counts, null, 2) + '\n');
 
 // Vendor the ext-apps browser SDK as an export-free inlinable script for the widget glue.
 // Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
@@ -43,5 +80,4 @@ const sdkInline = sdkSrc.replace(/export\{([\s\S]*?)\};?\s*$/, (_, names) => {
 });
 if (!sdkInline.includes('__EXT_APPS__')) throw new Error('ext-apps SDK export transform failed — check app-with-deps.js export shape');
 writeFileSync(resolve(DATA,'ext-apps-inline.js'), sdkInline);
-const cgNodes = JSON.parse(readFileSync(resolve(REPO,'chaingraph','chaingraph.json'),'utf8')).nodes ?? [];
-console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + cgNodes.length + ' nodes) + ext-apps-inline.js into ./data');
+console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js into ./data');
