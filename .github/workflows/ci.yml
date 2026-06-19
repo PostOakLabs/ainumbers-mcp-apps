@@ -26,6 +26,14 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: 🧱 Worker bundles (dry-run) — gate against missing committed deps
+        # `wrangler deploy --dry-run` bundles worker.mjs WITHOUT deploying. It fails
+        # if any static import (e.g. ./kernels/index.mjs) can't resolve in the
+        # COMMITTED tree — the recurring "MCP down after push" cause (deps produced
+        # by generate.mjs but not committed). Because `deploy` needs `validate`, a
+        # broken bundle now blocks the deploy instead of taking the worker down.
+        run: npx wrangler@4.99.0 deploy --dry-run --outdir /tmp/worker-build
+
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
@@ -64,6 +72,16 @@ jobs:
             if (!ok) process.exit(1);
           "
 
+  # DEPLOYER = GitHub Actions, and ONLY GitHub Actions (gated on `validate`).
+  # Cloudflare Workers Builds (native Git integration) must stay DISCONNECTED —
+  # running both creates a double-deployer (two versions ~13s apart per push) and
+  # the Workers Build is UNgated, so it ships unvalidated/broken bundles. This was
+  # decided 2026-06-12 and regressed on 2026-06-19 (Workers Build reconnected →
+  # outage). If the MCP goes down after a push, first check that a Workers Build
+  # didn't get reconnected (Cloudflare dash → ainumbers-mcp → Settings → Build).
+  # NOTE: this job deploys COMMITTED files only — it does NOT run generate.mjs
+  # (that needs the sibling ../repo, absent in CI). So data/ and kernels/ MUST be
+  # committed + current in the same push (run `node generate.mjs` locally first).
   deploy:
     name: Deploy to Cloudflare Workers
     needs: validate           # only deploys if the validate job above passes
@@ -90,3 +108,11 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4.99.0'   # project uses Wrangler 4 features (run_worker_first, assets binding); v3 default rejects them
           command: deploy
+
+      - name: 🔌 Post-deploy /mcp smoke test
+        # The lasting guardrail. Performs a real MCP `initialize` against the LIVE endpoint
+        # after deploy. Catches runtime tool-registration throws (e.g. duplicate mcp_name)
+        # that 500 the handshake while the worker otherwise serves — the class that the
+        # bundle dry-run in `validate` CANNOT catch and that shipped twice through green CI.
+        # A failure here turns the deploy red immediately; roll back in Cloudflare.
+        run: node scripts/smoke-mcp.mjs
