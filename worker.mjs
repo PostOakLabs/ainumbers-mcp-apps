@@ -27,7 +27,7 @@ const NAMED_CHAINS = {
   'aml-programme': {
     title: 'AML Programme',
     description: 'Customer risk rating > TM rule building > CTR/SAR thresholds > AML Policy Mandate. Full audited run available in the composer.',
-    composer_url: BASE_URL + '/guides/aml-programme-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/aml-consolidation.html',
     steps: [
       { slug: '110-customer-risk-rating',          handoff: 'risk_tier and composite_score feed Stage 2 TM rule calibration' },
       { slug: '116-tm-rule-builder',               handoff: 'rule_set and velocity_thresholds feed Stage 3 CTR/SAR simulation' },
@@ -112,7 +112,7 @@ const NAMED_CHAINS = {
   'dora-readiness': {
     title: 'DORA ICT Risk to NCA Submission',
     description: 'Gap analysis > resilience testing design > proportionality assessment > AP2 DORA Policy Mandate. Full orchestrated run available in the composer.',
-    composer_url: BASE_URL + '/guides/dora-readiness-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/dora-readiness.html',
     steps: [
       { slug: '300-dora-ict-risk-gap-analyser',       handoff: 'gap_findings and ict_risk_score feed T304 resilience testing design' },
       { slug: '304-dora-resilience-testing-designer', handoff: 'testing_plan and tlpt_scope feed T307 proportionality assessment' },
@@ -190,7 +190,7 @@ const NAMED_CHAINS = {
   'fraud-decisioning': {
     title: 'Fraud & Scam Decisioning',
     description: 'Velocity rule building > structuring pattern detection > fraud investigation > APP-scam risk scoring > fraud/velocity policy mandate.',
-    composer_url: BASE_URL + '/guides/fraud-decisioning-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/fraud-decisioning.html',
     steps: [
       { slug: '256-rtp-fraud-velocity-rule-builder', handoff: 'rule_set and velocity_thresholds feed Stage 2 structuring pattern detection' },
       { slug: '117-structuring-pattern-detector',    handoff: 'detected_patterns and risk_flags feed Stage 3 fraud investigation' },
@@ -201,7 +201,7 @@ const NAMED_CHAINS = {
   'credit-decisioning': {
     title: 'Credit Decisioning',
     description: 'PD/LGD/EAD modelling > Basel RWA calculation > RAROC pricing > covenant compliance check > facility structuring > composite credit mandate.',
-    composer_url: BASE_URL + '/guides/credit-decisioning-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/credit-decisioning.html',
     steps: [
       { slug: '198-pd-lgd-ead-modeller',                   handoff: 'pd, lgd, ead values feed Stage 2 Basel RWA calculation' },
       { slug: '201-basel-rwa-calculator',                  handoff: 'rwa_total and capital_requirement feed Stage 3 RAROC pricing' },
@@ -225,7 +225,7 @@ const NAMED_CHAINS = {
   'stablecoin-compliance': {
     title: 'Stablecoin Compliance (GENIUS Act / MiCA)',
     description: 'Issuance architecture > reserve stress testing > GENIUS Act compliance > MiCA white paper / CASP > composite stablecoin compliance mandate.',
-    composer_url: BASE_URL + '/guides/stablecoin-compliance-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/stablecoin-compliance.html',
     steps: [
       { slug: '53-cbdc-architecture-comparator',                      handoff: 'architecture_choice feeds Stage 2 reserve stress testing' },
       { slug: '388-stablecoin-reserve-stress-test-modeller',          handoff: 'reserve_adequacy and stress_results feed Stage 3 GENIUS Act check' },
@@ -248,7 +248,7 @@ const NAMED_CHAINS = {
   'instant-payments-vop': {
     title: 'Instant Payments & Verification of Payee Readiness',
     description: 'Rail participation readiness > Verification of Payee simulation > intraday liquidity sizing > IPR annual report > instant-payments policy mandate. EU Instant Payments Regulation (VoP mandatory since Oct 2025). Full audited run in the composer.',
-    composer_url: BASE_URL + '/guides/instant-payments-vop-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/instant-payments-vop.html',
     steps: [
       { slug: '229-rtp-network-participation-checker',   handoff: 'participation_gaps feed Stage 2 VoP simulation' },
       { slug: '289-verification-of-payee-simulator',     handoff: 'vop_match_rates and response_timing feed Stage 3 liquidity sizing' },
@@ -272,7 +272,7 @@ const NAMED_CHAINS = {
   'einvoicing-vida': {
     title: 'E-Invoicing & ViDA Digital Reporting',
     description: 'DRR readiness > B2B e-invoice compliance (EN16931) > Peppol XML audit > invoice-to-ISO20022 bridge > e-invoicing compliance mandate. EU ViDA phased mandates 2026-2030.',
-    composer_url: BASE_URL + '/guides/einvoicing-vida-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/einvoicing-vida.html',
     steps: [
       { slug: '179-vida-drr-readiness-scorer',      handoff: 'drr_gaps feed Stage 2 e-invoice compliance scoring' },
       { slug: '180-b2b-einvoice-compliance-scorer', handoff: 'compliance_score and field_errors feed Stage 3 XML audit' },
@@ -348,7 +348,7 @@ const NAMED_CHAINS = {
   'bank-capital-liquidity': {
     title: 'Bank Capital & Liquidity (Basel III)',
     description: 'Full Basel III capital and liquidity workflow: RWA calculation > LCR > NSFR > leverage ratio > Pillar 3 disclosure. Covers BCBS 189, 238, 295, 270/360, 309/400.',
-    composer_url: BASE_URL + '/guides/bank-capital-liquidity-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/bank-capital-liquidity.html',
     steps: [
       { slug: '201-basel-rwa-calculator',             handoff: 'rwa_total and credit/market/ops breakdown feed Stage 2 LCR' },
       { slug: '469-lcr-calculator',                   handoff: 'hqla_total and nco feed Stage 3 NSFR' },
@@ -387,7 +387,7 @@ const NAMED_CHAINS = {
   'amlr-single-rulebook': {
     title: 'EU AML Single Rulebook (AMLR)',
     description: 'Obliged-entity scope > UBO / beneficial ownership > cash limit & EDD classification > CDD policy > readiness. AMLR (Regulation (EU) 2024/1624) applies from 10 Jul 2027; football-club provisions 2029.',
-    composer_url: BASE_URL + '/guides/amlr-single-rulebook-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/aml-consolidation.html',
     steps: [
       { slug: '485-amlr-obliged-entity-scope-mapper',          handoff: 'entity_type and obligations feed Stage 2 UBO mapping' },
       { slug: '486-amlr-ubo-beneficial-ownership-mapper',      handoff: 'ubo_tier and edd_triggers feed Stage 3 cash/EDD classifier' },
@@ -401,7 +401,7 @@ const NAMED_CHAINS = {
   'eudi-wallet-acceptance': {
     title: 'eIDAS 2.0 / EUDI Wallet Acceptance',
     description: 'Attribute attestation mapping > wallet-based KYC flow design > RP registration check > readiness scoring. eIDAS 2.0 (Regulation (EU) 2024/1183); EUDI Wallet available all EU MS 31 Dec 2026; FI SCA acceptance ~Dec 2027 (Art. 5f).',
-    composer_url: BASE_URL + '/guides/eudi-wallet-acceptance-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/eudi-wallet.html',
     steps: [
       { slug: '489-eudi-attribute-attestation-mapper',              handoff: 'pid_attributes and qeaa_map feed Stage 2 KYC flow' },
       { slug: '490-eudi-kyc-flow-designer',                        handoff: 'kyc_flow_steps feed Stage 3 RP registration check' },
@@ -414,7 +414,7 @@ const NAMED_CHAINS = {
   'ach-fraud-monitoring': {
     title: 'ACH Fraud Monitoring (Nacha Phase 2)',
     description: 'Procedure builder (role-based) > false-pretenses scenario simulator > annual audit pack generator. Nacha Phase 2 removes the $5M volume threshold; effective 2026-06-22. All RDFI, Originator, TPSP, TPS, and ODFI participants must have risk-based credit-entry fraud monitoring in place.',
-    composer_url: BASE_URL + '/guides/ach-fraud-monitoring-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/ach-fraud-monitoring.html',
     steps: [
       { slug: '492-ach-fraud-monitoring-procedure-builder',      handoff: 'roles and risk_tier feed Stage 2 scenario simulator and Stage 3 audit pack' },
       { slug: '493-ach-false-pretenses-credit-entry-simulator',  handoff: 'scenario obligations and recovery path inform Stage 3 gap identification' },
@@ -562,7 +562,7 @@ const NAMED_CHAINS = {
   'tempo-validator-readiness': {
     title: 'Tempo Validator Readiness',
     description: 'ART-41 standalone node. 12-question infrastructure readiness scorer for prospective Tempo validators across hardware, OS/software, key management, telemetry, and upgrade cadence. Flags permissioned entry (partners@tempo.xyz required). infrastructure_mandate.',
-    composer_url: BASE_URL + '/chaingraph/art-41-tempo-validator-readiness.html',
+    composer_url: BASE_URL + '/chaingraph/chains/tempo-validator-readiness.html',
     steps: [
       { slug: 'art-41-tempo-validator-readiness', handoff: 'Exports infrastructure_mandate artifact with execution_hash and permissioning notice -- standalone node' },
     ],
