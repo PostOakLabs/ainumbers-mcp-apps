@@ -940,7 +940,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       computed_hash,
       claimed_hash: claimed,
       tool_id: artifact?.tool_id ?? null,
-      chaingraph_version: artifact?.chaingraph_version ?? artifact?.ap2_version ?? null,
+      chaingraph_version: artifact?.chaingraph_version ?? null,
       note: claimed == null
         ? 'No claimed hash supplied -- returning the computed hash only.'
         : (valid
@@ -1096,13 +1096,15 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ tool_id, policy_parameters, compute, parent_hashes, parent_tool_ids, pre_computed_artifact }) => {
     // v0.4.0 envelope: adds compute_mode + server-side kernel dispatch (Mode 4).
-    // chaingraph_version + @context are canonical (match ChainGraph Standard §1);
-    // ap2_version retained as a DEPRECATED ALIAS for back-compat with existing browser exports.
+    // chaingraph_version + @context are canonical (match ChainGraph Standard §1).
+    // ap2_version is RETIRED — never emitted. It was a misnamed envelope-version label (its value
+    // "1.0" = the AINumbers Policy Mandate schema version), NOT Google AP2 (real AP2 is v0.2). See
+    // CONTRACT §3.1. chaingraph_version is the sole envelope version going forward.
     const CHAINGRAPH_VERSION = '0.4.0';
-    const AP2_VERSION = '1.0.0'; // deprecated alias of chaingraph_version (retained, not emitted as canonical)
     const BASE_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld';
     const ISO_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/iso20022-context.jsonld';
-    // Lenient acceptance: an artifact is valid with EITHER version field present.
+    // Acceptance only (never emitted): chaingraph_version is the canonical version field; ap2_version
+    // is still TOLERATED on already-issued, pre-retirement artifacts so they keep verifying.
     const VERSION_FIELDS = ['chaingraph_version', 'ap2_version'];
     const REQUIRED_FIELDS = ['mandate_type', 'tool_id', 'tool_version', 'generated_at', 'execution_hash', 'chain', 'policy_parameters', 'output_payload'];
 
@@ -1193,7 +1195,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         artifact_schema: {
           '@context': envelope_context,
           chaingraph_version: CHAINGRAPH_VERSION,
-          ap2_version: AP2_VERSION,
           mandate_type: node.mandate_type,
           tool_id,
           tool_version: '1.0.0',
@@ -1254,7 +1255,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     const artifact_template = {
       '@context': envelope_context,
       chaingraph_version: CHAINGRAPH_VERSION,
-      ap2_version: AP2_VERSION,
       mandate_type: node.mandate_type,
       tool_id,
       tool_version: '1.0.0',
