@@ -169,6 +169,7 @@ const NAMED_CHAINS = {
   'baas-programme': {
     title: 'BaaS Provider Selection to Compliance Mapping',
     description: 'BaaS provider scoring > embedded lending unit economics > compliance control mapping > B2B fraud detection.',
+    composer_url: BASE_URL + '/chaingraph/chains/baas-programme.html',
     steps: [
       { slug: '152-baas-provider-comparator',          handoff: 'provider_scores and selection_rationale feed T160 unit economics' },
       { slug: '160-embedded-lending-unit-economics',   handoff: 'unit_economics and margin_drivers feed T158 compliance mapping' },
