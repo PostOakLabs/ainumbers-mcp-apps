@@ -337,7 +337,7 @@ const NAMED_CHAINS = {
   'crypto-tax-reporting': {
     title: 'Crypto-Asset Tax Reporting (CARF / DAC8 / 1099-DA)',
     description: 'End-to-end crypto-asset tax reporting workflow: CARF/DAC8 reportable classification > cost-basis and gain/loss calculation > IRS Form 1099-DA assembly > CASP readiness scoring. Covers OECD CARF, EU DAC8, and US TD 9996 (1099-DA). ⚠ US-CARF exchange not effective until 2027.',
-    composer_url: BASE_URL + '/guides/crypto-tax-reporting-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/crypto-tax-reporting.html',
     steps: [
       { slug: '465-carf-dac8-reportable-classifier',        handoff: 'reportable_users and reportable_txns feed Stage 2 basis calc' },
       { slug: '466-crypto-cost-basis-gain-calculator',      handoff: 'gain_loss_schedule feeds Stage 3 1099-DA assembly' },
@@ -362,7 +362,7 @@ const NAMED_CHAINS = {
   'pillar-two-globe': {
     title: 'Pillar Two GloBE Minimum Tax',
     description: 'OECD Pillar Two GloBE end-to-end workflow: ETR per jurisdiction > top-up tax and QDMTT/IIR/UTPR allocation > safe harbour eligibility > GloBE Information Return (GIR). 15% global minimum ETR. ⚠ US-HQ groups exempt from IIR and UTPR per the OECD January 2026 side-by-side package. First GIR filings due 30 June 2026.',
-    composer_url: BASE_URL + '/guides/pillar-two-globe-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/pillar-two-globe.html',
     steps: [
       { slug: '473-globe-etr-jurisdiction-calculator',      handoff: 'etr_by_jur and sbie_amounts feed Stage 2 top-up tax calc' },
       { slug: '474-topup-tax-qdmtt-calculator',             handoff: 'topup_amounts and qdmtt_allocation feed Stage 3 safe harbour check' },
@@ -427,7 +427,7 @@ const NAMED_CHAINS = {
   'pqc-migration': {
     title: 'Post-Quantum Cryptography Migration',
     description: 'End-to-end PQC migration workflow: crypto asset inventory (NISTIR 8547 classification) > HNDL quantum risk scoring > phased migration roadmap (FIPS 203/204/205) > crypto-agility readiness score. Composite PQC migration mandate. RSA/ECDSA/ECDH/DH deprecated 2030, disallowed 2035; DSA already disallowed.',
-    composer_url: BASE_URL + '/guides/pqc-migration-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/pqc-migration.html',
     steps: [
       { slug: '499-crypto-asset-inventory-classifier',  handoff: 'classified_assets and algorithm_status feed Stage 2 HNDL risk scoring' },
       { slug: '500-hndl-quantum-risk-scorer',           handoff: 'hndl_priority per system (immediate/within_2_years/within_5_years/post_2030/monitor) feed Stage 3 roadmap' },
@@ -573,7 +573,7 @@ const NAMED_CHAINS = {
   'canton-capital-efficiency': {
     title: 'Canton Capital Efficiency Chain',
     description: 'Assess Canton pilot readiness and compute settlement-risk capital savings. Steps: Canton Readiness Diagnostic → Capital Optimizer → Basel 3.1 RWA → XVA/CVA → LCR/NSFR.',
-    composer_url: BASE_URL + '/guides/canton-capital-efficiency-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-capital-efficiency.html',
     steps: [
       { slug: '503-canton-tokenization-readiness-diagnostic', handoff: 'entity_type,grade,gaps feed Stage 2 capital optimizer' },
       { slug: '504-settlement-risk-capital-optimizer',        handoff: 'total_rwa_delta,annual_saving_bps feeds downstream Basel 3.1/XVA/LCR chain -- final stage' },
@@ -582,7 +582,7 @@ const NAMED_CHAINS = {
   'canton-dvp-readiness': {
     title: 'Canton DvP Readiness Chain',
     description: 'Validate DvP atomicity and collateral eligibility for Canton settlement. PFMI P12 atomicity model + DTC/Fed/HQLA eligibility verdict.',
-    composer_url: BASE_URL + '/guides/canton-dvp-readiness-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-dvp-readiness.html',
     steps: [
       { slug: '507-canton-dvp-atomicity-validator',           handoff: 'dvp_verdict,atomicity_model,finality_model feed Stage 2 collateral eligibility' },
       { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,dtc_eligible,haircut_pct -- Exports DvP readiness mandate -- final stage' },
@@ -591,7 +591,7 @@ const NAMED_CHAINS = {
   'canton-repo-mobility': {
     title: 'Canton Repo Collateral Mobility Chain',
     description: 'Compute repo haircut with Canton 24/7 valuation, verify collateral and cash-leg finality. CRE22 supervisory haircuts + d349 SFT floors.',
-    composer_url: BASE_URL + '/guides/canton-repo-mobility-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-repo-mobility.html',
     steps: [
       { slug: '508-repo-haircut-collateral-calculator',       handoff: 'total_haircut_pct,initial_margin,canton_247 feed Stage 2 collateral eligibility' },
       { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,dtc_eligible feed Stage 3 cash-leg finality' },
@@ -601,7 +601,7 @@ const NAMED_CHAINS = {
   'canton-counterparty-onboarding': {
     title: 'Canton Counterparty Onboarding Chain',
     description: 'KYA screening and party allowlist validation for Canton Network onboarding. FATF Travel Rule compliance and AMLAR KYA obligations.',
-    composer_url: BASE_URL + '/guides/canton-counterparty-onboarding-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-counterparty-onboarding.html',
     steps: [
       { slug: '509-canton-party-allowlist-validator', handoff: 'allowlist_verdict,fatf_flags,parties_approved -- Exports counterparty onboarding mandate -- final stage' },
     ],
@@ -609,7 +609,7 @@ const NAMED_CHAINS = {
   'canton-securities-issuance': {
     title: 'Canton Securities Issuance Chain',
     description: 'Regulatory classification and Daml lifecycle validation for tokenized securities. GENIUS/MiCA/MiFID II/DLT Pilot classification then lifecycle coverage.',
-    composer_url: BASE_URL + '/guides/canton-securities-issuance-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-securities-issuance.html',
     steps: [
       { slug: '510-digital-asset-regulatory-classifier',      handoff: 'frameworks_applied,mifid_instrument,dlt_pilot_eligible feed Stage 2 lifecycle validator' },
       { slug: '512-tokenized-security-lifecycle-validator',   handoff: 'lifecycle_verdict,daml_gaps -- Exports securities issuance mandate -- final stage' },
@@ -618,7 +618,7 @@ const NAMED_CHAINS = {
   'canton-margin-call': {
     title: 'Canton Margin Call & Collateral Mobilization Chain',
     description: 'Margin computation (UMR/d499 for derivatives; GMRA/d349 for repo/SFT), collateral eligibility, and cash-leg finality. Never mixes UMR and GMRA branches.',
-    composer_url: BASE_URL + '/guides/canton-margin-call-composer.html',
+    composer_url: BASE_URL + '/chaingraph/chains/canton-margin-call.html',
     steps: [
       { slug: '513-margin-call-collateral-mobilizer',         handoff: 'branch,margin_required,collateral_gap feed Stage 2 collateral eligibility' },
       { slug: '505-tokenized-collateral-eligibility-checker', handoff: 'hqla_tier,eligible_value feed Stage 3 cash-leg finality' },
