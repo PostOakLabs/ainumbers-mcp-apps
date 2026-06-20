@@ -11,8 +11,10 @@ updates:
       semver-major-days: 14
     groups:
       patch-updates:
+        patterns: ["*"]
         update-types: ["patch"]
       minor-updates:
+        patterns: ["*"]
         update-types: ["minor"]
     commit-message:
       prefix: "deps"
@@ -21,12 +23,12 @@ updates:
     target-branch: "master"
     schedule:
       interval: "weekly"
-    cooldown:
-      default-days: 5
     groups:
       patch-updates:
+        patterns: ["*"]
         update-types: ["patch"]
       minor-updates:
+        patterns: ["*"]
         update-types: ["minor"]
     commit-message:
       prefix: "ci"
