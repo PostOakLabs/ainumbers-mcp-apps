@@ -10,8 +10,8 @@
 // (run `node generate.mjs` first to refresh). Pure text parse of index.mjs — does not import the
 // kernels, so it won't break if one is mid-edit.
 //
-// Usage:  node scripts/kernel-coverage.mjs            (report, exit 0)
-//         node scripts/kernel-coverage.mjs --strict   (exit 1 if any gpu:false node is UNPORTED)
+// Usage:  node scripts/kernel-coverage.mjs            (strict by default — exit 1 if any gpu:false node is UNPORTED)
+//         node scripts/kernel-coverage.mjs --no-strict (report only, exit 0)
 
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
@@ -44,7 +44,7 @@ console.log(`  ⚠ UNPORTED gpu:false (gap):          ${unported.length}`);
 if (unported.length) console.log(`       ${unported.join(', ')}`);
 console.log('');
 
-if (process.argv.includes('--strict') && unported.length) {
+if (!process.argv.includes('--no-strict') && unported.length) {
   console.error(`✗ ${unported.length} gpu:false node(s) have no kernel — each should be agent-native (add kernel + index.mjs entry, CONTRACT §A4).`);
   process.exit(1);
 }
