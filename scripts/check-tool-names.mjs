@@ -57,8 +57,11 @@ for (const [name, src] of names) {
   const nodes = src.filter((s) => s.startsWith('node:')).length;
   const pilots = src.filter((s) => s.startsWith('pilot:')).length;
   const utils = src.filter((s) => s === 'utility').length;
-  if (utils > 0 || nodes > 1 || pilots > 1) fatal.push([name, src]);
-  else warn.push([name, src]); // exactly 1 pilot + 1 node — dedup-handled
+  // Any shared name is now FATAL. A pilot↔node twin MUST use a distinct mcp_name (the art-22 pattern,
+  // e.g. compare_agentic_rail_protocols), otherwise the Worker silently skips the node and it never
+  // becomes agent-callable. Leaving it a warning is how the 5 art-19/21/23/25/26 collisions persisted.
+  void nodes; void pilots; void utils;
+  fatal.push([name, src]);
 }
 
 for (const [name, src] of warn) {
