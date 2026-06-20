@@ -82,6 +82,7 @@ const NAMED_CHAINS = {
   'cbpr-cutover': {
     title: 'CBPR+ Cutover Validation',
     description: 'Validate message structure, remittance mapping, cross-rail compatibility, and schema compliance before SWIFT CBPR+ go-live.',
+    composer_url: BASE_URL + '/chaingraph/chains/cbpr-cutover.html',
     steps: [
       { slug: '02-iso20022-builder',                    handoff: 'generated_xml and validation_status feed T144 remittance validation' },
       { slug: '144-iso20022-remittance-validator',      handoff: 'remittance_fields and mapping_errors feed T254 cross-rail check' },
@@ -92,6 +93,7 @@ const NAMED_CHAINS = {
   'rtp-participation': {
     title: 'Real-Time Rail Participation',
     description: 'Score FedNow/RTP participation readiness, check network rules, size intraday credit, and build the AP2 policy mandate.',
+    composer_url: BASE_URL + '/chaingraph/chains/rtp-participation.html',
     steps: [
       { slug: '255-fednow-participation-readiness-scorer', handoff: 'readiness_score and gap_items feed T229 RTP network rule check' },
       { slug: '229-rtp-network-participation-checker',     handoff: 'rule_compliance and membership_flags feed T258 intraday credit sizing' },
@@ -102,6 +104,7 @@ const NAMED_CHAINS = {
   'sca-consent-fapi': {
     title: 'SCA, Consent, and FAPI Compliance',
     description: 'Map SCA exemptions, build consent scope, validate FAPI security profile, and generate consent receipts.',
+    composer_url: BASE_URL + '/chaingraph/chains/sca-consent-fapi.html',
     steps: [
       { slug: '92-sca-exemption-mapper',      handoff: 'exemption_map and risk_scores feed T91 consent scope builder' },
       { slug: '91-consent-dashboard-builder', handoff: 'consent_scope and framework_flags feed T97 FAPI validation' },
@@ -123,6 +126,7 @@ const NAMED_CHAINS = {
   'transaction-screening': {
     title: 'Transaction Screening and Rule-Building',
     description: 'Sanctions screening > FATF travel rule > fraud investigation.',
+    composer_url: BASE_URL + '/chaingraph/chains/transaction-screening.html',
     steps: [
       { slug: '43-batch-sanctions-screening', handoff: 'screening_results and hit_list feed T222 travel rule check' },
       { slug: '222-fatf-travel-rule-checker', handoff: 'travel_rule_status and originator_flags feed T80 fraud investigation' },
@@ -132,6 +136,7 @@ const NAMED_CHAINS = {
   'regulatory-impact': {
     title: 'Regulatory Impact to Policy Mandate',
     description: 'Regulatory change impact assessment > NIS2/DORA overlap mapping > AP2 DORA Policy Mandate.',
+    composer_url: BASE_URL + '/chaingraph/chains/regulatory-impact.html',
     steps: [
       { slug: '318-regulatory-change-impact-assessor', handoff: 'impact_domains and change_timeline feed T309 NIS2/DORA overlap map' },
       { slug: '309-nis2-dora-overlap-mapper',          handoff: 'overlap_matrix and dual_obligations feed T310 policy mandate build' },
@@ -141,6 +146,7 @@ const NAMED_CHAINS = {
   'fx-corridor': {
     title: 'Corridor Cost and Failure Analysis',
     description: 'FX margin transparency > cross-border failure modelling > corridor cost ranking > payment corridor optimisation.',
+    composer_url: BASE_URL + '/chaingraph/chains/fx-corridor.html',
     steps: [
       { slug: '209-fx-margin-cost-transparency',        handoff: 'margin_breakdown and all-in-cost feed T210 failure modelling' },
       { slug: '210-cross-border-payment-failure-model', handoff: 'failure_rates and root_causes feed T216 corridor cost ranking' },
@@ -160,6 +166,7 @@ const NAMED_CHAINS = {
   'stablecoin-reserve': {
     title: 'GENIUS Act / MiCA Reserve Compliance',
     description: 'Reserve portfolio optimisation > smart contract validation > RWA tokenisation cost modelling.',
+    composer_url: BASE_URL + '/chaingraph/chains/stablecoin-reserve.html',
     steps: [
       { slug: '328-genius-act-reserve-optimizer', handoff: 'reserve_composition and compliance_status feed T54 smart contract validation' },
       { slug: '54-smart-contract-validator',      handoff: 'contract_audit and risk_flags feed T66 RWA tokenisation cost model' },
@@ -180,6 +187,7 @@ const NAMED_CHAINS = {
   'card-interchange': {
     title: 'Interchange Optimisation to Scheme Compliance',
     description: 'Interchange optimisation > Visa/MC qualification testing > scheme fee benchmarking > 3DS/EMV compliance.',
+    composer_url: BASE_URL + '/chaingraph/chains/card-interchange.html',
     steps: [
       { slug: '52-interchange-optimizer',                     handoff: 'optimal_mcc and routing_strategy feed T225 qualification testing' },
       { slug: '225-visa-mc-interchange-qualification-tester', handoff: 'ic_category and qualification_flags feed T233 scheme fee benchmarking' },
