@@ -157,6 +157,7 @@ const NAMED_CHAINS = {
   'pd-lgd-covenant': {
     title: 'PD, LGD, EAD to Covenant Compliance',
     description: 'Credit risk parameter modelling > Basel RWA calculation > financial covenant compliance check.',
+    composer_url: BASE_URL + '/chaingraph/chains/pd-lgd-covenant.html',
     steps: [
       { slug: '198-pd-lgd-ead-modeller',                   handoff: 'pd, lgd, ead values feed T201 Basel RWA calculation' },
       { slug: '201-basel-rwa-calculator',                  handoff: 'rwa_total and capital_requirement feed T199 covenant compliance' },
