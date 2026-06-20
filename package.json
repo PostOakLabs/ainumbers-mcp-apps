@@ -17,6 +17,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "express": "^5.2.1",
     "fetch-to-node": "^2.1.0",
+    "hono": "^4.12.26",
     "zod": "^4.4.3"
   },
   "type": "module",
