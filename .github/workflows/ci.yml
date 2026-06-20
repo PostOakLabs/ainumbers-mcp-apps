@@ -128,3 +128,16 @@ jobs:
         # bundle dry-run in `validate` CANNOT catch and that shipped twice through green CI.
         # A failure here turns the deploy red immediately; roll back in Cloudflare.
         run: node scripts/smoke-mcp.mjs
+
+      - name: Hash-sweep (every live gpu:false node returns a valid hash)
+        run: node scripts/hash-sweep.mjs
+        env:
+          MCP_URL: https://mcp.ainumbers.co/mcp
+          CHAINGRAPH: ${{ github.workspace }}/data/chaingraph/chaingraph.json
+          KERNELS_DIR: ${{ github.workspace }}/kernels
+          THROTTLE_MS: '1500'
+
+      - name: Verify MCP tool registration (live tools/list)
+        run: node scripts/verify-mcp-registered.mjs --all
+        env:
+          MCP_URL: https://mcp.ainumbers.co/mcp
