@@ -1407,7 +1407,17 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   // Zero server-side execution -- browser tools remain the deterministic layer.
   // -------------------------------------------------------------------------
 
-  server.registerPrompt('aml_programme_workflow', {
+  // Prompt registration wrapper: dedupe by name so a hand-authored prompt and an auto-derived one
+  // can never collide (a duplicate prompt name would 500 the /mcp handshake). First-registered wins —
+  // the rich hand-authored prompts below run before the auto-derive loop, so they override.
+  const _promptNames = new Set();
+  const regPrompt = (name, cfg, handler) => {
+    if (_promptNames.has(name)) return;
+    _promptNames.add(name);
+    server.registerPrompt(name, cfg, handler);
+  };
+
+  regPrompt('aml_programme_workflow', {
     description: 'Step-by-step workflow for assembling a complete AML programme using AINumbers browser tools (T110 > T116 > T119 > T131). Returns an orchestration guide; the full audited run is available at the AML Programme Composer.',
     argsSchema: {
       entity_type:        z.string().optional().describe('Type of entity (e.g. bank, EMI, VASP, MSB). Scopes risk-tier calibration.'),
@@ -1441,7 +1451,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   });
 
 
-  server.registerPrompt('dora_readiness_workflow', {
+  regPrompt('dora_readiness_workflow', {
     description: 'Step-by-step DORA ICT readiness workflow: run the diagnostic triage, then the orchestrated composer (T300 > T304 > T307 > T310), export composite Policy Mandate.',
     argsSchema: {
       entity_type: z.string().optional().describe('Type of financial entity (e.g. credit institution, payment institution, investment firm, insurance undertaking)'),
@@ -1471,7 +1481,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('fraud_decisioning_workflow', {
+  regPrompt('fraud_decisioning_workflow', {
     description: 'Step-by-step fraud & scam decisioning workflow: velocity rule building > structuring pattern detection > fraud investigation > APP-scam scoring, composite velocity-rule Policy Mandate.',
     argsSchema: {},
   }, async () => {
@@ -1487,7 +1497,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('credit_decisioning_workflow', {
+  regPrompt('credit_decisioning_workflow', {
     description: 'Step-by-step credit decisioning workflow: PD/LGD modelling > Basel RWA > RAROC pricing > covenant compliance > facility structuring, composite credit Policy Mandate.',
     argsSchema: {},
   }, async () => {
@@ -1504,7 +1514,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('consumer_protection_workflow', {
+  regPrompt('consumer_protection_workflow', {
     description: 'Step-by-step FCA Consumer Duty workflow: vulnerability assessment > fair value > MiFID costs & charges > PRIIPs KID > Consumer Duty board MI, composite consumer-protection Policy Mandate.',
     argsSchema: {},
   }, async () => {
@@ -1520,7 +1530,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('stablecoin_compliance_workflow', {
+  regPrompt('stablecoin_compliance_workflow', {
     description: 'Step-by-step stablecoin compliance workflow: issuance architecture > reserve stress test > GENIUS Act compliance > MiCA white paper, composite stablecoin compliance Policy Mandate.',
     argsSchema: {},
   }, async () => {
@@ -1537,7 +1547,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('model_risk_governance_workflow', {
+  regPrompt('model_risk_governance_workflow', {
     description: 'Step-by-step model risk & AI-fairness governance workflow: EU AI Act classification > SR 11-7 MRM gaps > fair-lending bias testing > Art.9 risk-management system, composite AI-governance mandate.',
     argsSchema: {},
   }, async () => {
@@ -1554,7 +1564,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('instant_payments_vop_workflow', {
+  regPrompt('instant_payments_vop_workflow', {
     title: 'Instant Payments & VoP Readiness Workflow',
     description: 'Walk a PSP through EU Instant Payments Regulation readiness: rail participation, Verification of Payee, intraday liquidity, and the IPR annual report.',
     argsSchema: {},
@@ -1576,7 +1586,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('baas_sponsor_bank_workflow', {
+  regPrompt('baas_sponsor_bank_workflow', {
     title: 'BaaS / Sponsor-Bank Readiness Workflow',
     description: 'Walk a fintech or sponsor bank through BaaS programme design: provider selection, FBO/ledger architecture, BSA/AML controls, and readiness scoring.',
     argsSchema: {},
@@ -1599,7 +1609,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('einvoicing_vida_workflow', {
+  regPrompt('einvoicing_vida_workflow', {
     title: 'E-Invoicing & ViDA Workflow',
     description: 'Walk a finance/tax user through EU ViDA digital-reporting readiness, e-invoice compliance, Peppol XML, and ISO 20022 mapping.',
     argsSchema: {},
@@ -1621,7 +1631,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('us_banking_compliance_workflow', {
+  regPrompt('us_banking_compliance_workflow', {
     title: 'US Consumer-Banking Compliance Workflow',
     description: 'Walk a US bank/credit-union compliance user through HMDA, BSA/SAR, Reg E, and Durbin checks.',
     argsSchema: {},
@@ -1644,7 +1654,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('wealth_advisory_regbi_workflow', {
+  regPrompt('wealth_advisory_regbi_workflow', {
     title: 'US Wealth & Advisory Reg BI Suitability Workflow',
     description: 'Walk a US broker-dealer or RIA through the SEC Reg BI suitability chain: model portfolio risk, best-interest four-obligation check, portfolio construction/rebalancing, costs disclosure, and Form CRS generation.',
     argsSchema: {},
@@ -1668,7 +1678,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('bnpl_programme_workflow', {
+  regPrompt('bnpl_programme_workflow', {
     title: 'BNPL Programme — FCA Regulation Workflow',
     description: 'Walk a BNPL lender or fintech through the UK FCA BNPL programme chain: FCA readiness, affordability modelling, APR calculation, disclosure templates, and arrears/collections policy assessment.',
     argsSchema: {},
@@ -1693,7 +1703,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('pi_emi_authorisation_workflow', {
+  regPrompt('pi_emi_authorisation_workflow', {
     title: 'PI/EMI Authorisation — PSD2/PSRs Workflow',
     description: 'Walk a UK/EU fintech through the PI/EMI authorisation chain: FCA/EBA authorisation readiness, EMI capital requirements, PI own funds, PSP safeguarding, and PSR APP reimbursement liability.',
     argsSchema: {},
@@ -1717,7 +1727,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('crypto_tax_reporting_workflow', {
+  regPrompt('crypto_tax_reporting_workflow', {
     title: 'Crypto-Asset Tax Reporting Workflow (CARF / DAC8 / 1099-DA)',
     description: 'Walk a CASP or tax team through end-to-end crypto-asset tax reporting: CARF/DAC8 reportable classification, cost-basis and gain/loss calculation, IRS Form 1099-DA assembly, and CASP readiness scoring. Covers OECD CARF (52 jurisdictions, effective 1 Jan 2026), EU DAC8 (FY2026, first reports 31 Jan 2027), and US TD 9996 1099-DA (gross proceeds from 1 Jan 2025, basis from 1 Jan 2026). ⚠ US-CARF exchange not effective until 2027.',
     argsSchema: {
@@ -1752,7 +1762,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('bank_capital_liquidity_workflow', {
+  regPrompt('bank_capital_liquidity_workflow', {
     title: 'Bank Capital & Liquidity (Basel III) Workflow',
     description: 'Walk a bank treasury or capital team through the full Basel III capital and liquidity stack: RWA calculation, LCR, NSFR, leverage ratio, and Pillar 3 disclosure assembly. Covers BCBS 189 (capital), 238 (LCR), 295 (NSFR), 270/360 (leverage), 309/400 (Pillar 3).',
     argsSchema: {
@@ -1788,7 +1798,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('pillar_two_globe_workflow', {
+  regPrompt('pillar_two_globe_workflow', {
     title: 'Pillar Two GloBE Minimum Tax Workflow',
     description: 'Walk a tax team through the OECD Pillar Two GloBE end-to-end workflow: effective tax rate by jurisdiction, top-up tax and QDMTT/IIR/UTPR allocation, transitional safe harbour eligibility, and GloBE Information Return (GIR) assembly. 15% global minimum ETR. ⚠ CRITICAL: US-headquartered MNE groups are EXEMPT from IIR and UTPR per the OECD January 2026 side-by-side package. Do NOT apply IIR/UTPR to US-parented groups. QDMTT exposure applies to all groups. First GIR filings due 30 June 2026.',
     argsSchema: {
@@ -1836,7 +1846,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('mcp_server_audit_workflow', {
+  regPrompt('mcp_server_audit_workflow', {
     description: 'End-to-end MCP server audit: score readiness, lint tool definitions, scan for tool poisoning, audit OAuth. All server-side -- no browser required.',
     argsSchema: {
       server_name: z.string().describe('Human-readable name of the MCP server being audited'),
@@ -1868,7 +1878,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
 
   // Wave 6 prompts
 
-  server.registerPrompt('ccd2_consumer_credit_workflow', {
+  regPrompt('ccd2_consumer_credit_workflow', {
     title: 'EU Consumer Credit (CCD2) Workflow',
     description: 'Walk an EU consumer-credit / BNPL provider through CCD2 scope, Article 18 creditworthiness, SECCI disclosure, and readiness.',
     argsSchema: {},
@@ -1884,7 +1894,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     } }],
   }));
 
-  server.registerPrompt('amlr_single_rulebook_workflow', {
+  regPrompt('amlr_single_rulebook_workflow', {
     title: 'EU AML Single Rulebook (AMLR) Workflow',
     description: 'Walk an EU obliged entity through AMLR scope, UBO mapping, cash/EDD classification, CDD policy, and readiness. AMLR applies 10 Jul 2027.',
     argsSchema: {},
@@ -1900,7 +1910,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     } }],
   }));
 
-  server.registerPrompt('eudi_wallet_acceptance_workflow', {
+  regPrompt('eudi_wallet_acceptance_workflow', {
     title: 'eIDAS 2.0 / EUDI Wallet Acceptance Workflow',
     description: 'Walk an EU relying party through EUDI Wallet attribute attestation mapping, KYC flow design, RP registration, and readiness. EUDI Wallet available 31 Dec 2026; FI SCA acceptance ~Dec 2027.',
     argsSchema: {},
@@ -1915,7 +1925,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     } }],
   }));
 
-  server.registerPrompt('ach_fraud_monitoring_workflow', {
+  regPrompt('ach_fraud_monitoring_workflow', {
     title: 'ACH Fraud Monitoring Workflow (Nacha Phase 2)',
     description: 'Walk any ACH participant (RDFI, Originator, TPSP, TPS, ODFI) through Nacha Phase 2 credit-entry fraud monitoring compliance: procedure builder, false-pretenses simulator, annual audit pack. Effective 2026-06-22.',
     argsSchema: {},
@@ -1929,7 +1939,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     } }],
   }));
 
-  server.registerPrompt('agent_commerce_conformance_workflow', {
+  regPrompt('agent_commerce_conformance_workflow', {
     title: 'Agent Commerce Cross-Protocol Conformance Workflow',
     description: 'Walk an agent commerce implementer through AP2 v0.2 mandate chain validation, ACP checkout conformance, x402 settlement modelling, and unified cross-protocol conformance. Issues a single execution_hash receipt (H4) covering AP2 + ACP + Visa TAP RFC 9421 + x402. ChainGraph Standard v0.1.',
     argsSchema: {
@@ -1968,7 +1978,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  server.registerPrompt('agent_identity_trust_workflow', {
+  regPrompt('agent_identity_trust_workflow', {
     title: 'Agent Identity & Trust-Chain Workflow',
     description: 'Validate an A2A agent card + delegated-authority trust chain (ART-32), attest agent identity via KYA-OS (ART-04), then simulate the spend policy (ART-02). Establishes who an agent is, what it is authorized to do, and whether its spend policy holds. ChainGraph Standard v0.1.',
     argsSchema: {
@@ -1986,7 +1996,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     }}],
   }));
 
-  server.registerPrompt('mcp_server_attestation_workflow', {
+  regPrompt('mcp_server_attestation_workflow', {
     title: 'MCP Server Attestation Workflow',
     description: 'Score MCP server deployability (ART-28) and developer readiness (ART-18), then fold both into one signed self-attestation with a composite A-F grade (ART-33). Useful before publishing or relying on an MCP server. ChainGraph Standard v0.1.',
     argsSchema: {
@@ -2003,7 +2013,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     }}],
   }));
 
-  server.registerPrompt('agent_session_receipt_workflow', {
+  regPrompt('agent_session_receipt_workflow', {
     title: 'Agent Session Receipt Workflow',
     description: 'Aggregate every execution_hash an agent produced in a session into one SHA-256 Merkle-root session receipt (CRY-05), then generate a regulator-framed prompt (PTG-01). The tamper-evident audit object for EU AI Act Art. 12 record-keeping + DORA. ChainGraph Standard v0.1 section 7.4.',
     argsSchema: {},
@@ -2019,7 +2029,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
 
   // Wave 7 prompts
 
-  server.registerPrompt('pqc_migration_workflow', {
+  regPrompt('pqc_migration_workflow', {
     title: 'Post-Quantum Cryptography Migration Workflow',
     description: 'End-to-end PQC migration: classify cryptographic assets (NISTIR 8547) > score HNDL quantum risk > build phased migration roadmap (FIPS 203/204/205) > score crypto-agility readiness. RSA/ECDSA/ECDH/DH deprecated 2030, disallowed 2035; DSA already disallowed. CRQC horizon ~2035.',
     argsSchema: {
@@ -2063,7 +2073,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
 
   // Wave 8 prompts
 
-  server.registerPrompt('canton_capital_efficiency_workflow', {
+  regPrompt('canton_capital_efficiency_workflow', {
     title: 'Canton Capital Efficiency Workflow',
     description: 'Guide for assessing Canton Network pilot readiness and computing settlement-risk capital savings. Runs T503 readiness diagnostic → T504 capital optimizer → Basel 3.1 RWA → XVA/CVA → LCR/NSFR chain.',
     argsSchema: {
@@ -2207,7 +2217,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     });
   }
 
-  server.registerPrompt('agentic_checkout_workflow', {
+  regPrompt('agentic_checkout_workflow', {
     title: 'Agentic Checkout Merchant Readiness Workflow',
     description: 'Walk a merchant through three-stage agentic commerce readiness: protocol selection (UCP/ACP/x402/Visa TAP), ACP/UCP product-feed conformance audit, and agent-traffic acceptance policy. Composite Policy Mandate export.',
     argsSchema: {},
@@ -2224,6 +2234,36 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Then call build_workflow_links with chain "agentic-checkout" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
+
+  // Auto-derive a workflow prompt for every chaingraph.chains entry that doesn't already have a
+  // hand-authored prompt above (deduped via regPrompt). Closes the prompt-coverage gap (was 29/104)
+  // and is self-maintaining — future waves' chains get a prompt automatically. Bare but complete
+  // (title/steps/composer link); the hand-authored prompts remain the rich overrides.
+  // (AUDIT_v0.4_2026-06-21 finding G2.)
+  for (const c of (chaingraph?.chains ?? [])) {
+    if (!c.name) continue;
+    const pname = c.name.replace(/-/g, '_') + '_workflow';
+    const steps = Array.isArray(c.steps) ? c.steps : [];
+    const stepText = steps.map((s, i) =>
+      `Step ${i + 1} — call \`${s.tool_id}\`${s.handoff ? ' → ' + s.handoff : ''}.`).join('\n');
+    regPrompt(pname, {
+      description: (c.title ? c.title + ' — ' : '') + (c.description || `Workflow for the ${c.name} ChainGraph.`) +
+        ' Auto-derived from the ChainGraph; the full audited run is at the composer.',
+      argsSchema: {
+        synthetic_profile: z.string().optional().describe('Optional synthetic scenario/profile to scope the run (never real PII).'),
+      },
+    }, async ({ synthetic_profile }) => ({
+      description: (c.title || c.name) + ' — ChainGraph workflow.',
+      messages: [{ role: 'user', content: { type: 'text', text:
+        `Walk me through the "${c.title || c.name}" workflow using AINumbers' deterministic, client-side tools (zero PII, zero network).` +
+        (synthetic_profile ? ` Scenario: ${synthetic_profile}.` : '') + '\n\n' +
+        (stepText ? stepText + '\n\n' : '') +
+        `Then call \`build_workflow_links\` with chain "${c.name}" for the ordered deep-links` +
+        (c.composer_url ? `, and open the composer at ${c.composer_url} for the full orchestrated run.` : '.') + '\n\n' +
+        'Each node tool returns a verifiable execution_hash; cite parent hashes when chaining. Present the final artifact for agent guardrails or audit.',
+      } }],
+    }));
+  }
 
   return server;
 }
