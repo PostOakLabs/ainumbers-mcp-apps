@@ -49,6 +49,30 @@ jobs:
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
+      - name: 📥 Checkout site repo (vendor-freshness + schema source)
+        # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
+        uses: actions/checkout@v7
+        with:
+          repository: PostOakLabs/ainumbers
+          path: _site
+          fetch-depth: 1
+
+      - name: 🔄 Vendor-freshness — data/ + kernels/ current vs site (CONTRACT §A4 #3)
+        # Closes the gap the local PreToolUse hook can't guard (the `gh pr merge` path): confirms the
+        # COMMITTED vendored data/chaingraph.json + bundled kernels/ match the site source, so a
+        # "edited chaingraph.json but forgot to re-vendor" can never deploy a stale catalog.
+        # Semantic compare (parsed-JSON / \r-normalized) — robust to line-ending + formatting noise.
+        run: SITE_REPO=_site node scripts/check-vendor-fresh.mjs
+
+      - name: 📐 schema-validate vendored chaingraph.json (OCG v0.4 SSOT)
+        # Validates the worker's shipped data/chaingraph.json against the standard/ JSON Schema in the
+        # site repo, so a malformed node object can't deploy. Mirrors the site's schema-validate gate.
+        run: node _site/chaingraph/standard/schema-validate.mjs
+        env:
+          SCHEMA: _site/chaingraph/standard/openchain-graph-v0.4.schema.json
+          CHAINGRAPH: data/chaingraph/chaingraph.json
+          FIXTURES_DIR: _site/chaingraph/kernels/fixtures
+
       - name: 📋 Pilot tool count
         run: |
           node -e "
