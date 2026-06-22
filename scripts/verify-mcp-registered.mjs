@@ -19,6 +19,12 @@
 
 const MCP_URL = process.env.MCP_URL || 'https://mcp.ainumbers.co/mcp';
 const PROTO = process.env.MCP_PROTOCOL_VERSION || '2025-06-18';
+// Cloudflare WAF rate-limits /mcp (50 req/10s per IP → 429/503). After the post-deploy
+// hash-sweep burst this single tools/list can land in a saturated window; retry past it
+// (window is 10s, so a few 6s backoffs clear it). Mirrors hash-sweep's RL_RETRIES.
+const RL_RETRIES = Number(process.env.RL_RETRIES || 5);
+const RL_BACKOFF_MS = Number(process.env.RL_BACKOFF_MS || 6000);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const WAVES = {
   13: ['run_tokenized_settlement_fit', 'validate_deposit_token_compliance', 'validate_cross_network_settlement', 'classify_settlement_asset_finality'],
@@ -57,31 +63,43 @@ async function main() {
 }
 
 async function listTools() {
-  try {
-    const res = await fetch(MCP_URL, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        // MCP Streamable HTTP REQUIRES both — application/json alone => HTTP 406
-        accept: 'application/json, text/event-stream',
-        'mcp-protocol-version': PROTO,
-      },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
-    });
-    const bodyText = await res.text(); // consume fully (releases the socket → clean exit)
-    if (!res.ok) {
-      console.error(`tools/list HTTP ${res.status}`);
-      if (bodyText) console.error(bodyText.slice(0, 300));
+  for (let attempt = 0; attempt <= RL_RETRIES; attempt++) {
+    try {
+      const res = await fetch(MCP_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          // MCP Streamable HTTP REQUIRES both — application/json alone => HTTP 406
+          accept: 'application/json, text/event-stream',
+          'mcp-protocol-version': PROTO,
+        },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
+      });
+      const bodyText = await res.text(); // consume fully (releases the socket → clean exit)
+      // 429/503 = WAF rate-limit, not a real failure — back off and retry.
+      if ((res.status === 429 || res.status === 503) && attempt < RL_RETRIES) {
+        console.error(`tools/list HTTP ${res.status} (rate-limited) — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
+        await sleep(RL_BACKOFF_MS); continue;
+      }
+      if (!res.ok) {
+        console.error(`tools/list HTTP ${res.status}`);
+        if (bodyText) console.error(bodyText.slice(0, 300));
+        return null;
+      }
+      const json = parseMaybeSSE(bodyText, res.headers.get('content-type') || '');
+      if (!json) { console.error('Could not parse tools/list response.'); return null; }
+      if (json.error) { console.error(`tools/list error: ${json.error.message || JSON.stringify(json.error)}`); return null; }
+      return (json.result?.tools || []).map((t) => t.name);
+    } catch (e) {
+      if (attempt < RL_RETRIES) {
+        console.error(`tools/list failed: ${e.message} — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
+        await sleep(RL_BACKOFF_MS); continue;
+      }
+      console.error(`tools/list failed: ${e.message}`);
       return null;
     }
-    const json = parseMaybeSSE(bodyText, res.headers.get('content-type') || '');
-    if (!json) { console.error('Could not parse tools/list response.'); return null; }
-    if (json.error) { console.error(`tools/list error: ${json.error.message || JSON.stringify(json.error)}`); return null; }
-    return (json.result?.tools || []).map((t) => t.name);
-  } catch (e) {
-    console.error(`tools/list failed: ${e.message}`);
-    return null;
   }
+  return null;
 }
 
 // Streamable-HTTP servers may answer as JSON or as a single SSE event ("event: message\ndata: {…}").

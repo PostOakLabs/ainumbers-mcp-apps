@@ -177,20 +177,44 @@ jobs:
             import { resolve } from 'path';
 
             const MCP_URL = process.env.MCP_URL || 'https://mcp.ainumbers.co/mcp';
+            // Cloudflare WAF rate-limits /mcp (50 req/10s per IP). This step runs after the
+            // hash-sweep + registration burst, so its single tools/list can hit a saturated
+            // window (429/503 → parsed as 0 → false DRIFT). Retry past the 10s window.
+            const RL_RETRIES = Number(process.env.RL_RETRIES || 5);
+            const RL_BACKOFF_MS = Number(process.env.RL_BACKOFF_MS || 6000);
+            const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
             const counts = JSON.parse(readFileSync(resolve('data/counts.json'), 'utf8'));
             const expected = counts.mcp_tools_total;
-
             const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} });
-            const res = await fetch(MCP_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
-              body,
-            });
-            const text = await res.text();
-            // Handle both plain JSON and SSE (event: message\ndata: {...})
-            const jsonStr = text.startsWith('event:') ? text.split('\\ndata: ')[1]?.split('\\n')[0] : text;
-            const data = JSON.parse(jsonStr);
-            const live = (data?.result?.tools ?? []).length;
+
+            let live = null;
+            for (let attempt = 0; attempt <= RL_RETRIES; attempt++) {
+              try {
+                const res = await fetch(MCP_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream' },
+                  body,
+                });
+                const text = await res.text();
+                if ((res.status === 429 || res.status === 503) && attempt < RL_RETRIES) {
+                  console.error('tools/list HTTP ' + res.status + ' (rate-limited) — retry ' + (attempt + 1) + '/' + RL_RETRIES + ' after ' + RL_BACKOFF_MS + 'ms');
+                  await sleep(RL_BACKOFF_MS); continue;
+                }
+                if (!res.ok) { console.error('tools/list HTTP ' + res.status); process.exit(1); }
+                // Handle both plain JSON and SSE (event: message\ndata: {...})
+                const jsonStr = text.startsWith('event:') ? text.split('\\ndata: ')[1]?.split('\\n')[0] : text;
+                const data = JSON.parse(jsonStr);
+                live = (data?.result?.tools ?? []).length;
+                break;
+              } catch (e) {
+                if (attempt < RL_RETRIES) {
+                  console.error('tools/list failed: ' + e.message + ' — retry ' + (attempt + 1) + '/' + RL_RETRIES + ' after ' + RL_BACKOFF_MS + 'ms');
+                  await sleep(RL_BACKOFF_MS); continue;
+                }
+                console.error('tools/list failed: ' + e.message); process.exit(1);
+              }
+            }
+            if (live === null) { console.error('tools/list unreachable after ' + RL_RETRIES + ' retries'); process.exit(1); }
 
             if (live !== expected) {
               console.error('DRIFT: live /mcp tools/list count=' + live + ' != committed mcp_tools_total=' + expected);
