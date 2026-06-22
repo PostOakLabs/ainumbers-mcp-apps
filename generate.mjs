@@ -84,6 +84,20 @@ const counts = {
 };
 writeFileSync(resolve(DATA,'counts.json'), JSON.stringify(counts, null, 2) + '\n');
 
+// Also write repo/data/mcp-counts.json so the SITE repo's counts.mjs can derive
+// mcp.live in CI (where mcp-apps-poc/ is not checked out).
+const siteMcpCounts = {
+  pilot_widgets: PILOT.length,
+  utility_tools: UTIL_TOOL_COUNT,
+  _note: 'Updated by mcp-apps-poc/generate.mjs — run after changing pilot.mjs and commit both files.',
+  generated_at: counts.generated_at,
+};
+try {
+  writeFileSync(resolve(REPO, 'data', 'mcp-counts.json'), JSON.stringify(siteMcpCounts, null, 2) + '\n');
+} catch (e) {
+  console.warn('Could not write repo/data/mcp-counts.json:', e.message);
+}
+
 // Vendor the ext-apps browser SDK as an export-free inlinable script for the widget glue.
 // Claude's widget sandbox (and the tools' own CSP meta) block third-party CDN imports, so the
 // SDK must be inlined into the widget HTML rather than imported from esm.sh at runtime.
