@@ -11,32 +11,36 @@
             "step": 1,
             "tool_id": "110-customer-risk-rating",
             "mcp_name": null,
+            "callable": false,
             "display_name": "110-customer-risk-rating",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/110-customer-risk-rating.html",
             "handoff": "risk_tier and composite_score feed Stage 2 TM rule calibration"
           },
           {
             "step": 2,
             "tool_id": "116-tm-rule-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "116-tm-rule-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/116-tm-rule-builder.html",
             "handoff": "rule_set and velocity_thresholds feed Stage 3 CTR/SAR simulation"
           },
           {
             "step": 3,
             "tool_id": "119-ctr-sar-threshold-simulator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "119-ctr-sar-threshold-simulator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/119-ctr-sar-threshold-simulator.html",
             "handoff": "threshold_values and alert_triggers feed Stage 4 mandate payload"
           },
           {
             "step": 4,
             "tool_id": "131-ap2-aml-mandate-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "131-ap2-aml-mandate-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/131-ap2-aml-mandate-builder.html",
             "handoff": "Exports composite AML Policy Mandate -- final stage"
           }
         ],
@@ -52,40 +56,45 @@
             "step": 1,
             "tool_id": "163-card-programme-launch-readiness-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "163-card-programme-launch-readiness-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/163-card-programme-launch-readiness-checker.html",
             "handoff": "readiness_score and gap_list feed Stage 2 interchange qualification"
           },
           {
             "step": 2,
             "tool_id": "225-visa-mc-interchange-qualification-tester",
             "mcp_name": null,
+            "callable": false,
             "display_name": "225-visa-mc-interchange-qualification-tester",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/225-visa-mc-interchange-qualification-tester.html",
             "handoff": "ic_category and qualification_flags feed Stage 3 PCI scope"
           },
           {
             "step": 3,
             "tool_id": "226-pci-dss-v4-scope-wizard",
             "mcp_name": null,
+            "callable": false,
             "display_name": "226-pci-dss-v4-scope-wizard",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/226-pci-dss-v4-scope-wizard.html",
             "handoff": "scope_components and cde_boundaries feed Stage 4 3DS/EMV check"
           },
           {
             "step": 4,
             "tool_id": "228-3ds-emv-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "228-3ds-emv-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/228-3ds-emv-compliance-checker.html",
             "handoff": "compliance_status and exemptions feed Stage 5 scheme benchmarking"
           },
           {
             "step": 5,
             "tool_id": "233-card-scheme-fee-benchmarking",
             "mcp_name": null,
+            "callable": false,
             "display_name": "233-card-scheme-fee-benchmarking",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/233-card-scheme-fee-benchmarking.html",
             "handoff": "Exports card programme Policy Mandate -- final stage"
           }
         ],
@@ -101,24 +110,27 @@
             "step": 1,
             "tool_id": "77-iso-truncation-auditor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "77-iso-truncation-auditor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/77-iso-truncation-auditor.html",
             "handoff": "truncation_risks and field_map feed Stage 2 migration scoring"
           },
           {
             "step": 2,
             "tool_id": "101-iso20022-migration-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "101-iso20022-migration-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/101-iso20022-migration-scorer.html",
             "handoff": "migration_score and readiness_flags feed Stage 3 cross-rail check"
           },
           {
             "step": 3,
             "tool_id": "254-iso20022-cross-rail-compatibility",
             "mcp_name": null,
+            "callable": false,
             "display_name": "254-iso20022-cross-rail-compatibility",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/254-iso20022-cross-rail-compatibility.html",
             "handoff": "Exports ISO 20022 cutover Policy Mandate -- final stage"
           }
         ],
@@ -134,32 +146,36 @@
             "step": 1,
             "tool_id": "rbe-06-agentic-mandate-sandbox",
             "mcp_name": null,
+            "callable": false,
             "display_name": "rbe-06-agentic-mandate-sandbox",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/rbe-06-agentic-mandate-sandbox.html",
             "handoff": "mandate_draft and guardrail_flags feed Stage 2 AP2 mandate build"
           },
           {
             "step": 2,
             "tool_id": "285-google-ap2-mandate-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "285-google-ap2-mandate-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/285-google-ap2-mandate-builder.html",
             "handoff": "ap2_mandate and payment_policy feed Stage 3 policy validation"
           },
           {
             "step": 3,
             "tool_id": "320-ap2-mcp-policy-validator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "320-ap2-mcp-policy-validator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/320-ap2-mcp-policy-validator.html",
             "handoff": "validation_results and policy_gaps feed Stage 4 readiness scorecard"
           },
           {
             "step": 4,
             "tool_id": "288-mcp-developer-readiness-scorecard",
             "mcp_name": null,
+            "callable": false,
             "display_name": "288-mcp-developer-readiness-scorecard",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/288-mcp-developer-readiness-scorecard.html",
             "handoff": "Exports agentic policy composite mandate -- final stage"
           }
         ],
@@ -175,24 +191,27 @@
             "step": 1,
             "tool_id": "105-fx-netting-simulator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "105-fx-netting-simulator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/105-fx-netting-simulator.html",
             "handoff": "netting_savings and net_exposure feed Stage 2 hedge optimisation"
           },
           {
             "step": 2,
             "tool_id": "76-fx-hedge-optimizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "76-fx-hedge-optimizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/76-fx-hedge-optimizer.html",
             "handoff": "hedge_ratio and instrument_mix feed Stage 3 corridor savings model"
           },
           {
             "step": 3,
             "tool_id": "23-corridor-savings-calc",
             "mcp_name": null,
+            "callable": false,
             "display_name": "23-corridor-savings-calc",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/23-corridor-savings-calc.html",
             "handoff": "Exports treasury corridor Policy Mandate -- final stage"
           }
         ],
@@ -208,32 +227,36 @@
             "step": 1,
             "tool_id": "02-iso20022-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "02-iso20022-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/02-iso20022-builder.html",
             "handoff": "generated_xml and validation_status feed T144 remittance validation"
           },
           {
             "step": 2,
             "tool_id": "144-iso20022-remittance-validator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "144-iso20022-remittance-validator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/144-iso20022-remittance-validator.html",
             "handoff": "remittance_fields and mapping_errors feed T254 cross-rail check"
           },
           {
             "step": 3,
             "tool_id": "254-iso20022-cross-rail-compatibility",
             "mcp_name": null,
+            "callable": false,
             "display_name": "254-iso20022-cross-rail-compatibility",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/254-iso20022-cross-rail-compatibility.html",
             "handoff": "compatibility_matrix and gap_list feed T98 schema validation"
           },
           {
             "step": 4,
             "tool_id": "98-iso20022-validator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "98-iso20022-validator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/98-iso20022-validator.html",
             "handoff": "Exports ISO 20022 validation Policy Mandate -- final stage"
           }
         ],
@@ -249,32 +272,36 @@
             "step": 1,
             "tool_id": "255-fednow-participation-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "255-fednow-participation-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/255-fednow-participation-readiness-scorer.html",
             "handoff": "readiness_score and gap_items feed T229 RTP network rule check"
           },
           {
             "step": 2,
             "tool_id": "229-rtp-network-participation-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "229-rtp-network-participation-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/229-rtp-network-participation-checker.html",
             "handoff": "rule_compliance and membership_flags feed T258 intraday credit sizing"
           },
           {
             "step": 3,
             "tool_id": "258-intraday-credit-facility-sizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "258-intraday-credit-facility-sizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/258-intraday-credit-facility-sizer.html",
             "handoff": "credit_requirement and peak_exposure feed T259 AP2 policy build"
           },
           {
             "step": 4,
             "tool_id": "259-ap2-rtp-policy-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "259-ap2-rtp-policy-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/259-ap2-rtp-policy-builder.html",
             "handoff": "Exports RTP participation Policy Mandate -- final stage"
           }
         ],
@@ -290,32 +317,36 @@
             "step": 1,
             "tool_id": "92-sca-exemption-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "92-sca-exemption-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/92-sca-exemption-mapper.html",
             "handoff": "exemption_map and risk_scores feed T91 consent scope builder"
           },
           {
             "step": 2,
             "tool_id": "91-consent-dashboard-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "91-consent-dashboard-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/91-consent-dashboard-builder.html",
             "handoff": "consent_scope and framework_flags feed T97 FAPI validation"
           },
           {
             "step": 3,
             "tool_id": "97-fapi-security-validator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "97-fapi-security-validator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/97-fapi-security-validator.html",
             "handoff": "fapi_profile and security_gaps feed T96 consent receipt generation"
           },
           {
             "step": 4,
             "tool_id": "96-consent-receipt-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "96-consent-receipt-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/96-consent-receipt-generator.html",
             "handoff": "Exports SCA/consent/FAPI Policy Mandate -- final stage"
           }
         ],
@@ -331,32 +362,36 @@
             "step": 1,
             "tool_id": "300-dora-ict-risk-gap-analyser",
             "mcp_name": null,
+            "callable": false,
             "display_name": "300-dora-ict-risk-gap-analyser",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/300-dora-ict-risk-gap-analyser.html",
             "handoff": "gap_findings and ict_risk_score feed T304 resilience testing design"
           },
           {
             "step": 2,
             "tool_id": "304-dora-resilience-testing-designer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "304-dora-resilience-testing-designer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/304-dora-resilience-testing-designer.html",
             "handoff": "testing_plan and tlpt_scope feed T307 proportionality assessment"
           },
           {
             "step": 3,
             "tool_id": "307-dora-proportionality-assessment",
             "mcp_name": null,
+            "callable": false,
             "display_name": "307-dora-proportionality-assessment",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/307-dora-proportionality-assessment.html",
             "handoff": "proportionality_tier and obligations feed T310 policy mandate build"
           },
           {
             "step": 4,
             "tool_id": "310-ap2-dora-policy-mandate-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "310-ap2-dora-policy-mandate-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/310-ap2-dora-policy-mandate-builder.html",
             "handoff": "Exports DORA ICT risk Policy Mandate -- final stage"
           }
         ],
@@ -372,24 +407,27 @@
             "step": 1,
             "tool_id": "43-batch-sanctions-screening",
             "mcp_name": null,
+            "callable": false,
             "display_name": "43-batch-sanctions-screening",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/43-batch-sanctions-screening.html",
             "handoff": "screening_results and hit_list feed T222 travel rule check"
           },
           {
             "step": 2,
             "tool_id": "222-fatf-travel-rule-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "222-fatf-travel-rule-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/222-fatf-travel-rule-checker.html",
             "handoff": "travel_rule_status and originator_flags feed T80 fraud investigation"
           },
           {
             "step": 3,
             "tool_id": "80-fraud-investigation-lab",
             "mcp_name": null,
+            "callable": false,
             "display_name": "80-fraud-investigation-lab",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/80-fraud-investigation-lab.html",
             "handoff": "Exports transaction screening Policy Mandate -- final stage"
           }
         ],
@@ -405,24 +443,27 @@
             "step": 1,
             "tool_id": "318-regulatory-change-impact-assessor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "318-regulatory-change-impact-assessor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/318-regulatory-change-impact-assessor.html",
             "handoff": "impact_domains and change_timeline feed T309 NIS2/DORA overlap map"
           },
           {
             "step": 2,
             "tool_id": "309-nis2-dora-overlap-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "309-nis2-dora-overlap-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/309-nis2-dora-overlap-mapper.html",
             "handoff": "overlap_matrix and dual_obligations feed T310 policy mandate build"
           },
           {
             "step": 3,
             "tool_id": "310-ap2-dora-policy-mandate-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "310-ap2-dora-policy-mandate-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/310-ap2-dora-policy-mandate-builder.html",
             "handoff": "Exports regulatory impact Policy Mandate -- final stage"
           }
         ],
@@ -438,32 +479,36 @@
             "step": 1,
             "tool_id": "209-fx-margin-cost-transparency",
             "mcp_name": null,
+            "callable": false,
             "display_name": "209-fx-margin-cost-transparency",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/209-fx-margin-cost-transparency.html",
             "handoff": "margin_breakdown and all-in-cost feed T210 failure modelling"
           },
           {
             "step": 2,
             "tool_id": "210-cross-border-payment-failure-model",
             "mcp_name": null,
+            "callable": false,
             "display_name": "210-cross-border-payment-failure-model",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/210-cross-border-payment-failure-model.html",
             "handoff": "failure_rates and root_causes feed T216 corridor cost ranking"
           },
           {
             "step": 3,
             "tool_id": "216-corridor-cost-ranker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "216-corridor-cost-ranker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/216-corridor-cost-ranker.html",
             "handoff": "corridor_ranking and cost_delta feed T95 optimisation"
           },
           {
             "step": 4,
             "tool_id": "95-payment-corridor-optimizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "95-payment-corridor-optimizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/95-payment-corridor-optimizer.html",
             "handoff": "Exports FX corridor Policy Mandate -- final stage"
           }
         ],
@@ -479,24 +524,27 @@
             "step": 1,
             "tool_id": "198-pd-lgd-ead-modeller",
             "mcp_name": null,
+            "callable": false,
             "display_name": "198-pd-lgd-ead-modeller",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/198-pd-lgd-ead-modeller.html",
             "handoff": "pd, lgd, ead values feed T201 Basel RWA calculation"
           },
           {
             "step": 2,
             "tool_id": "201-basel-rwa-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "201-basel-rwa-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/201-basel-rwa-calculator.html",
             "handoff": "rwa_total and capital_requirement feed T199 covenant compliance"
           },
           {
             "step": 3,
             "tool_id": "199-financial-covenant-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "199-financial-covenant-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/199-financial-covenant-compliance-checker.html",
             "handoff": "Exports credit risk Policy Mandate -- final stage"
           }
         ],
@@ -512,24 +560,27 @@
             "step": 1,
             "tool_id": "328-genius-act-reserve-optimizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "328-genius-act-reserve-optimizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/328-genius-act-reserve-optimizer.html",
             "handoff": "reserve_composition and compliance_status feed T54 smart contract validation"
           },
           {
             "step": 2,
             "tool_id": "54-smart-contract-validator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "54-smart-contract-validator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/54-smart-contract-validator.html",
             "handoff": "contract_audit and risk_flags feed T66 RWA tokenisation cost model"
           },
           {
             "step": 3,
             "tool_id": "66-rwa-tokenization-cost-model",
             "mcp_name": null,
+            "callable": false,
             "display_name": "66-rwa-tokenization-cost-model",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/66-rwa-tokenization-cost-model.html",
             "handoff": "Exports stablecoin reserve Policy Mandate -- final stage"
           }
         ],
@@ -545,32 +596,36 @@
             "step": 1,
             "tool_id": "152-baas-provider-comparator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "152-baas-provider-comparator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/152-baas-provider-comparator.html",
             "handoff": "provider_scores and selection_rationale feed T160 unit economics"
           },
           {
             "step": 2,
             "tool_id": "160-embedded-lending-unit-economics",
             "mcp_name": null,
+            "callable": false,
             "display_name": "160-embedded-lending-unit-economics",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/160-embedded-lending-unit-economics.html",
             "handoff": "unit_economics and margin_drivers feed T158 compliance mapping"
           },
           {
             "step": 3,
             "tool_id": "158-fintech-compliance-control-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "158-fintech-compliance-control-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/158-fintech-compliance-control-mapper.html",
             "handoff": "control_gaps and framework_obligations feed T140 fraud detection"
           },
           {
             "step": 4,
             "tool_id": "140-b2b-payment-fraud-detector",
             "mcp_name": null,
+            "callable": false,
             "display_name": "140-b2b-payment-fraud-detector",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/140-b2b-payment-fraud-detector.html",
             "handoff": "Exports BaaS programme Policy Mandate -- final stage"
           }
         ],
@@ -586,32 +641,36 @@
             "step": 1,
             "tool_id": "52-interchange-optimizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "52-interchange-optimizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/52-interchange-optimizer.html",
             "handoff": "optimal_mcc and routing_strategy feed T225 qualification testing"
           },
           {
             "step": 2,
             "tool_id": "225-visa-mc-interchange-qualification-tester",
             "mcp_name": null,
+            "callable": false,
             "display_name": "225-visa-mc-interchange-qualification-tester",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/225-visa-mc-interchange-qualification-tester.html",
             "handoff": "ic_category and qualification_flags feed T233 scheme fee benchmarking"
           },
           {
             "step": 3,
             "tool_id": "233-card-scheme-fee-benchmarking",
             "mcp_name": null,
+            "callable": false,
             "display_name": "233-card-scheme-fee-benchmarking",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/233-card-scheme-fee-benchmarking.html",
             "handoff": "fee_delta and scheme_comparison feed T228 3DS/EMV compliance"
           },
           {
             "step": 4,
             "tool_id": "228-3ds-emv-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "228-3ds-emv-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/228-3ds-emv-compliance-checker.html",
             "handoff": "Exports card interchange Policy Mandate -- final stage"
           }
         ],
@@ -627,32 +686,36 @@
             "step": 1,
             "tool_id": "256-rtp-fraud-velocity-rule-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "256-rtp-fraud-velocity-rule-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/256-rtp-fraud-velocity-rule-builder.html",
             "handoff": "rule_set and velocity_thresholds feed Stage 2 structuring pattern detection"
           },
           {
             "step": 2,
             "tool_id": "117-structuring-pattern-detector",
             "mcp_name": null,
+            "callable": false,
             "display_name": "117-structuring-pattern-detector",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/117-structuring-pattern-detector.html",
             "handoff": "detected_patterns and risk_flags feed Stage 3 fraud investigation"
           },
           {
             "step": 3,
             "tool_id": "80-fraud-investigation-lab",
             "mcp_name": null,
+            "callable": false,
             "display_name": "80-fraud-investigation-lab",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/80-fraud-investigation-lab.html",
             "handoff": "investigation_findings and disposition feed Stage 4 APP-scam scoring"
           },
           {
             "step": 4,
             "tool_id": "322-app-scam-risk-assessor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "322-app-scam-risk-assessor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/322-app-scam-risk-assessor.html",
             "handoff": "Exports fraud/velocity Policy Mandate -- final stage"
           }
         ],
@@ -668,40 +731,45 @@
             "step": 1,
             "tool_id": "198-pd-lgd-ead-modeller",
             "mcp_name": null,
+            "callable": false,
             "display_name": "198-pd-lgd-ead-modeller",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/198-pd-lgd-ead-modeller.html",
             "handoff": "pd, lgd, ead values feed Stage 2 Basel RWA calculation"
           },
           {
             "step": 2,
             "tool_id": "201-basel-rwa-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "201-basel-rwa-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/201-basel-rwa-calculator.html",
             "handoff": "rwa_total and capital_requirement feed Stage 3 RAROC pricing"
           },
           {
             "step": 3,
             "tool_id": "437-raroc-loan-pricing",
             "mcp_name": null,
+            "callable": false,
             "display_name": "437-raroc-loan-pricing",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/437-raroc-loan-pricing.html",
             "handoff": "raroc and hurdle_rate feed Stage 4 covenant compliance"
           },
           {
             "step": 4,
             "tool_id": "199-financial-covenant-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "199-financial-covenant-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/199-financial-covenant-compliance-checker.html",
             "handoff": "covenant_status and breach_flags feed Stage 5 facility structuring"
           },
           {
             "step": 5,
             "tool_id": "435-credit-facility-structuring",
             "mcp_name": null,
+            "callable": false,
             "display_name": "435-credit-facility-structuring",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/435-credit-facility-structuring.html",
             "handoff": "Exports credit decisioning Policy Mandate -- final stage"
           }
         ],
@@ -717,40 +785,45 @@
             "step": 1,
             "tool_id": "395-consumer-duty-vulnerability-assessment-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "395-consumer-duty-vulnerability-assessment-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/395-consumer-duty-vulnerability-assessment-builder.html",
             "handoff": "vulnerability_segments feed Stage 2 fair-value assessment"
           },
           {
             "step": 2,
             "tool_id": "396-consumer-duty-price-value-assessment",
             "mcp_name": null,
+            "callable": false,
             "display_name": "396-consumer-duty-price-value-assessment",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/396-consumer-duty-price-value-assessment.html",
             "handoff": "value_rating and outlier_flags feed Stage 3 costs aggregation"
           },
           {
             "step": 3,
             "tool_id": "428-mifid-costs-charges-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "428-mifid-costs-charges-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/428-mifid-costs-charges-calculator.html",
             "handoff": "total_cost_ratio and cost_breakdown feed Stage 4 KID check"
           },
           {
             "step": 4,
             "tool_id": "448-priips-kid-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "448-priips-kid-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/448-priips-kid-compliance-checker.html",
             "handoff": "kid_compliance_status feeds Stage 5 board MI framework"
           },
           {
             "step": 5,
             "tool_id": "397-consumer-duty-mi-framework-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "397-consumer-duty-mi-framework-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/397-consumer-duty-mi-framework-builder.html",
             "handoff": "Exports consumer protection Policy Mandate -- final stage"
           }
         ],
@@ -766,32 +839,36 @@
             "step": 1,
             "tool_id": "53-cbdc-architecture-comparator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "53-cbdc-architecture-comparator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/53-cbdc-architecture-comparator.html",
             "handoff": "architecture_choice feeds Stage 2 reserve stress testing"
           },
           {
             "step": 2,
             "tool_id": "388-stablecoin-reserve-stress-test-modeller",
             "mcp_name": null,
+            "callable": false,
             "display_name": "388-stablecoin-reserve-stress-test-modeller",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/388-stablecoin-reserve-stress-test-modeller.html",
             "handoff": "reserve_adequacy and stress_results feed Stage 3 GENIUS Act check"
           },
           {
             "step": 3,
             "tool_id": "386-genius-act-payment-stablecoin-compliance-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "386-genius-act-payment-stablecoin-compliance-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/386-genius-act-payment-stablecoin-compliance-checker.html",
             "handoff": "genius_compliance_status feeds Stage 4 MiCA white paper"
           },
           {
             "step": 4,
             "tool_id": "390-mica-white-paper-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "390-mica-white-paper-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/390-mica-white-paper-builder.html",
             "handoff": "Exports stablecoin compliance Policy Mandate -- final stage"
           }
         ],
@@ -807,32 +884,36 @@
             "step": 1,
             "tool_id": "327-eu-ai-act-risk-class-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "327-eu-ai-act-risk-class-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/327-eu-ai-act-risk-class-mapper.html",
             "handoff": "risk_tier and obligations feed Stage 2 MRM gap assessment"
           },
           {
             "step": 2,
             "tool_id": "451-sr11-7-model-risk-management-gap-assessor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "451-sr11-7-model-risk-management-gap-assessor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/451-sr11-7-model-risk-management-gap-assessor.html",
             "handoff": "mrm_gaps and severity feed Stage 3 fair-lending testing"
           },
           {
             "step": 3,
             "tool_id": "452-fair-lending-ai-bias-assessment",
             "mcp_name": null,
+            "callable": false,
             "display_name": "452-fair-lending-ai-bias-assessment",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/452-fair-lending-ai-bias-assessment.html",
             "handoff": "disparate_impact_metrics feed Stage 4 Art.9 RMS build"
           },
           {
             "step": 4,
             "tool_id": "333-eu-ai-act-article9-risk-mgmt-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "333-eu-ai-act-article9-risk-mgmt-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/333-eu-ai-act-article9-risk-mgmt-builder.html",
             "handoff": "Exports AI-governance Policy Mandate -- final stage"
           }
         ],
@@ -848,40 +929,45 @@
             "step": 1,
             "tool_id": "229-rtp-network-participation-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "229-rtp-network-participation-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/229-rtp-network-participation-checker.html",
             "handoff": "participation_gaps feed Stage 2 VoP simulation"
           },
           {
             "step": 2,
             "tool_id": "289-verification-of-payee-simulator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "289-verification-of-payee-simulator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/289-verification-of-payee-simulator.html",
             "handoff": "vop_match_rates and response_timing feed Stage 3 liquidity sizing"
           },
           {
             "step": 3,
             "tool_id": "258-intraday-credit-facility-sizer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "258-intraday-credit-facility-sizer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/258-intraday-credit-facility-sizer.html",
             "handoff": "intraday_facility_size feeds Stage 4 IPR report"
           },
           {
             "step": 4,
             "tool_id": "349-sepa-ipr-annual-report-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "349-sepa-ipr-annual-report-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/349-sepa-ipr-annual-report-builder.html",
             "handoff": "ipr_report_data feeds Stage 5 RTP policy mandate"
           },
           {
             "step": 5,
             "tool_id": "259-ap2-rtp-policy-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "259-ap2-rtp-policy-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/259-ap2-rtp-policy-builder.html",
             "handoff": "Exports instant-payments Policy Mandate -- final stage"
           }
         ],
@@ -897,40 +983,45 @@
             "step": 1,
             "tool_id": "152-baas-provider-comparator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "152-baas-provider-comparator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/152-baas-provider-comparator.html",
             "handoff": "provider_shortlist feeds Stage 2 FBO structuring"
           },
           {
             "step": 2,
             "tool_id": "153-fbo-account-structure-simulator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "153-fbo-account-structure-simulator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/153-fbo-account-structure-simulator.html",
             "handoff": "fbo_structure and reconciliation_model feed Stage 3 ledger design"
           },
           {
             "step": 3,
             "tool_id": "154-ledger-architecture-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "154-ledger-architecture-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/154-ledger-architecture-builder.html",
             "handoff": "ledger_topology feeds Stage 4 control mapping"
           },
           {
             "step": 4,
             "tool_id": "158-fintech-compliance-control-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "158-fintech-compliance-control-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/158-fintech-compliance-control-mapper.html",
             "handoff": "control_gaps feed Stage 5 readiness scoring"
           },
           {
             "step": 5,
             "tool_id": "162-sponsor-bank-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "162-sponsor-bank-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/162-sponsor-bank-readiness-scorer.html",
             "handoff": "Exports BaaS programme Policy Mandate -- final stage"
           }
         ],
@@ -946,32 +1037,36 @@
             "step": 1,
             "tool_id": "179-vida-drr-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "179-vida-drr-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/179-vida-drr-readiness-scorer.html",
             "handoff": "drr_gaps feed Stage 2 e-invoice compliance scoring"
           },
           {
             "step": 2,
             "tool_id": "180-b2b-einvoice-compliance-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "180-b2b-einvoice-compliance-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/180-b2b-einvoice-compliance-scorer.html",
             "handoff": "compliance_score and field_errors feed Stage 3 XML audit"
           },
           {
             "step": 3,
             "tool_id": "174-peppol-xml-auditor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "174-peppol-xml-auditor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/174-peppol-xml-auditor.html",
             "handoff": "xml_validation_results feed Stage 4 ISO 20022 bridge"
           },
           {
             "step": 4,
             "tool_id": "178-invoice-to-iso20022-bridge",
             "mcp_name": null,
+            "callable": false,
             "display_name": "178-invoice-to-iso20022-bridge",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/178-invoice-to-iso20022-bridge.html",
             "handoff": "Exports e-invoicing Policy Mandate -- final stage"
           }
         ],
@@ -987,32 +1082,36 @@
             "step": 1,
             "tool_id": "444-hmda-reportability-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "444-hmda-reportability-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/444-hmda-reportability-checker.html",
             "handoff": "reportable_loans and data_gaps feed Stage 2 BSA/SAR check"
           },
           {
             "step": 2,
             "tool_id": "445-bsa-sar-filing-adequacy-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "445-bsa-sar-filing-adequacy-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/445-bsa-sar-filing-adequacy-checker.html",
             "handoff": "sar_adequacy_flags feed Stage 3 Reg E workflow"
           },
           {
             "step": 3,
             "tool_id": "442-reg-e-dispute-workflow-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "442-reg-e-dispute-workflow-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/442-reg-e-dispute-workflow-builder.html",
             "handoff": "dispute_timelines feed Stage 4 Durbin analysis"
           },
           {
             "step": 4,
             "tool_id": "443-durbin-amendment-interchange-analyzer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "443-durbin-amendment-interchange-analyzer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/443-durbin-amendment-interchange-analyzer.html",
             "handoff": "Exports consumer-banking compliance Policy Mandate -- final stage"
           }
         ],
@@ -1028,40 +1127,45 @@
             "step": 1,
             "tool_id": "429-model-portfolio-risk-analytics",
             "mcp_name": null,
+            "callable": false,
             "display_name": "429-model-portfolio-risk-analytics",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/429-model-portfolio-risk-analytics.html",
             "handoff": "risk_profile and model_allocation feed Stage 2 Reg BI best-interest check"
           },
           {
             "step": 2,
             "tool_id": "463-reg-bi-best-interest-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "463-reg-bi-best-interest-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/463-reg-bi-best-interest-checker.html",
             "handoff": "reg_bi_verdict and obligation_gaps feed Stage 3 portfolio construction"
           },
           {
             "step": 3,
             "tool_id": "432-portfolio-drift-rebalancing",
             "mcp_name": null,
+            "callable": false,
             "display_name": "432-portfolio-drift-rebalancing",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/432-portfolio-drift-rebalancing.html",
             "handoff": "rebalancing_trades and cost_estimates feed Stage 4 costs disclosure"
           },
           {
             "step": 4,
             "tool_id": "428-mifid-costs-charges-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "428-mifid-costs-charges-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/428-mifid-costs-charges-calculator.html",
             "handoff": "total_cost_bps and riy feed Stage 5 Form CRS"
           },
           {
             "step": 5,
             "tool_id": "464-form-crs-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "464-form-crs-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/464-form-crs-generator.html",
             "handoff": "Exports composite Reg BI suitability Policy Mandate -- final stage"
           }
         ],
@@ -1077,40 +1181,45 @@
             "step": 1,
             "tool_id": "187-bnpl-fca-readiness-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "187-bnpl-fca-readiness-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/187-bnpl-fca-readiness-checker.html",
             "handoff": "readiness_score and gap_list feed Stage 2 affordability model"
           },
           {
             "step": 2,
             "tool_id": "190-bnpl-affordability-assessment-modeller",
             "mcp_name": null,
+            "callable": false,
             "display_name": "190-bnpl-affordability-assessment-modeller",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/190-bnpl-affordability-assessment-modeller.html",
             "handoff": "affordability_result and repayment_schedule feed Stage 3 APR calc"
           },
           {
             "step": 3,
             "tool_id": "193-bnpl-apr-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "193-bnpl-apr-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/193-bnpl-apr-calculator.html",
             "handoff": "representative_apr and total_charge feed Stage 4 disclosure templates"
           },
           {
             "step": 4,
             "tool_id": "191-bnpl-disclosure-template-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "191-bnpl-disclosure-template-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/191-bnpl-disclosure-template-generator.html",
             "handoff": "pcci_template and summary_box feed Stage 5 arrears assessment"
           },
           {
             "step": 5,
             "tool_id": "192-bnpl-arrears-collections-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "192-bnpl-arrears-collections-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/192-bnpl-arrears-collections-checker.html",
             "handoff": "Exports composite BNPL programme Policy Mandate -- final stage"
           }
         ],
@@ -1126,40 +1235,45 @@
             "step": 1,
             "tool_id": "404-payment-institution-authorisation-readiness-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "404-payment-institution-authorisation-readiness-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/404-payment-institution-authorisation-readiness-checker.html",
             "handoff": "readiness_gaps and business_volumes feed Stage 2 capital calc"
           },
           {
             "step": 2,
             "tool_id": "405-emi-capital-requirements-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "405-emi-capital-requirements-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/405-emi-capital-requirements-calculator.html",
             "handoff": "emi_capital_requirement and method_results feed Stage 3 own funds"
           },
           {
             "step": 3,
             "tool_id": "418-pi-own-funds-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "418-pi-own-funds-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/418-pi-own-funds-calculator.html",
             "handoff": "own_funds_requirement feeds Stage 4 safeguarding assessment"
           },
           {
             "step": 4,
             "tool_id": "269-psp-safeguarding-assessment",
             "mcp_name": null,
+            "callable": false,
             "display_name": "269-psp-safeguarding-assessment",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/269-psp-safeguarding-assessment.html",
             "handoff": "safeguarding_method and shortfall feed Stage 5 APP liability"
           },
           {
             "step": 5,
             "tool_id": "406-psr-app-reimbursement-liability-splitter",
             "mcp_name": null,
+            "callable": false,
             "display_name": "406-psr-app-reimbursement-liability-splitter",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/406-psr-app-reimbursement-liability-splitter.html",
             "handoff": "Exports composite PI/EMI authorisation Policy Mandate -- final stage"
           }
         ],
@@ -1175,32 +1289,36 @@
             "step": 1,
             "tool_id": "465-carf-dac8-reportable-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "465-carf-dac8-reportable-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/465-carf-dac8-reportable-classifier.html",
             "handoff": "reportable_users and reportable_txns feed Stage 2 basis calc"
           },
           {
             "step": 2,
             "tool_id": "466-crypto-cost-basis-gain-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "466-crypto-cost-basis-gain-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/466-crypto-cost-basis-gain-calculator.html",
             "handoff": "gain_loss_schedule feeds Stage 3 1099-DA assembly"
           },
           {
             "step": 3,
             "tool_id": "467-form-1099-da-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "467-form-1099-da-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/467-form-1099-da-generator.html",
             "handoff": "filing_records feed Stage 4 readiness scoring"
           },
           {
             "step": 4,
             "tool_id": "468-casp-tax-reporting-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "468-casp-tax-reporting-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/468-casp-tax-reporting-readiness-scorer.html",
             "handoff": "Exports crypto-tax reporting Policy Mandate -- final stage"
           }
         ],
@@ -1216,40 +1334,45 @@
             "step": 1,
             "tool_id": "201-basel-rwa-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "201-basel-rwa-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/201-basel-rwa-calculator.html",
             "handoff": "rwa_total and credit/market/ops breakdown feed Stage 2 LCR"
           },
           {
             "step": 2,
             "tool_id": "469-lcr-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "469-lcr-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/469-lcr-calculator.html",
             "handoff": "hqla_total and nco feed Stage 3 NSFR"
           },
           {
             "step": 3,
             "tool_id": "470-nsfr-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "470-nsfr-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/470-nsfr-calculator.html",
             "handoff": "asf and rsf totals feed Stage 4 leverage ratio"
           },
           {
             "step": 4,
             "tool_id": "471-leverage-ratio-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "471-leverage-ratio-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/471-leverage-ratio-calculator.html",
             "handoff": "tier1 and exposure measure feed Stage 5 Pillar 3 disclosure"
           },
           {
             "step": 5,
             "tool_id": "472-pillar-3-disclosure-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "472-pillar-3-disclosure-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/472-pillar-3-disclosure-builder.html",
             "handoff": "Exports composite Basel III capital & liquidity Policy Mandate -- final stage"
           }
         ],
@@ -1265,32 +1388,36 @@
             "step": 1,
             "tool_id": "473-globe-etr-jurisdiction-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "473-globe-etr-jurisdiction-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/473-globe-etr-jurisdiction-calculator.html",
             "handoff": "etr_by_jur and sbie_amounts feed Stage 2 top-up tax calc"
           },
           {
             "step": 2,
             "tool_id": "474-topup-tax-qdmtt-calculator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "474-topup-tax-qdmtt-calculator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/474-topup-tax-qdmtt-calculator.html",
             "handoff": "topup_amounts and qdmtt_allocation feed Stage 3 safe harbour check"
           },
           {
             "step": 3,
             "tool_id": "475-pillar-two-safe-harbour-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "475-pillar-two-safe-harbour-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/475-pillar-two-safe-harbour-checker.html",
             "handoff": "safe_harbour_flags feed Stage 4 GIR Builder"
           },
           {
             "step": 4,
             "tool_id": "476-gir-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "476-gir-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/476-gir-builder.html",
             "handoff": "Exports composite Pillar Two GloBE Policy Mandate -- final stage"
           }
         ],
@@ -1306,32 +1433,36 @@
             "step": 1,
             "tool_id": "481-ccd2-scope-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "481-ccd2-scope-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/481-ccd2-scope-classifier.html",
             "handoff": "in_scope_products and obligation_tier feed Stage 2"
           },
           {
             "step": 2,
             "tool_id": "482-ccd2-creditworthiness-assessment-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "482-ccd2-creditworthiness-assessment-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/482-ccd2-creditworthiness-assessment-builder.html",
             "handoff": "assessment_framework feeds Stage 3 disclosure"
           },
           {
             "step": 3,
             "tool_id": "483-ccd2-secci-precontractual-disclosure-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "483-ccd2-secci-precontractual-disclosure-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/483-ccd2-secci-precontractual-disclosure-generator.html",
             "handoff": "disclosure_set feeds Stage 4 readiness scoring"
           },
           {
             "step": 4,
             "tool_id": "484-ccd2-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "484-ccd2-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/484-ccd2-readiness-scorer.html",
             "handoff": "Exports CCD2 Policy Mandate -- final stage"
           }
         ],
@@ -1347,40 +1478,45 @@
             "step": 1,
             "tool_id": "485-amlr-obliged-entity-scope-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "485-amlr-obliged-entity-scope-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/485-amlr-obliged-entity-scope-mapper.html",
             "handoff": "entity_type and obligations feed Stage 2 UBO mapping"
           },
           {
             "step": 2,
             "tool_id": "486-amlr-ubo-beneficial-ownership-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "486-amlr-ubo-beneficial-ownership-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/486-amlr-ubo-beneficial-ownership-mapper.html",
             "handoff": "ubo_tier and edd_triggers feed Stage 3 cash/EDD classifier"
           },
           {
             "step": 3,
             "tool_id": "487-amlr-cash-limit-edd-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "487-amlr-cash-limit-edd-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/487-amlr-cash-limit-edd-classifier.html",
             "handoff": "cash_verdict and edd_flags feed Stage 4 CDD policy builder"
           },
           {
             "step": 4,
             "tool_id": "488-amlr-cdd-policy-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "488-amlr-cdd-policy-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/488-amlr-cdd-policy-builder.html",
             "handoff": "cdd_tier_config feeds Stage 5 readiness"
           },
           {
             "step": 5,
             "tool_id": "350-amla-2027-readiness-gap-analyzer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "350-amla-2027-readiness-gap-analyzer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/350-amla-2027-readiness-gap-analyzer.html",
             "handoff": "Exports composite AML Policy Mandate -- final stage"
           }
         ],
@@ -1396,32 +1532,36 @@
             "step": 1,
             "tool_id": "489-eudi-attribute-attestation-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "489-eudi-attribute-attestation-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/489-eudi-attribute-attestation-mapper.html",
             "handoff": "pid_attributes and qeaa_map feed Stage 2 KYC flow"
           },
           {
             "step": 2,
             "tool_id": "490-eudi-kyc-flow-designer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "490-eudi-kyc-flow-designer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/490-eudi-kyc-flow-designer.html",
             "handoff": "kyc_flow_steps feed Stage 3 RP registration check"
           },
           {
             "step": 3,
             "tool_id": "491-eudi-relying-party-registration-checker",
             "mcp_name": null,
+            "callable": false,
             "display_name": "491-eudi-relying-party-registration-checker",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/491-eudi-relying-party-registration-checker.html",
             "handoff": "rp_registration_status feeds Stage 4 readiness"
           },
           {
             "step": 4,
             "tool_id": "348-eidas2-eudi-wallet-relying-party-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "348-eidas2-eudi-wallet-relying-party-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/348-eidas2-eudi-wallet-relying-party-readiness-scorer.html",
             "handoff": "Exports EUDI Acceptance Mandate -- final stage"
           }
         ],
@@ -1437,24 +1577,27 @@
             "step": 1,
             "tool_id": "492-ach-fraud-monitoring-procedure-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "492-ach-fraud-monitoring-procedure-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/492-ach-fraud-monitoring-procedure-builder.html",
             "handoff": "roles and risk_tier feed Stage 2 scenario simulator and Stage 3 audit pack"
           },
           {
             "step": 2,
             "tool_id": "493-ach-false-pretenses-credit-entry-simulator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "493-ach-false-pretenses-credit-entry-simulator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/493-ach-false-pretenses-credit-entry-simulator.html",
             "handoff": "scenario obligations and recovery path inform Stage 3 gap identification"
           },
           {
             "step": 3,
             "tool_id": "494-ach-fraud-monitoring-audit-pack-generator",
             "mcp_name": null,
+            "callable": false,
             "display_name": "494-ach-fraud-monitoring-audit-pack-generator",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/494-ach-fraud-monitoring-audit-pack-generator.html",
             "handoff": "Exports annual review audit binder + composite ACH Fraud Policy Mandate -- final stage"
           }
         ],
@@ -1470,32 +1613,36 @@
             "step": 1,
             "tool_id": "499-crypto-asset-inventory-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "499-crypto-asset-inventory-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html",
             "handoff": "classified_assets and algorithm_status feed Stage 2 HNDL risk scoring"
           },
           {
             "step": 2,
             "tool_id": "500-hndl-quantum-risk-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "500-hndl-quantum-risk-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/500-hndl-quantum-risk-scorer.html",
             "handoff": "hndl_priority per system feed Stage 3 roadmap"
           },
           {
             "step": 3,
             "tool_id": "501-pqc-migration-roadmap-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "501-pqc-migration-roadmap-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/501-pqc-migration-roadmap-builder.html",
             "handoff": "migration_phases and target_algorithms feed Stage 4 agility assessment"
           },
           {
             "step": 4,
             "tool_id": "502-crypto-agility-readiness-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "502-crypto-agility-readiness-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/502-crypto-agility-readiness-scorer.html",
             "handoff": "Exports composite PQC migration Policy Mandate -- final stage"
           }
         ],
@@ -1511,24 +1658,27 @@
             "step": 1,
             "tool_id": "495-agentic-checkout-protocol-selector",
             "mcp_name": null,
+            "callable": false,
             "display_name": "495-agentic-checkout-protocol-selector",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/495-agentic-checkout-protocol-selector.html",
             "handoff": "protocol_recommendation and stack_config feed Stage 2 conformance auditor"
           },
           {
             "step": 2,
             "tool_id": "496-acp-ucp-product-feed-conformance-auditor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "496-acp-ucp-product-feed-conformance-auditor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/496-acp-ucp-product-feed-conformance-auditor.html",
             "handoff": "conformance_gaps and fix_checklist feed Stage 3 acceptance policy"
           },
           {
             "step": 3,
             "tool_id": "498-agent-traffic-acceptance-policy-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "498-agent-traffic-acceptance-policy-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/498-agent-traffic-acceptance-policy-builder.html",
             "handoff": "Exports agent-traffic acceptance Policy Mandate -- final stage"
           }
         ],
@@ -1544,6 +1694,7 @@
             "step": 1,
             "tool_id": "art-01-ap2-mandate-chain-validator",
             "mcp_name": "validate_ap2_mandate_chain",
+            "callable": true,
             "display_name": "AP2 Mandate-Chain Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html",
             "handoff": "ap2_mandate and execution_hash (H1) feed Stage 2 ACP checkout conformance"
@@ -1552,6 +1703,7 @@
             "step": 2,
             "tool_id": "art-12-acp-checkout-conformance-validator",
             "mcp_name": "validate_acp_checkout",
+            "callable": true,
             "display_name": "ACP Checkout Conformance Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-12-acp-checkout-conformance-validator.html",
             "handoff": "acp_verdict and conformance_flags + execution_hash (H2) feed Stage 3 x402 settlement model"
@@ -1560,6 +1712,7 @@
             "step": 3,
             "tool_id": "art-03-x402-settlement-modeler",
             "mcp_name": "model_x402_settlement",
+            "callable": true,
             "display_name": "x402 Settlement Cost & Finality Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/art-03-x402-settlement-modeler.html",
             "handoff": "x402_payload and settlement execution_hash (H3) feed Stage 4 cross-protocol validator"
@@ -1568,6 +1721,7 @@
             "step": 4,
             "tool_id": "art-30-agent-commerce-conformance-validator",
             "mcp_name": "validate_agent_commerce_conformance",
+            "callable": true,
             "display_name": "Agent Commerce Cross-Protocol Conformance Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-30-agent-commerce-conformance-validator.html",
             "handoff": "Exports unified AP2+ACP+TAP+x402 cross-protocol conformance mandate; execution_hash (H4) covers full transaction -- final stage"
@@ -1585,6 +1739,7 @@
             "step": 1,
             "tool_id": "art-32-a2a-agent-card-trust-chain-validator",
             "mcp_name": "validate_a2a_trust_chain",
+            "callable": true,
             "display_name": "A2A Agent-Card Trust-Chain Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-32-a2a-agent-card-trust-chain-validator.html",
             "handoff": "a2a_card + trust-chain verdict and execution_hash feed Stage 2 KYA attestation"
@@ -1593,6 +1748,7 @@
             "step": 2,
             "tool_id": "art-04-agent-identity-attestation-checker",
             "mcp_name": "check_agent_attestation",
+            "callable": true,
             "display_name": "Agent Identity & Authorization Attestation Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html",
             "handoff": "attestation verdict and execution_hash feed Stage 3 spend-policy simulation"
@@ -1601,6 +1757,7 @@
             "step": 3,
             "tool_id": "art-02-agent-spend-policy-simulator",
             "mcp_name": "simulate_spend_policy",
+            "callable": true,
             "display_name": "Agent Spend-Policy Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html",
             "handoff": "Exports the agent-identity-trust policy artifact -- final stage"
@@ -1618,6 +1775,7 @@
             "step": 1,
             "tool_id": "art-28-mcp-server-deployability-diagnostic",
             "mcp_name": "run_mcp_deployability_diagnostic",
+            "callable": true,
             "display_name": "MCP Server Deployability Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-28-mcp-server-deployability-diagnostic.html",
             "handoff": "deployability grade and execution_hash feed Stage 2 readiness scorecard"
@@ -1626,6 +1784,7 @@
             "step": 2,
             "tool_id": "art-18-mcp-developer-readiness-scorecard",
             "mcp_name": null,
+            "callable": false,
             "display_name": "art-18-mcp-developer-readiness-scorecard",
             "tool_url": null,
             "handoff": "readiness score and execution_hash feed Stage 3 self-attestation"
@@ -1634,6 +1793,7 @@
             "step": 3,
             "tool_id": "art-33-mcp-server-self-attestation-pack",
             "mcp_name": "attest_mcp_server",
+            "callable": true,
             "display_name": "MCP Server Self-Attestation Pack",
             "tool_url": "https://ainumbers.co/chaingraph/art-33-mcp-server-self-attestation-pack.html",
             "handoff": "Exports the composite MCP server attestation artifact -- final stage"
@@ -1651,6 +1811,7 @@
             "step": 1,
             "tool_id": "art-34-tempo-fit-diagnostic",
             "mcp_name": "run_tempo_fit_diagnostic",
+            "callable": true,
             "display_name": "Tempo Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-34-tempo-fit-diagnostic.html",
             "handoff": "dim_scores and primary_recommendation route to tempo-payments / tempo-issuance / tempo-mpp-agent / tempo-agentic-checkout chains"
@@ -1668,6 +1829,7 @@
             "step": 1,
             "tool_id": "art-35-tempo-payments-business-case",
             "mcp_name": "model_tempo_payment_economics",
+            "callable": true,
             "display_name": "Tempo Payments Business Case",
             "tool_url": "https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html",
             "handoff": "annual_savings, per_tx_saving, break_even_months, and cfo_memo feed downstream issuance or agent chains"
@@ -1685,6 +1847,7 @@
             "step": 1,
             "tool_id": "art-36-tempo-mpp-agent-mandate",
             "mcp_name": "decode_mpp_session",
+            "callable": true,
             "display_name": "Tempo MPP Agent Mandate",
             "tool_url": "https://ainumbers.co/chaingraph/art-36-tempo-mpp-agent-mandate.html",
             "handoff": "session_mandate and execution_hash (H1) + AP2 mapping feed Stage 2 mandate validation"
@@ -1693,6 +1856,7 @@
             "step": 2,
             "tool_id": "art-01-ap2-mandate-chain-validator",
             "mcp_name": "validate_ap2_mandate_chain",
+            "callable": true,
             "display_name": "AP2 Mandate-Chain Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html",
             "handoff": "ap2_mandate verdict and execution_hash (H2) feed Stage 3 spend-policy simulation"
@@ -1701,6 +1865,7 @@
             "step": 3,
             "tool_id": "art-02-agent-spend-policy-simulator",
             "mcp_name": "simulate_spend_policy",
+            "callable": true,
             "display_name": "Agent Spend-Policy Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html",
             "handoff": "spend_policy verdict and execution_hash (H3) feed Stage 4 KYA attestation"
@@ -1709,6 +1874,7 @@
             "step": 4,
             "tool_id": "art-04-agent-identity-attestation-checker",
             "mcp_name": "check_agent_attestation",
+            "callable": true,
             "display_name": "Agent Identity & Authorization Attestation Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html",
             "handoff": "Exports composite MPP agent mandate with execution_hash (H4) -- final stage"
@@ -1726,6 +1892,7 @@
             "step": 1,
             "tool_id": "art-37-tempo-stablecoin-issuance",
             "mcp_name": "validate_tempo_token_compliance",
+            "callable": true,
             "display_name": "Tempo Stablecoin Issuance Compliance",
             "tool_url": "https://ainumbers.co/chaingraph/art-37-tempo-stablecoin-issuance.html",
             "handoff": "genius_checks, mica_checks, overall_verdict, and issuer_lei feed Stage 2 reserve pre-check"
@@ -1734,6 +1901,7 @@
             "step": 2,
             "tool_id": "art-06-genius-act-reserve-attestation",
             "mcp_name": "precheck_reserve_attestation",
+            "callable": true,
             "display_name": "GENIUS Act Reserve Attestation Pre-Check",
             "tool_url": "https://ainumbers.co/chaingraph/art-06-genius-act-reserve-attestation.html",
             "handoff": "reserve_attestation verdict feeds Stage 3 AML pre-screen"
@@ -1742,6 +1910,7 @@
             "step": 3,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "Exports composite stablecoin issuance compliance mandate -- final stage"
@@ -1759,6 +1928,7 @@
             "step": 1,
             "tool_id": "art-37-tempo-stablecoin-issuance",
             "mcp_name": "validate_tempo_token_compliance",
+            "callable": true,
             "display_name": "Tempo Stablecoin Issuance Compliance",
             "tool_url": "https://ainumbers.co/chaingraph/art-37-tempo-stablecoin-issuance.html",
             "handoff": "tip403_controls verified before batch screening"
@@ -1767,6 +1937,7 @@
             "step": 2,
             "tool_id": "art-38-tempo-onchain-aml",
             "mcp_name": "screen_tip20_transfer_batch",
+            "callable": true,
             "display_name": "Tempo On-Chain AML & Travel Rule Screener",
             "tool_url": "https://ainumbers.co/chaingraph/art-38-tempo-onchain-aml.html",
             "handoff": "sar_determination, travel_rule_attestation, and execution_hash feed Stage 3 typology scoring"
@@ -1775,6 +1946,7 @@
             "step": 3,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "Exports composite AML + Travel Rule mandate -- final stage"
@@ -1792,6 +1964,7 @@
             "step": 1,
             "tool_id": "art-38-tempo-onchain-aml",
             "mcp_name": "screen_tip20_transfer_batch",
+            "callable": true,
             "display_name": "Tempo On-Chain AML & Travel Rule Screener",
             "tool_url": "https://ainumbers.co/chaingraph/art-38-tempo-onchain-aml.html",
             "handoff": "aml_verdict and execution_hash (H1) feed Stage 2 zone disclosure attestation"
@@ -1800,6 +1973,7 @@
             "step": 2,
             "tool_id": "art-39-tempo-zone-disclosure",
             "mcp_name": "validate_tempo_zone_disclosure",
+            "callable": true,
             "display_name": "Tempo Zone Selective-Disclosure Attestation",
             "tool_url": "https://ainumbers.co/chaingraph/art-39-tempo-zone-disclosure.html",
             "handoff": "zone_attestation verdict and execution_hash (H2) feed Stage 3 ZK proof generation"
@@ -1808,6 +1982,7 @@
             "step": 3,
             "tool_id": "cry-01-zk-compliance-proof-generator",
             "mcp_name": "generate_zk_compliance_proof",
+            "callable": true,
             "display_name": "ZK Compliance Proof Generator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-01-zk-compliance-proof-generator.html",
             "handoff": "Exports privacy-and-auditability attestation + ZK proof -- final stage"
@@ -1825,6 +2000,7 @@
             "step": 1,
             "tool_id": "art-26-x402-payload-decoder-flow-simulator",
             "mcp_name": "simulate_x402_flow",
+            "callable": true,
             "display_name": "x402 Header Decoder, Payload Linter & 402 Flow Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/art-26-x402-payload-decoder-flow-simulator.html",
             "handoff": "protocol_decode and payment_details feed Stage 2 TIP-20 settlement mapping"
@@ -1833,6 +2009,7 @@
             "step": 2,
             "tool_id": "art-40-tempo-agentic-checkout",
             "mcp_name": "map_tempo_settlement",
+            "callable": true,
             "display_name": "Tempo Agentic Checkout Settlement Mapper",
             "tool_url": "https://ainumbers.co/chaingraph/art-40-tempo-agentic-checkout.html",
             "handoff": "Exports TIP-20 settlement artifact with execution_hash; memo → remittance_information crosswalk -- final stage"
@@ -1850,6 +2027,7 @@
             "step": 1,
             "tool_id": "art-41-tempo-validator-readiness",
             "mcp_name": "score_tempo_validator_readiness",
+            "callable": true,
             "display_name": "Tempo Validator Readiness Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-41-tempo-validator-readiness.html",
             "handoff": "Exports infrastructure_mandate artifact with execution_hash and permissioning notice -- standalone node"
@@ -1867,6 +2045,7 @@
             "step": 1,
             "tool_id": "503-canton-tokenization-readiness-diagnostic",
             "mcp_name": "diagnose_canton_readiness",
+            "callable": true,
             "display_name": "Canton Tokenization Readiness Diagnostic",
             "tool_url": "https://ainumbers.co/tools/503-canton-tokenization-readiness-diagnostic.html",
             "handoff": "entity_type,grade,gaps feed Stage 2 capital optimizer"
@@ -1875,6 +2054,7 @@
             "step": 2,
             "tool_id": "504-settlement-risk-capital-optimizer",
             "mcp_name": "optimize_settlement_capital",
+            "callable": true,
             "display_name": "Settlement-Risk Capital Efficiency Optimizer",
             "tool_url": "https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html",
             "handoff": "total_rwa_delta,annual_saving_bps feeds downstream Basel 3.1/XVA/LCR chain -- final stage"
@@ -1892,6 +2072,7 @@
             "step": 1,
             "tool_id": "507-canton-dvp-atomicity-validator",
             "mcp_name": "validate_canton_dvp_atomicity",
+            "callable": true,
             "display_name": "Canton DvP Atomicity Validator",
             "tool_url": "https://ainumbers.co/tools/507-canton-dvp-atomicity-validator.html",
             "handoff": "dvp_verdict,atomicity_model,finality_model feed Stage 2 collateral eligibility"
@@ -1900,6 +2081,7 @@
             "step": 2,
             "tool_id": "505-tokenized-collateral-eligibility-checker",
             "mcp_name": "check_tokenized_collateral_eligibility",
+            "callable": true,
             "display_name": "Tokenized Collateral Eligibility Checker",
             "tool_url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
             "handoff": "hqla_tier,dtc_eligible,haircut_pct -- Exports DvP readiness mandate -- final stage"
@@ -1917,6 +2099,7 @@
             "step": 1,
             "tool_id": "508-repo-haircut-collateral-calculator",
             "mcp_name": "calculate_repo_haircut",
+            "callable": true,
             "display_name": "On-Chain Repo Haircut Calculator",
             "tool_url": "https://ainumbers.co/tools/508-repo-haircut-collateral-calculator.html",
             "handoff": "total_haircut_pct,initial_margin,canton_247 feed Stage 2 collateral eligibility"
@@ -1925,6 +2108,7 @@
             "step": 2,
             "tool_id": "505-tokenized-collateral-eligibility-checker",
             "mcp_name": "check_tokenized_collateral_eligibility",
+            "callable": true,
             "display_name": "Tokenized Collateral Eligibility Checker",
             "tool_url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
             "handoff": "hqla_tier,dtc_eligible feed Stage 3 cash-leg finality"
@@ -1933,6 +2117,7 @@
             "step": 3,
             "tool_id": "506-onchain-cash-leg-finality-checker",
             "mcp_name": "check_cash_leg_finality",
+            "callable": true,
             "display_name": "On-Chain Cash-Leg Finality Checker",
             "tool_url": "https://ainumbers.co/tools/506-onchain-cash-leg-finality-checker.html",
             "handoff": "finality_verdict,genius_status -- Exports repo collateral mandate -- final stage"
@@ -1950,6 +2135,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score, dimension scores, and cctp_routing_flag route to appropriate Arc chain"
@@ -1967,6 +2153,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score → CPN dimension primary"
@@ -1975,6 +2162,7 @@
             "step": 2,
             "tool_id": "art-43-arc-cpn-model",
             "mcp_name": "model_arc_cpn_economics",
+            "callable": true,
             "display_name": "Arc CPN Corridor Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-43-arc-cpn-model.html",
             "handoff": "npv_3yr, cost_per_payment, migration_verdict — CPN corridor economics — final stage"
@@ -1992,6 +2180,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score → StableFX dimension primary"
@@ -2000,6 +2189,7 @@
             "step": 2,
             "tool_id": "art-44-arc-stablefx-model",
             "mcp_name": "model_arc_stablefx_rfq",
+            "callable": true,
             "display_name": "Arc StableFX RFQ Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-44-arc-stablefx-model.html",
             "handoff": "herstatt_exposure, annual_benefit_usd, verdict — StableFX economics — final stage"
@@ -2017,6 +2207,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score → xReserve/issuance dimension"
@@ -2025,6 +2216,7 @@
             "step": 2,
             "tool_id": "art-45-arc-xreserve-linter",
             "mcp_name": "lint_arc_xreserve_config",
+            "callable": true,
             "display_name": "Arc xReserve Config Linter",
             "tool_url": "https://ainumbers.co/chaingraph/art-45-arc-xreserve-linter.html",
             "handoff": "grade, checks_failed, compliance_verdict — xReserve compliance — final stage"
@@ -2042,6 +2234,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score → DvP dimension primary"
@@ -2050,6 +2243,7 @@
             "step": 2,
             "tool_id": "art-44-arc-stablefx-model",
             "mcp_name": "model_arc_stablefx_rfq",
+            "callable": true,
             "display_name": "Arc StableFX RFQ Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-44-arc-stablefx-model.html",
             "handoff": "pvp_verdict, herstatt_saved feed Stage 3 Paymaster economics"
@@ -2058,6 +2252,7 @@
             "step": 3,
             "tool_id": "art-46-arc-paymaster-model",
             "mcp_name": "model_arc_paymaster_economics",
+            "callable": true,
             "display_name": "Arc Paymaster Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-46-arc-paymaster-model.html",
             "handoff": "paymaster_verdict, cost_per_uop — Exports DvP settlement mandate — final stage"
@@ -2075,6 +2270,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "arc_score → agentic commerce dimension primary"
@@ -2083,6 +2279,7 @@
             "step": 2,
             "tool_id": "art-46-arc-paymaster-model",
             "mcp_name": "model_arc_paymaster_economics",
+            "callable": true,
             "display_name": "Arc Paymaster Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-46-arc-paymaster-model.html",
             "handoff": "paymaster_verdict, sponsorship_breakeven feed Stage 3 CPN economics"
@@ -2091,6 +2288,7 @@
             "step": 3,
             "tool_id": "art-43-arc-cpn-model",
             "mcp_name": "model_arc_cpn_economics",
+            "callable": true,
             "display_name": "Arc CPN Corridor Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-43-arc-cpn-model.html",
             "handoff": "npv_3yr, cost_per_payment — Exports agentic commerce mandate — final stage"
@@ -2108,6 +2306,7 @@
             "step": 1,
             "tool_id": "art-45-arc-xreserve-linter",
             "mcp_name": "lint_arc_xreserve_config",
+            "callable": true,
             "display_name": "Arc xReserve Config Linter",
             "tool_url": "https://ainumbers.co/chaingraph/art-45-arc-xreserve-linter.html",
             "handoff": "compliance_verdict, grade feed Stage 2 StableFX risk model"
@@ -2116,6 +2315,7 @@
             "step": 2,
             "tool_id": "art-44-arc-stablefx-model",
             "mcp_name": "model_arc_stablefx_rfq",
+            "callable": true,
             "display_name": "Arc StableFX RFQ Economics Model",
             "tool_url": "https://ainumbers.co/chaingraph/art-44-arc-stablefx-model.html",
             "handoff": "pvp_verdict, annual_benefit — Exports reserve compliance mandate — final stage"
@@ -2133,6 +2333,7 @@
             "step": 1,
             "tool_id": "art-42-arc-fit-diagnostic",
             "mcp_name": "run_arc_fit_diagnostic",
+            "callable": true,
             "display_name": "Arc Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-42-arc-fit-diagnostic.html",
             "handoff": "cctp_routing_flag, arc_score → CCTP v2 transfer validation"
@@ -2141,6 +2342,7 @@
             "step": 2,
             "tool_id": "art-47-arc-cctp-transfer",
             "mcp_name": "validate_cctp_v2_transfer",
+            "callable": true,
             "display_name": "Arc CCTP v2 Transfer Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-47-arc-cctp-transfer.html",
             "handoff": "grade, v1_migration_required, hook_risk — CCTP v2 validated — final stage"
@@ -2158,6 +2360,7 @@
             "step": 1,
             "tool_id": "art-48-treasury-clearing-fit-diagnostic",
             "mcp_name": "run_treasury_clearing_fit",
+            "callable": true,
             "display_name": "Treasury Clearing Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-48-treasury-clearing-fit-diagnostic.html",
             "handoff": "dim_scores + primary_recommendation route to the relevant tcm-* chain"
@@ -2175,6 +2378,7 @@
             "step": 1,
             "tool_id": "art-49-clearing-access-model-selector",
             "mcp_name": "model_clearing_access_economics",
+            "callable": true,
             "display_name": "Clearing Access Model Selector",
             "tool_url": "https://ainumbers.co/chaingraph/art-49-clearing-access-model-selector.html",
             "handoff": "recommended_model + im_estimate_by_model feed the capital optimizer"
@@ -2183,6 +2387,7 @@
             "step": 2,
             "tool_id": "504-settlement-risk-capital-optimizer",
             "mcp_name": "optimize_settlement_capital",
+            "callable": true,
             "display_name": "Settlement-Risk Capital Efficiency Optimizer",
             "tool_url": "https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html",
             "handoff": "rwa_delta + qccp_capital feed the margin/netting estimate"
@@ -2191,6 +2396,7 @@
             "step": 3,
             "tool_id": "art-50-ficc-margin-netting-estimator",
             "mcp_name": "estimate_ficc_margin_netting",
+            "callable": true,
             "display_name": "FICC Margin & Netting Estimator",
             "tool_url": "https://ainumbers.co/chaingraph/art-50-ficc-margin-netting-estimator.html",
             "handoff": "Exports the composite access-model decision -- final stage"
@@ -2208,6 +2414,7 @@
             "step": 1,
             "tool_id": "art-50-ficc-margin-netting-estimator",
             "mcp_name": "estimate_ficc_margin_netting",
+            "callable": true,
             "display_name": "FICC Margin & Netting Estimator",
             "tool_url": "https://ainumbers.co/chaingraph/art-50-ficc-margin-netting-estimator.html",
             "handoff": "net_cleared_im + margin_by_bucket feed the haircut calculator"
@@ -2216,6 +2423,7 @@
             "step": 2,
             "tool_id": "508-repo-haircut-collateral-calculator",
             "mcp_name": "calculate_repo_haircut",
+            "callable": true,
             "display_name": "On-Chain Repo Haircut Calculator",
             "tool_url": "https://ainumbers.co/tools/508-repo-haircut-collateral-calculator.html",
             "handoff": "haircut-adjusted collateral value feeds the mobilizer"
@@ -2224,6 +2432,7 @@
             "step": 3,
             "tool_id": "513-margin-call-collateral-mobilizer",
             "mcp_name": "mobilize_margin_collateral",
+            "callable": true,
             "display_name": "Margin Call Collateral Mobilizer",
             "tool_url": "https://ainumbers.co/tools/513-margin-call-collateral-mobilizer.html",
             "handoff": "mobilization plan + shortfall feed the VaR engine"
@@ -2232,6 +2441,7 @@
             "step": 4,
             "tool_id": "qfa-02-portfolio-var-engine",
             "mcp_name": "compute_portfolio_var",
+            "callable": true,
             "display_name": "Portfolio Covariance & VaR Engine",
             "tool_url": "https://ainumbers.co/chaingraph/qfa-02-portfolio-var-engine.html",
             "handoff": "Exports composite repo-margin artifact -- final stage"
@@ -2249,6 +2459,7 @@
             "step": 1,
             "tool_id": "art-51-cross-margining-benefit-estimator",
             "mcp_name": "estimate_cross_margin_benefit",
+            "callable": true,
             "display_name": "FICC-CME Cross-Margining Estimator",
             "tool_url": "https://ainumbers.co/chaingraph/art-51-cross-margining-benefit-estimator.html",
             "handoff": "im_reduction + eligible_offsets feed the VaR engine"
@@ -2257,6 +2468,7 @@
             "step": 2,
             "tool_id": "qfa-02-portfolio-var-engine",
             "mcp_name": "compute_portfolio_var",
+            "callable": true,
             "display_name": "Portfolio Covariance & VaR Engine",
             "tool_url": "https://ainumbers.co/chaingraph/qfa-02-portfolio-var-engine.html",
             "handoff": "combined VaR feeds the stress engine"
@@ -2265,6 +2477,7 @@
             "step": 3,
             "tool_id": "qfa-03-stress-test-engine",
             "mcp_name": "compute_stress_test_scenarios",
+            "callable": true,
             "display_name": "Stress Test Engine",
             "tool_url": "https://ainumbers.co/chaingraph/qfa-03-stress-test-engine.html",
             "handoff": "Exports composite cross-margin artifact -- final stage"
@@ -2282,6 +2495,7 @@
             "step": 1,
             "tool_id": "505-tokenized-collateral-eligibility-checker",
             "mcp_name": "check_tokenized_collateral_eligibility",
+            "callable": true,
             "display_name": "Tokenized Collateral Eligibility Checker",
             "tool_url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
             "handoff": "hqla_tier + haircut feed the swap validator"
@@ -2290,6 +2504,7 @@
             "step": 2,
             "tool_id": "515-collateral-swap-eligibility-validator",
             "mcp_name": "validate_collateral_swap_eligibility",
+            "callable": true,
             "display_name": "Collateral Swap Eligibility Validator",
             "tool_url": "https://ainumbers.co/tools/515-collateral-swap-eligibility-validator.html",
             "handoff": "swap_direction verdict feeds the fund-collateral validator"
@@ -2298,6 +2513,7 @@
             "step": 3,
             "tool_id": "514-tokenized-fund-collateral-validator",
             "mcp_name": "validate_fund_collateral",
+            "callable": true,
             "display_name": "Tokenized Fund Collateral Validator",
             "tool_url": "https://ainumbers.co/tools/514-tokenized-fund-collateral-validator.html",
             "handoff": "Exports composite collateral artifact -- final stage"
@@ -2315,6 +2531,7 @@
             "step": 1,
             "tool_id": "504-settlement-risk-capital-optimizer",
             "mcp_name": "optimize_settlement_capital",
+            "callable": true,
             "display_name": "Settlement-Risk Capital Efficiency Optimizer",
             "tool_url": "https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html",
             "handoff": "qccp_capital + rwa_delta feed the Basel 3.1 delta calculator"
@@ -2323,6 +2540,7 @@
             "step": 2,
             "tool_id": "art-07-basel31-reporting-delta-calculator",
             "mcp_name": "compute_basel31_delta",
+            "callable": true,
             "display_name": "Basel 3.1 Reporting Delta Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-07-basel31-reporting-delta-calculator.html",
             "handoff": "rwa + output-floor figures feed the RWA scenario modeler"
@@ -2331,6 +2549,7 @@
             "step": 3,
             "tool_id": "sim-03-basel-rwa-scenario-modeler",
             "mcp_name": "compute_rwa_scenarios",
+            "callable": true,
             "display_name": "Basel RWA Scenario Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/sim-03-basel-rwa-scenario-modeler.html",
             "handoff": "Exports composite capital-relief artifact -- final stage"
@@ -2348,6 +2567,7 @@
             "step": 1,
             "tool_id": "sim-01-lcr-nsfr-liquidity-stress-test",
             "mcp_name": "run_liquidity_stress_test",
+            "callable": true,
             "display_name": "Liquidity Stress Test Simulator (LCR/NSFR)",
             "tool_url": "https://ainumbers.co/chaingraph/sim-01-lcr-nsfr-liquidity-stress-test.html",
             "handoff": "lcr/nsfr stress paths feed the mobilizer"
@@ -2356,6 +2576,7 @@
             "step": 2,
             "tool_id": "513-margin-call-collateral-mobilizer",
             "mcp_name": "mobilize_margin_collateral",
+            "callable": true,
             "display_name": "Margin Call Collateral Mobilizer",
             "tool_url": "https://ainumbers.co/tools/513-margin-call-collateral-mobilizer.html",
             "handoff": "mobilization shortfall feeds the stress engine"
@@ -2364,6 +2585,7 @@
             "step": 3,
             "tool_id": "qfa-03-stress-test-engine",
             "mcp_name": "compute_stress_test_scenarios",
+            "callable": true,
             "display_name": "Stress Test Engine",
             "tool_url": "https://ainumbers.co/chaingraph/qfa-03-stress-test-engine.html",
             "handoff": "Exports composite liquidity-stress artifact -- final stage"
@@ -2381,6 +2603,7 @@
             "step": 1,
             "tool_id": "509-canton-party-allowlist-validator",
             "mcp_name": "validate_canton_party_allowlist",
+            "callable": true,
             "display_name": "Canton Party Allowlist Validator",
             "tool_url": "https://ainumbers.co/tools/509-canton-party-allowlist-validator.html",
             "handoff": "party verdict + LEI/OFAC flags feed the AML scorer"
@@ -2389,6 +2612,7 @@
             "step": 2,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "typology risk score feeds the audit aggregator"
@@ -2397,6 +2621,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite onboarding receipt with Merkle-root hash -- final stage"
@@ -2414,6 +2639,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity verdict feeds the DvP validator"
@@ -2422,6 +2648,7 @@
             "step": 2,
             "tool_id": "507-canton-dvp-atomicity-validator",
             "mcp_name": "validate_canton_dvp_atomicity",
+            "callable": true,
             "display_name": "Canton DvP Atomicity Validator",
             "tool_url": "https://ainumbers.co/tools/507-canton-dvp-atomicity-validator.html",
             "handoff": "atomicity/finality verdict + fail-charge feed the anomaly detector"
@@ -2430,6 +2657,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite settlement-integrity artifact -- final stage"
@@ -2447,6 +2675,7 @@
             "step": 1,
             "tool_id": "509-canton-party-allowlist-validator",
             "mcp_name": "validate_canton_party_allowlist",
+            "callable": true,
             "display_name": "Canton Party Allowlist Validator",
             "tool_url": "https://ainumbers.co/tools/509-canton-party-allowlist-validator.html",
             "handoff": "allowlist_verdict,fatf_flags,parties_approved -- Exports counterparty onboarding mandate -- final stage"
@@ -2464,6 +2693,7 @@
             "step": 1,
             "tool_id": "510-digital-asset-regulatory-classifier",
             "mcp_name": "classify_digital_asset_regulatory",
+            "callable": true,
             "display_name": "Digital Asset Regulatory Classifier",
             "tool_url": "https://ainumbers.co/tools/510-digital-asset-regulatory-classifier.html",
             "handoff": "frameworks_applied,mifid_instrument,dlt_pilot_eligible feed Stage 2 lifecycle validator"
@@ -2472,6 +2702,7 @@
             "step": 2,
             "tool_id": "512-tokenized-security-lifecycle-validator",
             "mcp_name": "validate_tokenized_security_lifecycle",
+            "callable": true,
             "display_name": "Tokenized Security Lifecycle Validator",
             "tool_url": "https://ainumbers.co/tools/512-tokenized-security-lifecycle-validator.html",
             "handoff": "lifecycle_verdict,daml_gaps -- Exports securities issuance mandate -- final stage"
@@ -2489,6 +2720,7 @@
             "step": 1,
             "tool_id": "513-margin-call-collateral-mobilizer",
             "mcp_name": "mobilize_margin_collateral",
+            "callable": true,
             "display_name": "Margin Call Collateral Mobilizer",
             "tool_url": "https://ainumbers.co/tools/513-margin-call-collateral-mobilizer.html",
             "handoff": "branch,margin_required,collateral_gap feed Stage 2 collateral eligibility"
@@ -2497,6 +2729,7 @@
             "step": 2,
             "tool_id": "505-tokenized-collateral-eligibility-checker",
             "mcp_name": "check_tokenized_collateral_eligibility",
+            "callable": true,
             "display_name": "Tokenized Collateral Eligibility Checker",
             "tool_url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
             "handoff": "hqla_tier,eligible_value feed Stage 3 cash-leg finality"
@@ -2505,6 +2738,7 @@
             "step": 3,
             "tool_id": "506-onchain-cash-leg-finality-checker",
             "mcp_name": "check_cash_leg_finality",
+            "callable": true,
             "display_name": "On-Chain Cash-Leg Finality Checker",
             "tool_url": "https://ainumbers.co/tools/506-onchain-cash-leg-finality-checker.html",
             "handoff": "finality_verdict -- Exports margin call collateral mandate -- final stage"
@@ -2522,6 +2756,7 @@
             "step": 1,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "session_receipt_root (Merkle root over all session execution_hashes) feeds Stage 2 prompt generation"
@@ -2530,6 +2765,7 @@
             "step": 2,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Generates a regulator-framed prompt citing the full session receipt -- final stage"
@@ -2547,6 +2783,7 @@
             "step": 1,
             "tool_id": "art-52-digital-trade-fit-diagnostic",
             "mcp_name": "run_digital_trade_fit",
+            "callable": true,
             "display_name": "Digital Trade Corridor Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-52-digital-trade-fit-diagnostic.html",
             "handoff": "dim_scores and primary_recommendation route to dtc-ebl-enforceability / dtc-digital-lc / dtc-doc-integrity / dtc-counterparty-aml / dtc-trade-finance / dtc-tbml-surveillance / dtc-audit-pack"
@@ -2564,6 +2801,7 @@
             "step": 1,
             "tool_id": "art-53-mletr-ebl-conformance-validator",
             "mcp_name": "validate_mletr_record",
+            "callable": true,
             "display_name": "MLETR / eBL Conformance & Enforceability Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-53-mletr-ebl-conformance-validator.html",
             "handoff": "conformance_grade and enforceability_tier (H1) feed the classifier"
@@ -2572,6 +2810,7 @@
             "step": 2,
             "tool_id": "510-digital-asset-regulatory-classifier",
             "mcp_name": "classify_digital_asset_regulatory",
+            "callable": true,
             "display_name": "Digital Asset Regulatory Classifier",
             "tool_url": "https://ainumbers.co/tools/510-digital-asset-regulatory-classifier.html",
             "handoff": "classification verdict (H2) feeds the integrity verifier"
@@ -2580,6 +2819,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite enforceability artifact with execution_hash (H3) -- final stage"
@@ -2597,6 +2837,7 @@
             "step": 1,
             "tool_id": "art-54-digital-trade-rules-checker",
             "mcp_name": "check_digital_trade_rules",
+            "callable": true,
             "display_name": "Digital Trade Rules Compliance Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.html",
             "handoff": "discrepancies and verdict (H1) feed the invoice validator"
@@ -2605,6 +2846,7 @@
             "step": 2,
             "tool_id": "art-08-en16931-einvoice-batch-validator",
             "mcp_name": "validate_einvoice_batch",
+            "callable": true,
             "display_name": "EN 16931 / Factur-X E-Invoicing Batch Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-08-en16931-einvoice-batch-validator.html",
             "handoff": "invoice validation (H2) feeds the provenance verifier"
@@ -2613,6 +2855,7 @@
             "step": 3,
             "tool_id": "art-55-trade-document-provenance-verifier",
             "mcp_name": "verify_trade_document_set",
+            "callable": true,
             "display_name": "Trade Document Provenance & Consistency Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-55-trade-document-provenance-verifier.html",
             "handoff": "Exports composite digital-LC artifact with execution_hash (H3) -- final stage"
@@ -2630,6 +2873,7 @@
             "step": 1,
             "tool_id": "art-55-trade-document-provenance-verifier",
             "mcp_name": "verify_trade_document_set",
+            "callable": true,
             "display_name": "Trade Document Provenance & Consistency Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-55-trade-document-provenance-verifier.html",
             "handoff": "merkle_root and mismatches (H1) feed the batch verifier"
@@ -2638,6 +2882,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "verified integrity (H2) feeds the anomaly detector"
@@ -2646,6 +2891,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite integrity artifact with execution_hash (H3) -- final stage"
@@ -2663,6 +2909,7 @@
             "step": 1,
             "tool_id": "509-canton-party-allowlist-validator",
             "mcp_name": "validate_canton_party_allowlist",
+            "callable": true,
             "display_name": "Canton Party Allowlist Validator",
             "tool_url": "https://ainumbers.co/tools/509-canton-party-allowlist-validator.html",
             "handoff": "party verdict and sanctions flags (H1) feed the risk rater"
@@ -2671,14 +2918,16 @@
             "step": 2,
             "tool_id": "110-customer-risk-rating",
             "mcp_name": null,
+            "callable": false,
             "display_name": "110-customer-risk-rating",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/110-customer-risk-rating.html",
             "handoff": "risk rating (H2) feeds the typology scorer"
           },
           {
             "step": 3,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "Exports composite counterparty-AML artifact with execution_hash (H3) -- final stage"
@@ -2696,6 +2945,7 @@
             "step": 1,
             "tool_id": "art-53-mletr-ebl-conformance-validator",
             "mcp_name": "validate_mletr_record",
+            "callable": true,
             "display_name": "MLETR / eBL Conformance & Enforceability Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-53-mletr-ebl-conformance-validator.html",
             "handoff": "enforceability_tier (H1) feeds the credit scorer"
@@ -2704,6 +2954,7 @@
             "step": 2,
             "tool_id": "ml-02-credit-default-risk-scorer",
             "mcp_name": "score_credit_default_risk",
+            "callable": true,
             "display_name": "Credit Default Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/ml-02-credit-default-risk-scorer.html",
             "handoff": "PD/credit band (H2) feeds the anomaly detector"
@@ -2712,6 +2963,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite trade-finance artifact with execution_hash (H3) -- final stage"
@@ -2729,6 +2981,7 @@
             "step": 1,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "typology risk (H1) feeds the graph engine"
@@ -2737,6 +2990,7 @@
             "step": 2,
             "tool_id": "mms-03-app-fraud-graph",
             "mcp_name": "simulate_app_fraud_graph",
+            "callable": true,
             "display_name": "APP Fraud Graph Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/mms-03-app-fraud-graph.html",
             "handoff": "network red flags (H2) feed the anomaly detector"
@@ -2745,6 +2999,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite TBML-surveillance artifact with execution_hash (H3) -- final stage"
@@ -2762,6 +3017,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -2770,6 +3026,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -2778,6 +3035,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -2795,6 +3053,7 @@
             "step": 1,
             "tool_id": "art-56-tokenized-settlement-fit-diagnostic",
             "mcp_name": "run_tokenized_settlement_fit",
+            "callable": true,
             "display_name": "Wholesale Tokenized Settlement Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.html",
             "handoff": "dim_scores and primary_recommendation route to wts-cross-network-dvp / wts-deposit-token / wts-settlement-asset / wts-collateral-mobility / wts-intraday-liquidity / wts-participant-onboarding / wts-audit-pack"
@@ -2812,6 +3071,7 @@
             "step": 1,
             "tool_id": "art-58-cross-network-settlement-validator",
             "mcp_name": "validate_cross_network_settlement",
+            "callable": true,
             "display_name": "Cross-Network Atomic Settlement Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-58-cross-network-settlement-validator.html",
             "handoff": "atomicity_verdict and settlement_risk_window (H1) feed the DvP validator"
@@ -2820,6 +3080,7 @@
             "step": 2,
             "tool_id": "507-canton-dvp-atomicity-validator",
             "mcp_name": "validate_canton_dvp_atomicity",
+            "callable": true,
             "display_name": "Canton DvP Atomicity Validator",
             "tool_url": "https://ainumbers.co/tools/507-canton-dvp-atomicity-validator.html",
             "handoff": "asset-leg atomicity (H2) feeds the PvP validator"
@@ -2828,6 +3089,7 @@
             "step": 3,
             "tool_id": "511-multi-currency-pvp-validator",
             "mcp_name": "validate_pvp_settlement",
+            "callable": true,
             "display_name": "Multi-Currency PvP Validator",
             "tool_url": "https://ainumbers.co/tools/511-multi-currency-pvp-validator.html",
             "handoff": "Exports composite cross-network settlement artifact with execution_hash (H3) -- final stage"
@@ -2845,6 +3107,7 @@
             "step": 1,
             "tool_id": "art-57-deposit-token-compliance-validator",
             "mcp_name": "validate_deposit_token_compliance",
+            "callable": true,
             "display_name": "Deposit-Token Compliance Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-57-deposit-token-compliance-validator.html",
             "handoff": "token_class and classification_grade (H1) feed the classifier"
@@ -2853,6 +3116,7 @@
             "step": 2,
             "tool_id": "510-digital-asset-regulatory-classifier",
             "mcp_name": "classify_digital_asset_regulatory",
+            "callable": true,
             "display_name": "Digital Asset Regulatory Classifier",
             "tool_url": "https://ainumbers.co/tools/510-digital-asset-regulatory-classifier.html",
             "handoff": "regime classification (H2) feeds the integrity verifier"
@@ -2861,6 +3125,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite deposit-token artifact with execution_hash (H3) -- final stage"
@@ -2878,6 +3143,7 @@
             "step": 1,
             "tool_id": "art-59-settlement-asset-finality-classifier",
             "mcp_name": "classify_settlement_asset_finality",
+            "callable": true,
             "display_name": "Settlement-Asset & Legal-Finality Classifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-59-settlement-asset-finality-classifier.html",
             "handoff": "finality_tier and singleness_verdict (H1) feed the classifier"
@@ -2886,6 +3152,7 @@
             "step": 2,
             "tool_id": "510-digital-asset-regulatory-classifier",
             "mcp_name": "classify_digital_asset_regulatory",
+            "callable": true,
             "display_name": "Digital Asset Regulatory Classifier",
             "tool_url": "https://ainumbers.co/tools/510-digital-asset-regulatory-classifier.html",
             "handoff": "regulatory classification (H2) feeds the finality checker"
@@ -2894,6 +3161,7 @@
             "step": 3,
             "tool_id": "506-onchain-cash-leg-finality-checker",
             "mcp_name": "check_cash_leg_finality",
+            "callable": true,
             "display_name": "On-Chain Cash-Leg Finality Checker",
             "tool_url": "https://ainumbers.co/tools/506-onchain-cash-leg-finality-checker.html",
             "handoff": "Exports composite settlement-asset artifact with execution_hash (H3) -- final stage"
@@ -2911,6 +3179,7 @@
             "step": 1,
             "tool_id": "505-tokenized-collateral-eligibility-checker",
             "mcp_name": "check_tokenized_collateral_eligibility",
+            "callable": true,
             "display_name": "Tokenized Collateral Eligibility Checker",
             "tool_url": "https://ainumbers.co/tools/505-tokenized-collateral-eligibility-checker.html",
             "handoff": "eligibility verdict (H1) feeds the mobilizer"
@@ -2919,6 +3188,7 @@
             "step": 2,
             "tool_id": "513-margin-call-collateral-mobilizer",
             "mcp_name": "mobilize_margin_collateral",
+            "callable": true,
             "display_name": "Margin Call Collateral Mobilizer",
             "tool_url": "https://ainumbers.co/tools/513-margin-call-collateral-mobilizer.html",
             "handoff": "mobilization plan (H2) feeds the haircut calculator"
@@ -2927,6 +3197,7 @@
             "step": 3,
             "tool_id": "508-repo-haircut-collateral-calculator",
             "mcp_name": "calculate_repo_haircut",
+            "callable": true,
             "display_name": "On-Chain Repo Haircut Calculator",
             "tool_url": "https://ainumbers.co/tools/508-repo-haircut-collateral-calculator.html",
             "handoff": "Exports composite collateral-mobility artifact with execution_hash (H3) -- final stage"
@@ -2944,6 +3215,7 @@
             "step": 1,
             "tool_id": "504-settlement-risk-capital-optimizer",
             "mcp_name": "optimize_settlement_capital",
+            "callable": true,
             "display_name": "Settlement-Risk Capital Efficiency Optimizer",
             "tool_url": "https://ainumbers.co/tools/504-settlement-risk-capital-optimizer.html",
             "handoff": "capital profile (H1) feeds the liquidity stress test"
@@ -2952,6 +3224,7 @@
             "step": 2,
             "tool_id": "sim-01-lcr-nsfr-liquidity-stress-test",
             "mcp_name": "run_liquidity_stress_test",
+            "callable": true,
             "display_name": "Liquidity Stress Test Simulator (LCR/NSFR)",
             "tool_url": "https://ainumbers.co/chaingraph/sim-01-lcr-nsfr-liquidity-stress-test.html",
             "handoff": "liquidity result (H2) feeds the anomaly detector"
@@ -2960,6 +3233,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite intraday-liquidity artifact with execution_hash (H3) -- final stage"
@@ -2977,6 +3251,7 @@
             "step": 1,
             "tool_id": "509-canton-party-allowlist-validator",
             "mcp_name": "validate_canton_party_allowlist",
+            "callable": true,
             "display_name": "Canton Party Allowlist Validator",
             "tool_url": "https://ainumbers.co/tools/509-canton-party-allowlist-validator.html",
             "handoff": "party verdict and sanctions flags (H1) feed the risk rater"
@@ -2985,14 +3260,16 @@
             "step": 2,
             "tool_id": "110-customer-risk-rating",
             "mcp_name": null,
+            "callable": false,
             "display_name": "110-customer-risk-rating",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/110-customer-risk-rating.html",
             "handoff": "risk rating (H2) feeds the typology scorer"
           },
           {
             "step": 3,
             "tool_id": "art-10-amla-transaction-typology-risk-scorer",
             "mcp_name": "score_aml_typologies",
+            "callable": true,
             "display_name": "AMLA Transaction-Typology Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
             "handoff": "Exports composite participant-onboarding artifact with execution_hash (H3) -- final stage"
@@ -3010,6 +3287,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -3018,6 +3296,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -3026,6 +3305,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -3043,6 +3323,7 @@
             "step": 1,
             "tool_id": "art-60-agent-economy-runtime-fit-diagnostic",
             "mcp_name": "run_agent_economy_fit",
+            "callable": true,
             "display_name": "Agent Economy Runtime Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-60-agent-economy-runtime-fit-diagnostic.html",
             "handoff": "dim_scores and primary_recommendation route to aer-batch-settlement / aer-payment-receipt / aer-autonomous-guardrail / aer-metering / aer-fraud-runtime / aer-marketplace / aer-audit-pack"
@@ -3060,6 +3341,7 @@
             "step": 1,
             "tool_id": "art-61-x402-batch-settlement-reconciler",
             "mcp_name": "reconcile_x402_batch_settlement",
+            "callable": true,
             "display_name": "x402 V2 Batch-Settlement Reconciler",
             "tool_url": "https://ainumbers.co/chaingraph/art-61-x402-batch-settlement-reconciler.html",
             "handoff": "recon_verdict and merkle_root (H1) feed the batch verifier"
@@ -3068,6 +3350,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "verified integrity (H2) feeds the aggregator"
@@ -3076,6 +3359,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite batch-settlement artifact with execution_hash (H3) -- final stage"
@@ -3093,6 +3377,7 @@
             "step": 1,
             "tool_id": "art-62-ap2-payment-receipt-verifier",
             "mcp_name": "verify_ap2_payment_receipt",
+            "callable": true,
             "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
             "tool_url": "https://ainumbers.co/chaingraph/art-62-ap2-payment-receipt-verifier.html",
             "handoff": "receipt_verdict and hnp_verdict (H1) feed the mandate-chain validator"
@@ -3101,6 +3386,7 @@
             "step": 2,
             "tool_id": "art-01-ap2-mandate-chain-validator",
             "mcp_name": "validate_ap2_mandate_chain",
+            "callable": true,
             "display_name": "AP2 Mandate-Chain Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html",
             "handoff": "mandate-chain verdict (H2) feeds the aggregator"
@@ -3109,6 +3395,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite payment-receipt artifact with execution_hash (H3) -- final stage"
@@ -3126,6 +3413,7 @@
             "step": 1,
             "tool_id": "art-02-agent-spend-policy-simulator",
             "mcp_name": "simulate_spend_policy",
+            "callable": true,
             "display_name": "Agent Spend-Policy Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html",
             "handoff": "spend envelope (H1) feeds the mandate validator"
@@ -3134,6 +3422,7 @@
             "step": 2,
             "tool_id": "art-01-ap2-mandate-chain-validator",
             "mcp_name": "validate_ap2_mandate_chain",
+            "callable": true,
             "display_name": "AP2 Mandate-Chain Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html",
             "handoff": "mandate scope/freshness (H2) feeds the HNP verifier"
@@ -3142,6 +3431,7 @@
             "step": 3,
             "tool_id": "art-62-ap2-payment-receipt-verifier",
             "mcp_name": "verify_ap2_payment_receipt",
+            "callable": true,
             "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
             "tool_url": "https://ainumbers.co/chaingraph/art-62-ap2-payment-receipt-verifier.html",
             "handoff": "Exports composite autonomous-guardrail artifact with execution_hash (H3) -- final stage"
@@ -3159,6 +3449,7 @@
             "step": 1,
             "tool_id": "art-63-agent-service-metering-modeler",
             "mcp_name": "model_agent_service_metering",
+            "callable": true,
             "display_name": "Agent-Service Metering & Marketplace Economics Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/art-63-agent-service-metering-modeler.html",
             "handoff": "unit economics (H1) feed the settlement modeler"
@@ -3167,6 +3458,7 @@
             "step": 2,
             "tool_id": "art-03-x402-settlement-modeler",
             "mcp_name": "model_x402_settlement",
+            "callable": true,
             "display_name": "x402 Settlement Cost & Finality Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/art-03-x402-settlement-modeler.html",
             "handoff": "settlement cost (H2) feeds the anomaly detector"
@@ -3175,6 +3467,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite metering artifact with execution_hash (H3) -- final stage"
@@ -3192,6 +3485,7 @@
             "step": 1,
             "tool_id": "art-02-agent-spend-policy-simulator",
             "mcp_name": "simulate_spend_policy",
+            "callable": true,
             "display_name": "Agent Spend-Policy Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html",
             "handoff": "policy violations (H1) feed the graph engine"
@@ -3200,6 +3494,7 @@
             "step": 2,
             "tool_id": "mms-03-app-fraud-graph",
             "mcp_name": "simulate_app_fraud_graph",
+            "callable": true,
             "display_name": "APP Fraud Graph Simulator",
             "tool_url": "https://ainumbers.co/chaingraph/mms-03-app-fraud-graph.html",
             "handoff": "network red flags (H2) feed the anomaly detector"
@@ -3208,6 +3503,7 @@
             "step": 3,
             "tool_id": "ml-03-timeseries-anomaly-detector",
             "mcp_name": "detect_timeseries_anomalies",
+            "callable": true,
             "display_name": "Time-Series Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-03-timeseries-anomaly-detector.html",
             "handoff": "Exports composite runtime-fraud artifact with execution_hash (H3) -- final stage"
@@ -3225,6 +3521,7 @@
             "step": 1,
             "tool_id": "art-04-agent-identity-attestation-checker",
             "mcp_name": "check_agent_attestation",
+            "callable": true,
             "display_name": "Agent Identity & Authorization Attestation Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html",
             "handoff": "attestation verdict (H1) feeds the traffic-policy builder"
@@ -3233,6 +3530,7 @@
             "step": 2,
             "tool_id": "art-21-agent-traffic-acceptance-policy-builder",
             "mcp_name": "build_agent_traffic_policy",
+            "callable": true,
             "display_name": "Agent-Traffic Acceptance Policy Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-21-agent-traffic-acceptance-policy-builder.html",
             "handoff": "acceptance policy (H2) feeds the metering modeler"
@@ -3241,6 +3539,7 @@
             "step": 3,
             "tool_id": "art-63-agent-service-metering-modeler",
             "mcp_name": "model_agent_service_metering",
+            "callable": true,
             "display_name": "Agent-Service Metering & Marketplace Economics Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/art-63-agent-service-metering-modeler.html",
             "handoff": "Exports composite marketplace artifact with execution_hash (H3) -- final stage"
@@ -3258,6 +3557,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -3266,6 +3566,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -3274,6 +3575,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -3291,6 +3593,7 @@
             "step": 1,
             "tool_id": "art-64-ai-act-highrisk-fit-diagnostic",
             "mcp_name": "run_ai_act_highrisk_fit",
+            "callable": true,
             "display_name": "EU AI Act High-Risk Fit & Classification Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-64-ai-act-highrisk-fit-diagnostic.html",
             "handoff": "high_risk_verdict and primary_recommendation route to aig-conformity / aig-fria-monitoring / aig-fairness-bias / aig-credit-ai-conformity / aig-gpai-agentic / aig-resilience-overlap / aig-audit-pack"
@@ -3308,6 +3611,7 @@
             "step": 1,
             "tool_id": "art-65-ai-conformity-pack-builder",
             "mcp_name": "build_ai_conformity_pack",
+            "callable": true,
             "display_name": "AI Act Conformity Pack Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-65-ai-conformity-pack-builder.html",
             "handoff": "conformity_grade and annex_iv_gaps (H1) feed the Article 9 builder"
@@ -3316,14 +3620,16 @@
             "step": 2,
             "tool_id": "333-eu-ai-act-article9-risk-mgmt-builder",
             "mcp_name": null,
+            "callable": false,
             "display_name": "333-eu-ai-act-article9-risk-mgmt-builder",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/333-eu-ai-act-article9-risk-mgmt-builder.html",
             "handoff": "risk-management system (H2) feeds the conformity assessor"
           },
           {
             "step": 3,
             "tool_id": "art-05-eu-ai-act-credit-scoring-conformity",
             "mcp_name": "assess_ai_act_conformity",
+            "callable": true,
             "display_name": "EU AI Act Credit-Scoring Conformity Pack",
             "tool_url": "https://ainumbers.co/chaingraph/art-05-eu-ai-act-credit-scoring-conformity.html",
             "handoff": "Exports composite conformity artifact with execution_hash (H3) -- final stage"
@@ -3341,6 +3647,7 @@
             "step": 1,
             "tool_id": "art-66-fria-postmarket-monitoring-builder",
             "mcp_name": "build_fria_monitoring_plan",
+            "callable": true,
             "display_name": "FRIA & Post-Market Monitoring Plan Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-66-fria-postmarket-monitoring-builder.html",
             "handoff": "fria_grade and monitoring_plan (H1) feed the model-risk assessor"
@@ -3349,14 +3656,16 @@
             "step": 2,
             "tool_id": "451-sr11-7-model-risk-management-gap-assessor",
             "mcp_name": null,
+            "callable": false,
             "display_name": "451-sr11-7-model-risk-management-gap-assessor",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/451-sr11-7-model-risk-management-gap-assessor.html",
             "handoff": "model-risk gaps (H2) feed the aggregator"
           },
           {
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite FRIA/monitoring artifact with execution_hash (H3) -- final stage"
@@ -3374,14 +3683,16 @@
             "step": 1,
             "tool_id": "452-fair-lending-ai-bias-assessment",
             "mcp_name": null,
+            "callable": false,
             "display_name": "452-fair-lending-ai-bias-assessment",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/452-fair-lending-ai-bias-assessment.html",
             "handoff": "bias findings (H1) feed the credit scorer"
           },
           {
             "step": 2,
             "tool_id": "ml-02-credit-default-risk-scorer",
             "mcp_name": "score_credit_default_risk",
+            "callable": true,
             "display_name": "Credit Default Risk Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/ml-02-credit-default-risk-scorer.html",
             "handoff": "model performance (H2) feeds the anomaly detector"
@@ -3390,12 +3701,13 @@
             "step": 3,
             "tool_id": "ml-01-isolation-forest",
             "mcp_name": "detect_transaction_anomalies",
+            "callable": true,
             "display_name": "Isolation Forest Transaction Anomaly Detector",
             "tool_url": "https://ainumbers.co/chaingraph/ml-01-isolation-forest.html",
             "handoff": "Exports composite fairness artifact with execution_hash (H3) -- final stage"
           }
         ],
-        "entry_mcp_name": null
+        "entry_mcp_name": "score_credit_default_risk"
       },
       {
         "chain_name": "ai-governance-gpai-agentic",
@@ -3407,6 +3719,7 @@
             "step": 1,
             "tool_id": "art-67-agentic-ai-risk-classifier",
             "mcp_name": "classify_agentic_ai_risk",
+            "callable": true,
             "display_name": "Agentic AI Risk & GPAI Governance Classifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-67-agentic-ai-risk-classifier.html",
             "handoff": "governance_tier and gpai_class (H1) feed the identity checker"
@@ -3415,6 +3728,7 @@
             "step": 2,
             "tool_id": "art-04-agent-identity-attestation-checker",
             "mcp_name": "check_agent_attestation",
+            "callable": true,
             "display_name": "Agent Identity & Authorization Attestation Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html",
             "handoff": "attestation verdict (H2) feeds the self-attestation pack"
@@ -3423,6 +3737,7 @@
             "step": 3,
             "tool_id": "art-33-mcp-server-self-attestation-pack",
             "mcp_name": "attest_mcp_server",
+            "callable": true,
             "display_name": "MCP Server Self-Attestation Pack",
             "tool_url": "https://ainumbers.co/chaingraph/art-33-mcp-server-self-attestation-pack.html",
             "handoff": "Exports composite agentic-governance artifact with execution_hash (H3) -- final stage"
@@ -3440,6 +3755,7 @@
             "step": 1,
             "tool_id": "art-05-eu-ai-act-credit-scoring-conformity",
             "mcp_name": "assess_ai_act_conformity",
+            "callable": true,
             "display_name": "EU AI Act Credit-Scoring Conformity Pack",
             "tool_url": "https://ainumbers.co/chaingraph/art-05-eu-ai-act-credit-scoring-conformity.html",
             "handoff": "conformity verdict (H1) feeds the risk-class mapper"
@@ -3448,14 +3764,16 @@
             "step": 2,
             "tool_id": "327-eu-ai-act-risk-class-mapper",
             "mcp_name": null,
+            "callable": false,
             "display_name": "327-eu-ai-act-risk-class-mapper",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/327-eu-ai-act-risk-class-mapper.html",
             "handoff": "risk class (H2) feeds the FRIA builder"
           },
           {
             "step": 3,
             "tool_id": "art-66-fria-postmarket-monitoring-builder",
             "mcp_name": "build_fria_monitoring_plan",
+            "callable": true,
             "display_name": "FRIA & Post-Market Monitoring Plan Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-66-fria-postmarket-monitoring-builder.html",
             "handoff": "Exports composite credit-conformity artifact with execution_hash (H3) -- final stage"
@@ -3473,6 +3791,7 @@
             "step": 1,
             "tool_id": "art-29-dora-readiness-diagnostic",
             "mcp_name": "run_dora_readiness_diagnostic",
+            "callable": true,
             "display_name": "DORA Readiness Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-29-dora-readiness-diagnostic.html",
             "handoff": "DORA readiness (H1) feeds the conformity pack"
@@ -3481,6 +3800,7 @@
             "step": 2,
             "tool_id": "art-65-ai-conformity-pack-builder",
             "mcp_name": "build_ai_conformity_pack",
+            "callable": true,
             "display_name": "AI Act Conformity Pack Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-65-ai-conformity-pack-builder.html",
             "handoff": "robustness/cyber conformity (H2) feeds the verifier"
@@ -3489,6 +3809,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite resilience-overlap artifact with execution_hash (H3) -- final stage"
@@ -3506,6 +3827,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -3514,6 +3836,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -3522,6 +3845,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -3539,6 +3863,7 @@
             "step": 1,
             "tool_id": "art-68-carbon-compliance-fit-diagnostic",
             "mcp_name": "run_carbon_compliance_fit",
+            "callable": true,
             "display_name": "Carbon & Climate Compliance Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-68-carbon-compliance-fit-diagnostic.html",
             "handoff": "verdicts route to cbm-liability / cbm-precursor / taxonomy-align / taxonomy-kpi / eugb-conformance / climate-scenario / carbon-audit-pack"
@@ -3556,6 +3881,7 @@
             "step": 1,
             "tool_id": "art-70-cbam-default-value-resolver",
             "mcp_name": "resolve_cbam_default_value",
+            "callable": true,
             "display_name": "CBAM Default-Value Resolver",
             "tool_url": "https://ainumbers.co/chaingraph/art-70-cbam-default-value-resolver.html",
             "handoff": "resolved default value + markup (H1) feeds the emissions calculator"
@@ -3564,6 +3890,7 @@
             "step": 2,
             "tool_id": "art-69-cbam-embedded-emissions-calculator",
             "mcp_name": "calculate_cbam_embedded_emissions",
+            "callable": true,
             "display_name": "CBAM Embedded-Emissions Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-69-cbam-embedded-emissions-calculator.html",
             "handoff": "total embedded emissions (H2) feed the certificate-cost engine"
@@ -3572,6 +3899,7 @@
             "step": 3,
             "tool_id": "art-71-cbam-certificate-cost-engine",
             "mcp_name": "model_cbam_certificate_cost",
+            "callable": true,
             "display_name": "CBAM Certificate Cost & Free-Allocation Engine",
             "tool_url": "https://ainumbers.co/chaingraph/art-71-cbam-certificate-cost-engine.html",
             "handoff": "Exports composite CBAM liability artifact with execution_hash (H3) -- final stage"
@@ -3589,6 +3917,7 @@
             "step": 1,
             "tool_id": "art-72-cbam-precursor-emissions-aggregator",
             "mcp_name": "aggregate_cbam_precursor_emissions",
+            "callable": true,
             "display_name": "CBAM Precursor-Emissions Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/art-72-cbam-precursor-emissions-aggregator.html",
             "handoff": "cumulative precursor SEE (H1) feeds the emissions calculator"
@@ -3597,6 +3926,7 @@
             "step": 2,
             "tool_id": "art-69-cbam-embedded-emissions-calculator",
             "mcp_name": "calculate_cbam_embedded_emissions",
+            "callable": true,
             "display_name": "CBAM Embedded-Emissions Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-69-cbam-embedded-emissions-calculator.html",
             "handoff": "consignment embedded emissions (H2) feed the verifier"
@@ -3605,6 +3935,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite precursor artifact with Merkle-root execution_hash (H3) -- final stage"
@@ -3622,6 +3953,7 @@
             "step": 1,
             "tool_id": "art-73-taxonomy-alignment-scorer",
             "mcp_name": "score_taxonomy_alignment",
+            "callable": true,
             "display_name": "EU Taxonomy Alignment Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-73-taxonomy-alignment-scorer.html",
             "handoff": "alignment verdict + gaps (H1) feed the aggregator"
@@ -3630,6 +3962,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite alignment artifact with execution_hash (H2) -- final stage"
@@ -3647,6 +3980,7 @@
             "step": 1,
             "tool_id": "art-73-taxonomy-alignment-scorer",
             "mcp_name": "score_taxonomy_alignment",
+            "callable": true,
             "display_name": "EU Taxonomy Alignment Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-73-taxonomy-alignment-scorer.html",
             "handoff": "per-activity alignment (H1) feeds the KPI aggregator"
@@ -3655,6 +3989,7 @@
             "step": 2,
             "tool_id": "art-74-taxonomy-kpi-gar-aggregator",
             "mcp_name": "aggregate_taxonomy_kpi_gar",
+            "callable": true,
             "display_name": "Taxonomy KPI & Green Asset Ratio Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/art-74-taxonomy-kpi-gar-aggregator.html",
             "handoff": "KPI set + GAR (H2) feed the aggregator"
@@ -3663,6 +3998,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite KPI/GAR artifact with execution_hash (H3) -- final stage"
@@ -3680,6 +4016,7 @@
             "step": 1,
             "tool_id": "art-75-eugb-factsheet-validator",
             "mcp_name": "validate_eugb_factsheet",
+            "callable": true,
             "display_name": "EU Green Bond Factsheet & Allocation Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-75-eugb-factsheet-validator.html",
             "handoff": "factsheet/allocation conformance + proceeds-aligned % (H1) feeds the alignment scorer"
@@ -3688,6 +4025,7 @@
             "step": 2,
             "tool_id": "art-73-taxonomy-alignment-scorer",
             "mcp_name": "score_taxonomy_alignment",
+            "callable": true,
             "display_name": "EU Taxonomy Alignment Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-73-taxonomy-alignment-scorer.html",
             "handoff": "use-of-proceeds alignment (H2) feeds the verifier"
@@ -3696,6 +4034,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite EuGB conformance artifact with Merkle-root execution_hash (H3) -- final stage"
@@ -3713,6 +4052,7 @@
             "step": 1,
             "tool_id": "art-76-climate-scenario-applicator",
             "mcp_name": "apply_climate_scenario",
+            "callable": true,
             "display_name": "Climate Scenario Applicator (NGFS / Fit-for-55)",
             "tool_url": "https://ainumbers.co/chaingraph/art-76-climate-scenario-applicator.html",
             "handoff": "stressed metrics + per-sector deltas (H1) feed the aggregator"
@@ -3721,6 +4061,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite climate-scenario artifact with execution_hash (H2) -- final stage"
@@ -3738,6 +4079,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -3746,6 +4088,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -3754,6 +4097,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -3771,6 +4115,7 @@
             "step": 1,
             "tool_id": "art-77-t1-settlement-readiness-diagnostic",
             "mcp_name": "run_t1_readiness_diagnostic",
+            "callable": true,
             "display_name": "T+1 Settlement Readiness Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-77-t1-settlement-readiness-diagnostic.html",
             "handoff": "readiness grade + gaps route to sd-ssi-hygiene / sd-failpredict / sd-penalty / sd-alloc-affirm / sd-message-conformance / sd-buyin / sd-audit-pack"
@@ -3788,6 +4133,7 @@
             "step": 1,
             "tool_id": "art-78-csdr-penalty-calculator",
             "mcp_name": "calculate_csdr_penalty",
+            "callable": true,
             "display_name": "CSDR Cash-Penalty Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-78-csdr-penalty-calculator.html",
             "handoff": "per-fail + batch penalty (H1) feeds the KPI engine"
@@ -3796,6 +4142,7 @@
             "step": 2,
             "tool_id": "art-84-settlement-efficiency-kpi",
             "mcp_name": "compute_settlement_efficiency_kpi",
+            "callable": true,
             "display_name": "Settlement Efficiency KPI Engine",
             "tool_url": "https://ainumbers.co/chaingraph/art-84-settlement-efficiency-kpi.html",
             "handoff": "penalty-cost rollup + efficiency score (H2) feeds the aggregator"
@@ -3804,6 +4151,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite penalty-exposure artifact with execution_hash (H3) -- final stage"
@@ -3821,6 +4169,7 @@
             "step": 1,
             "tool_id": "art-80-ssi-conformance-checker",
             "mcp_name": "check_ssi_conformance",
+            "callable": true,
             "display_name": "SSI Conformance Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-80-ssi-conformance-checker.html",
             "handoff": "SSI match-rate + flags (H1) feed the predictor"
@@ -3829,6 +4178,7 @@
             "step": 2,
             "tool_id": "art-79-settlement-fail-predictor",
             "mcp_name": "predict_settlement_fail",
+            "callable": true,
             "display_name": "Settlement-Fail Predictor",
             "tool_url": "https://ainumbers.co/chaingraph/art-79-settlement-fail-predictor.html",
             "handoff": "ranked fail-risk list (H2) feeds the verifier"
@@ -3837,6 +4187,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite fail-prediction artifact with Merkle-root execution_hash (H3) -- final stage"
@@ -3854,6 +4205,7 @@
             "step": 1,
             "tool_id": "art-80-ssi-conformance-checker",
             "mcp_name": "check_ssi_conformance",
+            "callable": true,
             "display_name": "SSI Conformance Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-80-ssi-conformance-checker.html",
             "handoff": "flagged records + match-rate (H1) feed the aggregator"
@@ -3862,6 +4214,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite SSI-hygiene artifact with execution_hash (H2) -- final stage"
@@ -3879,6 +4232,7 @@
             "step": 1,
             "tool_id": "art-81-allocation-affirmation-conformance",
             "mcp_name": "check_allocation_affirmation",
+            "callable": true,
             "display_name": "Allocation/Affirmation Conformance Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-81-allocation-affirmation-conformance.html",
             "handoff": "on-time rate + flagged events (H1) feed the message linter"
@@ -3887,6 +4241,7 @@
             "step": 2,
             "tool_id": "art-82-securities-settlement-message-linter",
             "mcp_name": "lint_securities_settlement_message",
+            "callable": true,
             "display_name": "Securities-Settlement Message Linter (ISO 20022 sese/semt)",
             "tool_url": "https://ainumbers.co/chaingraph/art-82-securities-settlement-message-linter.html",
             "handoff": "message validation (H2) feeds the verifier"
@@ -3895,6 +4250,7 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite allocation/affirmation artifact with Merkle-root execution_hash (H3) -- final stage"
@@ -3912,6 +4268,7 @@
             "step": 1,
             "tool_id": "art-82-securities-settlement-message-linter",
             "mcp_name": "lint_securities_settlement_message",
+            "callable": true,
             "display_name": "Securities-Settlement Message Linter (ISO 20022 sese/semt)",
             "tool_url": "https://ainumbers.co/chaingraph/art-82-securities-settlement-message-linter.html",
             "handoff": "validation results (H1) feed the verifier"
@@ -3920,6 +4277,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H2) feeds the memo generator"
@@ -3928,6 +4286,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite message-conformance artifact with Merkle-root execution_hash (H3) -- final stage"
@@ -3945,6 +4304,7 @@
             "step": 1,
             "tool_id": "art-78-csdr-penalty-calculator",
             "mcp_name": "calculate_csdr_penalty",
+            "callable": true,
             "display_name": "CSDR Cash-Penalty Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-78-csdr-penalty-calculator.html",
             "handoff": "accrued penalty to trigger (H1) feeds the buy-in modeler"
@@ -3953,6 +4313,7 @@
             "step": 2,
             "tool_id": "art-83-buy-in-exposure-modeler",
             "mcp_name": "model_buy_in_exposure",
+            "callable": true,
             "display_name": "Buy-In Exposure Modeler",
             "tool_url": "https://ainumbers.co/chaingraph/art-83-buy-in-exposure-modeler.html",
             "handoff": "buy-in exposure (H2) feeds the aggregator"
@@ -3961,6 +4322,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite buy-in artifact with execution_hash (H3) -- final stage"
@@ -3978,6 +4340,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -3986,6 +4349,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -3994,6 +4358,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -4011,6 +4376,7 @@
             "step": 1,
             "tool_id": "art-85-pqc-timeline-fit-diagnostic",
             "mcp_name": "run_pqc_timeline_fit",
+            "callable": true,
             "display_name": "PQC Timeline & Migration Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-85-pqc-timeline-fit-diagnostic.html",
             "handoff": "readiness grade routes to pqc-migration (existing spine) / pqc-tls-pki / pqc-swift-iso20022 / pqc-fido-webauthn / pqc-blockchain-risk / pqc-hndl-protocol-plan / pqc-audit-pack"
@@ -4028,14 +4394,16 @@
             "step": 1,
             "tool_id": "499-crypto-asset-inventory-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "499-crypto-asset-inventory-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html",
             "handoff": "classified PKI-relevant assets (H1) feed the planner"
           },
           {
             "step": 2,
             "tool_id": "art-86-tls-pki-migration-planner",
             "mcp_name": "plan_tls_pki_migration",
+            "callable": true,
             "display_name": "TLS / X.509 PKI Migration Planner",
             "tool_url": "https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.html",
             "handoff": "sequenced plan (H2) feeds the verifier"
@@ -4044,12 +4412,13 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite TLS/PKI plan artifact with Merkle-root execution_hash (H3) -- final stage"
           }
         ],
-        "entry_mcp_name": null
+        "entry_mcp_name": "plan_tls_pki_migration"
       },
       {
         "chain_name": "pqc-swift-iso20022",
@@ -4061,14 +4430,16 @@
             "step": 1,
             "tool_id": "500-hndl-quantum-risk-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "500-hndl-quantum-risk-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/500-hndl-quantum-risk-scorer.html",
             "handoff": "HNDL priority per flow (H1) feeds the readiness checker"
           },
           {
             "step": 2,
             "tool_id": "art-87-iso20022-pqc-readiness-checker",
             "mcp_name": "check_iso20022_pqc_readiness",
+            "callable": true,
             "display_name": "SWIFT / ISO 20022 PQC Readiness Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-87-iso20022-pqc-readiness-checker.html",
             "handoff": "readiness + size-breach flags (H2) feed the verifier"
@@ -4077,12 +4448,13 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite ISO 20022 readiness artifact with Merkle-root execution_hash (H3) -- final stage"
           }
         ],
-        "entry_mcp_name": null
+        "entry_mcp_name": "check_iso20022_pqc_readiness"
       },
       {
         "chain_name": "pqc-fido-webauthn",
@@ -4094,6 +4466,7 @@
             "step": 1,
             "tool_id": "art-88-fido-pqc-conformance-checker",
             "mcp_name": "check_fido_pqc_conformance",
+            "callable": true,
             "display_name": "FIDO2 / WebAuthn PQC Conformance Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-88-fido-pqc-conformance-checker.html",
             "handoff": "conformance verdict (H1) feeds the aggregator"
@@ -4102,6 +4475,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite FIDO PQC conformance artifact with execution_hash (H2) -- final stage"
@@ -4119,14 +4493,16 @@
             "step": 1,
             "tool_id": "499-crypto-asset-inventory-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "499-crypto-asset-inventory-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html",
             "handoff": "on-chain key/algorithm inventory (H1) feeds the risk classifier"
           },
           {
             "step": 2,
             "tool_id": "art-89-blockchain-quantum-risk-classifier",
             "mcp_name": "classify_blockchain_quantum_risk",
+            "callable": true,
             "display_name": "Blockchain / Stablecoin Quantum-Risk Classifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-89-blockchain-quantum-risk-classifier.html",
             "handoff": "risk tier (H2) feeds the verifier"
@@ -4135,12 +4511,13 @@
             "step": 3,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite blockchain quantum-risk artifact with Merkle-root execution_hash (H3) -- final stage"
           }
         ],
-        "entry_mcp_name": null
+        "entry_mcp_name": "classify_blockchain_quantum_risk"
       },
       {
         "chain_name": "pqc-hndl-protocol-plan",
@@ -4152,22 +4529,25 @@
             "step": 1,
             "tool_id": "499-crypto-asset-inventory-classifier",
             "mcp_name": null,
+            "callable": false,
             "display_name": "499-crypto-asset-inventory-classifier",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/499-crypto-asset-inventory-classifier.html",
             "handoff": "classified assets (H1) feed the HNDL scorer"
           },
           {
             "step": 2,
             "tool_id": "500-hndl-quantum-risk-scorer",
             "mcp_name": null,
+            "callable": false,
             "display_name": "500-hndl-quantum-risk-scorer",
-            "tool_url": null,
+            "tool_url": "https://ainumbers.co/tools/500-hndl-quantum-risk-scorer.html",
             "handoff": "HNDL priority (H2) feeds the TLS/PKI planner"
           },
           {
             "step": 3,
             "tool_id": "art-86-tls-pki-migration-planner",
             "mcp_name": "plan_tls_pki_migration",
+            "callable": true,
             "display_name": "TLS / X.509 PKI Migration Planner",
             "tool_url": "https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.html",
             "handoff": "exposure-prioritised protocol plan (H3) feeds the aggregator"
@@ -4176,12 +4556,13 @@
             "step": 4,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite HNDL-protocol artifact with execution_hash (H4) -- final stage"
           }
         ],
-        "entry_mcp_name": null
+        "entry_mcp_name": "plan_tls_pki_migration"
       },
       {
         "chain_name": "pqc-audit-pack",
@@ -4193,6 +4574,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity over PQC protocol artifacts (H1) feeds the aggregator"
@@ -4201,6 +4583,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -4209,6 +4592,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite PQC audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -4226,6 +4610,7 @@
             "step": 1,
             "tool_id": "art-90-sanctions-screening-fit-diagnostic",
             "mcp_name": "run_sanctions_screening_fit",
+            "callable": true,
             "display_name": "Sanctions & Export-Control Screening Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-90-sanctions-screening-fit-diagnostic.html",
             "handoff": "program grade routes to sanc-ownership / sanc-list-coverage / sanc-fuzzy-calibration / ec-eccn-classify / ec-circumvention / sanc-screening-quality / sanc-audit-pack"
@@ -4243,6 +4628,7 @@
             "step": 1,
             "tool_id": "art-91-ownership-50pct-aggregator",
             "mcp_name": "aggregate_ownership_50pct",
+            "callable": true,
             "display_name": "Ownership 50%-Rule Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/art-91-ownership-50pct-aggregator.html",
             "handoff": "blocked-entity verdicts (H1) feed the coverage checker"
@@ -4251,6 +4637,7 @@
             "step": 2,
             "tool_id": "art-92-screening-list-coverage-checker",
             "mcp_name": "check_screening_list_coverage",
+            "callable": true,
             "display_name": "Screening List-Coverage Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-92-screening-list-coverage-checker.html",
             "handoff": "coverage conformance (H2) feeds the aggregator"
@@ -4259,6 +4646,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite ownership-screening artifact with execution_hash (H3) -- final stage"
@@ -4276,6 +4664,7 @@
             "step": 1,
             "tool_id": "art-92-screening-list-coverage-checker",
             "mcp_name": "check_screening_list_coverage",
+            "callable": true,
             "display_name": "Screening List-Coverage Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-92-screening-list-coverage-checker.html",
             "handoff": "coverage grade + gaps (H1) feed the verifier"
@@ -4284,6 +4673,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite coverage artifact with Merkle-root execution_hash (H2) -- final stage"
@@ -4301,6 +4691,7 @@
             "step": 1,
             "tool_id": "art-93-fuzzy-match-calibration-scorer",
             "mcp_name": "score_fuzzy_match_calibration",
+            "callable": true,
             "display_name": "Fuzzy-Match Calibration Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-93-fuzzy-match-calibration-scorer.html",
             "handoff": "calibration grade + threshold recommendation (H1) feed the aggregator"
@@ -4309,6 +4700,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite calibration artifact with execution_hash (H2) -- final stage"
@@ -4326,6 +4718,7 @@
             "step": 1,
             "tool_id": "art-94-eccn-dual-use-classifier",
             "mcp_name": "classify_eccn_dual_use",
+            "callable": true,
             "display_name": "ECCN / Dual-Use Classifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-94-eccn-dual-use-classifier.html",
             "handoff": "classification + licence requirement (H1) feed the verifier"
@@ -4334,6 +4727,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite classification artifact with Merkle-root execution_hash (H2) -- final stage"
@@ -4351,6 +4745,7 @@
             "step": 1,
             "tool_id": "art-94-eccn-dual-use-classifier",
             "mcp_name": "classify_eccn_dual_use",
+            "callable": true,
             "display_name": "ECCN / Dual-Use Classifier",
             "tool_url": "https://ainumbers.co/chaingraph/art-94-eccn-dual-use-classifier.html",
             "handoff": "classification (H1) feeds the diligence assessor"
@@ -4359,6 +4754,7 @@
             "step": 2,
             "tool_id": "art-95-circumvention-diligence-assessor",
             "mcp_name": "assess_circumvention_diligence",
+            "callable": true,
             "display_name": "Circumvention Diligence Assessor",
             "tool_url": "https://ainumbers.co/chaingraph/art-95-circumvention-diligence-assessor.html",
             "handoff": "diligence grade + liability allocation (H2) feeds the pack builder"
@@ -4367,6 +4763,7 @@
             "step": 3,
             "tool_id": "art-96-no-russia-clause-pack-builder",
             "mcp_name": "build_no_russia_clause_pack",
+            "callable": true,
             "display_name": "No-Russia-Clause Pack Builder",
             "tool_url": "https://ainumbers.co/chaingraph/art-96-no-russia-clause-pack-builder.html",
             "handoff": "Exports composite circumvention pack with execution_hash (H3) -- final stage"
@@ -4384,6 +4781,7 @@
             "step": 1,
             "tool_id": "art-93-fuzzy-match-calibration-scorer",
             "mcp_name": "score_fuzzy_match_calibration",
+            "callable": true,
             "display_name": "Fuzzy-Match Calibration Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-93-fuzzy-match-calibration-scorer.html",
             "handoff": "calibration grade (H1) feeds the coverage checker"
@@ -4392,6 +4790,7 @@
             "step": 2,
             "tool_id": "art-92-screening-list-coverage-checker",
             "mcp_name": "check_screening_list_coverage",
+            "callable": true,
             "display_name": "Screening List-Coverage Checker",
             "tool_url": "https://ainumbers.co/chaingraph/art-92-screening-list-coverage-checker.html",
             "handoff": "coverage grade (H2) feeds the quality scorer"
@@ -4400,6 +4799,7 @@
             "step": 3,
             "tool_id": "art-97-sanctions-screening-quality-scorer",
             "mcp_name": "score_sanctions_screening_quality",
+            "callable": true,
             "display_name": "Sanctions Screening-Program Quality Scorer",
             "tool_url": "https://ainumbers.co/chaingraph/art-97-sanctions-screening-quality-scorer.html",
             "handoff": "Exports composite program-quality artifact with execution_hash (H3) -- final stage"
@@ -4417,6 +4817,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -4425,6 +4826,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -4433,6 +4835,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"
@@ -4450,6 +4853,7 @@
             "step": 1,
             "tool_id": "art-98-mica-casp-fit-diagnostic",
             "mcp_name": "run_mica_casp_fit",
+            "callable": true,
             "display_name": "MiCA CASP Fit Diagnostic",
             "tool_url": "https://ainumbers.co/chaingraph/art-98-mica-casp-fit-diagnostic.html",
             "handoff": "readiness grade routes to mica-casp-authorization / mica-transitional / mica-whitepaper / mica-mar-surveillance / mica-travel-rule / mica-token-scoping / mica-audit-pack"
@@ -4467,6 +4871,7 @@
             "step": 1,
             "tool_id": "art-100-mica-casp-authorization-readiness",
             "mcp_name": "assess_mica_casp_readiness",
+            "callable": true,
             "display_name": "CASP Authorization-Readiness Assessor",
             "tool_url": "https://ainumbers.co/chaingraph/art-100-mica-casp-authorization-readiness.html",
             "handoff": "authorization grade + gaps (H1) feed the own-funds calculator"
@@ -4475,6 +4880,7 @@
             "step": 2,
             "tool_id": "art-101-mica-art67-own-funds-calculator",
             "mcp_name": "calculate_mica_own_funds",
+            "callable": true,
             "display_name": "Art 67 Own-Funds Calculator",
             "tool_url": "https://ainumbers.co/chaingraph/art-101-mica-art67-own-funds-calculator.html",
             "handoff": "own-funds requirement (H2) feeds the aggregator"
@@ -4483,6 +4889,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite authorization artifact with execution_hash (H3) -- final stage"
@@ -4500,6 +4907,7 @@
             "step": 1,
             "tool_id": "art-99-mica-transitional-deadline-router",
             "mcp_name": "route_mica_transitional_deadline",
+            "callable": true,
             "display_name": "MiCA Transitional-Deadline Router",
             "tool_url": "https://ainumbers.co/chaingraph/art-99-mica-transitional-deadline-router.html",
             "handoff": "deadline + preconditions (H1) feed the readiness assessor"
@@ -4508,6 +4916,7 @@
             "step": 2,
             "tool_id": "art-100-mica-casp-authorization-readiness",
             "mcp_name": "assess_mica_casp_readiness",
+            "callable": true,
             "display_name": "CASP Authorization-Readiness Assessor",
             "tool_url": "https://ainumbers.co/chaingraph/art-100-mica-casp-authorization-readiness.html",
             "handoff": "readiness grade (H2) feeds the aggregator"
@@ -4516,6 +4925,7 @@
             "step": 3,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite transitional artifact with execution_hash (H3) -- final stage"
@@ -4533,6 +4943,7 @@
             "step": 1,
             "tool_id": "art-102-crypto-asset-whitepaper-linter",
             "mcp_name": "lint_crypto_asset_whitepaper",
+            "callable": true,
             "display_name": "Crypto-Asset Whitepaper Linter (iXBRL)",
             "tool_url": "https://ainumbers.co/chaingraph/art-102-crypto-asset-whitepaper-linter.html",
             "handoff": "conformance grade + gaps (H1) feed the verifier"
@@ -4541,6 +4952,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite whitepaper artifact with Merkle-root execution_hash (H2) -- final stage"
@@ -4558,6 +4970,7 @@
             "step": 1,
             "tool_id": "art-103-mar-crypto-surveillance-readiness",
             "mcp_name": "assess_mar_crypto_surveillance",
+            "callable": true,
             "display_name": "MAR-Crypto Surveillance-Readiness Assessor",
             "tool_url": "https://ainumbers.co/chaingraph/art-103-mar-crypto-surveillance-readiness.html",
             "handoff": "surveillance grade + gaps (H1) feed the aggregator"
@@ -4566,6 +4979,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite MAR artifact with execution_hash (H2) -- final stage"
@@ -4583,6 +4997,7 @@
             "step": 1,
             "tool_id": "art-104-tfr-travel-rule-batch-validator",
             "mcp_name": "validate_tfr_travel_rule_batch",
+            "callable": true,
             "display_name": "TFR Travel-Rule Batch Validator",
             "tool_url": "https://ainumbers.co/chaingraph/art-104-tfr-travel-rule-batch-validator.html",
             "handoff": "batch conformance + flagged transfers (H1) feed the verifier"
@@ -4591,6 +5006,7 @@
             "step": 2,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "Exports composite travel-rule artifact with Merkle-root execution_hash (H2) -- final stage"
@@ -4608,6 +5024,7 @@
             "step": 1,
             "tool_id": "art-105-mica-token-service-scoper",
             "mcp_name": "scope_mica_token_and_service",
+            "callable": true,
             "display_name": "MiCA Token & Service Scoper",
             "tool_url": "https://ainumbers.co/chaingraph/art-105-mica-token-service-scoper.html",
             "handoff": "route decision + cross-references (H1) feed the aggregator"
@@ -4616,6 +5033,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Exports composite scoping artifact with execution_hash (H2) -- final stage"
@@ -4633,6 +5051,7 @@
             "step": 1,
             "tool_id": "cry-04-merkle-batch-verifier",
             "mcp_name": "verify_merkle_batch",
+            "callable": true,
             "display_name": "Merkle Batch Verifier",
             "tool_url": "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
             "handoff": "batch integrity (H1) feeds the aggregator"
@@ -4641,6 +5060,7 @@
             "step": 2,
             "tool_id": "cry-05-agent-action-audit-trail-aggregator",
             "mcp_name": "aggregate_execution_receipts",
+            "callable": true,
             "display_name": "Agent-Action Audit-Trail Aggregator",
             "tool_url": "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
             "handoff": "Merkle-root receipt (H2) feeds the memo generator"
@@ -4649,6 +5069,7 @@
             "step": 3,
             "tool_id": "ptg-01-ap2-prompt-template-generator",
             "mcp_name": "compose_ap2_prompt",
+            "callable": true,
             "display_name": "AP2 Prompt Template Generator",
             "tool_url": "https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html",
             "handoff": "Exports composite audit pack with Merkle-root execution_hash (H3) -- final stage"

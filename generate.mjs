@@ -146,6 +146,15 @@ function buildBM25(docs, getTextField) {
 const nodeByToolId = {};
 for (const n of cgNodes) if (n.tool_id) nodeByToolId[n.tool_id] = n;
 
+// Browser-tool page lookup: chain steps that are HTML tools (not MCP compute nodes)
+// have no mcp_name, but they DO have a tool page. Resolve a real URL (no fabricated
+// dead links — only emit a URL when the file exists) so find_chain steps are always actionable.
+const TOOL_FILES = new Set(
+  readdirSync(resolve(REPO, 'tools')).filter(f => f.endsWith('.html')).map(f => f.slice(0, -5))
+);
+const toolPageUrl = (toolId) =>
+  TOOL_FILES.has(toolId) ? 'https://ainumbers.co/tools/' + toolId + '.html' : null;
+
 // Chain docs — one per chain; includes full recipe for find_chain return payload
 const chainDocs = cgChains.map(c => {
   const steps = (c.steps ?? []).map((s, i) => {
@@ -154,8 +163,10 @@ const chainDocs = cgChains.map(c => {
       step: i + 1,
       tool_id: s.tool_id,
       mcp_name: node?.mcp_name ?? null,
+      // callable = invocable via /mcp (a compute node); else it's a browser tool → open tool_url
+      callable: !!node?.mcp_name,
       display_name: node?.display_name ?? s.tool_id,
-      tool_url: node?.url ?? null,
+      tool_url: node?.url ?? toolPageUrl(s.tool_id),
       handoff: s.handoff ?? null,
     };
   });
@@ -165,7 +176,8 @@ const chainDocs = cgChains.map(c => {
     description: c.description ?? '',
     composer_url: c.composer_url ?? null,
     steps,
-    entry_mcp_name: steps[0]?.mcp_name ?? null,
+    // first MCP-callable node, not just steps[0] (which may be a browser tool with no mcp_name)
+    entry_mcp_name: steps.find(st => st.mcp_name)?.mcp_name ?? null,
     _text: [c.name, c.title, c.description, (c.steps ?? []).map(s => s.tool_id + ' ' + (s.handoff ?? '')).join(' ')].join(' '),
   };
 });
