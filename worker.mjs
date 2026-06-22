@@ -697,11 +697,45 @@ async function loadData(env) {
   }
   const catalog = await (await get('mcp/catalog.json')).json();
   const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
-  dataCache = { manifests, widgets, catalog, chaingraph };
+  const searchIndex = await (await get('search-index.json')).json();
+  dataCache = { manifests, widgets, catalog, chaingraph, searchIndex };
   return dataCache;
 }
 
-function buildServer({ manifests, widgets, catalog, chaingraph }) {
+// Hot tools: always resident in every agent session (never deferred).
+// Everything else gets defaultConfig:{defer_loading:true} injected in the tools/list response.
+const HOT_TOOLS = new Set([
+  'list_ainumbers_tools', 'verify_execution_hash',
+  'build_workflow_links', 'build_chaingraph', 'export_artifact',
+  'find_chain', 'find_tool',
+]);
+
+// BM25 scorer (Workers-runtime safe — no Node APIs).
+function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
+  const terms = query.toLowerCase()
+    .replace(/[^a-z0-9_-]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 1);
+  if (!terms.length) return index.docs.slice(0, topN).map(d => ({ ...d, _score: 0 }));
+  const { docs, tfs, docLengths, avgDocLength, idf } = index;
+  const scores = new Array(docs.length).fill(0);
+  for (const t of terms) {
+    const idfScore = idf[t] ?? 0;
+    if (!idfScore) continue;
+    for (let i = 0; i < docs.length; i++) {
+      const tf = tfs[i][t] ?? 0;
+      if (!tf) continue;
+      scores[i] += idfScore * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * docLengths[i] / avgDocLength));
+    }
+  }
+  return docs
+    .map((doc, i) => ({ ...doc, _score: scores[i] }))
+    .filter(d => d._score > 0)
+    .sort((a, b2) => b2._score - a._score)
+    .slice(0, topN);
+}
+
+function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
 
   for (const slug of PILOT) {
@@ -1401,7 +1435,75 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
   registerExportArtifact(server, z, { isFormatAllowed });
 
   // -------------------------------------------------------------------------
-  // MCP Prompts -- workflow recipes (WS5b)
+  // Discovery layer — find_chain and find_tool (hot tools, never deferred).
+  // Agents use these to locate recipes and node tools without enumerating the
+  // full 150+ tool catalog. BM25 index precomputed in generate.mjs.
+  // -------------------------------------------------------------------------
+
+  server.registerTool('find_chain', {
+    title: 'Find ChainGraph workflow chain',
+    description:
+      'BM25 search over all ' + (chaingraph?.chains?.length ?? 0) + ' AINumbers ChainGraph chains. ' +
+      'Returns ranked chains with their full recipe: ordered node sequence, deep-links, composer URL, and entry tool mcp_name. ' +
+      'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps. ' +
+      'Do NOT use prompts/list or resources for agent chain discovery — use this tool.',
+    inputSchema: {
+      query: z.string().describe('Natural-language or keyword search (e.g. "AML programme", "DORA ICT readiness", "MiCA CASP", "PQC migration", "Basel capital").'),
+      top_n: z.number().min(1).max(20).optional().describe('Max results to return (default 5).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, ({ query, top_n }) => {
+    const results = bm25Search(query, searchIndex.chains, { topN: top_n ?? 5 });
+    if (!results.length) {
+      return {
+        content: [{ type: 'text', text: 'No chains matched "' + query + '". Try broader terms or call list_ainumbers_tools for individual tool search.' }],
+        structuredContent: { query, results: [], hint: 'No matches. Try list_ainumbers_tools for individual tools or find_tool for node-level search.' },
+      };
+    }
+    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000 }));
+    return {
+      content: [{ type: 'text', text: JSON.stringify(out, null, 2) }],
+      structuredContent: {
+        query,
+        result_count: out.length,
+        chains: out,
+        usage: 'For each chain: call the node tools in steps order. Pass execution_hash from each tool as parent_hashes to the next. Verify any artifact with verify_execution_hash.',
+      },
+    };
+  });
+
+  server.registerTool('find_tool', {
+    title: 'Find ChainGraph node tool',
+    description:
+      'BM25 search over all ' + (chaingraph?.nodes?.filter(n => n.status === 'live').length ?? 0) + ' live AINumbers ChainGraph node tools. ' +
+      'Returns ranked tools with mcp_name, URL, mandate type, and wave. ' +
+      'Use to locate a specific computation node (e.g. "FRTB expected shortfall", "MiCA own funds", "XVA calculator") ' +
+      'before calling it. Complements find_chain (chain-level) and list_ainumbers_tools (catalog-level).',
+    inputSchema: {
+      query: z.string().describe('Natural-language or keyword search (e.g. "FRTB", "XVA", "MiCA own funds", "AML risk rating", "stress test").'),
+      top_n: z.number().min(1).max(20).optional().describe('Max results to return (default 5).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, ({ query, top_n }) => {
+    const results = bm25Search(query, searchIndex.nodes, { topN: top_n ?? 5 });
+    if (!results.length) {
+      return {
+        content: [{ type: 'text', text: 'No node tools matched "' + query + '". Try find_chain for workflow-level search or list_ainumbers_tools for the full catalog.' }],
+        structuredContent: { query, results: [], hint: 'No matches — try find_chain or list_ainumbers_tools.' },
+      };
+    }
+    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000 }));
+    return {
+      content: [{ type: 'text', text: JSON.stringify(out, null, 2) }],
+      structuredContent: { query, result_count: out.length, tools: out },
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // MCP Prompts — curated human slash-commands (~12 flagship journeys).
+  // Chains are agent-reachable via find_chain; these Prompts are for human /slash use.
+  // (The 283 auto-derived chain Prompts were removed — they were agent-invisible anyway
+  // per MCP spec and bloated prompts/list. find_chain replaces them for agents.)
   // Each prompt returns a structured step-by-step workflow message so any MCP
   // client can walk a user through a complete AINumbers chain end-to-end.
   // Zero server-side execution -- browser tools remain the deterministic layer.
@@ -1477,228 +1579,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
         'Outputs map forward between stages automatically.\n\n' +
         'After the run: present the composite DORA Policy Mandate JSON (mandate_type: compliance_control, regulatory framework: DORA EU 2022/2554) for NCA submission support or internal ICT governance audit. ' +
         'Recommend re-running after any material change to ICT estate, third-party dependencies, or NCA guidance.',
-      }}],
-    };
-  });
-
-  regPrompt('fraud_decisioning_workflow', {
-    description: 'Step-by-step fraud & scam decisioning workflow: velocity rule building > structuring pattern detection > fraud investigation > APP-scam scoring, composite velocity-rule Policy Mandate.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Fraud & Scam Decisioning workflow -- T256 > T117 > T80 > T322, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'Walk me through a complete fraud & scam decisioning run using AINumbers browser tools. All tools run client-side -- zero PII, zero network. Use synthetic data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "fraud-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Fraud Decisioning Composer at ' + BASE_URL + '/guides/fraud-decisioning-composer.html. ' +
-        'Stage 1 (T256) builds real-time fraud velocity/limit rules. Stage 2 (T117) detects structuring and layering patterns against the ruled flows. Stage 3 (T80) runs fraud investigation and typology matching on flagged cases. Stage 4 (T322) scores APP-scam risk and reimbursement liability (UK PSR PS25/5 / FCA-PSR Joint Framework). Mandate type: velocity_rule_mandate.\n\n' +
-        'After the run: present the composite Policy Mandate JSON for payment-engine guardrails. Recommend re-running after any material change to fraud typologies, velocity thresholds, or PSR guidance.',
-      }}],
-    };
-  });
-
-  regPrompt('credit_decisioning_workflow', {
-    description: 'Step-by-step credit decisioning workflow: PD/LGD modelling > Basel RWA > RAROC pricing > covenant compliance > facility structuring, composite credit Policy Mandate.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Credit Decisioning workflow -- T198 > T201 > T437 > T199 > T435, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'Walk me through a complete credit decisioning run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "credit-decisioning". Returns the ordered deep-link set and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Credit Decisioning Composer at ' + BASE_URL + '/guides/credit-decisioning-composer.html. ' +
-        'Stage 1 (T198) models PD/LGD/EAD under Basel IRB. Stage 2 (T201) calculates RWA and capital requirements. Stage 3 (T437) prices RAROC and verifies hurdle rate. Stage 4 (T199) checks financial covenant compliance. Stage 5 (T435) structures the credit facility (limits, tranches, covenant package). Mandate type: credit_assessment, valid 180 days.\n\n' +
-        'IMPORTANT: Do NOT independently compute capital or pricing figures -- use Stage 2 and Stage 3 tool outputs only.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the credit committee decision record. Re-run after any material change to PD models, capital floors, or EBA GL/2020/06 guidance.',
-      }}],
-    };
-  });
-
-  regPrompt('consumer_protection_workflow', {
-    description: 'Step-by-step FCA Consumer Duty workflow: vulnerability assessment > fair value > MiFID costs & charges > PRIIPs KID > Consumer Duty board MI, composite consumer-protection Policy Mandate.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Consumer Protection workflow -- T395 > T396 > T428 > T448 > T397, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'Walk me through a complete FCA Consumer Duty compliance run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "consumer-protection". Returns the ordered deep-link set and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Consumer Protection Composer at ' + BASE_URL + '/guides/consumer-protection-composer.html. ' +
-        'Stage 1 (T395) builds the Consumer Duty vulnerability assessment (FCA PS22/9). Stage 2 (T396) evaluates product price & fair-value outcomes. Stage 3 (T428) calculates MiFID II costs & charges. Stage 4 (T448) checks PRIIPs KID disclosure compliance (PRIIPs 1286/2014). Stage 5 (T397) builds the Consumer Duty board MI framework. Mandate type: disclosure_template, valid 365 days.\n\n' +
-        'After the run: present the composite Policy Mandate JSON for product governance review. Re-run annually or after any material product or pricing change.',
-      }}],
-    };
-  });
-
-  regPrompt('stablecoin_compliance_workflow', {
-    description: 'Step-by-step stablecoin compliance workflow: issuance architecture > reserve stress test > GENIUS Act compliance > MiCA white paper, composite stablecoin compliance Policy Mandate.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Stablecoin Compliance workflow -- T53 > T388 > T386 > T390, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'Walk me through a complete stablecoin compliance run using AINumbers browser tools. Covers US GENIUS Act and EU MiCA. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "stablecoin-compliance". Returns the ordered deep-link set and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Stablecoin Compliance Composer at ' + BASE_URL + '/guides/stablecoin-compliance-composer.html. ' +
-        'Stage 1 (T53) compares issuance/architecture models. Stage 2 (T388) stress-tests reserve composition and adequacy. Stage 3 (T386) checks US GENIUS Act payment-stablecoin compliance. Stage 4 (T390) builds the EU MiCA white paper / CASP path (MiCA 2023/1114). Mandate type: compliance_control, valid 180 days.\n\n' +
-        'NOTE: GENIUS Act effective date is approximately 18 Jan 2027 (120 days after OCC/FinCEN final rules). Verify the current implementation timeline before reliance.\n\n' +
-        'After the run: present the composite Policy Mandate JSON for legal/compliance sign-off. Re-run after any material change to reserve composition, issuer structure, or OCC/FinCEN rule updates.',
-      }}],
-    };
-  });
-
-  regPrompt('model_risk_governance_workflow', {
-    description: 'Step-by-step model risk & AI-fairness governance workflow: EU AI Act classification > SR 11-7 MRM gaps > fair-lending bias testing > Art.9 risk-management system, composite AI-governance mandate.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Model Risk & AI-Fairness Governance workflow -- T327 > T451 > T452 > T333, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'Walk me through a complete model risk and AI-fairness governance run using AINumbers browser tools. All tools run client-side -- zero PII. Use synthetic data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "model-risk-governance". Returns the ordered deep-link set and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Model Risk & AI-Fairness Governance Composer at ' + BASE_URL + '/guides/model-risk-governance-composer.html. ' +
-        'Stage 1 (T327) classifies the model\'s EU AI Act risk tier and obligations (EU AI Act 2024/1689). Stage 2 (T451) assesses SR 11-7 model risk management gaps (development, validation, ongoing monitoring). Stage 3 (T452) tests for fair-lending disparate impact and protected-class adverse-action rates (ECOA/FHA). Stage 4 (T333) builds the Art.9 risk-management system (technical documentation, conformity assessment). Mandate type: agent_guardrail_mandate.\n\n' +
-        'Do NOT deploy a HIGH-risk AI system (Stage 1) without Stage 2 gaps resolved and Stage 3 disparate-impact metrics within acceptable bounds. Escalate any Stage 3 protected-class flags to legal/compliance before deployment.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the model risk committee record and input to the EU AI Act conformity assessment file.',
-      }}],
-    };
-  });
-
-  regPrompt('instant_payments_vop_workflow', {
-    title: 'Instant Payments & VoP Readiness Workflow',
-    description: 'Walk a PSP through EU Instant Payments Regulation readiness: rail participation, Verification of Payee, intraday liquidity, and the IPR annual report.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'Instant Payments & VoP workflow -- T229 > T289 > T258 > T349 > T259, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a PSP/EMI assess EU Instant Payments Regulation readiness using AINumbers deterministic tools (VoP mandatory since 9 Oct 2025). ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic payment data only -- never real account details.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "instant-payments-vop". Returns the ordered deep-link set (T229 > T289 > T258 > T349 > T259) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the Instant Payments & VoP Composer at ' + BASE_URL + '/guides/instant-payments-vop-composer.html. ' +
-        'Stage 1 (T229) checks RTP/SEPA Instant rail participation readiness. ' +
-        'Stage 2 (T289) simulates VoP match/close-match/no-match flows and response timing (mandatory since 9 Oct 2025). ' +
-        'Stage 3 (T258) sizes the intraday credit facility for 24/7 instant settlement. ' +
-        'Stage 4 (T349) assembles the SEPA IPR annual compliance report. ' +
-        'Stage 5 (T259) builds the RTP routing policy mandate. Mandate type: routing_policy_mandate.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the IPR readiness artefact. Re-run after any material change to participation status, VoP match rates, or intraday credit limits.',
-      }}],
-    };
-  });
-
-  regPrompt('baas_sponsor_bank_workflow', {
-    title: 'BaaS / Sponsor-Bank Readiness Workflow',
-    description: 'Walk a fintech or sponsor bank through BaaS programme design: provider selection, FBO/ledger architecture, BSA/AML controls, and readiness scoring.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'BaaS / Sponsor-Bank workflow -- T152 > T153 > T154 > T158 > T162, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a fintech or sponsor bank build a defensible BaaS programme using AINumbers deterministic tools (post-Synapse, focus on reconciliation and third-party BSA/AML oversight). ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic programme data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "baas-sponsor-bank". Returns the ordered deep-link set (T152 > T153 > T154 > T158 > T162) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the BaaS / Sponsor-Bank Composer at ' + BASE_URL + '/guides/baas-sponsor-bank-composer.html. ' +
-        'Stage 1 (T152) scores and compares BaaS providers/sponsor-bank partners. ' +
-        'Stage 2 (T153) models the FBO account structure and reconciliation architecture (the Synapse failure point). ' +
-        'Stage 3 (T154) designs the ledger topology supporting the FBO model. ' +
-        'Stage 4 (T158) maps BSA/AML and consumer-protection controls (third-party oversight gaps cited in post-Synapse enforcement actions). ' +
-        'Stage 5 (T162) scores sponsor-bank programme readiness. Mandate type: compliance_control.\n\n' +
-        'CRITICAL: Do not launch a BaaS programme until Stage 4 control_gaps are fully remediated and Stage 5 readiness_score exceeds threshold. ' +
-        'Re-run after any change to partner structure, ledger architecture, or FinCEN/OCC/FDIC guidance.',
-      }}],
-    };
-  });
-
-  regPrompt('einvoicing_vida_workflow', {
-    title: 'E-Invoicing & ViDA Workflow',
-    description: 'Walk a finance/tax user through EU ViDA digital-reporting readiness, e-invoice compliance, Peppol XML, and ISO 20022 mapping.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'E-Invoicing & ViDA workflow -- T179 > T180 > T174 > T178, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a finance/tax team prepare for EU ViDA e-invoicing and digital reporting using AINumbers deterministic tools (member-state mandates 2026-2028, EU-wide 2030). ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic invoice data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "einvoicing-vida". Returns the ordered deep-link set (T179 > T180 > T174 > T178) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the E-Invoicing & ViDA Composer at ' + BASE_URL + '/guides/einvoicing-vida-composer.html. ' +
-        'Stage 1 (T179) scores readiness against ViDA Digital Reporting Requirements. ' +
-        'Stage 2 (T180) checks B2B e-invoice compliance against EN16931 (mandatory semantic data model). ' +
-        'Stage 3 (T174) audits the Peppol/UBL XML structure against BIS Billing 3.0 rules. ' +
-        'Stage 4 (T178) maps the validated invoice to ISO 20022 payment instruction for STP. Mandate type: compliance_control.\n\n' +
-        'Member-state mandate deadlines: Belgium Jan 2026, Poland Feb 2026, France Sept 2026, Germany Jan 2027, EU-wide intra-B2B 1 Jul 2030. Verify jurisdiction-specific deadline before reliance.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the ViDA readiness artefact. Re-run after any ERP/billing system change or member-state guidance update.',
-      }}],
-    };
-  });
-
-  regPrompt('us_banking_compliance_workflow', {
-    title: 'US Consumer-Banking Compliance Workflow',
-    description: 'Walk a US bank/credit-union compliance user through HMDA, BSA/SAR, Reg E, and Durbin checks.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'US Consumer-Banking Compliance workflow -- T444 > T445 > T442 > T443, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a US bank/credit-union compliance user using AINumbers deterministic tools -- do not guess thresholds, call the tools. ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic data only -- never real customer PII.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "us-banking-compliance". Returns the ordered deep-link set (T444 > T445 > T442 > T443) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the US Consumer-Banking Compliance Composer at ' + BASE_URL + '/guides/us-banking-compliance-composer.html. ' +
-        'Stage 1 (T444) checks HMDA reportability and LAR data-field completeness (12 CFR Part 1003). ' +
-        'Stage 2 (T445) checks BSA/SAR filing adequacy against FinCEN thresholds (31 CFR 1020.320). ' +
-        'Stage 3 (T442) builds Reg E error-resolution timelines (12 CFR Part 1005 §1005.11). ' +
-        'Stage 4 (T443) analyses Durbin Amendment interchange eligibility and cap economics (12 CFR Part 235). Mandate type: compliance_control.\n\n' +
-        'Threshold note: Durbin cap ($0.21 + 0.05%) applies to issuers with ≥$10B assets -- verify current asset threshold annually. ' +
-        'SAR filing window: 30 days from detection (60 days complex cases). HMDA LAR deadline: 1 March of the following calendar year.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the consumer-banking compliance record. Re-run after any regulatory guidance update or material change to loan volumes, account structures, or interchange programmes.',
-      }}],
-    };
-  });
-
-  regPrompt('wealth_advisory_regbi_workflow', {
-    title: 'US Wealth & Advisory Reg BI Suitability Workflow',
-    description: 'Walk a US broker-dealer or RIA through the SEC Reg BI suitability chain: model portfolio risk, best-interest four-obligation check, portfolio construction/rebalancing, costs disclosure, and Form CRS generation.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'US Wealth & Advisory Reg BI Suitability workflow -- T429 > T463 > T432 > T428 > T464, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a US broker-dealer or investment adviser compliance team run the SEC Regulation Best Interest suitability chain using AINumbers deterministic tools. ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised client data only -- never real customer PII.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "wealth-advisory-regbi". Returns the ordered deep-link set (T429 > T463 > T432 > T428 > T464) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the US Wealth & Advisory Reg BI Suitability Composer at ' + BASE_URL + '/guides/wealth-advisory-regbi-composer.html. ' +
-        'Stage 1 (T429) calculates model portfolio risk metrics: expected return, volatility, Sharpe, VaR 95%, and tracking error. ' +
-        'Stage 2 (T463) scores the recommendation against all four Reg BI obligations (Disclosure, Care, Conflict of Interest, Compliance) -- verdict must be BEST_INTEREST_MET or ATTENTION to proceed. ' +
-        'Stage 3 (T432) constructs or rebalances the portfolio to the target allocation and estimates rebalancing trade costs. ' +
-        'Stage 4 (T428) calculates ex-ante costs and charges under MiFID II / PRIIPs KID methodology: total cost, RIY, and standardised disclosure table. ' +
-        'Stage 5 (T464) generates the Form CRS with SEC-prescribed headings and verbatim conversation-starter questions; checks page-count compliance (2-page BD/IA; 4-page dual-registrant). Mandate type: compliance_control.\n\n' +
-        'Reg BI scope note: Exchange Act Rule 15l-1 applies to all US broker-dealer recommendations to retail customers (natural persons with accounts primarily for personal, family, or household purposes). ' +
-        '2026 FINRA examination priorities explicitly list Reg BI and Form CRS -- re-run after any material change to the recommendation or client profile.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the Reg BI suitability record. Form CRS must be delivered to the retail customer at or before the recommendation.',
-      }}],
-    };
-  });
-
-  regPrompt('bnpl_programme_workflow', {
-    title: 'BNPL Programme — FCA Regulation Workflow',
-    description: 'Walk a BNPL lender or fintech through the UK FCA BNPL programme chain: FCA readiness, affordability modelling, APR calculation, disclosure templates, and arrears/collections policy assessment.',
-    argsSchema: {},
-  }, async () => {
-    return {
-      description: 'BNPL Programme FCA regulation workflow -- T187 > T190 > T193 > T191 > T192, composite Policy Mandate export.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        'You are helping a BNPL lender or fintech prepare for UK FCA BNPL regulation using AINumbers deterministic tools. ' +
-        'FCA BNPL regulation comes into force 15 July 2026. ' +
-        'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised programme data only.\n\n' +
-        'Step 1 -- Build workflow links: call `build_workflow_links` with chain "bnpl-programme". Returns the ordered deep-link set (T187 > T190 > T193 > T191 > T192) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the BNPL Programme Composer at ' + BASE_URL + '/guides/bnpl-programme-composer.html. ' +
-        'Stage 1 (T187) assesses FCA BNPL regulatory readiness: Consumer Duty gaps, programme authorisation gaps, affordability policy review. ' +
-        'Stage 2 (T190) models customer affordability: income-to-repayment stress test, existing credit commitments, CCA-compliant capacity check. ' +
-        'Stage 3 (T193) calculates the representative APR and total charge for credit under FCA CCA / Consumer Credit Directive methodology. ' +
-        'Stage 4 (T191) generates FCA-required pre-contract disclosure templates: PCCI, Financial Promotions compliance checklist, Summary Box. APR from Stage 3 must appear in all disclosure fields. ' +
-        'Stage 5 (T192) evaluates arrears management and collections policy against FCA Consumer Duty, CONC 7, and FCA BNPL collections requirements. Mandate type: compliance_control.\n\n' +
-        'Key deadlines: FCA BNPL regulation in force 15 Jul 2026 (PS26/5). Firms offering BNPL products without FCA authorisation after that date are operating unlawfully. ' +
-        'Consumer Duty effective from 31 Jul 2023 -- a CONC 5 affordability assessment must be proportionate to the credit risk.\n\n' +
-        'After the run: present the composite Policy Mandate JSON as the BNPL programme compliance record. Re-run whenever product terms, customer profile, or programme policies change materially.',
       }}],
     };
   });
@@ -1876,24 +1756,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     };
   });
 
-  // Wave 6 prompts
-
-  regPrompt('ccd2_consumer_credit_workflow', {
-    title: 'EU Consumer Credit (CCD2) Workflow',
-    description: 'Walk an EU consumer-credit / BNPL provider through CCD2 scope, Article 18 creditworthiness, SECCI disclosure, and readiness.',
-    argsSchema: {},
-  }, () => ({
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'You are helping an EU consumer-credit / BNPL / point-of-sale-finance provider prepare for CCD2 (Directive (EU) 2023/2225, applies 20 Nov 2026) using AINumbers deterministic tools -- do not guess scope or APR, call the tools. ' +
-      'Step 1 -- ccd2-scope-classifier: open https://ainumbers.co/tools/481-ccd2-scope-classifier.html ' +
-      'Step 2 -- ccd2-creditworthiness-assessment-builder: https://ainumbers.co/tools/482-ccd2-creditworthiness-assessment-builder.html ' +
-      'Step 3 -- ccd2-secci-precontractual-disclosure-generator: https://ainumbers.co/tools/483-ccd2-secci-precontractual-disclosure-generator.html ' +
-      'Step 4 -- ccd2-readiness-scorer: https://ainumbers.co/tools/484-ccd2-readiness-scorer.html ' +
-      'Then call build_workflow_links with chain "ccd2-consumer-credit" and present the composer URL. ' +
-      'CCD2 is the EU regime -- distinct from the UK FCA BNPL rules (T187-T194); do not conflate them. Synthetic data only -- never real borrower PII.'
-    } }],
-  }));
-
   regPrompt('amlr_single_rulebook_workflow', {
     title: 'EU AML Single Rulebook (AMLR) Workflow',
     description: 'Walk an EU obliged entity through AMLR scope, UBO mapping, cash/EDD classification, CDD policy, and readiness. AMLR applies 10 Jul 2027.',
@@ -1907,35 +1769,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       'Step 4 -- amlr-cdd-policy-builder: https://ainumbers.co/tools/488-amlr-cdd-policy-builder.html ' +
       'Step 5 -- amla-2027-readiness-gap-analyzer (T350): https://ainumbers.co/tools/350-amla-2027-readiness-gap-analyzer.html ' +
       'Then call build_workflow_links with chain "amlr-single-rulebook" and present the composer URL. Synthetic data only -- never real customer PII.'
-    } }],
-  }));
-
-  regPrompt('eudi_wallet_acceptance_workflow', {
-    title: 'eIDAS 2.0 / EUDI Wallet Acceptance Workflow',
-    description: 'Walk an EU relying party through EUDI Wallet attribute attestation mapping, KYC flow design, RP registration, and readiness. EUDI Wallet available 31 Dec 2026; FI SCA acceptance ~Dec 2027.',
-    argsSchema: {},
-  }, () => ({
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'You are helping an EU relying party (FI, payment institution, or other regulated entity) prepare to accept the EUDI Wallet under eIDAS 2.0 (Regulation (EU) 2024/1183). EUDI Wallet available in all EU MS by 31 Dec 2026. Regulated FIs performing SCA must accept EUDI Wallet credentials by ~Dec 2027 (Art. 5f -- 36 months from implementing acts). ' +
-      'Step 1 -- eudi-attribute-attestation-mapper: https://ainumbers.co/tools/489-eudi-attribute-attestation-mapper.html ' +
-      'Step 2 -- eudi-kyc-flow-designer: https://ainumbers.co/tools/490-eudi-kyc-flow-designer.html ' +
-      'Step 3 -- eudi-relying-party-registration-checker: https://ainumbers.co/tools/491-eudi-relying-party-registration-checker.html ' +
-      'Step 4 -- eidas2-eudi-wallet-relying-party-readiness-scorer (T348): https://ainumbers.co/tools/348-eidas2-eudi-wallet-relying-party-readiness-scorer.html ' +
-      'Then call build_workflow_links with chain "eudi-wallet-acceptance" and present the composer URL. Synthetic data only -- never real customer PII.'
-    } }],
-  }));
-
-  regPrompt('ach_fraud_monitoring_workflow', {
-    title: 'ACH Fraud Monitoring Workflow (Nacha Phase 2)',
-    description: 'Walk any ACH participant (RDFI, Originator, TPSP, TPS, ODFI) through Nacha Phase 2 credit-entry fraud monitoring compliance: procedure builder, false-pretenses simulator, annual audit pack. Effective 2026-06-22.',
-    argsSchema: {},
-  }, () => ({
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'You are helping an ACH network participant achieve Nacha Phase 2 credit-entry fraud monitoring compliance (effective 2026-06-22). Phase 2 removes the $5M volume threshold -- every RDFI, non-consumer Originator, TPSP, TPS, and ODFI must have risk-based monitoring in place. ' +
-      'Step 1 -- ach-fraud-monitoring-procedure-builder (T492): https://ainumbers.co/tools/492-ach-fraud-monitoring-procedure-builder.html ' +
-      'Step 2 -- ach-false-pretenses-credit-entry-simulator (T493): https://ainumbers.co/tools/493-ach-false-pretenses-credit-entry-simulator.html ' +
-      'Step 3 -- ach-fraud-monitoring-audit-pack-generator (T494): https://ainumbers.co/tools/494-ach-fraud-monitoring-audit-pack-generator.html ' +
-      'Then call build_workflow_links with chain "ach-fraud-monitoring" and present the composer URL. Synthetic data only -- never real customer PII.'
     } }],
   }));
 
@@ -1977,57 +1810,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
       }}],
     };
   });
-
-  regPrompt('agent_identity_trust_workflow', {
-    title: 'Agent Identity & Trust-Chain Workflow',
-    description: 'Validate an A2A agent card + delegated-authority trust chain (ART-32), attest agent identity via KYA-OS (ART-04), then simulate the spend policy (ART-02). Establishes who an agent is, what it is authorized to do, and whether its spend policy holds. ChainGraph Standard v0.1.',
-    argsSchema: {
-      agent_role: z.string().optional().describe('The delegated agent role (e.g. procurement agent, treasury agent). Scopes scope-escalation checks.'),
-    },
-  }, async ({ agent_role }) => ({
-    description: 'Agent Identity & Trust-Chain: ART-32 -> ART-04 -> ART-02.',
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'Walk me through the Agent Identity & Trust-Chain workflow' + (agent_role ? ' for a ' + agent_role : '') + ' using AINumbers ChainGraph tools. Synthetic agent cards only; zero PII, zero egress.\n\n' +
-      'Step 1 — A2A Agent-Card Trust-Chain Validator (ART-32): open https://ainumbers.co/chaingraph/art-32-a2a-agent-card-trust-chain-validator.html. Validate the A2A v1.0 agent card + delegated-authority chain (depth <= 4, no scope escalation, validity <= 90 days). Export the artifact (execution_hash = H1), or call validate_a2a_trust_chain via MCP.\n\n' +
-      'Step 2 — Agent Identity & Authorization Attestation Checker (ART-04): open https://ainumbers.co/chaingraph/art-04-agent-identity-attestation-checker.html. Check the KYA-OS credential-chain attestation. Set chain.parent_hashes = [H1]. Export (H2), or call check_agent_attestation.\n\n' +
-      'Step 3 — Agent Spend-Policy Simulator (ART-02): open https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html. Simulate the spend policy against the attested agent. Set chain.parent_hashes = [H2]. Export the final artifact (H3), or call simulate_spend_policy.\n\n' +
-      'Then call build_chaingraph with chain "agent-identity-trust" to inspect the DAG, or aggregate_execution_receipts (CRY-05) to bundle H1-H3 into one session receipt. Full walkthrough: https://ainumbers.co/chaingraph/chains/agent-identity-trust.html\n\n' +
-      'SOURCES: A2A — a2a-protocol.org (Linux Foundation) · KYA-OS — DIF Trusted AI Agents WG. Synthetic data only.',
-    }}],
-  }));
-
-  regPrompt('mcp_server_attestation_workflow', {
-    title: 'MCP Server Attestation Workflow',
-    description: 'Score MCP server deployability (ART-28) and developer readiness (ART-18), then fold both into one signed self-attestation with a composite A-F grade (ART-33). Useful before publishing or relying on an MCP server. ChainGraph Standard v0.1.',
-    argsSchema: {
-      server_url: z.string().optional().describe('Target MCP server URL (synthetic or your own). Scopes the attestation.'),
-    },
-  }, async ({ server_url }) => ({
-    description: 'MCP Server Attestation: ART-28 -> ART-18 -> ART-33.',
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'Walk me through the MCP Server Attestation workflow' + (server_url ? ' for ' + server_url : '') + ' using AINumbers ChainGraph tools. Paste synthetic server.json / tool definitions; zero egress.\n\n' +
-      'Step 1 — MCP Server Deployability Diagnostic (ART-28): open https://ainumbers.co/chaingraph/art-28-mcp-server-deployability-diagnostic.html. Export (H1), or call run_mcp_deployability_diagnostic.\n\n' +
-      'Step 2 — MCP Developer Readiness Scorecard (ART-18): open https://ainumbers.co/chaingraph/art-18-mcp-developer-readiness-scorecard.html. Set chain.parent_hashes = [H1]. Export (H2), or call score_mcp_readiness.\n\n' +
-      'Step 3 — MCP Server Self-Attestation Pack (ART-33): open https://ainumbers.co/chaingraph/art-33-mcp-server-self-attestation-pack.html. Combines tool-definition lint + server.json validation + OAuth 2.1 audit (RFC 9728/8707) + tool-poisoning scan + ops into one composite A-F grade. Set chain.parent_hashes = [H2]. Export the signed attestation (H3), or call attest_mcp_server.\n\n' +
-      'Full walkthrough: https://ainumbers.co/chaingraph/chains/mcp-server-attestation.html · SOURCES: MCP server.json schema 2025-12-11; OAuth 2.1 RFC 9728/8707; MCP 2026-07-28 spec hardening.',
-    }}],
-  }));
-
-  regPrompt('agent_session_receipt_workflow', {
-    title: 'Agent Session Receipt Workflow',
-    description: 'Aggregate every execution_hash an agent produced in a session into one SHA-256 Merkle-root session receipt (CRY-05), then generate a regulator-framed prompt (PTG-01). The tamper-evident audit object for EU AI Act Art. 12 record-keeping + DORA. ChainGraph Standard v0.1 section 7.4.',
-    argsSchema: {},
-  }, async () => ({
-    description: 'Agent Session Receipt: CRY-05 (Merkle aggregate) -> PTG-01.',
-    messages: [{ role: 'user', content: { type: 'text', text:
-      'Walk me through producing an agent session receipt using AINumbers ChainGraph tools. Collect the ChainGraph artifacts (or their execution_hashes) your agent produced this session — synthetic only.\n\n' +
-      'Step 1 — Agent-Action Audit-Trail Aggregator (CRY-05): open https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html. Paste the JSON array of session artifacts/hashes. It builds a SHA-256 Merkle tree, returns the merkle_root (session_receipt_root) + per-leaf inclusion proofs + chain-depth map. Or call aggregate_execution_receipts via MCP.\n\n' +
-      'Step 2 — AP2 Prompt Template Generator (PTG-01): open https://ainumbers.co/chaingraph/ptg-01-ap2-prompt-template-generator.html. Generate a regulator-framed prompt citing the full session receipt + parent hash chain. Or call compose_ap2_prompt.\n\n' +
-      'Verify any leaf with verify_execution_hash. Full walkthrough: https://ainumbers.co/chaingraph/chains/agent-session-receipt.html · SOURCES: EU AI Act Art. 12 (record-keeping); DORA ICT incident logging.',
-    }}],
-  }));
-
-  // Wave 7 prompts
 
   regPrompt('pqc_migration_workflow', {
     title: 'Post-Quantum Cryptography Migration Workflow',
@@ -2120,6 +1902,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     ...PILOT.map((slug) => manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_')),
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
+    'find_chain', 'find_tool',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
@@ -2235,35 +2018,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph }) {
     } }],
   }));
 
-  // Auto-derive a workflow prompt for every chaingraph.chains entry that doesn't already have a
-  // hand-authored prompt above (deduped via regPrompt). Closes the prompt-coverage gap (was 29/104)
-  // and is self-maintaining — future waves' chains get a prompt automatically. Bare but complete
-  // (title/steps/composer link); the hand-authored prompts remain the rich overrides.
-  // (AUDIT_v0.4_2026-06-21 finding G2.)
-  for (const c of (chaingraph?.chains ?? [])) {
-    if (!c.name) continue;
-    const pname = c.name.replace(/-/g, '_') + '_workflow';
-    const steps = Array.isArray(c.steps) ? c.steps : [];
-    const stepText = steps.map((s, i) =>
-      `Step ${i + 1} — call \`${s.tool_id}\`${s.handoff ? ' → ' + s.handoff : ''}.`).join('\n');
-    regPrompt(pname, {
-      description: (c.title ? c.title + ' — ' : '') + (c.description || `Workflow for the ${c.name} ChainGraph.`) +
-        ' Auto-derived from the ChainGraph; the full audited run is at the composer.',
-      argsSchema: {
-        synthetic_profile: z.string().optional().describe('Optional synthetic scenario/profile to scope the run (never real PII).'),
-      },
-    }, async ({ synthetic_profile }) => ({
-      description: (c.title || c.name) + ' — ChainGraph workflow.',
-      messages: [{ role: 'user', content: { type: 'text', text:
-        `Walk me through the "${c.title || c.name}" workflow using AINumbers' deterministic, client-side tools (zero PII, zero network).` +
-        (synthetic_profile ? ` Scenario: ${synthetic_profile}.` : '') + '\n\n' +
-        (stepText ? stepText + '\n\n' : '') +
-        `Then call \`build_workflow_links\` with chain "${c.name}" for the ordered deep-links` +
-        (c.composer_url ? `, and open the composer at ${c.composer_url} for the full orchestrated run.` : '.') + '\n\n' +
-        'Each node tool returns a verifiable execution_hash; cite parent hashes when chaining. Present the final artifact for agent guardrails or audit.',
-      } }],
-    }));
-  }
+  // Chain Prompts removed: 283 auto-derived chain Prompts were agent-invisible per MCP spec
+  // (Prompts are user-controlled slash-commands, not agent-discoverable). Chains are now
+  // reachable by autonomous agents via the find_chain tool above. The ~12 hand-authored Prompts
+  // above are the curated flagship slash-commands for human MCP clients.
 
   return server;
 }
@@ -2322,7 +2080,37 @@ export default {
         res.on('close', () => { transport.close(); server.close(); });
         await server.connect(transport);
         await transport.handleRequest(req, res, body);
-        const response = await toFetchResponse(res);
+        const rawResponse = await toFetchResponse(res);
+        // Inject defaultConfig:{defer_loading:true} for non-hot tools in tools/list responses.
+        // The MCP SDK does not natively serialize this field, so we post-process here.
+        // Anthropic Tool Search reads defaultConfig and loads only ~3-5 relevant tools per query.
+        let response;
+        if (body?.method === 'tools/list') {
+          try {
+            const text = await rawResponse.text();
+            let jsonStr = text, prefix = '', suffix = '';
+            if (text.startsWith('event:')) {
+              const lines = text.split('\n');
+              const di = lines.findIndex(l => l.startsWith('data: '));
+              if (di >= 0) { prefix = lines.slice(0, di).join('\n') + '\ndata: '; suffix = '\n' + lines.slice(di + 1).join('\n'); jsonStr = lines[di].slice(6); }
+            }
+            const parsed = JSON.parse(jsonStr);
+            if (Array.isArray(parsed?.result?.tools)) {
+              for (const tool of parsed.result.tools) {
+                if (!HOT_TOOLS.has(tool.name)) tool.defaultConfig = { defer_loading: true };
+              }
+            }
+            const newText = prefix + JSON.stringify(parsed) + suffix;
+            const h = {};
+            for (const [k, v] of rawResponse.headers.entries()) h[k] = v;
+            delete h['content-length'];
+            response = new Response(newText, { status: rawResponse.status, headers: h });
+          } catch (_) {
+            response = rawResponse;
+          }
+        } else {
+          response = rawResponse;
+        }
         for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
 
         // Fire-and-forget telemetry write -- never blocks the response.

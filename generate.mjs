@@ -70,8 +70,10 @@ const cgNodes  = cgJson.nodes ?? [];
 const cgChains = cgJson.chains ?? [];
 const liveNodes = cgNodes.filter(n => n.status === 'live').length;
 const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
-// Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools (list/build/verify/emit/receipt=6)
-const UTIL_TOOL_COUNT = 7; // list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph, emit_chaingraph_artifact, build_session_receipt, export_artifact
+// Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools
+// Utility: list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph,
+//   emit_chaingraph_artifact, build_session_receipt, export_artifact, find_chain, find_tool
+const UTIL_TOOL_COUNT = 9;
 const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
 const counts = {
   chaingraph_nodes_live: liveNodes,
@@ -89,7 +91,7 @@ writeFileSync(resolve(DATA,'counts.json'), JSON.stringify(counts, null, 2) + '\n
 const siteMcpCounts = {
   pilot_widgets: PILOT.length,
   utility_tools: UTIL_TOOL_COUNT,
-  _note: 'Updated by mcp-apps-poc/generate.mjs — run after changing pilot.mjs and commit both files.',
+  _note: 'Updated by mcp-apps-poc/generate.mjs — run after changing pilot.mjs and commit both files. Utility count includes find_chain + find_tool (discovery layer).',
   generated_at: counts.generated_at,
 };
 try {
@@ -111,4 +113,87 @@ const sdkInline = sdkSrc.replace(/export\{([^}]*)\};?\s*$/, (_, names) => {
 });
 if (!sdkInline.includes('__EXT_APPS__')) throw new Error('ext-apps SDK export transform failed — check app-with-deps.js export shape');
 writeFileSync(resolve(DATA,'ext-apps-inline.js'), sdkInline);
-console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js into ./data');
+
+// ---------------------------------------------------------------------------
+// Build BM25 search index for find_chain and find_tool tools (discovery layer).
+// Precomputed at vendor time so Workers runtime only does lightweight scoring.
+// ---------------------------------------------------------------------------
+function tokenizeForIndex(text) {
+  return (text ?? '').toLowerCase()
+    .replace(/[^a-z0-9_-]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 1);
+}
+
+function buildBM25(docs, getTextField) {
+  const N = docs.length;
+  if (!N) return { tfs: [], docLengths: [], avgDocLength: 1, idf: {} };
+  const tfs = docs.map(doc => {
+    const counts = {};
+    for (const t of tokenizeForIndex(getTextField(doc))) counts[t] = (counts[t] || 0) + 1;
+    return counts;
+  });
+  const docLengths = tfs.map(tf => Object.values(tf).reduce((s, c) => s + c, 0));
+  const avgDocLength = docLengths.reduce((s, c) => s + c, 0) / N || 1;
+  const df = {};
+  for (const tf of tfs) for (const t of Object.keys(tf)) df[t] = (df[t] || 0) + 1;
+  const idf = {};
+  for (const [t, f] of Object.entries(df)) idf[t] = Math.log((N - f + 0.5) / (f + 0.5) + 1);
+  return { tfs, docLengths, avgDocLength, idf };
+}
+
+// Build node lookup for step resolution
+const nodeByToolId = {};
+for (const n of cgNodes) if (n.tool_id) nodeByToolId[n.tool_id] = n;
+
+// Chain docs — one per chain; includes full recipe for find_chain return payload
+const chainDocs = cgChains.map(c => {
+  const steps = (c.steps ?? []).map((s, i) => {
+    const node = nodeByToolId[s.tool_id];
+    return {
+      step: i + 1,
+      tool_id: s.tool_id,
+      mcp_name: node?.mcp_name ?? null,
+      display_name: node?.display_name ?? s.tool_id,
+      tool_url: node?.url ?? null,
+      handoff: s.handoff ?? null,
+    };
+  });
+  return {
+    chain_name: c.name,
+    title: c.title ?? c.name,
+    description: c.description ?? '',
+    composer_url: c.composer_url ?? null,
+    steps,
+    entry_mcp_name: steps[0]?.mcp_name ?? null,
+    _text: [c.name, c.title, c.description, (c.steps ?? []).map(s => s.tool_id + ' ' + (s.handoff ?? '')).join(' ')].join(' '),
+  };
+});
+
+// Node docs — live nodes only; includes info needed for find_tool return payload
+const nodeDocs = cgNodes
+  .filter(n => n.status === 'live')
+  .map(n => ({
+    tool_id: n.tool_id,
+    mcp_name: n.mcp_name ?? '',
+    display_name: n.display_name ?? '',
+    url: n.url ?? '',
+    wave: n.wave ?? null,
+    mandate_type: n.mandate_type ?? '',
+    gpu: !!n.gpu,
+    _text: [n.mcp_name, n.display_name, n.mandate_type, n.tool_id, (n.consumes ?? []).join(' '), (n.feeds ?? []).join(' ')].join(' '),
+  }));
+
+const chainIndex = buildBM25(chainDocs, d => d._text);
+const nodeIndex  = buildBM25(nodeDocs,  d => d._text);
+
+// Strip internal _text field before writing
+const chainDocsClean = chainDocs.map(({ _text, ...d }) => d);
+const nodeDocsClean  = nodeDocs.map(({ _text, ...d }) => d);
+
+writeFileSync(resolve(DATA, 'search-index.json'), JSON.stringify({
+  chains: { docs: chainDocsClean, ...chainIndex },
+  nodes:  { docs: nodeDocsClean,  ...nodeIndex  },
+}, null, 2) + '\n');
+
+console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');

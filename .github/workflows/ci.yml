@@ -39,6 +39,14 @@ jobs:
         # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
         run: node scripts/check-tool-names.mjs
 
+      - name: 📐 Surface-parity gate (discovery layer invariants)
+        # Guards the discovery-layer wave invariants:
+        # (1) hand-authored Prompts ≤ 15 (target ~12; auto-derive loop removed)
+        # (2) auto-derive loop absent (find_chain replaced 283 chain Prompts for agents)
+        # (3) find_chain + find_tool registered as discovery tools
+        # (4) counts.json mcp_tools_total = live nodes + pilot + 9 utility tools
+        run: node scripts/surface-parity.mjs
+
       - name: 🧩 Kernel coverage check (CONTRACT §A4)
         # Fails if any chaingraph node with compute_capability:"server" (gpu:false)
         # lacks a matching *.kernel.mjs in vendored kernels/. Enforces full agent-native
