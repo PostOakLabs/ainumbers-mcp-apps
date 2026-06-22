@@ -1467,7 +1467,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }) {
         query,
         result_count: out.length,
         chains: out,
-        usage: 'For each chain: call the node tools in steps order. Pass execution_hash from each tool as parent_hashes to the next. Verify any artifact with verify_execution_hash.',
+        usage: 'For each step in order: if callable=true, invoke its mcp_name via /mcp; if callable=false it is a browser tool — open tool_url. Pass execution_hash from each callable step as parent_hashes to the next. Verify any artifact with verify_execution_hash. entry_mcp_name is the first callable node.',
       },
     };
   });
