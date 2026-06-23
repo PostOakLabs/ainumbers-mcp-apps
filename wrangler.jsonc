@@ -16,5 +16,11 @@
   "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }],
   "analytics_engine_datasets": [
     { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  }
 }
