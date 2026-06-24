@@ -2063,6 +2063,20 @@ export default {
 
     // MCP endpoint
     if (url.pathname === '/mcp') {
+      // This server is stateless (sessionIdGenerator: undefined) and builds a fresh
+      // server+transport per request, so it cannot serve the optional server->client SSE
+      // notification channel that a GET opens. Handing GET to the transport either throws
+      // (fast 500) or opens an SSE stream that never closes -> the Workers runtime cancels
+      // the "hung" request after ~30s. The MCP Streamable HTTP spec permits 405 when no
+      // server->client stream is offered; the node SDK treats 405 as "no stream" and proceeds
+      // normally. POST (client->server JSON-RPC) is the only supported method here.
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: this MCP server is stateless and does not offer a server-to-client SSE stream. Use POST for JSON-RPC.' }, id: null }),
+          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, DELETE, OPTIONS', 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Parse body once -- needed for both the MCP handler and telemetry extraction.
       const body = await request.json().catch(() => undefined);
 
@@ -2078,9 +2092,21 @@ export default {
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
         res.on('close', () => { transport.close(); server.close(); });
-        await server.connect(transport);
-        await transport.handleRequest(req, res, body);
-        const rawResponse = await toFetchResponse(res);
+        // Watchdog backstop: a stateless per-request handler must never hang. If the Node-shim
+        // `res` is left unfinished for some message shape, the runtime kills it at ~30s with a
+        // "hung" exception. Race a 25s timeout so we always return a clean response instead.
+        // Only fires on a genuine hang -- normal requests resolve in <1s.
+        let hangTimer;
+        const HANG_GUARD_MS = 25000;
+        const rawResponse = await Promise.race([
+          (async () => {
+            await server.connect(transport);
+            await transport.handleRequest(req, res, body);
+            return await toFetchResponse(res);
+          })(),
+          new Promise((_, reject) => { hangTimer = setTimeout(() => reject(new Error('handler-timeout')), HANG_GUARD_MS); }),
+        ]);
+        clearTimeout(hangTimer);
         // Inject defaultConfig:{defer_loading:true} for non-hot tools in tools/list responses.
         // The MCP SDK does not natively serialize this field, so we post-process here.
         // Anthropic Tool Search reads defaultConfig and loads only ~3-5 relevant tools per query.
@@ -2137,10 +2163,11 @@ export default {
 
         return response;
       } catch (e) {
+        const timedOut = String(e?.message ?? e) === 'handler-timeout';
         console.error('[ainumbers-mcp] handler error:', String(e), e?.stack ?? '');
         return Response.json(
-          { jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: body?.id ?? null },
-          { status: 500, headers: corsHeaders }
+          { jsonrpc: '2.0', error: { code: timedOut ? -32001 : -32603, message: timedOut ? 'Server timeout' : String(e) }, id: body?.id ?? null },
+          { status: timedOut ? 504 : 500, headers: corsHeaders }
         );
       }
     }
