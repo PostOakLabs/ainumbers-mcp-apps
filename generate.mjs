@@ -26,7 +26,7 @@ writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve
 // Vendor OCG kernel modules in two places:
 //   1. data/kernels/  — ASSETS binding (served to browsers via HTTP)
 //   2. kernels/       — bundled into the Worker by wrangler/esbuild (static import)
-// Only kernel files are vendored (*.kernel.mjs, _hash.mjs, index.mjs).
+// Only kernel files are vendored (*.kernel.mjs, _hash.mjs, _proof.mjs, index.mjs).
 // Test/lint/fix scripts are excluded from both targets.
 // ---------------------------------------------------------------------------
 const KERNELS_SRC  = resolve(REPO, 'chaingraph', 'kernels');
@@ -35,7 +35,7 @@ const KERNELS_BUNDLE = resolve(ROOT, 'kernels'); // alongside worker.mjs → bun
 mkdirSync(KERNELS_DATA,   { recursive: true });
 mkdirSync(KERNELS_BUNDLE, { recursive: true });
 
-const KERNEL_FILE_RE = /^((_hash|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
+const KERNEL_FILE_RE = /^((_hash|_proof|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
 for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
   const src = readFileSync(resolve(KERNELS_SRC, f));
   writeFileSync(resolve(KERNELS_DATA, f), src);
