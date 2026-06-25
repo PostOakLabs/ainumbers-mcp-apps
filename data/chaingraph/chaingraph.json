@@ -3975,12 +3975,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-113-saleable-returns-verifier",
@@ -4001,12 +3996,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-114-suspect-product-quarantine",
@@ -4025,12 +4015,7 @@
       "feeds": [],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-115-dpp-data-carrier-validator",
@@ -4049,12 +4034,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-116-product-lineage-builder",
@@ -4075,12 +4055,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-117-product-authenticity-verifier",
@@ -4099,12 +4074,7 @@
       "feeds": [],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-118-fsma204-cte-validator",
@@ -4123,12 +4093,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-119-traceability-lot-code-linker",
@@ -4149,12 +4114,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-120-recall-trace-resolver",
@@ -4173,12 +4133,7 @@
       "feeds": [],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "pdf",
-        "jsonld"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-121-document-integrity-anchor",
@@ -4197,11 +4152,7 @@
       ],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "vc"
-      ]
+      "compute_capability": "server"
     },
     {
       "tool_id": "art-122-timestamp-attestation-verifier",
@@ -4220,11 +4171,7 @@
       "feeds": [],
       "status": "live",
       "conformance_fixtures": true,
-      "compute_capability": "server",
-      "export_capability": [
-        "json",
-        "vc"
-      ]
+      "compute_capability": "server"
     }
   ],
   "chains": [
