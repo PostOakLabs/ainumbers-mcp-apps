@@ -209,3 +209,33 @@ writeFileSync(resolve(DATA, 'search-index.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
+
+// ---------------------------------------------------------------------------
+// Self-verification: confirm every output byte matches its source.
+// Catches stash/pop corruption, wrong-cwd ghosts, and any other mismatch
+// before it reaches git. Exits 1 loudly so the commit never happens.
+// ---------------------------------------------------------------------------
+const normText = s => s.replace(/\r\n/g, '\n');
+let selfFails = 0;
+
+// chaingraph.json — semantic equality (JSON round-trip strips formatting noise)
+{
+  const vend = JSON.parse(readFileSync(resolve(DATA, 'chaingraph', 'chaingraph.json'), 'utf8'));
+  const src  = JSON.parse(readFileSync(resolve(REPO, 'chaingraph', 'chaingraph.json'), 'utf8'));
+  if (JSON.stringify(vend) !== JSON.stringify(src)) {
+    console.error('SELF-CHECK FAIL: data/chaingraph/chaingraph.json does not match site source'); selfFails++;
+  }
+}
+
+// kernels (bundle copy) — byte equality after CRLF normalisation
+for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
+  const src    = normText(readFileSync(resolve(KERNELS_SRC, f), 'utf8'));
+  const bundle = normText(readFileSync(resolve(KERNELS_BUNDLE, f), 'utf8'));
+  if (src !== bundle) { console.error(`SELF-CHECK FAIL: kernels/${f} does not match site source`); selfFails++; }
+}
+
+if (selfFails) {
+  console.error(`\ngenerate.mjs SELF-CHECK FAILED (${selfFails} mismatch(es)) — do NOT commit this output.`);
+  process.exit(1);
+}
+console.log('Self-check: all outputs match site source ✓');
