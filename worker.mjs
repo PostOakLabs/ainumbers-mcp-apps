@@ -680,8 +680,11 @@ await app.connect();
 // sandboxed widget iframe it would fight the inline glue. The host enforces its own CSP -- strip ours.
 const stripCspMeta = (html) => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/i, '');
 
-// Module-scope cache: assets are immutable per deploy, so load once per isolate.
+// Module-scope caches: assets + built server are immutable per deploy, initialise once per isolate.
+// buildServer() registers 50+ tools and iterates 420+ catalog entries / 139 nodes / 206 chains —
+// re-running it on every request easily exceeds the Workers CPU limit. Cache it alongside dataCache.
 let dataCache = null;
+let serverCache = null;
 async function loadData(env) {
   if (dataCache) return dataCache;
   const get = async (path) => {
@@ -2088,10 +2091,14 @@ export default {
 
       try {
         const t0 = Date.now();
-        const server = buildServer(await loadData(env));
+        if (!serverCache) serverCache = buildServer(await loadData(env));
+        const server = serverCache;
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
-        res.on('close', () => { transport.close(); server.close(); });
+        // Close the per-request transport only; the server is cached for reuse within this isolate.
+        // The SDK sets transport.onclose = server.close() inside server.connect() — null it first so
+        // transport teardown does not destroy the cached server instance.
+        res.on('close', () => { transport.onclose = null; transport.close(); });
         // Watchdog backstop: a stateless per-request handler must never hang. If the Node-shim
         // `res` is left unfinished for some message shape, the runtime kills it at ~30s with a
         // "hung" exception. Race a 25s timeout so we always return a clean response instead.
