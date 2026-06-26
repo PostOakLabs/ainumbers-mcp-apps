@@ -47,6 +47,17 @@ jobs:
         # (4) counts.json mcp_tools_total = live nodes + pilot + 9 utility tools
         run: node scripts/surface-parity.mjs
 
+      - name: 🛡 Worker hot-path invariants (2026-06-26 /mcp outage guards)
+        # Deterministic block on the EXACT patterns that caused the /mcp outages:
+        # (1) caching+reusing the McpServer ("Already connected to a transport" => 500)
+        # (2) re-parsing the 330KB *-list.json on the cold-start hot path (1102 exceededCpu)
+        # (3) the eager getStaticDiscovery 4-asset loader (subrequests + parse)
+        # (4) tools/call refetching static discovery instead of using loadData known-names
+        # (5) malformed static discovery .sse.txt / initialize.json artifacts
+        # wrangler dev can't enforce the Free CPU/subrequest limits, so this prevents the
+        # regression at the source. Memory: project-ainumbers-mcp-server-no-cache.
+        run: node scripts/check-worker-invariants.mjs
+
       - name: 🧩 Kernel coverage check (CONTRACT §A4)
         # Fails if any chaingraph node with compute_capability:"server" (gpu:false)
         # lacks a matching *.kernel.mjs in vendored kernels/. Enforces full agent-native
