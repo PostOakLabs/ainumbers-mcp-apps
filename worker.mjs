@@ -710,6 +710,31 @@ const HOT_TOOLS = new Set([
   'find_chain', 'find_tool',
 ]);
 
+// ── O(1) static discovery ──────────────────────────────────────────────────
+// The Worker runs on the Cloudflare FREE plan (low per-invocation CPU). Rebuilding the ~186-tool
+// McpServer per request — and the SDK converting every tool's zod schema -> JSON Schema on each
+// tools/list — trips Cloudflare 1102 (exceeded CPU) on a cold isolate. These four discovery
+// responses are immutable per deploy, so they are captured at build time
+// (scripts/precompute-discovery.mjs, byte-identical to the live SDK path) and served statically —
+// the server is built ONLY for tools/call. Cached per isolate after first load.
+const STATIC_DISCOVERY_METHODS = new Set(['initialize', 'tools/list', 'resources/list', 'prompts/list']);
+let _staticDiscoveryCache = null;
+async function getStaticDiscovery(env) {
+  if (_staticDiscoveryCache) return _staticDiscoveryCache;
+  const get = async (p) => {
+    const r = await env.ASSETS.fetch('https://assets.local/' + p);
+    if (!r.ok) throw new Error('static-discovery asset miss: ' + p + ' > ' + r.status);
+    return r.json();
+  };
+  _staticDiscoveryCache = {
+    initialize:       await get('mcp/static/initialize.json'),
+    'tools/list':     await get('mcp/static/tools-list.json'),
+    'resources/list': await get('mcp/static/resources-list.json'),
+    'prompts/list':   await get('mcp/static/prompts-list.json'),
+  };
+  return _staticDiscoveryCache;
+}
+
 // BM25 scorer (Workers-runtime safe — no Node APIs).
 function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
   const terms = query.toLowerCase()
@@ -2026,6 +2051,12 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }) {
   return server;
 }
 
+// Exported for build-time discovery precompute (scripts/precompute-discovery.mjs runs
+// buildServer in Node via an in-memory transport to capture the static initialize/tools-list/
+// resources-list/prompts-list responses, so the Worker never rebuilds 162 tools per request on
+// the cold Free-plan CPU budget). Build-time only; the Worker entry point is `default` below.
+export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS };
+
 // ---------------------------------------------------------------------------
 // Allowed origins for CORS
 // ---------------------------------------------------------------------------
@@ -2085,6 +2116,26 @@ export default {
       const isToolCall = body?.method === 'tools/call';
       const toolName   = isToolCall ? (body?.params?.name ?? 'unknown') : null;
       const chainDepth = isToolCall ? (body?.params?.arguments?.chain_depth ?? 0) : null;
+
+      // ── O(1) fast path: never build the ~186-tool server for discovery/notifications ──
+      const method = body?.method;
+      // JSON-RPC notifications (no id) — e.g. notifications/initialized — are no-ops for a
+      // stateless server: HTTP 202, no body, no server build (per MCP Streamable HTTP spec).
+      if (body && body.id === undefined && typeof method === 'string') {
+        return new Response(null, { status: 202, headers: corsHeaders });
+      }
+      // initialize / tools|resources|prompts list → serve build-time-captured static bytes.
+      if (body && body.id !== undefined && STATIC_DISCOVERY_METHODS.has(method)) {
+        try {
+          const disc = await getStaticDiscovery(env);
+          const result = method === 'initialize'
+            ? { protocolVersion: body.params?.protocolVersion || disc.initialize.protocolVersion,
+                capabilities: disc.initialize.capabilities, serverInfo: disc.initialize.serverInfo }
+            : disc[method];
+          const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+          return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+        } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
+      }
 
       try {
         const t0 = Date.now();

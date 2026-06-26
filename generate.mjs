@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
+import { precomputeDiscovery } from './scripts/precompute-discovery.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(ROOT, '..', 'repo');
@@ -209,6 +210,13 @@ writeFileSync(resolve(DATA, 'search-index.json'), JSON.stringify({
 }, null, 2) + '\n');
 
 console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
+
+// Precompute the static MCP discovery responses (initialize/tools-list/resources-list/prompts-list)
+// from the REAL buildServer so the Worker never rebuilds ~186 tools per request on the Free-plan
+// CPU budget. Must run AFTER all data/ files above are written (it reads them). See
+// scripts/precompute-discovery.mjs + the O(1) fast path in worker.mjs.
+const disc = await precomputeDiscovery();
+console.log('precomputed discovery static responses:', disc, '→ data/mcp/static/');
 
 // ---------------------------------------------------------------------------
 // Self-verification: confirm every output byte matches its source.
