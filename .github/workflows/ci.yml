@@ -58,6 +58,13 @@ jobs:
         # regression at the source. Memory: project-ainumbers-mcp-server-no-cache.
         run: node scripts/check-worker-invariants.mjs
 
+      - name: 🪞 Single-tool build parity (O(1) tools/call == full build)
+        # buildServer(data,{onlyTool}) must register the requested tool's definition byte-identically
+        # to the full build, and the loadData-derived known-set must cover ALL registered tools (no
+        # false -32602 from the unknown-tool short-circuit). Guards the cold-isolate 1102 fix
+        # (early-skip non-onlyTool node-schema construction) against regression.
+        run: node scripts/build-mcp-parity.mjs
+
       - name: 🧩 Kernel coverage check (CONTRACT §A4)
         # Fails if any chaingraph node with compute_capability:"server" (gpu:false)
         # lacks a matching *.kernel.mjs in vendored kernels/. Enforces full agent-native
