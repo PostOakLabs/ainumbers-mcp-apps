@@ -2095,10 +2095,11 @@ export default {
         const server = serverCache;
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
-        // Close the per-request transport only; the server is cached for reuse within this isolate.
-        // The SDK sets transport.onclose = server.close() inside server.connect() — null it first so
-        // transport teardown does not destroy the cached server instance.
-        res.on('close', () => { transport.onclose = null; transport.close(); });
+        // server.close() clears only the server's _transport reference (enabling the next request to
+        // call server.connect(newTransport) without throwing "Already connected") — it does NOT clear
+        // the tool/resource/prompt registrations in the McpServer's internal maps, which survive the
+        // close/reconnect cycle and are why caching the server saves the buildServer() cost.
+        res.on('close', () => { transport.close(); server.close(); });
         // Watchdog backstop: a stateless per-request handler must never hang. If the Node-shim
         // `res` is left unfinished for some message shape, the runtime kills it at ~30s with a
         // "hung" exception. Race a 25s timeout so we always return a clean response instead.
