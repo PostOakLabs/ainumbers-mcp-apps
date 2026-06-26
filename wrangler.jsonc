@@ -7,16 +7,6 @@
   "main": "worker.mjs",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Permanent fix for Cloudflare error 1102 (exceeded CPU) on cold-start /mcp requests.
-  // The first request to a fresh isolate pays loadData() (parse ~150 nodes / 206 chains /
-  // 420 catalog + build searchIndex) AND buildServer() (register 150+ tools) synchronously,
-  // which can spike past the default CPU ceiling — and the in-handler 25s hang watchdog is a
-  // setTimeout race that a synchronous spike blocks, so cpu_ms is the real backstop. Raise it
-  // to the documented Paid-plan max; wall-clock stays bounded by the 25s watchdog for async
-  // hangs, so this is headroom without runaway-cost exposure. Do NOT cache the McpServer to
-  // avoid this cost — the SDK binds server<->transport 1:1 and caching breaks /mcp ("Already
-  // connected to a transport"); build a fresh server per request (SDK stateless factory pattern).
-  "limits": { "cpu_ms": 300000 },
   "workers_dev": true,
   "assets": {
     "directory": "./data",
