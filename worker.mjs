@@ -760,8 +760,22 @@ function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
     .slice(0, topN);
 }
 
-function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }) {
+function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, { onlyTool = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
+  // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
+  // — registering the full set per request trips the Cloudflare FREE-plan CPU limit (1102). Every
+  // tool registration routes through server.registerTool (ext-apps registerAppTool + the exporters'
+  // registerExportArtifact included — verified), so filter by name there; skip resources + prompts
+  // entirely (not needed to answer a tools/call). No caller uses the registerTool return value, so a
+  // no-op stub is safe. Still a FRESH server per request — does NOT cache the McpServer (SDK binds
+  // server<->transport 1:1; caching breaks /mcp). Verified byte-identical to the full build via diff.
+  if (onlyTool) {
+    const _realRegisterTool = server.registerTool.bind(server);
+    const _stub = { enabled: true, enable() {}, disable() {}, update() {}, remove() {} };
+    server.registerTool = (name, ...rest) => (name === onlyTool ? _realRegisterTool(name, ...rest) : _stub);
+    server.registerResource = () => _stub;
+    server.registerPrompt = () => _stub;
+  }
 
   for (const slug of PILOT) {
     const m = manifests[slug];
@@ -2139,7 +2153,22 @@ export default {
 
       try {
         const t0 = Date.now();
-        const server = buildServer(await loadData(env));
+        // tools/call → build a single-tool server (O(1), fits the Free CPU budget) for a KNOWN tool.
+        // For an UNKNOWN tool name, fall through to the full build so the SDK emits its exact
+        // "Tool not found" (-32602) result — with zero tools registered the SDK would otherwise wire
+        // no tools/call handler and answer "Method not found" (-32601). Unknown-tool calls are rare
+        // and already an error path; real tool calls (the 1102 source) take the O(1) path. Known-name
+        // set comes from the cached static tools/list (the exact registered set). Any method other
+        // than tools/call that reaches here (rare; discovery is static above) → full build.
+        let onlyTool = null;
+        if (isToolCall) {
+          try {
+            const disc = await getStaticDiscovery(env);
+            const known = (disc.__toolNames ||= new Set((disc['tools/list'].tools || []).map((t) => t.name)));
+            if (known.has(toolName)) onlyTool = toolName;
+          } catch (_) { /* known-set unavailable → full build (safe, exact behaviour) */ }
+        }
+        const server = buildServer(await loadData(env), onlyTool ? { onlyTool } : {});
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
         res.on('close', () => { transport.close(); server.close(); });
