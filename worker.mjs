@@ -710,29 +710,35 @@ const HOT_TOOLS = new Set([
   'find_chain', 'find_tool',
 ]);
 
-// ── O(1) static discovery ──────────────────────────────────────────────────
-// The Worker runs on the Cloudflare FREE plan (low per-invocation CPU). Rebuilding the ~186-tool
-// McpServer per request — and the SDK converting every tool's zod schema -> JSON Schema on each
-// tools/list — trips Cloudflare 1102 (exceeded CPU) on a cold isolate. These four discovery
-// responses are immutable per deploy, so they are captured at build time
-// (scripts/precompute-discovery.mjs, byte-identical to the live SDK path) and served statically —
-// the server is built ONLY for tools/call. Cached per isolate after first load.
+// ── O(1) static discovery — per-method, no large parse ─────────────────────
+// The Worker runs on the Cloudflare FREE plan (~10ms CPU/request). The four discovery responses
+// are immutable per deploy and captured at build time (scripts/precompute-discovery.mjs).
+//   • initialize → a tiny parsed object (protocolVersion is echoed from the request).
+//   • the LIST responses (tools/list is ~330KB) → served as PRE-FRAMED SSE TEXT with an
+//     "id":__OCG_ID__ placeholder. Splicing the id is a single cheap string replace, so a cold
+//     isolate never JSON.parses NOR re-stringifies the 330KB tools/list — that parse+stringify was
+//     the dominant cold-start CPU cost burning the 10ms budget.
+// Per-method: each request fetches ONLY its own asset (1 subrequest, not 4). Cached per isolate.
 const STATIC_DISCOVERY_METHODS = new Set(['initialize', 'tools/list', 'resources/list', 'prompts/list']);
-let _staticDiscoveryCache = null;
-async function getStaticDiscovery(env) {
-  if (_staticDiscoveryCache) return _staticDiscoveryCache;
-  const get = async (p) => {
-    const r = await env.ASSETS.fetch('https://assets.local/' + p);
-    if (!r.ok) throw new Error('static-discovery asset miss: ' + p + ' > ' + r.status);
-    return r.json();
-  };
-  _staticDiscoveryCache = {
-    initialize:       await get('mcp/static/initialize.json'),
-    'tools/list':     await get('mcp/static/tools-list.json'),
-    'resources/list': await get('mcp/static/resources-list.json'),
-    'prompts/list':   await get('mcp/static/prompts-list.json'),
-  };
-  return _staticDiscoveryCache;
+const STATIC_LIST_FILE = {
+  'tools/list':     'mcp/static/tools-list.sse.txt',
+  'resources/list': 'mcp/static/resources-list.sse.txt',
+  'prompts/list':   'mcp/static/prompts-list.sse.txt',
+};
+const ID_PLACEHOLDER = '__OCG_ID__';
+let _initStatic = null;
+const _listStatic = {};
+async function getStaticInitialize(env) {
+  if (_initStatic) return _initStatic;
+  const r = await env.ASSETS.fetch('https://assets.local/mcp/static/initialize.json');
+  if (!r.ok) throw new Error('static initialize asset miss: ' + r.status);
+  return (_initStatic = await r.json());
+}
+async function getStaticListTemplate(env, method) {
+  if (_listStatic[method]) return _listStatic[method];
+  const r = await env.ASSETS.fetch('https://assets.local/' + STATIC_LIST_FILE[method]);
+  if (!r.ok) throw new Error('static list asset miss: ' + method + ' > ' + r.status);
+  return (_listStatic[method] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
 // BM25 scorer (Workers-runtime safe — no Node APIs).
@@ -2141,12 +2147,17 @@ export default {
       // initialize / tools|resources|prompts list → serve build-time-captured static bytes.
       if (body && body.id !== undefined && STATIC_DISCOVERY_METHODS.has(method)) {
         try {
-          const disc = await getStaticDiscovery(env);
-          const result = method === 'initialize'
-            ? { protocolVersion: body.params?.protocolVersion || disc.initialize.protocolVersion,
-                capabilities: disc.initialize.capabilities, serverInfo: disc.initialize.serverInfo }
-            : disc[method];
-          const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+          if (method === 'initialize') {
+            const init = await getStaticInitialize(env);
+            const result = { protocolVersion: body.params?.protocolVersion || init.protocolVersion,
+                             capabilities: init.capabilities, serverInfo: init.serverInfo };
+            const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+            return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+          }
+          // List responses: serve the pre-framed text and splice the id with ONE string replace —
+          // no JSON.parse / no re-stringify of the (330KB) body.
+          const tpl = await getStaticListTemplate(env, method);
+          const sse = tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id));
           return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
       }
