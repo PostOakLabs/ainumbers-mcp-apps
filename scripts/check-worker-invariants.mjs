@@ -63,6 +63,14 @@ else {
   else ok.push('initialize.json well-formed');
 }
 
+// 6) GET/HEAD on /mcp must short-circuit to 405. The stateless worker can't serve the GET
+//    server->client SSE channel; routing GET into the transport opens a stream that never closes,
+//    so the runtime kills the "hung" request at ~30s and 500s (recurring "Worker hung", fixed by
+//    the 405 short-circuit — memory project-ainumbers-mcp-get-405). Guard against its removal.
+if (!/request\.method === 'GET'/.test(worker) || !/status: 405/.test(worker))
+  fails.push("the GET/HEAD -> 405 short-circuit for /mcp appears removed — a stateless worker can't serve the GET SSE channel; routing GET into the transport hangs + 500s (\"Worker hung\"). Keep the `request.method === 'GET'` => 405 guard.");
+else ok.push('GET/HEAD -> 405 short-circuit present');
+
 if (fails.length) {
   console.error('✗ worker-invariants FAILED (' + fails.length + '):');
   for (const f of fails) console.error('  • ' + f);
