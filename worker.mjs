@@ -1955,6 +1955,13 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
     const toolName = node.mcp_name;
     if (!toolName || _registeredMcpNames.has(toolName)) continue;
     _registeredMcpNames.add(toolName);
+    // O(1) single-tool build: when a specific tool is requested, skip CONSTRUCTING every other
+    // node's zod schema + description + closure (the stub at the top only no-ops the SDK
+    // registerTool *call* — the loop body still ran for all ~174 nodes, which is the residual
+    // cold-isolate CPU that trips the Free-plan 1102 under bursty tools/call). The dedup .add above
+    // still runs so duplicate-mcp_name protection is unchanged. Full build (onlyTool null) is
+    // untouched. Verified byte-identical to the full build per requested tool (build-mcp-parity).
+    if (onlyTool && toolName !== onlyTool) continue;
     const consumes = node.consumes ?? [];
     const feeds = node.feeds ?? [];
     const waveLabel = 'Wave ' + (node.wave ?? '?');
@@ -2185,7 +2192,20 @@ export default {
             'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool',
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
-          if (known.has(toolName)) onlyTool = toolName;
+          if (known.has(toolName)) {
+            onlyTool = toolName;
+          } else {
+            // Unknown tool name → emit the SDK's exact -32602 tool-result WITHOUT building the
+            // full ~186-tool server. That full build (onlyTool stays null → every node's zod schema
+            // constructed) is the cold-isolate 1102 source for probe/garbage tools/call hitting the
+            // public endpoint. The known-set is verified to cover ALL registered tools exactly
+            // (scripts/build-mcp-parity.mjs: 0 false-reject), so this never rejects a valid tool.
+            // Result shape is byte-identical to the SDK's unregistered-tool response (captured in
+            // build-mcp-parity): result.content text + isError:true, NOT a JSON-RPC error.
+            const result = { content: [{ type: 'text', text: 'MCP error -32602: Tool ' + toolName + ' not found' }], isError: true };
+            const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+            return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+          }
         }
         const server = buildServer(data, onlyTool ? { onlyTool } : {});
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
