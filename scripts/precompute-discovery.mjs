@@ -87,10 +87,25 @@ export async function precomputeDiscovery() {
 
   mkdirSync(resolve(DATA, 'mcp', 'static'), { recursive: true });
   const w = (name, obj) => writeFileSync(resolve(DATA, 'mcp', 'static', name), JSON.stringify(obj) + '\n');
-  w('initialize.json',      { protocolVersion: initResult.protocolVersion, capabilities: initResult.capabilities, serverInfo: initResult.serverInfo });
-  w('tools-list.json',      { tools: toolsMsg.result.tools });
-  w('resources-list.json',  { resources });
-  w('prompts-list.json',    { prompts });
+  // initialize stays a small parsed object (protocolVersion is echoed from the live request).
+  w('initialize.json', { protocolVersion: initResult.protocolVersion, capabilities: initResult.capabilities, serverInfo: initResult.serverInfo });
+
+  // LIST responses → PRE-FRAMED SSE text with an id placeholder, so the Worker serves them with a
+  // single string replace (no JSON.parse / no re-stringify of the ~330KB tools/list on a cold
+  // isolate). id is placed FIRST so the splice scans only ~25 chars. The framed JSON is byte-for-
+  // byte what the Worker emitted before (envelope {jsonrpc,id,result} + the same result object), so
+  // served output is unchanged — verified by byte-diff. Assert the placeholder is unique (never
+  // appears inside the payload itself).
+  const ID_PLACEHOLDER = '__OCG_ID__';
+  const wtxt = (name, str) => writeFileSync(resolve(DATA, 'mcp', 'static', name), str);
+  const frame = (label, resultObj) => {
+    const txt = 'event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER + ',"result":' + JSON.stringify(resultObj) + '}\n\n';
+    if (txt.split(ID_PLACEHOLDER).length !== 2) throw new Error('precompute: id placeholder collision in ' + label + ' — choose a more unique ID_PLACEHOLDER');
+    return txt;
+  };
+  wtxt('tools-list.sse.txt',     frame('tools/list',     { tools: toolsMsg.result.tools }));
+  wtxt('resources-list.sse.txt', frame('resources/list', { resources }));
+  wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts }));
 
   return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length };
 }
