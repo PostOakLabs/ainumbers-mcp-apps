@@ -2157,18 +2157,26 @@ export default {
         // For an UNKNOWN tool name, fall through to the full build so the SDK emits its exact
         // "Tool not found" (-32602) result — with zero tools registered the SDK would otherwise wire
         // no tools/call handler and answer "Method not found" (-32601). Unknown-tool calls are rare
-        // and already an error path; real tool calls (the 1102 source) take the O(1) path. Known-name
-        // set comes from the cached static tools/list (the exact registered set). Any method other
-        // than tools/call that reaches here (rare; discovery is static above) → full build.
+        // and already an error path; real tool calls (the 1102 source) take the O(1) path. Any method
+        // other than tools/call that reaches here (rare; discovery is static above) → full build.
+        const data = await loadData(env);
         let onlyTool = null;
-        if (isToolCall) {
-          try {
-            const disc = await getStaticDiscovery(env);
-            const known = (disc.__toolNames ||= new Set((disc['tools/list'].tools || []).map((t) => t.name)));
-            if (known.has(toolName)) onlyTool = toolName;
-          } catch (_) { /* known-set unavailable → full build (safe, exact behaviour) */ }
+        if (isToolCall && toolName) {
+          // Known-tool set derived from data already loaded for buildServer — NO extra ASSETS
+          // subrequests and NO 330KB tools-list parse (both of which, when this used
+          // getStaticDiscovery, pushed a cold-isolate tools/call over the Free subrequest + CPU
+          // limits → "too many subrequests" / 1102). It is exactly the set buildServer registers:
+          // PILOT widget names + the 9 fixed utility tools + live ChainGraph node mcp_names. Cached
+          // per isolate on the data object.
+          const known = (data.__toolNames ||= new Set([
+            ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
+            'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
+            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool',
+            ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
+          ]));
+          if (known.has(toolName)) onlyTool = toolName;
         }
-        const server = buildServer(await loadData(env), onlyTool ? { onlyTool } : {});
+        const server = buildServer(data, onlyTool ? { onlyTool } : {});
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
         res.on('close', () => { transport.close(); server.close(); });
