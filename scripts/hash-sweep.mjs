@@ -51,7 +51,7 @@ console.log('\n' + pass + ' hash-valid, ' + fail + ' failed, ' + needInput + ' n
 if (skipped) console.log('  -> ' + skipped + ' skipped on Cloudflare 503 (expected on a burst; rotate next run). Not a failure.');
 if (fail) { console.error('hash-sweep FAILED - a deployed node returned hash_valid=false or an unexpected error.'); process.exitCode = 1; } else process.exitCode = 0;
 
-function loadFixtureArgs(toolId){ const f = join(FIXTURES_DIR, toolId + '.fixtures.json'); if (!existsSync(f)) return null; let doc; try { doc = JSON.parse(readFileSync(f,'utf8')); } catch { return null; } const one = Array.isArray(doc)?doc[0]:doc.cases?doc.cases[0]:doc; return (one.policy_parameters && one.policy_parameters.input_parameters) || one.policy_parameters || one.input_parameters || one.arguments || null; }
+function loadFixtureArgs(toolId){ const f = join(FIXTURES_DIR, toolId + '.fixtures.json'); if (!existsSync(f)) return null; let doc; try { doc = JSON.parse(readFileSync(f,'utf8')); } catch { return null; } const one = Array.isArray(doc)?doc[0]:doc.vectors?doc.vectors[0]:doc.cases?doc.cases[0]:doc; return (one.policy_parameters && one.policy_parameters.input_parameters) || one.policy_parameters || one.input_parameters || one.arguments || null; }
 
 async function callTool(name, args, attempt=0){
   try {
