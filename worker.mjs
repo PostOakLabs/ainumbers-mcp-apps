@@ -2008,6 +2008,13 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
             // Inline canonical hasher (parity copy; same as cgExecutionHash above)
             const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
             const hash_valid = recomputed === artifact.execution_hash;
+            // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
+            // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
+            // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
+            if (node.compute_proof && node.compute_proof.journal
+                && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+            }
             return {
               content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
               structuredContent: {
