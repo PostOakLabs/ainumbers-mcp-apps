@@ -1964,12 +1964,11 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
     if (onlyTool && toolName !== onlyTool) continue;
     const consumes = node.consumes ?? [];
     const feeds = node.feeds ?? [];
-    const waveLabel = 'Wave ' + (node.wave ?? '?');
     const deadlineNote = node.deadline ? ' Regulatory deadline: ' + node.deadline + (node.deadline_note ? ' (' + node.deadline_note + ').' : '.') : '';
     server.registerTool(toolName, {
       title: node.display_name,
       description:
-        node.display_name + ' — ChainGraph ' + waveLabel + ' tool (' + node.mandate_type + ').' + deadlineNote +
+        node.display_name + ' — OpenChainGraph compute node (' + node.mandate_type + ').' + deadlineNote +
         ' Runs deterministically in-browser; zero PII, zero egress. Exports an AP2 artifact with execution_hash for chain provenance.' +
         (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
         (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
