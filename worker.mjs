@@ -808,7 +808,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
 
   server.registerTool('list_ainumbers_tools', {
     title: 'List AINumbers tools',
-    description: 'Search the AINumbers catalog (420+ client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
+    description: 'Search the AINumbers catalog (480+ client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
     inputSchema: { query: z.string().optional(), category: z.string().optional(), limit: z.number().optional() },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, limit }) => {

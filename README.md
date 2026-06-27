@@ -30,7 +30,7 @@ Fifteen flagship tools render as widgets — the actual single-file AINumbers to
 | `validate_a2a_agent_card` | T283 A2A Agent Card Validator |
 | `inspect_visa_tap_signature` | T286 Visa TAP Signature Inspector |
 
-Plus `list_ainumbers_tools` — catalog search across all **420+** tools, returning deep-links;
+Plus `list_ainumbers_tools` — catalog search across all **480+** tools, returning deep-links;
 prefill-enabled tools accept `#in=<base64url(JSON of {element_id: value})>[&run=1]` for one-click invocation.
 
 All 16 tools are read-only (`readOnlyHint: true`), no account, no auth, zero PII — inputs are
