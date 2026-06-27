@@ -1314,6 +1314,13 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
           // Verify the hash we just produced (round-trip self-check).
           const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
           const hash_valid = recomputed === artifact.execution_hash;
+          // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
+          // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
+          // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
+          if (node.compute_proof && node.compute_proof.journal
+              && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+            artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+          }
           const out = {
             mode: 'server_compute',
             compute_mode: 'server',
