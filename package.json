@@ -7,7 +7,8 @@
     "start": "node server.mjs",
     "generate": "node generate.mjs",
     "validate:chains": "node scripts/validate-chains.mjs",
-    "sync:registry": "node scripts/sync-registry.mjs --write"
+    "sync:registry": "node scripts/sync-registry.mjs --write",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "keywords": [],
   "author": "",

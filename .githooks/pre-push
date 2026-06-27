@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+# pre-push — VENDOR-FRESHNESS LOCAL GATE (CONTRACT §A4 invariant #3).
+#
+# Blocks a push to master when vendored data/chaingraph.json or kernels/ are STALE vs the
+# site source — the exact "210 kernels but 1.36.0 chaingraph" mismatch that red-failed CI
+# (run 28288223865). CI already catches this, but only AFTER the push: this stops it locally
+# so no one burns a red-CI round-trip. Mirrors the worker CI vendor-freshness gate.
+#
+# Travels with the repo: installed via the package.json "prepare" script, which sets
+# core.hooksPath=.githooks on `npm install`. Reuses scripts/check-vendor-fresh.mjs.
+#
+# Only gates pushes whose dest ref is master (the deploy branch). Fail-OPEN when the site
+# repo isn't locally available (e.g. a worker-only worktree) — CI is the backstop there.
+
+gate=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/master) gate=1 ;;
+  esac
+done
+[ "$gate" = 1 ] || exit 0
+
+# Resolve the site repo: SITE_REPO env wins, else the standard sibling layout ../repo.
+SITE="${SITE_REPO:-../repo}"
+if [ ! -d "$SITE" ]; then
+  echo "pre-push: site repo not found at '$SITE' — skipping vendor-fresh check (CI will backstop)." >&2
+  exit 0
+fi
+
+SITE_REPO="$SITE" node scripts/check-vendor-fresh.mjs
+rc=$?
+if [ "$rc" = 1 ]; then
+  echo "" >&2
+  echo "⛔ pre-push BLOCKED: vendored data/ + kernels/ are STALE vs the site source." >&2
+  echo "   Run:  node generate.mjs   then commit data/ + kernels/ in the SAME push (CONTRACT §A4 #3)." >&2
+  echo "   (override for an unrelated push: git push --no-verify)" >&2
+  exit 1
+fi
+
+# rc 2 = SITE_REPO not found (already handled above as fail-open); any non-1 = allow.
+exit 0
