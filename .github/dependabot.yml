@@ -1,24 +1,14 @@
 version: 2
+# npm version-updates intentionally DISABLED 2026-06-27 — see memory
+# project-ainumbers-dependabot-npm-disabled. GitHub's automatic GitHub-Packages
+# auth phantom-injects npm.pkg.github.com (which we DON'T use — every dep resolves
+# from public registry.npmjs.org), so the weekly npm job failed with
+# `private_registry_config_not_found` and the org has no Dependabot secret/registry
+# to satisfy it. Dependabot SECURITY ALERTS stay ON (separate feature, unaffected);
+# the few npm deps (hono + @modelcontextprotocol/*) are bumped manually. To
+# re-enable: re-add the npm ecosystem block + a `registries:` entry backed by a
+# read:packages Dependabot secret.
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    target-branch: "master"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 10
-    groups:
-      patch-updates:
-        patterns:
-          - "*"
-        update-types:
-          - "patch"
-      minor-updates:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-    commit-message:
-      prefix: "deps"
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "master"
