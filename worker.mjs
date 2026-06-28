@@ -1314,6 +1314,19 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
           // Verify the hash we just produced (round-trip self-check).
           const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
           const hash_valid = recomputed === artifact.execution_hash;
+          // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
+          // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
+          // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.
+          {
+            const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((i) => i.system === 'sha256-source');
+            if (srcImg && srcImg.image_id) {
+              artifact.audit_signature = { ...(artifact.audit_signature || {}), build_identity: {
+                kernel_digest: srcImg.image_id,
+                buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+                source_ref: 'kernels/' + node.tool_id + '.kernel.mjs',
+              } };
+            }
+          }
           // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
           // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
           // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
@@ -2008,6 +2021,19 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
             // Inline canonical hasher (parity copy; same as cgExecutionHash above)
             const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
             const hash_valid = recomputed === artifact.execution_hash;
+            // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
+            // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
+            // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.
+            {
+              const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((i) => i.system === 'sha256-source');
+              if (srcImg && srcImg.image_id) {
+                artifact.audit_signature = { ...(artifact.audit_signature || {}), build_identity: {
+                  kernel_digest: srcImg.image_id,
+                  buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+                  source_ref: 'kernels/' + node.tool_id + '.kernel.mjs',
+                } };
+              }
+            }
             // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
             // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
             // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
