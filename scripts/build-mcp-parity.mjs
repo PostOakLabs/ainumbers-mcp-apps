@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
+import { UTILITY_TOOL_NAMES } from '../utility-tools.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = resolve(ROOT, 'data');
@@ -98,14 +99,26 @@ const fullList = await rpcOnce(buildServer(data, {}), 'tools/list', {});
 const registered = new Set((fullList.result?.tools ?? []).map((t) => t.name));
 const derivedKnown = new Set([
   ...pilotNames,
-  'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
-  'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool', 'run_chain',
+  ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
   ...liveNodes,
 ]);
 const missingFromDerived = [...registered].filter((n) => !derivedKnown.has(n)); // would be FALSE-rejected
 const extraInDerived = [...derivedKnown].filter((n) => !registered.has(n));      // harmless (routes to full build)
 if (missingFromDerived.length) { console.error('✗ known-set UNDER-covers (would false-reject): ' + missingFromDerived.join(', ')); failures++; }
 else console.log('✓ known-set covers all ' + registered.size + ' registered tools (0 false-reject); ' + extraInDerived.length + ' extra (harmless)');
+
+// ── PRE-DEPLOY count-drift guard ──────────────────────────────────────────────
+// The committed data/counts.json.mcp_tools_total MUST equal the ACTUAL registered tool count.
+// This is the same assertion CI's post-deploy count-drift gate makes against the LIVE /mcp, but
+// here it runs at BUILD time (no deploy needed) — so a new tool with a stale count fails in the
+// "Validate MCP server" job BEFORE deploy instead of producing a bad deploy + red post-deploy gate.
+const committedTotal = JSON.parse(readFileSync(resolve(DATA, 'counts.json'), 'utf8')).mcp_tools_total;
+if (committedTotal !== registered.size) {
+  console.error('✗ count drift: data/counts.json mcp_tools_total=' + committedTotal + ' != registered tools=' + registered.size + '. Re-run node generate.mjs and commit data/counts.json (utility count is derived from utility-tools.mjs).');
+  failures++;
+} else {
+  console.log('✓ counts.json mcp_tools_total=' + committedTotal + ' matches ' + registered.size + ' registered tools (pre-deploy count-drift guard)');
+}
 
 // Capture the SDK's exact unknown-tool error shape (for the worker short-circuit).
 const unknownName = 'definitely_not_a_real_tool_xyz';

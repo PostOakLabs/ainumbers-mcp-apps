@@ -7,6 +7,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
 import { precomputeDiscovery } from './scripts/precompute-discovery.mjs';
+import { UTILITY_TOOL_COUNT } from './utility-tools.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(ROOT, '..', 'repo');
@@ -71,10 +72,9 @@ const cgNodes  = cgJson.nodes ?? [];
 const cgChains = cgJson.chains ?? [];
 const liveNodes = cgNodes.filter(n => n.status === 'live').length;
 const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
-// Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools
-// Utility: list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph,
-//   emit_chaingraph_artifact, build_session_receipt, export_artifact, find_chain, find_tool, run_chain
-const UTIL_TOOL_COUNT = 10;
+// Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools.
+// Utility count is derived from the single source of truth (utility-tools.mjs) — never hardcode it.
+const UTIL_TOOL_COUNT = UTILITY_TOOL_COUNT;
 const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
 const counts = {
   chaingraph_nodes_live: liveNodes,

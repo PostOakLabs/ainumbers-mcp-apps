@@ -30,6 +30,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
+import { UTILITY_TOOL_NAMES as UTILITY_NAMES } from '../utility-tools.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO          = resolve(here, '..', '..', 'repo');
@@ -194,18 +195,8 @@ if (!existsSync(CHAINGRAPH_JSON)) {
 // LAYER 3 — mcp_name uniqueness (2026-06-19 outage class prevention)
 // ════════════════════════════════════════════════════════════════
 
-const UTILITY_TOOL_NAMES = new Set([
-  'list_ainumbers_tools',
-  'build_workflow_links',
-  'verify_execution_hash',
-  'build_chaingraph',
-  'emit_chaingraph_artifact',
-  'build_session_receipt',
-  'export_artifact',
-  'find_chain',
-  'find_tool',
-  'run_chain',
-]);
+// Derived from the single source of truth (utility-tools.mjs) — never hardcode this list.
+const UTILITY_TOOL_NAMES = new Set(UTILITY_NAMES);
 
 const MANIFEST_DIR = resolve(here, '..', 'data', 'manifests');
 const PILOT_MJS    = resolve(here, '..', 'pilot.mjs');
