@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
+import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
@@ -2376,8 +2377,7 @@ export default {
           // per isolate on the data object.
           const known = (data.__toolNames ||= new Set([
             ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
-            'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
-            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool', 'run_chain',
+            ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
           if (known.has(toolName)) {

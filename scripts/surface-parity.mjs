@@ -16,6 +16,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { UTILITY_TOOL_COUNT } from '../utility-tools.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const workerPath   = resolve(here, '..', 'worker.mjs');
@@ -57,7 +58,7 @@ if (!hasFindChain) { errors.push("P3: find_chain tool not found in worker.mjs re
 if (!hasFindTool)  { errors.push("P3: find_tool tool not found in worker.mjs registerTool calls."); ok = false; }
 
 // ── P4: counts.json mcp_tools_total sanity ──────────────────────────────────
-const EXPECTED_UTIL = 10;
+const EXPECTED_UTIL = UTILITY_TOOL_COUNT; // single source of truth — see utility-tools.mjs
 const liveNodes  = counts.chaingraph_nodes_live ?? 0;
 const pilot      = counts.pilot_widgets ?? 0;
 const expected   = liveNodes + pilot + EXPECTED_UTIL;
