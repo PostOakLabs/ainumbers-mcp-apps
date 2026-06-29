@@ -99,7 +99,7 @@ const registered = new Set((fullList.result?.tools ?? []).map((t) => t.name));
 const derivedKnown = new Set([
   ...pilotNames,
   'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
-  'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool',
+  'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool', 'run_chain',
   ...liveNodes,
 ]);
 const missingFromDerived = [...registered].filter((n) => !derivedKnown.has(n)); // would be FALSE-rejected

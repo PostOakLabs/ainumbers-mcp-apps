@@ -2377,7 +2377,7 @@ export default {
           const known = (data.__toolNames ||= new Set([
             ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
             'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
-            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool',
+            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool', 'run_chain',
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
           if (known.has(toolName)) {
