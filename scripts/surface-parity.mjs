@@ -6,7 +6,7 @@
  *   P1. Hand-authored Prompts ≤ MAX_PROMPTS (target ~12; guard against re-inflation).
  *   P2. Auto-derive loop ABSENT from worker.mjs (guard against re-adding the 283 chain Prompts).
  *   P3. find_chain and find_tool are registered as utility tools in worker.mjs.
- *   P4. counts.json mcp_tools_total = live nodes + pilot + UTIL_TOOL_COUNT (9).
+ *   P4. counts.json mcp_tools_total = live nodes + pilot + UTIL_TOOL_COUNT (10).
  *
  * This is a fast static gate — it does NOT start the server or make HTTP requests.
  * Run: node scripts/surface-parity.mjs
@@ -57,7 +57,7 @@ if (!hasFindChain) { errors.push("P3: find_chain tool not found in worker.mjs re
 if (!hasFindTool)  { errors.push("P3: find_tool tool not found in worker.mjs registerTool calls."); ok = false; }
 
 // ── P4: counts.json mcp_tools_total sanity ──────────────────────────────────
-const EXPECTED_UTIL = 9;
+const EXPECTED_UTIL = 10;
 const liveNodes  = counts.chaingraph_nodes_live ?? 0;
 const pilot      = counts.pilot_widgets ?? 0;
 const expected   = liveNodes + pilot + EXPECTED_UTIL;
