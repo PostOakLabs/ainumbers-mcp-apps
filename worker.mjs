@@ -707,7 +707,7 @@ async function loadData(env) {
 const HOT_TOOLS = new Set([
   'list_ainumbers_tools', 'verify_execution_hash',
   'build_workflow_links', 'build_chaingraph', 'export_artifact',
-  'find_chain', 'find_tool',
+  'find_chain', 'find_tool', 'run_chain',
 ]);
 
 // ── O(1) static discovery — per-method, no large parse ─────────────────────
@@ -1126,6 +1126,155 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
       verify_with: 'verify_execution_hash',
       spec: 'ChainGraph Standard v0.1 §7-§8',
       note: 'Execute in order. For each node: call its MCP tool, read execution_hash from the returned artifact, then populate the parent_hash_slots of every downstream node with it. Verify any artifact with verify_execution_hash. All decision compute is deterministic and (for browser tools) client-side.',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
+  // run_chain — execute a whole named chain in one MCP round-trip (v0.4 §12, chain-level).
+  // Loops every kernel-backed step, threading step N's execution_hash into step N+1's
+  // parent_hashes (mirrors the emit_chaingraph_artifact Mode 4 dispatch), and returns ONE
+  // composite artifact whose execution_hash anchors all step outputs. compute:"browser"
+  // returns a zero-egress delegation bundle (composer URL + ordered deep-links) instead of
+  // running anything server-side. Deterministic; zero PII; zero payload logging. readOnlyHint:true.
+  // -------------------------------------------------------------------------
+  server.registerTool('run_chain', {
+    title: 'Run a whole ChainGraph chain in one call',
+    description:
+      'Executes every step of a named chain (list names with find_chain / build_workflow_links) and returns ONE ' +
+      'composite artifact whose execution_hash anchors all step outputs. ' +
+      'compute:"server"/"auto" (default) runs each kernel-backed step server-side, threading step N\'s execution_hash ' +
+      'into step N+1\'s parent_hashes; compute:"browser" returns a zero-egress delegation bundle (composer URL + ordered ' +
+      'deep-links) to run client-side instead — no data leaves the agent. ' +
+      'Supply inputs as a map of step tool_id -> policy_parameters (field names per node manifest / build_chaingraph); ' +
+      'a step whose kernel needs inputs you omit is reported per-step (status "input_required"), never failed silently. ' +
+      'Steps that are browser-only (gpu:true or no registered kernel) are listed for browser delegation. ' +
+      'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash.',
+    inputSchema: {
+      chain: z.string().describe('Chain name, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
+      inputs: z.record(z.record(z.any())).optional()
+        .describe('Map of step tool_id -> policy_parameters overrides. Omitted steps run with {} (kernels needing required fields are reported, not failed silently).'),
+      compute: z.enum(['auto', 'server', 'browser']).optional()
+        .describe('"auto"/"server" (default) runs kernel-backed steps server-side; "browser" returns a zero-egress delegation bundle to run client-side.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ chain, inputs, compute }) => {
+    const chainMeta = namedChains[chain];
+    if (!chainMeta) {
+      return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
+    }
+    const steps = (chainMeta.steps ?? []).map((s) => s.tool_id);
+    if (!steps.length) {
+      return { isError: true, content: [{ type: 'text', text: 'Chain "' + chain + '" has no steps.' }] };
+    }
+    const effectiveCompute = compute ?? 'auto';
+
+    // --- compute:"browser" — zero-egress delegation, no server compute ---
+    if (effectiveCompute === 'browser') {
+      const stepLinks = steps.map((tid, i) => {
+        const node = cgById[tid];
+        return { order: i + 1, tool_id: tid, mcp_name: node?.mcp_name ?? null, browser_url: node?.url ?? (BASE_URL + '/tools/' + tid + '.html') };
+      });
+      const out = {
+        mode: 'browser_delegation', chain, compute_mode: 'browser',
+        composer_url: chainMeta.composer_url ?? null,
+        step_count: steps.length, steps: stepLinks,
+        note: 'Zero-egress path: run these in order in the browser (or the live runner). No data is sent to the server. ' +
+          'Each tool exports a Policy Mandate; thread each execution_hash into the next via parent_hashes, or use the composer page.',
+        spec: 'ChainGraph Standard v0.4 §12 (browser dispatch)',
+      };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+
+    // --- compute:"server"/"auto" — run each kernel-backed step, thread parent hashes ---
+    const results = [];
+    let prevHash = null, prevId = null;
+    for (let i = 0; i < steps.length; i++) {
+      const tid = steps[i];
+      const node = cgById[tid];
+      if (!node) { results.push({ order: i + 1, tool_id: tid, status: 'unknown_node' }); continue; }
+      if (node.gpu) { results.push({ order: i + 1, tool_id: tid, status: 'gpu_browser_only', browser_url: node.url }); continue; }
+      const kernel = getKernel(tid);
+      if (!kernel) { results.push({ order: i + 1, tool_id: tid, status: 'no_kernel_browser_only', browser_url: node.url }); continue; }
+      const pp = (inputs && inputs[tid]) ? inputs[tid] : {};
+      try {
+        const now = new Date().toISOString();
+        const artifact = await kernel.buildArtifact(pp, {
+          now,
+          parent_hashes: prevHash ? [prevHash] : [],
+          parent_tool_ids: prevId ? [prevId] : [],
+          chain_depth: i,
+        });
+        // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror Mode 4.
+        const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
+        if (srcImg && srcImg.image_id) {
+          artifact.audit_signature = { ...(artifact.audit_signature || {}), build_identity: {
+            kernel_digest: srcImg.image_id,
+            buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+            source_ref: 'kernels/' + node.tool_id + '.kernel.mjs',
+          } };
+        }
+        // §18 compute_proof — attach iff the receipt is about THIS exact output (hash-excluded). Mirror Mode 4.
+        if (node.compute_proof && node.compute_proof.journal
+            && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+          artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+        }
+        results.push({ order: i + 1, tool_id: tid, status: 'ok', mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact });
+        prevHash = artifact.execution_hash; prevId = tid;
+      } catch (err) {
+        results.push({ order: i + 1, tool_id: tid, status: 'input_required', error: String(err?.message ?? err),
+          hint: 'Supply inputs["' + tid + '"] (field names per the node manifest / build_chaingraph).' });
+      }
+    }
+
+    const ran = results.filter((r) => r.status === 'ok');
+    // Composite artifact over the REAL step outputs. Deterministic preimage: only mandate_type +
+    // output_payload per step (per-step timestamps/mandate_ids excluded), so the composite hash is reproducible.
+    const composite_policy = {
+      compute_mode: 'server',
+      chain,
+      chain_title: chainMeta.title ?? chain,
+      step_count: ran.length,
+      step_tool_ids: ran.map((r) => r.tool_id),
+    };
+    const composite_output = {
+      chain,
+      steps: ran.map((r) => ({ tool_id: r.tool_id, mandate_type: r.mandate_type, execution_hash: r.execution_hash, output_payload: r.artifact.output_payload })),
+    };
+    const composite_hash = ran.length ? await cgExecutionHash(composite_policy, composite_output) : null;
+    const composite_artifact = ran.length ? {
+      '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+      chaingraph_version: '0.4.0',
+      compute_mode: 'server',
+      mandate_type: 'compliance_mandate',
+      tool_id: 'chaingraph/chains/' + chain,
+      tool_version: '1.0.0',
+      generated_at: new Date().toISOString(),
+      execution_hash: composite_hash,
+      chain: {
+        parent_hashes: ran.map((r) => r.execution_hash),
+        parent_tool_ids: ran.map((r) => r.tool_id),
+        chain_depth: ran.length,
+      },
+      policy_parameters: composite_policy,
+      output_payload: composite_output,
+      compliance_flags: [],
+      audit_signature: { server_side_executed: true, zero_pii_verified: true, deterministic_run: true },
+    } : null;
+    const hash_valid = composite_hash ? (await cgExecutionHash(composite_policy, composite_output)) === composite_hash : null;
+
+    const out = {
+      mode: 'server_run_chain', chain, compute_mode: 'server',
+      step_count: steps.length,
+      steps_ran: ran.length,
+      steps: results.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
+      composite_execution_hash: composite_hash,
+      hash_valid,
+      composite_artifact,
+      note: ran.length === steps.length
+        ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps.'
+        : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
+      spec: 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
@@ -1967,7 +2116,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
     ...PILOT.map((slug) => manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_')),
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
-    'find_chain', 'find_tool',
+    'find_chain', 'find_tool', 'run_chain',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
@@ -2228,7 +2377,7 @@ export default {
           const known = (data.__toolNames ||= new Set([
             ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
             'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash', 'build_chaingraph',
-            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool',
+            'emit_chaingraph_artifact', 'build_session_receipt', 'export_artifact', 'find_chain', 'find_tool', 'run_chain',
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
           if (known.has(toolName)) {
