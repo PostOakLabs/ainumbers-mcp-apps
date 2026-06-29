@@ -73,8 +73,8 @@ const liveNodes = cgNodes.filter(n => n.status === 'live').length;
 const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
 // Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools
 // Utility: list_ainumbers_tools, build_workflow_links, verify_execution_hash, build_chaingraph,
-//   emit_chaingraph_artifact, build_session_receipt, export_artifact, find_chain, find_tool
-const UTIL_TOOL_COUNT = 9;
+//   emit_chaingraph_artifact, build_session_receipt, export_artifact, find_chain, find_tool, run_chain
+const UTIL_TOOL_COUNT = 10;
 const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
 const counts = {
   chaingraph_nodes_live: liveNodes,
