@@ -204,6 +204,7 @@ const UTILITY_TOOL_NAMES = new Set([
   'export_artifact',
   'find_chain',
   'find_tool',
+  'run_chain',
 ]);
 
 const MANIFEST_DIR = resolve(here, '..', 'data', 'manifests');
