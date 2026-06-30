@@ -699,7 +699,8 @@ async function loadData(env) {
   const catalog = await (await get('mcp/catalog.json')).json();
   const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
   const searchIndex = await (await get('search-index.json')).json();
-  dataCache = { manifests, widgets, catalog, chaingraph, searchIndex };
+  const chainFixtures = await (await get('chain-fixtures.json')).json();
+  dataCache = { manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures };
   return dataCache;
 }
 
@@ -767,7 +768,7 @@ function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
     .slice(0, topN);
 }
 
-function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, { onlyTool = null } = {}) {
+function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
   // — registering the full set per request trips the Cloudflare FREE-plan CPU limit (1102). Every
@@ -1197,7 +1198,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
       if (node.gpu) { results.push({ order: i + 1, tool_id: tid, status: 'gpu_browser_only', browser_url: node.url }); continue; }
       const kernel = getKernel(tid);
       if (!kernel) { results.push({ order: i + 1, tool_id: tid, status: 'no_kernel_browser_only', browser_url: node.url }); continue; }
-      const pp = (inputs && inputs[tid]) ? inputs[tid] : {};
+      const callerPp = inputs?.[tid];
+      const fixturePp = chainFixtures?.[chain]?.[tid];
+      const pp = callerPp ?? fixturePp ?? {};
+      const inputs_source = callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none');
       try {
         const now = new Date().toISOString();
         const artifact = await kernel.buildArtifact(pp, {
@@ -1220,10 +1224,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
             && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
           artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
         }
-        results.push({ order: i + 1, tool_id: tid, status: 'ok', mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact });
+        results.push({ order: i + 1, tool_id: tid, status: 'ok', inputs_source, mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact });
         prevHash = artifact.execution_hash; prevId = tid;
       } catch (err) {
-        results.push({ order: i + 1, tool_id: tid, status: 'input_required', error: String(err?.message ?? err),
+        results.push({ order: i + 1, tool_id: tid, status: 'input_required', inputs_source, error: String(err?.message ?? err),
           hint: 'Supply inputs["' + tid + '"] (field names per the node manifest / build_chaingraph).' });
       }
     }
@@ -1268,7 +1272,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex }, {
       mode: 'server_run_chain', chain, compute_mode: 'server',
       step_count: steps.length,
       steps_ran: ran.length,
-      steps: results.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
+      steps: results.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
       composite_execution_hash: composite_hash,
       hash_valid,
       composite_artifact,

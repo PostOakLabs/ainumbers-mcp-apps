@@ -83,6 +83,12 @@ jobs:
           path: _site
           fetch-depth: 1
 
+      - name: 🗄 Chain-fixtures freshness (OCGR Phase A)
+        # Regenerates chain-fixtures.json in-memory from the checked-out site HEAD and
+        # diffs vs the committed data/chain-fixtures.json. Fails on drift so a stale
+        # fixture bundle never deploys. Mirrors vendor-freshness for chaingraph.json.
+        run: SITE_REPO=_site node scripts/gen-chain-fixtures.mjs --check
+
       - name: 🔄 Vendor-freshness — data/ + kernels/ current vs site (CONTRACT §A4 #3)
         # Closes the gap the local PreToolUse hook can't guard (the `gh pr merge` path): confirms the
         # COMMITTED vendored data/chaingraph.json + bundled kernels/ match the site source, so a

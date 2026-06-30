@@ -1,0 +1,2476 @@
+{
+  "agent-commerce-conformance": {
+    "art-01-ap2-mandate-chain-validator": {
+      "validate_at": "2026-06-19T12:00:00.000Z",
+      "hnp_mode": "strict",
+      "intent": {
+        "mandate_type": "intent",
+        "mandate_id": "intent-001-acme",
+        "issued_at": "2026-06-19T11:00:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "human_not_present": false,
+        "scope": {
+          "merchant_ids": [
+            "merch-acme-42"
+          ],
+          "currency": "USD",
+          "max_amount": 500
+        }
+      },
+      "payment": {
+        "mandate_type": "payment",
+        "mandate_id": "pay-001-acme",
+        "parent_mandate_id": "intent-001-acme",
+        "parent_hash": "a3f1c2d4e5b6a7f8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+        "issued_at": "2026-06-19T11:05:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "merchant_id": "merch-acme-42",
+        "currency": "USD",
+        "amount": 249.99,
+        "payment_method": "card",
+        "human_not_present": false
+      }
+    },
+    "art-12-acp-checkout-conformance-validator": {
+      "message_type_override": "auto",
+      "payload": {
+        "message_type": "CheckoutRequest",
+        "request_id": "req-abc-001",
+        "merchant_id": "merchant-acme",
+        "agent_id": "agent:acme:shopping-bot:v2",
+        "amount": 49.99,
+        "currency": "USD",
+        "items": [
+          {
+            "sku": "WIDGET-001",
+            "unit_price": 24.99,
+            "quantity": 2
+          }
+        ],
+        "timestamp": "2026-06-19T10:00:00.000Z",
+        "redirect_url": "https://acme.com/checkout/confirm",
+        "signature": "ed25519:MEYCIQDexampleSignatureHere",
+        "idempotency_key": "idem-abc-001"
+      }
+    },
+    "art-03-x402-settlement-modeler": {
+      "amount_usd": 0.05,
+      "monthly_volume": 10000,
+      "payment_type": "micropayment",
+      "finality_requirement": "instant",
+      "gas_tier": "low",
+      "chargeback_profile": "low"
+    },
+    "art-30-agent-commerce-conformance-validator": {
+      "ap2_mandate_trio": {
+        "intent": {
+          "mandate_type": "intent",
+          "mandate_id": "intent-001",
+          "expires_at": "2026-12-31T00:00:00Z",
+          "scope": {
+            "merchant_ids": [
+              "merchant-001"
+            ],
+            "currency": "USD",
+            "max_amount": 500
+          },
+          "human_not_present": true,
+          "issuer_id": "issuer:test"
+        },
+        "payment": {
+          "mandate_type": "payment",
+          "mandate_id": "pay-001",
+          "parent_mandate_id": "intent-001",
+          "parent_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "amount": 100,
+          "currency": "USD",
+          "human_not_present": true,
+          "payment_method": "card"
+        }
+      }
+    }
+  },
+  "tempo-fit": {
+    "art-34-tempo-fit-diagnostic": {
+      "q1_regulatory_approval": "yes",
+      "q2_reserve_management": "yes",
+      "q3_attestation_readiness": "partial",
+      "q4_payment_volume": "yes",
+      "q5_cross_border_volume": "partial",
+      "q6_settlement_latency_requirement": "no",
+      "q7_agent_payments_live": "no",
+      "q8_mpp_integration": "no",
+      "q9_api_key_management": "no",
+      "q10_merchant_acceptance": "partial",
+      "q11_checkout_flow": "yes",
+      "q12_refund_handling": "yes"
+    }
+  },
+  "tempo-payments": {
+    "art-35-tempo-payments-business-case": {
+      "rail": "swift",
+      "stablecoin": "usdc",
+      "tx_amount_usd": 10000,
+      "monthly_volume": 500,
+      "impl_months": 3
+    }
+  },
+  "tempo-agentic-checkout": {
+    "art-26-x402-payload-decoder-flow-simulator": {
+      "header_or_payload": "{\"scheme\":\"exact\",\"network\":\"base-sepolia\",\"payload\":{\"signature\":\"0xabc123\"}}"
+    },
+    "art-40-tempo-agentic-checkout": {
+      "protocol": "ACP",
+      "rawRef": "ORD-TEST-001",
+      "senderName": "Alice",
+      "receiverName": "Bob",
+      "amount": 500,
+      "stablecoin": "USDC"
+    }
+  },
+  "tempo-validator-readiness": {
+    "art-41-tempo-validator-readiness": {
+      "q1_cpu_cores": "yes",
+      "q2_ram_gb": "yes",
+      "q3_nvme_1gbps": "yes",
+      "q4_linux_glibc": "yes",
+      "q5_ntp_chrony": "yes",
+      "q6_ports_open": "yes",
+      "q7_ed25519_keypair": "yes",
+      "q8_key_tempo_contact": "yes",
+      "q9_port9000_scraping": "yes",
+      "q10_alerting": "yes",
+      "q11_7day_sla": "yes",
+      "q12_runbook": "yes"
+    }
+  },
+  "canton-capital-efficiency": {
+    "503-canton-tokenization-readiness-diagnostic": {
+      "q1": "yes",
+      "q2": "yes",
+      "q3": "no",
+      "q4": "no",
+      "q5": "no",
+      "q6": "no",
+      "q7": "no",
+      "q8": "no",
+      "q9": "no",
+      "q10": "no",
+      "q11": "no",
+      "q12": "no"
+    },
+    "504-settlement-risk-capital-optimizer": {
+      "positions": [
+        {
+          "instrument": "IR Swap 5Y",
+          "notional_usd": 10000000,
+          "rating": "aaa",
+          "settlement_type": "t0"
+        }
+      ],
+      "cet1_ratio": 0.125,
+      "cost_of_capital": 0.1
+    }
+  },
+  "canton-dvp-readiness": {
+    "507-canton-dvp-atomicity-validator": {
+      "settlement_mechanism": "atomic_dvp",
+      "platform": "canton_daml",
+      "finality_type": "irrevocable_realtime",
+      "unwind_protection": true,
+      "cash_type": "cbdc",
+      "settlement_amount": 1000000,
+      "currency": "USD"
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    }
+  },
+  "canton-repo-mobility": {
+    "508-repo-haircut-collateral-calculator": {
+      "collateral_type": "ust_10y",
+      "notional_usd": 10000000,
+      "tenor": "overnight",
+      "cross_border": false,
+      "counterparty_type": "bank",
+      "canton247": true,
+      "concentration_pct": 10
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "506-onchain-cash-leg-finality-checker": {
+      "finality_model": "atomic_dvp_bound",
+      "jurisdiction": "us",
+      "reserve_attestation": true,
+      "cash_pct": 60,
+      "tbills_pct": 35,
+      "repo_pct": 5,
+      "depeg_bps": 2,
+      "redemption_window": "t0"
+    }
+  },
+  "arc-fit": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    }
+  },
+  "arc-cpn-payment": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-43-arc-cpn-model": {
+      "rail": "swift",
+      "notional_usd": 10000,
+      "monthly_volume": 200,
+      "impl_months": 3
+    }
+  },
+  "arc-stablefx": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-44-arc-stablefx-model": {
+      "daily_fx_volume_usd": 5000000,
+      "herstatt_spread_bps": 2.5,
+      "non_cls_bilateral_bps": 8,
+      "cls_annual_fee_usd": 100000,
+      "stablefx_fee_bps": 1.5,
+      "trading_days": 250,
+      "impl_months": 3
+    }
+  },
+  "arc-xreserve-issuance": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-45-arc-xreserve-linter": {
+      "usdc_pct": 70,
+      "usyc_pct": 25,
+      "other_pct": 5,
+      "us_issuers_only": true,
+      "yield_enabled": false,
+      "is_us_ppsi": true,
+      "is_eu_emt": false,
+      "reserve_segregated": false,
+      "cctp_domains": 3,
+      "attestation_cadence": "monthly",
+      "mint_role_segregated": true
+    }
+  },
+  "arc-dvp-settlement": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-44-arc-stablefx-model": {
+      "daily_fx_volume_usd": 5000000,
+      "herstatt_spread_bps": 2.5,
+      "non_cls_bilateral_bps": 8,
+      "cls_annual_fee_usd": 100000,
+      "stablefx_fee_bps": 1.5,
+      "trading_days": 250,
+      "impl_months": 3
+    },
+    "art-46-arc-paymaster-model": {
+      "gas_per_uop": 150000,
+      "gas_price_gwei": 30,
+      "eth_price_usd": 3500,
+      "arc_usdc_per_gas_unit": 0.000001,
+      "monthly_uops": 50000,
+      "merchant_sponsorship_pct": 80,
+      "impl_months": 3
+    }
+  },
+  "arc-agentic-commerce": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-46-arc-paymaster-model": {
+      "gas_per_uop": 150000,
+      "gas_price_gwei": 30,
+      "eth_price_usd": 3500,
+      "arc_usdc_per_gas_unit": 0.000001,
+      "monthly_uops": 50000,
+      "merchant_sponsorship_pct": 80,
+      "impl_months": 3
+    },
+    "art-43-arc-cpn-model": {
+      "rail": "swift",
+      "notional_usd": 10000,
+      "monthly_volume": 200,
+      "impl_months": 3
+    }
+  },
+  "arc-reserve-compliance": {
+    "art-45-arc-xreserve-linter": {
+      "usdc_pct": 70,
+      "usyc_pct": 25,
+      "other_pct": 5,
+      "us_issuers_only": true,
+      "yield_enabled": false,
+      "is_us_ppsi": true,
+      "is_eu_emt": false,
+      "reserve_segregated": false,
+      "cctp_domains": 3,
+      "attestation_cadence": "monthly",
+      "mint_role_segregated": true
+    },
+    "art-44-arc-stablefx-model": {
+      "daily_fx_volume_usd": 5000000,
+      "herstatt_spread_bps": 2.5,
+      "non_cls_bilateral_bps": 8,
+      "cls_annual_fee_usd": 100000,
+      "stablefx_fee_bps": 1.5,
+      "trading_days": 250,
+      "impl_months": 3
+    }
+  },
+  "arc-cctp-transfer": {
+    "art-42-arc-fit-diagnostic": {
+      "q1_cpn_connectivity": "yes",
+      "q2_corridor_volume": "yes",
+      "q3_settlement_cutoff_pain": "yes",
+      "q4_fx_margin_pressure": "yes",
+      "q5_herstatt_exposure": "partial",
+      "q6_24_7_settlement_need": "no",
+      "q7_dvp_trade_type": "no",
+      "q8_usyc_collateral_interest": "no",
+      "q9_prefunding_cost": "no",
+      "q10_agent_payment_volume": "partial",
+      "q11_gas_sensitivity": "yes",
+      "q12_x402_ap2_adoption": "no"
+    },
+    "art-47-arc-cctp-transfer": {
+      "source_domain": "arc",
+      "dest_domain": "ethereum",
+      "notional_usd": 50000,
+      "transfer_mode": "fast",
+      "hook_payload": null,
+      "using_v1": false
+    }
+  },
+  "treasury-clearing-fit": {
+    "art-48-treasury-clearing-fit-diagnostic": {}
+  },
+  "treasury-clearing-access-model": {
+    "art-49-clearing-access-model-selector": {},
+    "504-settlement-risk-capital-optimizer": {
+      "positions": [
+        {
+          "instrument": "IR Swap 5Y",
+          "notional_usd": 10000000,
+          "rating": "aaa",
+          "settlement_type": "t0"
+        }
+      ],
+      "cet1_ratio": 0.125,
+      "cost_of_capital": 0.1
+    },
+    "art-50-ficc-margin-netting-estimator": {}
+  },
+  "treasury-clearing-collateral": {
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "515-collateral-swap-eligibility-validator": {
+      "asset_a": "ig_corp_bond",
+      "asset_b": "ust",
+      "notional_a": 1000000,
+      "notional_b": 950000,
+      "haircut_a": 50,
+      "haircut_b": 0,
+      "declared_direction": "UPGRADE",
+      "governing_agreement": "gmra",
+      "reuse_flag": false,
+      "sftr_consent": false,
+      "provider_informed": false,
+      "counterparty_jurisdiction": "us"
+    },
+    "514-tokenized-fund-collateral-validator": {
+      "fund_type": "sec_govt_mmf",
+      "total_fund_value": 1000000,
+      "daily_liquid_assets_pct": 30,
+      "weekly_liquid_assets_pct": 60,
+      "nav": 1,
+      "collateral_use": "lender_collateral",
+      "platform": "canton_benji",
+      "sftr_consent": true,
+      "reuse_flag": false,
+      "provider_informed": true,
+      "cp_jurisdiction": "us"
+    }
+  },
+  "treasury-clearing-settlement-integrity": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "507-canton-dvp-atomicity-validator": {
+      "settlement_mechanism": "atomic_dvp",
+      "platform": "canton_daml",
+      "finality_type": "irrevocable_realtime",
+      "unwind_protection": true,
+      "cash_type": "cbdc",
+      "settlement_amount": 1000000,
+      "currency": "USD"
+    },
+    "ml-03-timeseries-anomaly-detector": {
+      "nPeriods": 90,
+      "seasonPeriod": 7,
+      "windowSize": 14,
+      "zThreshold": 3,
+      "nAnomalies": 2,
+      "trendType": "flat",
+      "seed": 42
+    }
+  },
+  "canton-counterparty-onboarding": {
+    "509-canton-party-allowlist-validator": {
+      "parties": [
+        {
+          "party_name": "Test Bank Ltd",
+          "lei": "TEST0000000000000001",
+          "daml_party_id": "TestBank::AAAA",
+          "daml_party_id_known": true,
+          "fatf_status": "clean",
+          "pep": false,
+          "adverse_media": false,
+          "canton_access": "granted"
+        }
+      ]
+    }
+  },
+  "canton-securities-issuance": {
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "512-tokenized-security-lifecycle-validator": {
+      "security_type": "ust",
+      "jurisdiction": "us",
+      "issuance_amount": 1000000,
+      "isin_assigned": true,
+      "daml_lifecycle_defined": true,
+      "custodian_type": "qualified_custodian",
+      "covered_events": [
+        "issuance",
+        "coupon_payment",
+        "maturity_redemption"
+      ],
+      "prospectus_filed": false
+    }
+  },
+  "canton-margin-call": {
+    "513-margin-call-collateral-mobilizer": {
+      "instrument_type": "interest_rate_swap",
+      "portfolio_mtm": -500000,
+      "aana": 500000000,
+      "ccp_cleared": false,
+      "mta": 500000,
+      "collateral_rows": [
+        {
+          "asset_type": "ust",
+          "notional": 2000000,
+          "already_posted": false
+        }
+      ],
+      "on_chain": false
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "506-onchain-cash-leg-finality-checker": {
+      "finality_model": "atomic_dvp_bound",
+      "jurisdiction": "us",
+      "reserve_attestation": true,
+      "cash_pct": 60,
+      "tbills_pct": 35,
+      "repo_pct": 5,
+      "depeg_bps": 2,
+      "redemption_window": "t0"
+    }
+  },
+  "canton-deposit-compliance": {
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "511-multi-currency-pvp-validator": {
+      "legs": [
+        {
+          "ccy_sold": "USD",
+          "ccy_bought": "EUR",
+          "notional": 1000000,
+          "implied_rate": 0.92
+        }
+      ],
+      "atomicity_type": "atomic_pvp",
+      "finality_type": "irrevocable_realtime",
+      "has_unwind_procedure": true,
+      "canton_leg": true
+    }
+  },
+  "canton-mmf-collateral": {
+    "514-tokenized-fund-collateral-validator": {
+      "fund_type": "sec_govt_mmf",
+      "total_fund_value": 1000000,
+      "daily_liquid_assets_pct": 30,
+      "weekly_liquid_assets_pct": 60,
+      "nav": 1,
+      "collateral_use": "lender_collateral",
+      "platform": "canton_benji",
+      "sftr_consent": true,
+      "reuse_flag": false,
+      "provider_informed": true,
+      "cp_jurisdiction": "us"
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    }
+  },
+  "canton-securities-lending": {
+    "515-collateral-swap-eligibility-validator": {
+      "asset_a": "ig_corp_bond",
+      "asset_b": "ust",
+      "notional_a": 1000000,
+      "notional_b": 950000,
+      "haircut_a": 50,
+      "haircut_b": 0,
+      "declared_direction": "UPGRADE",
+      "governing_agreement": "gmra",
+      "reuse_flag": false,
+      "sftr_consent": false,
+      "provider_informed": false,
+      "counterparty_jurisdiction": "us"
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    }
+  },
+  "us-treasury-clearing": {
+    "art-49-clearing-access-model-selector": {},
+    "art-50-ficc-margin-netting-estimator": {},
+    "508-repo-haircut-collateral-calculator": {
+      "collateral_type": "ust_10y",
+      "notional_usd": 10000000,
+      "tenor": "overnight",
+      "cross_border": false,
+      "counterparty_type": "bank",
+      "canton247": true,
+      "concentration_pct": 10
+    },
+    "art-51-cross-margining-benefit-estimator": {},
+    "513-margin-call-collateral-mobilizer": {
+      "instrument_type": "interest_rate_swap",
+      "portfolio_mtm": -500000,
+      "aana": 500000000,
+      "ccp_cleared": false,
+      "mta": 500000,
+      "collateral_rows": [
+        {
+          "asset_type": "ust",
+          "notional": 2000000,
+          "already_posted": false
+        }
+      ],
+      "on_chain": false
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    }
+  },
+  "agent-session-receipt": {
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "digital-trade-fit": {
+    "art-52-digital-trade-fit-diagnostic": {}
+  },
+  "digital-trade-ebl-enforceability": {
+    "art-53-mletr-ebl-conformance-validator": {},
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "digital-trade-doc-integrity": {
+    "art-55-trade-document-provenance-verifier": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "ml-03-timeseries-anomaly-detector": {
+      "nPeriods": 90,
+      "seasonPeriod": 7,
+      "windowSize": 14,
+      "zThreshold": 3,
+      "nAnomalies": 2,
+      "trendType": "flat",
+      "seed": 42
+    }
+  },
+  "digital-trade-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "wholesale-settlement-fit": {
+    "art-56-tokenized-settlement-fit-diagnostic": {}
+  },
+  "wholesale-settlement-cross-network-dvp": {
+    "art-58-cross-network-settlement-validator": {},
+    "507-canton-dvp-atomicity-validator": {
+      "settlement_mechanism": "atomic_dvp",
+      "platform": "canton_daml",
+      "finality_type": "irrevocable_realtime",
+      "unwind_protection": true,
+      "cash_type": "cbdc",
+      "settlement_amount": 1000000,
+      "currency": "USD"
+    },
+    "511-multi-currency-pvp-validator": {
+      "legs": [
+        {
+          "ccy_sold": "USD",
+          "ccy_bought": "EUR",
+          "notional": 1000000,
+          "implied_rate": 0.92
+        }
+      ],
+      "atomicity_type": "atomic_pvp",
+      "finality_type": "irrevocable_realtime",
+      "has_unwind_procedure": true,
+      "canton_leg": true
+    }
+  },
+  "wholesale-settlement-deposit-token": {
+    "art-57-deposit-token-compliance-validator": {},
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "wholesale-settlement-settlement-asset": {
+    "art-59-settlement-asset-finality-classifier": {},
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "506-onchain-cash-leg-finality-checker": {
+      "finality_model": "atomic_dvp_bound",
+      "jurisdiction": "us",
+      "reserve_attestation": true,
+      "cash_pct": 60,
+      "tbills_pct": 35,
+      "repo_pct": 5,
+      "depeg_bps": 2,
+      "redemption_window": "t0"
+    }
+  },
+  "wholesale-settlement-collateral-mobility": {
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "513-margin-call-collateral-mobilizer": {
+      "instrument_type": "interest_rate_swap",
+      "portfolio_mtm": -500000,
+      "aana": 500000000,
+      "ccp_cleared": false,
+      "mta": 500000,
+      "collateral_rows": [
+        {
+          "asset_type": "ust",
+          "notional": 2000000,
+          "already_posted": false
+        }
+      ],
+      "on_chain": false
+    },
+    "508-repo-haircut-collateral-calculator": {
+      "collateral_type": "ust_10y",
+      "notional_usd": 10000000,
+      "tenor": "overnight",
+      "cross_border": false,
+      "counterparty_type": "bank",
+      "canton247": true,
+      "concentration_pct": 10
+    }
+  },
+  "wholesale-settlement-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "agent-economy-fit": {
+    "art-60-agent-economy-runtime-fit-diagnostic": {}
+  },
+  "agent-economy-batch-settlement": {
+    "art-61-x402-batch-settlement-reconciler": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "agent-economy-payment-receipt": {
+    "art-62-ap2-payment-receipt-verifier": {},
+    "art-01-ap2-mandate-chain-validator": {
+      "validate_at": "2026-06-19T12:00:00.000Z",
+      "hnp_mode": "strict",
+      "intent": {
+        "mandate_type": "intent",
+        "mandate_id": "intent-001-acme",
+        "issued_at": "2026-06-19T11:00:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "human_not_present": false,
+        "scope": {
+          "merchant_ids": [
+            "merch-acme-42"
+          ],
+          "currency": "USD",
+          "max_amount": 500
+        }
+      },
+      "payment": {
+        "mandate_type": "payment",
+        "mandate_id": "pay-001-acme",
+        "parent_mandate_id": "intent-001-acme",
+        "parent_hash": "a3f1c2d4e5b6a7f8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+        "issued_at": "2026-06-19T11:05:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "merchant_id": "merch-acme-42",
+        "currency": "USD",
+        "amount": 249.99,
+        "payment_method": "card",
+        "human_not_present": false
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "agent-economy-metering": {
+    "art-63-agent-service-metering-modeler": {},
+    "art-03-x402-settlement-modeler": {
+      "amount_usd": 0.05,
+      "monthly_volume": 10000,
+      "payment_type": "micropayment",
+      "finality_requirement": "instant",
+      "gas_tier": "low",
+      "chargeback_profile": "low"
+    },
+    "ml-03-timeseries-anomaly-detector": {
+      "nPeriods": 90,
+      "seasonPeriod": 7,
+      "windowSize": 14,
+      "zThreshold": 3,
+      "nAnomalies": 2,
+      "trendType": "flat",
+      "seed": 42
+    }
+  },
+  "agent-economy-marketplace": {
+    "art-04-agent-identity-attestation-checker": {
+      "validate_at_unix": 1750248000,
+      "credential": {
+        "credential_type": "AgentCredential",
+        "agent_id": "agent:acme:shopping-bot:v2",
+        "issuer": "did:web:auth.acme.com",
+        "issued_at": 1750161600,
+        "expires_at": 1752840000,
+        "scopes": [
+          "read:account",
+          "execute:checkout",
+          "write:payment"
+        ],
+        "eu_ai_act_risk_class": "limited",
+        "signature": "ed25519:MEYCIQDexampleSignatureHexGoesHereForTestingPurposesOnly"
+      }
+    },
+    "art-21-agent-traffic-acceptance-policy-builder": {
+      "agent_types": [
+        "openai"
+      ],
+      "verification_level": "ap2_vdc",
+      "max_tx_per_min": 60,
+      "max_tx_per_day": 5000,
+      "max_single_val_usd": 100,
+      "max_daily_val_usd": 1000,
+      "rails": [
+        "acp",
+        "x402"
+      ],
+      "refund_posture": "standard",
+      "retry_policy": "retry_1x",
+      "block_rules": [
+        "block_burst",
+        "block_anon_high"
+      ]
+    },
+    "art-63-agent-service-metering-modeler": {}
+  },
+  "agent-economy-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "ai-governance-fit": {
+    "art-64-ai-act-highrisk-fit-diagnostic": {}
+  },
+  "ai-governance-gpai-agentic": {
+    "art-67-agentic-ai-risk-classifier": {},
+    "art-04-agent-identity-attestation-checker": {
+      "validate_at_unix": 1750248000,
+      "credential": {
+        "credential_type": "AgentCredential",
+        "agent_id": "agent:acme:shopping-bot:v2",
+        "issuer": "did:web:auth.acme.com",
+        "issued_at": 1750161600,
+        "expires_at": 1752840000,
+        "scopes": [
+          "read:account",
+          "execute:checkout",
+          "write:payment"
+        ],
+        "eu_ai_act_risk_class": "limited",
+        "signature": "ed25519:MEYCIQDexampleSignatureHexGoesHereForTestingPurposesOnly"
+      }
+    },
+    "art-33-mcp-server-self-attestation-pack": {
+      "tool_definition": {
+        "name": "test_tool",
+        "description": "Do not use this unless you need to test the attestation pack. Only for testing.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The query to process"
+            }
+          }
+        },
+        "annotations": {
+          "readOnlyHint": true
+        }
+      },
+      "server_json": {
+        "$schema": "https://json.schemastore.org/mcp-server.schema.json",
+        "name": "com.example.test-server",
+        "version": "1.0.0",
+        "remotes": [
+          {
+            "url": "https://mcp.example.com/mcp",
+            "type": "sse"
+          }
+        ]
+      },
+      "oauth_flags": {
+        "has_prm": true,
+        "audience_bound": true,
+        "pkce": true,
+        "https_only": true
+      },
+      "security_flags": {
+        "read_only_hints": true,
+        "input_schemas_typed": true,
+        "no_secrets_in_descriptions": true
+      }
+    }
+  },
+  "ai-governance-resilience-overlap": {
+    "art-29-dora-readiness-diagnostic": {},
+    "art-65-ai-conformity-pack-builder": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "ai-governance-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "cbam-fit": {
+    "art-68-carbon-compliance-fit-diagnostic": {}
+  },
+  "cbam-liability": {
+    "art-70-cbam-default-value-resolver": {},
+    "art-69-cbam-embedded-emissions-calculator": {},
+    "art-71-cbam-certificate-cost-engine": {}
+  },
+  "cbam-precursor": {
+    "art-72-cbam-precursor-emissions-aggregator": {},
+    "art-69-cbam-embedded-emissions-calculator": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "taxonomy-align": {
+    "art-73-taxonomy-alignment-scorer": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "taxonomy-kpi": {
+    "art-73-taxonomy-alignment-scorer": {},
+    "art-74-taxonomy-kpi-gar-aggregator": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "eugb-conformance": {
+    "art-75-eugb-factsheet-validator": {},
+    "art-73-taxonomy-alignment-scorer": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "climate-scenario": {
+    "art-76-climate-scenario-applicator": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "carbon-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "settlement-discipline-fit": {
+    "art-77-t1-settlement-readiness-diagnostic": {}
+  },
+  "settlement-discipline-penalty": {
+    "art-78-csdr-penalty-calculator": {},
+    "art-84-settlement-efficiency-kpi": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "settlement-discipline-failpredict": {
+    "art-80-ssi-conformance-checker": {},
+    "art-79-settlement-fail-predictor": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "settlement-discipline-ssi-hygiene": {
+    "art-80-ssi-conformance-checker": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "settlement-discipline-alloc-affirm": {
+    "art-81-allocation-affirmation-conformance": {},
+    "art-82-securities-settlement-message-linter": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "settlement-discipline-message-conformance": {
+    "art-82-securities-settlement-message-linter": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "settlement-discipline-buyin": {
+    "art-78-csdr-penalty-calculator": {},
+    "art-83-buy-in-exposure-modeler": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "settlement-discipline-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "pqc-fit": {
+    "art-85-pqc-timeline-fit-diagnostic": {}
+  },
+  "pqc-fido-webauthn": {
+    "art-88-fido-pqc-conformance-checker": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "pqc-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "sanctions-fit": {
+    "art-90-sanctions-screening-fit-diagnostic": {}
+  },
+  "sanctions-ownership": {
+    "art-91-ownership-50pct-aggregator": {},
+    "art-92-screening-list-coverage-checker": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "sanctions-list-coverage": {
+    "art-92-screening-list-coverage-checker": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "sanctions-fuzzy-calibration": {
+    "art-93-fuzzy-match-calibration-scorer": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "export-control-eccn": {
+    "art-94-eccn-dual-use-classifier": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "export-control-circumvention": {
+    "art-94-eccn-dual-use-classifier": {},
+    "art-95-circumvention-diligence-assessor": {},
+    "art-96-no-russia-clause-pack-builder": {}
+  },
+  "sanctions-screening-quality": {
+    "art-93-fuzzy-match-calibration-scorer": {},
+    "art-92-screening-list-coverage-checker": {},
+    "art-97-sanctions-screening-quality-scorer": {}
+  },
+  "sanctions-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "mica-fit": {
+    "art-98-mica-casp-fit-diagnostic": {}
+  },
+  "mica-casp-authorization": {
+    "art-100-mica-casp-authorization-readiness": {},
+    "art-101-mica-art67-own-funds-calculator": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "mica-transitional": {
+    "art-99-mica-transitional-deadline-router": {},
+    "art-100-mica-casp-authorization-readiness": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "mica-whitepaper": {
+    "art-102-crypto-asset-whitepaper-linter": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "mica-mar-surveillance": {
+    "art-103-mar-crypto-surveillance-readiness": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "mica-travel-rule": {
+    "art-104-tfr-travel-rule-batch-validator": {},
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "mica-token-scoping": {
+    "art-105-mica-token-service-scoper": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "mica-audit-pack": {
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    },
+    "ptg-01-ap2-prompt-template-generator": {
+      "artifact_json": null,
+      "task": "plain_english_summary",
+      "audience": "board",
+      "tone": "formal",
+      "include_citations": true
+    }
+  },
+  "tempo-subscription-settlement": {
+    "art-36-tempo-mpp-agent-mandate": {
+      "agentDid": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "merchant": "merchant-001",
+      "spendCap": 25,
+      "duration": "8h",
+      "rail": "tempo_stablecoin",
+      "stablecoin": "USDC",
+      "cadence": "per-request"
+    },
+    "art-106-tempo-subscription-reconciler": {
+      "envelope": {
+        "cap_total": 1000,
+        "cap_per_cycle": 100,
+        "cadence": "monthly",
+        "valid_until": 9999999999,
+        "mode": "subscription"
+      },
+      "draws": [
+        {
+          "seq": 1,
+          "amount": 95,
+          "ts": 1750000000,
+          "cycle": 1
+        },
+        {
+          "seq": 2,
+          "amount": 90,
+          "ts": 1752600000,
+          "cycle": 2
+        },
+        {
+          "seq": 3,
+          "amount": 80,
+          "ts": 1755200000,
+          "cycle": 3
+        }
+      ]
+    },
+    "cry-04-merkle-batch-verifier": {
+      "proof_entries": [],
+      "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "tempo-gas-economics": {
+    "art-35-tempo-payments-business-case": {
+      "rail": "swift",
+      "stablecoin": "usdc",
+      "tx_amount_usd": 10000,
+      "monthly_volume": 500,
+      "impl_months": 3
+    },
+    "art-107-tempo-gas-economics": {
+      "monthly_volume": 100000,
+      "fee_mix": {
+        "USDC": 0.7,
+        "USD1": 0.2,
+        "PYUSD": 0.1
+      },
+      "amm_slippage": {
+        "USDC": 0,
+        "USD1": 2,
+        "PYUSD": 5
+      },
+      "server_paid_pct": 0.15,
+      "baseline_rail": "swift",
+      "tx_amount_usd": 1000,
+      "impl_months": 3
+    }
+  },
+  "canton-dtc-treasury": {
+    "510-digital-asset-regulatory-classifier": {
+      "asset_type": "stablecoin_usd",
+      "issuer_jurisdiction": "us",
+      "issuer_type": "bank",
+      "transfer_value": true,
+      "redeemable_par": true,
+      "economic_rights": false,
+      "market_cap_eur": null,
+      "on_dlt": true
+    },
+    "art-109-dtc-tokenized-treasury": {
+      "tokenized_ust_config": {
+        "cusip_class": "US-TREASURY",
+        "dtc_custody_ref": "DTC-123456-UST",
+        "fed_eligible": true,
+        "composerx_daml_template": "composerx:ust-lifecycle-v1",
+        "lifecycle_events": [
+          "issuance",
+          "corporate_actions",
+          "redemption"
+        ],
+        "collateral_reuse_policy": "allowed"
+      }
+    },
+    "507-canton-dvp-atomicity-validator": {
+      "settlement_mechanism": "atomic_dvp",
+      "platform": "canton_daml",
+      "finality_type": "irrevocable_realtime",
+      "unwind_protection": true,
+      "cash_type": "cbdc",
+      "settlement_amount": 1000000,
+      "currency": "USD"
+    },
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    }
+  },
+  "arc-multicurrency-corridor": {
+    "art-111-arc-corridor-jurisdiction-router": {
+      "corridor_legs": [
+        {
+          "ccy_pair": "USD/EUR",
+          "partner_stablecoin": "EURC",
+          "notional": 500000,
+          "disclosures_provided": [
+            "reserve_attestation_monthly",
+            "MiCA_Art21",
+            "AML_program"
+          ]
+        },
+        {
+          "ccy_pair": "USD/JPY",
+          "partner_stablecoin": "JPYC",
+          "notional": 300000,
+          "disclosures_provided": [
+            "PSA_registration",
+            "reserve_attestation",
+            "AML_program"
+          ]
+        }
+      ]
+    },
+    "511-multi-currency-pvp-validator": {
+      "legs": [
+        {
+          "ccy_sold": "USD",
+          "ccy_bought": "EUR",
+          "notional": 1000000,
+          "implied_rate": 0.92
+        }
+      ],
+      "atomicity_type": "atomic_pvp",
+      "finality_type": "irrevocable_realtime",
+      "has_unwind_procedure": true,
+      "canton_leg": true
+    },
+    "art-104-tfr-travel-rule-batch-validator": {}
+  },
+  "pharma-serialization-custody": {
+    "art-112-dscsa-transaction-statement-verifier": {
+      "product_identifier": "00312345678906.SN12345",
+      "lot": "L2026A",
+      "expiry": "2027-12-31",
+      "ti_present": true,
+      "th_present": true,
+      "ts_present": true,
+      "gln_seller": "0312345000009",
+      "gln_buyer": "0312345000016",
+      "epcis_event_type": "shipping",
+      "transaction_date": "2026-06-01"
+    },
+    "art-113-saleable-returns-verifier": {
+      "returned_sgtin": "00312345678906.SN12345",
+      "original_sgtin": "00312345678906.SN12345",
+      "returned_lot": "L2026A",
+      "original_lot": "L2026A",
+      "original_txn_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "seller_authorized": true,
+      "within_resale_window": true
+    },
+    "art-114-suspect-product-quarantine": {
+      "verification_failed": false,
+      "identifier_unmatched": false,
+      "counterfeit_indicators": [],
+      "quarantined": false,
+      "fda_notified": false
+    }
+  },
+  "food-traceability-fsma204": {
+    "art-118-fsma204-cte-validator": {
+      "cte_type": "shipping",
+      "kdes": {
+        "traceability_lot_code": "TLC-2026-SPINACH-001",
+        "ship_to_location": "GLN-0312345000016",
+        "ship_date": "2026-06-01",
+        "quantity": "500 lbs",
+        "reference_document": "BOL-20260601-001"
+      },
+      "ftl_food": "fresh cut spinach"
+    },
+    "art-119-traceability-lot-code-linker": {
+      "events": [
+        {
+          "cte": "harvesting",
+          "tlc": "TLC-001",
+          "prev_tlc": null,
+          "location_gln": "GLN-FARM",
+          "date": "2026-05-01"
+        },
+        {
+          "cte": "shipping",
+          "tlc": "TLC-001",
+          "prev_tlc": "TLC-001",
+          "location_gln": "GLN-DC",
+          "date": "2026-05-03"
+        },
+        {
+          "cte": "receiving",
+          "tlc": "TLC-001",
+          "prev_tlc": "TLC-001",
+          "location_gln": "GLN-STORE",
+          "date": "2026-05-05"
+        }
+      ]
+    },
+    "art-120-recall-trace-resolver": {
+      "contaminated_tlc": "TLC-CONTAM",
+      "direction": "both",
+      "edges": [
+        {
+          "from_tlc": "TLC-FARM-A",
+          "to_tlc": "TLC-CONTAM",
+          "from_gln": "GLN-001",
+          "to_gln": "GLN-002",
+          "date": "2026-05-01"
+        },
+        {
+          "from_tlc": "TLC-CONTAM",
+          "to_tlc": "TLC-STORE-1",
+          "from_gln": "GLN-002",
+          "to_gln": "GLN-003",
+          "date": "2026-05-05"
+        },
+        {
+          "from_tlc": "TLC-CONTAM",
+          "to_tlc": "TLC-STORE-2",
+          "from_gln": "GLN-002",
+          "to_gln": "GLN-004",
+          "date": "2026-05-06"
+        }
+      ]
+    }
+  },
+  "digital-product-passport-lineage": {
+    "art-115-dpp-data-carrier-validator": {
+      "product_id": "GS1-DL-8712345678901",
+      "data_carrier_type": "qr_gs1_digital_link",
+      "elements": {
+        "unique_product_identifier": "8712345678901",
+        "lookup_mechanism": "https://id.gs1.org/01/8712345678901",
+        "durability": "10 years",
+        "reparability": "Consumer repairable — 7 spare parts available",
+        "recyclability": "95% recyclable by weight",
+        "carbon_footprint": "12.4 kgCO2e",
+        "substances_of_concern": "none declared"
+      },
+      "ontology_version": "CIRPASS-2-2025-03"
+    },
+    "art-116-product-lineage-builder": {
+      "product_id": "GS1-DL-8712345678901",
+      "stages": [
+        {
+          "stage": "raw_material_extraction",
+          "supplier_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "certification": "ISO14001",
+          "dataVersion": "2026-01",
+          "carbon_value": 5.2
+        },
+        {
+          "stage": "manufacturing",
+          "supplier_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "certification": "SA8000",
+          "dataVersion": "2026-01",
+          "carbon_value": 3.8
+        },
+        {
+          "stage": "distribution",
+          "supplier_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "certification": null,
+          "dataVersion": "2026-01",
+          "carbon_value": 1.4
+        }
+      ]
+    },
+    "art-117-product-authenticity-verifier": {
+      "product_id": "GS1-DL-8712345678901",
+      "claimed_root_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "presented_lineage_hashes": [
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "ownership_transfers": [
+        {
+          "from": "manufacturer-A",
+          "to": "distributor-B"
+        },
+        {
+          "from": "distributor-B",
+          "to": "retailer-C"
+        }
+      ]
+    }
+  },
+  "document-integrity-anchor": {
+    "art-121-document-integrity-anchor": {
+      "document_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "claimed_timestamp": "2026-06-25T10:00:00Z",
+      "hash_algorithm": "sha256",
+      "document_type": "contract"
+    },
+    "art-122-timestamp-attestation-verifier": {
+      "document_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "presented_anchor": {
+        "document_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        "timestamp_claim": {
+          "standard": "eIDAS Art.41 / RFC 3161-aligned",
+          "timestamp": "2026-06-25T10:00:00Z",
+          "algorithm": "sha256"
+        }
+      },
+      "presented_timestamp": "2026-06-25T10:00:00Z",
+      "expected_algorithm": "sha256"
+    }
+  },
+  "content-credential-verification": {
+    "art-123-c2pa-manifest-validator": {
+      "claim_generator": "Adobe Firefly 3.0",
+      "claim": {
+        "format": "image/jpeg",
+        "instanceID": "xmp:iid:0001"
+      },
+      "assertions": [
+        {
+          "label": "c2pa.actions"
+        },
+        {
+          "label": "c2pa.hash.data"
+        }
+      ],
+      "signature": {
+        "present": true,
+        "alg": "ES256"
+      }
+    },
+    "art-124-content-credential-signature-verifier": {
+      "alg": "Ed25519",
+      "signer_public_key_jwk": {
+        "key_ops": [
+          "verify"
+        ],
+        "ext": true,
+        "alg": "Ed25519",
+        "crv": "Ed25519",
+        "x": "UCJluj4JmGYxBS1ecl_Q8kHKgd4ASBu6Hx6sHgfb0kk",
+        "kty": "OKP"
+      },
+      "signed_bytes_b64": "YzJwYS10ZXN0LXNpZ25lZC1jbGFpbS1ieXRlcy0yMDI2LTA2LTI1",
+      "signature_b64": "BSIkzTIAjJ2YVc347NUIBXJZAtx9uE5oSdhMIvA5LrL4UDdBkvpx2KSL5J8SJQOZro6M2m3iHAXbK+b7/YEBAQ==",
+      "trust_anchor_match": true,
+      "cert_not_expired": true,
+      "revocation_status": "good"
+    },
+    "art-125-provenance-ingredient-tree-resolver": {
+      "active_manifest_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ingredients": [
+        {
+          "label": "c2pa.ingredient",
+          "hashed_uri": "self#jumbf=/c2pa/urn:uuid:abc",
+          "nested_manifest_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "relationship": "parentOf",
+          "redacted": false
+        }
+      ]
+    }
+  },
+  "ai-content-disclosure-conformance": {
+    "art-126-ai-act-art50-marking-checker": {
+      "actions": [
+        {
+          "action": "c2pa.created",
+          "digitalSourceType": "trainedAlgorithmicMedia"
+        }
+      ],
+      "machine_readable_marking_present": true,
+      "is_deepfake": false,
+      "deepfake_disclosure_present": false
+    },
+    "art-127-dual-layer-disclosure-verifier": {
+      "c2pa_metadata_present": true,
+      "watermark_present": true,
+      "watermark_method": "synthid"
+    },
+    "art-128-content-binding-assertion-validator": {
+      "binding_type": "hard",
+      "asset_bytes_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "claimed_hard_binding_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "soft_binding_identifier_present": false
+    }
+  },
+  "agent-identity-verification": {
+    "art-129-webbotauth-signature-verifier": {
+      "covered_components": [
+        {
+          "name": "method",
+          "value": "POST"
+        },
+        {
+          "name": "@authority",
+          "value": "api.example.com"
+        },
+        {
+          "name": "@path",
+          "value": "/agent/v1/execute"
+        }
+      ],
+      "signature_params": "(\"method\" \"@authority\" \"@path\");created=1750000000;keyid=\"key-2026-06\";tag=\"web-bot-auth\";alg=\"ed25519\"",
+      "signature_b64": "ruUab1uVdHazfuOcU0E4qLcTnOM2Z7zYHiluP5qxDZkKbw8EjPNarFHL7G2fS2DhnFH1xlpbihrIkOm8jwxIDA==",
+      "public_key_jwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "WrHvnND7oaWfvrGxUU3FNeJaQDwYj4K3e5fl0fH5p2g"
+      },
+      "alg": "ed25519",
+      "created": 1750000000,
+      "now_unix": 1750003600,
+      "max_age_s": 3600
+    },
+    "art-130-signature-directory-validator": {
+      "well_known_path": "/.well-known/http-message-signatures-directory",
+      "keyid": "key-2026-06",
+      "directory_jwks": {
+        "keys": [
+          {
+            "kty": "OKP",
+            "crv": "Ed25519",
+            "kid": "key-2026-06",
+            "x": "WrHvnND7oaWfvrGxUU3FNeJaQDwYj4K3e5fl0fH5p2g"
+          }
+        ]
+      }
+    },
+    "art-131-signature-agent-card-validator": {
+      "card": {
+        "name": "ExampleAgent/1.0",
+        "operator": "Example Corp",
+        "expected_request_rate": "1000/day",
+        "keys": [
+          {
+            "kid": "key-2026-06"
+          }
+        ]
+      },
+      "directory_keyids": [
+        "key-2026-06"
+      ]
+    }
+  },
+  "agent-identity-publishing": {
+    "art-132-agent-key-rotation-auditor": {
+      "key_created_unix": 1750000000,
+      "now_unix": 1750086400,
+      "max_key_age_s": 7776000,
+      "next_key_present": false,
+      "algorithm": "ed25519"
+    },
+    "art-133-agent-payment-rail-trust-crosswalk": {
+      "alg": "ed25519",
+      "directory_published": true,
+      "card_present": true,
+      "signature_verified": true
+    },
+    "art-134-agent-directory-publish-readiness": {
+      "well_known_path_ok": true,
+      "jwks_reachable": true,
+      "card_complete": true,
+      "rotation_posture_ok": true,
+      "alg_ed25519": true
+    }
+  },
+  "sbom-provenance-attestation": {
+    "art-135-cyclonedx-sbom-validator": {
+      "sbom": {
+        "bomFormat": "CycloneDX",
+        "specVersion": "1.6",
+        "components": [
+          {
+            "name": "express",
+            "version": "4.18.2",
+            "purl": "pkg:npm/express@4.18.2"
+          }
+        ],
+        "dependencies": [
+          {
+            "ref": "pkg:npm/express@4.18.2",
+            "dependsOn": []
+          }
+        ]
+      }
+    },
+    "art-136-slsa-provenance-verifier": {
+      "statement": {
+        "_type": "https://in-toto.io/Statement/v0.1",
+        "predicateType": "https://slsa.dev/provenance/v1",
+        "subject": [
+          {
+            "name": "app.tar.gz",
+            "digest": {
+              "sha256": "abc123def456"
+            }
+          }
+        ],
+        "predicate": {
+          "runDetails": {
+            "builder": {
+              "id": "https://github.com/actions/runner/ubuntu-22.04@v2"
+            }
+          }
+        }
+      },
+      "artifact_digest_sha256": "abc123def456",
+      "claimed_build_level": 2
+    },
+    "art-137-openvex-statement-validator": {
+      "vex": {
+        "@context": "https://openvex.dev/ns/v0.2.0",
+        "statements": [
+          {
+            "vulnerability": {
+              "name": "CVE-2026-0001"
+            },
+            "products": [
+              "pkg:generic/app@1.0"
+            ],
+            "status": "not_affected",
+            "justification": "vulnerable_code_not_in_execute_path"
+          }
+        ]
+      }
+    }
+  },
+  "cra-product-conformance": {
+    "art-138-spdx-sbom-validator": {
+      "sbom": {
+        "spdxVersion": "SPDX-2.3",
+        "SPDXID": "SPDXRef-DOCUMENT",
+        "packages": [
+          {
+            "name": "express",
+            "versionInfo": "4.18.2",
+            "downloadLocation": "https://registry.npmjs.org/express/-/express-4.18.2.tgz"
+          }
+        ],
+        "relationships": [
+          {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relationshipType": "DESCRIBES",
+            "relatedSpdxElement": "SPDXRef-Package-express"
+          }
+        ]
+      }
+    },
+    "art-139-cra-annex1-completeness-checker": {
+      "sbom_present": true,
+      "sbom_machine_readable": true,
+      "top_level_deps_covered": true,
+      "vuln_handling_policy_present": true,
+      "secure_by_default": true,
+      "conformity_route": "self_assessment"
+    },
+    "art-140-cra-vuln-reporting-readiness": {
+      "actively_exploited_detection": true,
+      "early_warning_24h_process": true,
+      "notification_72h_process": true,
+      "csirt_enisa_endpoint_configured": true,
+      "coordinated_disclosure_policy": true
+    }
+  },
+  "nis2-entity-scope-and-obligations": {
+    "art-141-nis2-entity-scope-classifier": {
+      "sector_code": "energy",
+      "employee_count": 500,
+      "annual_turnover_eur": 80000000,
+      "is_dns_provider": false,
+      "is_qualified_trust_service_provider": false,
+      "is_public_electronic_comms_network": false
+    },
+    "art-142-nis2-art21-gap-checker": {
+      "measures": [
+        {
+          "measure_id": "a",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "b",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "c",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "d",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "e",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "f",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "g",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "h",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "i",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        },
+        {
+          "measure_id": "j",
+          "implemented": true,
+          "documented": true,
+          "last_tested_date": "2025-12-01"
+        }
+      ]
+    },
+    "art-143-nis2-penalty-exposure-calculator": {
+      "entity_classification": "essential",
+      "global_annual_turnover_eur": 1000000000,
+      "infringement_types": [
+        "art21_measures_absent"
+      ],
+      "mitigating_factors": []
+    }
+  },
+  "nis2-incident-and-supply-chain-readiness": {
+    "art-144-nis2-incident-significance-scorer": {
+      "service_disruption_hours": 4,
+      "estimated_affected_users": 5000,
+      "estimated_financial_loss_eur": 500000,
+      "third_party_cascade_impact": false,
+      "involves_malicious_act": false,
+      "cross_border_impact": false,
+      "entity_classification": "essential"
+    },
+    "art-145-nis2-ict-supply-chain-diligence-scorer": {
+      "vendor_iso27001_certified": true,
+      "vendor_incident_history_12mo": 0,
+      "audit_clause_in_contract": true,
+      "breach_notification_sla_hours": 24,
+      "data_residency_eu_only": true,
+      "sub_contractor_count": 2,
+      "service_availability_pct": 99.9
+    },
+    "art-146-nis2-governance-readiness-checker": {
+      "board_approved_art21_measures": true,
+      "board_receives_quarterly_status_updates": true,
+      "ciso_or_equivalent_designated": true,
+      "board_cybersecurity_training_completed": true,
+      "training_covers_threat_landscape": true,
+      "training_covers_incident_response": true,
+      "board_review_age_days": 90
+    }
+  },
+  "mcp-server-governance-conformance": {
+    "art-147-mcp-server-identity-attestation-validator": {
+      "identity": {
+        "subject": "did:web:example.com",
+        "issuer": "did:web:registry.mcp.io",
+        "serverInfo": {
+          "name": "ExampleMCPServer",
+          "version": "1.2.0"
+        },
+        "attestation": {
+          "ref": "https://registry.mcp.io/attestations/abc123"
+        }
+      },
+      "well_known_path": "/.well-known/mcp-server-identity",
+      "signature_valid": true
+    },
+    "art-148-mcp-authorization-metadata-validator": {
+      "metadata": {
+        "resource": "https://api.example.com/mcp",
+        "authorization_servers": [
+          "https://auth.example.com"
+        ],
+        "scopes_supported": [
+          "tools:read",
+          "tools:call"
+        ],
+        "bearer_methods_supported": [
+          "header"
+        ]
+      }
+    },
+    "art-149-mcp-registry-entry-conformance": {
+      "entry": {
+        "$schema": "https://registry.mcp.io/schema/server.json",
+        "name": "com.example/my-mcp-server",
+        "version": "1.0.0",
+        "packages": [
+          {
+            "registry": "npm",
+            "name": "@example/mcp-server",
+            "version": "1.0.0"
+          }
+        ]
+      }
+    }
+  },
+  "agent-authorization-lifecycle": {
+    "art-150-mcp-tool-scope-revocation-auditor": {
+      "tool_grants": [
+        {
+          "tool": "search_files",
+          "scopes": [
+            "files:read"
+          ]
+        },
+        {
+          "tool": "write_file",
+          "scopes": [
+            "files:write"
+          ]
+        }
+      ],
+      "revocation_endpoint": "https://auth.example.com/revoke",
+      "token_created_unix": 1000000,
+      "now_unix": 1001000,
+      "max_token_age_s": 3600,
+      "next_token_present": false
+    },
+    "art-151-agent-obo-mandate-validator": {
+      "mandate": {
+        "subject": "user:alice@example.com",
+        "intent": "retrieve_invoice_data",
+        "scope": [
+          "invoices:read",
+          "payments:read"
+        ],
+        "valid_until_unix": 9999999999
+      },
+      "now_unix": 1000000000
+    },
+    "art-152-mcp-task-lifecycle-validator": {
+      "transitions": [
+        {
+          "from": "working",
+          "to": "working"
+        },
+        {
+          "from": "working",
+          "to": "input_required"
+        },
+        {
+          "from": "input_required",
+          "to": "working"
+        },
+        {
+          "from": "working",
+          "to": "completed"
+        }
+      ]
+    }
+  },
+  "emir-trade-report-validation": {
+    "art-153-emir-trade-report-field-validator": {
+      "report": {
+        "action_type": "New",
+        "reporting_counterparty_lei": "MAES062Z21O4RZ2U7M96",
+        "other_counterparty_lei": "7LTWFZYICNSX8D621K86",
+        "uti": "UTI-EXAMPLE-001-20240429",
+        "upi": "DJMM0VX7HY4A",
+        "notional": 1000000,
+        "notional_currency": "EUR",
+        "effective_date": "2024-04-29",
+        "asset_class": "IR"
+      }
+    },
+    "art-154-emir-uti-completeness-checker": {
+      "uti": "UTI001EXAMPLE2024042901",
+      "generating_party": "MAES062Z21O4RZ2U7M96",
+      "trade_unix": 1714348800,
+      "uti_shared_unix": 1714406400
+    },
+    "art-155-emir-upi-validator": {
+      "upi": "DJMM0VX7HY4A",
+      "asset_class": "IR",
+      "instrument_type": "IRS"
+    }
+  },
+  "emir-reconciliation-and-lifecycle": {
+    "art-156-emir-counterparty-pairing-reconciler": {
+      "report_a": {
+        "uti": "UTI-TEST-001",
+        "notional": 1000000,
+        "asset_class": "IR"
+      },
+      "report_b": {
+        "uti": "UTI-TEST-001",
+        "notional": 1000000,
+        "asset_class": "IR"
+      },
+      "matching_fields": [
+        "notional",
+        "asset_class"
+      ],
+      "numeric_tolerance_pct": 1
+    },
+    "art-157-emir-lifecycle-event-validator": {
+      "action_type": "New",
+      "prior_state": "none"
+    },
+    "art-158-emir-reporting-readiness-diagnostic": {
+      "iso20022_cutover_done": true,
+      "upi_sourcing_configured": true,
+      "uti_sharing_sla_met": true,
+      "reconciliation_tolerance_set": true,
+      "lifecycle_action_controls": true
+    }
+  },
+  "vida-digital-reporting-requirements": {
+    "art-159-vida-einvoice-en16931-conformance-validator": {
+      "invoice": {
+        "invoice_number": "INV-2030-001",
+        "invoice_date": "2030-08-15",
+        "currency_code": "EUR",
+        "seller_name": "Acme GmbH",
+        "buyer_name": "Bayer AG",
+        "seller_vat_id": "DE123456789",
+        "syntax_id": "urn:cen.eu:en16931:2017",
+        "vat_breakdown": [
+          {
+            "category_code": "S"
+          }
+        ],
+        "total_with_vat": 1190
+      }
+    },
+    "art-160-vida-drr-transaction-reporter": {
+      "transaction": {
+        "supply_type": "B2B",
+        "seller_member_state": "DE",
+        "buyer_member_state": "FR",
+        "seller_vat_id": "DE123456789",
+        "buyer_vat_id": "FR98765432100",
+        "invoice_date": "2030-08-01",
+        "transaction_value": 50000
+      }
+    },
+    "art-161-vida-recapitulative-statement-migration-assessor": {
+      "regime": {
+        "pre2024_domestic": false,
+        "seller_vat_id": "DE123456789",
+        "buyer_vat_id": "FR98765432100",
+        "reporting_period": "2030-Q3",
+        "supply_type": "B2B",
+        "transaction_value": 50000
+      }
+    }
+  },
+  "vida-platform-and-registration": {
+    "art-162-vida-platform-deemed-supplier-classifier": {
+      "platform": {
+        "sector": "short_term_accommodation",
+        "duration_nights": 3,
+        "supplier_has_valid_vat_id": false,
+        "intra_eu_supply": true
+      }
+    },
+    "art-163-vida-oss-registration-router": {
+      "supply": {
+        "supply_type": "B2C_digital",
+        "seller_establishment": "DE",
+        "destination_member_state": "FR"
+      }
+    },
+    "art-164-vida-compliance-readiness-diagnostic": {
+      "entity": {
+        "einvoice_ready": true,
+        "drr_ready": true,
+        "platform_not_applicable": true,
+        "oss_scheme_configured": true
+      }
+    }
+  },
+  "eudr-due-diligence-statement-validation": {
+    "art-165-eudr-dds-field-validator": {
+      "dds": {
+        "operator_name": "Amazon Timber GmbH",
+        "operator_address": "Industriestr. 12, 10115 Berlin, DE",
+        "eori": "DE123456789012",
+        "hs_code": "4407",
+        "trade_name": "Tropical Sawn Timber",
+        "quantity": 5000,
+        "country_of_production": "BR",
+        "geolocation_present": true
+      }
+    },
+    "art-166-eudr-geolocation-plot-validator": {
+      "geo": {
+        "type": "Point",
+        "coordinates": [
+          -47.8762,
+          -15.7942
+        ],
+        "area_ha": 2.5,
+        "declared_country": "BR"
+      }
+    },
+    "art-167-eudr-commodity-scope-classifier": {
+      "hs_code": "4407",
+      "entity": {
+        "entity_type": "operator",
+        "employee_count": 500,
+        "annual_turnover_eur": 80000000
+      }
+    }
+  },
+  "eudr-supply-chain-risk-and-traceability": {
+    "art-168-eudr-country-benchmark-risk-scorer": {
+      "country_code": "DE"
+    },
+    "art-169-eudr-supply-chain-traceability-linker": {
+      "supply_chain": {
+        "operator_is_first": true,
+        "upstream_dds_refs": [],
+        "plot_geolocation_present": true,
+        "custody_chain_complete": true
+      }
+    },
+    "art-170-eudr-readiness-diagnostic": {
+      "entity": {
+        "scope_mapped": true,
+        "geolocation_data_ready": true,
+        "dds_submission_ready": true,
+        "risk_assessed": true,
+        "mitigation_documented": true,
+        "retention_system_ready": true
+      }
+    }
+  },
+  "ai-management-system-conformance": {
+    "art-171-iso42001-aims-clause-conformance": {
+      "aims": {
+        "clause_4_context": true,
+        "clause_5_leadership": true,
+        "clause_6_planning": true,
+        "clause_7_support": true,
+        "clause_8_operation": true,
+        "clause_9_evaluation": true,
+        "clause_10_improvement": true,
+        "annex_a_ai_policy": true,
+        "annex_a_roles": true,
+        "annex_a_impact_assessment": true,
+        "annex_a_data_governance": true,
+        "annex_a_system_lifecycle": true,
+        "annex_a_third_party": true
+      }
+    },
+    "art-172-ai-risk-impact-assessment-validator": {
+      "assessment": {
+        "intended_use": "Customer credit scoring system for retail banking",
+        "affected_stakeholders": [
+          "retail_customers",
+          "credit_officers",
+          "compliance_team"
+        ],
+        "risk_treatment_defined": true,
+        "monitoring_plan": "Monthly bias audits and quarterly accuracy reviews with documented escalation procedure",
+        "approval_documented": true,
+        "risk_categories": [
+          "bias",
+          "accuracy",
+          "privacy",
+          "security"
+        ],
+        "data_sources_listed": true
+      }
+    },
+    "art-173-ai-system-governance-classifier": {
+      "system": {
+        "use_case": "Automated credit scoring for consumer loans",
+        "deployment_context": "credit",
+        "is_gpai": true,
+        "has_systemic_risk": true,
+        "is_autonomous": false,
+        "processes_biometrics": false,
+        "affects_critical_infrastructure": false,
+        "is_emotion_recognition": false
+      }
+    }
+  },
+  "ai-governance-framework-crosswalk": {
+    "art-174-nist-ai-rmf-function-mapper": {
+      "evidence": {
+        "govern_policy": true,
+        "govern_roles": true,
+        "govern_culture": true,
+        "govern_transparency": true,
+        "govern_accountability": true,
+        "map_context": true,
+        "map_categorization": true,
+        "map_risk_identification": true,
+        "map_stakeholders": true,
+        "measure_analysis": true,
+        "measure_monitoring": true,
+        "measure_testing": true,
+        "measure_benchmarking": true,
+        "manage_response": true,
+        "manage_prioritization": true,
+        "manage_treatment": true,
+        "manage_residual_risk": true
+      }
+    },
+    "art-175-gpai-code-of-practice-conformance": {
+      "provider": {
+        "is_gpai_provider": true,
+        "technical_documentation": true,
+        "training_data_summary": true,
+        "copyright_policy": true,
+        "model_card_published": true,
+        "is_systemic_risk": true,
+        "systemic_risk_eval_conducted": true,
+        "adversarial_testing_done": true,
+        "incident_reporting_active": true,
+        "cybersecurity_measures": true,
+        "code_of_practice_signed": true
+      }
+    },
+    "art-176-ai-governance-readiness-diagnostic": {
+      "entity": {
+        "aims_documented": true,
+        "impact_assessed": true,
+        "nist_rmf_mapped": true,
+        "gpai_obligations_checked": true,
+        "monitoring_plan_active": true,
+        "review_cycle_defined": true
+      }
+    }
+  },
+  "ifrs17-measurement-conformance": {
+    "art-177-ifrs17-measurement-model-classifier": {
+      "contract": {
+        "coverage_period_months": 12,
+        "direct_participating_features": false,
+        "is_reinsurance": false
+      }
+    },
+    "art-178-ifrs17-csm-rollforward-validator": {
+      "csm": {
+        "opening_csm": 1000,
+        "new_business_csm": 200,
+        "interest_accretion": 50,
+        "experience_adjustments": -30,
+        "release_to_profit": 100,
+        "fx_adjustments": 0
+      }
+    },
+    "art-179-ifrs17-risk-adjustment-checker": {
+      "risk_adjustment": {
+        "ra_amount": 500,
+        "technique": "CoC",
+        "confidence_level_pct": 0,
+        "disclosed": true,
+        "onerous_contracts_identified": false,
+        "loss_component_recognized": false
+      }
+    }
+  },
+  "solvency-ii-reconciliation-and-capital": {
+    "art-180-solvency2-scr-ratio-calculator": {
+      "capital": {
+        "eligible_own_funds": 1500,
+        "tier1_unrestricted": 800,
+        "tier1_restricted": 200,
+        "tier2": 400,
+        "tier3": 100,
+        "scr": 1000,
+        "mcr": 250
+      }
+    },
+    "art-181-sii-ifrs17-reconciliation-bridger": {
+      "provisions": {
+        "sii_best_estimate": 10000,
+        "sii_risk_margin": 1000,
+        "ifrs17_fcf": 9800,
+        "ifrs17_ra": 700,
+        "ifrs17_csm": 300
+      }
+    },
+    "art-182-insurance-reporting-readiness-diagnostic": {
+      "entity": {
+        "ifrs17_measurement_model_elected": true,
+        "csm_system_implemented": true,
+        "risk_adjustment_disclosed": true,
+        "sii_qrt_reporting_complete": true,
+        "sii_ifrs17_reconciliation_done": true,
+        "ics_assessed": true
+      }
+    }
+  }
+}
