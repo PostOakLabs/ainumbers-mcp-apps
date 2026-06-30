@@ -32,6 +32,7 @@ const gates = [
   { name: 'build parity + pre-deploy count guard',args: ['scripts/build-mcp-parity.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
+  { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'schema-validate chaingraph (OCG v0.4)',args: [resolve(SITE, 'chaingraph/standard/schema-validate.mjs')],
     env: { SCHEMA: resolve(SITE, 'chaingraph/standard/openchain-graph-v0.4.schema.json'), CHAINGRAPH: 'data/chaingraph/chaingraph.json', FIXTURES_DIR: resolve(SITE, 'chaingraph/kernels/fixtures') }, needsSite: true },
