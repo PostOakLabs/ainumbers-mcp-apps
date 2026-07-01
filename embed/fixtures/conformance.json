@@ -1,0 +1,21 @@
+{
+  "description": "OCGR embedded-bundle conformance vectors. Each entry pins the canonical composite execution_hash that the LIVE Worker run_chain (mcp.ainumbers.co) produces for the named chain run with its vendored default fixtures. The embedded runChain must reproduce these byte-for-byte. Regenerate the expected values ONLY from a verified Worker run — never hand-edit to make a test pass.",
+  "spec": "OpenChainGraph Standard v0.4 §12 (chain-level Compute Binding)",
+  "vectors": [
+    {
+      "chain": "agent-commerce-conformance",
+      "steps": 4,
+      "expected_composite_execution_hash": "e51f3c239b0e4395f5baa5d1f1088eca22852be4521b198089ea3a4356428bb6"
+    },
+    {
+      "chain": "emir-trade-report-validation",
+      "steps": 3,
+      "expected_composite_execution_hash": "3f0cac09a00e6ab922db08e04602102df5c107d6489f81f5ff1293bda8f812b0"
+    },
+    {
+      "chain": "mica-casp-authorization",
+      "steps": 3,
+      "expected_composite_execution_hash": "b2be5a12cd0fc3f138f662a25614abe44a1475395430f1fac51c8482fd34d6f0"
+    }
+  ]
+}

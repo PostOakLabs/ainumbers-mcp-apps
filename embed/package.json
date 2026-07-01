@@ -1,0 +1,33 @@
+{
+  "name": "@postoaklabs/ocgr-embed",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Run AINumbers' verified OpenChainGraph compliance logic inside your own environment, and verify any execution_hash offline against the public OCG standard. Zero telemetry, zero network.",
+  "type": "module",
+  "license": "CC-BY-4.0",
+  "author": "Post Oak Labs",
+  "homepage": "https://ainumbers.co/chaingraph/",
+  "main": "./index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./verify": "./verify.mjs",
+    "./runChain": "./runChain.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "runChain.mjs",
+    "verify.mjs",
+    "lib/",
+    "fixtures/",
+    "README.md"
+  ],
+  "scripts": {
+    "selftest": "node selftest.mjs",
+    "vendor": "node vendor.mjs",
+    "vendor:check": "node vendor.mjs --check"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "_publishing": "PRIVATE by deliberate choice. Publishing (npm / public repo) is DEFERRED TO THE HUMAN — flip \"private\" and confirm the CC BY 4.0 license + the packaged file set first. This build must not be published."
+}
