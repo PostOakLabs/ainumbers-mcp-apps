@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "515 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "517 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
   "generated": "2026-07-02",
-  "tool_count": 515,
+  "tool_count": 517,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -19502,7 +19502,7 @@
     },
     {
       "name": "cbe_nft_license_picker",
-      "description": "Maps creator rights answers (waive all, commercial use, exclusivity, hate-speech termination) to one of a16z's six Can't Be Evil NFT licenses with the Solidity LicenseVersion enum ordinal, full rights matrix, and canonical reference. Deterministic. Use when a creator or agent needs to pick a standard NFT license to reference from a token contract. Selection only, not legal advice.",
+      "description": "Maps creator rights answers (waive all, commercial use, exclusivity, no-hate variant) to one of a16z's six Can't Be Evil NFT licenses with both on-chain enum names (launch and current), the Solidity LicenseVersion enum ordinal, full rights matrix verified against the canonical Arweave license texts, and canonical Arweave license URIs. Deterministic. Use when a creator or agent needs to pick a standard NFT license to reference from a token contract. Selection only, not legal advice.",
       "inputSchema": {
         "type": "object",
         "required": [
@@ -19515,7 +19515,7 @@
               "yes",
               "no"
             ],
-            "description": "yes = CBE-CC0 public domain"
+            "description": "yes = CBE-CC0 / PUBLIC public domain"
           },
           "commercial": {
             "type": "string",
@@ -19531,7 +19531,7 @@
               "yes",
               "no"
             ],
-            "description": "Exclusive commercial rights (only when commercial)"
+            "description": "Exclusive commercial rights (only when commercial; qualified, no trademark rights)"
           },
           "hate_speech_termination": {
             "type": "string",
@@ -19539,7 +19539,7 @@
               "yes",
               "no"
             ],
-            "description": "Include the no-hate termination variant"
+            "description": "Include the no-hate variant (broad objectionable-use restriction, license section 1.6, enforced by breach termination, not auto-termination)"
           }
         }
       },
@@ -19559,7 +19559,7 @@
         "url": "https://ainumbers.co/tools/521-cant-be-evil-nft-license-picker.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "prefill": false
       }
     },
@@ -19846,6 +19846,57 @@
       }
     },
     {
+      "name": "build_tdm_reservation",
+      "description": "Builds a W3C TDMRep tdmrep.json rule array plus the HTML meta tag and HTTP header equivalents to reserve (tdm-reservation:1) or open (0) text and data mining and AI training rights for a content path, with an optional tdm-policy URL. Deterministic string generation. Use to declare an AI-training opt-out under the EU AI Act GPAI regime.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "reservation"
+        ],
+        "properties": {
+          "reservation": {
+            "type": "string",
+            "enum": [
+              "1",
+              "0"
+            ],
+            "description": "1 = reserve (opt out of TDM/AI training), 0 = not reserved (allow)"
+          },
+          "location": {
+            "type": "string",
+            "description": "Path pattern the rule applies to, e.g. / or /images/*.jpg"
+          },
+          "policy_url": {
+            "type": "string",
+            "description": "Optional TDM policy document URL"
+          },
+          "iscc_ref": {
+            "type": "string",
+            "description": "Optional ISCC content code to soft-bind the reservation to (informational)"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "524-tdmrep-ai-training-reservation-builder",
+        "category": "dlt-tokenization",
+        "tags": [
+          "tdmrep",
+          "tdm",
+          "ai-training",
+          "opt-out",
+          "rights-reservation",
+          "eu-ai-act",
+          "w3c",
+          "content-creator"
+        ],
+        "url": "https://ainumbers.co/tools/524-tdmrep-ai-training-reservation-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
       "name": "validate_content_binding_assertion",
       "description": "Validate hard-binding (tamper-evident asset hash match) vs soft-binding (watermark survives re-encode). Emits TAMPER_EVIDENT / SOFT_BINDING_ONLY / UNBOUND verdict. Terminal stage.",
       "inputSchema": {
@@ -19886,6 +19937,42 @@
           "wave23"
         ],
         "url": "https://ainumbers.co/tools/525-content-binding-assertion-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "iscc_content_code_generator",
+      "description": "Generates a conformant ISO 24138 ISCC from a file: Instance-Code (BLAKE3 data integrity), Data-Code (content-defined-chunking similarity), Meta-Code (from title/description), and the composite ISCC-CODE. Pure-JS, verified byte-identical to the official iscc-core vectors. Runs client-side in the browser; the file never leaves the device.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "meta_name": {
+            "type": "string",
+            "description": "Optional work title for the Meta-Code"
+          },
+          "meta_description": {
+            "type": "string",
+            "description": "Optional description for the Meta-Code"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "525-iscc-content-code-generator",
+        "category": "dlt-tokenization",
+        "tags": [
+          "iscc",
+          "iso-24138",
+          "content-code",
+          "fingerprint",
+          "blake3",
+          "provenance",
+          "tokenization",
+          "content-creator"
+        ],
+        "url": "https://ainumbers.co/tools/525-iscc-content-code-generator.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
