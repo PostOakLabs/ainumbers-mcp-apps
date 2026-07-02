@@ -2472,5 +2472,64 @@
         "ics_assessed": true
       }
     }
+  },
+  "irrbb-supervisory-outlier-test": {
+    "art-183-irrbb-eve-shock-calculator": {
+      "repricing_gaps": {
+        "on_1m": 500,
+        "m1_y1": 800,
+        "y1_y3": -300,
+        "y3_y5": 1200,
+        "y5_y10": -400,
+        "y10_plus": 200
+      }
+    },
+    "art-184-irrbb-sot-eve-evaluator": {
+      "eve_shock": {
+        "worst_delta_eve": -180
+      },
+      "capital": {
+        "tier1_capital": 1000
+      }
+    },
+    "art-185-irrbb-sot-nii-evaluator": {
+      "nii_shock": {
+        "delta_nii_parallel_up": 20,
+        "delta_nii_parallel_down": -150
+      },
+      "baseline": {
+        "projected_nii": 1000,
+        "sot_nii_threshold_pct": 10
+      }
+    }
+  },
+  "irrbb-measurement-and-disclosure": {
+    "art-186-irrbb-standardised-approach-mapper": {
+      "positions": {
+        "deposit_category": "retail_transactional",
+        "core_deposit_pct": 95,
+        "behavioural_mortgage_prepay_pct": 15
+      }
+    },
+    "art-187-irrbb-csrbb-scope-checker": {
+      "instruments": {
+        "fvoci_afs_bonds": 500,
+        "fair_value_loans": 0,
+        "liquidity_buffer_bonds": 200
+      },
+      "governance": {
+        "csrbb_methodology_defined": false,
+        "csrbb_included_in_icaap": true
+      }
+    },
+    "art-188-irrbb-disclosure-readiness-diagnostic": {
+      "entity": {
+        "eve_shock_calculated": true,
+        "sot_eve_nii_evaluated": true,
+        "standardised_approach_mapped": true,
+        "csrbb_scope_assessed": true,
+        "pillar3_irrbb1_ready": true
+      }
+    }
   }
 }
