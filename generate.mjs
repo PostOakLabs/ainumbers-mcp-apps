@@ -54,7 +54,9 @@ const EXPORTERS_DATA   = resolve(DATA, 'exporters');
 const EXPORTERS_BUNDLE = resolve(ROOT, 'exporters');
 mkdirSync(EXPORTERS_DATA,   { recursive: true });
 mkdirSync(EXPORTERS_BUNDLE, { recursive: true });
-const EXPORTER_FILE_RE = /^(?!.*\.test\.mjs$)[a-z0-9_-]+\.mjs$/;
+// *.bundle.mjs = vendored third-party single-file bundles an exporter imports
+// (e.g. sdjwt.mjs -> _sdjwt-core.bundle.mjs, OCG §13.12) — they must travel with it.
+const EXPORTER_FILE_RE = /^(?!.*\.test\.mjs$)[a-z0-9_-]+(\.bundle)?\.mjs$/;
 for (const f of readdirSync(EXPORTERS_SRC).filter(f => EXPORTER_FILE_RE.test(f))) {
   const src = readFileSync(resolve(EXPORTERS_SRC, f));
   writeFileSync(resolve(EXPORTERS_DATA, f), src);
