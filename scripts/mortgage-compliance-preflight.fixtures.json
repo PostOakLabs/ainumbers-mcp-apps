@@ -1,0 +1,69 @@
+{
+  "chain": "mortgage-compliance-preflight",
+  "description": "Both-branch coverage for §21.4 gates in mortgage-compliance-preflight. Provides step_outputs for each gated step so gate-branch-coverage.test.mjs can verify both the rule-match (early exit) and default (pass-through) branches.",
+  "vectors": [
+    {
+      "name": "gate1-fires-understated-violation",
+      "description": "ART-217 (verify_trid_apr_accuracy) returns verdict=understated_violation → gate rule[0] fires → chain exits at ART-217, ART-218 and ART-219 skipped.",
+      "step_outputs": {
+        "art-217-trid-apr-accuracy": {
+          "verdict": "understated_violation",
+          "disclosed_apr_pct": 5.85,
+          "calculated_apr_pct": 6.30,
+          "tolerance_pct": 0.125,
+          "difference_pct": 0.45,
+          "trid_rule": "12 CFR 1026.38(o)(2)",
+          "cure_available": true
+        }
+      }
+    },
+    {
+      "name": "gate2-fires-qm-fail",
+      "description": "ART-217 passes (accurate verdict) → gate1 default taken. ART-218 (check_qm_points_and_fees) returns pass=false → gate2 rule[0] fires → chain exits at ART-218, ART-219 skipped.",
+      "step_outputs": {
+        "art-217-trid-apr-accuracy": {
+          "verdict": "accurate",
+          "disclosed_apr_pct": 5.85,
+          "calculated_apr_pct": 5.87,
+          "tolerance_pct": 0.125,
+          "difference_pct": 0.02,
+          "trid_rule": "12 CFR 1026.38(o)(2)",
+          "cure_available": false
+        },
+        "art-218-qm-points-and-fees": {
+          "pass": false,
+          "total_points_and_fees_pct": 4.2,
+          "qm_cap_pct": 3.0,
+          "loan_amount_usd": 180000,
+          "excess_amount_usd": 2160,
+          "regulation": "12 CFR 1026.43(e)(3)",
+          "failure_reason": "points_and_fees_exceed_qm_cap"
+        }
+      }
+    },
+    {
+      "name": "all-gates-default-full-chain",
+      "description": "ART-217 accurate (gate1 default), ART-218 pass=true (gate2 default), ART-219 runs to completion. Covers both default branches.",
+      "step_outputs": {
+        "art-217-trid-apr-accuracy": {
+          "verdict": "accurate",
+          "disclosed_apr_pct": 4.25,
+          "calculated_apr_pct": 4.26,
+          "tolerance_pct": 0.125,
+          "difference_pct": 0.01,
+          "trid_rule": "12 CFR 1026.38(o)(2)",
+          "cure_available": false
+        },
+        "art-218-qm-points-and-fees": {
+          "pass": true,
+          "total_points_and_fees_pct": 2.1,
+          "qm_cap_pct": 3.0,
+          "loan_amount_usd": 320000,
+          "excess_amount_usd": 0,
+          "regulation": "12 CFR 1026.43(e)(3)",
+          "failure_reason": null
+        }
+      }
+    }
+  ]
+}
