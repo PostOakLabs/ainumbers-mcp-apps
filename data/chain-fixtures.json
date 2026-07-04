@@ -2641,5 +2641,45 @@
       "purpose": "release-bundle",
       "sort": "name"
     }
+  },
+  "ip-license-election-and-attestation": {
+    "art-195-creative-commons-license-chooser": {
+      "waive_all_rights": "yes",
+      "allow_commercial": "yes",
+      "allow_adaptations": "yes"
+    },
+    "art-198-cross-license-rights-comparator": {},
+    "art-204-license-compatibility-checker": {},
+    "art-205-license-terms-assembler": {},
+    "art-206-rights-record-builder": {},
+    "art-199-license-election-certifier": {}
+  },
+  "tokenization-prep": {
+    "art-201-iscc-content-code-generator": {},
+    "art-202-tdmrep-reservation-builder": {},
+    "art-208-royalty-split-validator": {
+      "entries": [
+        {
+          "address": "0xABCDEF1234567890ABCDEF1234567890ABCDEF12",
+          "basis_points": 5000
+        },
+        {
+          "address": "0x1234567890ABCDEF1234567890ABCDEF12345678",
+          "basis_points": 5000
+        }
+      ],
+      "cap_bps": 5000
+    },
+    "art-207-attribution-string-generator": {
+      "title": "My Photograph",
+      "creator": "Jane Smith",
+      "source_url": "https://example.com/photo",
+      "license": "CC-BY-4.0"
+    },
+    "art-199-license-election-certifier": {}
+  },
+  "license-compatibility-check": {
+    "art-198-cross-license-rights-comparator": {},
+    "art-204-license-compatibility-checker": {}
   }
 }
