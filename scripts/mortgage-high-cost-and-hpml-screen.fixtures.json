@@ -1,0 +1,85 @@
+{
+  "chain": "mortgage-high-cost-and-hpml-screen",
+  "description": "Both-branch coverage for §21.4 gate in mortgage-high-cost-and-hpml-screen. Covers (a) gate fires on is_high_cost=true (chain exits at step 1, art-235 skipped) and (b) gate default taken (is_high_cost=false, art-235 runs to completion).",
+  "vectors": [
+    {
+      "name": "high_cost_gate_fires",
+      "description": "ART-234 (test_hoepa_high_cost) returns is_high_cost=true (APR spread 7pp > 6.5pp first-lien threshold, apr_trigger fires). Gate rule[0] matches → chain exits after step 1. ART-235 skipped.",
+      "step_outputs": {
+        "art-234-test-hoepa-high-cost": {
+          "is_high_cost": true,
+          "triggers_fired": ["apr_trigger"],
+          "apr_trigger_met": true,
+          "points_fees_trigger_met": false,
+          "prepayment_penalty_trigger_met": false,
+          "apr_spread_pct": 7,
+          "apr_pct": 12.5,
+          "apor_pct": 5.5,
+          "apr_threshold_pct": 6.5,
+          "apr_threshold_basis": "first_lien_standard_6.5pp",
+          "lien_type": "first",
+          "is_small_dwelling": false,
+          "loan_amount": 400000,
+          "points_and_fees": 5000,
+          "points_fees_limit": 20000,
+          "points_fees_limit_pct": 5,
+          "points_fees_floor": 1380,
+          "has_prepayment_penalty": false,
+          "prepayment_penalty_period_months": 0,
+          "prepayment_penalty_pct": 0,
+          "pp_period_limit_months": 36,
+          "pp_pct_limit": 2,
+          "year": 2026,
+          "table_version": "HOEPA-REGZ-2026-01-01"
+        }
+      }
+    },
+    {
+      "name": "not_high_cost_runs_hpml",
+      "description": "ART-234 returns is_high_cost=false (APR spread 2pp < 6.5pp, no HOEPA trigger). Gate default taken → ART-235 (test_hpml_escrow) runs. Spread 2pp > 1.5pp HPML threshold → is_hpml=true, escrow_required=true. Covers both branches.",
+      "step_outputs": {
+        "art-234-test-hoepa-high-cost": {
+          "is_high_cost": false,
+          "triggers_fired": [],
+          "apr_trigger_met": false,
+          "points_fees_trigger_met": false,
+          "prepayment_penalty_trigger_met": false,
+          "apr_spread_pct": 2,
+          "apr_pct": 7.5,
+          "apor_pct": 5.5,
+          "apr_threshold_pct": 6.5,
+          "apr_threshold_basis": "first_lien_standard_6.5pp",
+          "lien_type": "first",
+          "is_small_dwelling": false,
+          "loan_amount": 400000,
+          "points_and_fees": 5000,
+          "points_fees_limit": 20000,
+          "points_fees_limit_pct": 5,
+          "points_fees_floor": 1380,
+          "has_prepayment_penalty": false,
+          "prepayment_penalty_period_months": 0,
+          "prepayment_penalty_pct": 0,
+          "pp_period_limit_months": 36,
+          "pp_pct_limit": 2,
+          "year": 2026,
+          "table_version": "HOEPA-REGZ-2026-01-01"
+        },
+        "art-235-test-hpml-escrow": {
+          "is_hpml": true,
+          "escrow_required": true,
+          "escrow_exemption": null,
+          "escrow_exemption_basis": null,
+          "apr_spread_pct": 2,
+          "apr_pct": 7.5,
+          "apor_pct": 5.5,
+          "lien_type": "first",
+          "is_jumbo": false,
+          "spread_threshold_pct": 1.5,
+          "spread_threshold_basis": "first_lien_standard_1.5pp",
+          "year": 2026,
+          "table_version": "HPML-REGZ-2026-01-01"
+        }
+      }
+    }
+  ]
+}

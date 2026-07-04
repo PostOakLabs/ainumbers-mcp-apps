@@ -2942,5 +2942,30 @@
       "credit_bureau_address": "PO Box 740241 Atlanta GA 30374",
       "credit_bureau_phone": "1-800-685-1111"
     }
+  },
+  "mortgage-high-cost-and-hpml-screen": {
+    "art-234-test-hoepa-high-cost": {
+      "apr_pct": 12.5,
+      "apor_pct": 5.5,
+      "lien_type": "first",
+      "is_small_dwelling": false,
+      "loan_amount": 400000,
+      "points_and_fees": 5000,
+      "has_prepayment_penalty": false,
+      "prepayment_penalty_period_months": 0,
+      "prepayment_penalty_pct": 0,
+      "year": 2026
+    },
+    "art-235-test-hpml-escrow": {
+      "apr_pct": 7.5,
+      "apor_pct": 5.5,
+      "lien_type": "first",
+      "is_jumbo": false,
+      "is_rural_or_underserved": false,
+      "creditor_assets_under_2b": false,
+      "loan_count_under_500": false,
+      "property_is_condo_master_policy": false,
+      "year": 2026
+    }
   }
 }
