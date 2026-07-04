@@ -23,6 +23,7 @@ const root = here + '../';                                   // mcp-apps-poc/
 const SOURCES = {
   '_hash.mjs':              () => readFileSync(root + 'kernels/_hash.mjs'),
   '_proof.mjs':             () => readFileSync(root + 'kernels/_proof.mjs'),
+  '_gateval.mjs':           () => readFileSync(root + 'kernels/_gateval.mjs'),
   '_computeproof.mjs':      () => execFileSync('git', ['-C', root + '../repo', 'show', 'HEAD:chaingraph/kernels/_computeproof.mjs']),
   '_noble-bn254.bundle.mjs':() => execFileSync('git', ['-C', root + '../repo', 'show', 'HEAD:chaingraph/kernels/_noble-bn254.bundle.mjs']),
 };

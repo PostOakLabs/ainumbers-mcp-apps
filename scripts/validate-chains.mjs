@@ -31,6 +31,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { UTILITY_TOOL_NAMES as UTILITY_NAMES } from '../utility-tools.mjs';
+import { validateChainGates } from './gate-static.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO          = resolve(here, '..', '..', 'repo');
@@ -185,9 +186,13 @@ if (!existsSync(CHAINGRAPH_JSON)) {
         const rel = chain.composer_url.replace('https://ainumbers.co/', '');
         if (!existsSync(join(REPO, rel))) warnings.push(`${prefix} composer_url not found on disk: ${rel}`);
       }
+
+      // S5 (OCG §21.4, v0.8) — decision-gate static validation. No-op for linear chains.
+      for (const ge of validateChainGates(chain)) errors.push(`${prefix} ${ge}`);
     }
 
-    console.log(`[Layer 2] Done — ${chains.length} chains checked.\n`);
+    const gatedCount = chains.filter((c) => (c.steps || []).some((s) => s && s.gate)).length;
+    console.log(`[Layer 2] Done — ${chains.length} chains checked (${gatedCount} with decision gates).\n`);
   }
 }
 
