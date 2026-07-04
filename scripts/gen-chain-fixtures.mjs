@@ -100,6 +100,17 @@ async function main() {
 
   console.log(`gen-chain-fixtures: ${kernelChains.length}/${(cg.chains ?? []).length} chains fully kernel-backed`);
 
+  // OCG §21.4 (v0.8) — a GATED chain routes conditionally, so a single fixture per
+  // step exercises only ONE branch. Such chains MUST additionally ship a scenario set
+  // that drives every branch >=1 (validated by scripts/gate-branch-coverage.test.mjs,
+  // gate 4). Flag them so a future gated chain can't slip through with single-branch
+  // fixtures. No live gated chain exists yet (first ships with Wave 36) — this is a
+  // dormant guard, not a live requirement.
+  const gatedChains = (cg.chains ?? []).filter((c) => (c.steps ?? []).some((s) => s && s.gate));
+  if (gatedChains.length) {
+    console.log(`gen-chain-fixtures: ${gatedChains.length} GATED chain(s) present — each needs branch-coverage fixtures (gate 4, scripts/gate-branch-coverage.test.mjs): ${gatedChains.map((c) => c.name).join(', ')}`);
+  }
+
   const fixtures = {};
   let total = 0, found = 0, missing = 0;
 

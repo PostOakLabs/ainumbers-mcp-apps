@@ -10,6 +10,7 @@ import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@model
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
+import { evaluateGate as gvEvaluateGate, stepId as gvStepId } from './kernels/_gateval.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
@@ -995,6 +996,13 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
     // convention used at call sites when presenting to the user (e.g. in receipts).
     return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
+  // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
+  // steps[] definition (the decision policy). Same canonicalizer as §4; no new
+  // hash path. Mirrors embed/runChain.mjs cgSha256Hex byte-for-byte.
+  async function cgSha256Hex(obj) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(cgCanon(obj))));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
 
   server.registerTool('verify_execution_hash', {
     title: 'Verify a ChainGraph execution hash',
@@ -1189,50 +1197,87 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
     }
 
     // --- compute:"server"/"auto" — run each kernel-backed step, thread parent hashes ---
-    const results = [];
-    let prevHash = null, prevId = null;
-    for (let i = 0; i < steps.length; i++) {
-      const tid = steps[i];
-      const node = cgById[tid];
-      if (!node) { results.push({ order: i + 1, tool_id: tid, status: 'unknown_node' }); continue; }
-      if (node.gpu) { results.push({ order: i + 1, tool_id: tid, status: 'gpu_browser_only', browser_url: node.url }); continue; }
-      const kernel = getKernel(tid);
-      if (!kernel) { results.push({ order: i + 1, tool_id: tid, status: 'no_kernel_browser_only', browser_url: node.url }); continue; }
-      const callerPp = inputs?.[tid];
-      const fixturePp = chainFixtures?.[chain]?.[tid];
-      const pp = callerPp ?? fixturePp ?? {};
-      const inputs_source = callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none');
-      try {
-        const now = new Date().toISOString();
-        const artifact = await kernel.buildArtifact(pp, {
-          now,
-          parent_hashes: prevHash ? [prevHash] : [],
-          parent_tool_ids: prevId ? [prevId] : [],
-          chain_depth: i,
-        });
-        // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror Mode 4.
-        const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
-        if (srcImg && srcImg.image_id) {
-          artifact.audit_signature = { ...(artifact.audit_signature || {}), build_identity: {
-            kernel_digest: srcImg.image_id,
-            buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
-            source_ref: 'kernels/' + node.tool_id + '.kernel.mjs',
-          } };
-        }
-        // §18 compute_proof — attach iff the receipt is about THIS exact output (hash-excluded). Mirror Mode 4.
-        if (node.compute_proof && node.compute_proof.journal
-            && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
-          artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
-        }
-        results.push({ order: i + 1, tool_id: tid, status: 'ok', inputs_source, mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact });
-        prevHash = artifact.execution_hash; prevId = tid;
-      } catch (err) {
-        results.push({ order: i + 1, tool_id: tid, status: 'input_required', inputs_source, error: String(err?.message ?? err),
-          hint: 'Supply inputs["' + tid + '"] (field names per the node manifest / build_chaingraph).' });
-      }
-    }
+    // OCG §21: steps run in array order (linear fall-through) unless a step carries a
+    // decision `gate` (§21.4) that routes control FORWARD (to a later step id or "end").
+    // Steps jumped over get status "skipped_by_gate". A chain with no gate is pure linear
+    // and its composite_execution_hash is UNCHANGED — every §21.4 composite key is
+    // conditional-presence, emitted only when the chain defines >=1 gate. Mirrors
+    // embed/runChain.mjs byte-for-byte (surface-parity gate).
+    const chainSteps = chainMeta.steps ?? [];
+    const hasGates = chainSteps.some((s) => s && s.gate);
+    const idToIndex = {};
+    chainSteps.forEach((s, i) => { idToIndex[gvStepId(s, i)] = i; });
 
-    const ran = results.filter((r) => r.status === 'ok');
+    const results = new Array(chainSteps.length).fill(null);
+    const decisions = [];
+    const path_taken = [];
+    let prevHash = null, prevId = null;
+    let idx = 0;
+    while (idx < chainSteps.length) {
+      const step = chainSteps[idx];
+      const tid = steps[idx];
+      const node = cgById[tid];
+      let ranArtifact = null;
+      if (!node) { results[idx] = { order: idx + 1, tool_id: tid, status: 'unknown_node' }; }
+      else if (node.gpu) { results[idx] = { order: idx + 1, tool_id: tid, status: 'gpu_browser_only', browser_url: node.url }; }
+      else {
+        const kernel = getKernel(tid);
+        if (!kernel) { results[idx] = { order: idx + 1, tool_id: tid, status: 'no_kernel_browser_only', browser_url: node.url }; }
+        else {
+          const callerPp = inputs?.[tid];
+          const fixturePp = chainFixtures?.[chain]?.[tid];
+          const pp = callerPp ?? fixturePp ?? {};
+          const inputs_source = callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none');
+          try {
+            const now = new Date().toISOString();
+            const artifact = await kernel.buildArtifact(pp, {
+              now,
+              parent_hashes: prevHash ? [prevHash] : [],
+              parent_tool_ids: prevId ? [prevId] : [],
+              chain_depth: idx,
+            });
+            // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror Mode 4.
+            const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
+            if (srcImg && srcImg.image_id) {
+              artifact.audit_signature = { ...(artifact.audit_signature || {}), build_identity: {
+                kernel_digest: srcImg.image_id,
+                buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+                source_ref: 'kernels/' + node.tool_id + '.kernel.mjs',
+              } };
+            }
+            // §18 compute_proof — attach iff the receipt is about THIS exact output (hash-excluded). Mirror Mode 4.
+            if (node.compute_proof && node.compute_proof.journal
+                && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+            }
+            results[idx] = { order: idx + 1, tool_id: tid, status: 'ok', inputs_source, mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact };
+            prevHash = artifact.execution_hash; prevId = tid;
+            ranArtifact = artifact;
+          } catch (err) {
+            results[idx] = { order: idx + 1, tool_id: tid, status: 'input_required', inputs_source, error: String(err?.message ?? err),
+              hint: 'Supply inputs["' + tid + '"] (field names per the node manifest / build_chaingraph).' };
+          }
+        }
+      }
+      if (results[idx].status === 'ok') path_taken.push(gvStepId(step, idx));
+      // §21.4 decision gate — evaluate ONLY when the step produced output; route forward.
+      if (hasGates && step && step.gate && ranArtifact) {
+        const dec = { step_id: gvStepId(step, idx), ...gvEvaluateGate(step.gate, ranArtifact.output_payload) };
+        decisions.push(dec);
+        let target;
+        if (dec.next === 'end') target = chainSteps.length;
+        else { target = idToIndex[dec.next]; if (target === undefined || target <= idx) target = idx + 1; }
+        for (let j = idx + 1; j < target && j < chainSteps.length; j++) {
+          if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_gate' };
+        }
+        idx = target;
+        continue;
+      }
+      idx++;
+    }
+    const resultsList = results.filter((r) => r !== null);
+
+    const ran = resultsList.filter((r) => r.status === 'ok');
     // Composite artifact over the REAL step outputs. Deterministic preimage: only mandate_type +
     // output_payload per step (per-step timestamps/mandate_ids excluded), so the composite hash is reproducible.
     const composite_policy = {
@@ -1246,6 +1291,13 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       chain,
       steps: ran.map((r) => ({ tool_id: r.tool_id, mandate_type: r.mandate_type, execution_hash: r.execution_hash, output_payload: r.artifact.output_payload })),
     };
+    // §21.4 conditional-presence: gate metadata enters the preimage ONLY for chains that
+    // define >=1 gate, so every linear chain's composite_execution_hash stays frozen.
+    if (hasGates) {
+      composite_policy.route_plan_digest = await cgSha256Hex(chainSteps);
+      composite_output.decisions = decisions;
+      composite_output.path_taken = path_taken;
+    }
     const composite_hash = ran.length ? await cgExecutionHash(composite_policy, composite_output) : null;
     const composite_artifact = ran.length ? {
       '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
@@ -1270,17 +1322,20 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
 
     const out = {
       mode: 'server_run_chain', chain, compute_mode: 'server',
-      step_count: steps.length,
+      step_count: chainSteps.length,
       steps_ran: ran.length,
-      steps: results.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
+      steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
       composite_execution_hash: composite_hash,
       hash_valid,
       composite_artifact,
-      note: ran.length === steps.length
+      note: !hasGates && ran.length === chainSteps.length
         ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps.'
-        : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
-      spec: 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
+        : hasGates
+          ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions.'
+          : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
+      spec: hasGates ? 'OpenChainGraph Standard v0.8 §21 Chain Execution (decision gates)' : 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
+    if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
@@ -2310,6 +2365,28 @@ export default {
     // Health check
     if (url.pathname === '/health' || url.pathname === '/') {
       return Response.json({ status: 'ok', server: 'ainumbers-mcp-apps', version: PILOT.version }, { headers: corsHeaders });
+    }
+
+    // Well-known MCP server card (SEP-1649 / SEP-2127) — static discovery descriptor for agents
+    // and MCP clients that fetch /.well-known/mcp/server-card.json before connecting.
+    if (url.pathname === '/.well-known/mcp/server-card.json') {
+      return Response.json({
+        schema_version: 'mcp-server-card-v1',
+        name: 'ainumbers-mcp-apps',
+        title: 'AINumbers MCP Apps',
+        description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). Deterministic, zero-PII, zero payload logging.',
+        version: PILOT.version,
+        publisher: { name: 'Post Oak Labs', url: 'https://postoaklabs.com' },
+        license: 'CC-BY-4.0',
+        endpoints: [
+          { url: 'https://mcp.ainumbers.co/mcp', transport: 'streamable-http', protocol_version: '2025-06-18', authentication: 'none' },
+        ],
+        capabilities: { tools: {}, resources: {}, prompts: {} },
+        registry: 'co.ainumbers/tools',
+        documentation: 'https://ainumbers.co/mcp.html',
+        standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
+        llms_txt: 'https://ainumbers.co/llms.txt',
+      }, { headers: { ...corsHeaders, 'Cache-Control': 'public, max-age=3600' } });
     }
 
     // MCP endpoint
