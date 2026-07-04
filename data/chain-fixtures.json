@@ -2681,5 +2681,67 @@
   "license-compatibility-check": {
     "art-198-cross-license-rights-comparator": {},
     "art-204-license-compatibility-checker": {}
+  },
+  "mortgage-compliance-preflight": {
+    "art-220-reg-z-threshold-lookup": {
+      "year": 2026,
+      "table": "qm_points_fees"
+    },
+    "art-217-trid-apr-accuracy": {
+      "disclosed_apr_pct": 6.875,
+      "actual_apr_pct": 6.82
+    },
+    "art-218-qm-points-and-fees": {
+      "loan_amount": 450000,
+      "points_and_fees": 12000,
+      "year": 2026
+    },
+    "art-219-qm-apr-apor-spread": {
+      "apr_pct": 6.875,
+      "apor_pct": 5,
+      "lien_type": "first",
+      "loan_amount": 450000,
+      "year": 2026
+    }
+  },
+  "mortgage-apr-accuracy-and-tolerance-cure": {
+    "art-215-reg-z-appendix-j-apr": {
+      "loan_amount": 6000,
+      "payment_amount": 282.43,
+      "num_payments": 24,
+      "periods_per_year": 12
+    },
+    "art-217-trid-apr-accuracy": {
+      "disclosed_apr_pct": 6.875,
+      "actual_apr_pct": 6.82
+    },
+    "art-216-trid-tolerance-cure": {
+      "fees": [
+        {
+          "name": "origination_fee",
+          "bucket": "zero_tolerance",
+          "le_amount": 1500,
+          "cd_amount": 1500
+        },
+        {
+          "name": "appraisal",
+          "bucket": "ten_pct_cumulative",
+          "le_amount": 600,
+          "cd_amount": 640
+        },
+        {
+          "name": "title_service",
+          "bucket": "ten_pct_cumulative",
+          "le_amount": 1200,
+          "cd_amount": 1250
+        },
+        {
+          "name": "hazard_insurance",
+          "bucket": "no_tolerance_limit",
+          "le_amount": 900,
+          "cd_amount": 1100
+        }
+      ]
+    }
   }
 }
