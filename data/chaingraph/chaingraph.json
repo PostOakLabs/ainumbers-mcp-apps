@@ -1,6 +1,6 @@
 {
   "$schema": "https://ainumbers.co/schema/chaingraph-v1.0.json",
-  "version": "1.46.0",
+  "version": "1.47.0",
   "updated": "2026-07-04",
   "spec_version": "0.8.0",
   "maintainer": "Post Oak Labs",
@@ -17505,6 +17505,522 @@
           }
         }
       }
+    },
+    {
+      "tool_id": "art-221-llpa-stack",
+      "tool_version": "1.0.0",
+      "display_name": "LLPA Stack Calculator",
+      "mcp_name": "compute_llpa_stack",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-221-llpa-stack.html",
+      "description": "Fannie Mae public LLPA (Loan-Level Price Adjustment) matrix calculator. FICO-by-LTV base grid plus feature surcharges: cash-out refinance, second home, investment property, warrantable condo, subordinate financing. Applies FTHB AMI waiver (SEL-2023-07, up to 1.75 pp reduction for first-time buyers at or below 100% AMI). Table version: FNM-LLPA-2025-11-01 (Fannie Mae public publication). Not check_agency_eligibility_matrix (DU/LPA approval grid) or check_conforming_loan_limit (FHFA size limits).",
+      "input_schema_ref": "chaingraph/art-221-llpa-stack.html#manifest",
+      "consumes": [
+        "art-222-agency-eligibility-matrix"
+      ],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:7221a3468182a878ebf517663153a90e4973b4125fe3d77c8a44789898b785ad",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "EB456eyN9ddC0ybQhiu3iGb7Jcdx68roFPgSJkbEvfUufb9sAffKSfY1yc2mMUJpzlFrf0c9EQe466+q6iJnbRdEO1AipCKEGnDlOfoftCo6y9cx8+ogVgwkTQsv4y+JFpJGoYNgLt8mDMZ8Kee4sexJsBZ6hDKGB1CxUgRCFSMu5kXF3mHw7+m+SeUs6CQpQs8jt707kz8zc2LRYUqRmyLKGw0jQwfrhiw91339/5ltmhV9iKRb2Ss5DQKNSjFgKcXhQdL4n/J8CIyg9dghjwVrUaDpLNwdPukQ3YVENvgPN17ylUwGR4ira2h7mjYa6UXVSQLpAA6udpiKE8Cr8g==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:7221a3468182a878ebf517663153a90e4973b4125fe3d77c8a44789898b785ad",
+          "output": {
+            "base_llpa": 0,
+            "components": [
+              {
+                "label": "Base LLPA (primary)",
+                "value": 0
+              }
+            ],
+            "feature_llpa": 0,
+            "fico_band": "740+",
+            "fthb_eligible": false,
+            "fthb_waiver": 0,
+            "ltv_band": "<=60",
+            "pii_note": "All inputs processed locally in your browser. No data is transmitted.",
+            "regulatory_basis": "12 USC 4501 (FHFA charter); Fannie Mae Selling Guide B3-4.1-02; SEL-2023-07 FTHB waiver",
+            "table_source": "Fannie Mae LLPA Matrix effective 2025-11-01 (fanniemae.com; public)",
+            "table_version": "FNM-LLPA-2025-11-01",
+            "total_llpa_pct": 0
+          }
+        }
+      }
+    },
+    {
+      "tool_id": "art-222-agency-eligibility-matrix",
+      "tool_version": "1.0.0",
+      "display_name": "Agency Eligibility Matrix",
+      "mcp_name": "check_agency_eligibility_matrix",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-222-agency-eligibility-matrix.html",
+      "description": "Fannie Mae DU and Freddie Mac LPA agency eligibility matrix. Checks DTI caps (DU/LPA: 50%; manual UW: 36% housing / 45% total), LTV/CLTV/HCLTV maximums by occupancy type (primary/second home/investment) and loan purpose (purchase/rate-term/cash-out), and multi-unit property constraints. Returns eligible_flag (ELIGIBLE or INELIGIBLE) and detailed per-check results. Table version: FNM-LPA-ELIGIBILITY-2026-01-01. Not compute_llpa_stack (LLPA pricing surcharges) or check_conforming_loan_limit (FHFA loan size limits).",
+      "input_schema_ref": "chaingraph/art-222-agency-eligibility-matrix.html#manifest",
+      "consumes": [
+        "art-223-conforming-loan-limit"
+      ],
+      "feeds": [
+        "art-221-llpa-stack"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:1974e5147a75759c71c8deb05d10e26b2803fb3ce6c5947cabd998c089cf0e49",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "D4Qh/vnDzY7EkWwcqP+6UQFW8xqufh25w7fk7CdZekUgSTj7xvPVESUAQqT1q6thFqseNdfto4GSXJ7y6F+asx2+RbII76vqlUkAlTefoF8uQ34sPVzlgxzKsIIm6pZdLlBN5G4+mRbtxbxgAj+iH0sgk3O3x19VEdB3tedaXxsZwiz+xNuMsOcymLi9KbUyKeDxTu7hUrjU30K05oUgcRkxrUjRXC0wdBawwOr9mM8fheZOmebNsZpuBCOQkZZ4IuqMi5BmDg9YbB+k/2fk/+O6OFv26pj3Stm+lIEho10arVRynqisa/hvDoJOLSxaVvEbKm1VwAnmXcfK/rvmUA==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:1974e5147a75759c71c8deb05d10e26b2803fb3ce6c5947cabd998c089cf0e49",
+          "output": {
+            "checks": [
+              {
+                "actual": 740,
+                "check": "fico_minimum",
+                "note": null,
+                "pass": true,
+                "required": 620
+              },
+              {
+                "actual": 80,
+                "check": "ltv",
+                "pass": true,
+                "required_max": 97
+              },
+              {
+                "actual": 80,
+                "check": "cltv",
+                "pass": true,
+                "required_max": 105
+              },
+              {
+                "actual": 80,
+                "check": "hcltv",
+                "pass": true,
+                "required_max": 105
+              },
+              {
+                "actual": 40,
+                "check": "dti_total",
+                "pass": true,
+                "required_max": 50,
+                "underwriting": "du"
+              }
+            ],
+            "eligible": true,
+            "eligible_flag": "ELIGIBLE",
+            "fails": [],
+            "max_cltv_pct": 105,
+            "max_dti_pct": 50,
+            "max_hcltv_pct": 105,
+            "max_ltv_pct": 97,
+            "pii_note": "All inputs processed locally in your browser. No data is transmitted.",
+            "product_notes": [],
+            "regulatory_basis": "12 USC 4501 (FHFA); Fannie Mae Selling Guide; Freddie Mac Single-Family Guide; DU v11.1+",
+            "table_source": "Fannie Mae Selling Guide B3-2-01/B3-3.1-09 (DU); Freddie Mac Guide Ch.5100 (LPA); effective 2026-01-01",
+            "table_version": "FNM-LPA-ELIGIBILITY-2026-01-01",
+            "underwriting_type": "du"
+          }
+        }
+      }
+    },
+    {
+      "tool_id": "art-223-conforming-loan-limit",
+      "tool_version": "1.0.0",
+      "display_name": "Conforming Loan Limit Check",
+      "mcp_name": "check_conforming_loan_limit",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-223-conforming-loan-limit.html",
+      "description": "FHFA annual conforming loan limit classifier. 2026 baseline: $806,500 (1-unit), $1,032,650 (2-unit), $1,248,150 (3-unit), $1,550,400 (4-unit). High-cost county and AK/HI/Guam/USVI ceiling at 150% of baseline. Classifies loans as conforming, super-conforming, or jumbo. Accepts optional county-level limit override from FHFA FullCountyLoanLimitList2026.xlsx. Table version: FHFA-CLL-2026. Not lookup_reg_z_thresholds (Reg Z consumer-protection dollar thresholds) or check_agency_eligibility_matrix (DU/LPA approval parameters).",
+      "input_schema_ref": "chaingraph/art-223-conforming-loan-limit.html#manifest",
+      "consumes": [],
+      "feeds": [
+        "art-222-agency-eligibility-matrix"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:114e209f4a992a5b64a0357a6263fe467420738e6ac70b6c238b17987521fb40",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "KoFXRAC1yuVUmDFIy5OrJuOiTtgf9w9OcLsHALXLVhoQ4AMJUEUgT+WNhpUiLNU6OYWTPeWL7werPUBGChZWKxayhDLRq1rAHwSWDRAs/6ND9WkLj4MnR1U/Z3sw0dkeAayUGkgH75EpCWetqFAMj1Mu8XthKvpQThDIqaWYCD8lpderyzcbCr4R1XMx27x/+fR5LkJsse4G7BKhHrhkFyhAvmpXoISLFeWECpsnznUC2LsS8cs+dsiTRVrDSe0+HCnx9fzRl2ZyMJw9IOb3m/buyZe1cdRTbPFBzndFG1Ub4m4mL3Rn6qwSYXEb6/VXYTBVX66rJ/kftRVNVJfnzw==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:114e209f4a992a5b64a0357a6263fe467420738e6ac70b6c238b17987521fb40",
+          "output": {
+            "applicable_limit": 806500,
+            "baseline_limit": 806500,
+            "classification": "conforming",
+            "conforming": true,
+            "high_cost_ceiling": 1209750,
+            "is_ak_hi_territory": false,
+            "jumbo": false,
+            "limit_tier": "baseline",
+            "loan_amount": 700000,
+            "loan_program": "VA",
+            "note": "County-level limit sourced from caller (county_limit_override) when provided. Baseline and ceiling values are 2026 FHFA announcement. Verify high-cost designation against FHFA county dataset for exact limit.",
+            "pii_note": "All inputs processed locally in your browser. No data is transmitted.",
+            "regulatory_basis": "12 USC 1454 (Freddie Mac Charter §305); 12 USC 1717 (Fannie Mae Charter §304(b)); Housing and Economic Recovery Act 2008 §201; FHFA Annual CLL Adjustment",
+            "state_code": null,
+            "super_conforming": false,
+            "table_source": "FHFA 2026 Conforming Loan Limits (FHFA.gov, Nov 2025 announcement; FullCountyLoanLimitList2026.xlsx)",
+            "table_version": "FHFA-CLL-2026",
+            "units": 1
+          }
+        }
+      }
+    },
+    {
+      "tool_id": "art-224-fha-mip-eligibility",
+      "tool_version": "1.0.0",
+      "display_name": "FHA MIP Eligibility Calculator",
+      "mcp_name": "compute_fha_mip_eligibility",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-224-fha-mip-eligibility.html",
+      "description": "FHA mortgage insurance premium (MIP) eligibility and cost calculator per HUD Handbook 4000.1. UFMIP: 1.75% of base loan. Annual MIP grid (0.15%-0.75%) by base loan amount vs $726,200 threshold, LTV, and term. MIP duration: 11 years when original LTV at or below 90%; life-of-loan when above 90%. Qualifying ratios: 31% front-end / 43% back-end (compensating factors to 40%/57%). Credit score floors: 580 for 96.5% LTV; 500-579 for 90% max. Table version: HUD-MIP-ML2023-05-ML2024-01 (HUD Mortgagee Letter 2023-05, effective 2023-03-20).",
+      "input_schema_ref": "chaingraph/art-224-fha-mip-eligibility.html#manifest",
+      "consumes": [],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:0188afefdc40d10dd5d1058b02fdf32126f50994c6cdfc0389f7e1cf93cfe295",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "F9EnDRXkPOm14zvQV1E0bkWMmUP9RkyCczZveW9CSjIORjkARL18R6CGALd8Lt+7B+K2dH0T3GDbcOIng1YHLgmnBWLY17q4WYCOjkQSlt/O9fKLEFKyTfypJF9ncb8fE59YhE0N2ntWm4oUVQG6rckroga/pgtS94z79btZ64sXXLuh8k2rTZp30xBUBvx+VR9aeXoLZd+B2ZgFRgUCRyUmEvTtfbzhQttvt4dVAdKQovySXsPTGslMgQtbxISREdycNfRTWE6pktk/wj1MpSP80NDXy44wrwiQa9asCA0W3atkPFf8HXToS4Ik2qKuC9DKKOdOqbGiHcp01C/gjw==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:0188afefdc40d10dd5d1058b02fdf32126f50994c6cdfc0389f7e1cf93cfe295",
+          "output": {
+            "annual_mip": {
+              "annual_amount": 1650,
+              "duration": "life_of_loan",
+              "monthly_amount": 137.5,
+              "rate_pct": 0.55
+            },
+            "dti": {
+              "back_dti_ok": true,
+              "back_end_actual_pct": 42,
+              "back_end_guideline_pct": 43,
+              "compensating_factors_needed": false,
+              "front_dti_ok": true,
+              "front_end_actual_pct": 30,
+              "front_end_guideline_pct": 31
+            },
+            "fha_eligible": true,
+            "fico_eligible": true,
+            "ltv_eligible": true,
+            "max_ltv_pct": 96.5,
+            "note": "FHA MIP rates from ML 2023-05 (reduced rates effective Mar 2023). Verify current Mortgagee Letter schedule for any updates beyond 2025.",
+            "pii_note": "All inputs processed locally in your browser. No data is transmitted.",
+            "regulatory_basis": "12 USC 1709 (National Housing Act §203(b)); HUD Handbook 4000.1; 24 CFR Part 203",
+            "table_source": "HUD Handbook 4000.1 §II.A.8.p-q; HUD Mortgagee Letter 2023-05 (effective 2023-03-20); ML 2024-01",
+            "table_version": "HUD-MIP-ML2023-05-ML2024-01",
+            "ufmip": {
+              "amount": 5250,
+              "note": "Financed into loan amount (or paid at closing)",
+              "rate_pct": 1.75
+            }
+          }
+        }
+      }
+    },
+    {
+      "tool_id": "art-225-va-funding-fee-residual",
+      "tool_version": "1.0.0",
+      "display_name": "VA Funding Fee and Residual Income",
+      "mcp_name": "compute_va_funding_fee_residual",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-225-va-funding-fee-residual.html",
+      "description": "VA home loan funding fee (38 USC §3729) and residual income qualification. Funding fee table: first vs subsequent use, down-payment tiers (0%/5-9.99%/10%+), exemptions for service-connected disability/surviving spouse/Purple Heart. IRRRL: 0.50%. Residual income: VA Pamphlet 26-7 Ch.4 Tables 41A/41B by region (Northeast/Midwest/South/West) and family size; $80 per member above five. DTI benchmark: 41% (triggers residual income review when exceeded). Table versions: VA-FF-2025-01-01 (VA Circular 26-25-3); VA-PAMPHLET-26-7-CH4-2024.",
+      "input_schema_ref": "chaingraph/art-225-va-funding-fee-residual.html#manifest",
+      "consumes": [],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:0a2c6c768159e004a4be516f27462520d1e1459d4323169d1530a336a0172053",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "AH/0eycffPuWRNJGhc11AjmK7FSsAKznGXysG1Ovv3cmckEiUbdNgy/9OtiMCLjcfcNJvgI4GHwjyuhYGn84qAA25bDGjuNB0hutjkU+55zIQRW1R19hlOPIeZVM1/o8AH5zlcoNbmRHL42NC/t5L1vpfnZ0ZwL7bw/+0iebenoFaFLkyK9hSSNijXy5fyJWaZQOZ6jP/i3CBZK9texbCQhmdjJ7Fj8H+t1G/rmRI52ewQbEmzdo8+DVfwhLqsSmHCpW+g6D+/buphV+OOIgibcaWnf9Ty/l5zz7oC5fXHUQXHUvZLHSKgNPegCv6VLqIzYlGzrXvczkbqVjzY1nCQ==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:0a2c6c768159e004a4be516f27462520d1e1459d4323169d1530a336a0172053",
+          "output": {
+            "dti": {
+              "actual_pct": 35,
+              "benchmark_pct": 41,
+              "ok": true,
+              "residual_review_triggered": false
+            },
+            "funding_fee": {
+              "amount": 6450,
+              "basis": "purchase_first_dp_tier0",
+              "exempt": false,
+              "financed_loan_amount": 306450,
+              "rate_pct": 2.15
+            },
+            "pii_note": "All inputs processed locally in your browser. No data is transmitted.",
+            "regulatory_basis": "38 USC §§3701-3729 (VA Home Loan Program); 38 CFR Part 36; VA Pamphlet 26-7",
+            "residual_income": {
+              "actual_monthly": 4000,
+              "family_size": 2,
+              "margin": 3262,
+              "meets_requirement": true,
+              "region": "SO",
+              "required_monthly": 738,
+              "state_code": "TX"
+            },
+            "table_source_funding_fee": "38 USC §3729(a)(2); VA Circular 26-25-3 (effective 2025-01-01)",
+            "table_source_residual": "VA Pamphlet 26-7 Ch.4 Tables 41A/41B (2024 edition)",
+            "table_version_funding_fee": "VA-FF-2025-01-01",
+            "table_version_residual": "VA-PAMPHLET-26-7-CH4-2024"
+          }
+        }
+      }
+    },
+    {
+      "tool_id": "art-226-mismo-uldd-ulad",
+      "tool_version": "1.0.0",
+      "display_name": "ULDD/ULAD Structural Linter",
+      "mcp_name": "lint_mismo_uldd_ulad",
+      "mandate_type": "compliance_mandate",
+      "wave": 38,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-226-mismo-uldd-ulad.html",
+      "description": "ULDD Phase 5 / ULAD structural lint of required data points, enumerations, and conditionality rules. Checks field presence against ULDD Phase 5 required set, validates enum values from the public Fannie Mae ULDD Phase 5 Data Stencil and Freddie Mac ULAD Data Dictionary v1.3, enforces ARM-conditional fields, range constraints, and indicator consistency. ULDD Phase 5 mandate effective 2025-07-28. Inputs are bounded structural fields only; loan PII never leaves the browser. Lints public ULDD/ULAD data dictionaries only; does not embed or validate against the membership-licensed MISMO v3.x Reference Model schema. Table version: ULDD-PHASE5-ULAD-1.3-2025-07-28.",
+      "input_schema_ref": "chaingraph/art-226-mismo-uldd-ulad.html#manifest",
+      "consumes": [],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [
+        {
+          "system": "sha256-source",
+          "image_id": "sha256:5b09063e1cbd268666c288bd86047df127316f8a8e314b985ea89b240bc4ac13",
+          "valid_from": "2026-07-04"
+        },
+        {
+          "system": "risc0",
+          "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+          "valid_from": "2026-07-04"
+        }
+      ],
+      "export_capability": [
+        "json"
+      ],
+      "compute_proof_ready": "ready",
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "C1D4t0bhWPUnyWKNChypamNySNwbC5AAreXYoKT9x7QpWyry0R7aSHFgnWU/XEJQYupkFP+UWtYZd0cZ6M6C/CWrifUNUoHu5lhUw3CSbG0CLUMfkXO50ZKtTPqlp1bCFlmp7CrdGasmr7WTbqcMAxa3W54SrkxX9vQh4XOeP2ASB+Wdu1AV6YPspT9FqAnEL6cuWUusSehx20vsQmwbLAEa8z0JxCuh2yvdRH3rcaWKN0R84XlyRzcobSuzlZK/KKaE0BlcixrVVmxj+KXYzK/tNAb2m4GPhC8O4qxEp/QTBMghINpcSyittRWTnzrKPgSGJtZr9x7aeGGPYo54zA==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:5b09063e1cbd268666c288bd86047df127316f8a8e314b985ea89b240bc4ac13",
+          "output": {
+            "error_count": 0,
+            "errors": [],
+            "field_results": [
+              {
+                "field": "loan_purpose_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "amortization_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "loan_amount",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "ltv_pct",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "occupancy_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "property_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "number_of_units",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "interest_rate_pct",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "loan_term_months",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "credit_score",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "dti_pct",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "channel_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              },
+              {
+                "field": "doc_type",
+                "present": true,
+                "required": true,
+                "status": "ok"
+              }
+            ],
+            "fields_supplied": 13,
+            "license_note": "Lints against public ULDD Phase 5 / ULAD data dictionaries. Does not embed or validate against the membership-licensed MISMO v3.x Reference Model schema.",
+            "lint_pass": true,
+            "pii_note": "All inputs are processed locally in your browser. No data is transmitted. Loan data is PII: use structural/synthetic inputs only.",
+            "regulatory_basis": "12 USC 4501 (FHFA); Fannie Mae ULDD Phase 5 mandate; Freddie Mac ULAD v1.3; Uniform Mortgage Data Program (UMDP)",
+            "table_source": "Fannie Mae ULDD Phase 5 Data Stencil (public, fanniemae.com); Freddie Mac ULAD Data Dictionary v1.3 (public, freddiemac.com); ULDD Phase 5 mandate effective 2025-07-28",
+            "table_version": "ULDD-PHASE5-ULAD-1.3-2025-07-28",
+            "uldd_mandate_date": "2025-07-28",
+            "uldd_phase": "Phase 5",
+            "warning_count": 0,
+            "warnings": []
+          }
+        }
+      }
     }
   ],
   "chains": [
@@ -22773,6 +23289,87 @@
           "handoff": "cure_required and cure_amount complete the APR accuracy and tolerance cure report -- final stage"
         }
       ]
+    },
+    {
+      "name": "mortgage-agency-pricing-and-eligibility",
+      "title": "Mortgage Agency Pricing and Eligibility",
+      "spec_version": "0.8.0",
+      "wave": 38,
+      "description": "Gated three-step chain: conforming loan limit check feeds agency eligibility matrix (gate: INELIGIBLE routes to non-conforming referral terminal step; ELIGIBLE continues to LLPA pricing stack). Determines agency deliverability and computes the LLPA cost grid for eligible loans. FHFA CLL 2026 + Fannie/Freddie DU/LPA eligibility + LLPA FNM-2025-11-01.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/mortgage-agency-pricing-and-eligibility.html",
+      "regulatory_refs": [
+        "12 USC 1454/1717 (FHFA conforming loan limits)",
+        "Fannie Mae Selling Guide B3-2-01 (DU eligibility)",
+        "Freddie Mac Guide Ch.5100 (LPA eligibility)",
+        "Fannie Mae LLPA Matrix effective 2025-11-01",
+        "Fannie Mae Selling Guide B3-4.1-02; SEL-2023-07 FTHB waiver"
+      ],
+      "steps": [
+        {
+          "tool_id": "art-223-conforming-loan-limit",
+          "handoff": "Conforming/super-conforming/jumbo classification feeds Step 2 agency eligibility check"
+        },
+        {
+          "tool_id": "art-222-agency-eligibility-matrix",
+          "handoff": "Agency eligibility verdict -- gate routes INELIGIBLE to non-conforming referral, ELIGIBLE to LLPA pricing",
+          "gate": {
+            "input": "/eligible_flag",
+            "rules": [
+              {
+                "op": "eq",
+                "value": "INELIGIBLE",
+                "next": "end"
+              }
+            ],
+            "default": "art-221-llpa-stack"
+          }
+        },
+        {
+          "tool_id": "art-221-llpa-stack",
+          "handoff": "LLPA pricing stack with table_version binding completes the agency pricing and eligibility report -- final stage"
+        }
+      ]
+    },
+    {
+      "name": "mortgage-government-loan-fit",
+      "title": "Mortgage Government Loan Fit",
+      "spec_version": "0.8.0",
+      "wave": 38,
+      "description": "Gated two-step government loan program router. First step surfaces the target loan program into output_payload (loan_program field). Gate routes VA program to VA funding fee and residual income calculation; all other programs (FHA and others) continue to FHA MIP eligibility and cost calculation. Both branches are reachable: VA path computes funding fee + 38 USC §3729 table; FHA/default path computes HUD 4000.1 MIP. Total function with mandatory default.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/mortgage-government-loan-fit.html",
+      "regulatory_refs": [
+        "38 USC §3729 (VA funding fee)",
+        "38 CFR Part 36 (VA home loans)",
+        "VA Pamphlet 26-7 Ch.4 (residual income tables)",
+        "12 USC 1709 (FHA §203(b))",
+        "HUD Handbook 4000.1 §II.A.8 (MIP)",
+        "HUD Mortgagee Letter 2023-05 (annual MIP rates)"
+      ],
+      "steps": [
+        {
+          "tool_id": "art-223-conforming-loan-limit",
+          "handoff": "loan_program field (VA/FHA/Conventional) surfaces into output_payload; gate routes VA to funding-fee path, default to FHA MIP path",
+          "gate": {
+            "input": "/loan_program",
+            "rules": [
+              {
+                "op": "eq",
+                "value": "VA",
+                "next": "art-225-va-funding-fee-residual"
+              }
+            ],
+            "default": "art-224-fha-mip-eligibility"
+          }
+        },
+        {
+          "tool_id": "art-225-va-funding-fee-residual",
+          "handoff": "VA funding fee (38 USC §3729) and residual income (Pamphlet 26-7 Ch.4) -- VA path final stage"
+        },
+        {
+          "tool_id": "art-224-fha-mip-eligibility",
+          "handoff": "FHA MIP eligibility and cost (HUD 4000.1, ML 2023-05) -- FHA/default path final stage"
+        }
+      ]
     }
   ],
   "chains_schema": "https://ainumbers.co/schema/chaingraph-chains-v1.0.json",
@@ -23895,6 +24492,56 @@
         "First live OCG gated chain (mortgage-compliance-preflight): §21.4 decision gates with conditional-presence hash binding, fail-fast on understatement or QM fees failure"
       ],
       "description": "6 new nodes (art-215..220) + 2 chains forming cluster 21 (US Mortgage Compliance). Actuarial APR solver (Reg Z Appendix J, Newton-Raphson, pure ECMA-262), TRID fee tolerance cure (§1026.19(e)(3)), TRID APR accuracy verifier (§1026.22(a)), QM points-and-fees test (§1026.43(e)(3), version-pinned 2021-2026), QM APR-APOR spread classifier (§1026.43(e)(2)(vi), HPCT), and Reg Z threshold lookup service (qm_points_fees/hoepa/hpml/card_penalty). Chain 1: first live OCG gated chain with two §21.4 decision gates. Chain 2: linear APR accuracy and tolerance cure. chaingraph.json v1.46.0 (248 nodes, 239 chains)."
+    },
+    "wave_38": {
+      "name": "US Mortgage Agency and Government Loan Pricing",
+      "shipped": "2026-07-04",
+      "nodes_live": 6,
+      "live": [
+        "art-221-llpa-stack",
+        "art-222-agency-eligibility-matrix",
+        "art-223-conforming-loan-limit",
+        "art-224-fha-mip-eligibility",
+        "art-225-va-funding-fee-residual",
+        "art-226-mismo-uldd-ulad"
+      ],
+      "chains_live": 2,
+      "chains": [
+        "mortgage-agency-pricing-and-eligibility",
+        "mortgage-government-loan-fit"
+      ],
+      "guide_hub": "chaingraph/guide-mortgage-compliance.html",
+      "mcp_tools_added": [
+        "compute_llpa_stack",
+        "check_agency_eligibility_matrix",
+        "check_conforming_loan_limit",
+        "compute_fha_mip_eligibility",
+        "compute_va_funding_fee_residual",
+        "lint_mismo_uldd_ulad"
+      ],
+      "regulatory_refs": [
+        "Fannie Mae LLPA Matrix effective 2025-11-01 (public, FNM-LLPA-2025-11-01)",
+        "Fannie Mae Selling Guide B3-2-01 / B3-3.1-09 (DU/manual UW eligibility)",
+        "Freddie Mac Single-Family Guide Ch.5100 (LPA eligibility)",
+        "FHFA 2026 Conforming Loan Limits (FullCountyLoanLimitList2026.xlsx, FHFA-CLL-2026)",
+        "HUD Handbook 4000.1 §II.A.8.p-q (FHA MIP)",
+        "HUD Mortgagee Letter 2023-05 (reduced annual MIP rates effective 2023-03-20)",
+        "HUD Mortgagee Letter 2024-01 (MIP rates 2024-2025)",
+        "38 USC §3729(a)(2) (VA funding fee statutory table)",
+        "VA Circular 26-25-3 (VA-FF-2025-01-01)",
+        "VA Pamphlet 26-7 Ch.4 Tables 41A/41B (residual income, VA-PAMPHLET-26-7-CH4-2024)",
+        "Fannie Mae ULDD Phase 5 Data Stencil (public, mandate effective 2025-07-28)",
+        "Freddie Mac ULAD Data Dictionary v1.3 (public)"
+      ],
+      "catalysts": [
+        "LLPA stack is the highest-table-density build to date: four pinned tables (LLPA, CLL, FHA MIP, VA fee), each version-stamped in output_payload",
+        "Agents hallucinate LLPA rates and conforming limits; version-pinned tables with source citations are the moat",
+        "ULDD Phase 5 mandate went live 2025-07-28 requiring lender delivery system updates; structural lint gives agents a rerunnable conformance artifact",
+        "VA residual income tables are region-and-family-size dependent; deterministic kernel removes manual table lookups from the agent decision path",
+        "Government loan routing chain (mortgage-government-loan-fit) uses §21.4 gate to route VA vs FHA programs deterministically",
+        "Loan PII (ULDD data) never leaves the browser; all computation is client-side"
+      ],
+      "description": "6 new nodes (art-221..226) + 2 chains extending cluster 21 (US Mortgage Compliance). Fannie Mae LLPA stack (FICO-LTV grid + feature surcharges + FTHB waiver), DU/LPA agency eligibility matrix (DTI/LTV grids by occupancy/purpose), FHFA conforming loan limit classifier (2026 baseline/high-cost/AK-HI), FHA MIP eligibility (HUD 4000.1 UFMIP 1.75% + annual grid + 31/43 ratios), VA funding fee and residual income (38 USC §3729 + Pamphlet 26-7 Ch.4 tables), and ULDD Phase 5 / ULAD structural linter (public data stencils, bounded inputs). Chain 1 (mortgage-agency-pricing-and-eligibility): conforming limit check -> agency eligibility gate (INELIGIBLE exits; ELIGIBLE continues) -> LLPA pricing. Chain 2 (mortgage-government-loan-fit): program router gate (VA path -> funding fee/residual; FHA/default -> MIP). Both §21.4 gated with mandatory defaults. chaingraph.json v1.47.0 (254 nodes, 241 chains)."
     }
   },
   "mandate_type_registry_ref": "data/ap2-templates.json",
