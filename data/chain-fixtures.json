@@ -3324,5 +3324,173 @@
       "authorized_control_level": 100000000,
       "insurer_type": "pc"
     }
+  },
+  "corporate-treasury-statement-reconciliation": {
+    "art-258-parse-camt053-reconciliation": {
+      "opening_balance": 10000,
+      "closing_balance": 10500,
+      "day_count_convention": "ACT/360",
+      "transactions": [
+        {
+          "amount": 2000,
+          "credit_debit_indicator": "CRDT",
+          "bk_tx_cd": {
+            "domain": "PMNT",
+            "family": "RCDT"
+          },
+          "remittance_info": {
+            "structured": true,
+            "end_to_end_id": "E2E-001"
+          }
+        },
+        {
+          "amount": 1500,
+          "credit_debit_indicator": "DBIT",
+          "bk_tx_cd": {
+            "domain": "PMNT",
+            "family": "ICDT"
+          },
+          "remittance_info": {
+            "structured": true,
+            "end_to_end_id": "E2E-002"
+          }
+        }
+      ]
+    },
+    "art-263-score-cash-forecast-accuracy": {
+      "forecasts": [
+        {
+          "actual_amount": 1000000,
+          "forecast_amount": 1020000,
+          "horizon_days": 1
+        }
+      ]
+    }
+  },
+  "multilateral-netting-settlement": {
+    "art-259-compute-multilateral-netting": {
+      "base_currency": "USD",
+      "entities": [
+        {
+          "entity_id": "ENTITY_A",
+          "name": "Parent Co"
+        },
+        {
+          "entity_id": "ENTITY_B",
+          "name": "Sub US"
+        },
+        {
+          "entity_id": "ENTITY_C",
+          "name": "Sub EU"
+        }
+      ],
+      "gross_positions": [
+        {
+          "from_entity": "ENTITY_A",
+          "to_entity": "ENTITY_B",
+          "amount": 1000,
+          "currency": "USD"
+        },
+        {
+          "from_entity": "ENTITY_B",
+          "to_entity": "ENTITY_C",
+          "amount": 800,
+          "currency": "USD"
+        },
+        {
+          "from_entity": "ENTITY_C",
+          "to_entity": "ENTITY_A",
+          "amount": 600,
+          "currency": "USD"
+        }
+      ],
+      "fx_rates": {}
+    },
+    "art-260-allocate-ihb-interest": {
+      "pool_type": "notional",
+      "arm_length_rate": 0.05,
+      "days": 30,
+      "day_count_convention": "ACT/360",
+      "base_currency": "USD",
+      "pool_members": [
+        {
+          "entity_id": "PARENT_CO",
+          "balance": 500000,
+          "withholding_rate": 0
+        },
+        {
+          "entity_id": "SUB_A",
+          "balance": -200000,
+          "withholding_rate": 0
+        }
+      ]
+    }
+  },
+  "hedge-effectiveness-documentation": {
+    "art-261-test-hedge-effectiveness": {
+      "method": "both",
+      "effectiveness_standard": "asc815",
+      "hedge_ratio": 1,
+      "hedged_item_changes": [
+        100,
+        150,
+        200,
+        -50,
+        -100
+      ],
+      "hedging_instrument_changes": [
+        -95,
+        -145,
+        -195,
+        48,
+        97
+      ]
+    },
+    "art-263-score-cash-forecast-accuracy": {
+      "forecasts": [
+        {
+          "actual_amount": 1000000,
+          "forecast_amount": 1020000,
+          "horizon_days": 1
+        }
+      ]
+    }
+  },
+  "treasury-account-lifecycle-ebam": {
+    "art-262-validate-ebam-acmt-flow": {
+      "strict_order": true,
+      "acmt_messages": [
+        {
+          "message_type": "acmt.007",
+          "message_id": "MSG-001",
+          "account_id": "ACC-ALPHA-001"
+        },
+        {
+          "message_type": "acmt.010",
+          "message_id": "MSG-002",
+          "account_id": "ACC-ALPHA-001",
+          "ref_message_id": "MSG-001"
+        }
+      ]
+    },
+    "art-260-allocate-ihb-interest": {
+      "pool_type": "notional",
+      "arm_length_rate": 0.05,
+      "days": 30,
+      "day_count_convention": "ACT/360",
+      "base_currency": "USD",
+      "pool_members": [
+        {
+          "entity_id": "PARENT_CO",
+          "balance": 500000,
+          "withholding_rate": 0
+        },
+        {
+          "entity_id": "SUB_A",
+          "balance": -200000,
+          "withholding_rate": 0
+        }
+      ]
+    }
   }
 }
