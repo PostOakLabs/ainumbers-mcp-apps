@@ -3154,5 +3154,175 @@
       "fx_rate_mid": 17.2,
       "service_name": "SDG-3pct-exact"
     }
+  },
+  "parametric-trigger-adjudication": {
+    "art-251-compute-parametric-trigger-payout": {
+      "trigger_type": "threshold",
+      "index_value": 120,
+      "threshold": 100,
+      "coverage_amount": 50000,
+      "parametric_limit": 50000
+    },
+    "art-252-validate-cat-bond-trigger-terms": {
+      "reported_loss": 750000000,
+      "attachment_point": 500000000,
+      "exhaustion_point": 1000000000,
+      "coverage_amount": 500000000,
+      "pro_rata_enabled": true
+    }
+  },
+  "insurer-rbc-action-level": {
+    "art-254-compute-rbc-action-level": {
+      "total_adjusted_capital": 300000000,
+      "authorized_control_level": 100000000,
+      "insurer_type": "pc"
+    },
+    "art-257-calculate-claims-stp-economics": {
+      "annual_claims_volume": 100000,
+      "current_stp_rate_pct": 40,
+      "target_stp_rate_pct": 75,
+      "manual_handling_cost": 180,
+      "automated_handling_cost": 25,
+      "implementation_cost": 5000000,
+      "annual_license_cost": 500000,
+      "discount_rate_pct": 10,
+      "projection_years": 5
+    }
+  },
+  "cat-bond-trigger-validation": {
+    "art-252-validate-cat-bond-trigger-terms": {
+      "reported_loss": 750000000,
+      "attachment_point": 500000000,
+      "exhaustion_point": 1000000000,
+      "coverage_amount": 500000000,
+      "pro_rata_enabled": true
+    },
+    "art-251-compute-parametric-trigger-payout": {
+      "trigger_type": "threshold",
+      "index_value": 120,
+      "threshold": 100,
+      "coverage_amount": 50000,
+      "parametric_limit": 50000
+    }
+  },
+  "life-illustration-self-support-test": {
+    "art-253-run-illustration-selfsupport-test": {
+      "account_values": [
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000
+      ],
+      "premium_payments": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ],
+      "cost_of_insurance": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "expense_charges": [
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20
+      ],
+      "credited_interest": [
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45
+      ],
+      "face_amount": 100000
+    },
+    "art-254-compute-rbc-action-level": {
+      "total_adjusted_capital": 300000000,
+      "authorized_control_level": 100000000,
+      "insurer_type": "pc"
+    }
   }
 }
