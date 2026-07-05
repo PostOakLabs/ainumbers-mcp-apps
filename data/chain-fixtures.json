@@ -3039,5 +3039,78 @@
       "ecdsa_present": true,
       "record_id": "rec-001"
     }
+  },
+  "cbpr-address-lint-chain": {
+    "art-241-cbpr-structured-address-linter": {
+      "street_name": "Kaiserstrasse",
+      "building_number": "29",
+      "post_code": "60311",
+      "town_name": "Frankfurt",
+      "country": "DE",
+      "address_lines": []
+    },
+    "art-242-pacs008-party-completeness-validator": {
+      "uetr": "550e8400-e29b-41d4-a716-446655440000",
+      "debtor_name": "Acme Corp GmbH",
+      "creditor_name": "Global Trade AG",
+      "debtor_agent_bic": "DEUTDEFFXXX",
+      "creditor_agent_bic": "BARCGB22XXX",
+      "debtor_lei": "00000000000000000001",
+      "creditor_lei": "00000000000000000001",
+      "purpose_code": "TRAD"
+    },
+    "art-246-lei-payment-binding-linter": {
+      "originator_lei": "00000000000000000001",
+      "beneficiary_lei": "00000000000000000001",
+      "originator_name": "Synthetic Bank AG",
+      "originator_account": "DE89370400440532013000",
+      "beneficiary_name": "Test Recipient Corp",
+      "beneficiary_account": "GB82WEST12345698765432"
+    }
+  },
+  "gpi-mt-to-mx-translation": {
+    "art-244-gpi-tracker-lifecycle-simulator": {
+      "current_status": "ACSP",
+      "next_status": "ACCC",
+      "hours_elapsed": 12,
+      "amount_usd": 50000
+    },
+    "art-245-mt-mx-translation-fidelity-scorer": {
+      "mt_f20": "PAYMENT20260705",
+      "mt_f23b": "CRED",
+      "mt_f32a": "260705EUR10000,",
+      "mt_f50": "Acme Corp",
+      "mt_f52a": "DEUTDEFFXXX",
+      "mt_f57a": "BARCGB22XXX",
+      "mt_f59": "Global Trade AG",
+      "mt_f70": "/INV/2026/001 trade payment",
+      "mt_f71a": "SHA",
+      "mx_uetr": "550e8400-e29b-41d4-a716-446655440000",
+      "mx_dbtr_nm": "Acme Corp",
+      "mx_cdtr_nm": "Global Trade AG",
+      "mx_cdtr_agt": "BARCGB22XXX",
+      "mx_dbtr_agt": "DEUTDEFFXXX",
+      "mx_rmt_ustrd": "/INV/2026/001 trade payment",
+      "mx_chrg_br": "SHAR"
+    }
+  },
+  "cross-border-payment-prevalidation": {
+    "art-243-purpose-code-requirement-checker": {
+      "beneficiary_country": "AE",
+      "payment_amount_usd": 5000,
+      "purpose_code": "TRAD",
+      "category_purpose_code": "TRAD"
+    },
+    "art-247-prevalidation-readiness-scorer": {
+      "iban": "DE89370400440532013000",
+      "bic": "DEUTDEFFXXX",
+      "lei": "00000000000000000001",
+      "uetr": "550e8400-e29b-41d4-a716-446655440000",
+      "address_street_name": "Kaiserstrasse",
+      "address_building_number": "29",
+      "address_post_code": "60311",
+      "address_town_name": "Frankfurt",
+      "address_country": "DE"
+    }
   }
 }
