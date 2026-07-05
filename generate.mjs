@@ -3,6 +3,7 @@
 // Cloudflare Workers static assets both read ./data).
 // Re-run after any AINumbers deploy that touches the pilot tools:  node generate.mjs
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
@@ -251,3 +252,17 @@ if (selfFails) {
   process.exit(1);
 }
 console.log('Self-check: all outputs match site source ✓');
+
+// Chain-fixtures (OCGR Phase A) are part of the SAME vendor bundle. This used to be a
+// second, separate manual step (`node scripts/gen-chain-fixtures.mjs`) with its own worker
+// CI gate ("Chain-fixtures freshness"), and forgetting it produced a half-vendor (kernels +
+// data fresh, data/chain-fixtures.json stale) that only failed on worker CI. Folding it here
+// makes `node generate.mjs` emit a COMPLETE bundle so a half-vendor is structurally impossible.
+// gen-chain-fixtures.mjs reads the site's committed HEAD via SITE_REPO (== REPO here).
+console.log('Regenerating data/chain-fixtures.json (OCGR Phase A) ...');
+execSync('node scripts/gen-chain-fixtures.mjs', {
+  cwd: ROOT,
+  stdio: 'inherit',
+  env: { ...process.env, SITE_REPO: REPO },
+});
+console.log('Vendor bundle complete (data/ + kernels/ + data/chain-fixtures.json) ✓');
