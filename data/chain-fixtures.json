@@ -3112,5 +3112,47 @@
       "address_town_name": "Frankfurt",
       "address_country": "DE"
     }
+  },
+  "remittance-disclosure-and-corridor-cost": {
+    "art-248-compute-remittance-disclosure": {
+      "send_amount": 1000,
+      "exchange_rate": 17.15,
+      "provider_fee": 2.99,
+      "third_party_fees": 0,
+      "taxes": 0,
+      "destination_currency": "MXN",
+      "destination_country": "MX",
+      "estimate_permissible": false
+    },
+    "art-249-compare-corridor-cost": {
+      "from_country": "US",
+      "to_country": "MX",
+      "send_amount": 200,
+      "provider_fee": 4,
+      "fx_rate_used": 17.03,
+      "fx_rate_mid": 17.2,
+      "service_name": "SDG-3pct-exact"
+    }
+  },
+  "stablecoin-remittance-corridor-economics": {
+    "art-250-model-stablecoin-corridor-economics": {
+      "send_amount_usd": 1000,
+      "on_ramp_fee_pct": 0.5,
+      "chain_fee_usd": 0.01,
+      "off_ramp_fee_pct": 0.3,
+      "fx_spread_pct": 0.2,
+      "float_savings_rate_pct": 4,
+      "float_days": 0,
+      "correspondent_cost_pct": 6
+    },
+    "art-249-compare-corridor-cost": {
+      "from_country": "US",
+      "to_country": "MX",
+      "send_amount": 200,
+      "provider_fee": 4,
+      "fx_rate_used": 17.03,
+      "fx_rate_mid": 17.2,
+      "service_name": "SDG-3pct-exact"
+    }
   }
 }
