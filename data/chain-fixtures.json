@@ -2967,5 +2967,77 @@
       "property_is_condo_master_policy": false,
       "year": 2026
     }
+  },
+  "ai-decision-log-conformance": {
+    "art-238-classify-annex3-decisioning-obligations": {
+      "is_high_risk": true,
+      "annex3_category": "5b_creditworthiness",
+      "deployer_role": "deployer",
+      "has_human_oversight": true,
+      "fria_completed": true,
+      "db_registered": true,
+      "logging_implemented": true
+    },
+    "art-236-build-ai-decision-log-record": {
+      "model_id": "credit-ai-v2",
+      "model_version": "2.1.0",
+      "input_digest": "abc123def456abc123def456abc123def456abc123def456abc123def456abcd",
+      "output_digest": "def456abc123def456abc123def456abc123def456abc123def456abc123def4",
+      "decision_label": "CREDIT_APPROVED",
+      "confidence": 0.92,
+      "override_flag": false,
+      "subject_ref": "CASE-0042",
+      "retention_months": 12,
+      "operator_id": "bank-xyz"
+    },
+    "art-237-validate-agent-audit-trail": {
+      "agent_identity": "did:web:agent.example.com#key-1",
+      "action_class": "EXECUTE",
+      "outcome": "SUCCESS",
+      "trust_level": "HIGH",
+      "sha256_prev_record": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+      "ecdsa_present": true,
+      "record_id": "rec-001"
+    }
+  },
+  "insurance-ai-bias-attestation": {
+    "art-239-test-bifsg-bias-thresholds": {
+      "p_value": 0.02,
+      "marginal_effect_pct": 7.3,
+      "test_context": "approval_rate",
+      "model_type": "underwriting",
+      "attestation_year": 2026
+    },
+    "art-240-assess-naic-ais-program-readiness": {
+      "governance_score": 3,
+      "risk_mgmt_score": 3,
+      "data_governance_score": 3,
+      "testing_score": 3,
+      "transparency_score": 3,
+      "audit_score": 3
+    }
+  },
+  "agent-audit-trail-conformance": {
+    "art-236-build-ai-decision-log-record": {
+      "model_id": "credit-ai-v2",
+      "model_version": "2.1.0",
+      "input_digest": "abc123def456abc123def456abc123def456abc123def456abc123def456abcd",
+      "output_digest": "def456abc123def456abc123def456abc123def456abc123def456abc123def4",
+      "decision_label": "CREDIT_APPROVED",
+      "confidence": 0.92,
+      "override_flag": false,
+      "subject_ref": "CASE-0042",
+      "retention_months": 12,
+      "operator_id": "bank-xyz"
+    },
+    "art-237-validate-agent-audit-trail": {
+      "agent_identity": "did:web:agent.example.com#key-1",
+      "action_class": "EXECUTE",
+      "outcome": "SUCCESS",
+      "trust_level": "HIGH",
+      "sha256_prev_record": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+      "ecdsa_present": true,
+      "record_id": "rec-001"
+    }
   }
 }
