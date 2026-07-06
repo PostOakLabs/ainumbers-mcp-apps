@@ -769,7 +769,7 @@ function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
     .slice(0, topN);
 }
 
-// Dashboard §3.2 fragment codec — response metadata only, never inside any artifact preimage.
+// Ledger fragment codec — response metadata only, never inside any artifact preimage.
 // Returns { ledger_url } when compressed payload ≤ 30KB, else { ledger_url_note }.
 // Uses pipeThrough to avoid write/read backpressure deadlock on large inputs.
 async function fragmentLink(artifact) {
