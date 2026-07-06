@@ -3570,5 +3570,24 @@
       "form_date": "2024-03-15",
       "reference_date": "2025-07-05"
     }
+  },
+  "dora-escalation-demo": {
+    "art-29-dora-readiness-diagnostic": {},
+    "art-09-dora-incident-classifier": {
+      "incident_type": "cyber_attack",
+      "entity_type": "credit_institution",
+      "detection_dt": "2026-06-19T08:00:00.000Z",
+      "classification_dt": "2026-06-19T09:00:00.000Z",
+      "resolution_dt": null,
+      "clients_affected": 50000,
+      "total_clients": 200000,
+      "tx_value_eur": 15,
+      "outage_duration_mins": 45,
+      "member_states": 3,
+      "data_loss": true,
+      "critical_fn": true,
+      "cross_border": true,
+      "tp_ict": false
+    }
   }
 }
