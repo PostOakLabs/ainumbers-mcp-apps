@@ -769,6 +769,26 @@ function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
     .slice(0, topN);
 }
 
+// Dashboard §3.2 fragment codec — response metadata only, never inside any artifact preimage.
+// Returns { dashboard_url } when compressed payload ≤ 30KB, else { dashboard_url_note }.
+// Uses pipeThrough to avoid write/read backpressure deadlock on large inputs.
+async function fragmentLink(artifact) {
+  const json = JSON.stringify(artifact);
+  const encoded = new TextEncoder().encode(json);
+  const stream = new ReadableStream({
+    start(ctrl) { ctrl.enqueue(encoded); ctrl.close(); },
+  }).pipeThrough(new CompressionStream('gzip'));
+  const buf = await new Response(stream).arrayBuffer();
+  const compressed = new Uint8Array(buf);
+  if (compressed.length > 30 * 1024) {
+    return { dashboard_url_note: 'artifact exceeds link budget - download and drag into dashboard.ainumbers.co' };
+  }
+  let bin = '';
+  for (let i = 0; i < compressed.length; i++) bin += String.fromCharCode(compressed[i]);
+  const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  return { dashboard_url: 'https://dashboard.ainumbers.co/#a=v1.' + b64 };
+}
+
 function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
@@ -1159,7 +1179,8 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       'Supply inputs as a map of step tool_id -> policy_parameters (field names per node manifest / build_chaingraph); ' +
       'a step whose kernel needs inputs you omit is reported per-step (status "input_required"), never failed silently. ' +
       'Steps that are browser-only (gpu:true or no registered kernel) are listed for browser delegation. ' +
-      'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash.',
+      'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash. ' +
+      'Response includes a dashboard_url fragment link for human verification at dashboard.ainumbers.co.',
     inputSchema: {
       chain: z.string().describe('Chain name, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
       inputs: z.record(z.record(z.any())).optional()
@@ -1336,6 +1357,12 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       spec: hasGates ? 'OpenChainGraph Standard v0.8 §21 Chain Execution (decision gates)' : 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
     if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
+    // dashboard_url — response metadata only; never inside any artifact preimage
+    if (composite_artifact) {
+      const db = await fragmentLink(composite_artifact);
+      if (db.dashboard_url) out.dashboard_url = db.dashboard_url;
+      else out.dashboard_url_note = db.dashboard_url_note;
+    }
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
@@ -1706,7 +1733,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
     if (!cap || !cap.length) return true;
     return cap.some((c) => c === format || c.startsWith(format + ':')); // e.g. 'xbrl:eba-corep-own-funds'
   };
-  registerExportArtifact(server, z, { isFormatAllowed });
+  registerExportArtifact(server, z, { isFormatAllowed, fragmentLink });
 
   // -------------------------------------------------------------------------
   // Discovery layer — find_chain and find_tool (hot tools, never deferred).
@@ -2330,7 +2357,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
 // buildServer in Node via an in-memory transport to capture the static initialize/tools-list/
 // resources-list/prompts-list responses, so the Worker never rebuilds 162 tools per request on
 // the cold Free-plan CPU budget). Build-time only; the Worker entry point is `default` below.
-export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS };
+export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS, fragmentLink };
 
 // ---------------------------------------------------------------------------
 // Allowed origins for CORS
@@ -2374,7 +2401,7 @@ export default {
         schema_version: 'mcp-server-card-v1',
         name: 'ainumbers-mcp-apps',
         title: 'AINumbers MCP Apps',
-        description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). Deterministic, zero-PII, zero payload logging.',
+        description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). run_chain and export_artifact responses include a dashboard_url fragment link for human verification at dashboard.ainumbers.co. Deterministic, zero-PII, zero payload logging.',
         version: PILOT.version,
         publisher: { name: 'Post Oak Labs', url: 'https://postoaklabs.com' },
         license: 'CC-BY-4.0',
