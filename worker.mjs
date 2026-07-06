@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId } from './kernels/_gateval.mjs';
+import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
@@ -1187,9 +1188,11 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
         .describe('Map of step tool_id -> policy_parameters overrides. Omitted steps run with {} (kernels needing required fields are reported, not failed silently).'),
       compute: z.enum(['auto', 'server', 'browser']).optional()
         .describe('"auto"/"server" (default) runs kernel-backed steps server-side; "browser" returns a zero-egress delegation bundle to run client-side.'),
+      mandate: z.object({}).passthrough().optional()
+        .describe('Optional §22 Work Mandate artifact. When supplied: §16 signature is verified and validity window is checked (unsigned/bad-sig/expired returns a structured error); mandate_hash is folded into every step and the composite receipt as a conditional-presence key, proving which policy governed this run. A no-mandate run is byte-identical to the pre-binding baseline (linear-hash-freeze invariant).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ chain, inputs, compute }) => {
+  }, async ({ chain, inputs, compute, mandate }) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
       return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
@@ -1199,6 +1202,36 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       return { isError: true, content: [{ type: 'text', text: 'Chain "' + chain + '" has no steps.' }] };
     }
     const effectiveCompute = compute ?? 'auto';
+
+    // --- §22.5 mandate binding: verify §16 signature + validity window, derive mandate_hash ---
+    const hasMandate = mandate != null && typeof mandate === 'object';
+    let mandateHash = null;
+    if (hasMandate) {
+      const proof = mandate?.audit_signature?.proof;
+      if (!proof) {
+        const errOut = { error: 'mandate_unsigned', detail: 'Mandate has no §16 proof. Supply a signed mandate (audit_signature.proof required per OCG §16).' };
+        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+      }
+      let sigOk = false;
+      try { sigOk = await verifyProofs(mandate, (did) => didKeyToPublicKey(did)); } catch (_) {}
+      if (!sigOk) {
+        const errOut = { error: 'mandate_bad_signature', detail: 'Mandate §16 signature verification failed (eddsa-jcs-2022).' };
+        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+      }
+      const vw = mandate.validity_window;
+      if (vw) {
+        const now = Date.now();
+        if (vw.not_before && new Date(vw.not_before).getTime() > now) {
+          const errOut = { error: 'mandate_not_yet_valid', detail: 'Mandate not_before is in the future.', not_before: vw.not_before };
+          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        }
+        if (vw.not_after && new Date(vw.not_after).getTime() < now) {
+          const errOut = { error: 'mandate_expired', detail: 'Mandate has expired.', not_after: vw.not_after };
+          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        }
+      }
+      mandateHash = mandate.execution_hash ?? null;
+    }
 
     // --- compute:"browser" — zero-egress delegation, no server compute ---
     if (effectiveCompute === 'browser') {
@@ -1247,8 +1280,10 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
         else {
           const callerPp = inputs?.[tid];
           const fixturePp = chainFixtures?.[chain]?.[tid];
-          const pp = callerPp ?? fixturePp ?? {};
+          const basePp = callerPp ?? fixturePp ?? {};
           const inputs_source = callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none');
+          // §22.5 conditional-presence: fold mandate_hash into step pp only when a valid mandate governs the run.
+          const pp = (hasMandate && mandateHash) ? { ...basePp, mandate_hash: mandateHash } : basePp;
           try {
             const now = new Date().toISOString();
             const artifact = await kernel.buildArtifact(pp, {
@@ -1312,6 +1347,11 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       chain,
       steps: ran.map((r) => ({ tool_id: r.tool_id, mandate_type: r.mandate_type, execution_hash: r.execution_hash, output_payload: r.artifact.output_payload })),
     };
+    // §22.5 conditional-presence: mandate_hash enters the preimage ONLY when a mandate governed this run,
+    // so every no-mandate run's composite_execution_hash stays frozen (linear-hash-freeze invariant).
+    if (hasMandate && mandateHash) {
+      composite_policy.mandate_hash = mandateHash;
+    }
     // §21.4 conditional-presence: gate metadata enters the preimage ONLY for chains that
     // define >=1 gate, so every linear chain's composite_execution_hash stays frozen.
     if (hasGates) {
