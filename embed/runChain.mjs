@@ -18,7 +18,7 @@
 // see README.md "Packaging a standalone distributable".
 
 import { executionHash } from './lib/_hash.mjs';
-import { evaluateGate as gvEvaluateGate, stepId as gvStepId } from './lib/_gateval.mjs';
+import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './lib/_gateval.mjs';
 
 // Canonicalizer used for the §18 compute_proof journal-match guard and the
 // §21.4 route_plan_digest below. Byte-identical to _hash.mjs::cgCanon
@@ -154,8 +154,17 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     if (hasGates && step && step.gate && ranArtifact) {
       const dec = { step_id: gvStepId(step, idx), ...gvEvaluateGate(step.gate, ranArtifact.output_payload) };
       decisions.push(dec);
+      // §22.8.1: use isEscalationTarget/isTerminalTarget — never compare to the literal.
+      if (isEscalationTarget(dec.next)) {
+        // §22.8.2: HALT — mark all not-yet-run steps skipped_by_escalation (DISTINCT from skipped_by_gate).
+        for (let j = idx + 1; j < chainSteps.length; j++) {
+          if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_escalation' };
+        }
+        idx = chainSteps.length; // halt
+        continue;
+      }
       let target;
-      if (dec.next === 'end') target = chainSteps.length;
+      if (isTerminalTarget(dec.next)) target = chainSteps.length;
       else { target = idToIndex[dec.next]; if (target === undefined || target <= idx) target = idx + 1; }
       for (let j = idx + 1; j < target && j < chainSteps.length; j++) {
         if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_gate' };
@@ -166,6 +175,8 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     idx++;
   }
   const resultsList = results.filter((r) => r !== null);
+  // §22.8.2: detect escalation — set when any step was skipped_by_escalation.
+  const escalated = resultsList.some((r) => r.status === 'skipped_by_escalation');
 
   const ran = resultsList.filter((r) => r.status === 'ok');
   // Composite preimage: ONLY mandate_type + execution_hash + output_payload per step
@@ -188,7 +199,27 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     composite_output.decisions = decisions;
     composite_output.path_taken = path_taken;
   }
+  // composite_execution_hash: over RAN steps only (§22.8.2 — escalation_record is hash-excluded adjacent metadata).
   const composite_hash = ran.length ? await executionHash(composite_policy, composite_output) : null;
+
+  // §22.8.3 open escalation record — built AFTER composite_hash so opened_at/record_hash never enter the preimage.
+  let escalation_record = null;
+  if (escalated) {
+    const triggeringDec = decisions[decisions.length - 1]; // the decision that routed to "escalate"
+    const halted_steps = resultsList.filter((r) => r.status === 'skipped_by_escalation').map((r) => gvStepId(chainSteps[r.order - 1], r.order - 1));
+    // record_hash preimage: { mandate_hash?, decision, halted_steps } — opened_at EXCLUDED (§22.8.3).
+    // embed/runChain does not verify mandates; mandate_hash is always absent here (unbound run).
+    const recordPreimage = { decision: triggeringDec, halted_steps };
+    const record_hash = await cgSha256Hex(recordPreimage);
+    escalation_record = {
+      decision: triggeringDec,
+      halted_steps,
+      opened_at: new Date().toISOString(), // wall-clock, hash-EXCLUDED
+      record_hash,
+    };
+    composite_output.escalation_record = escalation_record; // adjacent metadata — added after hash
+  }
+
   const composite_artifact = ran.length ? {
     '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
     chaingraph_version: '0.4.0',
@@ -220,6 +251,7 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
       : 'OpenChainGraph Standard v0.4 §12 (chain-level Compute Binding)',
   };
   if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
+  if (escalation_record) out.escalation_record = escalation_record;
   return out;
 }
 

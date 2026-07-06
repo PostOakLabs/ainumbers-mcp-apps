@@ -17,7 +17,7 @@
 //   - all targets FORWARD-ONLY (later array index) => acyclic, terminating
 //   - no step is UNREACHABLE
 
-import { GATE_OPS, VALUE_OPS, isPointerSyntaxValid, stepId } from '../kernels/_gateval.mjs';
+import { GATE_OPS, VALUE_OPS, isPointerSyntaxValid, stepId, isTerminalTarget } from '../kernels/_gateval.mjs';
 
 const OP_SET = new Set(GATE_OPS);
 const NUMERIC_OPS = new Set(['gt', 'gte', 'lt', 'lte']);
@@ -36,8 +36,10 @@ export function validateChainGates(chain) {
     if (firstIndex.has(id)) errs.push(`step ${i + 1}: duplicate step id "${id}" (first used at step ${firstIndex.get(id) + 1}) — ids MUST be unique in a gated chain`);
     else firstIndex.set(id, i);
   });
-  const isTarget = (t) => t === 'end' || firstIndex.has(t);
-  const targetIdx = (t) => (t === 'end' ? steps.length : firstIndex.get(t));
+  // §22.8.1: "escalate" is a terminal target beside "end" — the single-source
+  // isTerminalTarget classifier is the gate; never hardcode the literal.
+  const isTarget = (t) => isTerminalTarget(t) || firstIndex.has(t);
+  const targetIdx = (t) => (isTerminalTarget(t) ? steps.length : firstIndex.get(t));
 
   steps.forEach((s, i) => {
     if (!s || !s.gate) return;
@@ -61,14 +63,14 @@ export function validateChainGates(chain) {
           errs.push(`${rp}: op "${r.op}" must not carry a "value"`);
         }
         if (typeof r.next !== 'string' || !r.next) errs.push(`${rp}: missing "next" (a step id or "end")`);
-        else if (!isTarget(r.next)) errs.push(`${rp}: next "${r.next}" resolves to no step id or "end"`);
-        else if (r.next !== 'end' && targetIdx(r.next) <= i) errs.push(`${rp}: next "${r.next}" is not forward-only (targets step ${targetIdx(r.next) + 1}, must be > ${i + 1})`);
+        else if (!isTarget(r.next)) errs.push(`${rp}: next "${r.next}" resolves to no step id, "end", or "escalate"`);
+        else if (!isTerminalTarget(r.next) && targetIdx(r.next) <= i) errs.push(`${rp}: next "${r.next}" is not forward-only (targets step ${targetIdx(r.next) + 1}, must be > ${i + 1})`);
       });
     }
 
     if (typeof g.default !== 'string' || !g.default) errs.push(`${p}: "default" is REQUIRED (a step id or "end")`);
-    else if (!isTarget(g.default)) errs.push(`${p}: default "${g.default}" resolves to no step id or "end"`);
-    else if (g.default !== 'end' && targetIdx(g.default) <= i) errs.push(`${p}: default "${g.default}" is not forward-only`);
+    else if (!isTarget(g.default)) errs.push(`${p}: default "${g.default}" resolves to no step id, "end", or "escalate"`);
+    else if (!isTerminalTarget(g.default) && targetIdx(g.default) <= i) errs.push(`${p}: default "${g.default}" is not forward-only`);
   });
 
   // Reachability over the forward-only DAG. Successors: a gated step routes via
@@ -82,9 +84,9 @@ export function validateChainGates(chain) {
     if (s && s.gate) {
       const g = s.gate;
       for (const r of (Array.isArray(g.rules) ? g.rules : [])) {
-        if (r && typeof r.next === 'string' && isTarget(r.next) && r.next !== 'end') succ.push(targetIdx(r.next));
+        if (r && typeof r.next === 'string' && isTarget(r.next) && !isTerminalTarget(r.next)) succ.push(targetIdx(r.next));
       }
-      if (typeof g.default === 'string' && isTarget(g.default) && g.default !== 'end') succ.push(targetIdx(g.default));
+      if (typeof g.default === 'string' && isTarget(g.default) && !isTerminalTarget(g.default)) succ.push(targetIdx(g.default));
     } else if (i + 1 < steps.length) {
       succ.push(i + 1);
     }

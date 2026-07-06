@@ -10,7 +10,7 @@ import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@model
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
-import { evaluateGate as gvEvaluateGate, stepId as gvStepId } from './kernels/_gateval.mjs';
+import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
@@ -1320,8 +1320,17 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       if (hasGates && step && step.gate && ranArtifact) {
         const dec = { step_id: gvStepId(step, idx), ...gvEvaluateGate(step.gate, ranArtifact.output_payload) };
         decisions.push(dec);
+        // §22.8.1: use isEscalationTarget/isTerminalTarget — never compare to the literal.
+        if (isEscalationTarget(dec.next)) {
+          // §22.8.2: HALT — mark all not-yet-run steps skipped_by_escalation (DISTINCT from skipped_by_gate).
+          for (let j = idx + 1; j < chainSteps.length; j++) {
+            if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_escalation' };
+          }
+          idx = chainSteps.length; // halt
+          continue;
+        }
         let target;
-        if (dec.next === 'end') target = chainSteps.length;
+        if (isTerminalTarget(dec.next)) target = chainSteps.length;
         else { target = idToIndex[dec.next]; if (target === undefined || target <= idx) target = idx + 1; }
         for (let j = idx + 1; j < target && j < chainSteps.length; j++) {
           if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_gate' };
@@ -1332,6 +1341,8 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       idx++;
     }
     const resultsList = results.filter((r) => r !== null);
+    // §22.8.2: detect escalation — set when any step was skipped_by_escalation.
+    const escalated = resultsList.some((r) => r.status === 'skipped_by_escalation');
 
     const ran = resultsList.filter((r) => r.status === 'ok');
     // Composite artifact over the REAL step outputs. Deterministic preimage: only mandate_type +
@@ -1359,7 +1370,33 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       composite_output.decisions = decisions;
       composite_output.path_taken = path_taken;
     }
+    // composite_execution_hash: over RAN steps only (§22.8.2 — escalation_record is hash-excluded adjacent metadata).
     const composite_hash = ran.length ? await cgExecutionHash(composite_policy, composite_output) : null;
+    const hash_valid = composite_hash ? (await cgExecutionHash(composite_policy, composite_output)) === composite_hash : null;
+
+    // §22.8.3 open escalation record — built AFTER composite_hash (and hash_valid) so opened_at/record_hash
+    // never enter the preimage. Attached to composite_output as adjacent metadata (like §20 anchor_bindings).
+    let escalation_record = null;
+    if (escalated) {
+      const triggeringDec = decisions[decisions.length - 1]; // the decision that routed to "escalate"
+      const halted_steps = resultsList.filter((r) => r.status === 'skipped_by_escalation').map((r) => gvStepId(chainSteps[r.order - 1], r.order - 1));
+      // record_hash preimage: { mandate_hash?, decision, halted_steps } — opened_at EXCLUDED (§22.8.3).
+      const recordPreimage = Object.assign(
+        {},
+        (hasMandate && mandateHash) ? { mandate_hash: mandateHash } : {},
+        { decision: triggeringDec, halted_steps }
+      );
+      const record_hash = await cgSha256Hex(recordPreimage);
+      escalation_record = {
+        ...(hasMandate && mandateHash ? { mandate_hash: mandateHash } : {}),
+        decision: triggeringDec,
+        halted_steps,
+        opened_at: new Date().toISOString(), // wall-clock, hash-EXCLUDED
+        record_hash,
+      };
+      composite_output.escalation_record = escalation_record; // adjacent metadata — added after hash
+    }
+
     const composite_artifact = ran.length ? {
       '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
       chaingraph_version: '0.4.0',
@@ -1379,7 +1416,6 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       compliance_flags: [],
       audit_signature: { server_side_executed: true, zero_pii_verified: true, deterministic_run: true },
     } : null;
-    const hash_valid = composite_hash ? (await cgExecutionHash(composite_policy, composite_output)) === composite_hash : null;
 
     const out = {
       mode: 'server_run_chain', chain, compute_mode: 'server',
@@ -1389,14 +1425,17 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       composite_execution_hash: composite_hash,
       hash_valid,
       composite_artifact,
-      note: !hasGates && ran.length === chainSteps.length
-        ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps.'
-        : hasGates
-          ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions.'
-          : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
+      note: escalated
+        ? 'Escalated (OCG §22.8). Chain halted; human review required. See escalation_record for the open record and record_hash for the closure target.'
+        : !hasGates && ran.length === chainSteps.length
+          ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps.'
+          : hasGates
+            ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions.'
+            : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
       spec: hasGates ? 'OpenChainGraph Standard v0.8 §21 Chain Execution (decision gates)' : 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
     if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
+    if (escalation_record) out.escalation_record = escalation_record;
     // ledger_url — response metadata only; never inside any artifact preimage
     if (composite_artifact) {
       const db = await fragmentLink(composite_artifact);
