@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// test-dashboard-url.mjs — dashboard_url rider tests (S-DB2).
+// test-ledger-url.mjs — ledger_url rider tests (S-DB2).
 //
 // 1. Round-trip: fragmentLink(artifact) → decode → gunzip → byte-identical JSON.
-// 2. Over-budget artifact → dashboard_url_note, no dashboard_url.
-// 3. run_chain response carries dashboard_url for a fixture-runnable chain.
+// 2. Over-budget artifact → ledger_url_note, no ledger_url.
+// 3. run_chain response carries ledger_url for a fixture-runnable chain.
 // 4. hash-freeze goldens: confirm no composite_execution_hash moved.
 
 import { readFileSync } from 'node:fs';
@@ -74,13 +74,13 @@ console.log('\nTest 1: round-trip (encode → decode → gunzip → byte-identic
   const originalJson = JSON.stringify(artifact);
 
   const res = await fragmentLink(artifact);
-  if (!res.dashboard_url) { err('no dashboard_url returned (artifact too large?)'); }
+  if (!res.ledger_url) { err('no ledger_url returned (artifact too large?)'); }
   else {
-    ok('dashboard_url present: ' + res.dashboard_url.slice(0, 60) + '...');
+    ok('ledger_url present: ' + res.ledger_url.slice(0, 60) + '...');
 
     // Decode
-    const url = res.dashboard_url;
-    const prefix = 'https://dashboard.ainumbers.co/#a=v1.';
+    const url = res.ledger_url;
+    const prefix = 'https://ledger.ainumbers.co/#a=v1.';
     if (!url.startsWith(prefix)) { err('URL prefix mismatch: ' + url); }
     else {
       const encoded = url.slice(prefix.length);
@@ -97,7 +97,7 @@ console.log('\nTest 1: round-trip (encode → decode → gunzip → byte-identic
 
 // ── Test 2: over-budget artifact ──────────────────────────────────────────────
 
-console.log('\nTest 2: over-budget artifact → dashboard_url_note, no dashboard_url');
+console.log('\nTest 2: over-budget artifact → ledger_url_note, no ledger_url');
 {
   // Build an artifact that gzips to > 30KB.
   // Gzip compresses repetitive data very well, so we need something random-ish.
@@ -110,18 +110,18 @@ console.log('\nTest 2: over-budget artifact → dashboard_url_note, no dashboard
     output_payload: { result: bigArray },
   };
   const res = await fragmentLink(overBudget);
-  if (res.dashboard_url) {
-    err('dashboard_url present on over-budget artifact (should be note only)');
-  } else if (res.dashboard_url_note && res.dashboard_url_note.includes('download')) {
-    ok('over-budget returns dashboard_url_note: ' + res.dashboard_url_note);
+  if (res.ledger_url) {
+    err('ledger_url present on over-budget artifact (should be note only)');
+  } else if (res.ledger_url_note && res.ledger_url_note.includes('download')) {
+    ok('over-budget returns ledger_url_note: ' + res.ledger_url_note);
   } else {
     err('unexpected response: ' + JSON.stringify(res));
   }
 }
 
-// ── Test 3: run_chain response carries dashboard_url ─────────────────────────
+// ── Test 3: run_chain response carries ledger_url ────────────────────────────
 
-console.log('\nTest 3: run_chain response includes dashboard_url');
+console.log('\nTest 3: run_chain response includes ledger_url');
 {
   // Find a fixture-runnable chain (first one from goldens)
   const chainName = Object.keys(goldens)[0];
@@ -130,18 +130,18 @@ console.log('\nTest 3: run_chain response includes dashboard_url');
   } else {
     console.log('  using chain: ' + chainName);
     const result = await runChain(chainName, undefined, { getKernel, chaingraph, fixtures });
-    // runChain (embed) does NOT emit dashboard_url — that's the Worker handler.
+    // runChain (embed) does NOT emit ledger_url — that's the Worker handler.
     // We test fragmentLink over the composite_artifact directly to verify the
     // worker path would work — the actual Worker handler test is in wrangler dry-run.
     if (!result.composite_artifact) {
       err('no composite_artifact in run_chain result — chain may need inputs');
     } else {
       const db = await fragmentLink(result.composite_artifact);
-      if (db.dashboard_url) {
-        ok('fragmentLink(composite_artifact) → dashboard_url present');
+      if (db.ledger_url) {
+        ok('fragmentLink(composite_artifact) → ledger_url present');
         // Verify round-trip on the actual composite artifact
-        const prefix = 'https://dashboard.ainumbers.co/#a=v1.';
-        const encoded = db.dashboard_url.slice(prefix.length);
+        const prefix = 'https://ledger.ainumbers.co/#a=v1.';
+        const encoded = db.ledger_url.slice(prefix.length);
         const compressed = base64urlDecode(encoded);
         const decoded = await gunzip(compressed);
         const roundTripped = JSON.parse(decoded);
@@ -150,8 +150,8 @@ console.log('\nTest 3: run_chain response includes dashboard_url');
         } else {
           err('round-trip execution_hash mismatch');
         }
-      } else if (db.dashboard_url_note) {
-        ok('composite_artifact over 30KB budget → dashboard_url_note (acceptable for large chains)');
+      } else if (db.ledger_url_note) {
+        ok('composite_artifact over 30KB budget → ledger_url_note (acceptable for large chains)');
       } else {
         err('unexpected: ' + JSON.stringify(db));
       }
