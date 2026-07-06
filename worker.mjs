@@ -770,7 +770,7 @@ function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
 }
 
 // Dashboard §3.2 fragment codec — response metadata only, never inside any artifact preimage.
-// Returns { dashboard_url } when compressed payload ≤ 30KB, else { dashboard_url_note }.
+// Returns { ledger_url } when compressed payload ≤ 30KB, else { ledger_url_note }.
 // Uses pipeThrough to avoid write/read backpressure deadlock on large inputs.
 async function fragmentLink(artifact) {
   const json = JSON.stringify(artifact);
@@ -781,12 +781,12 @@ async function fragmentLink(artifact) {
   const buf = await new Response(stream).arrayBuffer();
   const compressed = new Uint8Array(buf);
   if (compressed.length > 30 * 1024) {
-    return { dashboard_url_note: 'artifact exceeds link budget - download and drag into dashboard.ainumbers.co' };
+    return { ledger_url_note: 'artifact exceeds link budget - download and drag into ledger.ainumbers.co' };
   }
   let bin = '';
   for (let i = 0; i < compressed.length; i++) bin += String.fromCharCode(compressed[i]);
   const b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  return { dashboard_url: 'https://dashboard.ainumbers.co/#a=v1.' + b64 };
+  return { ledger_url: 'https://ledger.ainumbers.co/#a=v1.' + b64 };
 }
 
 function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
@@ -1180,7 +1180,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       'a step whose kernel needs inputs you omit is reported per-step (status "input_required"), never failed silently. ' +
       'Steps that are browser-only (gpu:true or no registered kernel) are listed for browser delegation. ' +
       'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash. ' +
-      'Response includes a dashboard_url fragment link for human verification at dashboard.ainumbers.co.',
+      'Response includes a ledger_url fragment link for human verification at ledger.ainumbers.co.',
     inputSchema: {
       chain: z.string().describe('Chain name, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
       inputs: z.record(z.record(z.any())).optional()
@@ -1357,11 +1357,11 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
       spec: hasGates ? 'OpenChainGraph Standard v0.8 §21 Chain Execution (decision gates)' : 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
     if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
-    // dashboard_url — response metadata only; never inside any artifact preimage
+    // ledger_url — response metadata only; never inside any artifact preimage
     if (composite_artifact) {
       const db = await fragmentLink(composite_artifact);
-      if (db.dashboard_url) out.dashboard_url = db.dashboard_url;
-      else out.dashboard_url_note = db.dashboard_url_note;
+      if (db.ledger_url) out.ledger_url = db.ledger_url;
+      else out.ledger_url_note = db.ledger_url_note;
     }
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
@@ -2401,7 +2401,7 @@ export default {
         schema_version: 'mcp-server-card-v1',
         name: 'ainumbers-mcp-apps',
         title: 'AINumbers MCP Apps',
-        description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). run_chain and export_artifact responses include a dashboard_url fragment link for human verification at dashboard.ainumbers.co. Deterministic, zero-PII, zero payload logging.',
+        description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). run_chain and export_artifact responses include a ledger_url fragment link for human verification at ledger.ainumbers.co. Deterministic, zero-PII, zero payload logging.',
         version: PILOT.version,
         publisher: { name: 'Post Oak Labs', url: 'https://postoaklabs.com' },
         license: 'CC-BY-4.0',
