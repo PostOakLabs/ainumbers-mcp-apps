@@ -3492,5 +3492,83 @@
         }
       ]
     }
+  },
+  "commission-integrity-and-amortization": {
+    "art-264-validate-commission-hierarchy": {
+      "hierarchy": [
+        {
+          "agent_id": "NP1",
+          "parent_id": null,
+          "split_pct": null
+        },
+        {
+          "agent_id": "ManagerA",
+          "parent_id": "NP1",
+          "split_pct": 60
+        },
+        {
+          "agent_id": "AgentX",
+          "parent_id": "ManagerA",
+          "split_pct": 50
+        }
+      ]
+    },
+    "art-266-reconcile-commission-statement": {
+      "statement_lines": [
+        {
+          "agent_id": "AGT001",
+          "gross_premium": 10000,
+          "commission_rate_pct": 10,
+          "split_pct": 100,
+          "stated_commission": 1000
+        }
+      ],
+      "tolerance_pct": 1
+    },
+    "art-265-amortize-asc606-commissions": {
+      "incremental_cost": 12000,
+      "contract_term_months": 6,
+      "renewal_commensurate": false
+    }
+  },
+  "producer-license-reciprocity": {
+    "art-267-check-producer-license-reciprocity": {
+      "resident_state": "OR",
+      "loa_codes": [
+        "L",
+        "H",
+        "A"
+      ],
+      "target_states": [
+        "TX",
+        "IL",
+        "CO"
+      ]
+    }
+  },
+  "kyb-beneficial-ownership-attribution": {
+    "art-268-compute-cdd-ownership-25pct": {
+      "ownership_tiers": [
+        {
+          "entity_id": "EntityABC",
+          "parent_id": "NP_ALPHA",
+          "ownership_pct": 25
+        }
+      ],
+      "natural_persons": [
+        "NP_ALPHA"
+      ],
+      "target_entity_id": "EntityABC"
+    },
+    "art-269-validate-w8-series-structural": {
+      "form_type": "W-8BEN",
+      "chapter3_status": "Individual",
+      "chapter4_fatca_status": "",
+      "treaty_country": "GB",
+      "treaty_rate_pct": 15,
+      "income_type": "Dividend",
+      "form_date": "2024-03-15",
+      "reference_date": "2025-07-05"
+    }
   }
 }
