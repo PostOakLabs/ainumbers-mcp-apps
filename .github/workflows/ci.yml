@@ -58,6 +58,14 @@ jobs:
         # regression at the source. Memory: project-ainumbers-mcp-server-no-cache.
         run: node scripts/check-worker-invariants.mjs
 
+      - name: 🧯 Malformed-body fast-fail (audit F1, 2026-07-09)
+        # A syntactically-invalid JSON POST to /mcp used to hang for HANG_GUARD_MS (25s) then
+        # 504 "Server timeout" — request.json() consumed the body stream, left body===undefined,
+        # and the SDK transport tried to re-read the same drained stream via toReqRes(request).
+        # Reproduced 3x on live https://mcp.ainumbers.co/mcp before this fix. Now fast-fails with
+        # a typed 400/-32700 before the transport is touched. Guards against the regression.
+        run: node scripts/test-malformed-body-fastfail.mjs
+
       - name: 🪞 Single-tool build parity (O(1) tools/call == full build)
         # buildServer(data,{onlyTool}) must register the requested tool's definition byte-identically
         # to the full build, and the loadData-derived known-set must cover ALL registered tools (no
