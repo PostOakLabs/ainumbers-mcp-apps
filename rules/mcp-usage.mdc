@@ -1,0 +1,22 @@
+---
+description: How to use the AINumbers MCP server (fintech compliance tools and workflows)
+alwaysApply: false
+---
+
+# AINumbers MCP server
+
+Remote server at `https://mcp.ainumbers.co/mcp` (streamable HTTP, no auth, zero PII, all tools read-only).
+
+## Discovery flow
+
+1. **`find_tool`** or **`list_ainumbers_tools`** — search the catalog (532 client-side fintech tools) by keyword. Returns deep-links; prefill-enabled tools accept a `#in=…` hash parameter for one-click invocation with values already filled in.
+2. **`find_chain`** or **`build_workflow_links`** — look up a named multi-tool workflow (266 chains covering AML, crypto tax, capital/liquidity, agentic payments, etc.) and get ordered, prefill-ready deep-links with handoff notes between steps.
+3. **`run_chain`** — execute a named ChainGraph workflow end-to-end server-side and get back the composite artifact.
+4. **`verify_execution_hash`** — independently re-verify a returned artifact's `execution_hash` (WebCrypto SHA-256 over RFC 8785/JCS-canonical `{policy_parameters, output_payload}`).
+5. **`build_chaingraph`** / **`emit_chaingraph_artifact`** / **`build_session_receipt`** — compose ad-hoc multi-tool chains and receipts outside the named-chain catalog.
+
+## Notes
+
+- 327 MCP tools total: 15 flagship tools render as interactive widgets, the rest are ChainGraph compute nodes plus the discovery/utility tools above.
+- Every tool declares `readOnlyHint: true` — nothing on the server or in your environment is modified by any call.
+- Full docs: https://ainumbers.co/mcp.html
