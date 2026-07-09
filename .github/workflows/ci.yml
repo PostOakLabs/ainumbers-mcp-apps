@@ -111,6 +111,20 @@ jobs:
           CHAINGRAPH: data/chaingraph/chaingraph.json
           FIXTURES_DIR: _site/chaingraph/kernels/fixtures
 
+      - name: 🧬 Full-corpus chain E2E + schema conformance (audit Suite E1/E3)
+        # test-run-chain-fixtures.mjs only smoke-tests ONE example chain
+        # (agent-commerce-conformance) as proof the fixture-default mechanism
+        # works. This step runs run_chain end-to-end for EVERY fixture-backed
+        # chain in data/chain-fixtures.json (147 of 266 named chains — the
+        # remainder need browser-side/manual inputs and are out of scope for a
+        # server-side gate), asserting completion, steps_ran vs step_count
+        # (gate-aware), a 64-hex composite_execution_hash, run-to-run
+        # determinism, AND validates every emitted composite_artifact against
+        # the v0.4 JSON Schema via _site's schema-validate.mjs. Catches silent
+        # per-chain kernel/fixture regressions the single-chain smoke test
+        # cannot see.
+        run: node scripts/run-chain-corpus.mjs
+
       - name: 📋 Pilot tool count
         run: |
           node -e "
