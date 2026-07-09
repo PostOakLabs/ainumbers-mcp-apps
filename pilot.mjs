@@ -19,7 +19,4 @@ export const PILOT = [
   '282-mcp-tool-poisoning-scanner',
   '283-a2a-agent-card-validator',
   '286-visa-trusted-agent-protocol-inspector',
-  // VM-1a kernel VM widget (added 2026-07-09) -- kernel-VM-as-tool via this existing PILOT
-  // infra, no new transport. See MANDATE-LOOP-PROGRAM-SPEC.md "VM-1".
-  'kernel-vm-widget',
 ];
