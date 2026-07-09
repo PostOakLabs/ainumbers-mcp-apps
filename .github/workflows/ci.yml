@@ -133,6 +133,42 @@ jobs:
         # cannot see.
         run: node scripts/run-chain-corpus.mjs
 
+      - name: 🔁 Cross-tool artifact round-trip (audit AUD-C1, 2026-07-09)
+        # Proves an artifact emitted by emit_chaingraph_artifact (Mode 4 server compute)
+        # independently verifies through verify_execution_hash — a SEPARATE MCP tool, a
+        # separate connection — and that a one-byte mutation invalidates it. Closes the
+        # loop across tool boundaries, not just within one tool's own self-check. Runs
+        # the full 239-node gpu:false fixture-backed corpus (same fixture source as the
+        # E1/E3 step above).
+        run: node scripts/gate-crosstool-roundtrip.mjs
+
+      - name: 🧾 Export-format consistency (audit AUD-C2, 2026-07-09)
+        # For a representative sample of gpu:false nodes: calls export_artifact 3 ways
+        # (vc / xlsx / csv, plus pdf where declared) over an identical artifact and
+        # asserts the metadata block (execution_hash, tool_id, chaingraph_version,
+        # compute_mode, mandate_type, verify_url) is byte-identical across formats; checks
+        # the VC 2.0 (§13.11) hash anchor and lossless re-expression, and the SD-JWT
+        # (§13.12) always-disclosed claims, both match the canonical artifact. A built-in
+        # defect-injection self-check proves the comparator actually discriminates.
+        run: node scripts/gate-export-format-consistency.mjs
+
+      - name: 🛑 Negative gate-enforcement (audit AUD-E2, 2026-07-09)
+        # The E1/E3 step above proves DEFAULT/good inputs run every gated chain to
+        # completion. This proves the opposite direction: for every declared §21.4 gate,
+        # a constructed bad input HALTS or ESCALATES the chain — it never silently
+        # continues. Uses the real production gate evaluator (embed/lib/_gateval.mjs) and
+        # the real production chain runner (embed/runChain.mjs) end-to-end.
+        run: node scripts/gate-negative-enforcement.mjs
+
+      - name: 🌐 Zero-egress determinism proof (audit AUD-F4, 2026-07-09)
+        # Static: greps every kernels/*.kernel.mjs for fetch/XHR/WebSocket/remote-import.
+        # Dynamic: stubs globalThis.fetch (+XHR/WebSocket) to throw and runs every
+        # gpu:false, kernel-backed, fixture-covered node over its fixture — a "deterministic"
+        # node that fetches is not reproducible (CONTRACT §0). A defect-injection
+        # self-check (synthetic kernel with a real fetch() call) proves both checks
+        # actually discriminate rather than rubber-stamping.
+        run: node scripts/gate-zero-egress.mjs
+
       - name: 📋 Pilot tool count
         run: |
           node -e "
