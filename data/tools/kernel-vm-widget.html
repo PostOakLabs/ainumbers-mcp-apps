@@ -36,6 +36,10 @@ button:disabled{opacity:.35;cursor:not-allowed}
 .stat-key{font-size:.56rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
 pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:10px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);margin-top:8px;max-height:320px}
 .hash{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--teal-lt);word-break:break-all;margin:5px 0}
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius);transition:background .15s;cursor:pointer;margin-top:14px}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);white-space:pre-wrap}
 </style>
 </head>
 <body>
@@ -66,6 +70,11 @@ pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius
 <div class="q-label">output_payload</div>
 <pre id="outputPayload"></pre>
 </div>
+
+<section id="mfstSec" style="margin-top:14px">
+<button class="mfst-btn" onclick="toggleMfst()"><span>📦 &nbsp;manifest.json &middot; MCP tool definition</span><span id="mfstArr" style="color:var(--muted)">&#9660;</span></button>
+<div class="mfst-body" id="mfstBody"><div class="mfst-code" id="mfstCode"></div></div>
+</section>
 </div>
 
 <script>
@@ -230,6 +239,16 @@ const { QUICKJS_NG_SINGLEFILE_VARIANT } = NS_variant;
 
 const OCG_DETERMINISTIC_COMPUTE_PROFILE = 'ocg-deterministic-compute@1';
 
+// Distinctive value returned by the in-VM executionHash STUB (see prelude). The real
+// execution_hash is computed HOST-SIDE by the caller in WebCrypto — a kernel's own
+// `await executionHash(pp, output_payload)` call inside buildArtifact is only there to fill
+// the FINAL envelope field, which callers discard and recompute. But a handful of kernels
+// (e.g. art-55) call executionHash MID-COMPUTE to fold a SHA-256 (a merkle_root) into a DATA
+// field of output_payload. That output cannot be faithfully reproduced without a host SHA-256,
+// so if this sentinel survives into the extracted output_payload the harness surfaces the
+// crypto dependency as a host-API limitation instead of shipping a stubbed output.
+const VM_STUB_HASH_SENTINEL = '__ocg_vm_stub_hash_5f3a2b1c__';
+
 const DETERMINISM_PRELUDE = `
 Object.defineProperty(Math, 'random', {
   value: function ocgDisabledRandom() {
@@ -255,6 +274,28 @@ if (typeof Intl !== 'undefined') { globalThis.Intl = undefined; }
     throw new Error('Date.now() is disabled under ${OCG_DETERMINISTIC_COMPUTE_PROFILE} (SPEC.md \\u00a724 D4)');
   };
   globalThis.Date = GuardedDate;
+})();
+// executionHash stub (D7 host API): kernels \`import { executionHash } from './_hash.mjs'\`,
+// which the ESM strip removes. Real SHA-256 is host-side WebCrypto and is NOT bridged into
+// the sandbox. buildArtifact's final \`await executionHash(pp, output_payload)\` fills the
+// envelope execution_hash field, which the caller discards and recomputes host-side, so a
+// no-op stub returning a distinctive sentinel lets buildArtifact run to completion. If the
+// sentinel ends up inside output_payload (a kernel folding a hash into a DATA field) the host
+// harness detects it and surfaces the dependency (see VM_STUB_HASH_SENTINEL).
+globalThis.executionHash = function ocgStubExecutionHash() { return '${VM_STUB_HASH_SENTINEL}'; };
+// WebCrypto (crypto.subtle / getRandomValues) is a HOST API, not an ECMA-262 intrinsic, and is
+// intentionally absent from this sandbox. A kernel that reaches for it cannot be faithfully run
+// under ${OCG_DETERMINISTIC_COMPUTE_PROFILE}. Rather than let the access surface as a silent wrong
+// answer (several kernels wrap crypto.subtle in a try/catch that degrades to a false verdict), the
+// proxy RECORDS the touch via a host callback — so the harness throws even when the kernel swallows
+// the error — and then throws. Consistent with §24 "every escape hatch is closed or named".
+(function ocgGuardWebCrypto() {
+  function touch() {
+    if (typeof __ocgHostApiTouched === 'function') { __ocgHostApiTouched('crypto.subtle'); }
+    throw new Error('WebCrypto (crypto.subtle) is a host API, unavailable under ${OCG_DETERMINISTIC_COMPUTE_PROFILE} (SPEC.md \\u00a724 D7)');
+  }
+  var cryptoObj = { get subtle() { touch(); }, getRandomValues: function () { touch(); } };
+  Object.defineProperty(globalThis, 'crypto', { get: function () { return cryptoObj; }, configurable: false });
 })();
 if (typeof BigInt === 'undefined') {
   // This prebuilt jitl release-sync binary parses BigInt LITERALS (e.g. 1n) fine --
@@ -384,6 +425,17 @@ async function runKernelInVM(kernelSource, policyParameters, opts = {}) {
     intrinsics: { ...DefaultIntrinsics, Date: true, Eval: true, BigInt: true },
   });
 
+  // Host-API touch recorder: the WebCrypto guard in the prelude calls this the instant a
+  // kernel accesses crypto.subtle, BEFORE it throws. That way a kernel that swallows the
+  // throw in a try/catch (degrading to a false verdict) is STILL surfaced — the harness
+  // checks this flag after the run and throws regardless of what the kernel returned.
+  let hostApiTouched = null;
+  const touchCb = context.newFunction('__ocgHostApiTouched', (apiHandle) => {
+    hostApiTouched = context.dump(apiHandle);
+  });
+  context.setProp(context.global, '__ocgHostApiTouched', touchCb);
+  touchCb.dispose();
+
   const t0 = performance.now();
   try {
     context.unwrapResult(context.evalCode(DETERMINISM_PRELUDE, 'ocg-vm-prelude.js')).dispose();
@@ -418,7 +470,19 @@ async function runKernelInVM(kernelSource, policyParameters, opts = {}) {
       }
       resultHandle = context.unwrapResult(context.getPromiseState(promiseHandle));
       const output_payload = context.dump(resultHandle);
+      // A recorded host-API touch wins over whatever the kernel returned/threw: surface it
+      // as a named limitation rather than trusting a degraded output.
+      if (hostApiTouched) {
+        throw new Error(`kernel depends on host API '${hostApiTouched}', unavailable under ${OCG_DETERMINISTIC_COMPUTE_PROFILE} — VM-1a cannot faithfully execute it (surfaced, not silently degraded).`);
+      }
       return { output_payload, elapsed_ms: performance.now() - t0 };
+    } catch (e) {
+      // If the kernel let the WebCrypto throw escape uncaught, the touch was still recorded —
+      // normalise the message so callers classify it uniformly as a host-API limitation.
+      if (hostApiTouched) {
+        throw new Error(`kernel depends on host API '${hostApiTouched}', unavailable under ${OCG_DETERMINISTIC_COMPUTE_PROFILE} — VM-1a cannot faithfully execute it (surfaced, not silently degraded).`);
+      }
+      throw e;
     } finally {
       resultHandle?.dispose();
       promiseHandle?.dispose();
@@ -427,6 +491,32 @@ async function runKernelInVM(kernelSource, policyParameters, opts = {}) {
     context.dispose();
     runtime.dispose();
   }
+}
+
+/**
+ * Runs a kernel's `buildArtifact(policy_parameters)` inside the VM and returns the CANONICAL
+ * `output_payload` — the same value the worker's buildArtifact produces and that the pinned
+ * fixture golden_hash is taken over. This is the entry point the parity gate uses: `compute()`
+ * has two return conventions across the corpus (a bare output_payload vs a
+ * `{ output_payload, compliance_flags }` envelope), so hashing `compute()`'s raw return is
+ * NON-canonical for the envelope kernels. buildArtifact is each kernel's own authoritative
+ * extraction, so running it here yields the canonical payload uniformly.
+ *
+ * The in-VM executionHash is a no-op stub (see prelude); the caller computes the real
+ * execution_hash host-side over the returned output_payload. If the stub sentinel survives
+ * into output_payload (a kernel that folds a host SHA-256 into a data field, e.g. art-55's
+ * merkle_root) this throws — the payload is not faithfully reproducible in the sandbox.
+ *
+ * @returns {Promise<{output_payload: any, elapsed_ms: number}>}
+ */
+async function runKernelArtifactInVM(kernelSource, policyParameters, opts = {}) {
+  const res = await runKernelInVM(kernelSource, policyParameters, { ...opts, functionName: 'buildArtifact' });
+  const artifact = res.output_payload;
+  const output_payload = artifact?.output_payload;
+  if (JSON.stringify(output_payload ?? null).includes(VM_STUB_HASH_SENTINEL)) {
+    throw new Error(`kernel folds a host SHA-256 (executionHash) into output_payload, unavailable under ${OCG_DETERMINISTIC_COMPUTE_PROFILE} — VM-1a cannot faithfully reproduce it (surfaced, not silently degraded).`);
+  }
+  return { output_payload, elapsed_ms: res.elapsed_ms };
 }
 
 return {runKernelInVM, OCG_DETERMINISTIC_COMPUTE_PROFILE, stripEsmSyntaxForVm};
@@ -516,6 +606,8 @@ const KERNEL_FIXTURES = {
     "currency": "USD"
   }
 };
+var MANIFEST = {"tool_id":"kernel-vm-widget","version":"1.0.0","title":"Kernel VM","description":"Run a ChainGraph decision kernel's compute(policy_parameters) inside a sandboxed, hermetic, in-browser QuickJS-ng WebAssembly VM under the ocg-deterministic-compute@1 profile (SPEC.md section 24) and inspect its execution_hash. Phase VM-1a: a prebuilt quickjs-ng release-sync variant, zero-fetch, no CDN. Ships a small curated set of demo kernels; every conformance-fixtured gpu:false kernel is checked automatically in CI by chaingraph/kernels/vm-parity-gate.mjs, which diffs this same VM's execution_hash against the worker's own kernel registry.","category":"cat-1","tags":["MCP","kernel","VM","sandbox","WebAssembly","QuickJS","determinism","execution_hash"],"audience":["engineer","auditor"],"input_schema":{"type":"object","properties":{"tool_id":{"type":"string","description":"One of the curated demo kernel tool_ids shipped in this widget."},"policy_parameters":{"type":"object","description":"The kernel's policy_parameters input."}},"required":["tool_id","policy_parameters"]},"output_schema":{"type":"object","properties":{"output_payload":{"type":"object"},"elapsed_ms":{"type":"number"}}},"mcp_tool_definition":{"name":"run_kernel_vm","description":"Run a ChainGraph decision kernel's compute(policy_parameters) inside a sandboxed, deterministic, in-browser QuickJS-ng WebAssembly VM (ocg-deterministic-compute@1) and return its output_payload. Demo kernel set only -- for the full catalog, use the worker's compute kernels directly.","inputSchema":{"type":"object","properties":{"tool_id":{"type":"string"},"policy_parameters":{"type":"object"}},"required":["tool_id","policy_parameters"]}},"execution":{"type":"browser-javascript","entry":"tools/kernel-vm-widget.html","function_name":"ocgKernelVmRun","timeout_ms":5000},"ap2_export":false};
+function toggleMfst(){var b=document.getElementById('mfstBody'),a=document.getElementById('mfstArr');if(b.style.display==='none'||b.style.display===''){b.style.display='block';if(a)a.textContent='\u25b2';document.getElementById('mfstCode').textContent=JSON.stringify(MANIFEST,null,2);}else{b.style.display='none';if(a)a.textContent='\u25bc';}}
 
 for (const id of DEMO_KERNELS) {
   const opt = document.createElement('option');
