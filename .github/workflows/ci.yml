@@ -133,6 +133,36 @@ jobs:
         # cannot see.
         run: node scripts/run-chain-corpus.mjs
 
+      - name: 🔁 Cross-tool artifact round-trip (audit AUD-C1)
+        # Proves an artifact EMITTED by emit_chaingraph_artifact (Mode 4 server compute) actually
+        # VERIFIES through the SEPARATE verify_execution_hash MCP tool — the loop closes across a
+        # real tool boundary, not just within one tool's own self-check. A one-field mutation of
+        # the same artifact is then asserted INVALID. Sampled over 24 live gpu:false nodes.
+        run: node scripts/gate-crosstool-roundtrip.mjs
+
+      - name: 📤 Export-format consistency (audit AUD-C2)
+        # Proves export_artifact's format variants (xlsx/csv/pdf/xbrl/vc) describe the SAME
+        # underlying evidence for identical input: every format's returned metadata block AND the
+        # execution_hash recoverable from the rendered bytes themselves must agree. Also found (and
+        # excludes from its sample, flagging rather than fixing — see the 2026-07-09 audit report)
+        # a pre-existing bug: kernels whose compliance_flags is an object map instead of an array
+        # throw inside the xlsx exporter.
+        run: node scripts/gate-export-format-consistency.mjs
+
+      - name: 🚧 Negative gate-enforcement (audit AUD-E2)
+        # Proves a chain fed input that trips a §21.4 decision gate actually HALTS/escalates —
+        # never a silent full pass. Covers all 15 gated chains whose rule[0] routes to a genuine
+        # halt/escalate target ("end"/"escalate"); 3 gates that reroute to an alternate live step
+        # (conditional branching, not a violation gate) are out of scope and noted in the gate.
+        run: node scripts/gate-negative-enforcement.mjs
+
+      - name: 🌐 Zero-egress determinism proof (audit AUD-F4)
+        # Proves every live gpu:false kernel-backed node (determinism-claiming, CONTRACT §0) makes
+        # no outbound network call: a static grep of each kernel's local import closure for
+        # fetch/XMLHttpRequest/WebSocket/non-local dynamic import, PLUS a dynamic run of every
+        # fixture-backed kernel with fetch/XHR/WebSocket stubbed to throw.
+        run: node scripts/gate-zero-egress.mjs
+
       - name: 📋 Pilot tool count
         run: |
           node -e "
