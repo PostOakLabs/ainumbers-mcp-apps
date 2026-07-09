@@ -4,7 +4,11 @@
 
 An [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) (SEP-1865) server that exposes the
 [AINumbers.co](https://ainumbers.co) fintech tool suite to any MCP host (Claude, ChatGPT, M365 Copilot, VS Code,
-Cursor). **327 read-only MCP tools** as of the last vendor — see `data/counts.json` for the live figure; never
+Cursor).
+
+![baas_provider_comparator — one of the 15 flagship widget tools, the same HTML MCP Apps hosts render inline in chat](docs/mcp-widget-demo.gif)
+
+**327 read-only MCP tools** as of the last vendor — see `data/counts.json` for the live figure; never
 hand-type this number, `scripts/surface-parity.mjs` and the site repo's count-drift gate both check against it.
 15 flagship tools render as interactive widgets, the rest are ChainGraph compute nodes plus a handful of
 catalog/discovery utility tools (`list_ainumbers_tools`, `find_tool`, `find_chain`, `build_workflow_links`,
