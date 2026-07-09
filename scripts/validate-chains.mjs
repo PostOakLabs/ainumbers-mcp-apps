@@ -28,7 +28,7 @@
  */
 
 import { readFileSync, existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
 import { UTILITY_TOOL_NAMES as UTILITY_NAMES } from '../utility-tools.mjs';
 import { validateChainGates } from './gate-static.mjs';
@@ -217,10 +217,15 @@ if (!existsSync(CHAINGRAPH_JSON)) {
     const reserved = new Set(UTILITY_TOOL_NAMES);
     let pilotSlugs = [];
     try {
-      const pilotMod = await import(PILOT_MJS);
+      // Dynamic import() requires a file:// URL for absolute paths on Windows
+      // (a bare "C:\..." path is parsed as URL scheme "c:" and throws
+      // ERR_UNSUPPORTED_ESM_URL_SCHEME) — pathToFileURL() makes this work
+      // identically on Windows and POSIX. See scripts/hash-sweep.mjs for the
+      // same pattern already in use elsewhere in this repo.
+      const pilotMod = await import(pathToFileURL(PILOT_MJS).href);
       pilotSlugs = pilotMod.PILOT ?? [];
-    } catch (_) {
-      warnings.push('[L3] Could not import pilot.mjs — PILOT widget names not included in collision check');
+    } catch (err) {
+      warnings.push(`[L3] Could not import pilot.mjs — PILOT widget names not included in collision check (${err.code || err.message})`);
     }
     for (const slug of pilotSlugs) {
       const manifestPath = join(MANIFEST_DIR, `${slug}.manifest.json`);

@@ -106,12 +106,26 @@ async function main() {
     else { console.error(`  ✗ ${label}${detail ? ': ' + detail : ''}`); failed++; }
   };
 
-  check('steps_ran === step_count (run 1)', r1.steps_ran === r1.step_count,
-    `steps_ran=${r1.steps_ran} step_count=${r1.step_count}`);
+  // A §21.4-gated chain legitimately skips downstream steps when a fixture routes to a
+  // gate branch that doesn't reach them (status "skipped_by_gate" / "skipped_by_escalation").
+  // That is the gate WORKING, not a broken chain — do not conflate it with a hard failure
+  // (status "error"/"failed", or steps_ran short for a reason OTHER than an intentional
+  // gate skip). Audit 2026-07-09: the un-gate-aware version of this assertion flagged 3
+  // correctly-gated chains (mortgage-high-cost-and-hpml-screen, insurer-rbc-action-level,
+  // dora-escalation-demo) as failures on every run, masking real regressions in noise.
+  // Whether the SPECIFIC branch a fixture takes is the semantically-correct one (e.g. "a
+  // bad mandate MUST escalate") is a judgment call, not asserted here — see Suite E2 /
+  // gate-semantics.test.mjs / gate-branch-coverage.test.mjs for that layer.
+  const GATE_SKIP_STATUSES = new Set(['skipped_by_gate', 'skipped_by_escalation']);
+  const hardFailedSteps1 = (r1.steps ?? []).filter((s) => !GATE_SKIP_STATUSES.has(s.status) && s.status !== 'ok');
+  const gateSkipped1 = (r1.steps ?? []).filter((s) => GATE_SKIP_STATUSES.has(s.status));
+  const expectedRan1 = r1.step_count - gateSkipped1.length;
+  check('steps_ran === step_count minus intentional gate-skips (run 1)', r1.steps_ran === expectedRan1 && hardFailedSteps1.length === 0,
+    `steps_ran=${r1.steps_ran} step_count=${r1.step_count} gate_skipped=${gateSkipped1.length} hard_failed=${hardFailedSteps1.map((s) => `${s.tool_id}:${s.status}`).join(',')}`);
 
-  // Assert all steps inputs_source === "fixture"
-  const nonFixture1 = (r1.steps ?? []).filter((s) => s.inputs_source !== 'fixture');
-  check('all steps inputs_source "fixture" (run 1)', nonFixture1.length === 0,
+  // Assert all NON-gate-skipped steps have inputs_source === "fixture".
+  const nonFixture1 = (r1.steps ?? []).filter((s) => !GATE_SKIP_STATUSES.has(s.status) && s.inputs_source !== 'fixture');
+  check('all executed steps inputs_source "fixture" (run 1)', nonFixture1.length === 0,
     nonFixture1.map((s) => `${s.tool_id}:${s.inputs_source}`).join(', '));
 
   // Assert composite hash is non-null hex
