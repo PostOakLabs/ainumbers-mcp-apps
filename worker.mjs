@@ -696,16 +696,25 @@ async function loadData(env) {
     return r;
   };
   const glue = widgetGlue(await (await get('ext-apps-inline.js')).text());
-  const manifests = {}, widgets = {};
+  const manifests = {};
   for (const slug of PILOT) {
     manifests[slug] = await (await get('manifests/' + slug + '.manifest.json')).json();
-    widgets[slug] = stripCspMeta(await (await get('tools/' + slug + '.html')).text()) + glue;
   }
+  // Widget HTML bodies load LAZILY (only when a widget resource is actually READ), NOT eagerly
+  // per PILOT here. On the Cloudflare FREE plan (50 subrequests/invocation) eager-loading every
+  // widget's HTML at cold start put buildServer right at the ceiling; adding one widget (VM-1a
+  // run_kernel_vm, PILOT #16) tipped it over — and a poisoned cold isolate throws before dataCache
+  // is set, so EVERY subsequent call to it also failed (persistent /mcp tools/call outage,
+  // 2026-07-09; reverted in #57, re-landed with this fix). Manifests stay eager (needed for tool
+  // names at registration); the big HTML bodies are fetched on demand and cached per isolate.
+  const widgets = {};
+  const loadWidget = async (slug) =>
+    (widgets[slug] ??= stripCspMeta(await (await get('tools/' + slug + '.html')).text()) + glue);
   const catalog = await (await get('mcp/catalog.json')).json();
   const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
   const searchIndex = await (await get('search-index.json')).json();
   const chainFixtures = await (await get('chain-fixtures.json')).json();
-  dataCache = { manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures };
+  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures };
   return dataCache;
 }
 
@@ -793,7 +802,7 @@ async function fragmentLink(artifact) {
   return { ledger_url: 'https://ledger.ainumbers.co/#a=v1.' + b64 };
 }
 
-function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
   // — registering the full set per request trips the Cloudflare FREE-plan CPU limit (1102). Every
@@ -829,7 +838,7 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
     }));
 
     registerAppResource(server, m.title, uri, {}, async () => ({
-      contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: widgets[slug] }],
+      contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: await loadWidget(slug) }],
     }));
   }
 

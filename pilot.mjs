@@ -19,4 +19,8 @@ export const PILOT = [
   '282-mcp-tool-poisoning-scanner',
   '283-a2a-agent-card-validator',
   '286-visa-trusted-agent-protocol-inspector',
+  // VM-1a kernel VM widget (added 2026-07-09) — kernel-VM-as-tool via this PILOT surface.
+  // Re-landed after #57 revert: safe now that widget HTML loads lazily (worker.mjs loadWidget),
+  // so this 16th widget no longer tips cold-start past the Free-plan 50-subrequest cap.
+  'kernel-vm-widget',
 ];
