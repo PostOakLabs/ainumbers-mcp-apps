@@ -58,6 +58,14 @@ jobs:
         # regression at the source. Memory: project-ainumbers-mcp-server-no-cache.
         run: node scripts/check-worker-invariants.mjs
 
+      - name: 🧯 Malformed-body fast-fail (audit F1, 2026-07-09)
+        # A syntactically-invalid JSON POST to /mcp used to hang for HANG_GUARD_MS (25s) then
+        # 504 "Server timeout" — request.json() consumed the body stream, left body===undefined,
+        # and the SDK transport tried to re-read the same drained stream via toReqRes(request).
+        # Reproduced 3x on live https://mcp.ainumbers.co/mcp before this fix. Now fast-fails with
+        # a typed 400/-32700 before the transport is touched. Guards against the regression.
+        run: node scripts/test-malformed-body-fastfail.mjs
+
       - name: 🪞 Single-tool build parity (O(1) tools/call == full build)
         # buildServer(data,{onlyTool}) must register the requested tool's definition byte-identically
         # to the full build, and the loadData-derived known-set must cover ALL registered tools (no
@@ -110,6 +118,20 @@ jobs:
           SCHEMA: _site/chaingraph/standard/openchain-graph-v0.4.schema.json
           CHAINGRAPH: data/chaingraph/chaingraph.json
           FIXTURES_DIR: _site/chaingraph/kernels/fixtures
+
+      - name: 🧬 Full-corpus chain E2E + schema conformance (audit Suite E1/E3)
+        # test-run-chain-fixtures.mjs only smoke-tests ONE example chain
+        # (agent-commerce-conformance) as proof the fixture-default mechanism
+        # works. This step runs run_chain end-to-end for EVERY fixture-backed
+        # chain in data/chain-fixtures.json (147 of 266 named chains — the
+        # remainder need browser-side/manual inputs and are out of scope for a
+        # server-side gate), asserting completion, steps_ran vs step_count
+        # (gate-aware), a 64-hex composite_execution_hash, run-to-run
+        # determinism, AND validates every emitted composite_artifact against
+        # the v0.4 JSON Schema via _site's schema-validate.mjs. Catches silent
+        # per-chain kernel/fixture regressions the single-chain smoke test
+        # cannot see.
+        run: node scripts/run-chain-corpus.mjs
 
       - name: 📋 Pilot tool count
         run: |

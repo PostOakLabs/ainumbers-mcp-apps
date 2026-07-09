@@ -2646,6 +2646,23 @@ export default {
       // Parse body once -- needed for both the MCP handler and telemetry extraction.
       const body = await request.json().catch(() => undefined);
 
+      // Fast-fail on a syntactically-invalid JSON body (audit F1, 2026-07-09). `request.json()`
+      // consumes the fetch Request's body stream; if it fails to parse, `body` is `undefined`
+      // here and toReqRes(request) below reconstructs a Node req from the SAME (now-drained)
+      // Request. Falling through with body===undefined made the SDK's transport.handleRequest
+      // try to re-read that exhausted stream, which never resolves -- every unparseable-JSON
+      // POST hung for the full HANG_GUARD_MS (25s) before the watchdog forced a 504
+      // "Server timeout" ("Not JSON" 500-adjacent handshake stall). A syntactically-valid JSON
+      // body that merely fails JSON-RPC shape validation (e.g. missing "method") is unaffected
+      // — it still reaches transport.handleRequest with a real parsed `body` and gets the SDK's
+      // fast 400/-32700 response. Only reject fast when the body could not be parsed at all.
+      if (body === undefined && request.method === 'POST') {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32700, message: 'Parse error: request body is not valid JSON' }, id: null }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Extract telemetry fields from tools/call requests.
       // Never log payloads, parameters, or outputs -- only structural metadata.
       const isToolCall = body?.method === 'tools/call';
