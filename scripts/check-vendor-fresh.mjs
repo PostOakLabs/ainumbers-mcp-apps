@@ -39,12 +39,49 @@ const siteListKernels = () => useGit
 console.log(`(comparing vs site ${useGit ? 'COMMITTED HEAD' : 'working tree'}: ${SITE})`);
 let fails = 0;
 
+// CONTEXT-AWARE severity. On a pull_request the PAIRED site PR is often still open, so the worker
+// legitimately vendors chains/nodes/kernels that site main does not have yet (two-repo same-push:
+// the site PR merges FIRST, then the worker vendor matches main). Comparing the worker vs site main
+// during that window is a FALSE red — the recurring "worker CI red until the site PR merges" pain.
+// So on pull_request we ADVISE (classify + never fail); on push to master (the DEPLOY path) we stay
+// STRICT — the deployed worker must match site main exactly. The deploy gate is unchanged.
+// History: memory feedback_wrangler_deploy_in_commit_block + consolidated queue.
+const IS_PR = process.env.GITHUB_EVENT_NAME === 'pull_request';
+
+function classifyChainGraph(vend, src) {
+  const idset = (arr, key) => new Set((arr || []).map((x) => x[key] ?? x.id ?? x.name));
+  const sChains = idset(src.chains, 'name'), vChains = idset(vend.chains, 'name');
+  const sNodes = idset(src.nodes, 'tool_id'), vNodes = idset(vend.nodes, 'tool_id');
+  const siteChainsKept = [...sChains].every((n) => vChains.has(n));
+  const siteNodesKept = [...sNodes].every((n) => vNodes.has(n));
+  const workerHasExtra = vChains.size > sChains.size || vNodes.size > sNodes.size;
+  // 'ahead' = worker keeps every site chain/node and adds more (the paired-PR-in-flight shape).
+  return (siteChainsKept && siteNodesKept && workerHasExtra) ? 'ahead' : 'diverged';
+}
+
+function reportDrift(label, detail, classify) {
+  if (IS_PR) {
+    const cls = classify ? classify() : 'diverged';
+    console.log(`⚠ ${label} differs from site main (${cls}) — ADVISORY on pull_request.`);
+    console.log(cls === 'ahead'
+      ? '   Worker vendors content not yet on site main. EXPECTED when the paired site PR is unmerged: merge the site PR first, then this is strict-green on push to master.'
+      : `   ${detail} If the paired site PR is unmerged this is expected; otherwise run \`node generate.mjs\` and recommit data/.`);
+    return 0;
+  }
+  console.error(`✗ ${label} is STALE vs the site source.`);
+  return 1;
+}
+
 // 1) chaingraph.json — semantic (parsed-JSON) equality, ignores whitespace/key-order-of-file
 try {
   const vend = JSON.parse(readFileSync(join('data', 'chaingraph', 'chaingraph.json'), 'utf8'));
   const src = JSON.parse(siteRead('chaingraph/chaingraph.json'));
   if (JSON.stringify(vend) !== JSON.stringify(src)) {
-    console.error('✗ data/chaingraph/chaingraph.json is STALE vs the site source.'); fails++;
+    fails += reportDrift(
+      'data/chaingraph/chaingraph.json',
+      'Worker may be BEHIND site main, or the site PR modified shared content.',
+      () => classifyChainGraph(vend, src),
+    );
   } else console.log('✓ data/chaingraph/chaingraph.json is current');
 } catch (e) { console.error('✗ chaingraph.json compare error:', e.message); fails++; }
 
@@ -54,13 +91,18 @@ try {
   let kfail = 0;
   for (const k of srcKernels) {
     const vp = join('kernels', k);
-    if (!existsSync(vp)) { console.error(`  ✗ missing vendored kernel: ${k}`); kfail++; continue; }
+    if (!existsSync(vp)) { console.error(`  ${IS_PR ? '⚠' : '✗'} missing vendored kernel: ${k}`); kfail++; continue; }
     if (norm(readFileSync(vp, 'utf8')) !== norm(siteRead(`chaingraph/kernels/${k}`))) {
-      console.error(`  ✗ stale vendored kernel: ${k}`); kfail++;
+      console.error(`  ${IS_PR ? '⚠' : '✗'} differing vendored kernel: ${k}`); kfail++;
     }
   }
-  if (kfail) { console.error(`✗ ${kfail} of ${srcKernels.length} kernels stale/missing vs site`); fails++; }
-  else console.log(`✓ ${srcKernels.length} bundled kernels current`);
+  if (kfail) {
+    fails += reportDrift(
+      `${kfail} of ${srcKernels.length} kernels`,
+      'Worker kernels differ from site main.',
+      null,
+    );
+  } else console.log(`✓ ${srcKernels.length} bundled kernels current`);
 } catch (e) { console.error('✗ kernel compare error:', e.message); fails++; }
 
 console.log(fails
