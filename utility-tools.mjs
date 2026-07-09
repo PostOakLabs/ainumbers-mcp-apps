@@ -20,6 +20,7 @@ export const UTILITY_TOOL_NAMES = [
   'find_chain',
   'find_tool',
   'run_chain',
+  'validate_input_attestations',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;

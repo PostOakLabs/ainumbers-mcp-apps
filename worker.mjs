@@ -14,6 +14,9 @@ import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget,
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
+import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
+import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
+import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
@@ -1068,6 +1071,126 @@ function buildServer({ manifests, widgets, catalog, chaingraph, searchIndex, cha
           : 'MISMATCH: recomputed hash does not match the claimed hash. Treat the artifact as unverified.'),
       spec: 'ChainGraph Standard v0.1 §6',
     };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // RFC 6901 JSON Pointer resolution — evaluated against policy_parameters (OCG §23).
+  function resolveJsonPointer(root, pointer) {
+    if (pointer === '') return { ok: true, value: root };
+    if (typeof pointer !== 'string' || pointer[0] !== '/') return { ok: false };
+    let cur = root;
+    for (const raw of pointer.slice(1).split('/')) {
+      const key = raw.replace(/~1/g, '/').replace(/~0/g, '~');
+      if (cur == null) return { ok: false };
+      if (Array.isArray(cur)) {
+        if (!/^(0|[1-9]\d*)$/.test(key)) return { ok: false };
+        const idx = Number(key);
+        if (idx >= cur.length) return { ok: false };
+        cur = cur[idx];
+      } else if (typeof cur === 'object') {
+        if (!Object.prototype.hasOwnProperty.call(cur, key)) return { ok: false };
+        cur = cur[key];
+      } else return { ok: false };
+    }
+    return { ok: true, value: cur };
+  }
+  // SHA-256 hex of the §4 cgCanon encoding of a single value — same canonicalization primitive as
+  // execution_hash (imported from _hash.mjs), just hashing one resolved node instead of the
+  // {policy_parameters, output_payload} pair. Bare hex; strip an optional 'sha256:' prefix to compare.
+  async function attestDigestHex(value) {
+    const bytes = new TextEncoder().encode(JSON.stringify(sharedCgCanon(value)));
+    const buf = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  const __normDigest = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
+
+  // Per-type assessment for one input_attestations[] entry (OCG §23.2). Returns exactly
+  // { pointer, type, structural, verifiable } — structural = pointer resolution + digest binding +
+  // payload well-formedness; verifiable = the cryptographic verdict (independent of structural).
+  async function assessInputAttestation(entry, policyParameters) {
+    const pointer = entry?.pointer ?? null;
+    const type = entry?.type ?? null;
+    const proof = entry?.proof;
+    const resolved = resolveJsonPointer(policyParameters, pointer);
+    if (!resolved.ok) {
+      return { pointer, type, structural: 'fail', verifiable: type === 'zktls' ? 'external' : 'failed' };
+    }
+    const expectedDigest = await attestDigestHex(resolved.value);
+
+    if (type === 'vc-2.0') {
+      const subjectDigest = __normDigest(proof?.credentialSubject?.digest);
+      const structural = subjectDigest === expectedDigest ? 'pass' : 'fail';
+      let verifiable = 'failed';
+      try { verifiable = (await verifyProofs(proof, (did) => didKeyToPublicKey(did))) ? 'verified' : 'failed'; }
+      catch { verifiable = 'failed'; }
+      return { pointer, type, structural, verifiable };
+    }
+
+    if (type === 'rfc3161-snapshot') {
+      let structural = 'fail';
+      try { structural = extractMessageImprintHex(proof?.proof) === expectedDigest ? 'pass' : 'fail'; }
+      catch { structural = 'fail'; }
+      let verifiable = 'failed';
+      try { await verifyRfc3161(proof, { rootPem: FREETSA_ROOT_PEM, expectHashHex: expectedDigest }); verifiable = 'verified'; }
+      catch { verifiable = 'failed'; }
+      return { pointer, type, structural, verifiable };
+    }
+
+    if (type === 'c2pa-manifest') {
+      let structural = 'fail';
+      try {
+        const { output_payload } = await c2paCompute(proof ?? {});
+        const hardBinding = (proof?.assertions ?? []).find((a) => a && (a.label === 'c2pa.hash.data' || a.label === 'c2pa.hash.bmff'));
+        const hardBindingOk = !!hardBinding && __normDigest(hardBinding.hash) === expectedDigest;
+        structural = (output_payload.manifest_valid && output_payload.has_hard_binding && hardBindingOk) ? 'pass' : 'fail';
+      } catch { structural = 'fail'; }
+      // Structural-only per §23.1 -- OCG validates manifest shape + hard-binding digest, not the
+      // claim signature's trust chain (link-out to a full C2PA validator for that).
+      return { pointer, type, structural, verifiable: 'n/a' };
+    }
+
+    if (type === 'zktls') {
+      // OCG ships no zktls verifier (§23.1) -- structural digest binding only; never OCG-confirmed.
+      const structural = (proof && __normDigest(proof.subject_digest) === expectedDigest) ? 'pass' : 'fail';
+      return { pointer, type, structural, verifiable: 'external' };
+    }
+
+    return { pointer, type, structural: 'fail', verifiable: 'n/a' };
+  }
+
+  server.registerTool('validate_input_attestations', {
+    title: 'Validate ChainGraph input attestations',
+    description:
+      'Verify an artifact\'s input_attestations[] (ChainGraph Standard §23): per RFC 6901 pointer, checks the ' +
+      'attested value resolves inside policy_parameters and its digest binding matches, then verifies each type ' +
+      'along its own path -- vc-2.0 via the shipped §16/§13.11 Data Integrity proof, rfc3161-snapshot via the ' +
+      'same §20 rfc3161-tst verifier (no second RFC 3161 implementation), c2pa-manifest structurally (hard-binding ' +
+      'digest match), zktls structurally-only (reported verifiable:"external" -- OCG never treats it as confirmed). ' +
+      'Returns one { pointer, type, structural, verifiable } record per entry. Pure client-safe compute, zero network.',
+    inputSchema: {
+      artifact: z.record(z.any()).optional().describe('A full ChainGraph artifact envelope carrying input_attestations[] and policy_parameters.'),
+      policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
+      input_attestations: z.array(z.record(z.any())).optional().describe('The input_attestations[] array (if not passing a full artifact).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ artifact, policy_parameters, input_attestations }) => {
+    const pp = policy_parameters ?? artifact?.policy_parameters;
+    const attestations = input_attestations ?? artifact?.input_attestations;
+    if (pp === undefined || !Array.isArray(attestations)) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + input_attestations[]) or policy_parameters + input_attestations[].' }],
+      };
+    }
+    const results = await Promise.all(attestations.map((entry) => assessInputAttestation(entry, pp)));
+    // §23 hash-exclusion sanity: input_attestations sit OUTSIDE the execution_hash preimage, so a
+    // zero-attestation artifact must still be hash-identical (same pattern as §20 anchor_bindings).
+    let execution_hash_unaffected = null;
+    if (artifact?.policy_parameters !== undefined && artifact?.output_payload !== undefined && artifact?.execution_hash) {
+      execution_hash_unaffected = __normDigest(await cgExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
+    }
+    const all_pass = results.every((r) => r.structural === 'pass' && r.verifiable !== 'failed');
+    const out = { results, all_pass, execution_hash_unaffected, spec: 'ChainGraph Standard §23' };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 

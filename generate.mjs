@@ -29,8 +29,8 @@ writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve
 // Vendor OCG kernel modules in two places:
 //   1. data/kernels/  — ASSETS binding (served to browsers via HTTP)
 //   2. kernels/       — bundled into the Worker by wrangler/esbuild (static import)
-// Only kernel files are vendored (*.kernel.mjs, _hash.mjs, _proof.mjs, _gateval.mjs, index.mjs).
-// Test/lint/fix scripts are excluded from both targets.
+// Only kernel files are vendored (*.kernel.mjs, _hash.mjs, _proof.mjs, _gateval.mjs, _rfc3161.mjs,
+// _anchor-testutil.mjs, index.mjs). Test/lint/fix scripts are excluded from both targets.
 // ---------------------------------------------------------------------------
 const KERNELS_SRC  = resolve(REPO, 'chaingraph', 'kernels');
 const KERNELS_DATA = resolve(DATA, 'kernels');
@@ -38,7 +38,9 @@ const KERNELS_BUNDLE = resolve(ROOT, 'kernels'); // alongside worker.mjs → bun
 mkdirSync(KERNELS_DATA,   { recursive: true });
 mkdirSync(KERNELS_BUNDLE, { recursive: true });
 
-const KERNEL_FILE_RE = /^((_hash|_proof|_gateval|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
+// _rfc3161.mjs (§20/§23 shared rfc3161-tst verifier) depends on _anchor-testutil.mjs's DER helpers —
+// both must vendor so validate_input_attestations can import verifyRfc3161 at runtime.
+const KERNEL_FILE_RE = /^((_hash|_proof|_gateval|_rfc3161|_anchor-testutil|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
 for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
   const src = readFileSync(resolve(KERNELS_SRC, f));
   writeFileSync(resolve(KERNELS_DATA, f), src);
