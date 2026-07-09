@@ -16,15 +16,14 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from '../pilot.mjs';
+import { UTILITY_TOOL_NAMES } from '../utility-tools.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = resolve(ROOT, 'data');
 
-const UTILITY_TOOLS = [
-  'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
-  'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
-  'export_artifact', 'find_chain', 'find_tool',
-];
+// Single source of truth (utility-tools.mjs) — this used to be a second hardcoded copy that drifted
+// (missing run_chain), so a new utility tool could ship without ever being collision-checked here.
+const UTILITY_TOOLS = UTILITY_TOOL_NAMES;
 
 const names = new Map(); // name -> [sources]
 function add(name, source) {

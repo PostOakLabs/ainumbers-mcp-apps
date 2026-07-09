@@ -75,6 +75,12 @@ jobs:
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
+      - name: 🧾 Input-attestations gate (§23)
+        # SPEC.md §15 row: real rfc3161-snapshot verify (reuses the §20 rfc3161-tst verifier, no
+        # second impl), real vc-2.0 Data Integrity verify, c2pa-manifest structural check, zktls
+        # structural digest-binding, plus tamper/unresolved-pointer/digest-mismatch failure cases.
+        run: node scripts/validate-input-attestations.test.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@v7
