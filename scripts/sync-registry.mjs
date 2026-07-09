@@ -9,14 +9,14 @@
  * Run this immediately before:  .\mcp-publisher.exe publish
  *
  * What it does:
- *   1. Reads pilot.mjs to get current pilot tool count
- *   2. Reads repo's tool count from catalog.json (via ASSETS data/ directory)
- *   3. Bumps server.json patch version (X.Y.Z → X.Y.Z+1)
- *   4. Writes server.json (with --write) or prints the diff (dry-run)
+ *   1. Reads data/counts.json — the vendored SSOT (generate.mjs writes it; never
+ *      hand-derive counts here, that's how this script went stale before — S4 2026-07-09)
+ *   2. Bumps server.json patch version (X.Y.Z → X.Y.Z+1)
+ *   3. Writes server.json (with --write) or prints the diff (dry-run)
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
@@ -27,46 +27,28 @@ const write = process.argv.includes('--write');
 const serverJsonPath = join(root, 'server.json');
 const serverJson = JSON.parse(readFileSync(serverJsonPath, 'utf8'));
 
-// ── 2. Count pilot tools ──────────────────────────────────────────────────
-const { PILOT } = await import(pathToFileURL(join(root, 'pilot.mjs')));
-const pilotCount = PILOT.length;
+// ── 2. Read vendored SSOT counts ──────────────────────────────────────────
+const counts = JSON.parse(readFileSync(join(root, 'data', 'counts.json'), 'utf8'));
+const mcpToolsTotal = counts.mcp_tools_total;
+const catalogTools = counts.catalog_tools;
 
-// ── 3. Count ainumbers tools from vendored catalog ────────────────────────
-let ainCount = '468+'; // fallback
-try {
-  const catalog = JSON.parse(readFileSync(join(root, 'data', 'catalog.json'), 'utf8'));
-  const n = Array.isArray(catalog) ? catalog.length
-          : Array.isArray(catalog?.tools) ? catalog.tools.length
-          : 0;
-  if (n > 0) ainCount = `${n}+`;
-} catch { /* catalog not vendored yet — use fallback */ }
-
-// ── 4. Count ChainGraph tools from chaingraph.json ───────────────────────
-let chainCount = 19; // fallback
-try {
-  const cg = JSON.parse(readFileSync(join(root, 'data', 'chaingraph.json'), 'utf8'));
-  if (Array.isArray(cg?.nodes)) chainCount = cg.nodes.length;
-} catch { /* use fallback */ }
-
-// ── 5. Build new description (≤100 chars) ────────────────────────────────
-// Format: "<ainCount> zero-egress fintech tools + <chainCount> ChainGraph AP2 tools. Zero PII."
-const desc = `${ainCount} zero-egress fintech tools + ${chainCount} ChainGraph AP2-emitting decision tools. Zero PII.`;
+// ── 3. Build new description (≤100 chars) ─────────────────────────────────
+const desc = `${mcpToolsTotal} MCP tools across ${catalogTools} fintech tools: ChainGraph AP2 decisions, execution_hash. Zero PII.`;
 if (desc.length > 100) {
   console.error(`❌  Description too long (${desc.length} chars, max 100): "${desc}"`);
   process.exit(1);
 }
 
-// ── 6. Bump patch version ─────────────────────────────────────────────────
+// ── 4. Bump patch version ──────────────────────────────────────────────────
 const [maj, min, pat] = (serverJson.version || '0.1.0').split('.').map(Number);
 const newVersion = `${maj}.${min}.${pat + 1}`;
 
-// ── 7. Apply or preview ───────────────────────────────────────────────────
+// ── 5. Apply or preview ────────────────────────────────────────────────────
 const updated = { ...serverJson, version: newVersion, description: desc };
 
 console.log('\n── sync-registry.mjs ─────────────────────────────────────');
-console.log(`  pilot tools  : ${pilotCount}`);
-console.log(`  ain tools    : ${ainCount}`);
-console.log(`  chaingraph   : ${chainCount}`);
+console.log(`  mcp tools    : ${mcpToolsTotal}`);
+console.log(`  catalog tools: ${catalogTools}`);
 console.log(`  version      : ${serverJson.version}  →  ${newVersion}`);
 console.log(`  description  : "${desc}"  (${desc.length} chars)`);
 console.log('──────────────────────────────────────────────────────────\n');
