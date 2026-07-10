@@ -3768,6 +3768,9 @@
   "reserve-proof-verification": {
     "art-280-reserve-proof-verifier": {}
   },
+  "anchored-extract-verification": {
+    "art-286-anchored-extract-verifier": {}
+  },
   "basel-sco60-crypto-exposure-classification": {
     "art-281-sco60-crypto-asset-exposure-classifier": {
       "position": {
