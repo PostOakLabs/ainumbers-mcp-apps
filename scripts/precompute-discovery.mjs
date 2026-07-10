@@ -71,6 +71,23 @@ export async function precomputeDiscovery() {
   await clientT.send({ jsonrpc: '2.0', method: 'notifications/initialized' });
 
   const toolsMsg = await rpc('tools/list', {}, 1);
+
+  // outputSchema (§M1.4) — read-only projection from repo/manifests/*, attach when present.
+  let outputSchemas = {};
+  try { outputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none yet */ }
+  for (const t of toolsMsg.result.tools) if (outputSchemas[t.name]) t.outputSchema = outputSchemas[t.name];
+
+  // ttlMs cache metadata (§M1.5) — every AINumbers tool is deterministic pure compute (CONTRACT
+  // zero-fetch/zero-side-effect invariant: same inputs -> same execution_hash, forever), so a
+  // conservative client-side cache is always safe to advertise. The cache KEY a client should use
+  // is the RFC 8785/JCS canonical `policy_parameters` preimage (the same preimage execution_hash is
+  // derived from) — never wall-clock, never a session id. The worker holds no server-side cache
+  // (stays stateless); this is metadata only.
+  const TTL_MS = 86400000; // 24h — conservative; a tool's compute never changes for the same input.
+  for (const t of toolsMsg.result.tools) {
+    t.cacheHint = { ttlMs: TTL_MS, cacheKey: 'input_hash', note: 'cache by the JCS-canonical policy_parameters hash only; never by wall-clock or session' };
+  }
+
   // Inject defer_loading exactly as the Worker does at runtime (worker.mjs tools/list branch).
   for (const t of toolsMsg.result.tools) if (!HOT_TOOLS.has(t.name)) t.defaultConfig = { defer_loading: true };
 
@@ -107,7 +124,27 @@ export async function precomputeDiscovery() {
   wtxt('resources-list.sse.txt', frame('resources/list', { resources }));
   wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts }));
 
-  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length };
+  // Named toolsets (§M1.2) — one extra static tools-list per profile: lean §M1.1 core (9 names,
+  // never deferred) UNION the profile's members (also never deferred — "expands the advertised
+  // set to that domain's tools on top of the lean core"), everything else stays defer_loading:true.
+  // Generator-emitted membership only (data/mcp/toolsets.json, written by generate.mjs) — no
+  // hand-typed list here. A client requests one via ?toolset=<name> on /mcp (worker.mjs).
+  let toolsetProfiles = {};
+  try { toolsetProfiles = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'toolsets.json'), 'utf8')).profiles ?? {}; } catch { /* none yet */ }
+  const profileNames = [];
+  for (const [profile, members] of Object.entries(toolsetProfiles)) {
+    const advertised = new Set([...HOT_TOOLS, ...members]);
+    const profileTools = toolsMsg.result.tools.map((t) => {
+      const clone = { ...t };
+      if (advertised.has(t.name)) delete clone.defaultConfig;
+      else clone.defaultConfig = { defer_loading: true };
+      return clone;
+    });
+    wtxt('tools-list.' + profile + '.sse.txt', frame('tools/list:' + profile, { tools: profileTools }));
+    profileNames.push(profile);
+  }
+
+  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length, toolsets: profileNames };
 }
 
 // Standalone invocation

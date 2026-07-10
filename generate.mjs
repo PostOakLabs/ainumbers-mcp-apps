@@ -216,6 +216,65 @@ writeFileSync(resolve(DATA, 'search-index.json'), JSON.stringify({
   nodes:  { docs: nodeDocsClean,  ...nodeIndex  },
 }, null, 2) + '\n');
 
+// ---------------------------------------------------------------------------
+// Named toolsets (MCP-500-1 §M1.2, GitHub-MCP server-card profile pattern) — a NAME LIST
+// projection of chaingraph.json onto a handful of domain profiles, generator-emitted only
+// (never hand-authored, §A5.3 surface-parity). Membership derives from the existing node
+// facet (mcp_name + display_name + description + tool_id text) via a fixed keyword rule
+// below — adding a profile or widening one is a generator-rule edit, zero worker logic.
+// worker.mjs expands the lean §M1.1 core with a profile's members when a client requests
+// ?toolset=<name> on /mcp (server stays stateless: the query param is read per-request,
+// no session state held).
+// ---------------------------------------------------------------------------
+const PROFILE_KEYWORDS = {
+  reserve:  ['reserve', 'proof of reserve', 'por ', 'stablecoin', 'merkle-sum'],
+  mortgage: ['mortgage', 'trid', 'hoepa', 'hmda', ' qm ', 'llpa', 'heloc', 'fha ', 'va funding', 'conforming loan', 'mismo', 'scra'],
+  emir:     ['emir', ' uti ', ' upi ', 'trade report', 'derivatives margin', 'csdr'],
+  anchors:  ['anchor', 'timestamp', 'rfc3161', 'sigstore', 'merkle batch', 'ots proof', 'witness'],
+  'ai-act': ['ai act', 'fria', 'gpai', 'annex iii', 'high-risk ai', 'conformity', 'nist ai rmf'],
+};
+const toolsetProfiles = {};
+for (const [profile, keywords] of Object.entries(PROFILE_KEYWORDS)) {
+  toolsetProfiles[profile] = cgNodes
+    .filter((n) => n.status === 'live' && n.mcp_name)
+    .filter((n) => {
+      const hay = ' ' + [n.mcp_name, n.display_name, n.description, n.tool_id].filter(Boolean).join(' ').toLowerCase() + ' ';
+      return keywords.some((kw) => hay.includes(kw));
+    })
+    .map((n) => n.mcp_name);
+}
+writeFileSync(resolve(DATA, 'mcp', 'toolsets.json'), JSON.stringify({
+  rule: 'substring keyword match of PROFILE_KEYWORDS against lowercased "mcp_name display_name description tool_id" — see generate.mjs',
+  profiles: toolsetProfiles,
+  generated_at: counts.generated_at,
+}, null, 2) + '\n');
+console.log('toolset profiles:', Object.fromEntries(Object.entries(toolsetProfiles).map(([k, v]) => [k, v.length])));
+
+// ---------------------------------------------------------------------------
+// outputSchema projection (MCP-500-1 §M1.4) — READ-ONLY from repo/manifests/*.manifest.json
+// (never chaingraph.json; see the §M1.4 K-adjacent rider). Keyed by mcp_name so worker.mjs can
+// attach `outputSchema` to a tool's registration without re-deriving it at request time. Omitted
+// entirely for a tool_id with no manifest or no declared output_schema (never fabricated).
+// ---------------------------------------------------------------------------
+const outputSchemas = {};
+for (const n of cgNodes) {
+  if (n.status !== 'live' || !n.mcp_name || !n.tool_id) continue;
+  try {
+    const manifestPath = resolve(REPO, 'manifests', n.tool_id + '.manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    if (manifest.output_schema) outputSchemas[n.mcp_name] = manifest.output_schema;
+  } catch { /* no manifest for this tool_id — omit, don't fabricate */ }
+}
+for (const slug of PILOT) {
+  try {
+    const manifest = JSON.parse(readFileSync(resolve(DATA, 'manifests', slug + '.manifest.json'), 'utf8'));
+    const name = manifest?.mcp_tool_definition?.name;
+    if (name && manifest.output_schema) outputSchemas[name] = manifest.output_schema;
+  } catch { /* ignore */ }
+}
+writeFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), JSON.stringify(outputSchemas, null, 2) + '\n');
+console.log('outputSchema projected for', Object.keys(outputSchemas).length, 'tools (read-only from repo/manifests/*)');
+
 console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
 
 // Precompute the static MCP discovery responses (initialize/tools-list/resources-list/prompts-list)

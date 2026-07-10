@@ -89,6 +89,12 @@ jobs:
         # structural digest-binding, plus tamper/unresolved-pointer/digest-mismatch failure cases.
         run: node scripts/validate-input-attestations.test.mjs
 
+      - name: 🕐 ttlMs cache-key is input-hash-only (§M1.5)
+        # Proves the advertised cacheHint.cacheKey:"input_hash" contract: identical
+        # policy_parameters (any key order) -> identical key; a changed input -> a
+        # changed key. Never wall-clock, never a session id.
+        run: node scripts/test-ttl-cache-key.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@v7

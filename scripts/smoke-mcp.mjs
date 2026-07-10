@@ -77,6 +77,38 @@ async function call(method, params, id) {
   throw new Error(`no JSON-RPC response for ${method} (id ${id}) before stream end. Got: ${buf.slice(0, 200)}`);
 }
 
+// §M1.6 dual-version window: the 2026-07-28 RC drops the mandatory `initialize` handshake. Prove
+// the worker answers tools/list (and a real tools/call) WITHOUT ever calling initialize first —
+// the RC path — on top of the current initialize()-first path proven below.
+async function rcNoInitializePath() {
+  const list = await call('tools/list', {}, 101);
+  if (list.error) throw new Error(`RC-path tools/list error ${list.error.code}: ${list.error.message}`);
+  const names = (list.result?.tools ?? []).map((t) => t.name);
+  if (!names.includes('find_tool')) throw new Error('RC-path tools/list missing lean-core tool find_tool');
+  const out = await call('tools/call', { name: 'find_tool', arguments: { query: 'reserve' } }, 102);
+  if (out.error) throw new Error(`RC-path tools/call error ${out.error.code}: ${out.error.message}`);
+  if (out.result?.isError) throw new Error('RC-path find_tool isError: ' + JSON.stringify(out.result.content).slice(0, 200));
+  return { tools: names.length };
+}
+
+// §M1.2 named toolsets: ?toolset=reserve must expand the advertised (non-deferred) set beyond the
+// 9-name lean core with reserve-domain tools, generator-emitted (data/mcp/toolsets.json).
+async function toolsetProfile() {
+  const profileUrl = URL + (URL.includes('?') ? '&' : '?') + 'toolset=reserve';
+  const res = await fetch(profileUrl, {
+    method: 'POST', headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 201, method: 'tools/list', params: {} }),
+  });
+  if (res.status !== 200) throw new Error(`?toolset=reserve tools/list HTTP ${res.status}`);
+  const text = await res.text();
+  const line = text.split('\n').find((l) => l.startsWith('data:'));
+  const obj = JSON.parse((line || text).replace(/^data:\s*/, ''));
+  const tools = obj.result?.tools ?? [];
+  const nonDeferred = tools.filter((t) => !t.defaultConfig?.defer_loading).length;
+  if (nonDeferred <= 9) throw new Error(`?toolset=reserve did not expand the advertised set (${nonDeferred} non-deferred, expected >9)`);
+  return { nonDeferred };
+}
+
 async function initialize() {
   const { result, error } = await call('initialize', {
     protocolVersion: PROTO, capabilities: {}, clientInfo: { name: 'ci-smoke', version: '1' },
@@ -125,6 +157,13 @@ async function exportRoundTrip() {
       }
       const x = await exportRoundTrip();
       console.log(`✓ export_artifact round-trip OK — xlsx blob ${x.bytes}B (PK zip), hash carried, ${x.tools} tools listed`);
+
+      const rc = await rcNoInitializePath();
+      console.log(`✓ §M1.6 RC path (no initialize) OK — tools/list + tools/call answered directly, ${rc.tools} tools listed`);
+
+      const ts = await toolsetProfile();
+      console.log(`✓ §M1.2 named toolset OK — ?toolset=reserve advertises ${ts.nonDeferred} non-deferred tools (lean core + reserve profile)`);
+
       process.exitCode = 0; return;
     } catch (e) {
       lastErr = e;
