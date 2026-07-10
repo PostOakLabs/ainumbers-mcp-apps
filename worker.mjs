@@ -19,6 +19,7 @@ import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './ker
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
 import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mjs';
+import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
 import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
@@ -2892,6 +2893,39 @@ export default {
         }
       } catch (e) {
         console.error('[reserve-watch] scheduled check error:', String(e?.message ?? e));
+      }
+    })());
+
+    // §AC (2026-07-10): AI-Act Art-12 evidence cron — a DISTINCT sub-handler on this SAME
+    // weekly tick. Builds a demo-fixture art-236 decision-log record, maps it through the LIVE
+    // EXPORT-1 exports (OSCAL assessment-results + ISO/IEC 24970 draft-pinned log record), signs
+    // an anchor-lineage receipt referencing the artifact's execution_hash (see _aiact_cron.mjs
+    // header for why this is not a fresh TSA timestamp), and emits its own CloudEvents envelope.
+    // Never touches /mcp behavior or a tool registry.
+    ctx.waitUntil((async () => {
+      try {
+        const ac = await runAiActEvidenceExport(SAMPLE_DECISION, controller.scheduledTime);
+        const acEnvelope = {
+          specversion: '1.0',
+          type: 'co.ainumbers.aiact_evidence.exported',
+          source: 'ainumbers-mcp-apps/scheduled/aiact-cron',
+          id: crypto.randomUUID(),
+          time: new Date(controller.scheduledTime).toISOString(),
+          data: {
+            decision_label: SAMPLE_DECISION.decision_label,
+            record_status: ac.artifact.output_payload.record_status,
+            execution_hash: ac.artifact.execution_hash,
+            oscal_assessment_results_uuid: ac.oscal['assessment-results'].uuid,
+            iso24970_log_record_version: ac.iso24970.log_record_version,
+            receipt: ac.receipt,
+          },
+        };
+        console.log('[aiact-cron] scheduled export:', JSON.stringify(acEnvelope));
+        if (env.EVENTS_QUEUE) {
+          await env.EVENTS_QUEUE.send(acEnvelope);
+        }
+      } catch (e) {
+        console.error('[aiact-cron] scheduled export error:', String(e?.message ?? e));
       }
     })());
   },
