@@ -8,7 +8,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
 import { precomputeDiscovery } from './scripts/precompute-discovery.mjs';
-import { UTILITY_TOOL_COUNT } from './utility-tools.mjs';
+import { UTILITY_TOOL_COUNT, UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(ROOT, '..', 'repo');
@@ -276,6 +276,34 @@ writeFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), JSON.stringify(output
 console.log('outputSchema projected for', Object.keys(outputSchemas).length, 'tools (read-only from repo/manifests/*)');
 
 console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
+
+// ---------------------------------------------------------------------------
+// Tool deprecation lifecycle (MCP-500-2 §M2.2). Source of truth is the WORKER-repo-local
+// lifecycle-overrides.json (NOT chaingraph.json — that would be a site-repo single-writer K
+// edit; the §M2.2 rider is satisfied here without touching the frozen v0.4 schema or the
+// SITE's chaingraph.json at all). Every registered mcp_name defaults to "Active" when absent.
+// Vendored into data/mcp/lifecycle.json; worker.mjs reads it at request time.
+// ---------------------------------------------------------------------------
+const lifecycleSrc = JSON.parse(readFileSync(resolve(ROOT, 'lifecycle-overrides.json'), 'utf8'));
+const LIFECYCLE_STATES = new Set(['Active', 'Deprecated', 'Removed']);
+const knownToolNames = new Set([
+  ...PILOT.map((s) => {
+    try { return JSON.parse(readFileSync(resolve(DATA, 'manifests', s + '.manifest.json'), 'utf8'))?.mcp_tool_definition?.name ?? s.replace(/-/g, '_'); }
+    catch { return s.replace(/-/g, '_'); }
+  }),
+  ...UTILITY_TOOL_NAMES,
+  ...cgNodes.filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
+]);
+let lifecycleFails = 0;
+for (const [name, status] of Object.entries(lifecycleSrc.overrides || {})) {
+  if (!LIFECYCLE_STATES.has(status)) { console.error('SELF-CHECK FAIL: lifecycle-overrides.json "' + name + '" has invalid status "' + status + '" (must be Active|Deprecated|Removed)'); lifecycleFails++; }
+  if (!knownToolNames.has(name)) { console.error('SELF-CHECK FAIL: lifecycle-overrides.json "' + name + '" is not a registered mcp_name (typo?)'); lifecycleFails++; }
+}
+if (lifecycleFails) { console.error(`generate.mjs SELF-CHECK FAILED (${lifecycleFails} lifecycle-overrides mismatch(es))`); process.exit(1); }
+writeFileSync(resolve(DATA, 'mcp', 'lifecycle.json'), JSON.stringify({ default: 'Active', overrides: lifecycleSrc.overrides || {} }, null, 2) + '\n');
+const lifecycleCounts = { Active: knownToolNames.size, Deprecated: 0, Removed: 0 };
+for (const status of Object.values(lifecycleSrc.overrides || {})) { if (status !== 'Active') { lifecycleCounts[status]++; lifecycleCounts.Active--; } }
+console.log('lifecycle:', lifecycleCounts);
 
 // Precompute the static MCP discovery responses (initialize/tools-list/resources-list/prompts-list)
 // from the REAL buildServer so the Worker never rebuilds ~186 tools per request on the Free-plan

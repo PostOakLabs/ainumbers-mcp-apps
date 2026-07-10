@@ -1,0 +1,4 @@
+{
+  "_comment": "MCP-500-2 §M2.2 — tool deprecation lifecycle. Every registered mcp_name defaults to 'Active' when absent from this file. List ONLY exceptions here, keyed by exact mcp_name, value one of Active|Deprecated|Removed. A Deprecated tool stays callable (advisory only, surfaced in tools/list + server.json). A Removed tool is treated as unknown by tools/call (clean -32602-shaped result, not a 500) and is dropped from the advertised set. Vendored into data/mcp/lifecycle.json by generate.mjs — edit THIS file, never the vendored copy.",
+  "overrides": {}
+}

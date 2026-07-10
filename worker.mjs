@@ -722,8 +722,16 @@ async function loadData(env) {
   const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
   const searchIndex = await (await get('search-index.json')).json();
   const chainFixtures = await (await get('chain-fixtures.json')).json();
-  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures };
+  const lifecycle = await (await get('mcp/lifecycle.json')).json();
+  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle };
   return dataCache;
+}
+
+// Tool deprecation lifecycle (MCP-500-2 §M2.2). data.lifecycle is { default:'Active', overrides:{
+// [mcp_name]: 'Deprecated'|'Removed' } }, generator-emitted from lifecycle-overrides.json. Absent
+// data.lifecycle (older callers / test helpers that don't load it) behaves as "everything Active".
+function lifecycleStatusOf(data, name) {
+  return data?.lifecycle?.overrides?.[name] ?? data?.lifecycle?.default ?? 'Active';
 }
 
 // Advertised core (MCP-500-1 §M1.1): the lean-default set every client sees as "always resident,
@@ -2606,7 +2614,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
 // buildServer in Node via an in-memory transport to capture the static initialize/tools-list/
 // resources-list/prompts-list responses, so the Worker never rebuilds 162 tools per request on
 // the cold Free-plan CPU budget). Build-time only; the Worker entry point is `default` below.
-export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS, fragmentLink };
+export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS, fragmentLink, lifecycleStatusOf };
 
 // ---------------------------------------------------------------------------
 // Allowed origins for CORS
@@ -2782,7 +2790,10 @@ export default {
             ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
-          if (known.has(toolName)) {
+          // A Removed tool (§M2.2) is treated exactly like an unknown tool: dropped from the
+          // advertised set AND rejected on tools/call with the same clean -32602-shaped result —
+          // never a 500. Deprecated tools stay fully known/callable (advisory only).
+          if (known.has(toolName) && lifecycleStatusOf(data, toolName) !== 'Removed') {
             onlyTool = toolName;
           } else {
             // Unknown tool name → emit the SDK's exact -32602 tool-result WITHOUT building the
@@ -2831,8 +2842,13 @@ export default {
             }
             const parsed = JSON.parse(jsonStr);
             if (Array.isArray(parsed?.result?.tools)) {
+              // §M2.2: stamp lifecycle_status on every tool (Active/Deprecated/Removed); a Removed
+              // tool is dropped from the advertised list entirely (it is also rejected on tools/call
+              // above — this keeps tools/list and tools/call in agreement).
+              parsed.result.tools = parsed.result.tools.filter((tool) => lifecycleStatusOf(data, tool.name) !== 'Removed');
               for (const tool of parsed.result.tools) {
                 if (!HOT_TOOLS.has(tool.name)) tool.defaultConfig = { defer_loading: true };
+                tool.lifecycle_status = lifecycleStatusOf(data, tool.name);
               }
             }
             const newText = prefix + JSON.stringify(parsed) + suffix;

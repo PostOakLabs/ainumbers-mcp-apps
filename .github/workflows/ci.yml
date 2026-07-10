@@ -95,6 +95,24 @@ jobs:
         # changed key. Never wall-clock, never a session id.
         run: node scripts/test-ttl-cache-key.mjs
 
+      - name: 📝 Description-quality dogfood gate (§M2.2.1 / MCP-500-2 §M2.1)
+        # Runs the suite's OWN lint_mcp_tool_definition ruleset (ported logic — the live site tool
+        # is execution_type:"browser-reference", no server-callable kernel to invoke directly) over
+        # every registered tool definition. Baseline-shielded (data/mcp-lint-baseline.json,
+        # counts-only-down) so it lands strict-forward without blocking on legacy debt.
+        run: node scripts/check-tool-description-quality.mjs
+
+      - name: 🗑 Deprecation lifecycle (§M2.2) — Removed tools 404 cleanly, never 500
+        run: node scripts/gate-deprecation-lifecycle.mjs
+
+      - name: 🔎 Tool-selection eval (§M2.4) — can agents FIND tools at 300+, not just call them
+        # Fixed, deterministic NL-task -> expected-mcp_name fixtures via find_tool (no live model
+        # call, never flaky). Negative-tested: a deliberately wrong expected-tool must fail.
+        # §M2.5 note: validate_mcp_server_json as a CI gate is DEDUPED against PUBLISH-REFRESH —
+        # stays unwired until that lands (registry server.json sync/validation is its job, not
+        # this WU's). Not blocking §M2.1-§M2.4 above.
+        run: node scripts/gate-tool-selection-eval.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@v7

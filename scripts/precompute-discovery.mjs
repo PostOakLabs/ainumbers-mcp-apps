@@ -72,6 +72,18 @@ export async function precomputeDiscovery() {
 
   const toolsMsg = await rpc('tools/list', {}, 1);
 
+  // Tool deprecation lifecycle (§M2.2) — tools/list is served from THESE precomputed static
+  // bytes at runtime (worker.mjs STATIC_DISCOVERY_METHODS fast path), so lifecycle_status must be
+  // baked in here, not injected per-request. A Removed tool is DROPPED from the advertised set
+  // entirely (tools/call also rejects it at request time — worker.mjs lifecycleStatusOf gate —
+  // so tools/list and tools/call stay in agreement). Deprecated tools stay listed + callable,
+  // just flagged (advisory).
+  let lifecycle = { default: 'Active', overrides: {} };
+  try { lifecycle = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'lifecycle.json'), 'utf8')); } catch { /* none yet */ }
+  const lifecycleStatusOf = (name) => lifecycle.overrides?.[name] ?? lifecycle.default ?? 'Active';
+  toolsMsg.result.tools = toolsMsg.result.tools.filter((t) => lifecycleStatusOf(t.name) !== 'Removed');
+  for (const t of toolsMsg.result.tools) t.lifecycle_status = lifecycleStatusOf(t.name);
+
   // outputSchema (§M1.4) — read-only projection from repo/manifests/*, attach when present.
   let outputSchemas = {};
   try { outputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none yet */ }
