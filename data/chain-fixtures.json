@@ -3632,5 +3632,43 @@
   },
   "state-proof-verification": {
     "art-279-state-proof-verifier": {}
+  },
+  "reserve-proof-verification": {
+    "art-280-reserve-proof-verifier": {}
+  },
+  "basel-sco60-crypto-exposure-classification": {
+    "art-281-sco60-crypto-asset-exposure-classifier": {
+      "position": {
+        "classification": "tokenized_traditional",
+        "meets_group1_conditions": true,
+        "infrastructure_risk_addon_pct": 200,
+        "group2_exposure_amount": 0,
+        "bank_tier1_capital": 1000000
+      }
+    }
+  },
+  "retirement-decumulation-decisions": {
+    "art-282-social-security-claiming-optimizer": {
+      "claimant": {
+        "birthYear": 1960,
+        "pia": 2000,
+        "claimAge": 62,
+        "earningsIfWorking": 0,
+        "discountRatePct": 3,
+        "longevityAge": 85
+      }
+    },
+    "art-283-pension-lump-sum-vs-annuity-decision-engine": {
+      "election": {
+        "lumpSum": 300000,
+        "monthlyAnnuitySingleLife": 2000,
+        "monthlyAnnuityJointSurvivor": 1800,
+        "currentAge": 65,
+        "lifeExpectancy": 90,
+        "discountRatePct": 4,
+        "survivorPct": 75,
+        "colaToggle": true
+      }
+    }
   }
 }
