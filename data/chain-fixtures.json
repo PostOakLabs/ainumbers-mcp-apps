@@ -3596,5 +3596,38 @@
   "mutual-nda-composer": {
     "art-276-mutual-nda-composer": {},
     "art-277-agreement-acceptance-binder": {}
+  },
+  "reputation-score-aggregate": {
+    "art-278-reputation-score-aggregator": {
+      "subject_id": "agent-alpha",
+      "as_of": "2026-01-01",
+      "decay_half_life_days": 180,
+      "attestations": [
+        {
+          "subject_id": "agent-alpha",
+          "issuer_id": "agent-beta",
+          "receipt_hash": "sha256:aaa1",
+          "dims": {
+            "competence": 0.8,
+            "integrity": 0.6,
+            "timeliness": 0.4,
+            "cooperation": 0.2
+          },
+          "issued_at": "2025-12-02"
+        },
+        {
+          "subject_id": "agent-alpha",
+          "issuer_id": "agent-gamma",
+          "receipt_hash": "sha256:bbb2",
+          "dims": {
+            "competence": 0.4,
+            "integrity": 0.4,
+            "timeliness": 0.4,
+            "cooperation": 0.4
+          },
+          "issued_at": "2025-11-02"
+        }
+      ]
+    }
   }
 }
