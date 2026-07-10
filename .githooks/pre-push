@@ -11,16 +11,12 @@
 # Vendor-freshness inside preflight compares against the site COMMITTED HEAD, so a concurrent session's
 # uncommitted WIP in ../repo no longer false-blocks the push.
 #
-# Only gates pushes whose dest ref is master (the deploy branch).
-# Override an unrelated push (e.g. a docs-only branch) with:  git push --no-verify
-
-gate=0
-while read -r local_ref local_sha remote_ref remote_sha; do
-  case "$remote_ref" in
-    refs/heads/master) gate=1 ;;
-  esac
-done
-[ "$gate" = 1 ] || exit 0
+# Gates EVERY push, not just master. A feature-branch push opens/updates a PR that runs the SAME
+# gate suite in CI, so gating only master let feature pushes surface failures at CI instead of here —
+# wasting a push -> CI-red -> fix -> re-push cycle (e.g. the AUD-C2 export-format false-positive on
+# art-251, 2026-07-09, which this local suite catches before the push). Matches the site hook, which
+# already gates all pushes. Override a known-red WIP push with:  git push --no-verify
+[ -f scripts/preflight.mjs ] || exit 0
 
 node scripts/preflight.mjs
 rc=$?
