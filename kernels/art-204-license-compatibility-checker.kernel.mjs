@@ -194,7 +194,7 @@ export function compute(pp) {
   compliance_flags.push('LICENSE_COMPATIBILITY_CHECKED');
   if (compatible === true)  compliance_flags.push('COMPATIBLE');
   if (compatible === false) compliance_flags.push('INCOMPATIBLE');
-  for (let i = 0; i < reason_codes.length; i++) compliance_flags[reason_codes[i]] = true;
+  for (let i = 0; i < reason_codes.length; i++) compliance_flags.push(reason_codes[i]);
 
   return { output_payload, compliance_flags };
 }
