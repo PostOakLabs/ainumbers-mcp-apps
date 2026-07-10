@@ -249,6 +249,26 @@ for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
   if (src !== bundle) { console.error(`SELF-CHECK FAIL: kernels/${f} does not match site source`); selfFails++; }
 }
 
+// Registry completeness — every *.kernel.mjs file MUST be registered in index.mjs.
+// The dual-registry trap (2026-07-10, art-275): a kernel file gets vendored into kernels/ +
+// data/kernels/ but its import/entry is forgotten in kernels/index.mjs, so the KERNELS map
+// never references it. kernel-coverage --strict only surfaces this INDIRECTLY (the node lands
+// as UNPORTED gpu:false) and only in worker CI. Assert it here so the miss fails at generate
+// time, naming the exact file — before the push, before the indirect coverage failure.
+{
+  const idxText = normText(readFileSync(resolve(KERNELS_SRC, 'index.mjs'), 'utf8'));
+  const registered = new Set(
+    [...idxText.matchAll(/['"]([a-z0-9][a-z0-9-]+)['"]\s*:/g)].map((m) => m[1]),
+  );
+  for (const f of readdirSync(KERNELS_SRC).filter(f => f.endsWith('.kernel.mjs'))) {
+    const id = f.slice(0, -'.kernel.mjs'.length);
+    if (!registered.has(id)) {
+      console.error(`SELF-CHECK FAIL: kernels/${f} is NOT registered in kernels/index.mjs (add import + KERNELS['${id}'] entry — dual-registry trap, CONTRACT §A4)`);
+      selfFails++;
+    }
+  }
+}
+
 if (selfFails) {
   console.error(`\ngenerate.mjs SELF-CHECK FAILED (${selfFails} mismatch(es)) — do NOT commit this output.`);
   process.exit(1);
