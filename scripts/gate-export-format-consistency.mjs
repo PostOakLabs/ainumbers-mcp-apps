@@ -114,11 +114,16 @@ function findHexHash(text) {
   // gap between label and value varies by format (CSV: "# execution_hash,<hash>"; xlsx: two XML
   // <c> cells with markup between them; xbrl/pdf: "execution_hash: <hash>"), so a fixed small
   // separator regex is too brittle; a window search is not.
-  const labelIdx = text.search(/execution_?[Hh]ash/);
-  if (labelIdx < 0) return null;
-  const window = text.slice(labelIdx, labelIdx + 400);
-  const m = window.match(/[0-9a-f]{64}/);
-  return m ? m[0] : null;
+  // Scan EVERY label occurrence, not just the first: an artifact BODY can legitimately contain
+  // the words "execution_hash" in prose (e.g. art-251's output_payload describes creating "an
+  // execution_hash immediately upon trigger event") BEFORE the metadata block that carries the
+  // real value, so first-label-only anchoring returns null for such artifacts even though the
+  // hash is present. Return the 64-hex from the first label window that actually contains one.
+  for (const label of text.matchAll(/execution_?[Hh]ash/g)) {
+    const m = text.slice(label.index, label.index + 400).match(/[0-9a-f]{64}/);
+    if (m) return m[0];
+  }
+  return null;
 }
 
 async function main() {
