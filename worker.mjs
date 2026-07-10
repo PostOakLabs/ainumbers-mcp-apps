@@ -2817,4 +2817,30 @@ export default {
 
     return new Response('Not found', { status: 404, headers: corsHeaders });
   },
+
+  // GAP-d event substrate (2026-07-10): CF Cron feeds the event queue; the queue consumer
+  // drains CloudEvents-shaped envelopes. v1 is a structural no-op — it only logs the
+  // envelope — so GAP-a/EXPORT-1/suggestion-digest can bind to this transport later without
+  // this WU touching /mcp behavior or the tool registries.
+  async scheduled(controller, env, ctx) {
+    const envelope = {
+      specversion: '1.0',
+      type: 'co.ainumbers.substrate.tick',
+      source: 'ainumbers-mcp-apps/scheduled',
+      id: crypto.randomUUID(),
+      time: new Date(controller.scheduledTime).toISOString(),
+      data: { cron: controller.cron },
+    };
+    console.log('[gap-d] scheduled tick:', JSON.stringify(envelope));
+    if (env.EVENTS_QUEUE) {
+      ctx.waitUntil(env.EVENTS_QUEUE.send(envelope));
+    }
+  },
+
+  async queue(batch, env, ctx) {
+    for (const message of batch.messages) {
+      console.log('[gap-d] queue drain:', JSON.stringify(message.body));
+      message.ack();
+    }
+  },
 };

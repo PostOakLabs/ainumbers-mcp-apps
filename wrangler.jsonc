@@ -22,5 +22,19 @@
       "enabled": true,
       "invocation_logs": true
     }
+  },
+  // GAP-d event substrate (2026-07-10): weekly cron feeds GAP-a/EXPORT-1/suggestion-digest.
+  // Queue is producer+consumer on THIS worker, Free-plan sizing (10k ops/day cap; design
+  // target <100/day — three orders of magnitude under cap, see worker.mjs scheduled()).
+  "triggers": {
+    "crons": ["0 6 * * 1"]
+  },
+  "queues": {
+    "producers": [
+      { "queue": "ainumbers-events", "binding": "EVENTS_QUEUE" }
+    ],
+    "consumers": [
+      { "queue": "ainumbers-events" }
+    ]
   }
 }
