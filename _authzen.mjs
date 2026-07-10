@@ -15,6 +15,7 @@
 // I/O, no network. Deterministic and total for any well-formed request.
 
 import { evaluateGate, isEscalationTarget } from './kernels/_gateval.mjs';
+import { executionHash } from './kernels/_hash.mjs';
 
 function malformed(detail) {
   return { decision: false, context: { error: 'malformed_request', detail } };
@@ -67,6 +68,39 @@ export function authzenEvaluate(request) {
       action_name: action.name,
       resource_id: resource.id,
       gate_decision: decisionRecord,
+    },
+  };
+}
+
+/**
+ * Same evaluation as `authzenEvaluate`, plus the "provable" delta: an OCG
+ * §6/§20 execution_hash over the exact {gate, output_payload} the decision
+ * was made from. This is the differentiator over every other AuthZEN PDP in
+ * the authzen-interop.net registry — the decision ships with a receipt an
+ * independent party can recompute (or check via `verify_execution_hash`)
+ * without trusting this server's word for it. Malformed requests short-circuit
+ * before a hash is even attempted (nothing valid was evaluated).
+ * @param {Parameters<typeof authzenEvaluate>[0]} request
+ * @returns {Promise<ReturnType<typeof authzenEvaluate> & {context: {execution_hash?: string, verify?: object}}>}
+ */
+export async function authzenEvaluateWithReceipt(request) {
+  const result = authzenEvaluate(request);
+  if (result.context.error) return result;
+
+  const { gate, output_payload: outputPayload } = request.context;
+  const execution_hash = await executionHash(gate, outputPayload);
+
+  return {
+    ...result,
+    context: {
+      ...result.context,
+      execution_hash,
+      verify: {
+        method: 'OCG §6/§20 execution_hash: SHA-256 over the canonical {policy_parameters, output_payload} preimage',
+        policy_parameters: gate,
+        output_payload: outputPayload,
+        tool: 'verify_execution_hash (https://mcp.ainumbers.co/mcp)',
+      },
     },
   };
 }

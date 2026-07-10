@@ -19,6 +19,7 @@ import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './ker
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
 import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mjs';
+import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2631,6 +2632,27 @@ export default {
         standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
         llms_txt: 'https://ainumbers.co/llms.txt',
       }, { headers: { ...corsHeaders, 'Cache-Control': 'public, max-age=3600' } });
+    }
+
+    // AuthZEN 1.0 Authorization API — Policy Decision Point (§AZ, GAP-b veneer).
+    // Shape-maps an AuthZEN {subject, action, resource, context} evaluation request
+    // onto the SAME §21.4 gate evaluator every executing surface uses, then adds an
+    // OCG execution_hash receipt into the response context — the "provable decision"
+    // delta over every other PDP in the authzen-interop.net registry. Pure veneer:
+    // never alters comparator-gate semantics.
+    if (url.pathname === '/access/v1/evaluation') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ decision: false, context: { error: 'method_not_allowed', detail: 'POST only' } }),
+          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } });
+      }
+      const azBody = await request.json().catch(() => undefined);
+      if (azBody === undefined) {
+        return new Response(JSON.stringify({ decision: false, context: { error: 'malformed_request', detail: 'request body is not valid JSON' } }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const azResult = await authzenEvaluateWithReceipt(azBody);
+      const azStatus = azResult.context.error ? 400 : 200;
+      return new Response(JSON.stringify(azResult), { status: azStatus, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // MCP endpoint
