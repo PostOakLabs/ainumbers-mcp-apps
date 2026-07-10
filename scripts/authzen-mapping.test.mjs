@@ -8,8 +8,9 @@
 //
 // Run: node scripts/authzen-mapping.test.mjs   (exit 0 = all green)
 
-import { authzenEvaluate } from '../_authzen.mjs';
+import { authzenEvaluate, authzenEvaluateWithReceipt } from '../_authzen.mjs';
 import { evaluateGate } from '../kernels/_gateval.mjs';
+import { executionHash } from '../kernels/_hash.mjs';
 
 let fail = 0;
 const eq = (label, got, want) => {
@@ -71,5 +72,20 @@ for (const v of ['A', 'B', 'Z', undefined]) {
   eq(`no drift for v=${JSON.stringify(v)}`, wrapped, raw);
 }
 
+// --- receipt wrapper (§AZ): adds a provable execution_hash without touching
+// the underlying decision/gate_decision shape --------------------------------
+const receiptReq = { subject, action, resource, context: { gate, output_payload: { spread: 1 } } };
+const withReceipt = await authzenEvaluateWithReceipt(receiptReq);
+const bare = authzenEvaluate(receiptReq);
+eq('receipt: decision unchanged from bare mapping', withReceipt.decision, bare.decision);
+eq('receipt: gate_decision unchanged from bare mapping', withReceipt.context.gate_decision, bare.context.gate_decision);
+ok('receipt: execution_hash present as lowercase hex', typeof withReceipt.context.execution_hash === 'string' && /^[0-9a-f]{64}$/.test(withReceipt.context.execution_hash));
+eq('receipt: execution_hash matches independent recompute over {gate, output_payload}',
+  withReceipt.context.execution_hash, await executionHash(gate, { spread: 1 }));
+eq('receipt: verify block echoes the exact preimage inputs', [withReceipt.context.verify.policy_parameters, withReceipt.context.verify.output_payload], [gate, { spread: 1 }]);
+
+const malformedReceipt = await authzenEvaluateWithReceipt({ subject: {}, action, resource, context: { gate, output_payload: {} } });
+ok('receipt: malformed request short-circuits, no execution_hash minted', malformedReceipt.context.error === 'malformed_request' && !('execution_hash' in malformedReceipt.context));
+
 if (fail) { console.error(`\n✗ authzen-mapping: ${fail} assertion(s) FAILED`); process.exit(1); }
-console.log('✅ authzen-mapping: AuthZEN 1.0 veneer maps to evaluateGate with zero semantic drift (happy/deny/malformed).');
+console.log('✅ authzen-mapping: AuthZEN 1.0 veneer maps to evaluateGate with zero semantic drift (happy/deny/malformed/receipt).');
