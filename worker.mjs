@@ -18,6 +18,10 @@ import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
+// GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
+// binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
+// requirement that the bound class be exported from the entrypoint module.
+export { RenewalWatchWorkflow } from './workflows/renewal-watch-workflow.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
@@ -2840,21 +2844,30 @@ export default {
 
   // EXPORT-1 §E1.c binds here: a `co.ainumbers.anchor.renewal_check` envelope carries one OCG
   // artifact in `data.artifact`; this worker has no persistent artifact registry (no KV/D1/R2
-  // binding — only EVENTS_QUEUE), so the renewal check is REACTIVE, not a scheduled() scan — a
-  // future producer (e.g. a GAP-a workflow step) enqueues the event when it wants a binding
-  // checked. Obtaining a FRESH timestamp on a due binding is FLAGGED (see _blta.mjs header) — this
-  // only detects + reports; it never invents a new TSA call.
+  // binding — only EVENTS_QUEUE), so the renewal check is REACTIVE, not a scheduled() scan.
+  // GAP-a (2026-07-10): when the `workflows` binding is present, hand the check to the durable
+  // RenewalWatchWorkflow instead of running it inline — that Workflow does the SAME
+  // verifyAllBindings/dueForRenewal check as one receipted `step.do`, then checkpoints a signed
+  // resumption artifact before its multi-week `step.sleep` (§A.3). If the account ever rejects the
+  // `workflows` binding, this falls straight back to the original inline one-shot check — same
+  // zero-paid-plan, no-upgrade guarantee as GAP-d's own DO-alarm fallback. Obtaining a FRESH
+  // timestamp on a due binding stays FLAGGED either way (see _blta.mjs header) — detect + report only.
   async queue(batch, env, ctx) {
     for (const message of batch.messages) {
       const body = message.body;
       if (body?.type === 'co.ainumbers.anchor.renewal_check' && body?.data?.artifact) {
         try {
           const artifact = body.data.artifact;
-          const verified = verifyAllBindings(artifact);
-          const due = (artifact.anchor_bindings || [])
-            .filter((b) => b?.type === 'rfc3161-tst')
-            .map((b) => ({ gen_time: b.gen_time, due: dueForRenewal(b, { nowMs: Date.now() }) }));
-          console.log('[gap-d] renewal_check:', JSON.stringify({ id: body.id, verified, due }));
+          if (env.RENEWAL_WATCH_WORKFLOW) {
+            const instance = await env.RENEWAL_WATCH_WORKFLOW.create({ id: body.id, params: { artifact } });
+            console.log('[gap-a] renewal_check handed to RenewalWatchWorkflow:', JSON.stringify({ id: body.id, instanceId: instance.id }));
+          } else {
+            const verified = verifyAllBindings(artifact);
+            const due = (artifact.anchor_bindings || [])
+              .filter((b) => b?.type === 'rfc3161-tst')
+              .map((b) => ({ gen_time: b.gen_time, due: dueForRenewal(b, { nowMs: Date.now() }) }));
+            console.log('[gap-d] renewal_check (no workflows binding, inline fallback):', JSON.stringify({ id: body.id, verified, due }));
+          }
         } catch (e) {
           console.error('[gap-d] renewal_check error:', String(e?.message ?? e));
         }

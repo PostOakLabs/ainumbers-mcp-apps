@@ -36,5 +36,18 @@
     "consumers": [
       { "queue": "ainumbers-events" }
     ]
-  }
+  },
+  // GAP-a (2026-07-10): CF Workflows durable orchestration. 1 step.do = 1 receipted kernel/check
+  // run (see workflows/renewal-watch-workflow.mjs); durability sits UNDER the receipt layer, never
+  // becomes the source of truth. Free-plan Workflows (GA, no paid-plan requirement): 3-day state
+  // retention / 30s CPU per step — design checkpoints any >3-day wait to a signed artifact rather
+  // than relying on Workflows-internal state (see GAP-A-DESIGN-DOC.md §A.3). Rides the live GAP-d
+  // envelope (worker.mjs queue()); no new MCP tool, no /mcp behavior change.
+  "workflows": [
+    {
+      "name": "renewal-watch",
+      "binding": "RENEWAL_WATCH_WORKFLOW",
+      "class_name": "RenewalWatchWorkflow"
+    }
+  ]
 }
