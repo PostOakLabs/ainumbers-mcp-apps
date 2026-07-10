@@ -3630,6 +3630,138 @@
       ]
     }
   },
+  "verify-agent-delegation": {
+    "art-284-did-webvh-log-verifier": {
+      "did": "did:webvh:{SCID}:example.com:agents:alpha",
+      "did_log": [
+        {
+          "versionId": "1-e42e4191001ee7d68d48609c2f30b141bd0a38da21496378a29108720c435a56",
+          "versionTime": "2026-01-01T00:00:00Z",
+          "parameters": {
+            "method": "did:webvh:1.0",
+            "scid": "QmScidPlaceholder1234567890abcdef1234567890abcdef1234567890",
+            "updateKeys": [
+              "did:key:z6MkfJpX7dP5KqfxbK9nN3ttWptKBjRGrCqJaW28zqBUnRjX"
+            ],
+            "portable": false
+          },
+          "state": {
+            "id": "did:webvh:{SCID}:example.com:agents:alpha",
+            "verificationMethod": [
+              {
+                "id": "did:webvh:{SCID}:example.com:agents:alpha#key-1",
+                "type": "Ed25519VerificationKey2020",
+                "controller": "did:webvh:{SCID}:example.com:agents:alpha",
+                "publicKeyMultibase": "z6MkfJpX7dP5KqfxbK9nN3ttWptKBjRGrCqJaW28zqBUnRjX"
+              }
+            ]
+          },
+          "proof": [
+            {
+              "type": "DataIntegrityProof",
+              "cryptosuite": "eddsa-jcs-2022",
+              "verificationMethod": "did:key:z6MkfJpX7dP5KqfxbK9nN3ttWptKBjRGrCqJaW28zqBUnRjX",
+              "proofPurpose": "assertionMethod",
+              "proofValue": "1Ha0QDlQmx8Ch0H+ARATa1UU6jnghtm2LpqpV11m//W+42YnRwc9Bl8sx43JLmEskTzcSlngUcQdgFgrLK6lBg=="
+            }
+          ]
+        },
+        {
+          "versionId": "2-81ead391846f6088ddab084e2119b8304224a671b6c3f4b598605661ccd91196",
+          "versionTime": "2026-02-01T00:00:00Z",
+          "parameters": {
+            "updateKeys": [
+              "did:key:z6MknN3rKuzKRmKyRQheSZ2n8yBKCwsTfZprYj1HBmF48bp2"
+            ]
+          },
+          "state": {
+            "id": "did:webvh:{SCID}:example.com:agents:alpha",
+            "verificationMethod": [
+              {
+                "id": "did:webvh:{SCID}:example.com:agents:alpha#key-1",
+                "type": "Ed25519VerificationKey2020",
+                "controller": "did:webvh:{SCID}:example.com:agents:alpha",
+                "publicKeyMultibase": "z6MkfJpX7dP5KqfxbK9nN3ttWptKBjRGrCqJaW28zqBUnRjX"
+              }
+            ],
+            "service": [
+              {
+                "id": "did:webvh:{SCID}:example.com:agents:alpha#agent-endpoint",
+                "type": "AgentEndpoint",
+                "serviceEndpoint": "https://example.com/agents/alpha"
+              }
+            ]
+          },
+          "proof": [
+            {
+              "type": "DataIntegrityProof",
+              "cryptosuite": "eddsa-jcs-2022",
+              "verificationMethod": "did:key:z6MkfJpX7dP5KqfxbK9nN3ttWptKBjRGrCqJaW28zqBUnRjX",
+              "proofPurpose": "assertionMethod",
+              "proofValue": "PUj6zxdMWvEQeQhhfCHShlQzgagicFXph2tFcQK9e3RGF6/8yHNr3ASsUTiHySBhfOWv1A7J3PnoVy4qEBVrCg=="
+            }
+          ]
+        }
+      ]
+    },
+    "art-285-acdc-delegation-chain-verifier": {
+      "credentials": [
+        {
+          "v": "ACDC10JSON",
+          "i": "EAleaf000000000000000000000000000000000000000",
+          "ri": "ERegistryLeaf00000000000000000000000000000000",
+          "s": "ESchemaKYAAgentDelegation000000000000000000000",
+          "a": {
+            "i": "agent-alpha",
+            "dt": "2026-01-10T00:00:00Z",
+            "scopes": [
+              "execute:trade"
+            ]
+          },
+          "e": {
+            "d": "EEdgeBlockLeaf00000000000000000000000000000000",
+            "auth": {
+              "n": "4e73ab65b5464c273bf2cdd23c3f779900d8c165f7ce7770aba8d478364cfdef",
+              "s": "ESchemaKYAAgentDelegation000000000000000000000"
+            }
+          },
+          "d": "233755f557351c47dfbfed014dcbcecb4ec8108a096536665976d5f56d09a6c3"
+        },
+        {
+          "v": "ACDC10JSON",
+          "i": "EAmid00000000000000000000000000000000000000000",
+          "ri": "ERegistryMid00000000000000000000000000000000",
+          "s": "ESchemaKYAAgentDelegation000000000000000000000",
+          "a": {
+            "i": "EAleaf000000000000000000000000000000000000000",
+            "dt": "2026-01-05T00:00:00Z",
+            "role": "delegate"
+          },
+          "e": {
+            "d": "EEdgeBlockMid000000000000000000000000000000000",
+            "auth": {
+              "n": "dc87883132b9e2b6ba1938ff72d561ebbf5b514fb11a442dbf07b2fad36438e4",
+              "s": "ESchemaKYAAgentDelegation000000000000000000000"
+            }
+          },
+          "d": "4e73ab65b5464c273bf2cdd23c3f779900d8c165f7ce7770aba8d478364cfdef"
+        },
+        {
+          "v": "ACDC10JSON",
+          "i": "EAroot0000000000000000000000000000000000000000",
+          "ri": "ERegistryRoot0000000000000000000000000000000",
+          "s": "ESchemaKYAAgentDelegation000000000000000000000",
+          "a": {
+            "i": "EAmid00000000000000000000000000000000000000000",
+            "dt": "2026-01-01T00:00:00Z",
+            "role": "delegate-authority"
+          },
+          "d": "dc87883132b9e2b6ba1938ff72d561ebbf5b514fb11a442dbf07b2fad36438e4"
+        }
+      ],
+      "expected_root_aid": "EAroot0000000000000000000000000000000000000000"
+    }
+  },
   "state-proof-verification": {
     "art-279-state-proof-verifier": {}
   },
