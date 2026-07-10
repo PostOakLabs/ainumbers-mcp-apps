@@ -17,6 +17,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
+import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
 
 const BASE_URL = 'https://ainumbers.co';
 
@@ -2837,9 +2838,29 @@ export default {
     }
   },
 
+  // EXPORT-1 §E1.c binds here: a `co.ainumbers.anchor.renewal_check` envelope carries one OCG
+  // artifact in `data.artifact`; this worker has no persistent artifact registry (no KV/D1/R2
+  // binding — only EVENTS_QUEUE), so the renewal check is REACTIVE, not a scheduled() scan — a
+  // future producer (e.g. a GAP-a workflow step) enqueues the event when it wants a binding
+  // checked. Obtaining a FRESH timestamp on a due binding is FLAGGED (see _blta.mjs header) — this
+  // only detects + reports; it never invents a new TSA call.
   async queue(batch, env, ctx) {
     for (const message of batch.messages) {
-      console.log('[gap-d] queue drain:', JSON.stringify(message.body));
+      const body = message.body;
+      if (body?.type === 'co.ainumbers.anchor.renewal_check' && body?.data?.artifact) {
+        try {
+          const artifact = body.data.artifact;
+          const verified = verifyAllBindings(artifact);
+          const due = (artifact.anchor_bindings || [])
+            .filter((b) => b?.type === 'rfc3161-tst')
+            .map((b) => ({ gen_time: b.gen_time, due: dueForRenewal(b, { nowMs: Date.now() }) }));
+          console.log('[gap-d] renewal_check:', JSON.stringify({ id: body.id, verified, due }));
+        } catch (e) {
+          console.error('[gap-d] renewal_check error:', String(e?.message ?? e));
+        }
+      } else {
+        console.log('[gap-d] queue drain:', JSON.stringify(body));
+      }
       message.ack();
     }
   },
