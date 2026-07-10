@@ -18,6 +18,7 @@ import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
+import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2840,6 +2841,37 @@ export default {
     if (env.EVENTS_QUEUE) {
       ctx.waitUntil(env.EVENTS_QUEUE.send(envelope));
     }
+
+    // §RW (2026-07-10): Continuous Reserve Watch — a DISTINCT sub-handler on this SAME weekly
+    // tick (Mon 06:00 UTC = the GENIUS-deadline demo hook; do not change the cron expression).
+    // Runs the live art-275 checker over a demo-fixture reserve report, signs a receipt
+    // referencing the artifact's execution_hash (§20 anchor-lineage path, see _reserve_watch.mjs
+    // header for why this is not a fresh TSA timestamp), and emits its own CloudEvents envelope.
+    // Never touches /mcp behavior or a tool registry.
+    ctx.waitUntil((async () => {
+      try {
+        const rw = await runReserveWatchCheck(SAMPLE_RESERVE_REPORT, controller.scheduledTime);
+        const rwEnvelope = {
+          specversion: '1.0',
+          type: 'co.ainumbers.reserve_watch.checked',
+          source: 'ainumbers-mcp-apps/scheduled/reserve-watch',
+          id: crypto.randomUUID(),
+          time: new Date(controller.scheduledTime).toISOString(),
+          data: {
+            report_month: SAMPLE_RESERVE_REPORT.report_month,
+            determination: rw.artifact.output_payload.monthly_disclosure_determination,
+            execution_hash: rw.artifact.execution_hash,
+            receipt: rw.receipt,
+          },
+        };
+        console.log('[reserve-watch] scheduled check:', JSON.stringify(rwEnvelope));
+        if (env.EVENTS_QUEUE) {
+          await env.EVENTS_QUEUE.send(rwEnvelope);
+        }
+      } catch (e) {
+        console.error('[reserve-watch] scheduled check error:', String(e?.message ?? e));
+      }
+    })());
   },
 
   // EXPORT-1 §E1.c binds here: a `co.ainumbers.anchor.renewal_check` envelope carries one OCG
