@@ -20,6 +20,7 @@ import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validato
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
 import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mjs';
 import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
+import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs';
 import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
@@ -2979,6 +2980,37 @@ export default {
         }
       } catch (e) {
         console.error('[aiact-cron] scheduled export error:', String(e?.message ?? e));
+      }
+    })());
+
+    // §ETH (2026-07-10): eth_getProof custody snapshot cron — a DISTINCT sub-handler on this
+    // SAME weekly tick. Runs the live art-279 EIP-1186 state-proof verifier over a demo-fixture
+    // proof (zero-egress: the kernel never calls an RPC endpoint, see its header + _ethproof_
+    // cron.mjs's §ETH.0 scope note), signs an anchor-lineage receipt referencing the artifact's
+    // execution_hash (see _ethproof_cron.mjs header for why this is not a fresh TSA timestamp),
+    // and emits its own CloudEvents envelope. Never touches /mcp behavior or a tool registry.
+    ctx.waitUntil((async () => {
+      try {
+        const ep = await runEthProofSnapshotCheck(SAMPLE_ETH_PROOF, controller.scheduledTime);
+        const epEnvelope = {
+          specversion: '1.0',
+          type: 'co.ainumbers.ethproof_snapshot.checked',
+          source: 'ainumbers-mcp-apps/scheduled/ethproof-cron',
+          id: crypto.randomUUID(),
+          time: new Date(controller.scheduledTime).toISOString(),
+          data: {
+            address: SAMPLE_ETH_PROOF.address,
+            verdict: ep.artifact.output_payload.verdict,
+            execution_hash: ep.artifact.execution_hash,
+            receipt: ep.receipt,
+          },
+        };
+        console.log('[ethproof-cron] scheduled check:', JSON.stringify(epEnvelope));
+        if (env.EVENTS_QUEUE) {
+          await env.EVENTS_QUEUE.send(epEnvelope);
+        }
+      } catch (e) {
+        console.error('[ethproof-cron] scheduled check error:', String(e?.message ?? e));
       }
     })());
   },
