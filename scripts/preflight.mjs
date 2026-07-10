@@ -36,6 +36,7 @@ const gates = [
   { name: 'export-format consistency (AUD-C2)',    args: ['scripts/gate-export-format-consistency.mjs'] },
   { name: 'negative gate-enforcement (AUD-E2)',    args: ['scripts/gate-negative-enforcement.mjs'] },
   { name: 'zero-egress determinism (AUD-F4)',      args: ['scripts/gate-zero-egress.mjs'] },
+  { name: 'ttlMs cache-key is input-hash-only (§M1.5)', args: ['scripts/test-ttl-cache-key.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'schema-validate chaingraph (OCG v0.4)',args: [resolve(SITE, 'chaingraph/standard/schema-validate.mjs')],

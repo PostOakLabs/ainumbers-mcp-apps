@@ -725,13 +725,28 @@ async function loadData(env) {
   return dataCache;
 }
 
-// Hot tools: always resident in every agent session (never deferred).
-// Everything else gets defaultConfig:{defer_loading:true} injected in the tools/list response.
+// Advertised core (MCP-500-1 §M1.1): the lean-default set every client sees as "always resident,
+// never deferred" — 6 utility tools + the discovery/execution trio (find_tool/find_chain/run_chain).
+// Exactly these 9 names, ONE named constant (never scattered literals). Everything else (the other
+// ~325 utility/PILOT/ChainGraph tools) gets defaultConfig:{defer_loading:true} injected below and is
+// surfaced on demand through find_tool/find_chain — the Anthropic tool-search pattern (49%→74%
+// selection-accuracy lift at 300+ tools; most MCP clients truncate the advertised list ~40 tools in).
 const HOT_TOOLS = new Set([
-  'list_ainumbers_tools', 'verify_execution_hash',
-  'build_workflow_links', 'build_chaingraph', 'export_artifact',
-  'find_chain', 'find_tool', 'run_chain',
+  'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
+  'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
+  'find_tool', 'find_chain', 'run_chain',
 ]);
+
+// ── §M1.6 dual-version window (MCP 2026-07-28 RC pin) ───────────────────────
+// RC revision pinned: draft dated 2026-06-xx, "Streamable HTTP: initialize + sessions optional"
+// (drops the MANDATORY initialize handshake + session ids). A later RC revision that changes this
+// shape should be a one-file diff here. This worker is ALREADY stateless — every request builds a
+// fresh transport/server (sessionIdGenerator: undefined, no cached McpServer) and every JSON-RPC
+// method below (tools/list, tools/call, ...) is handled independently of whether `initialize` was
+// ever called on this "connection" — there is no connection, no session memory. So BOTH the current
+// (initialize-first) handshake AND the RC (no-initialize, call tools/list or tools/call directly)
+// handshake already work unmodified; scripts/smoke-mcp.mjs proves both paths green post-deploy.
+// `initialize` itself stays supported (never removed) for clients still on the current spec rev.
 
 // ── O(1) static discovery — per-method, no large parse ─────────────────────
 // The Worker runs on the Cloudflare FREE plan (~10ms CPU/request). The four discovery responses
@@ -757,11 +772,26 @@ async function getStaticInitialize(env) {
   if (!r.ok) throw new Error('static initialize asset miss: ' + r.status);
   return (_initStatic = await r.json());
 }
-async function getStaticListTemplate(env, method) {
-  if (_listStatic[method]) return _listStatic[method];
-  const r = await env.ASSETS.fetch('https://assets.local/' + STATIC_LIST_FILE[method]);
-  if (!r.ok) throw new Error('static list asset miss: ' + method + ' > ' + r.status);
-  return (_listStatic[method] = await r.text());   // TEXT — no JSON.parse of the large body
+// Named toolsets (§M1.2): known profile names, loaded lazily from the vendored manifest so a new
+// profile added by generate.mjs is picked up without a worker.mjs edit. `?toolset=<name>` on /mcp
+// selects the matching precomputed tools-list.<name>.sse.txt (generator-emitted, §M1.2); an unknown
+// or absent name falls back to the lean-core default file — never a 4xx for an unrecognized profile.
+let _toolsetNames = null;
+async function getToolsetNames(env) {
+  if (_toolsetNames) return _toolsetNames;
+  try {
+    const r = await env.ASSETS.fetch('https://assets.local/mcp/toolsets.json');
+    const j = r.ok ? await r.json() : { profiles: {} };
+    return (_toolsetNames = new Set(Object.keys(j.profiles ?? {})));
+  } catch { return (_toolsetNames = new Set()); }
+}
+async function getStaticListTemplate(env, method, toolset) {
+  const key = toolset ? method + ':' + toolset : method;
+  if (_listStatic[key]) return _listStatic[key];
+  const file = toolset ? STATIC_LIST_FILE[method].replace('.sse.txt', '.' + toolset + '.sse.txt') : STATIC_LIST_FILE[method];
+  const r = await env.ASSETS.fetch('https://assets.local/' + file);
+  if (!r.ok) throw new Error('static list asset miss: ' + key + ' > ' + r.status);
+  return (_listStatic[key] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
 // BM25 scorer (Workers-runtime safe — no Node APIs).
@@ -2715,8 +2745,15 @@ export default {
             return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
           }
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
-          // no JSON.parse / no re-stringify of the (330KB) body.
-          const tpl = await getStaticListTemplate(env, method);
+          // no JSON.parse / no re-stringify of the (330KB) body. tools/list honors ?toolset=<name>
+          // (§M1.2 named toolsets) — a known profile serves its own precomputed file (lean core UNION
+          // the profile's members, non-deferred); an unrecognized/absent name falls back to default.
+          let toolset;
+          if (method === 'tools/list') {
+            const requested = url.searchParams.get('toolset');
+            if (requested && (await getToolsetNames(env)).has(requested)) toolset = requested;
+          }
+          const tpl = await getStaticListTemplate(env, method, toolset);
           const sse = tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id));
           return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }

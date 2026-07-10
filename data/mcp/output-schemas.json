@@ -1,0 +1,334 @@
+{
+  "check_tokenized_collateral_eligibility": {
+    "type": "object",
+    "properties": {
+      "dtc_status": {
+        "type": "string"
+      },
+      "hqla_tier": {
+        "type": "string"
+      },
+      "final_haircut_pct": {
+        "type": "number"
+      },
+      "adjusted_value": {
+        "type": "number"
+      },
+      "compliance_flags": {
+        "type": "object"
+      },
+      "mandate_type": {
+        "type": "string",
+        "const": "collateral_mandate"
+      }
+    }
+  },
+  "check_cash_leg_finality": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "CASH_LEG_VERDICT_PASS",
+          "CASH_LEG_VERDICT_CONDITIONAL",
+          "CASH_LEG_VERDICT_FAIL"
+        ]
+      },
+      "finality_flag": {
+        "type": "string"
+      },
+      "genius_status": {
+        "type": "string"
+      },
+      "mica_status": {
+        "type": "string"
+      },
+      "compliance_flags": {
+        "type": "object"
+      },
+      "mandate_type": {
+        "type": "string",
+        "const": "attestation_mandate"
+      }
+    }
+  },
+  "validate_canton_dvp_atomicity": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "CONDITIONAL",
+          "FAIL"
+        ]
+      },
+      "atomicity_flag": {
+        "type": "string"
+      },
+      "finality_flag": {
+        "type": "string"
+      },
+      "herstatt_flag": {
+        "type": "string"
+      },
+      "compliance_flags": {
+        "type": "object"
+      },
+      "pacs008": {
+        "type": "object"
+      },
+      "execution_hash": {
+        "type": "string"
+      }
+    }
+  },
+  "calculate_repo_haircut": {
+    "type": "object",
+    "properties": {
+      "base_haircut_pct": {
+        "type": "number"
+      },
+      "total_haircut_pct": {
+        "type": "number"
+      },
+      "sft_floor_applied": {
+        "type": "boolean"
+      },
+      "initial_margin": {
+        "type": "number"
+      },
+      "vm_threshold": {
+        "type": "number"
+      },
+      "canton_haircut_pct": {
+        "type": "number"
+      },
+      "legacy_haircut_pct": {
+        "type": "number"
+      },
+      "weekend_saving_pct": {
+        "type": "number"
+      },
+      "flags": {
+        "type": "array"
+      }
+    }
+  },
+  "validate_canton_party_allowlist": {
+    "type": "object",
+    "properties": {
+      "party_results": {
+        "type": "array"
+      },
+      "portfolio_verdict": {
+        "type": "string"
+      },
+      "compliance_flags": {
+        "type": "object"
+      },
+      "iso20022_party_identification": {
+        "type": "array"
+      }
+    }
+  },
+  "classify_digital_asset_regulatory": {
+    "type": "object",
+    "properties": {
+      "classification_results": {
+        "type": "array"
+      },
+      "compliance_flags": {
+        "type": "object"
+      },
+      "iso20022_party_identification": {
+        "type": "array"
+      }
+    }
+  },
+  "baas_provider_comparator": {
+    "type": "object",
+    "properties": {}
+  },
+  "validate_ap2_mcp_policy": {
+    "type": "object",
+    "properties": {
+      "valid": {
+        "type": "boolean"
+      },
+      "schema_errors": {
+        "type": "array"
+      },
+      "mcp_tool_definition": {
+        "type": "object"
+      },
+      "agent_ingestion_simulation": {
+        "type": "object"
+      },
+      "export_json": {
+        "type": "string"
+      }
+    }
+  },
+  "build_google_ap2_mandate": {
+    "type": "object",
+    "properties": {
+      "mandate": {
+        "type": "object"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "score_mcp_readiness": {
+    "type": "object",
+    "properties": {
+      "overall": {
+        "type": "number"
+      },
+      "sections": {
+        "type": "array"
+      }
+    }
+  },
+  "agentic_mandate_sandbox": {
+    "type": "object",
+    "properties": {}
+  },
+  "customer_risk_rating": {
+    "type": "object",
+    "properties": {
+      "compositeScore": {
+        "type": "number"
+      },
+      "riskTier": {
+        "type": "string"
+      },
+      "breakdown": {
+        "type": "array"
+      },
+      "mandateJson": {
+        "type": "object"
+      }
+    }
+  },
+  "ap2_aml_mandate_builder": {
+    "type": "object",
+    "properties": {}
+  },
+  "lint_mcp_tool_definition": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "number"
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "annotations": {
+        "type": "object"
+      }
+    }
+  },
+  "validate_mcp_server_json": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "number"
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "skeleton": {
+        "type": "object"
+      }
+    }
+  },
+  "compare_agentic_payment_protocols": {
+    "type": "object",
+    "properties": {
+      "matrix": {
+        "type": "array"
+      },
+      "crosswalk": {
+        "type": "array"
+      },
+      "recommendation": {
+        "type": "string"
+      }
+    }
+  },
+  "decode_x402_payment": {
+    "type": "object",
+    "properties": {
+      "decoded": {
+        "type": "object"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "audit_mcp_oauth": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "number"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "scan_tool_poisoning": {
+    "type": "object",
+    "properties": {
+      "risk": {
+        "type": "number"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "validate_a2a_agent_card": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "number"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "inspect_visa_tap_signature": {
+    "type": "object",
+    "properties": {
+      "parsed": {
+        "type": "object"
+      },
+      "findings": {
+        "type": "array"
+      }
+    }
+  },
+  "run_kernel_vm": {
+    "type": "object",
+    "properties": {
+      "output_payload": {
+        "type": "object"
+      },
+      "elapsed_ms": {
+        "type": "number"
+      }
+    }
+  }
+}
