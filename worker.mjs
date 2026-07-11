@@ -2652,6 +2652,16 @@ export default {
       return Response.json({ status: 'ok', server: 'ainumbers-mcp-apps', version: PILOT.version }, { headers: corsHeaders });
     }
 
+    // Estate federation links (§N4, AGENTIC-NAV-BUILD-SPEC.md) — the 4 Post Oak Labs
+    // MCP-estate servers (ainumbers compute, ainumbers anchor, ApexLogics, OmegaCentauri)
+    // cross-link each other's server cards/manifests. No standard `rel` exists for this
+    // yet (ahead of spec) — we define `sibling-server` inline here.
+    const SIBLING_SERVERS = [
+      { rel: 'sibling-server', name: 'ainumbers-anchor', url: 'https://anchor.ainumbers.co/.well-known/mcp' },
+      { rel: 'sibling-server', name: 'apexlogics-mcp', url: 'https://apexlogics.org/.well-known/mcp' },
+      { rel: 'sibling-server', name: 'omegacentauri-mcp', url: 'https://omegacentauri.me/.well-known/mcp' },
+    ];
+
     // Well-known MCP server card (SEP-1649 / SEP-2127) — static discovery descriptor for agents
     // and MCP clients that fetch /.well-known/mcp/server-card.json before connecting.
     if (url.pathname === '/.well-known/mcp/server-card.json') {
@@ -2671,6 +2681,22 @@ export default {
         documentation: 'https://ainumbers.co/mcp.html',
         standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
         llms_txt: 'https://ainumbers.co/llms.txt',
+        links: SIBLING_SERVERS,
+      }, { headers: { ...corsHeaders, 'Cache-Control': 'public, max-age=3600' } });
+    }
+
+    // SEP-1960 well-known MCP manifest — /.well-known/mcp (distinct convention from the
+    // SEP-1649 server-card path above; served so either discovery convention resolves).
+    // Cheap + additive: static descriptor + sibling-server links, no new tool, no kernel.
+    if (url.pathname === '/.well-known/mcp') {
+      return Response.json({
+        schema_version: 'mcp-manifest-sep-1960-v1',
+        name: 'ainumbers-mcp-apps',
+        mcp_endpoint: 'https://mcp.ainumbers.co/mcp',
+        protocol_version: '2025-06-18',
+        server_card: 'https://mcp.ainumbers.co/.well-known/mcp/server-card.json',
+        publisher: { name: 'Post Oak Labs', url: 'https://postoaklabs.com' },
+        links: SIBLING_SERVERS,
       }, { headers: { ...corsHeaders, 'Cache-Control': 'public, max-age=3600' } });
     }
 
