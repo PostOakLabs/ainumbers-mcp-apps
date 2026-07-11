@@ -18,9 +18,18 @@
     { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
   ],
   "observability": {
+    "enabled": false,
+    "head_sampling_rate": 1,
     "logs": {
       "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
       "invocation_logs": true
+    },
+    "traces": {
+      "enabled": false,
+      "persist": true,
+      "head_sampling_rate": 1
     }
   },
   // GAP-d event substrate (2026-07-10): weekly cron feeds GAP-a/EXPORT-1/suggestion-digest.
