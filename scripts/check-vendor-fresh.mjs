@@ -28,15 +28,30 @@ const norm = (s) => s.replace(/\r\n/g, '\n');
 // ignores uncommitted WIP); otherwise read the working tree.
 let useGit = false;
 try { execFileSync('git', ['-C', SITE, 'rev-parse', '--is-inside-work-tree'], { stdio: 'pipe' }); useGit = true; } catch { useGit = false; }
+
+// SITE may be a session-local worktree checkout that isn't synced to the true current origin/main —
+// its own HEAD alone is not a trustworthy freshness baseline (a stale worktree makes this gate both
+// false-stale and false-fresh, which is why sessions were reaching for --no-verify; see
+// feedback-worker-vendor-single-writer). Best-effort fetch + prefer origin/main so the baseline matches
+// what CI's fresh actions/checkout deploys, falling back to local HEAD only when fetch is unavailable
+// (offline dev, no `origin` remote, detached SITE checkout).
+let ref = 'HEAD';
+if (useGit) {
+  try {
+    execFileSync('git', ['-C', SITE, 'fetch', 'origin', '--quiet'], { stdio: 'pipe' });
+    execFileSync('git', ['-C', SITE, 'rev-parse', '--verify', 'origin/main'], { stdio: 'pipe' });
+    ref = 'origin/main';
+  } catch { /* fall back to local HEAD below */ }
+}
 const siteRead = (relPath) => useGit
-  ? execFileSync('git', ['-C', SITE, 'show', `HEAD:${relPath.replace(/\\/g, '/')}`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  ? execFileSync('git', ['-C', SITE, 'show', `${ref}:${relPath.replace(/\\/g, '/')}`], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
   : readFileSync(join(SITE, relPath), 'utf8');
 const siteListKernels = () => useGit
-  ? execFileSync('git', ['-C', SITE, 'ls-tree', '--name-only', 'HEAD', 'chaingraph/kernels/'], { encoding: 'utf8' })
+  ? execFileSync('git', ['-C', SITE, 'ls-tree', '--name-only', ref, 'chaingraph/kernels/'], { encoding: 'utf8' })
       .split('\n').filter((l) => l.endsWith('.kernel.mjs')).map((l) => l.split('/').pop())
   : readdirSync(join(SITE, 'chaingraph', 'kernels')).filter((f) => f.endsWith('.kernel.mjs'));
 
-console.log(`(comparing vs site ${useGit ? 'COMMITTED HEAD' : 'working tree'}: ${SITE})`);
+console.log(`(comparing vs site ${useGit ? ref : 'working tree'}: ${SITE})`);
 let fails = 0;
 
 // CONTEXT-AWARE severity. On a pull_request the PAIRED site PR is often still open, so the worker

@@ -20,7 +20,25 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SITE = resolve(ROOT, process.env.SITE_REPO || '../repo');
+
+// A blind '../repo' sibling assumption breaks when this checkout is a nested worktree
+// (mcp-apps-poc/.claude/worktrees/<id>/mcp-apps-poc or mcp-apps-poc/.worktrees/<id>/mcp-apps-poc):
+// '../repo' then resolves inside the worktree nesting, not the real site checkout — silently
+// skipping the site-dependent gates (or, if a stray sibling exists there, comparing against a
+// stale one). Walk up from ROOT looking for the first ancestor with a `repo/.git` — finds a
+// session's own sibling site worktree first, then falls back to the shared workspace root.
+function findSiteRepo(root) {
+  let dir = root;
+  for (let i = 0; i < 8; i++) {
+    const candidate = resolve(dir, 'repo');
+    if (existsSync(resolve(candidate, '.git'))) return candidate;
+    const parent = resolve(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return resolve(root, '../repo');
+}
+const SITE = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) : findSiteRepo(ROOT);
 const siteOk = existsSync(SITE);
 const FULL = process.argv.includes('--full');
 
