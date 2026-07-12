@@ -20,7 +20,25 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SITE = resolve(ROOT, process.env.SITE_REPO || '../repo');
+
+// A blind '../repo' sibling assumption breaks when this checkout is a nested worktree
+// (mcp-apps-poc/.claude/worktrees/<id>/mcp-apps-poc or mcp-apps-poc/.worktrees/<id>/mcp-apps-poc):
+// '../repo' then resolves inside the worktree nesting, not the real site checkout — silently
+// skipping the site-dependent gates (or, if a stray sibling exists there, comparing against a
+// stale one). Walk up from ROOT looking for the first ancestor with a `repo/.git` — finds a
+// session's own sibling site worktree first, then falls back to the shared workspace root.
+function findSiteRepo(root) {
+  let dir = root;
+  for (let i = 0; i < 8; i++) {
+    const candidate = resolve(dir, 'repo');
+    if (existsSync(resolve(candidate, '.git'))) return candidate;
+    const parent = resolve(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return resolve(root, '../repo');
+}
+const SITE = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) : findSiteRepo(ROOT);
 const siteOk = existsSync(SITE);
 const FULL = process.argv.includes('--full');
 
@@ -52,11 +70,18 @@ if (FULL) {
 
 console.log(`\n▶ worker preflight — ${gates.length} gates${FULL ? ' (--full)' : ''}${siteOk ? '' : ' [site repo not found → site-dependent gates skipped, CI backstops]'}\n`);
 
+// git invokes this hook with GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE pinned to the WORKER repo. Gates
+// below shell out to `git -C <site-repo>` for the site-dependent checks — inheriting those pinned
+// vars makes git ignore -C and read the WRONG repo's HEAD (surfaced as "path exists on disk, but not
+// in HEAD" for a file that is very much in the site's HEAD). Strip them so every gate starts clean,
+// same as running preflight by hand outside a hook.
+const CLEAN_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
+
 let failed = 0, skipped = 0;
 for (const g of gates) {
   if (g.needsSite && !siteOk) { console.log(`⏭  ${g.name} — skipped (no site repo)`); skipped++; continue; }
   process.stdout.write(`▶ ${g.name} … `);
-  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...process.env, ...(g.env || {}) }, encoding: 'utf8' });
+  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...CLEAN_ENV, ...(g.env || {}) }, encoding: 'utf8' });
   const out = (r.stdout || '') + (r.stderr || '');
   if (r.status === 0) {
     console.log('✓');
