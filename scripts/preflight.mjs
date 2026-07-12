@@ -70,11 +70,18 @@ if (FULL) {
 
 console.log(`\n▶ worker preflight — ${gates.length} gates${FULL ? ' (--full)' : ''}${siteOk ? '' : ' [site repo not found → site-dependent gates skipped, CI backstops]'}\n`);
 
+// git invokes this hook with GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE pinned to the WORKER repo. Gates
+// below shell out to `git -C <site-repo>` for the site-dependent checks — inheriting those pinned
+// vars makes git ignore -C and read the WRONG repo's HEAD (surfaced as "path exists on disk, but not
+// in HEAD" for a file that is very much in the site's HEAD). Strip them so every gate starts clean,
+// same as running preflight by hand outside a hook.
+const CLEAN_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
+
 let failed = 0, skipped = 0;
 for (const g of gates) {
   if (g.needsSite && !siteOk) { console.log(`⏭  ${g.name} — skipped (no site repo)`); skipped++; continue; }
   process.stdout.write(`▶ ${g.name} … `);
-  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...process.env, ...(g.env || {}) }, encoding: 'utf8' });
+  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...CLEAN_ENV, ...(g.env || {}) }, encoding: 'utf8' });
   const out = (r.stdout || '') + (r.stderr || '');
   if (r.status === 0) {
     console.log('✓');
