@@ -21,6 +21,7 @@ export const UTILITY_TOOL_NAMES = [
   'find_tool',
   'run_chain',
   'validate_input_attestations',
+  'suggest_tool_idea',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;

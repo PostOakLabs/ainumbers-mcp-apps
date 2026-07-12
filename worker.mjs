@@ -1980,6 +1980,44 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // suggest_tool_idea (§L5.a) -- agent-callable companion to the mailto-only suggest.html page.
+  // Returns a PREFILLED GitHub Issue-Forms URL; NEVER posts to GitHub itself (DECISION-LEDGER:12 —
+  // Issue-Forms link is the CSP-safe channel, not script/XHR comments). The tool constructs a URL;
+  // it transmits nothing except into that URL, which only opens if the caller (human or agent) opens it.
+  // -------------------------------------------------------------------------
+  server.registerTool('suggest_tool_idea', {
+    title: 'Suggest a new tool, node, or workflow',
+    description:
+      'Builds a prefilled GitHub Issue-Forms URL for proposing a new AINumbers fintech tool, ' +
+      'OpenChainGraph compute node, or verifiable workflow. Returns the URL only -- it never posts ' +
+      'to GitHub on the caller\'s behalf. Companion to the site\'s mailto suggestion form (suggest.html); ' +
+      'this is the agent-callable path.',
+    inputSchema: {
+      computes: z.string().describe('What the tool would compute or verify (e.g. "validates a CBAM precursor emissions declaration against Annex III default values"). Required by the issue form.'),
+      kind: z.enum(['New tool', 'New chain (workflow)', 'Improve existing', 'Other']).optional().describe('What kind of suggestion this is (default "New tool").'),
+      domain: z.string().optional().describe('The regulation or standard it serves (e.g. "MiCA", "ISO 20022", "EMIR Refit").'),
+      who: z.string().optional().describe('The persona or buyer who would use this (e.g. "a compliance officer at a CASP").'),
+      why_now: z.string().optional().describe('The driver, deadline, or demand behind the suggestion.'),
+      title: z.string().optional().describe('Short issue title (the "[Suggestion] " prefix is added automatically).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true },
+  }, ({ computes, kind, domain, who, why_now, title }) => {
+    const params = new URLSearchParams();
+    params.set('template', 'suggest-tool-or-chain.yml');
+    params.set('title', '[Suggestion] ' + (title ?? computes.slice(0, 80)));
+    params.set('kind', kind ?? 'New tool');
+    params.set('computes', computes);
+    if (domain) params.set('domain', domain);
+    if (who) params.set('who', who);
+    if (why_now) params.set('why-now', why_now);
+    const url = 'https://github.com/PostOakLabs/ainumbers/issues/new?' + params.toString();
+    return {
+      content: [{ type: 'text', text: 'Open this link to submit the suggestion (nothing is posted automatically):\n' + url }],
+      structuredContent: { url, note: 'This tool only builds the URL. Open it yourself to submit -- no automatic posting.' },
+    };
+  });
+
+  // -------------------------------------------------------------------------
   // export_artifact -- chaingraph_export profiles (OCG Standard §13). 7th utility tool.
   // Renders a verified v0.4 artifact to xlsx / csv / pdf / xbrl, server-side, hash-excluded.
   // Per-node export_capability gate (additive: a node with no declared export_capability
@@ -2461,7 +2499,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     ...PILOT.map((slug) => manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_')),
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
-    'find_chain', 'find_tool', 'run_chain',
+    'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
