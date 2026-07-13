@@ -79,7 +79,8 @@
       "compute_remittance_disclosure",
       "compute_parametric_trigger_payout",
       "compute_multilateral_netting",
-      "test_hedge_effectiveness"
+      "test_hedge_effectiveness",
+      "build_einvoice_transmission_receipt"
     ],
     "ai-act": [
       "check_agent_attestation",
@@ -102,5 +103,5 @@
       "classify_annex3_decisioning_obligations"
     ]
   },
-  "generated_at": "2026-07-13T17:05:19.693Z"
+  "generated_at": "2026-07-13T22:08:13.919Z"
 }

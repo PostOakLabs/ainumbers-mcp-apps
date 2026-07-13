@@ -3949,5 +3949,102 @@
     "cry-05-agent-action-audit-trail-aggregator": {
       "artifacts": []
     }
+  },
+  "einvoice-validation-pipeline": {
+    "art-293-einvoice-format-validator": {
+      "document": {
+        "format": "xrechnung",
+        "document_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "embedded_xml_sha256": null,
+        "fields": {
+          "invoice_number": "INV-1",
+          "invoice_date": "2026-09-15",
+          "currency_code": "EUR",
+          "seller_name": "Acme GmbH",
+          "seller_vat_id": "DE123456789",
+          "buyer_name": "Buyer SAS",
+          "leitweg_id": "04011000-12345-67"
+        },
+        "line_items": [
+          {
+            "line_id": 1,
+            "net_amount": 1000,
+            "vat_category": "S",
+            "vat_rate_pct": 19
+          },
+          {
+            "line_id": 2,
+            "net_amount": 500,
+            "vat_category": "Z",
+            "vat_rate_pct": 0
+          }
+        ]
+      }
+    },
+    "art-294-einvoice-vat-calc-verifier": {
+      "document": {
+        "line_items": [
+          {
+            "line_id": 1,
+            "net_amount": 1000,
+            "vat_category": "S",
+            "vat_rate_pct": 19
+          },
+          {
+            "line_id": 2,
+            "net_amount": 500,
+            "vat_category": "Z",
+            "vat_rate_pct": 0
+          }
+        ],
+        "tax_subtotals_asserted": [
+          {
+            "vat_category": "S",
+            "vat_rate_pct": 19,
+            "taxable_amount": 1000,
+            "tax_amount": 190
+          },
+          {
+            "vat_category": "Z",
+            "vat_rate_pct": 0,
+            "taxable_amount": 500,
+            "tax_amount": 0
+          }
+        ],
+        "grand_total_asserted": 1690,
+        "tax_total_asserted": 190
+      },
+      "rounding": {
+        "method": "half-up",
+        "granularity": "per-line"
+      }
+    },
+    "art-295-einvoice-jurisdiction-mandate-router": {
+      "supplier_country": "DE",
+      "buyer_country": "FR",
+      "transaction_type": "B2B",
+      "transaction_date": "2026-09-15"
+    },
+    "art-296-einvoice-transmission-receipt-builder": {
+      "document": {
+        "document_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "embedded_xml_sha256": null,
+        "format": "xrechnung"
+      },
+      "format_validation": {
+        "structural_completeness": true
+      },
+      "vat_verification": {
+        "consistent": true
+      },
+      "routed_mandate": {
+        "regime_country": "FR",
+        "applicable_format": "factur-x_or_ubl",
+        "mandatory_from": "2026-09-01",
+        "phase_status": "mandatory",
+        "transmission_channel": "PDP",
+        "table_version": "einvoice-mandate-table-2026-07-13"
+      }
+    }
   }
 }
