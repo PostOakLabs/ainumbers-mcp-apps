@@ -3847,5 +3847,107 @@
       "mx_rmt_ustrd": "/INV/2026/001 trade payment",
       "mx_chrg_br": "SHAR"
     }
+  },
+  "swift-ledger-transfer-readiness": {
+    "art-288-map-iso20022-to-evm-calldata": {
+      "iso_message_type": "pacs.008",
+      "iso_fields": {
+        "instructedAmount": "1250.50",
+        "currency": "USD",
+        "debtorAccount": "DE89370400440532013000",
+        "creditorAccount": "GB29NWBK60161331926819",
+        "endToEndId": "E2E-REF-001",
+        "uetr": "8a562df1-2b76-4e8b-9f66-1234567890ab",
+        "purposeCode": "TRAD"
+      },
+      "contract_abi_fragment": {
+        "function": "settlePayment",
+        "inputs": [
+          {
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "name": "currency",
+            "type": "bytes32"
+          },
+          {
+            "name": "creditor",
+            "type": "bytes32"
+          }
+        ]
+      },
+      "mapping_profile": "draft-generic-evm"
+    },
+    "art-291-screen-onledger-transfer-batch": {
+      "transfers": [
+        {
+          "originator": "Alice Corp",
+          "beneficiary": "Bob Ltd",
+          "amount": 1000,
+          "purpose_code": "TRAD",
+          "corridor": "US-EU"
+        },
+        {
+          "originator": "Carol Inc",
+          "beneficiary": "Dan LLC",
+          "amount": 500,
+          "purpose_code": "SVCS",
+          "corridor": "US-UK"
+        }
+      ],
+      "screening_lists_meta": {
+        "flagged_names": [
+          "sanctioned party a"
+        ]
+      },
+      "profile": "sli-batch-screen-v1"
+    },
+    "art-290-check-linea-l2-finality-window": {
+      "l2_block": 1234567,
+      "batch_submission_status": "submitted",
+      "l1_finalization_status": "finalized",
+      "corridor_cutoff": "batched",
+      "asset_type": "tokenized_deposit"
+    },
+    "506-onchain-cash-leg-finality-checker": {
+      "finality_model": "atomic_dvp_bound",
+      "jurisdiction": "us",
+      "reserve_attestation": true,
+      "cash_pct": 60,
+      "tbills_pct": 35,
+      "repo_pct": 5,
+      "depeg_bps": 2,
+      "redemption_window": "t0"
+    }
+  },
+  "besu-contract-conformance": {
+    "art-289-lint-besu-settlement-contract": {
+      "artifact_kind": "solidity",
+      "source": "contract Settlement {\n  event Settled(bytes32 indexed id);\n  function transferPair(address a, address b) external onlyCompliant {\n    require(safeTransfer(a, 1), \"fail\");\n    require(transferFrom(b, address(this), 1), \"fail\");\n    emit Settled(bytes32(0));\n  }\n}",
+      "ruleset_profile": "sli-besu-settlement-v1"
+    },
+    "art-292-attest-settlement-orchestrator": {
+      "orchestrator_manifest": {
+        "name": "swift-ledger-orchestrator",
+        "version": "1.0.0",
+        "description": "Off-chain orchestration layer deciding commit/halt for shared-ledger settlement."
+      },
+      "decision_policy_ref": "policy://sli/commit-halt-v1",
+      "kernel_bindings": [
+        {
+          "tool_id": "art-288-map-iso20022-to-evm-calldata",
+          "mcp_name": "map_iso20022_to_evm_calldata"
+        },
+        {
+          "tool_id": "art-291-screen-onledger-transfer-batch",
+          "mcp_name": "screen_onledger_transfer_batch"
+        }
+      ],
+      "transport": "https"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
   }
 }
