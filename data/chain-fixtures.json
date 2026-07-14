@@ -4534,5 +4534,36 @@
         ]
       }
     }
+  },
+  "traiga-safe-harbor": {
+    "art-313-traiga-exposure-assessor": {},
+    "art-174-nist-ai-rmf-function-mapper": {
+      "evidence": {
+        "govern_policy": true,
+        "govern_roles": true,
+        "govern_culture": true,
+        "govern_transparency": true,
+        "govern_accountability": true,
+        "map_context": true,
+        "map_categorization": true,
+        "map_risk_identification": true,
+        "map_stakeholders": true,
+        "measure_analysis": true,
+        "measure_monitoring": true,
+        "measure_testing": true,
+        "measure_benchmarking": true,
+        "manage_response": true,
+        "manage_prioritization": true,
+        "manage_treatment": true,
+        "manage_residual_risk": true
+      }
+    },
+    "art-314-traiga-safe-harbor-pack-builder": {}
+  },
+  "ca-genai-disclosure": {
+    "art-315-ab2013-training-data-disclosure-linter": {}
+  },
+  "sb53-frontier-scope": {
+    "art-316-sb53-frontier-scope-checker": {}
   }
 }
