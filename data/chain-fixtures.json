@@ -4179,5 +4179,360 @@
       "acp_hce_pct": 0.04,
       "acp_nhce_pct": 0.035
     }
+  },
+  "assemble-aiuc1-evidence-pack": {
+    "art-303-aiuc1-control-evidence-linter": {
+      "aiuc1_version": "2026-Q1",
+      "control_evidence": [
+        {
+          "control_id": "AIUC-A-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-A-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-A-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-A-04",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-B-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-B-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-B-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-B-04",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-C-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-C-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-C-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-C-04",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-D-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-D-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-D-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-D-04",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-E-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-E-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-E-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-E-04",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-F-01",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-F-02",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        },
+        {
+          "control_id": "AIUC-F-03",
+          "evidence": [
+            {
+              "type": "receipt",
+              "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "issued_at": "2026-06-01"
+            }
+          ]
+        }
+      ]
+    },
+    "art-304-aiuc1-evidence-pack-assembler": {
+      "aiuc1_version": "2026-Q1",
+      "artifacts": {
+        "receipts": [
+          {
+            "id": "r1",
+            "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          {
+            "id": "r2",
+            "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          }
+        ],
+        "escalation_closures": [
+          {
+            "id": "e1",
+            "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          }
+        ],
+        "mandates": [
+          {
+            "id": "m1",
+            "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          }
+        ]
+      },
+      "control_mapping": [
+        {
+          "control_id": "AIUC-A-01",
+          "artifact_refs": [
+            "r1"
+          ]
+        },
+        {
+          "control_id": "AIUC-B-01",
+          "artifact_refs": [
+            "r2",
+            "e1"
+          ]
+        },
+        {
+          "control_id": "AIUC-E-01",
+          "artifact_refs": [
+            "m1"
+          ]
+        }
+      ],
+      "cadence_attestation_input": {
+        "max_gap_days_by_control": [
+          {
+            "control_id": "AIUC-A-01",
+            "max_gap_days": 45
+          }
+        ]
+      }
+    },
+    "art-305-aiuc1-evidence-freshness-lint": {
+      "as_of": "2026-07-14",
+      "cert_anniversary": "2026-01-10",
+      "controls": [
+        {
+          "control_id": "AIUC-A-01",
+          "newest_receipt_at": "2026-07-01"
+        },
+        {
+          "control_id": "AIUC-B-01",
+          "newest_receipt_at": "2026-06-20"
+        }
+      ]
+    }
+  },
+  "claim-dispute-bundle-assembly": {
+    "art-306-agent-insurability-evidence-scorer": {
+      "underwriter_profile": "aiuc",
+      "execution_claims": [
+        {
+          "execution_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "human_oversight": true
+        },
+        {
+          "execution_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "human_oversight": false
+        }
+      ],
+      "receipts": [
+        {
+          "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "receipt_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    "art-307-claim-dispute-bundle-builder": {
+      "execution_claim": {
+        "execution_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "tool_id": "art-251-compute-parametric-trigger-payout",
+        "receipts": [
+          {
+            "receipt_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ]
+      },
+      "challenge": {
+        "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "warranty_kpi_breach": {
+        "kpi": "uptime_pct",
+        "threshold": 99.5,
+        "direction": "below",
+        "receipts": [
+          {
+            "receipt_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "measured_metric": 97.2
+          }
+        ]
+      }
+    }
   }
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ainumbers.co/schema/chaingraph-v1.0.json",
-  "version": "1.62.0",
-  "updated": "2026-07-13",
+  "version": "1.63.0",
+  "updated": "2026-07-14",
   "spec_version": "0.8.7",
   "maintainer": "Post Oak Labs",
   "description": "Machine-readable index of the AINumbers ChainGraph suite. Every tool's MCP name, mandate_type, inputSchema pointer, and chain edges (consumes/feeds). Linked from llms.txt and embedded as JSON-LD on the hub. Internal mandate_type taxonomy — not AP2 v0.2 spec vocabulary.",
@@ -21310,6 +21310,543 @@
         }
       },
       "export_capability": ["json", "vc"]
+    },
+    {
+      "tool_id": "art-303-aiuc1-control-evidence-linter",
+      "tool_version": "1.0.0",
+      "display_name": "AIUC-1 Control Evidence Linter",
+      "mcp_name": "lint_aiuc1_control_evidence",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-303-aiuc1-control-evidence-linter.html",
+      "description": "Lints a supplied control-evidence bundle against the 23 automatable AIUC-1 v2026-Q1 controls (pillars A-F): version-guards the catalog, classifies each automatable control receipt-backed, attestation-only, or missing, and reports per-pillar and overall coverage. The ~26 procedural AIUC-1 controls are structurally out of automatable scope and are reported as such, never claimed covered. Asserts the supplied evidence replays to this coverage score; never that any control is certified, and never an AIUC/underwriter endorsement. Not the same as an underwriting decision or a policy-selling tool. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-303-aiuc1-control-evidence-linter.html#manifest",
+      "deadline": null,
+      "deadline_note": "AIUC-1 churns quarterly (2026-Q1 catalog pinned); a version mismatch REFUSES scoring rather than silently scoring against a stale catalog.",
+      "consumes": [],
+      "feeds": [
+        "art-304-aiuc1-evidence-pack-assembler"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:6f0ccad9827533502bb1df8c0b7beedc187822ea5f7bf07363637c00336b8f21","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "IDPCckn4FlYyoo4/4thrjzHqHRCCrJoOFuct1ftYO/YO014ExwsJjiD6+rT2sP96HguOg1SqpoCjKjH+4pWWHBVsDNl488KJeUvaaUqd0CkAVb1UIPAi4k3mZ6abd20iIp3JPTnELuqMQeFBULgrdTc56SPTCgAKKO4ekm3hja4pbo+qa19OMi1Xzr3jagmsqarWHwcPr7v66k1RXPlWxRYacYkysK3Hwa/jDpP7roKB5yt1NnpUQzqxmwkT2M6dG3vINi2VxhLvBZ1G+945ECJAmKjxAgyMimBIRzpgkochVMuZBDThZHw0jgGbrDYph19w2cxDDDDtNwrHxnP57Q==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:6f0ccad9827533502bb1df8c0b7beedc187822ea5f7bf07363637c00336b8f21",
+          "output": {
+            "aiuc1_version": "2026-Q1",
+            "attestation_only_count": 0,
+            "automatable_scope": 23,
+            "insufficient_evidence": false,
+            "missing_count": 0,
+            "overall_coverage": 1,
+            "per_control": [
+              {
+                "control_id": "AIUC-A-01",
+                "pillar": "A",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-A-02",
+                "pillar": "A",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-A-03",
+                "pillar": "A",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-A-04",
+                "pillar": "A",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-B-01",
+                "pillar": "B",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-B-02",
+                "pillar": "B",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-B-03",
+                "pillar": "B",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-B-04",
+                "pillar": "B",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-C-01",
+                "pillar": "C",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-C-02",
+                "pillar": "C",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-C-03",
+                "pillar": "C",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-C-04",
+                "pillar": "C",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-D-01",
+                "pillar": "D",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-D-02",
+                "pillar": "D",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-D-03",
+                "pillar": "D",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-D-04",
+                "pillar": "D",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-E-01",
+                "pillar": "E",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-E-02",
+                "pillar": "E",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-E-03",
+                "pillar": "E",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-E-04",
+                "pillar": "E",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-F-01",
+                "pillar": "F",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-F-02",
+                "pillar": "F",
+                "status": "receipt-backed"
+              },
+              {
+                "control_id": "AIUC-F-03",
+                "pillar": "F",
+                "status": "receipt-backed"
+              }
+            ],
+            "per_pillar_coverage": {
+              "A": 1,
+              "B": 1,
+              "C": 1,
+              "D": 1,
+              "E": 1,
+              "F": 1
+            },
+            "procedural_controls_out_of_scope": 26,
+            "receipt_backed_count": 23,
+            "version_mismatch": false
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-304-aiuc1-evidence-pack-assembler",
+      "tool_version": "1.0.0",
+      "display_name": "AIUC-1 Evidence Pack Assembler",
+      "mcp_name": "assemble_aiuc1_evidence_pack",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-304-aiuc1-evidence-pack-assembler.html",
+      "description": "Assembles a signed, AIUC-1 control-keyed evidence pack from execution receipts, escalation closures, and work mandates: binds each mapped control to its resolved artifact digests, computes pack_claim_strength as the honest minimum across bound controls, and exports an OSCAL Assessment Results document (arXiv:2604.13767 AI-evidence property-extension mapping, cited not vendored) plus an optional cadence attestation referencing the shipped aggregate_execution_receipts kernel. Verify-side evidence assembly only; never asserts these controls are certified or that any underwriter accepts the pack. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-304-aiuc1-evidence-pack-assembler.html#manifest",
+      "deadline": null,
+      "deadline_note": "Version-pinned to the same 2026-Q1 AIUC-1 catalog anchor as art-303; a mismatch REFUSES assembly.",
+      "consumes": [
+        "art-303-aiuc1-control-evidence-linter",
+        "cry-05-agent-action-audit-trail-aggregator"
+      ],
+      "feeds": [
+        "art-305-aiuc1-evidence-freshness-lint"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:bde1926d75bbc6dbc37f1d43332bd1684a077131e61b89d6e99929a12b8cf33c","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "GM3RQ9yP/vGqU4E+u6AnsVRC7ZTvHr4r98nZtqthIrIVeUheNMM+1h9fpSsuGnKWoWuujOE93BSHdZVKGMJPIAE/3ZdrN5ST7p4N7Qnd3Pzo/6HNPpIfsOoMa37TTKGwLhQe2mxamLJpgp2vZ2OMUjW8gOxm/3OOc6lBv6DFTlwBEelg3UEA2Be6XK20StJdZ+wCo2xIwwnyLMurt1SaDwbLLdbFrgXxhpq0HlteblJWX1JB7yugHCairH7QE0vpDMMtR8C6uRPDRGXPQkQ3c0OJ0ooD0twBkDkGPKIsD/wLD+hMLieOFmQrnDri3WWGrEWJIQM8bOMPEkwUoS1n/w==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:bde1926d75bbc6dbc37f1d43332bd1684a077131e61b89d6e99929a12b8cf33c",
+          "output": {
+            "aiuc1_version": "2026-Q1",
+            "anchor": null,
+            "cadence_attestation": {
+              "all_within_cadence": true,
+              "period_days": 90,
+              "rows": [
+                {
+                  "control_id": "AIUC-A-01",
+                  "max_gap_days": 45,
+                  "within_cadence": true
+                }
+              ]
+            },
+            "controls": [
+              {
+                "artifact_digests": [
+                  "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                ],
+                "claim_strength": "receipt-backed",
+                "control_id": "AIUC-A-01",
+                "status": "receipt-backed"
+              },
+              {
+                "artifact_digests": [
+                  "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+                ],
+                "claim_strength": "receipt-backed",
+                "control_id": "AIUC-B-01",
+                "status": "receipt-backed"
+              },
+              {
+                "artifact_digests": [
+                  "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+                ],
+                "claim_strength": "receipt-backed",
+                "control_id": "AIUC-E-01",
+                "status": "receipt-backed"
+              }
+            ],
+            "insufficient_evidence": false,
+            "oscal_assessment_results": {
+              "_source_citation": "arXiv:2604.13767 AI-evidence property-extension mapping (Apache-2.0 reference implementation); documented mapping only, not a runtime dependency.",
+              "aiuc1_version": "2026-Q1",
+              "results": [
+                {
+                  "control_id": "AIUC-A-01",
+                  "state": "satisfied"
+                },
+                {
+                  "control_id": "AIUC-B-01",
+                  "state": "satisfied"
+                },
+                {
+                  "control_id": "AIUC-E-01",
+                  "state": "satisfied"
+                }
+              ],
+              "type": "oscal-assessment-results"
+            },
+            "pack_claim_strength": "receipt-backed",
+            "version_mismatch": false
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-305-aiuc1-evidence-freshness-lint",
+      "tool_version": "1.0.0",
+      "display_name": "AIUC-1 Evidence Freshness Lint",
+      "mcp_name": "lint_insurance_evidence_freshness",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-305-aiuc1-evidence-freshness-lint.html",
+      "description": "Freshness lint keyed to the AIUC-1 quarterly re-test cadence: flags any control whose newest receipt is more than 90 days old and computes cert_expiry (cert_anniversary plus 12 months) with cert_expired / cert_expiring_within_days flags. Pure civil-calendar day-count arithmetic, never a Date object, so the verdict is byte-identical across browser, server, and zkVM guest. Freshness/expiry flags only, never a certification claim. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-305-aiuc1-evidence-freshness-lint.html#manifest",
+      "deadline": null,
+      "deadline_note": "AIUC-1 quarterly re-test cadence (90-day staleness threshold) and a 12-month cert period are fixed constants documented in the kernel header, not annually indexed.",
+      "consumes": [
+        "art-304-aiuc1-evidence-pack-assembler"
+      ],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:8dbc646bb29e68a985eb5fdcf053ed106137917d9b89dd4ec179f792589bf9cf","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "JNHZ4sSxLnNIcyeduonJvA7ez+Q7lTVD7jMc58osw4QI3Yt4wyz1hur0RAR6rgEhR9SC/vahYsengXsUpfV6DS62jhcb4+xMCIEoQ4d9HMI3CJDXKzEoX5JFcISEsB9PBVo/jEEq9oXYx1/Z+5aLw62fpaGCnlO2nHT4qh1ThDcvt4DpMiZOx6xha8+WHMDOOW/nqUFEW0tQZDmqPj+3FCPshgYMzvNYSK9rvtVvPO9EfM+sBnCivt1rDXLBM6hxLpZOhvMLmg6llZVeg50wErJyF3WHg5yqI+EAl/axDPokf6ly/ot920ak0bfrkewxoqxWp4V1rkqEG/mcAq/n6w==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:8dbc646bb29e68a985eb5fdcf053ed106137917d9b89dd4ec179f792589bf9cf",
+          "output": {
+            "as_of": "2026-07-14",
+            "cert_expired": false,
+            "cert_expiring_within_days": false,
+            "cert_expiry": "2027-01-10",
+            "insufficient_evidence": false,
+            "stale_controls": [],
+            "stale_count": 0
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-306-agent-insurability-evidence-scorer",
+      "tool_version": "1.0.0",
+      "display_name": "Agent Insurability Evidence Scorer",
+      "mcp_name": "score_agent_insurability_evidence",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-306-agent-insurability-evidence-scorer.html",
+      "description": "Scores an agent execution evidence bundle for underwriter-facing evidence completeness across four dimensions (determinism, replayability, oversight density, dispute history) using a version-pinned rubric selected by underwriter_profile: aiuc, aisure (Munich Re aiSure evidence-doc list), armilla (KPI-warranty dimensions), or generic (equal-weight union). Optional incident_history (shared incident_record schema) and reputation inputs are supported; self-asserted reputation is recorded but zero-weighted in the composite. This scores evidence completeness only, never an insurability decision, a reserve attestation, or an insurable/not-insurable verdict -- selling or underwriting insurance is out of scope. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-306-agent-insurability-evidence-scorer.html#manifest",
+      "deadline": null,
+      "deadline_note": "Rubric weight tables are version-tagged (rubric-2026-q1); a rubric revision bumps the version, not the fixed threshold logic.",
+      "consumes": [],
+      "feeds": [
+        "art-307-claim-dispute-bundle-builder"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:f50363027fceb9b9a98ba34c1f35c4327444cc91359d34e351167d15f2812013","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "B215HasEeJPWKtO+V0EREOhvMVoKgFbsnT9YxBstpOIWVmEvcfwItHqJCmAP8qYAFjuiGtQCHfhjJguMOhJsbhkHQgBaT08RanoWlBX1oFqCLfjjPVyrILt9vdH9CyuGDVCxziGMGYcBwmCc9agsDkFUmTq5diuI0qi/k1DLYkMtINtejB4sVqc45UTNDAlXKp6Dt5iJ4zdfcAeBnGcjBSQ+rBA92Mnbw+8Zfym8+QpedbQcOSkr9UghPHLLUQvuDzU+6qm2UiwTpB/CVdHDmJPKuyqGinSan4AvPzXbYO0d2wBBxafhzF13PvTQSKND9G05lKFvmSazfM6fiwtAvQ==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:f50363027fceb9b9a98ba34c1f35c4327444cc91359d34e351167d15f2812013",
+          "output": {
+            "composite": 0.7999999999999999,
+            "dims": {
+              "determinism": 1,
+              "dispute_history": 0.5,
+              "oversight_density": 0.5,
+              "replayability": 1
+            },
+            "incident_history_provided": false,
+            "insufficient_evidence": false,
+            "reputation_self_asserted": false,
+            "rubric_version": "rubric-2026-q1",
+            "underwriter_profile": "aiuc"
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-307-claim-dispute-bundle-builder",
+      "tool_version": "1.0.0",
+      "display_name": "Claim Dispute Bundle Builder",
+      "mcp_name": "build_claim_dispute_bundle",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-307-claim-dispute-bundle-builder.html",
+      "description": "Assembles a two-sided replay-challenge dossier for a disputed execution_claim: binds the claim digest and challenge to replay instructions and receipt digests, and, when a warranty_kpi_breach input is supplied (matching both Armilla Guaranteed and Munich Re aiSure settlement shapes), computes measured-vs-threshold from the supplied receipts and records breach or no-breach as a replayable claim. Never a settlement decision -- the bundle serves both the underwriter and the insured party reviewing the same replay instructions. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-307-claim-dispute-bundle-builder.html#manifest",
+      "deadline": null,
+      "consumes": [
+        "art-306-agent-insurability-evidence-scorer"
+      ],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:1daef6202ad1566e6f94d6f395e4e645e4d15288589e2864a84c2c2e33415211","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "J1CUG38dqoGHvVtEQNOtayMcS6KEka2ukdW0gCRgzRgb1aqfuGq+gQ41+nS0oXCvnwxc7w8viH9tkCo8VHYXryrKB7wCK4fxkREvPAbhwYlsSYAyjci26XbtXtBT8VH3C4aFFNXTivZQwcusa7V5JF3JqhK6mZRp0UYVw3ofp4UF0vDFTu5lhPO+FqMRC9BPj+zqvS2tHR0+QdGF81Q/GAeBHTode3+h9fygKzMoAO3YFUAQZhu0ktNNw/1i6vFrHWIGXbFdT3BL0IpKQ7RT4PwzB2uMdlkjjvC9zvlgYXgadSw7pmzDX9OtZFqwADbefIuMAIVF7CSCf2JDmr3mZQ==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:1daef6202ad1566e6f94d6f395e4e645e4d15288589e2864a84c2c2e33415211",
+          "output": {
+            "bundle_claim_strength": "receipt-backed",
+            "challenge_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "claim_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "insufficient_evidence": false,
+            "kpi_breach": {
+              "breached": true,
+              "kpi": "uptime_pct",
+              "measured": 97.2,
+              "threshold": 99.5
+            },
+            "receipts": [
+              {
+                "receipt_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              }
+            ],
+            "replay_instructions": "Replay tool_id art-251-compute-parametric-trigger-payout with the recorded policy_parameters and confirm execution_hash reproduces sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; cross-check 1 bound receipt(s)."
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-308-pld-disclosure-pack-builder",
+      "tool_version": "1.0.0",
+      "display_name": "PLD Disclosure Pack Builder",
+      "mcp_name": "build_pld_disclosure_pack",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-308-pld-disclosure-pack-builder.html",
+      "description": "Assembles a disclosure/rebuttal pack for a disputed window under EU Product Liability Directive 2024/2853 (transposes 2026-12-09; AI is a \"product\"; non-disclosure or an AI Act breach triggers a rebuttable presumption of defectiveness). Collects the receipt set for the disputed window into a hash-anchored trace with replay instructions and a defectiveness-rebuttal mapping (which receipts rebut which presumption trigger: non-disclosure vs AI-Act-breach), flagging any gap in window coverage. Asserts the inputs replay to this trace; never a legal conclusion of non-defectiveness. AILD is confirmed withdrawn (Oct 2025); PLD is the only surviving EU frame this maps to. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-308-pld-disclosure-pack-builder.html#manifest",
+      "deadline": null,
+      "deadline_note": "National PLD transposition text lands through H2 2026; the presumption-trigger taxonomy (non_disclosure, ai_act_breach) is static and does not track member-state transposition drift.",
+      "consumes": [],
+      "feeds": [],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:4d73f240d1e0e36ad7081116436c2a27d5b2c23d184cc4269306079ed753ccfb","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "IcMV7OntfxhTa9knOX67nmXk2XbAA0/wT60vYCZtKCMhUnqtUs+rGQaHQENdIfXJcMGV0ib+mlKn8JBFQfXSYwQg0HQVgCT+Kcr+ldwWKeNeS+8mJ/YjiJKN6wIy9nenKROAY37Nirx0cJpiYMdtO5zeVGRfgE1mZEix+jeZEOcH83BN6zPKclgiNmi1BP4yDk2wtw+5g+UPtOBVX/h53Bv7Few9Aynz0iLG1nvIY4+4JFFZGkiYjF5Kh/oJ1DYPKVw7Uy/crvhYFzFxvGQacmM0nHsJW+yH/3dmgL+7xk8X11jYC+4N/QxHG97yUnosNvLT616u2xt2cp1X9tiQ8A==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:4d73f240d1e0e36ad7081116436c2a27d5b2c23d184cc4269306079ed753ccfb",
+          "output": {
+            "alleged_defect": null,
+            "anchor": null,
+            "disputed_window": {
+              "from": "2026-01-01",
+              "to": "2026-06-30"
+            },
+            "gap_in_window": false,
+            "insufficient_evidence": false,
+            "product_ref": "agent-checkout-v3",
+            "rebuttal_mapping": [
+              {
+                "presumption_trigger": "non_disclosure",
+                "rebutting_receipts": [
+                  "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                ]
+              },
+              {
+                "presumption_trigger": "ai_act_breach",
+                "rebutting_receipts": [
+                  "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+                ]
+              }
+            ],
+            "replay_instructions": "Replay each of the 2 receipt(s) for agent-checkout-v3 over the window 2026-01-01..2026-06-30 and confirm execution_hash reproduces every receipt_hash in trace_digest.",
+            "trace_digest": "trace:2:sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
+    },
+    {
+      "tool_id": "art-309-parametric-index-deriver",
+      "tool_version": "1.0.0",
+      "display_name": "Parametric Index Deriver",
+      "mcp_name": "derive_parametric_index_from_receipts",
+      "mandate_type": "compliance_mandate",
+      "wave": 54,
+      "gpu": false,
+      "url": "https://ainumbers.co/chaingraph/art-309-parametric-index-deriver.html",
+      "description": "Deterministically aggregates a named metric (mean, sum, count, max, or min) across a receipt set into a parametric index value: receipts as an oracle replacement, replay-on-challenge instead of trust-the-feed. Feeds the shipped compute_parametric_trigger_payout kernel, which performs the actual trigger-vs-payout math; this kernel never reimplements that logic. The index is a replayable derived value, never a settlement trigger by itself. Not the same as check_agency_eligibility_matrix or any lending eligibility tool -- this is an insurance-evidence parametric index. Zero network, zero PII.",
+      "input_schema_ref": "chaingraph/art-309-parametric-index-deriver.html#manifest",
+      "deadline": null,
+      "consumes": [],
+      "feeds": [
+        "art-251-compute-parametric-trigger-payout"
+      ],
+      "status": "live",
+      "conformance_fixtures": true,
+      "compute_capability": "server",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:69501cd554f59d8ca92176964a10773dad63d5b7c1e4ae06af5eda6fbe9d29c6","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof": {
+        "type": "ZkVmReceipt",
+        "system": "risc0",
+        "receiptFormat": "groth16-bn254",
+        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+        "seal": "Akf3Ftq4keVXkwYiCtB5/0v/ZdRv0H30cy2nH3k0Y5YnKEoNEDEcqyEjlzm/JTmRDG0UE0YsA9R+VqoB+zSv7gXZW8GCuWMtXO6YjZWYXNJCu4QMQfjVytF4pCg4utKNBrUtuDZBgXiYQpmrvJ7d56P0NtuQkqlAa6zeXq27tLsn+PbhGPiDNhdEXhhbAK0GhscBD7n7Ie/XmxTwdy/W9Ar/w535cV0DrCHsTacDXu4oGKgSKrwvWGIOT/i9UZ/KDHUhcBx6v3HxUofk8VNyP33994xDTg4EEu26r6qzILwVjbkPYcc5NH2wrph5OjWZDSKwNpVBJXbBtlHprhHfOw==",
+        "journal": {
+          "chaingraph_version": "0.4.0",
+          "kernel_digest": "sha256:69501cd554f59d8ca92176964a10773dad63d5b7c1e4ae06af5eda6fbe9d29c6",
+          "output": {
+            "aggregation": "mean",
+            "contributing_receipts": 3,
+            "index_value": 20,
+            "insufficient_evidence": false,
+            "metric": "wind_speed_mph",
+            "window": {
+              "from": "2026-08-01",
+              "to": "2026-08-31"
+            }
+          }
+        }
+      },
+      "export_capability": [
+        "json",
+        "vc"
+      ]
     }
   ],
   "chains": [
@@ -27811,6 +28348,42 @@
         {
           "tool_id": "art-302-401k-adp-acp-test",
           "handoff": "Independent test -- no data dependency. Bundled into the plan-year benefits-compliance evidence package."
+        }
+      ]
+    },
+    {
+      "name": "assemble-aiuc1-evidence-pack",
+      "title": "Assemble AIUC-1 Evidence Pack",
+      "description": "Three-step AIUC-1 evidence pipeline: lint a control-evidence bundle against the 23 automatable AIUC-1 v2026-Q1 controls, assemble a signed control-keyed evidence pack with an OSCAL export, then lint the pack for evidence freshness against the AIUC-1 quarterly re-test cadence and cert expiry.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/assemble-aiuc1-evidence-pack.html",
+      "steps": [
+        {
+          "tool_id": "art-303-aiuc1-control-evidence-linter",
+          "handoff": "per_control status feeds Stage 2 pack assembly as the control_mapping evidence basis"
+        },
+        {
+          "tool_id": "art-304-aiuc1-evidence-pack-assembler",
+          "handoff": "controls[] and pack_claim_strength feed Stage 3 freshness lint against the assembled pack"
+        },
+        {
+          "tool_id": "art-305-aiuc1-evidence-freshness-lint",
+          "handoff": "Computes stale_controls and cert_expiry over the assembled pack -- final stage"
+        }
+      ]
+    },
+    {
+      "name": "claim-dispute-bundle-assembly",
+      "title": "Claim Dispute Bundle Assembly",
+      "description": "Two-step agent-insurability evidence flow: score an agent execution evidence bundle for underwriter-facing evidence completeness, then build a two-sided replay-challenge dossier for a disputed execution_claim, optionally testing a warranty KPI breach.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/claim-dispute-bundle-assembly.html",
+      "steps": [
+        {
+          "tool_id": "art-306-agent-insurability-evidence-scorer",
+          "handoff": "composite and dims feed Stage 2 as evidence-completeness context for the dispute bundle"
+        },
+        {
+          "tool_id": "art-307-claim-dispute-bundle-builder",
+          "handoff": "Builds the replay-challenge dossier, optionally testing a warranty_kpi_breach -- final stage"
         }
       ]
     }
