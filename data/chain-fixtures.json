@@ -4124,5 +4124,41 @@
         }
       }
     }
+  },
+  "aca-226j-response-composer": {
+    "art-298-aca-affordability-safe-harbor": {
+      "tax_year": "2026",
+      "lowest_cost_self_only_monthly_premium": 90,
+      "w2_box1_wages_annual": 12000
+    },
+    "art-299-aca-esrp-exposure": {
+      "tax_year": "2026",
+      "fulltime_count": 200,
+      "offered_mec_count": 150,
+      "ptc_employee_count": 5
+    },
+    "art-300-aca-226j-response-evidence-pack": {
+      "letter_date": "2026-08-03",
+      "irs_asserted_esrp_annual": 567800,
+      "affordability_result": {
+        "tax_year": "2026",
+        "satisfies_any_harbor": false,
+        "harbors_satisfied": []
+      },
+      "esrp_result": {
+        "tax_year": "2026",
+        "controlling_penalty": "a",
+        "controlling_exposure_annual": 567800
+      },
+      "disputed_employee_ids": [
+        "EMP-0001",
+        "EMP-0002"
+      ],
+      "attestation": {
+        "name": "Jordan Rivera",
+        "title": "VP, Total Rewards",
+        "timestamp": "2026-08-10T15:00:00Z"
+      }
+    }
   }
 }
