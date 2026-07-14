@@ -4565,5 +4565,50 @@
   },
   "sb53-frontier-scope": {
     "art-316-sb53-frontier-scope-checker": {}
+  },
+  "intraday-finality-attestation": {
+    "art-59-settlement-asset-finality-classifier": {},
+    "art-290-check-linea-l2-finality-window": {
+      "l2_block": 1234567,
+      "batch_submission_status": "submitted",
+      "l1_finalization_status": "finalized",
+      "corridor_cutoff": "batched",
+      "asset_type": "tokenized_deposit"
+    },
+    "506-onchain-cash-leg-finality-checker": {
+      "finality_model": "atomic_dvp_bound",
+      "jurisdiction": "us",
+      "reserve_attestation": true,
+      "cash_pct": 60,
+      "tbills_pct": 35,
+      "repo_pct": 5,
+      "depeg_bps": 2,
+      "redemption_window": "t0"
+    },
+    "art-292-attest-settlement-orchestrator": {
+      "orchestrator_manifest": {
+        "name": "swift-ledger-orchestrator",
+        "version": "1.0.0",
+        "description": "Off-chain orchestration layer deciding commit/halt for shared-ledger settlement."
+      },
+      "decision_policy_ref": "policy://sli/commit-halt-v1",
+      "kernel_bindings": [
+        {
+          "tool_id": "art-288-map-iso20022-to-evm-calldata",
+          "mcp_name": "map_iso20022_to_evm_calldata"
+        },
+        {
+          "tool_id": "art-291-screen-onledger-transfer-batch",
+          "mcp_name": "screen_onledger_transfer_batch"
+        }
+      ],
+      "transport": "https"
+    },
+    "art-121-document-integrity-anchor": {
+      "document_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+      "claimed_timestamp": "2026-06-25T10:00:00Z",
+      "hash_algorithm": "sha256",
+      "document_type": "contract"
+    }
   }
 }
