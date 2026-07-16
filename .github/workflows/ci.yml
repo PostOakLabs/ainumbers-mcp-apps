@@ -10,15 +10,18 @@ jobs:
   validate:
     name: Validate MCP server
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
+          persist-credentials: false
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -115,11 +118,12 @@ jobs:
 
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: PostOakLabs/ainumbers
           path: _site
           fetch-depth: 1
+          persist-credentials: false
 
       - name: 🗄 Chain-fixtures freshness (OCGR Phase A)
         # Regenerates chain-fixtures.json in-memory from the checked-out site HEAD and
@@ -237,22 +241,32 @@ jobs:
     needs: validate           # only deploys if the validate job above passes
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '22'
-          cache: 'npm'
+          # package-manager-cache defaults to true (auto-detects packageManager
+          # in package.json) independent of the old `cache:` input — explicitly
+          # disabled here. This job holds CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID,
+          # and a restored cache is an untrusted-write surface (zizmor:
+          # cache-poisoning). The validate job's npm cache is unaffected (no paid
+          # secrets there); this deploy job installs clean every run.
+          package-manager-cache: false
 
       - name: 📦 Install dependencies
         run: npm ci
 
       - name: 🚀 Deploy worker
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,0 +1,40 @@
+name: Zizmor (Actions security lint)
+
+# GHA-PIN-1 (site repo GATES-SHIFTLEFT-BUILD-SPEC.md §3, cross-repo fence):
+# closes the "mutable action tag in a runner holding deploy credentials"
+# exposure — this repo's `deploy` job holds CLOUDFLARE_API_TOKEN. Checks
+# every workflow keeps its third-party actions SHA-pinned, has no over-broad
+# `permissions:`, and has no script-injection sinks.
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  zizmor:
+    name: zizmor static analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
+        with:
+          inputs: .github/workflows
