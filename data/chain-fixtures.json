@@ -4615,5 +4615,40 @@
     "art-06-genius-act-reserve-attestation": {},
     "art-275-genius-reserve-disclosure-checker": {},
     "art-287-revocation-status-verifier": {}
+  },
+  "escalation-sla-supervised-autonomy-receipt": {
+    "art-274-compile-work-mandate": {
+      "mandate": {
+        "mandate_type": "work_mandate",
+        "scope": {
+          "tool_ids": [
+            "assess_loan",
+            "record_outcome"
+          ],
+          "chains": []
+        },
+        "conditions": [
+          {
+            "pointer": "/decision/approved",
+            "op": "eq",
+            "value": true
+          }
+        ],
+        "escalation_triggers": []
+      }
+    },
+    "art-67-agentic-ai-risk-classifier": {},
+    "art-236-build-ai-decision-log-record": {
+      "model_id": "credit-ai-v2",
+      "model_version": "2.1.0",
+      "input_digest": "abc123def456abc123def456abc123def456abc123def456abc123def456abcd",
+      "output_digest": "def456abc123def456abc123def456abc123def456abc123def456abc123def4",
+      "decision_label": "CREDIT_APPROVED",
+      "confidence": 0.92,
+      "override_flag": false,
+      "subject_ref": "CASE-0042",
+      "retention_months": 12,
+      "operator_id": "bank-xyz"
+    }
   }
 }
