@@ -4651,6 +4651,65 @@
       "operator_id": "bank-xyz"
     }
   },
+  "kya-agent-counterparty-receipt": {
+    "art-287-revocation-status-verifier": {},
+    "art-04-agent-identity-attestation-checker": {
+      "validate_at_unix": 1750248000,
+      "credential": {
+        "credential_type": "AgentCredential",
+        "agent_id": "agent:acme:shopping-bot:v2",
+        "issuer": "did:web:auth.acme.com",
+        "issued_at": 1750161600,
+        "expires_at": 1752840000,
+        "scopes": [
+          "read:account",
+          "execute:checkout",
+          "write:payment"
+        ],
+        "eu_ai_act_risk_class": "limited",
+        "signature": "ed25519:MEYCIQDexampleSignatureHexGoesHereForTestingPurposesOnly"
+      }
+    },
+    "art-132-agent-key-rotation-auditor": {
+      "key_created_unix": 1750000000,
+      "now_unix": 1750086400,
+      "max_key_age_s": 7776000,
+      "next_key_present": false,
+      "algorithm": "ed25519"
+    },
+    "art-278-reputation-score-aggregator": {
+      "subject_id": "agent-alpha",
+      "as_of": "2026-01-01",
+      "decay_half_life_days": 180,
+      "attestations": [
+        {
+          "subject_id": "agent-alpha",
+          "issuer_id": "agent-beta",
+          "receipt_hash": "sha256:aaa1",
+          "dims": {
+            "competence": 0.8,
+            "integrity": 0.6,
+            "timeliness": 0.4,
+            "cooperation": 0.2
+          },
+          "issued_at": "2025-12-02"
+        },
+        {
+          "subject_id": "agent-alpha",
+          "issuer_id": "agent-gamma",
+          "receipt_hash": "sha256:bbb2",
+          "dims": {
+            "competence": 0.4,
+            "integrity": 0.4,
+            "timeliness": 0.4,
+            "cooperation": 0.4
+          },
+          "issued_at": "2025-11-02"
+        }
+      ]
+    },
+    "art-277-agreement-acceptance-binder": {}
+  },
   "rhc-multiplier-reconciliation": {
     "art-317-rhc-multiplier-reconciler": {
       "declared_action": {
