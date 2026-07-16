@@ -4650,5 +4650,108 @@
       "retention_months": 12,
       "operator_id": "bank-xyz"
     }
+  },
+  "rhc-multiplier-reconciliation": {
+    "art-317-rhc-multiplier-reconciler": {
+      "declared_action": {
+        "type": "split",
+        "ratio": 2,
+        "ex_date": "2026-07-10"
+      },
+      "prior_multiplier": 1,
+      "current_multiplier": 2,
+      "raw_balance_before": 1000,
+      "raw_balance_after": 1000,
+      "event_log": [
+        {
+          "index": 0,
+          "ex_date": "2026-07-10",
+          "multiplier_before": 1,
+          "multiplier_after": 2
+        }
+      ]
+    }
+  },
+  "rhc-regime-mapping": {
+    "art-318-rhc-regime-mapper": {
+      "issuer_entity": "Robinhood Assets (Jersey) Limited",
+      "instrument_type": "tokenized_debt_security",
+      "wrapper": "SPV",
+      "holder_of_record": "SPV",
+      "voting_rights": false,
+      "target_jurisdictions": [
+        "EU"
+      ]
+    }
+  },
+  "rhc-valuation-lint": {
+    "art-319-rhc-valuation-linter": {
+      "raw_balance": 10,
+      "chainlink_price_usd": 250,
+      "ui_multiplier": 2,
+      "computed_usd_value_under_test": 2500,
+      "applied_multiplier_in_expression": false
+    }
+  },
+  "rhc-collateral-haircut": {
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "508-repo-haircut-collateral-calculator": {
+      "collateral_type": "ust_10y",
+      "notional_usd": 10000000,
+      "tenor": "overnight",
+      "cross_border": false,
+      "counterparty_type": "bank",
+      "canton247": true,
+      "concentration_pct": 10
+    },
+    "art-320-rhc-collateral-haircut": {
+      "position_value": 100000,
+      "base_haircut": 0.15,
+      "feed_round": {
+        "timestamp": 1000,
+        "heartbeat_seconds": 3600
+      },
+      "current_time": 2000,
+      "sequencer_uptime": {
+        "is_up": true
+      },
+      "underlying_market_state": {
+        "is_halted": false
+      }
+    }
+  },
+  "rhc-bold-finality-classification": {
+    "art-59-settlement-asset-finality-classifier": {},
+    "art-321-rhc-bold-finality-classifier": {
+      "l2_inclusion_timestamp": 100,
+      "batch_posted_to_l1": true,
+      "assertion_created": true,
+      "assertion_created_timestamp": 1000,
+      "current_time": 701000,
+      "finality_claim": "final"
+    }
+  },
+  "rhc-ap-redemption-stress": {
+    "art-322-rhc-ap-redemption-stress": {
+      "authorised_participants": [
+        {
+          "name": "BBVI",
+          "active": true
+        }
+      ],
+      "secondary_market_depth": {
+        "daily_volume_usd": 50000,
+        "bid_ask_spread_bps": 20
+      },
+      "issuer_credit": {
+        "obligor": "RHJ",
+        "rating_available": false
+      }
+    }
   }
 }
