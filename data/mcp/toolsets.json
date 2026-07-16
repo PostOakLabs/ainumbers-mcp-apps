@@ -82,7 +82,8 @@
       "compute_multilateral_netting",
       "test_hedge_effectiveness",
       "build_einvoice_transmission_receipt",
-      "build_pld_disclosure_pack"
+      "build_pld_disclosure_pack",
+      "compute_xirr"
     ],
     "ai-act": [
       "check_agent_attestation",
@@ -108,5 +109,5 @@
       "build_traiga_safe_harbor_pack"
     ]
   },
-  "generated_at": "2026-07-16T14:00:04.947Z"
+  "generated_at": "2026-07-16T19:59:10.940Z"
 }
