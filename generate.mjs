@@ -88,7 +88,6 @@ const counts = {
   catalog_tools: (catJson.tools ?? []).length,
   named_chains: cgChains.length,
   mcp_tools_total: mcpToolsTotal,
-  generated_at: new Date().toISOString(),
 };
 writeFileSync(resolve(DATA,'counts.json'), JSON.stringify(counts, null, 2) + '\n');
 
@@ -98,7 +97,6 @@ const siteMcpCounts = {
   pilot_widgets: PILOT.length,
   utility_tools: UTIL_TOOL_COUNT,
   _note: 'Updated by mcp-apps-poc/generate.mjs — run after changing pilot.mjs and commit both files. Utility count includes find_chain + find_tool (discovery layer).',
-  generated_at: counts.generated_at,
 };
 try {
   writeFileSync(resolve(REPO, 'data', 'mcp-counts.json'), JSON.stringify(siteMcpCounts, null, 2) + '\n');
@@ -246,7 +244,6 @@ for (const [profile, keywords] of Object.entries(PROFILE_KEYWORDS)) {
 writeFileSync(resolve(DATA, 'mcp', 'toolsets.json'), JSON.stringify({
   rule: 'substring keyword match of PROFILE_KEYWORDS against lowercased "mcp_name display_name description tool_id" — see generate.mjs',
   profiles: toolsetProfiles,
-  generated_at: counts.generated_at,
 }, null, 2) + '\n');
 console.log('toolset profiles:', Object.fromEntries(Object.entries(toolsetProfiles).map(([k, v]) => [k, v.length])));
 
