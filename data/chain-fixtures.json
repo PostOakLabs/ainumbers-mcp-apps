@@ -4610,5 +4610,10 @@
       "hash_algorithm": "sha256",
       "document_type": "contract"
     }
+  },
+  "genius-listing-acceptance-pack": {
+    "art-06-genius-act-reserve-attestation": {},
+    "art-275-genius-reserve-disclosure-checker": {},
+    "art-287-revocation-status-verifier": {}
   }
 }
