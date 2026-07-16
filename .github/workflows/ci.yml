@@ -255,7 +255,10 @@ jobs:
         uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '22'
-          cache: 'npm'
+          # No cache: 'npm' here — this job holds CLOUDFLARE_API_TOKEN/
+          # CLOUDFLARE_ACCOUNT_ID, and a restored npm cache is an untrusted-write
+          # surface (zizmor: cache-poisoning). The validate job's npm cache is fine
+          # (no paid secrets there); this deploy job installs clean every run.
 
       - name: 📦 Install dependencies
         run: npm ci
