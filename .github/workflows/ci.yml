@@ -122,7 +122,6 @@ jobs:
         with:
           repository: PostOakLabs/ainumbers
           path: _site
-          persist-credentials: false
           fetch-depth: 1
           persist-credentials: false
 
