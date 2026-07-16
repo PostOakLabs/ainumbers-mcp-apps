@@ -4753,5 +4753,21 @@
         "rating_available": false
       }
     }
+  },
+  "rhc-fit": {
+    "art-323-rhc-fit-diagnostic": {
+      "q1_holds_or_custodies_stock_tokens": "no",
+      "q2_tracks_corporate_actions": "no",
+      "q3_computes_usd_valuation": "no",
+      "q4_accepts_stock_tokens_as_collateral": "no",
+      "q5_needs_staleness_halt_checks": "no",
+      "q6_off_hours_settlement_exposure": "no",
+      "q7_builds_index_or_basket_product": "no",
+      "q8_needs_regulatory_characterization": "no",
+      "q9_assumed_mica_genius_applies": "no",
+      "q10_asserts_settlement_finality": "yes",
+      "q11_relies_on_redemption_reachability": "yes",
+      "q12_automates_settlement_decisions": "yes"
+    }
   }
 }
