@@ -10,15 +10,17 @@ jobs:
   validate:
     name: Validate MCP server
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 1
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.0.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -115,7 +117,7 @@ jobs:
 
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           repository: PostOakLabs/ainumbers
           path: _site
@@ -237,13 +239,15 @@ jobs:
     needs: validate           # only deploys if the validate job above passes
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: 🟢 Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.0.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -252,7 +256,7 @@ jobs:
         run: npm ci
 
       - name: 🚀 Deploy worker
-        uses: cloudflare/wrangler-action@v4
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
