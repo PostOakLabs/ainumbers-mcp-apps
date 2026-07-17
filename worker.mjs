@@ -13,6 +13,7 @@ import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
+import { validateDefinition as checklistValidateDefinition, definitionDigest as checklistDefinitionDigest, buildStepReceipt as checklistBuildStepReceipt, verifyRun as checklistVerifyRun } from './checkrun.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
@@ -2178,6 +2179,86 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     } catch (e) {
       return { isError: true, content: [{ type: 'text', text: 'Malformed sd_jwt: ' + (e?.message ?? String(e)) }] };
     }
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  // -------------------------------------------------------------------------
+  // Checklist / SOP runner (CHECKRUN-1 CR-4) -- headless agent parity with the
+  // browser Definition Builder / Run Executor / Run Verifier (chaingraph/checklist-*.html).
+  // Same algorithm as chaingraph/kernels/_checklist.mjs, ported to checkrun.mjs, importing
+  // the SAME vendored kernels/_hash.mjs canonicalizer -- receipt shapes are byte-identical
+  // to the browser tools' output for the same inputs. No server state: every call is a
+  // pure function over what the caller supplies; nothing is persisted between calls.
+  // -------------------------------------------------------------------------
+  server.registerTool('checklist_validate_definition', {
+    title: 'Validate a checklist/SOP definition',
+    description:
+      'Validates a checklist or SOP definition JSON against the CHECKRUN-1 schema (definition_id, title, ' +
+      'semver version, non-empty steps[] each with step_id/title/instruction/evidence_requirement ' +
+      '(none|text|file-digest|attestation)/gate (blocking|advisory)). Returns valid:true/false plus a ' +
+      'field-by-field error list. Pair with checklist_step_receipt to run the definition headlessly.',
+    inputSchema: {
+      definition: z.record(z.any()).describe('The checklist/SOP definition object to validate.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ definition }) => {
+    const result = checklistValidateDefinition(definition);
+    if (result.valid) {
+      const definition_digest = await checklistDefinitionDigest(definition);
+      const out = { ...result, definition_digest };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('checklist_step_receipt', {
+    title: 'Mint a hash-chained checklist step receipt',
+    description:
+      'Completes ONE step of a checklist/SOP run and returns its OCG v0.4 step receipt: execution_hash ' +
+      'chains to prev_step_receipt_digest (pass the previous step\'s execution_hash, or omit for step 0). ' +
+      'A blocking-gate step with evidence_requirement != "none" and no evidence supplied is refused ' +
+      '(the caller enforces step order; this tool enforces the evidence requirement per step). ' +
+      'Call once per step in order, then pass the full ordered list of returned receipts to ' +
+      'checklist_verify_run to check the chain and mint the run receipt.',
+    inputSchema: {
+      definition_digest: z.string().describe('The definition_digest from checklist_validate_definition.'),
+      step: z.object({
+        step_id: z.string().describe('The step\'s unique id within the definition, e.g. "s1".'),
+        title: z.string().describe('Human-readable step title.'),
+        instruction: z.string().optional().describe('The step\'s instruction text (for the receipt narrative; not hashed separately from the step object).'),
+        evidence_requirement: z.enum(['none', 'text', 'file-digest', 'attestation']).describe('What evidence this step requires before it can be completed.'),
+        approver_role: z.string().optional().describe('Role required to approve this step, if any.'),
+        gate: z.enum(['blocking', 'advisory']).describe('Whether this step blocks the next step until completed (blocking) or can be skipped (advisory).'),
+      }).describe('The step object from the definition\'s steps[] array being completed.'),
+      step_index: z.number().int().min(0).describe('Zero-based index of this step in the definition.'),
+      timestamp: z.string().describe('ISO 8601 completion timestamp (caller-supplied for determinism).'),
+      completer_key: z.string().optional().describe('Identifier of who/what completed the step (e.g. an agent id). Never real PII.'),
+      evidence: z.record(z.any()).optional().describe('Evidence payload, e.g. { text_digest }, { file_sha256 }, or { attestation_digest }. Required unless evidence_requirement is "none".'),
+      prev_step_receipt_digest: z.string().optional().describe('execution_hash of the previous step\'s receipt. Omit for the first step in the run.'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ definition_digest, step, step_index, timestamp, completer_key, evidence, prev_step_receipt_digest }) => {
+    if (step.gate === 'blocking' && step.evidence_requirement !== 'none' && !evidence) {
+      return { isError: true, content: [{ type: 'text', text: `Step "${step.step_id}" is a blocking gate requiring ${step.evidence_requirement} evidence; none was supplied.` }] };
+    }
+    const receipt = await checklistBuildStepReceipt({ definition_digest, step, step_index, completer_key, timestamp, evidence, prev_step_receipt_digest });
+    return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
+  });
+
+  server.registerTool('checklist_verify_run', {
+    title: 'Verify a checklist run\'s hash chain and Merkle root',
+    description:
+      'Recomputes and checks a checklist run: every step receipt\'s execution_hash, the hash-chain link ' +
+      'between consecutive steps, and (if a run_receipt is supplied) the §20.1 RFC 6962 Merkle root over ' +
+      'every step. Returns valid:true/false, per-step ok/hash_ok/link_ok, and broken_at (the zero-based ' +
+      'index of the first broken step, or null). Same recompute a human gets from the browser Run Verifier.',
+    inputSchema: {
+      step_receipts: z.array(z.record(z.any())).min(1).describe('Ordered array of step receipts, as returned by checklist_step_receipt.'),
+      run_receipt: z.record(z.any()).optional().describe('The run receipt to check the Merkle root and its own execution_hash against. Omit to check only the step chain.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ step_receipts, run_receipt }) => {
+    const result = await checklistVerifyRun({ runReceipt: run_receipt ?? null, stepReceipts: step_receipts });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
