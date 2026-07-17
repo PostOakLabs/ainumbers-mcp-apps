@@ -12,6 +12,7 @@ import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
+import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
@@ -2094,6 +2095,90 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       content: [{ type: 'text', text: JSON.stringify(out, null, 2) }],
       structuredContent: { query, result_count: out.length, tools: out },
     };
+  });
+
+  // -------------------------------------------------------------------------
+  // vc_issue / sdjwt_issue / sdjwt_present (CREDWORK-1 CW-3) -- credential workbench MCP mirrors.
+  // Same eddsa-jcs-2022 / did:key / RFC 9901 SD-JWT machinery as tools/544-vc2-issuance-composer.html
+  // and tools/545-sdjwt-disclosure-workbench.html (credwork.mjs). Deterministic EXCEPT the signing
+  // key: each call generates a fresh ephemeral Ed25519 keypair (§16.2 default-off posture — nothing
+  // persists across calls; a caller wanting a stable issuer identity must anchor the returned
+  // did:key externally). Not identity assurance on their own — see the credential workbench guide.
+  // -------------------------------------------------------------------------
+  server.registerTool('vc_issue', {
+    title: 'Issue a signed W3C Verifiable Credential 2.0',
+    description:
+      'Composes and signs a W3C Verifiable Credential 2.0 with an eddsa-jcs-2022 Data Integrity proof ' +
+      'over a fresh ephemeral did:key (generated per call, not reused). Returns the signed credential, ' +
+      'an OCG Standard §23 vc-2.0 input-attestation block ready to embed in a ChainGraph chain\'s ' +
+      'policy_parameters at the given pointer, and an OCG receipt of the issuance activity. ' +
+      'The signature proves the claims were not altered after signing and that the did:key holder ' +
+      'produced it -- it is not, by itself, identity assurance.',
+    inputSchema: {
+      claims: z.record(z.any()).describe('Claim key-value pairs for credentialSubject (required, at least one entry).'),
+      subject_id: z.string().optional().describe('Credential subject id (DID or any identifier string). Default: "did:example:subject".'),
+      credential_type: z.string().optional().describe('Type appended to VerifiableCredential (e.g. "MembershipCredential").'),
+      valid_from: z.string().optional().describe('ISO 8601 validFrom. Default: now.'),
+      valid_until: z.string().optional().describe('ISO 8601 validUntil.'),
+      pointer: z.string().optional().describe('RFC 6901 JSON pointer where the attestation\'s claims sit in a consuming chain\'s policy_parameters. Default: "/subject_claims".'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ claims, subject_id, credential_type, valid_from, valid_until, pointer }) => {
+    if (!claims || typeof claims !== 'object' || Array.isArray(claims) || Object.keys(claims).length === 0) {
+      return { isError: true, content: [{ type: 'text', text: 'claims must be a non-empty object of key-value pairs.' }] };
+    }
+    const result = await issueVc({ subject_id, credential_type, claims, valid_from, valid_until, pointer });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('sdjwt_issue', {
+    title: 'Issue a Selective Disclosure JWT (RFC 9901)',
+    description:
+      'Issues a Selective Disclosure JWT (RFC 9901) from a claims object, marking selected top-level ' +
+      'claim keys as selectively disclosable via salted-hash digests in the _sd array. Signed EdDSA ' +
+      'over a fresh ephemeral did:key (generated per call, not reused). Pair with sdjwt_present to ' +
+      'build a redacted presentation from the returned sd_jwt.',
+    inputSchema: {
+      claims: z.record(z.any()).describe('Claim key-value pairs to issue (required, at least one entry).'),
+      selective_keys: z.array(z.string()).optional().describe('Top-level claim keys marked selectively disclosable. Keys not listed stay always-disclosed cleartext.'),
+      subject: z.string().optional().describe('sub claim. Default: "subject-001".'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ claims, selective_keys, subject }) => {
+    if (!claims || typeof claims !== 'object' || Array.isArray(claims) || Object.keys(claims).length === 0) {
+      return { isError: true, content: [{ type: 'text', text: 'claims must be a non-empty object of key-value pairs.' }] };
+    }
+    const result = await issueSdJwt({ claims, selective_keys, subject });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('sdjwt_present', {
+    title: 'Present a redacted Selective Disclosure JWT',
+    description:
+      'Builds a redacted presentation from an existing SD-JWT (as returned by sdjwt_issue), keeping only ' +
+      'the listed disclosures. Pass aud to add a KB-JWT holder-binding (a fresh ephemeral holder key is ' +
+      'generated per call). Pass issuer_did (the sd_jwt\'s "issuer" field) to also verify the JWS and ' +
+      'return the verifier_view -- exactly the claim set a relying party would resolve -- plus an OCG ' +
+      'receipt of the presentation activity.',
+    inputSchema: {
+      sd_jwt: z.string().describe('An SD-JWT string with all disclosures attached, as returned by sdjwt_issue.'),
+      keep_keys: z.array(z.string()).optional().describe('Disclosure keys to keep in the presentation. Default: none (all disclosures redacted).'),
+      issuer_did: z.string().optional().describe('The sd_jwt\'s issuer did:key, to verify the JWS and populate verifier_view + receipt.'),
+      aud: z.string().optional().describe('KB-JWT audience. Supplying this adds a holder-binding KB-JWT to the presentation.'),
+      nonce: z.string().optional().describe('KB-JWT nonce. Auto-generated if aud is set and this is omitted.'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ sd_jwt, keep_keys, issuer_did, aud, nonce }) => {
+    if (!sd_jwt || typeof sd_jwt !== 'string') {
+      return { isError: true, content: [{ type: 'text', text: 'sd_jwt must be a non-empty string.' }] };
+    }
+    let result;
+    try {
+      result = await presentSdJwtTool({ sd_jwt, keep_keys, issuer_did, aud, nonce });
+    } catch (e) {
+      return { isError: true, content: [{ type: 'text', text: 'Malformed sd_jwt: ' + (e?.message ?? String(e)) }] };
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
   // -------------------------------------------------------------------------
