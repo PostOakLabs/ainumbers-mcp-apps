@@ -1,0 +1,95 @@
+name: Vendor Freshness (scheduled)
+
+# OF-4: closes the SITE-merge half-land gap. `check-vendor-fresh.mjs` in ci.yml only
+# runs on THIS repo's own push/PR — a site merge that touches chaingraph.json/kernels
+# with no follow-on vendor land degrades silently (the `-32602 not found` class of bug).
+# This job runs the SAME script (zero-dep: node:fs/path/child_process only, no npm
+# install needed) on a schedule, independent of any worker push, so a stale vendor is
+# caught within one cron cycle instead of waiting for someone to notice a live failure.
+#
+# This CANNOT block the already-merged site push (nothing to block by the time this
+# runs) — it only raises: a failing scheduled run + a tracking issue. Master's deploy
+# gate (ci.yml validate → deploy) is unchanged and stays the real enforcement point for
+# the worker's OWN pushes.
+#
+# GITHUB_EVENT_NAME on a schedule trigger is "schedule", not "pull_request", so
+# check-vendor-fresh.mjs takes its STRICT path (fails immediately on divergence,
+# no "ahead"/paired-PR tolerance) — correct here since there is no in-flight PR to wait on.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours — the freshness window (N) for this gate
+  workflow_dispatch: {}      # manual trigger for seeding/verifying the gate
+
+permissions:
+  contents: read
+
+jobs:
+  check-freshness:
+    name: Compare vendored data/ vs site main
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 📥 Checkout worker (this repo)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 📥 Checkout site repo (comparison source)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: PostOakLabs/ainumbers
+          path: _site
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '22'
+
+      - name: 🔄 Vendor-freshness — data/ + kernels/ vs site main (strict, scheduled)
+        id: freshness
+        run: node scripts/check-vendor-fresh.mjs
+        env:
+          SITE_REPO: _site
+
+  raise-on-drift:
+    name: Raise a tracking issue on drift
+    needs: check-freshness
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 📥 Checkout worker (this repo)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🚨 Open or update the vendor-drift tracking issue
+        # No new third-party action: gh CLI ships preinstalled on ubuntu-latest runners.
+        # Idempotent — reuses one open issue by title match instead of spamming a new
+        # issue every 6h cycle while the drift persists.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Vendor drift: worker data/ behind site main"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          BODY="Scheduled vendor-freshness check (OF-4) found the worker's vendored \`data/chaingraph.json\` and/or \`kernels/\` diverged from \`PostOakLabs/ainumbers\`main beyond one schedule cycle (6h).
+
+          This means a site merge touched graph shards/chaingraph.json with no follow-on vendor land — the worker is serving a stale catalog.
+
+          **Fix:** in \`mcp-apps-poc/\`, run \`node generate.mjs\`, commit \`data/\` + \`kernels/\`, push (see CONTRACT §A4).
+
+          Failing run: $RUN_URL"
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "Still diverged as of this cycle. $RUN_URL"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+          fi
