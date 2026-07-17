@@ -1253,6 +1253,148 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
+  // DR-4 — Data Room disclosure manifest tools (DATAROOM-1-BUILD-SPEC.md §DR-4). Worker-side
+  // mirror of tools/546-disclosure-manifest-builder.html + tools/547-disclosure-manifest-verifier.html:
+  // SAME leaf scheme (sha256(path|digest|size), duplicate-last-on-odd binary tree) so a manifest
+  // built by either surface verifies on the other. Agent supplies pre-computed digests -- the
+  // worker never sees file bytes (zero-egress doctrine unaffected).
+  async function drSha256Hex(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  async function drLeafHash(e) {
+    return drSha256Hex(e.path + '|' + e.digest + '|' + e.size);
+  }
+  async function drMerkleLevels(entries) {
+    let level = [];
+    for (const e of entries) level.push(await drLeafHash(e));
+    const levels = [level];
+    while (level.length > 1) {
+      const next = [];
+      for (let i = 0; i < level.length; i += 2) {
+        const l = level[i], r = level[i + 1] ?? level[i];
+        next.push(await drSha256Hex(l + r));
+      }
+      level = next;
+      levels.push(level);
+    }
+    return levels;
+  }
+  async function drMerkleRoot(entries) {
+    if (entries.length === 0) return drSha256Hex('EMPTY');
+    const levels = await drMerkleLevels(entries);
+    return levels[levels.length - 1][0];
+  }
+  function drProofForIndex(levels, index) {
+    const proof = [];
+    let idx = index;
+    for (let lv = 0; lv < levels.length - 1; lv++) {
+      const arr = levels[lv];
+      const isRight = idx % 2 === 1;
+      const pairIdx = isRight ? idx - 1 : idx + 1;
+      const sibling = pairIdx < arr.length ? arr[pairIdx] : arr[idx];
+      proof.push({ hash: sibling, dir: isRight ? 'left' : 'right' });
+      idx = Math.floor(idx / 2);
+    }
+    return proof;
+  }
+  async function drApplyProof(leaf, proof) {
+    let h = leaf;
+    for (const p of proof) h = p.dir === 'left' ? await drSha256Hex(p.hash + h) : await drSha256Hex(h + p.hash);
+    return h;
+  }
+
+  server.registerTool('build_disclosure_manifest', {
+    title: 'Build a signed data-room disclosure manifest',
+    description:
+      'Builds a Merkle-rooted disclosure manifest from a caller-supplied digest list (DATAROOM-1-BUILD-SPEC.md ' +
+      '§DR-4) -- the agent hashes files itself and passes {path,size,digest,content_type} entries; the worker ' +
+      'never sees file contents. Same leaf scheme as tools/546-disclosure-manifest-builder.html: ' +
+      'sha256(path|digest|size), duplicate-last-leaf on an odd level. Entries are sorted by path before hashing ' +
+      'so the root is order-independent. Returns the manifest object + merkle_root; sign and anchor it ' +
+      'client-side (or via a separate §16 signing step) if a signed artifact is required.',
+    inputSchema: {
+      room_label: z.string().optional().describe('Label for the disclosure room.'),
+      entries: z.array(z.object({
+        path: z.string(),
+        size: z.number(),
+        digest: z.string().describe('sha256:-prefixed digest of the file, computed by the caller.'),
+        content_type: z.string().optional(),
+      })).describe('List of {path,size,digest,content_type} -- the caller has already hashed each file.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ room_label, entries }) => {
+    if (!Array.isArray(entries) || entries.length === 0) {
+      return { isError: true, content: [{ type: 'text', text: 'entries must be a non-empty array of {path,size,digest,content_type}.' }] };
+    }
+    const bad = entries.find((e) => !e || typeof e.path !== 'string' || typeof e.digest !== 'string');
+    if (bad) {
+      return { isError: true, content: [{ type: 'text', text: 'Each entry needs a string path and digest.' }] };
+    }
+    const sorted = entries.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+    const root = await drMerkleRoot(sorted);
+    const manifest = {
+      schema: 'ainumbers-disclosure-manifest-v1',
+      room_label: room_label || 'Untitled Room',
+      version: 1,
+      prev_manifest_digest: null,
+      generated_at: new Date().toISOString(),
+      entry_count: sorted.length,
+      entries: sorted,
+      merkle_root: 'sha256:' + root,
+      merkle_leaf_scheme: 'sha256(path|digest|size), duplicate-last on odd level',
+    };
+    const out = { manifest, merkle_root: manifest.merkle_root };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  server.registerTool('verify_disclosure_inclusion', {
+    title: 'Verify Merkle inclusion in a disclosure manifest',
+    description:
+      'Proves (or refutes) that a {path,digest} pair was in a disclosure manifest\'s room (DATAROOM-1-BUILD-SPEC.md ' +
+      '§DR-4) -- worker-side mirror of tools/547-disclosure-manifest-verifier.html\'s single-file inclusion check. ' +
+      'Recomputes the manifest\'s Merkle root over its entries[], builds the inclusion proof path for the target ' +
+      'entry, and reapplies it to confirm it reduces to the claimed merkle_root. Absence is only provable against ' +
+      'the exact manifest version passed in.',
+    inputSchema: {
+      manifest: z.record(z.any()).describe('The disclosure manifest to check against (needs entries[] + merkle_root).'),
+      path: z.string().describe('Path of the entry to prove.'),
+      digest: z.string().describe('sha256:-prefixed digest of the file to prove.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ manifest, path, digest }) => {
+    if (!manifest || !Array.isArray(manifest.entries) || !manifest.merkle_root) {
+      return { isError: true, content: [{ type: 'text', text: 'manifest must include entries[] and merkle_root.' }] };
+    }
+    const entries = manifest.entries.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+    const idx = entries.findIndex((e) => e.path === path);
+    if (idx === -1) {
+      const out = {
+        included: false,
+        reason: 'Path "' + path + '" is not present in this manifest (v' + (manifest.version ?? '?') + ').',
+        note: 'Absence is only provable against the manifest version actually passed in -- confirm it is the correct/latest one before treating this as evidence of non-disclosure.',
+      };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+    const digest_matches = entries[idx].digest === digest;
+    const levels = await drMerkleLevels(entries);
+    const proof = drProofForIndex(levels, idx);
+    const leaf = await drLeafHash(entries[idx]);
+    const computed_root = 'sha256:' + await drApplyProof(leaf, proof);
+    const root_matches = computed_root === manifest.merkle_root;
+    const included = digest_matches && root_matches;
+    const out = {
+      included,
+      digest_matches,
+      root_matches,
+      proof_depth: proof.length,
+      computed_root,
+      manifest_root: manifest.merkle_root,
+      reason: included ? null : (digest_matches ? 'digest matches but the Merkle path failed to reduce to merkle_root' : 'digest mismatch: file was modified since disclosure'),
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
   // Index chaingraph.json nodes for build_chaingraph.
   const cgNodes = chaingraph?.nodes ?? [];
   const cgById = {};
@@ -2690,6 +2832,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
+    'build_disclosure_manifest', 'verify_disclosure_inclusion',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
