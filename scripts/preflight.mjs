@@ -81,7 +81,11 @@ let failed = 0, skipped = 0;
 for (const g of gates) {
   if (g.needsSite && !siteOk) { console.log(`⏭  ${g.name} — skipped (no site repo)`); skipped++; continue; }
   process.stdout.write(`▶ ${g.name} … `);
-  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...CLEAN_ENV, ...(g.env || {}) }, encoding: 'utf8' });
+  // On Windows, `npx` is a .cmd shim — spawnSync can't exec a .cmd directly (tried: ENOENT with the
+  // bare name, EINVAL even with the resolved "npx.cmd" path) without going through a shell. Gate
+  // args are static repo config, never user input, so shell:true here carries no injection risk.
+  // Linux CI is unaffected — shell defaults false there regardless.
+  const r = spawnSync(g.cmd || 'node', g.args, { cwd: ROOT, env: { ...CLEAN_ENV, ...(g.env || {}) }, encoding: 'utf8', shell: process.platform === 'win32' });
   const out = (r.stdout || '') + (r.stderr || '');
   if (r.status === 0) {
     console.log('✓');
