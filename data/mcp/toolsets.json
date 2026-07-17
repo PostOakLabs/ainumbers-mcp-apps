@@ -45,7 +45,8 @@
       "compute_scra_rate_cap",
       "test_hoepa_high_cost",
       "test_hpml_escrow",
-      "test_bifsg_bias_thresholds"
+      "test_bifsg_bias_thresholds",
+      "compute_ltv_ratios"
     ],
     "emir": [
       "run_t1_readiness_diagnostic",
