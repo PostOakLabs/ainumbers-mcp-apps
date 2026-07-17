@@ -14,6 +14,7 @@ import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget,
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
 import { validateDefinition as checklistValidateDefinition, definitionDigest as checklistDefinitionDigest, buildStepReceipt as checklistBuildStepReceipt, verifyRun as checklistVerifyRun } from './checkrun.mjs';
+import { recordChainRunAsLinks } from './intoto.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
@@ -2260,6 +2261,29 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   }, async ({ step_receipts, run_receipt }) => {
     const result = await checklistVerifyRun({ runReceipt: run_receipt ?? null, stepReceipts: step_receipts });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('intoto_record_chain_run', {
+    title: 'Record a ChainGraph chain run as in-toto links',
+    description:
+      'Wraps the result of a run_chain call (server/auto compute mode) as standard in-toto links, one per ' +
+      'successfully-executed step, plus a generated in-toto layout matching the chain\'s linear topology ' +
+      '(each step MATCHes the previous step\'s product). Materials/products are keyed by the step\'s ' +
+      'execution_hash; byproducts carries the raw execution_hash. All links and the layout are DSSE-signed ' +
+      'with one ephemeral Ed25519 keypair scoped to this call (never persisted) — first shipping instance of ' +
+      '"in-toto for MCP" per the 2026 research gap survey. Verify the bundle offline with the in-toto Link ' +
+      'Builder & Verifier (chaingraph/intoto-link-builder.html verify tab) or a reference implementation. ' +
+      'Steps that did not run (input_required, skipped_by_gate, gpu_browser_only, etc.) are listed in ' +
+      'skipped[] rather than silently omitted.',
+    inputSchema: {
+      run_chain_result: z.record(z.any()).describe('The structuredContent object returned by run_chain (must include chain and steps[]).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ run_chain_result }) => {
+    let bundle;
+    try { bundle = await recordChainRunAsLinks(run_chain_result); }
+    catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
+    return { content: [{ type: 'text', text: JSON.stringify(bundle, null, 2) }], structuredContent: bundle };
   });
 
   // -------------------------------------------------------------------------

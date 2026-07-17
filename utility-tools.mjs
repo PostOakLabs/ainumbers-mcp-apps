@@ -28,6 +28,7 @@ export const UTILITY_TOOL_NAMES = [
   'checklist_validate_definition',
   'checklist_step_receipt',
   'checklist_verify_run',
+  'intoto_record_chain_run',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;
