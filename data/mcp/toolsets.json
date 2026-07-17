@@ -2,15 +2,13 @@
   "rule": "substring keyword match of PROFILE_KEYWORDS against lowercased \"mcp_name display_name description tool_id\" — see generate.mjs",
   "profiles": {
     "reserve": [
+      "check_cash_leg_finality",
       "precheck_reserve_attestation",
-      "simulate_stablecoin_reserve",
-      "verify_anchored_extract",
       "validate_tempo_token_compliance",
       "lint_arc_xreserve_config",
       "run_tokenized_settlement_fit",
       "validate_deposit_token_compliance",
       "classify_settlement_asset_finality",
-      "check_cash_leg_finality",
       "classify_blockchain_quantum_risk",
       "run_mica_casp_fit",
       "scope_mica_token_and_service",
@@ -23,7 +21,9 @@
       "compile_work_mandate",
       "check_genius_reserve_disclosure",
       "verify_reserve_proof",
-      "score_agent_insurability_evidence"
+      "verify_anchored_extract",
+      "score_agent_insurability_evidence",
+      "simulate_stablecoin_reserve"
     ],
     "mortgage": [
       "aggregate_cbam_precursor_emissions",
@@ -62,10 +62,7 @@
       "run_emir_reporting_fit"
     ],
     "anchors": [
-      "verify_merkle_batch",
       "build_agent_traffic_policy",
-      "verify_did_webvh_log",
-      "verify_anchored_extract",
       "classify_agentic_ai_risk",
       "build_product_lineage",
       "anchor_document_integrity",
@@ -82,16 +79,16 @@
       "compute_parametric_trigger_payout",
       "compute_multilateral_netting",
       "test_hedge_effectiveness",
+      "verify_did_webvh_log",
+      "verify_anchored_extract",
       "build_einvoice_transmission_receipt",
       "build_pld_disclosure_pack",
-      "compute_xirr"
+      "compute_xirr",
+      "verify_merkle_batch"
     ],
     "ai-act": [
       "check_agent_attestation",
       "assess_ai_act_conformity",
-      "detect_transaction_anomalies",
-      "score_credit_default_risk",
-      "aggregate_execution_receipts",
       "run_ai_act_highrisk_fit",
       "build_ai_conformity_pack",
       "build_fria_monitoring_plan",
@@ -107,7 +104,10 @@
       "classify_annex3_decisioning_obligations",
       "build_pld_disclosure_pack",
       "assess_traiga_exposure",
-      "build_traiga_safe_harbor_pack"
+      "build_traiga_safe_harbor_pack",
+      "aggregate_execution_receipts",
+      "detect_transaction_anomalies",
+      "score_credit_default_risk"
     ]
   }
 }
