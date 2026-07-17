@@ -248,6 +248,7 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
+          fetch-depth: 2   # need HEAD^ to diff newly-vendored nodes (scripts/diff-new-nodes.mjs)
           persist-credentials: false
 
       - name: 🟢 Setup Node
@@ -281,6 +282,15 @@ jobs:
         # A failure here turns the deploy red immediately; roll back in Cloudflare.
         run: node scripts/smoke-mcp.mjs
 
+      - name: 🆕 Detect nodes vendored this push
+        id: newnodes
+        run: |
+          NEW=$(node scripts/diff-new-nodes.mjs)
+          echo "names=$NEW" >> "$GITHUB_OUTPUT"
+          echo "New nodes this push: ${NEW:-none}"
+        env:
+          CHAINGRAPH: ${{ github.workspace }}/data/chaingraph/chaingraph.json
+
       - name: Hash-sweep (every live gpu:false node returns a valid hash)
         run: node scripts/hash-sweep.mjs
         env:
@@ -288,6 +298,7 @@ jobs:
           CHAINGRAPH: ${{ github.workspace }}/data/chaingraph/chaingraph.json
           KERNELS_DIR: ${{ github.workspace }}/kernels
           THROTTLE_MS: '1500'
+          NEW_NODE_NAMES: ${{ steps.newnodes.outputs.names }}
 
       - name: Verify MCP tool registration (live tools/list)
         run: node scripts/verify-mcp-registered.mjs --all
