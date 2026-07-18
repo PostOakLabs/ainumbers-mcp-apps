@@ -931,10 +931,15 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         .filter((c) => (c.steps ?? []).some((s) => s.tool_id === toolId))
         .map((c) => ({ relation: 'step-of', chain_name: c.name, title: c.title, composer_url: c.composer_url }));
 
+    // §M1.5-style cache metadata (RC final-spec preview, STANDARDS-DECISIONS-2026-07-18 D1):
+    // ttlMs/cacheScope on resource list + read results, HTTP-cache-modeled. tool:// descriptors
+    // can gain a new chain membership as chains ship, so a moderate TTL; shared scope because the
+    // response carries zero per-caller data (same read surface for every agent).
+    const TOOL_TTL_MS = 21600000; // 6h
     server.registerResource(
       'tool',
       new ResourceTemplate('tool://{mcp_name}', { list: undefined }),
-      { title: 'AINumbers tool/kernel descriptor', description: 'Resolves an MCP tool name to its ChainGraph tool/kernel descriptor plus typed links to the chains it composes.', mimeType: 'application/json' },
+      { title: 'AINumbers tool/kernel descriptor', description: 'Resolves an MCP tool name to its ChainGraph tool/kernel descriptor plus typed links to the chains it composes.', mimeType: 'application/json', _meta: { ttlMs: TOOL_TTL_MS, cacheScope: 'shared' } },
       async (uri, { mcp_name }) => {
         const name = Array.isArray(mcp_name) ? mcp_name[0] : mcp_name;
         const descriptor = toolDescriptor(name);
@@ -943,7 +948,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           ...chainsContaining(descriptor.tool_id),
           { relation: 'verified-by', uri: 'tool://verify_execution_hash', description: 'Independently recompute and match any artifact this tool produces.' },
         ];
-        return { contents: [{ uri: uri.toString(), mimeType: 'application/json', text: JSON.stringify({ ...descriptor, links }, null, 2) }] };
+        return {
+          contents: [{ uri: uri.toString(), mimeType: 'application/json', text: JSON.stringify({ ...descriptor, links }, null, 2), _meta: { ttlMs: TOOL_TTL_MS, cacheScope: 'shared' } }],
+        };
       },
     );
 
@@ -957,10 +964,14 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // fully conformant: this template is registered (advertised via resources/templates/list, so
     // agents can discover the addressing convention) and every read honestly 404s until a
     // server-side receipt store is authorized and built (flagged, not invented unilaterally here).
+    // Receipts are content-addressed and immutable (the §4 hash IS the address -- a successful
+    // resolve can never change), so the longest sane TTL + shared scope is the correct cache
+    // contract from day one, even while every read still 404s (STANDARDS-DECISIONS-2026-07-18 D1).
+    const RECEIPT_TTL_MS = 31536000000; // 365d -- immutable content-addressed artifact
     server.registerResource(
       'receipt',
       new ResourceTemplate('receipt://{execution_hash}', { list: undefined }),
-      { title: 'ChainGraph receipt by execution_hash', description: 'Resolves a §4 execution_hash to its verified artifact per SPEC.md §HASHRES-1 (recompute-and-match or 404, never a fabricated stub).', mimeType: 'application/json' },
+      { title: 'ChainGraph receipt by execution_hash', description: 'Resolves a §4 execution_hash to its verified artifact per SPEC.md §HASHRES-1 (recompute-and-match or 404, never a fabricated stub).', mimeType: 'application/json', _meta: { ttlMs: RECEIPT_TTL_MS, cacheScope: 'shared' } },
       async (_uri, { execution_hash }) => {
         const hash = Array.isArray(execution_hash) ? execution_hash[0] : execution_hash;
         throw new McpError(ErrorCode.InvalidParams, `receipt not found: ${hash} (no server-side HASHRES store is deployed yet -- see SPEC.md §HASHRES-1.2)`);
