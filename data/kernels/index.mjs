@@ -297,7 +297,16 @@ import * as art355    from './art-355-erba-standardized-rwa-calculator.kernel.mj
 import * as art356    from './art-356-compute-oprisk-sma-2026.kernel.mjs';
 import * as art357    from './art-357-basel-2023-vs-2026-capital-delta-comparator.kernel.mjs';
 import * as art358    from './art-358-simulate-output-floor.kernel.mjs';
+import * as art359    from './art-359-idv-session-receipt-builder.kernel.mjs';
 import * as art36     from './art-36-tempo-mpp-agent-mandate.kernel.mjs';
+import * as art361    from './art-361-camera-provenance-check.kernel.mjs';
+import * as art362    from './art-362-compute-raroc-loan-price.kernel.mjs';
+import * as art363    from './art-363-compute-dscr.kernel.mjs';
+import * as art364    from './art-364-compute-lcr-nsfr-leverage.kernel.mjs';
+import * as art365    from './art-365-compute-globe-topup-tax.kernel.mjs';
+import * as art366    from './art-366-price-embedded-insurance.kernel.mjs';
+import * as art367    from './art-367-compute-cross-border-fees.kernel.mjs';
+import * as art368    from './art-368-compute-fx-netting-positions.kernel.mjs';
 import * as art37     from './art-37-tempo-stablecoin-issuance.kernel.mjs';
 import * as art38     from './art-38-tempo-onchain-aml.kernel.mjs';
 import * as art39     from './art-39-tempo-zone-disclosure.kernel.mjs';
@@ -674,7 +683,16 @@ export const KERNELS = {
   'art-356-compute-oprisk-sma-2026':                          art356,
   'art-357-basel-2023-vs-2026-capital-delta-comparator':      art357,
   'art-358-simulate-output-floor':                            art358,
+  'art-359-idv-session-receipt-builder':                      art359,
   'art-36-tempo-mpp-agent-mandate':                           art36,
+  'art-361-camera-provenance-check':                          art361,
+  'art-362-compute-raroc-loan-price':                         art362,
+  'art-363-compute-dscr':                                     art363,
+  'art-364-compute-lcr-nsfr-leverage':                        art364,
+  'art-365-compute-globe-topup-tax':                          art365,
+  'art-366-price-embedded-insurance':                         art366,
+  'art-367-compute-cross-border-fees':                        art367,
+  'art-368-compute-fx-netting-positions':                     art368,
   'art-37-tempo-stablecoin-issuance':                         art37,
   'art-38-tempo-onchain-aml':                                 art38,
   'art-39-tempo-zone-disclosure':                             art39,
