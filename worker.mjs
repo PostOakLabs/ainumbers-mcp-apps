@@ -26,6 +26,7 @@ import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mj
 import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
 import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs';
 import { authzenEvaluateWithReceipt } from './_authzen.mjs';
+import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2516,6 +2517,64 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // Redline diff / verify (RL-3) -- headless agent parity with the browser text
+  // redline workbench + verifier (tools/552-text-redline-workbench.html, RL-1/RL-2).
+  // Same algorithm ported to redline.mjs (same discipline as checkrun.mjs/_checklist.mjs
+  // above) -- byte-identical hunk digests to the browser tool for the same inputs is
+  // what lets an agent's diff receipt (minted here) and a human's hunk/disposition
+  // receipts (minted in the browser) interleave on one document and both verify
+  // end-to-end via redline_verify, regardless of which side minted which receipt.
+  // -------------------------------------------------------------------------
+  server.registerTool('redline_diff', {
+    title: 'Diff an original vs. proposed revision and mint a diff receipt',
+    description:
+      'An agent proposes an edit: diffs original text/markdown against its own revised version and returns ' +
+      'the line-level hunks plus a diff receipt (original/revised digests, diff-algorithm declaration, per-hunk ' +
+      'digests). Byte-identical to what the tools/552 browser workbench computes for the same inputs -- a human ' +
+      'can paste the SAME original/revised text into that workbench, disposition each hunk (accept/reject/comment), ' +
+      'and their resulting hunk/disposition receipts will reference this diff_receipt\'s execution_hash. Pass the ' +
+      'whole bundle (this diff_receipt + the human\'s hunk_receipts + disposition_receipt) to redline_verify to ' +
+      'check the interleaved chain end-to-end.',
+    inputSchema: {
+      original: z.string().describe('Original text or markdown document.'),
+      revised: z.string().describe('Proposed revised text or markdown document.'),
+      generated_at: z.string().optional().describe('ISO 8601 timestamp (caller-supplied for determinism). Defaults to the call time.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ original, revised, generated_at }) => {
+    if (typeof original !== 'string' || typeof revised !== 'string') {
+      return { isError: true, content: [{ type: 'text', text: 'original and revised must both be strings.' }] };
+    }
+    const result = await runAgentDiff({ original, revised, generated_at: generated_at || new Date().toISOString() });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('redline_verify', {
+    title: 'Verify a redline receipt bundle against the original + revised text',
+    description:
+      'Recomputes a redline review from scratch: the diff (from the pasted original+revised text), the ' +
+      'diff_receipt\'s execution_hash, every hunk_receipt\'s digest/execution_hash/chain-link (in the order ' +
+      'supplied -- entries may be minted by an agent, a human, or both interleaved), the disposition_receipt\'s ' +
+      'execution_hash, and the accepted-text digest. Returns valid:true/false, a per-check breakdown, and ' +
+      'broken_hunk (the zero-based index of the first divergence, or null) -- never trusts a bundle claim ' +
+      'without checking it against a fresh recomputation.',
+    inputSchema: {
+      original: z.string().describe('Original text or markdown document.'),
+      revised: z.string().describe('Revised text or markdown document.'),
+      bundle: z.object({
+        diff_receipt: z.record(z.any()).describe('The diff receipt (from redline_diff or the browser workbench).'),
+        hunk_receipts: z.array(z.record(z.any())).describe('Ordered hunk disposition receipts, one per hunk index.'),
+        disposition_receipt: z.record(z.any()).describe('The closing disposition receipt binding the accepted-text digest.'),
+      }).describe('The redline receipt bundle to verify.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ original, revised, bundle }) => {
+    const result = await redlineVerifyBundle(original, revised, bundle);
+    const out = { valid: result.ok, checks: result.checks, broken_hunk: result.brokenHunk, accepted_text_digest: result.accepted_text_digest ?? null };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
   // MCP Prompts — curated human slash-commands (~12 flagship journeys).
   // Chains are agent-reachable via find_chain; these Prompts are for human /slash use.
   // (The 283 auto-derived chain Prompts were removed — they were agent-invisible anyway
@@ -2920,6 +2979,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion',
+    'redline_diff', 'redline_verify',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {

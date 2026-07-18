@@ -31,6 +31,8 @@ export const UTILITY_TOOL_NAMES = [
   'intoto_record_chain_run',
   'build_disclosure_manifest',
   'verify_disclosure_inclusion',
+  'redline_diff',
+  'redline_verify',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;
