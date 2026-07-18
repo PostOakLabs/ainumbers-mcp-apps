@@ -1375,6 +1375,101 @@
       }
     }
   },
+  "basel-take2-impact-assessment": {
+    "art-355-erba-standardized-rwa-calculator": {
+      "rule_set": "2026",
+      "exposures": [
+        {
+          "id": "e1",
+          "category": "residential_re",
+          "exposure_amount": 200000,
+          "ltv": 75
+        },
+        {
+          "id": "e2",
+          "category": "retail_qrre_transactor",
+          "exposure_amount": 5000
+        },
+        {
+          "id": "e3",
+          "category": "corporate",
+          "exposure_amount": 1000000,
+          "external_rating": "BBB"
+        },
+        {
+          "id": "e4",
+          "category": "corporate",
+          "exposure_amount": 500000,
+          "sme": true,
+          "external_rating": "BB"
+        },
+        {
+          "id": "e5",
+          "category": "off_balance",
+          "exposure_amount": 300000,
+          "commitment_type": "unconditionally_cancellable"
+        }
+      ]
+    },
+    "art-356-compute-oprisk-sma-2026": {
+      "ildc_avg": 300000000,
+      "sc_avg": 150000000,
+      "fc_avg": 50000000,
+      "use_us_ilm_neutralization": true
+    },
+    "art-358-simulate-output-floor": {
+      "internal_model_rwa": 800000,
+      "standardized_rwa": 1000000,
+      "phase_in_schedule": [
+        {
+          "year": 2025,
+          "floor_pct": 0.5
+        },
+        {
+          "year": 2026,
+          "floor_pct": 0.55
+        },
+        {
+          "year": 2027,
+          "floor_pct": 0.6
+        },
+        {
+          "year": 2028,
+          "floor_pct": 0.65
+        },
+        {
+          "year": 2029,
+          "floor_pct": 0.7
+        },
+        {
+          "year": 2030,
+          "floor_pct": 0.725
+        }
+      ],
+      "rule_status": "proposed"
+    },
+    "art-357-basel-2023-vs-2026-capital-delta-comparator": {
+      "exposures": [
+        {
+          "asset_class": "residential_mortgage_low_ltv",
+          "amount": 5000000
+        },
+        {
+          "asset_class": "corporate_investment_grade",
+          "amount": 3000000
+        },
+        {
+          "asset_class": "retail_other",
+          "amount": 2000000
+        },
+        {
+          "asset_class": "off_balance_sheet_commitment",
+          "amount": 1000000
+        }
+      ],
+      "business_indicator": 800000
+    }
+  },
   "benefits-nondiscrimination-composer": {
     "art-301-section125-ndt": {
       "nhce_eligible_count": 180,
