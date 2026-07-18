@@ -23,6 +23,7 @@
       "verify_reserve_proof",
       "verify_anchored_extract",
       "score_agent_insurability_evidence",
+      "convert_tempo_fee_amm",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -88,6 +89,8 @@
       "check_etr_control_evidence",
       "build_etr_possession_chain",
       "build_idv_session_receipt",
+      "build_vop_session_receipt",
+      "check_agent_token_scope",
       "verify_merkle_batch"
     ],
     "ai-act": [
