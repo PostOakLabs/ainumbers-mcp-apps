@@ -95,9 +95,14 @@ function reportDrift(label, detail, classify) {
 }
 
 // 1) chaingraph.json — semantic (parsed-JSON) equality, ignores whitespace/key-order-of-file
+// `src` (the site's ASSEMBLED chaingraph.json) is kept in outer scope — section 2 uses its node
+// tool_ids to tell an assembled-but-unvendored kernel (real outage: /mcp advertises it, worker has
+// none) apart from a shard-only kernel (CGSHARD: not yet assembled, not advertised, cannot be
+// reached — see VENDOR-FRESHNESS-CGSHARD-CONFLICT-2026-07-18.md). Only the former is a hard red.
+let src = null;
 try {
   const vend = JSON.parse(readFileSync(join('data', 'chaingraph', 'chaingraph.json'), 'utf8'));
-  const src = JSON.parse(siteRead('chaingraph/chaingraph.json'));
+  src = JSON.parse(siteRead('chaingraph/chaingraph.json'));
   if (JSON.stringify(vend) !== JSON.stringify(src)) {
     fails += reportDrift(
       'data/chaingraph/chaingraph.json',
@@ -107,15 +112,30 @@ try {
   } else console.log('✓ data/chaingraph/chaingraph.json is current');
 } catch (e) { console.error('✗ chaingraph.json compare error:', e.message); fails++; }
 
-// 2) bundled kernels/ (what wrangler imports into the Worker) — every site kernel present + identical
+// 2) bundled kernels/ (what wrangler imports into the Worker) — every ASSEMBLED site kernel present
+// + identical is a HARD RED (the real outage class). A kernel that exists only as an unassembled
+// CGSHARD shard (not in chaingraph.json's nodes[]) is expected to lag the batched assemble+vendor
+// pass — report it as one INFO count line, never a failure.
 try {
   const srcKernels = siteListKernels();
+  // Kernel filename === tool_id + '.kernel.mjs' (uniform across the legacy bare-number and art-NN
+  // naming eras — verified against both live shapes). `src` may be null if section 1 failed to
+  // parse; fall back to treating every kernel as assembled (old strict behavior) rather than
+  // silently downgrading real drift to INFO.
+  const assembledIds = src ? new Set((src.nodes || []).map((n) => n.tool_id)) : null;
+  const isAssembled = (k) => !assembledIds || assembledIds.has(k.replace(/\.kernel\.mjs$/, ''));
+
   let kfail = 0;
+  let shardMissing = 0;
   for (const k of srcKernels) {
     const vp = join('kernels', k);
-    if (!existsSync(vp)) { console.error(`  ${IS_PR ? '⚠' : '✗'} missing vendored kernel: ${k}`); kfail++; continue; }
-    if (norm(readFileSync(vp, 'utf8')) !== norm(siteRead(`chaingraph/kernels/${k}`))) {
-      console.error(`  ${IS_PR ? '⚠' : '✗'} differing vendored kernel: ${k}`); kfail++;
+    const stale = !existsSync(vp) || norm(readFileSync(vp, 'utf8').toString()) !== norm(siteRead(`chaingraph/kernels/${k}`));
+    if (!stale) continue;
+    if (isAssembled(k)) {
+      console.error(`  ${IS_PR ? '⚠' : '✗'} missing/differing vendored kernel: ${k}`);
+      kfail++;
+    } else {
+      shardMissing++;
     }
   }
   if (kfail) {
@@ -124,7 +144,8 @@ try {
       'Worker kernels differ from site main.',
       null,
     );
-  } else console.log(`✓ ${srcKernels.length} bundled kernels current`);
+  } else console.log(`✓ ${srcKernels.length - shardMissing} assembled bundled kernels current`);
+  if (shardMissing) console.log(`INFO: ${shardMissing} shard${shardMissing === 1 ? '' : 's'} awaiting next assemble-land`);
 } catch (e) { console.error('✗ kernel compare error:', e.message); fails++; }
 
 console.log(fails
