@@ -2839,6 +2839,62 @@
       ]
     }
   },
+  "idv-session-evidence": {
+    "art-361-camera-provenance-check": {
+      "manifest_digest": "sha256:9c1185a5c5e9fc54612808977ee8f548b2258d31",
+      "claim_generator": "Pixel Camera App 3.2",
+      "claim": {
+        "format": "image/jpeg",
+        "instanceID": "xmp:iid:1001"
+      },
+      "assertions": [
+        {
+          "label": "c2pa.actions",
+          "actions": [
+            {
+              "action": "c2pa.captured",
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/digitalCapture"
+            }
+          ]
+        },
+        {
+          "label": "c2pa.hash.data"
+        }
+      ],
+      "signature": {
+        "present": true,
+        "alg": "ES256"
+      }
+    },
+    "art-359-idv-session-receipt-builder": {
+      "session_id": "sess-2026-0001",
+      "verifier_id": "vendor-alpha-idv",
+      "verifier_version": "3.2.1",
+      "timestamp": "2026-07-18T09:00:00Z",
+      "capture_chain": {
+        "manifest_digest": "sha256:aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa11aa1"
+      },
+      "injection_detection": {
+        "vendor": "DetectCo",
+        "vendor_version": "1.4.0",
+        "verdict": false,
+        "confidence": 0.97
+      },
+      "liveness": {
+        "method": "active-challenge",
+        "verdict": true,
+        "score": 0.94
+      },
+      "document_check": {
+        "digest": "sha256:bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb22bb2",
+        "verdict": true
+      },
+      "device_signal": {
+        "summary": "consistent-device-fingerprint",
+        "risk_score": 0.05
+      }
+    }
+  },
   "ifrs17-measurement-conformance": {
     "art-177-ifrs17-measurement-model-classifier": {
       "contract": {
