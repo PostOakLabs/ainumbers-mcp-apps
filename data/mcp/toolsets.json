@@ -46,7 +46,8 @@
       "test_hoepa_high_cost",
       "test_hpml_escrow",
       "test_bifsg_bias_thresholds",
-      "compute_ltv_ratios"
+      "compute_ltv_ratios",
+      "compute_rwa_erba_2026"
     ],
     "emir": [
       "run_t1_readiness_diagnostic",
