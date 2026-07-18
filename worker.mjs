@@ -3,8 +3,9 @@
 // Deploy: npx wrangler deploy   (data/ vendored by generate.mjs is served via the ASSETS binding)
 // Test locally: node test-worker.mjs (simulates the Workers env in plain Node)
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
 import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
@@ -890,6 +891,81 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     registerAppResource(server, m.title, uri, {}, async () => ({
       contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: await loadWidget(slug) }],
     }));
+  }
+
+  // ── §N1 receipt-graph MCP Resources (RFC 6570 templates) ───────────────────
+  // Makes the queued HASHRES resolver MCP-native: an agent traverses
+  // `receipt → produced-by → tool:// → related receipts` instead of guessing tool names.
+  // Verify-only, deterministic, zero mutation — resources are read surfaces over
+  // ALREADY-emitted artifacts, never a new execution. Typed-link relation names follow the
+  // GUAC edge taxonomy (github.com/guacsec/guac): produced-by / step-of / composes / verified-by.
+  {
+    // tool:// -- resolves to the tool/kernel descriptor. Built entirely from data already
+    // loaded for this request (manifests + chaingraph.json); no extra subrequest.
+    const toolDescriptor = (mcpName) => {
+      for (const slug of PILOT) {
+        const m = manifests[slug];
+        const name = m.mcp_tool_definition?.name ?? slug.replace(/-/g, '_');
+        if (name === mcpName) {
+          return {
+            mcp_name: name, tool_id: m.tool_id ?? slug, title: m.title, kind: 'pilot-widget',
+            description: m.mcp_tool_definition?.description ?? m.description ?? null,
+            url: BASE_URL + '/tools/' + slug + '.html', status: 'live',
+          };
+        }
+      }
+      const node = (chaingraph?.nodes ?? []).find((n) => n.mcp_name === mcpName);
+      if (node) {
+        return {
+          mcp_name: node.mcp_name, tool_id: node.tool_id, title: node.display_name, kind: 'chaingraph-node',
+          description: node.description ?? null, url: node.url ?? null, status: node.status ?? 'live',
+        };
+      }
+      if (UTILITY_TOOL_NAMES.includes(mcpName)) {
+        return { mcp_name: mcpName, tool_id: mcpName, title: mcpName, kind: 'utility-tool', description: null, url: null, status: 'live' };
+      }
+      return null;
+    };
+    const chainsContaining = (toolId) =>
+      (chaingraph?.chains ?? [])
+        .filter((c) => (c.steps ?? []).some((s) => s.tool_id === toolId))
+        .map((c) => ({ relation: 'step-of', chain_name: c.name, title: c.title, composer_url: c.composer_url }));
+
+    server.registerResource(
+      'tool',
+      new ResourceTemplate('tool://{mcp_name}', { list: undefined }),
+      { title: 'AINumbers tool/kernel descriptor', description: 'Resolves an MCP tool name to its ChainGraph tool/kernel descriptor plus typed links to the chains it composes.', mimeType: 'application/json' },
+      async (uri, { mcp_name }) => {
+        const name = Array.isArray(mcp_name) ? mcp_name[0] : mcp_name;
+        const descriptor = toolDescriptor(name);
+        if (!descriptor) throw new McpError(ErrorCode.InvalidParams, `tool not found: ${name}`);
+        const links = [
+          ...chainsContaining(descriptor.tool_id),
+          { relation: 'verified-by', uri: 'tool://verify_execution_hash', description: 'Independently recompute and match any artifact this tool produces.' },
+        ];
+        return { contents: [{ uri: uri.toString(), mimeType: 'application/json', text: JSON.stringify({ ...descriptor, links }, null, 2) }] };
+      },
+    );
+
+    // receipt:// -- resolves an execution_hash to its stored artifact, reusing the HASHRES
+    // resolution contract (SPEC.md §HASHRES-1: dereference MUST return content whose recomputed
+    // §4 hash equals the address, or MUST return 404 -- never a different value, never a stub).
+    // This worker holds NO server-side artifact store (verified: zero KV/R2/D1 bindings in
+    // wrangler.jsonc) -- the estate's only HASHRES-shaped store today is ledger.ainumbers.co's
+    // per-browser IndexedDB (client-local, not worker-reachable), so there is no second store to
+    // duplicate and nothing to mint here. Per §HASHRES-1.2 a deployment that serves no Ledger is
+    // fully conformant: this template is registered (advertised via resources/templates/list, so
+    // agents can discover the addressing convention) and every read honestly 404s until a
+    // server-side receipt store is authorized and built (flagged, not invented unilaterally here).
+    server.registerResource(
+      'receipt',
+      new ResourceTemplate('receipt://{execution_hash}', { list: undefined }),
+      { title: 'ChainGraph receipt by execution_hash', description: 'Resolves a §4 execution_hash to its verified artifact per SPEC.md §HASHRES-1 (recompute-and-match or 404, never a fabricated stub).', mimeType: 'application/json' },
+      async (_uri, { execution_hash }) => {
+        const hash = Array.isArray(execution_hash) ? execution_hash[0] : execution_hash;
+        throw new McpError(ErrorCode.InvalidParams, `receipt not found: ${hash} (no server-side HASHRES store is deployed yet -- see SPEC.md §HASHRES-1.2)`);
+      },
+    );
   }
 
   server.registerTool('list_ainumbers_tools', {
