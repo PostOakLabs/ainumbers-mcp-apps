@@ -42,6 +42,17 @@ jobs:
         # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
         run: node scripts/check-tool-names.mjs
 
+      - name: 🧪 WASM Deterministic Profile self-test (CHEAPWINS-SPEC.md §CW-1.b)
+        # Proves the gate below actually detects violations (relaxed-SIMD / shared-memory /
+        # atomics), not just that it passes on the already-clean shipped wasm.
+        run: node scripts/check-wasm-deterministic.selftest.mjs
+
+      - name: 🧊 WASM Deterministic Profile gate (CHEAPWINS-SPEC.md §CW-1.b)
+        # Statically walks the shipped quickjs-ng guest wasm's opcode stream and fails the build
+        # if it falls outside the WebAssembly 3.0 Deterministic Profile: no relaxed-SIMD, no
+        # shared memory, no threads/atomics. Guards the determinism claim in SPEC.md §24 DCP.
+        run: node scripts/check-wasm-deterministic.mjs
+
       - name: 📐 Surface-parity gate (discovery layer invariants)
         # Guards the discovery-layer wave invariants:
         # (1) hand-authored Prompts ≤ 15 (target ~12; auto-derive loop removed)
