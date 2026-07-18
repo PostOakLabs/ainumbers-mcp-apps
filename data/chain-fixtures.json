@@ -3633,6 +3633,69 @@
     "art-276-mutual-nda-composer": {},
     "art-277-agreement-acceptance-binder": {}
   },
+  "nav-verification-pack": {
+    "art-373-recompute-fund-nav": {
+      "fund_id": "FUND-STD-01",
+      "valuation_date": "2026-07-18",
+      "base_currency": "USD",
+      "holdings": [
+        {
+          "security_id": "SEC-A",
+          "quantity": 1000,
+          "price": 10.005,
+          "currency": "USD",
+          "fx_rate_to_base": 1
+        },
+        {
+          "security_id": "SEC-B",
+          "quantity": 500,
+          "price": 20.02,
+          "currency": "USD",
+          "fx_rate_to_base": 1
+        }
+      ],
+      "liabilities": [],
+      "shares_outstanding": 15000,
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    },
+    "art-374-test-nav-error-materiality": {
+      "fund_id": "FUND-A",
+      "valuation_date": "2026-07-18",
+      "erroneous_nav_per_share": 10.001,
+      "corrected_nav_per_share": 10
+    },
+    "art-375-compute-fund-expense-ratios": {
+      "fund_id": "FUND-EXP-01",
+      "period_start": "2026-01-01",
+      "period_end": "2026-12-31",
+      "average_net_assets": 100000000,
+      "gross_expense_components": [
+        {
+          "description": "management fee",
+          "principal": 100000000,
+          "annual_rate": 0.0075,
+          "days": 365,
+          "day_count_convention": "actual/365"
+        },
+        {
+          "description": "admin fee",
+          "amount": 150000
+        },
+        {
+          "description": "12b-1 fee",
+          "amount": 100000
+        }
+      ],
+      "waivers": [],
+      "rounding": {
+        "decimal_places": 4,
+        "mode": "half_up"
+      }
+    }
+  },
   "nis2-entity-scope-and-obligations": {
     "art-141-nis2-entity-scope-classifier": {
       "sector_code": "energy",

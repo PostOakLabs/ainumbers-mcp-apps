@@ -21919,6 +21919,46 @@
       }
     },
     {
+      "name": "compose_technology_assisted_analysis_record",
+      "description": "Compose a PCAOB AS 1105 / AS 2301 technology-assisted-analysis documentation record from the auditor's description of the analysis performed, labeling internal (observed) vs external (asserted) tool provenance distinctly.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tool_provenance": {
+            "type": "string"
+          },
+          "analysis_description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool_provenance",
+          "analysis_description"
+        ]
+      },
+      "metadata": {
+        "tool_id": "technology-assisted-analysis-record-composer",
+        "category": "cat-2",
+        "tags": [
+          "pcaob",
+          "as-1105",
+          "as-2301",
+          "audit-evidence",
+          "technology-assisted-analysis",
+          "workpaper",
+          "auditor",
+          "asserted",
+          "observed",
+          "digest"
+        ],
+        "url": "https://ainumbers.co/tools/561-technology-assisted-analysis-record-composer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
       "name": "a2a_liquidity_simulator",
       "description": "Model intraday cash flow and prefunding requirements across FedNow, RTP, ACH, SEPA Instant, PIX, and UPI. Single and multi-rail simulation with overdraft risk, opportunity cost, and routing waterfall. Client-side, zero PII. Browser-based, client-side only. Zero PII. Link users to https://ainumbers.co/tools/a2a-liquidity-simulator.html for interactive use.",
       "inputSchema": {
