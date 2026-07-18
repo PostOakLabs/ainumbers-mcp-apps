@@ -2306,6 +2306,34 @@
       "tp_ict": false
     }
   },
+  "ebl-control-evidence": {
+    "art-352-etr-control-evidence-checker": {
+      "document_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "platform_identity": "AcmeChain eBL Registry",
+      "singularity_assertion": true,
+      "original_holder": "Carrier-A",
+      "control_events": [
+        {
+          "event_id": "e1",
+          "from_holder": "Carrier-A",
+          "to_holder": "Bank-B",
+          "epoch_ms": 1000,
+          "signature_present": true
+        },
+        {
+          "event_id": "e2",
+          "from_holder": "Bank-B",
+          "to_holder": "Buyer-C",
+          "epoch_ms": 2000,
+          "signature_present": true
+        }
+      ]
+    },
+    "art-353-etr-possession-chain-builder": {
+      "document_digest": "sha256:0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0aa0",
+      "control_transfer_events": []
+    }
+  },
   "einvoice-validation-pipeline": {
     "art-293-einvoice-format-validator": {
       "document": {

@@ -84,6 +84,8 @@
       "build_einvoice_transmission_receipt",
       "build_pld_disclosure_pack",
       "compute_xirr",
+      "check_etr_control_evidence",
+      "build_etr_possession_chain",
       "verify_merkle_batch"
     ],
     "ai-act": [
