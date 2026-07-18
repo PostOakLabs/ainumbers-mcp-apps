@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "543 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "550 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
   "generated": "2026-07-18",
-  "tool_count": 543,
+  "tool_count": 550,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -21666,6 +21666,252 @@
           "zero-PII"
         ],
         "url": "https://ainumbers.co/tools/553-vlei-acdc-said-structural-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "edit_workbook_table",
+      "description": "Loads CSV into a cell grid, recalculates formulas (SUM/AVG/MIN/MAX/COUNT/COUNTIF/IF/AND/OR/NOT/ROUND/ABS/CONCAT/LEN/LEFT/RIGHT/TRIM/UPPER/LOWER/SUMIF), and digests a selected range into a manifest fragment for downstream verifiable-compute pipelines.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "csv": {
+            "type": "string",
+            "description": "RFC 4180 CSV text"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "workbook-table-editor",
+        "category": "cat-2",
+        "tags": [
+          "workbook",
+          "spreadsheet",
+          "csv",
+          "formula",
+          "range digest",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/554-workbook-table-editor.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "iso20022_schema_subset_validate",
+      "description": "Validates a pain.001.001.09 or camt.053.001 ISO 20022 XML message against a hand-derived schema-subset table: structural presence, maxLength, pattern facets, IBAN mod-97, BIC format, ISO 4217/3166 code-list membership, and batch-total cross-checks (control sum vs. sum of amounts, transaction count, opening/closing balance reconciliation). Returns a structured error list. Subset validation, not full XSD conformance. Does not generate or transmit live payment messages.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "message_type",
+          "xml"
+        ],
+        "properties": {
+          "message_type": {
+            "type": "string",
+            "enum": [
+              "pain.001.001.09",
+              "camt.053.001.09"
+            ]
+          },
+          "xml": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "555-iso20022-schema-subset-validator",
+        "category": "cat-21",
+        "tags": [
+          "ISO 20022",
+          "pain.001",
+          "camt.053",
+          "schema subset",
+          "IBAN",
+          "BIC",
+          "control sum",
+          "batch validation"
+        ],
+        "url": "https://ainumbers.co/tools/555-iso20022-schema-subset-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "lint_otlp_genai_trace",
+      "description": "Validate an OTLP/JSON trace for structural correctness (resourceSpans/scopeSpans/spans shape, hex trace/span IDs, nanosecond timestamp ordering, parent-span references) and gen_ai attribute conformance against a pinned attribute snapshot. Returns per-span findings and a pass/violation/info summary.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "trace"
+        ],
+        "properties": {
+          "trace": {
+            "type": "object",
+            "description": "OTLP/JSON trace document (resourceSpans root)"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "otlp-genai-span-composer-linter",
+        "category": "mcp",
+        "tags": [
+          "OTLP",
+          "OpenTelemetry",
+          "gen_ai",
+          "semconv",
+          "tracing",
+          "agent-observability",
+          "span",
+          "linter",
+          "composer",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/556-otlp-genai-span-composer-linter.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "check_fips140_exposure",
+      "description": "Flag FIPS 140-2/140-1 validated modules in a pasted certificate inventory against the pinned NIST CMVP Historical-list transition date and summarize procurement exposure. Structural check over declared data only, not a live CMVP scan.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "inventory"
+        ],
+        "properties": {
+          "inventory": {
+            "type": "array",
+            "description": "Array of {module_name, cert_number, standard} rows"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "fips-140-2-exposure-checker",
+        "category": "cat-2",
+        "tags": [
+          "FIPS 140-2",
+          "FIPS 140-3",
+          "CMVP",
+          "NIST",
+          "historical",
+          "procurement",
+          "exposure",
+          "post-quantum",
+          "crypto-agility",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/557-fips-140-2-exposure-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "compose_app_reimbursement_claim_evidence",
+      "description": "Composes a hash-chained, Merkle-rooted APP-fraud reimbursement claim-evidence bundle from a UK PSR (SD20) or EU IPR/PSD3-track checklist definition. Evidence composer only: binds what the PSP asserts, does not adjudicate liability or negligence.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jurisdiction": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "app-reimbursement-claim-evidence-composer",
+        "category": "cat-21",
+        "tags": [
+          "APP fraud",
+          "reimbursement",
+          "VoP",
+          "CoP",
+          "UK PSR",
+          "SD20",
+          "EU IPR",
+          "PSD3",
+          "claim evidence",
+          "checklist",
+          "Merkle receipt"
+        ],
+        "url": "https://ainumbers.co/tools/558-app-reimbursement-claim-evidence-composer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "assess_cop_vop_scheme_readiness",
+      "description": "Scores a PSP's self-declared answers against the EPC VOP Scheme Rulebook (EPC218-23 v1.1) and Pay.UK Confirmation of Payee obligations, including a separately-tracked CoP-enhancement pilot checklist, and returns a gap report. Self-assessment only, not a scheme compliance determination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "psp_role": {
+            "type": "string"
+          },
+          "scheme_scope": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "cop-vop-scheme-readiness-diagnostic",
+        "category": "cat-21",
+        "tags": [
+          "confirmation of payee",
+          "CoP",
+          "CoP 2.0",
+          "verification of payee",
+          "VoP",
+          "EPC",
+          "Pay.UK",
+          "scheme readiness",
+          "self-assessment",
+          "gap analysis"
+        ],
+        "url": "https://ainumbers.co/tools/559-cop-vop-scheme-readiness-diagnostic.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "run_aiuc1_readiness_checkrun",
+      "description": "Runs the 23-step AIUC-1 automatable-control CHECKRUN (pillars A-F, 2026-Q1) and produces a hash-chained, Merkle-rooted readiness bundle prepared for AIUC-1 review.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "control_evidence": {
+            "type": "array",
+            "description": "Per-control attestation notes or sha256 evidence digests"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "aiuc1-readiness-checkrun",
+        "category": "cat-2",
+        "tags": [
+          "aiuc-1",
+          "ai-underwriting",
+          "checkrun",
+          "readiness",
+          "evidence-bundle",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/560-aiuc1-readiness-checkrun.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
