@@ -87,6 +87,7 @@
       "compute_xirr",
       "check_etr_control_evidence",
       "build_etr_possession_chain",
+      "build_idv_session_receipt",
       "verify_merkle_batch"
     ],
     "ai-act": [
