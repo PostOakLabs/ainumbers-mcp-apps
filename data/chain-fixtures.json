@@ -2018,6 +2018,99 @@
       "artifacts": []
     }
   },
+  "collections-compliance-pack": {
+    "art-402-validate-regf-call-frequency": {
+      "inputs": {
+        "timezone_offset_minutes": 0,
+        "calls": [
+          {
+            "timestamp": "2026-07-01T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-02T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-03T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-04T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-05T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-06T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          },
+          {
+            "timestamp": "2026-07-07T09:00:00Z",
+            "debt_id": "DEBT-1",
+            "connected": false
+          }
+        ]
+      }
+    },
+    "art-403-check-debt-validation-notice": {
+      "inputs": {
+        "notice_elements": [
+          {
+            "element": "debt-collector-name",
+            "status": "complete"
+          },
+          {
+            "element": "consumer-name",
+            "status": "complete"
+          },
+          {
+            "element": "account-number-or-reference",
+            "status": "complete"
+          },
+          {
+            "element": "itemization-date",
+            "status": "complete"
+          },
+          {
+            "element": "itemized-current-amount",
+            "status": "complete"
+          },
+          {
+            "element": "itemization-breakdown",
+            "status": "complete"
+          },
+          {
+            "element": "original-creditor-name-if-different",
+            "status": "complete"
+          },
+          {
+            "element": "statement-of-dispute-rights-30-day",
+            "status": "complete"
+          },
+          {
+            "element": "statement-of-right-to-original-creditor-info",
+            "status": "complete"
+          },
+          {
+            "element": "model-form-b1-tear-off",
+            "status": "complete"
+          }
+        ],
+        "notice_mailed_date": "2026-07-01",
+        "mailing_assumption_days": 5,
+        "itemization_date": "2026-06-15"
+      }
+    }
+  },
   "commission-integrity-and-amortization": {
     "art-264-validate-commission-hierarchy": {
       "hierarchy": [
