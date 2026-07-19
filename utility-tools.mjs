@@ -33,6 +33,7 @@ export const UTILITY_TOOL_NAMES = [
   'verify_disclosure_inclusion',
   'redline_diff',
   'redline_verify',
+  'lei_kyb_check',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;
