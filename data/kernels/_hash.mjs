@@ -16,7 +16,7 @@
 // integer beyond 2^53 that can't round-trip). assertIJson() rejects those so a
 // non-canonical value can never silently produce an unstable hash.
 
-function assertIJson(v) {
+export function assertIJson(v) {
   if (typeof v === 'number') {
     if (!Number.isFinite(v)) throw new Error(`Non-finite number (${v}) is not valid I-JSON; cannot canonicalize for hashing (RFC 8785 §3.2.2.3).`);
     if (Number.isInteger(v) && !Number.isSafeInteger(v)) throw new Error(`Integer ${v} exceeds 2^53 and is not safe I-JSON; pass it as a string (RFC 7493).`);
@@ -43,6 +43,17 @@ export function canonicalPreimage(policy_parameters, output_payload) {
 // Bare lowercase hex (matches worker.mjs and the browser tools). No "sha256:" prefix.
 export async function executionHash(policy_parameters, output_payload) {
   const bytes = new TextEncoder().encode(canonicalPreimage(policy_parameters, output_payload));
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+// OCG Standard §PPH-1 — JCS-SHA-256 of policy_parameters ALONE, via the same cgCanon path
+// executionHash() uses. Bare lowercase hex, no "sha256:" prefix. EXCLUDED from the
+// execution_hash preimage by construction: this function never touches output_payload, and
+// executionHash() never calls this one, so the member cannot reach the §4 preimage either way.
+export async function policyParametersHash(policy_parameters) {
+  assertIJson(policy_parameters);
+  const bytes = new TextEncoder().encode(JSON.stringify(cgCanon(policy_parameters)));
   const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
