@@ -1518,6 +1518,72 @@
       "artifacts": []
     }
   },
+  "broker-dealer-ops-pack": {
+    "art-396-compute-15c3-3-reserve": {
+      "credit_items": [
+        {
+          "label": "Free credit balances",
+          "category": "free_credit_balances",
+          "amount_musd": 40
+        },
+        {
+          "label": "Margin credit balances",
+          "category": "margin_credit_balances",
+          "amount_musd": 12
+        },
+        {
+          "label": "Payable from securities loaned using customer securities",
+          "category": "payable_from_securities_loaned_using_customer_securities",
+          "amount_musd": 5
+        }
+      ],
+      "debit_items": [
+        {
+          "label": "Margin account debits",
+          "category": "margin_account_debit",
+          "amount_musd": 20,
+          "aging_days": 5
+        },
+        {
+          "label": "Securities failed to deliver (10d)",
+          "category": "securities_failed_to_deliver",
+          "amount_musd": 3,
+          "aging_days": 10
+        }
+      ],
+      "reserve_account_balance_musd": 35,
+      "pab_variant": false
+    },
+    "art-397-lint-trace-cat-reports": {
+      "execution_timestamp": "2026-07-20T14:00:00.000Z",
+      "report_timestamp": "2026-07-20T14:05:00.000Z",
+      "calendar": {
+        "weekend_days": [
+          0,
+          6
+        ],
+        "holidays": [],
+        "calendar_version": "finra-2026-standard"
+      },
+      "trading_hours": {
+        "start_minutes_utc": 480,
+        "end_minutes_utc": 1110
+      },
+      "report_window_minutes": 15,
+      "cat_events": [
+        {
+          "event_category": "equity",
+          "event_type": "NEW_ORDER",
+          "event_timestamp": "2026-07-20T14:00:00.000Z",
+          "firm_designated_id": "FIRM-1",
+          "order_id": "ORD-1",
+          "symbol": "ABC",
+          "side": "BUY",
+          "quantity": 100
+        }
+      ]
+    }
+  },
   "ca-genai-disclosure": {
     "art-315-ab2013-training-data-disclosure-linter": {}
   },
