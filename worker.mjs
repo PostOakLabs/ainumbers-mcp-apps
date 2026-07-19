@@ -27,6 +27,7 @@ import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
 import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs';
 import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
+import { runLeiKybCheck } from './lei-kyb.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2574,6 +2575,27 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
+  server.registerTool('lei_kyb_check', {
+    title: 'Live LEI data-quality grading with GLEIF fetch',
+    description:
+      'Fetches an entity\'s live GLEIF LEI record (api.gleif.org -- the worker\'s only egress target for ' +
+      'this tool, RULINGS-2026-07-19-EGRESS-APEX.md R1) and grades it across six GLEIF data-quality ' +
+      'dimensions -- registration status, renewal timeliness, corroboration level, entity status, Level-2 ' +
+      'parent disclosure, address completeness -- using the SAME deterministic grader as the tools/551 ' +
+      'browser workbench (pasting the same record there reproduces identical grades). Returns per-dimension ' +
+      'grades, a composite, and a receipt with source provenance (url, retrieved_at, response_digest). This ' +
+      'is an ASSERTED FETCH, not a zkTLS proof of origin, and grades DATA QUALITY only -- never ' +
+      'creditworthiness, sanctions status, or entity legitimacy.',
+    inputSchema: {
+      lei: z.string().describe('20-character ISO 17442 Legal Entity Identifier to look up.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  }, async ({ lei }) => {
+    const result = await runLeiKybCheck({ lei });
+    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
   // -------------------------------------------------------------------------
   // MCP Prompts — curated human slash-commands (~12 flagship journeys).
   // Chains are agent-reachable via find_chain; these Prompts are for human /slash use.
@@ -2979,7 +3001,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion',
-    'redline_diff', 'redline_verify',
+    'redline_diff', 'redline_verify', 'lei_kyb_check',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
