@@ -3240,6 +3240,33 @@ export default {
       }, { headers: { ...corsHeaders, 'Cache-Control': 'public, max-age=3600' } });
     }
 
+    // SCRAPI /.well-known/scitt-keys discovery surface (§P7.a, PC-7-INTEROP-EXPORTS-SPEC.md,
+    // draft-ietf-scitt-scrapi-11's well-known-configuration family) — a CBOR COSE_KeySet
+    // (RFC 9052 §7: an array of COSE_Key maps) for verifiers discovering the key(s) OCG's RFC 9942
+    // COSE-Receipt export profile (_scitt.mjs) signs with. Minimal local CBOR array/map/uint encoder
+    // ONLY — deliberately NOT importing _scitt.mjs/kernels/_anchor-testutil.mjs here: those pull in
+    // node:crypto's Ed25519 sign/verify for the (Node-CLI-only) signing/verification path, and this
+    // live Worker route needs no signing, only encoding, so it stays off that import graph entirely.
+    // OCG operates no persistent SCITT Transparency Service signing identity today (SPEC.md §20: "OCG
+    // implementations are NOT SCITT Transparency Services") — so this is an honestly EMPTY key set
+    // (CBOR array(0), byte 0x80), not a fabricated one; a future operator-held key is additive.
+    if (url.pathname === '/.well-known/scitt-keys') {
+      const cborArrayOfKeys = (keys) => {
+        const head = (major, n) => (n < 24 ? [(major << 5) | n] : n < 256 ? [(major << 5) | 24, n] : (() => { throw new Error('key set too large for this minimal encoder'); })());
+        const bstr = (bytes) => [...head(2, bytes.length), ...bytes];
+        const uint = (n) => head(0, n);
+        const negint = (n) => head(1, -1 - n); // n MUST be negative
+        const coseKeyBytes = (rawPub) => {
+          // COSE_Key map, canonical label order 1 < 3 < -1 < -2: {1:1 (kty:OKP), 3:-8 (alg:EdDSA), -1:6 (crv:Ed25519), -2:<x>}
+          const entries = [...head(5, 4), ...uint(1), ...uint(1), ...uint(3), ...negint(-8), ...negint(-1), ...uint(6), ...negint(-2), ...bstr(rawPub)];
+          return entries;
+        };
+        return new Uint8Array([...head(4, keys.length), ...keys.flatMap(coseKeyBytes)]);
+      };
+      const body = cborArrayOfKeys([]); // no persistent signing identity today — see comment above
+      return new Response(body, { headers: { ...corsHeaders, 'Content-Type': 'application/cose-key-set', 'Cache-Control': 'public, max-age=3600' } });
+    }
+
     // AuthZEN 1.0 Authorization API — Policy Decision Point (§AZ, GAP-b veneer).
     // Shape-maps an AuthZEN {subject, action, resource, context} evaluation request
     // onto the SAME §21.4 gate evaluator every executing surface uses, then adds an
