@@ -1,0 +1,18 @@
+{
+  "note": "Synthetic, non-sensitive fixture for validate-private-inputs.test.mjs (§25 gate). NOT a real financial figure -- generated for this gate only.",
+  "policy_parameters": {
+    "amount_commitment": "sha256:bc13326db2e9d1fa5e99ce5340f1169df58985893c0a51fd0f64ad0caf8b4006",
+    "table_version": "TEST-TABLE-2026"
+  },
+  "output_payload": {
+    "verdict": "within_range"
+  },
+  "private_inputs": [
+    { "pointer": "/amount_commitment", "commitment": "sha256:bc13326db2e9d1fa5e99ce5340f1169df58985893c0a51fd0f64ad0caf8b4006", "commitment_scheme": "sha256-salted@1" }
+  ],
+  "disclosure": {
+    "pointer": "/amount_commitment",
+    "salt": "296a7092a5a5a961ffe1fd885aa77bdd70343f51e0aa38c51b1d61e28aaff170",
+    "input_value": { "amount_usd": 4200, "note": "synthetic-test-value" }
+  }
+}

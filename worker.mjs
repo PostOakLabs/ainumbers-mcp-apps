@@ -1342,6 +1342,118 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
+  // §25 ocg-private-input@1 verifier (PRIV-IN-1-BUILD, POSTCAMPAIGN-BAND-SPEC.md §PC-1). Checks,
+  // per declared private_inputs[] entry and WITHOUT ever seeing the plaintext witness (§25.4):
+  //   1. structural   -- pointer resolves inside policy_parameters; commitment matches
+  //                       ^sha256:[0-9a-f]{64}$; commitment_scheme is known (sha256-salted@1 only).
+  //   2. plaintext-excl -- the value AT pointer equals the entry's own commitment string exactly
+  //                       (§25.2 MUST) -- anything else (including the plaintext leaking in) FAILS.
+  //   3. proof-binds    -- if compute_proof is present, its journal commits the declared commitment
+  //                       and journal.output === output_payload (§18.0/§25.3); reported "proof-only"
+  //                       verified. compute_proof_ready:"deferred" nodes (current PRIV-IN-1 state)
+  //                       report "commitment-only" -- structural + plaintext-exclusion checked, no
+  //                       proof yet to bind them (PRIV-IN-1-PROVE closes this).
+  //   4. disclosed      -- OPTIONAL: caller supplies {salt, input_value} out-of-band; recomputes
+  //                       sha256(salt || cgCanon(input_value)) and confirms it equals commitment --
+  //                       full re-verification against the plaintext ("disclosed-verified").
+  // verifiable per pointer: "proof-only" | "disclosed-verified" | "commitment-only" | "failed".
+  async function commitPrivateInputHex(saltHex, inputValue) {
+    if (typeof saltHex !== 'string' || saltHex.length < 64 || !/^[0-9a-f]+$/i.test(saltHex)) return null;
+    const saltBytes = new Uint8Array(saltHex.length / 2);
+    for (let i = 0; i < saltBytes.length; i++) saltBytes[i] = parseInt(saltHex.slice(i * 2, i * 2 + 2), 16);
+    const inputBytes = new TextEncoder().encode(JSON.stringify(cgCanon(inputValue)));
+    const combined = new Uint8Array(saltBytes.length + inputBytes.length);
+    combined.set(saltBytes, 0); combined.set(inputBytes, saltBytes.length);
+    const digest = await crypto.subtle.digest('SHA-256', combined);
+    return 'sha256:' + [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  async function assessPrivateInput(entry, policy_parameters, output_payload, compute_proof, disclosure) {
+    const pointer = entry?.pointer;
+    const commitment = entry?.commitment;
+    const scheme = entry?.commitment_scheme;
+
+    if (typeof pointer !== 'string' || typeof commitment !== 'string' || !/^sha256:[0-9a-f]{64}$/i.test(commitment)) {
+      return { pointer, verifiable: 'failed', reason: 'malformed commitment or pointer' };
+    }
+    if (scheme !== 'sha256-salted@1') {
+      return { pointer, verifiable: 'failed', reason: `unknown commitment_scheme "${scheme}"` };
+    }
+    const resolved = resolveJsonPointer(policy_parameters, pointer);
+    if (!resolved.ok) return { pointer, verifiable: 'failed', reason: 'pointer does not resolve inside policy_parameters' };
+
+    // §25.2 plaintext-exclusion MUST: the pointed value must BE the commitment string itself.
+    if (resolved.value !== commitment) {
+      return { pointer, verifiable: 'failed', reason: 'pointed value is not the declared commitment (plaintext-exclusion violated)' };
+    }
+
+    let verifiable = 'commitment-only';
+    if (compute_proof && compute_proof.journal) {
+      const journalCommits = JSON.stringify(compute_proof.journal).includes(commitment.replace(/^sha256:/, ''))
+        || JSON.stringify(compute_proof.journal).includes(commitment);
+      const outputBinds = output_payload === undefined || JSON.stringify(compute_proof.journal.output) === JSON.stringify(output_payload);
+      verifiable = (journalCommits && outputBinds) ? 'proof-only' : 'failed';
+      if (verifiable === 'failed') return { pointer, verifiable, reason: 'journal does not commit the declared commitment or output mismatch' };
+    }
+
+    if (disclosure && typeof disclosure.salt === 'string') {
+      const recomputed = await commitPrivateInputHex(disclosure.salt, disclosure.input_value);
+      if (recomputed !== commitment) return { pointer, verifiable: 'failed', reason: 'disclosed (salt, input_value) does not recompute the declared commitment' };
+      verifiable = 'disclosed-verified';
+    }
+
+    return { pointer, verifiable };
+  }
+
+  server.registerTool('validate_private_inputs', {
+    title: 'Validate ChainGraph private-input commitments',
+    description:
+      'Verify an artifact\'s private_inputs[] (ChainGraph Standard §25 ocg-private-input@1) WITHOUT ' +
+      'ever seeing the plaintext witness: per RFC 6901 pointer, checks the pointed value inside ' +
+      'policy_parameters IS the declared sha256-salted@1 commitment (never the plaintext, §25.2), ' +
+      'that the commitment scheme is known, and -- when a §18 compute_proof is present -- that its ' +
+      'journal commits the same commitment and binds output_payload. Optionally accepts an ' +
+      'out-of-band {pointer, salt, input_value} disclosure package (authorized-verifier path) and ' +
+      'recomputes sha256(salt || cgCanon(input_value)) to confirm it equals the commitment. Returns ' +
+      'one {pointer, verifiable} record per entry: "proof-only" | "disclosed-verified" | ' +
+      '"commitment-only" (no proof yet -- structural + plaintext-exclusion only) | "failed". Pure ' +
+      'client-safe compute, zero network, never requires the plaintext.',
+    inputSchema: {
+      artifact: z.record(z.any()).optional().describe('A full ChainGraph artifact envelope carrying private_inputs[], policy_parameters, and optionally output_payload + audit_signature.compute_proof.'),
+      policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
+      output_payload: z.record(z.any()).optional().describe('Artifact output_payload (if not passing a full artifact).'),
+      private_inputs: z.array(z.record(z.any())).optional().describe('The private_inputs[] array (if not passing a full artifact).'),
+      compute_proof: z.record(z.any()).optional().describe('audit_signature.compute_proof (if not passing a full artifact).'),
+      disclosures: z.array(z.object({
+        pointer: z.string(),
+        salt: z.string().describe('>=256-bit hex CSPRNG salt, out-of-band disclosure material.'),
+        input_value: z.any().describe('The plaintext private input value, out-of-band.'),
+      })).optional().describe('OPTIONAL authorized-verifier disclosure packages, keyed by pointer, for the disclosed-verified path.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ artifact, policy_parameters, output_payload, private_inputs, compute_proof, disclosures }) => {
+    const pp = policy_parameters ?? artifact?.policy_parameters;
+    const op = output_payload ?? artifact?.output_payload;
+    const entries = private_inputs ?? artifact?.private_inputs;
+    const proof = compute_proof ?? artifact?.audit_signature?.compute_proof;
+    if (pp === undefined || !Array.isArray(entries)) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + private_inputs[]) or policy_parameters + private_inputs[].' }],
+      };
+    }
+    const byPointer = new Map((disclosures ?? []).map((d) => [d.pointer, d]));
+    const results = await Promise.all(entries.map((entry) => assessPrivateInput(entry, pp, op, proof, byPointer.get(entry?.pointer))));
+    // §25.6 hash-exclusion sanity: private_inputs sits OUTSIDE the execution_hash preimage, so a
+    // zero-entry artifact must still be hash-identical (same pattern as §20/§23).
+    let execution_hash_unaffected = null;
+    if (artifact?.policy_parameters !== undefined && artifact?.output_payload !== undefined && artifact?.execution_hash) {
+      execution_hash_unaffected = __normDigest(await cgExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
+    }
+    const all_pass = results.every((r) => r.verifiable !== 'failed');
+    const out = { results, all_pass, execution_hash_unaffected, spec: 'ChainGraph Standard §25 ocg-private-input@1' };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
   // DR-4 — Data Room disclosure manifest tools (DATAROOM-1-BUILD-SPEC.md §DR-4). Worker-side
   // mirror of tools/546-disclosure-manifest-builder.html + tools/547-disclosure-manifest-verifier.html:
   // SAME leaf scheme (sha256(path|digest|size), duplicate-last-on-odd binary tree) so a manifest
