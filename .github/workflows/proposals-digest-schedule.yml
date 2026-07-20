@@ -1,0 +1,72 @@
+name: Proposals Digest (scheduled)
+
+# AGENTPR-1 digest tail. Crons are banned on the SITE repo (never a scheduled
+# trigger there) but are already an established pattern on THIS repo
+# (vendor-freshness-schedule.yml, OF-4) — same "Confirm no schedule trigger"
+# scope this reuses: a worker-repo cron reading the site repo read-only, no
+# secrets, no write access to the site repo (only to THIS repo's own issues,
+# same as OF-4's tracking-issue pattern). That is why the digest lands here
+# and not as a new site-repo workflow.
+#
+# Weekly summary of open proposals/*.json PRs + open "suggest-tool-or-chain"
+# issues on PostOakLabs/ainumbers, posted as one running issue on THIS repo
+# (idempotent — updates the same issue by title match instead of spamming a
+# new one every week). Read-only against the site repo's public API; no PAT,
+# no cross-repo write.
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'   # Mondays 14:00 UTC — weekly
+  workflow_dispatch: {}     # manual trigger for seeding/verifying the gate
+
+permissions:
+  contents: read
+
+jobs:
+  digest:
+    name: Summarize open proposals + suggestions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 📥 Checkout worker (this repo)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 📊 Build the digest (read-only public API, no PAT)
+        id: digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          SITE_REPO="PostOakLabs/ainumbers"
+
+          echo "## Open GitHub issues (suggest-tool-or-chain)" > /tmp/digest.md
+          gh api "repos/$SITE_REPO/issues" -X GET -f state=open -f labels="" --paginate \
+            --jq '.[] | select(.pull_request == null) | "- [#\(.number)](\(.html_url)) \(.title)"' \
+            >> /tmp/digest.md 2>/dev/null || echo "_(none, or API unreachable this run)_" >> /tmp/digest.md
+          [ -s /tmp/digest.md ] || echo "_(none)_" >> /tmp/digest.md
+
+          echo "" >> /tmp/digest.md
+          echo "## Open proposals/ PRs" >> /tmp/digest.md
+          gh api "repos/$SITE_REPO/pulls" -X GET -f state=open --paginate \
+            --jq '.[] | select(.title != null) | "- [#\(.number)](\(.html_url)) \(.title)"' \
+            >> /tmp/digest.md 2>/dev/null || true
+
+          echo "" >> /tmp/digest.md
+          echo "_Generated $(date -u +%Y-%m-%dT%H:%M:%SZ) by proposals-digest-schedule.yml. Triage: a human merges; nothing here auto-builds._" >> /tmp/digest.md
+
+      - name: 📝 Open or update the running digest issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="Weekly proposals digest"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body-file /tmp/digest.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file /tmp/digest.md
+          fi
