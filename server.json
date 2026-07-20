@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "co.ainumbers/tools",
   "title": "AINumbers Fintech Intelligence Suite",
-  "description": "462 MCP tools across 521 fintech tools + 99 guides. ChainGraph AP2, execution_hash. Zero PII.",
+  "description": "468 MCP tools across 553 fintech tools: ChainGraph AP2 decisions, execution_hash. Zero PII.",
   "repository": {
     "url": "https://github.com/PostOakLabs/ainumbers-mcp-apps",
     "source": "github"
   },
-  "version": "0.4.6",
+  "version": "0.4.7",
   "websiteUrl": "https://ainumbers.co",
   "remotes": [
     {
