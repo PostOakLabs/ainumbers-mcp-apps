@@ -730,6 +730,28 @@
       }
     }
   },
+  "ai-vendor-onboarding-packet": {
+    "art-64-ai-act-highrisk-fit-diagnostic": {},
+    "art-412-ai-act-procurement-clause-mapper": {},
+    "art-411-ai-addendum-assembler": {},
+    "art-409-dpa-art28-completeness-checker": {
+      "clause_status": {
+        "subject_matter": "present",
+        "duration": "present",
+        "nature_purpose": "present",
+        "data_categories": "present",
+        "controller_instructions_only": "present",
+        "confidentiality": "present",
+        "article32_security": "present",
+        "subprocessor_authorization": "present",
+        "data_subject_rights_assistance": "present",
+        "breach_dpia_assistance": "present",
+        "deletion_or_return": "present",
+        "audit_rights": "present"
+      }
+    },
+    "art-277-agreement-acceptance-binder": {}
+  },
   "anchored-extract-verification": {
     "art-286-anchored-extract-verifier": {}
   },
