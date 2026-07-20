@@ -103,6 +103,13 @@ jobs:
         # structural digest-binding, plus tamper/unresolved-pointer/digest-mismatch failure cases.
         run: node scripts/validate-input-attestations.test.mjs
 
+      - name: 🔒 Private-inputs gate (§25 ocg-private-input@1)
+        # SPEC.md §15 row: structural + plaintext-exclusion checks (never sees the plaintext
+        # witness), disclosed-verified recompute (authorized-verifier path), execution_hash
+        # exclusion sanity, plus mutated-commitment/leaked-plaintext/wrong-salt/unknown-scheme/
+        # unresolved-pointer tamper cases.
+        run: node scripts/validate-private-inputs.test.mjs
+
       - name: 🕐 ttlMs cache-key is input-hash-only (§M1.5)
         # Proves the advertised cacheHint.cacheKey:"input_hash" contract: identical
         # policy_parameters (any key order) -> identical key; a changed input -> a

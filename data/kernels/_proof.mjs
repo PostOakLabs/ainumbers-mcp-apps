@@ -2928,7 +2928,7 @@ function getDilithium(opts_) {
     });
 }
 /** ML-DSA-44 for 128-bit security level. Not recommended after 2030, as per ASD. */
-const ml_dsa44 = /* @__PURE__ */ (() => getDilithium({
+export const ml_dsa44 = /* @__PURE__ */ (() => getDilithium({
     ...PARAMS[2],
     CRH_BYTES: 64,
     TR_BYTES: 64,

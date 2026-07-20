@@ -21,6 +21,7 @@ export const UTILITY_TOOL_NAMES = [
   'find_tool',
   'run_chain',
   'validate_input_attestations',
+  'validate_private_inputs',
   'suggest_tool_idea',
   'vc_issue',
   'sdjwt_issue',
