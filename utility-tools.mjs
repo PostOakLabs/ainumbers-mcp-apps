@@ -41,6 +41,8 @@ export const UTILITY_TOOL_NAMES = [
   'pain001_validate',
   'camt053_parse',
   'recon_match',
+  'otlp_validate',
+  'otlp_span_receipt',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;

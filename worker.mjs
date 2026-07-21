@@ -16,6 +16,7 @@ import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
 import { validateDefinition as checklistValidateDefinition, definitionDigest as checklistDefinitionDigest, buildStepReceipt as checklistBuildStepReceipt, verifyRun as checklistVerifyRun } from './checkrun.mjs';
 import { recordChainRunAsLinks } from './intoto.mjs';
+import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace } from './otelspan.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
@@ -2629,6 +2630,77 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     try { bundle = await recordChainRunAsLinks(run_chain_result); }
     catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
     return { content: [{ type: 'text', text: JSON.stringify(bundle, null, 2) }], structuredContent: bundle };
+  });
+
+  // -------------------------------------------------------------------------
+  // OTLP GenAI span tools (OTELSPAN-1 OS-3) -- headless agent parity with the browser
+  // tools/556 composer/linter and tools/566 span-receipt verifier (otelspan.mjs is the
+  // single shared logic, byte-identical lint/receipt engines). otlp_span_receipt also
+  // bridges a run_chain result into an OTLP trace with execution_hash span attributes
+  // (the OTel<->OCG bridge, PC-7.c's mapping made live) when given run_chain_result
+  // instead of a raw trace.
+  // -------------------------------------------------------------------------
+  server.registerTool('otlp_validate', {
+    title: 'Validate an OTLP/JSON trace for structure + gen_ai conformance',
+    description:
+      'Structurally validates an OTLP/JSON trace (resourceSpans -> scopeSpans -> spans: hex traceId/spanId ' +
+      'shape, quoted nanosecond timestamps, parent-span references, time ordering) and checks every gen_ai ' +
+      'span\'s attributes against a pinned gen_ai semantic-convention attribute snapshot (the upstream ' +
+      'open-telemetry/semantic-conventions-genai namespace ships zero tagged releases, so this is a dated ' +
+      'pin, stamped as semconv_snapshot in the result -- expect it to drift as the upstream spec moves). ' +
+      'Byte-identical lint engine to tools/556-otlp-genai-span-composer-linter.html.',
+    inputSchema: {
+      trace: z.record(z.any()).describe('An OTLP/JSON trace document: { resourceSpans: [{ scopeSpans: [{ spans: [...] }] }] }.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ trace }) => {
+    let report;
+    try { report = validateOtlpTrace(trace); }
+    catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
+    return { content: [{ type: 'text', text: JSON.stringify(report, null, 2) }], structuredContent: report };
+  });
+
+  server.registerTool('otlp_span_receipt', {
+    title: 'Generate or verify a per-span OTel receipt bundle over an OTLP/JSON trace',
+    description:
+      'Three modes, chosen by which input is supplied. (1) Pass `trace` alone to GENERATE a receipt bundle: ' +
+      'a per-span receipt (span digest, parent-span receipt digest, semconv_snapshot, eddsa-jcs-2022 signature ' +
+      'over an ephemeral did:key) for every span, plus a Merkle-rooted (RFC 6962) trace receipt. (2) Pass ' +
+      '`bundle` ({trace, span_receipts, trace_receipt, issuer_did}) to VERIFY it: recomputes every digest, ' +
+      'walks the parent-receipt chain, rebuilds the Merkle root, and reports which spans are attested, ' +
+      'unattested, or tampered. (3) Pass `run_chain_result` (the structuredContent from run_chain) instead of ' +
+      '`trace` to bridge a ChainGraph chain run into an OTLP trace first -- one execute_tool span per ' +
+      'successfully-executed step, each carrying its own execution_hash as a span attribute (ocg.execution_hash) ' +
+      '-- then generates the same receipt bundle over it. Byte-identical receipt engine to ' +
+      'tools/566-otel-span-receipt-verifier.html -- a human\'s browser-generated bundle and this tool\'s output ' +
+      'interoperate on the exact same wire shape.',
+    inputSchema: {
+      trace: z.record(z.any()).optional().describe('An OTLP/JSON trace document to generate a receipt bundle over. Omit if passing bundle or run_chain_result.'),
+      bundle: z.record(z.any()).optional().describe('{trace, span_receipts[], trace_receipt, issuer_did} to VERIFY instead of generate.'),
+      run_chain_result: z.record(z.any()).optional().describe('The structuredContent object returned by run_chain (must include chain and steps[]) -- bridges the chain run into an OTLP trace, then generates a receipt bundle over it.'),
+      service: z.string().optional().describe('resource service.name to stamp when bridging run_chain_result into a trace. Defaults to "ainumbers-chaingraph-worker".'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ trace, bundle, run_chain_result, service }) => {
+    try {
+      if (bundle) {
+        const report = await verifySpanReceiptBundle(bundle);
+        return { content: [{ type: 'text', text: JSON.stringify(report, null, 2) }], structuredContent: report };
+      }
+      let effectiveTrace = trace;
+      let bridge = null;
+      if (!effectiveTrace && run_chain_result) {
+        const bridged = chainRunToOtlpTrace(run_chain_result, { service });
+        effectiveTrace = bridged.trace;
+        bridge = { chain: bridged.chain, step_count: bridged.step_count, skipped: bridged.skipped };
+      }
+      if (!effectiveTrace) throw new Error('Pass one of trace, bundle, or run_chain_result.');
+      const result = await generateSpanReceiptBundle(effectiveTrace);
+      const out = bridge ? { ...result, bridge } : result;
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    } catch (err) {
+      return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] };
+    }
   });
 
   // -------------------------------------------------------------------------
