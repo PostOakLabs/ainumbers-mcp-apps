@@ -28,6 +28,7 @@ import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs
 import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
+import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError } from './workbook/workbook.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2709,6 +2710,96 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // Workbook tools (WB-4) -- agent-facing parity with the browser workbook
+  // (tools/554-workbook-table-editor.html, WB-1/2/3). Reuses WB-1's headless
+  // core (./workbook/workbook.mjs, vendored verbatim from chaingraph/workbook/)
+  // -- same tokenizer/evaluator/CSV/digest, no second implementation, so a
+  // digest computed here always matches the same input digested in the browser.
+  // -------------------------------------------------------------------------
+  const wbCellsSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+    .describe('Map of A1-style cell ref (e.g. "B2") to raw value -- a formula string starts with "=" (e.g. "=SUM(A1:A3)"), anything else is a literal.');
+
+  function buildWorkbookFromCells(cells) {
+    const wb = createWorkbook();
+    for (const [ref, raw] of Object.entries(cells)) setCell(wb, ref, raw);
+    recalc(wb);
+    return wb;
+  }
+
+  server.registerTool('workbook_evaluate', {
+    title: 'Evaluate workbook cells (formulas + literals) and return computed values',
+    description:
+      'Feeds a set of A1-style cells (formulas and/or literals) through the SAME headless evaluator the ' +
+      'tools/554 browser workbook uses -- topo-sorted dependency graph, ~20 functions (SUM AVG MIN MAX COUNT ' +
+      'COUNTIF IF AND OR NOT ROUND ABS CONCAT LEN LEFT RIGHT TRIM UPPER LOWER SUMIF), cycles resolve to ' +
+      '"#CYCLE!" and any non-finite result to "#NUM!" rather than propagating. Returns the computed value of ' +
+      'every supplied cell -- pure, no digest, no receipt.',
+    inputSchema: { cells: wbCellsSchema },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ cells }) => {
+    let wb;
+    try { wb = buildWorkbookFromCells(cells); } catch (e) {
+      const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    const values = {};
+    for (const ref of Object.keys(cells)) values[ref] = wb.cells[ref] ? wb.cells[ref].value : null;
+    return { content: [{ type: 'text', text: JSON.stringify(values, null, 2) }], structuredContent: { values } };
+  });
+
+  server.registerTool('workbook_range_digest', {
+    title: 'Digest a workbook range into a Spreadsheet Input Manifest range fragment',
+    description:
+      'Evaluates the supplied cells (same evaluator as workbook_evaluate) and computes a canonical ' +
+      'values_digest over one A1-style range (e.g. "B2:D9") -- the exact `executionHash(values, {})` path ' +
+      'the rest of OCG uses, per chaingraph/workbook/INPUT-MANIFEST.md (WB-2). Returns one `ranges[]` ' +
+      'fragment of the Spreadsheet Input Manifest schema; assemble the full manifest (source.csv_digest, ' +
+      'produced_by/produced_at) around it. Same range digested from the same cells in the tools/554 browser ' +
+      'workbook always produces the same values_digest.',
+    inputSchema: {
+      cells: wbCellsSchema,
+      range: z.string().describe('A1-style cell or range reference to digest, e.g. "B2" or "B2:D9".'),
+      semantics: z.string().optional().describe('Free-text pointer describing what this range means to the consuming policy_parameters.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ cells, range, semantics }) => {
+    let wb;
+    try { wb = buildWorkbookFromCells(cells); } catch (e) {
+      const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    let values_digest;
+    try { values_digest = await wbRangeDigest(wb, range); } catch (e) {
+      const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    const result = { ref: range, values_digest, semantics: semantics ?? null };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('workbook_csv_parse', {
+    title: 'Parse strict RFC 4180 CSV into workbook cells',
+    description:
+      'Parses CSV text with the SAME strict RFC 4180 parser as the tools/554 browser workbook -- quoted ' +
+      'fields, embedded quotes/commas/newlines, CRLF -- and REJECTS malformed input rather than repairing it ' +
+      '(deterministic beats forgiving for hash-stable digests). Numeric-looking and TRUE/FALSE cells are ' +
+      'type-coerced; everything else stays a string. Returns the resulting A1-style cells (raw + evaluated ' +
+      'value) plus the sheet\'s row/column extent, ready for workbook_evaluate or workbook_range_digest.',
+    inputSchema: { csv: z.string().describe('CSV text to parse.') },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ csv }) => {
+    let wb;
+    try { wb = csvToWorkbook(csv); } catch (e) {
+      const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    const cells = {};
+    for (const [ref, cell] of Object.entries(wb.cells)) cells[ref] = { raw: cell.raw, value: cell.value };
+    const result = { cells, rows: wb.rows, cols: wb.cols };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  // -------------------------------------------------------------------------
   // MCP Prompts — curated human slash-commands (~12 flagship journeys).
   // Chains are agent-reachable via find_chain; these Prompts are for human /slash use.
   // (The 283 auto-derived chain Prompts were removed — they were agent-invisible anyway
@@ -3114,6 +3205,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion',
     'redline_diff', 'redline_verify', 'lei_kyb_check',
+    'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
