@@ -38,6 +38,9 @@ export const UTILITY_TOOL_NAMES = [
   'workbook_evaluate',
   'workbook_range_digest',
   'workbook_csv_parse',
+  'pain001_validate',
+  'camt053_parse',
+  'recon_match',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;

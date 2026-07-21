@@ -29,6 +29,7 @@ import { authzenEvaluateWithReceipt } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError } from './workbook/workbook.mjs';
+import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2800,6 +2801,79 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // ISO 20022 workbench tools (IW-4) -- agent-facing parity with the browser
+  // schema-subset validator / camt.053 workbench (tools/555, tools/565, IW-1/IW-3).
+  // Same field tables, facet checks, and match engine ported to iso20022-wb.mjs
+  // (same discipline as redline.mjs/checkrun.mjs) -- byte-identical results to the
+  // browser tools for the same inputs. HARD FENCE (SPEC §8): prepare/validate/hash/
+  // receipt only -- never generates or transmits a live ISO 20022 message.
+  // -------------------------------------------------------------------------
+  server.registerTool('pain001_validate', {
+    title: 'Validate a pain.001.001.09 message against the schema-subset table',
+    description:
+      'Validates a pain.001.001.09 customer credit transfer initiation XML document against the same ' +
+      'hand-derived schema-subset table as the tools/555 browser validator -- structural (mandatory fields), ' +
+      'facet (IBAN mod-97, BIC format, ISO 4217 currency, decimal/date patterns), and batch-total cross-checks ' +
+      '(NbOfTxs vs. actual transaction count, CtrlSum vs. sum of InstdAmt). Byte-identical error set to the ' +
+      'browser tool for the same input. Subset validation, not full XSD conformance -- prepare/validate only, ' +
+      'never transmits or generates a live payment message.',
+    inputSchema: { xml: z.string().describe('pain.001.001.09 XML document text to validate.') },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ xml }) => {
+    if (typeof xml !== 'string') return { isError: true, content: [{ type: 'text', text: 'xml must be a string.' }] };
+    const result = validatePain001(xml);
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('camt053_parse', {
+    title: 'Parse and structurally validate a camt.053.001 bank statement',
+    description:
+      'Parses a camt.053.001 bank-to-customer statement XML document with the same schema-subset structural ' +
+      'and facet checks as the tools/565 browser reconciliation workbench (IBAN mod-97, BIC, currency, date/' +
+      'decimal facets), returning the extracted statement (message id, statement id, account IBAN/currency, ' +
+      'balances, entries) on success or the structural error list on failure. Byte-identical extraction to the ' +
+      'browser tool for the same input. Read-only parse -- feed the result to recon_match for reconciliation.',
+    inputSchema: { xml: z.string().describe('camt.053.001 XML statement document text to parse.') },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ xml }) => {
+    if (typeof xml !== 'string') return { isError: true, content: [{ type: 'text', text: 'xml must be a string.' }] };
+    let result;
+    try { result = parseCamt053(xml); }
+    catch (e) {
+      const msg = e instanceof XmlParseError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('recon_match', {
+    title: 'Match a camt.053 statement against a counterpart expectation set',
+    description:
+      'Parses a camt.053.001 statement (same schema-subset checks as camt053_parse) and a counterpart ' +
+      'expectation set (CSV, header EndToEndId,Amount,Currency,Date -- same strict RFC 4180 parser as the ' +
+      'WORKBOOK-1 CSV tools), then runs the SAME deterministic match engine as the tools/565 browser workbench: ' +
+      'EndToEndId exact match first (statement order), then amount+date tolerance + currency match (first ' +
+      'unmatched expectation in CSV order). Returns matches, exceptions (unmatched entries/expectations), and a ' +
+      'reconciliation receipt (statement digest, expectation-set digest, match-rule declaration, counts, ' +
+      'exception digests, execution_hash) -- byte-identical to the browser tool for the same inputs. Prepare/' +
+      'hash/receipt only; per-exception disposition receipts are the browser workbench\'s interactive follow-on.',
+    inputSchema: {
+      statement_xml: z.string().describe('camt.053.001 XML statement document text.'),
+      expectations_csv: z.string().describe('Counterpart expectations, CSV with header EndToEndId,Amount,Currency,Date.'),
+      amount_tolerance: z.number().optional().describe('Absolute amount-match tolerance (default 0.01).'),
+      date_tolerance_days: z.number().optional().describe('Date-match tolerance in days (default 0).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ statement_xml, expectations_csv, amount_tolerance, date_tolerance_days }) => {
+    if (typeof statement_xml !== 'string' || typeof expectations_csv !== 'string') {
+      return { isError: true, content: [{ type: 'text', text: 'statement_xml and expectations_csv must both be strings.' }] };
+    }
+    const result = await reconMatch({ statement_xml, expectations_csv, amount_tolerance, date_tolerance_days });
+    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  // -------------------------------------------------------------------------
   // MCP Prompts — curated human slash-commands (~12 flagship journeys).
   // Chains are agent-reachable via find_chain; these Prompts are for human /slash use.
   // (The 283 auto-derived chain Prompts were removed — they were agent-invisible anyway
@@ -3206,6 +3280,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'build_disclosure_manifest', 'verify_disclosure_inclusion',
     'redline_diff', 'redline_verify', 'lei_kyb_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
+    'pain001_validate', 'camt053_parse', 'recon_match',
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
