@@ -67,6 +67,24 @@ for (const f of readdirSync(EXPORTERS_SRC).filter(f => EXPORTER_FILE_RE.test(f))
 }
 
 // ---------------------------------------------------------------------------
+// Vendor the WB-1 headless workbook core (WORKBOOK-1-BUILD-SPEC.md §WB-4) verbatim —
+// same two targets as kernels/exporters. workbook.mjs imports '../kernels/_hash.mjs'
+// relative to its own dir, so it's vendored into a sibling `workbook/` dir alongside
+// the already-vendored `kernels/` in both data/ (ASSETS) and ROOT (Worker bundle),
+// preserving that relative path unmodified — the whole point of "verbatim".
+// ---------------------------------------------------------------------------
+const WORKBOOK_SRC = resolve(REPO, 'chaingraph', 'workbook', 'workbook.mjs');
+const WORKBOOK_DATA_DIR = resolve(DATA, 'workbook');
+const WORKBOOK_BUNDLE_DIR = resolve(ROOT, 'workbook');
+mkdirSync(WORKBOOK_DATA_DIR, { recursive: true });
+mkdirSync(WORKBOOK_BUNDLE_DIR, { recursive: true });
+{
+  const src = readFileSync(WORKBOOK_SRC);
+  writeFileSync(resolve(WORKBOOK_DATA_DIR, 'workbook.mjs'), src);
+  writeFileSync(resolve(WORKBOOK_BUNDLE_DIR, 'workbook.mjs'), src);
+}
+
+// ---------------------------------------------------------------------------
 // Emit data/counts.json — single source of truth for all numeric stats used
 // in mcp.html, chaingraph-hub.html, JSON-LD, og:description, i18n strings.
 // build_workflow_links chain names are read from chaingraph.json.chains (after F).
