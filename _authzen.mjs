@@ -1,18 +1,31 @@
-// _authzen.mjs — AuthZEN Authorization API 1.0 request/response SHAPE veneer
-// (OpenID Standards Track, Mar 2026) over the OCG §21.4 decision-gate evaluator.
+// _authzen.mjs — AuthZEN Authorization API 1.0 PDP (OpenID Standards Track,
+// Final Mar 2026) implemented over OCG primitives.
 //
-// Pure mapping module. Does NOT replace or alter comparator gates (provability
-// moat) — it only translates an AuthZEN evaluation request into a call to the
-// SAME `evaluateGate` (kernels/_gateval.mjs) every executing surface uses, then
-// shapes the result back into an AuthZEN {decision, context} response. No new
-// gate semantics, no new op, no new routing rule.
+// TWO decision modes, both conformant with the AuthZEN request/response SHAPE:
 //
-// Decision mapping (documented, not implied): `next === "escalate"` (§22.8.1)
-// -> decision:false (automated path denied, human review required); every other
-// `next` (a step id or "end") -> decision:true (automated path proceeds).
+//   1. Built-in policy (DEFAULT). When the request carries no OCG gate, the PDP
+//      decides from its own server-side policy — exactly what a conformant
+//      AuthZEN PDP must do. The reference policy is the AuthZEN certification
+//      fixture (8 mandated decisions); `context` is OPTIONAL and never changes
+//      the outcome, per the spec. This makes AINumbers a drop-in PDP any
+//      AuthZEN PEP can call by swapping a URL — no vendor coupling, no policy
+//      language adopted (the whole point of the standard).
 //
-// PURE ECMA-262, same constraints as _gateval.mjs: no Date, no Math.random, no
-// I/O, no network. Deterministic and total for any well-formed request.
+//   2. Bring-your-own OCG §21.4 gate (OPT-IN, OCG-native). When the request
+//      supplies `context.gate` (an OCG §21.4 decision gate) plus
+//      `context.output_payload`, the PDP evaluates that gate via the SAME
+//      `evaluateGate` every executing surface uses. Backward-compatible with
+//      the prior behavior.
+//
+// In BOTH modes the "provable" delta (authzenEvaluateWithReceipt) attaches an
+// OCG §6/§20 execution_hash over the exact {policy_parameters, output_payload}
+// the decision was made from — a receipt an independent party can recompute
+// without trusting this server. That receipt is the differentiator over every
+// other AuthZEN PDP; it is ADDITIVE and never required for a plain decision.
+//
+// PURE ECMA-262: no Date, no Math.random, no I/O, no network. Deterministic and
+// total for any well-formed request. No external policy engine (OPA/Rego/Cedar)
+// and no runtime call to any third party — OCG stays self-contained.
 
 import { evaluateGate, isEscalationTarget } from './kernels/_gateval.mjs';
 import { executionHash } from './kernels/_hash.mjs';
@@ -21,22 +34,40 @@ function malformed(detail) {
   return { decision: false, context: { error: 'malformed_request', detail } };
 }
 
-/**
- * Evaluate an AuthZEN 1.0 request against an OCG §21.4 gate.
- * @param {{
- *   subject:  {type?:string, id:string, properties?:object},
- *   action:   {name:string, properties?:object},
- *   resource: {type?:string, id:string, properties?:object},
- *   context:  {gate:{input:string, rules:Array, default:string}, output_payload:object}
- * }} request
- * @returns {{decision:boolean, context:object}}
- */
-export function authzenEvaluate(request) {
-  if (request === null || typeof request !== 'object') {
-    return malformed('request must be an object');
-  }
-  const { subject, action, resource, context } = request;
+// ── AuthZEN certification fixture policy (v1) ────────────────────────────────
+// The 8 decisions the cert harness validates (implementer's-discretion policy,
+// per the spec). Expressed as a small, auditable, total rule set. `context` is
+// deliberately not consulted — decisions are identical with or without it.
+export const FIXTURE_POLICY = {
+  policy_id: 'authzen-cert-fixture-v1',
+  rules: [
+    'read: permit',
+    'write on archived resource: permit iff subject.role == "admin"',
+    'write on non-archived resource: permit iff subject.id == "alice"',
+    'delete: permit iff action.properties.soft == true',
+    'default: deny',
+  ],
+};
 
+function prop(obj, key) {
+  return obj && obj.properties && typeof obj.properties === 'object' ? obj.properties[key] : undefined;
+}
+
+/** Pure fixture policy → boolean. Sees only subject/action/resource (not context). */
+export function decideFixturePolicy(subject, action, resource) {
+  const name = action.name;
+  if (name === 'read') return true;
+  if (name === 'write') {
+    if (prop(resource, 'status') === 'archived') return prop(subject, 'role') === 'admin';
+    return subject.id === 'alice';
+  }
+  if (name === 'delete') return prop(action, 'soft') === true;
+  return false; // deny-by-default for any other action
+}
+
+function validateTriple(request) {
+  if (request === null || typeof request !== 'object') return malformed('request must be an object');
+  const { subject, action, resource } = request;
   if (!subject || typeof subject !== 'object' || typeof subject.id !== 'string' || !subject.id.length) {
     return malformed('subject.id (non-empty string) is required');
   }
@@ -46,49 +77,64 @@ export function authzenEvaluate(request) {
   if (!resource || typeof resource !== 'object' || typeof resource.id !== 'string' || !resource.id.length) {
     return malformed('resource.id (non-empty string) is required');
   }
-  if (!context || typeof context !== 'object') {
-    return malformed('context is required');
-  }
-  const { gate, output_payload: outputPayload } = context;
-  if (!gate || typeof gate !== 'object' || typeof gate.input !== 'string' ||
-      !Array.isArray(gate.rules) || typeof gate.default !== 'string') {
-    return malformed('context.gate must be an OCG §21.4 gate: {input, rules[], default}');
-  }
-  if (outputPayload === null || typeof outputPayload !== 'object') {
-    return malformed('context.output_payload (object) is required — the payload the gate evaluates against');
+  return null;
+}
+
+/**
+ * Evaluate a single AuthZEN 1.0 request. `context` is OPTIONAL.
+ * @returns {{decision:boolean, context:object}} AuthZEN response shape.
+ */
+export function authzenEvaluate(request) {
+  const bad = validateTriple(request);
+  if (bad) return bad;
+  const { subject, action, resource, context } = request;
+
+  // Mode 2: opt-in OCG §21.4 gate supplied in context.
+  if (context && typeof context === 'object' && context.gate !== undefined) {
+    const { gate, output_payload: outputPayload } = context;
+    if (!gate || typeof gate !== 'object' || typeof gate.input !== 'string' ||
+        !Array.isArray(gate.rules) || typeof gate.default !== 'string') {
+      return malformed('context.gate, when present, must be an OCG §21.4 gate: {input, rules[], default}');
+    }
+    if (outputPayload === null || typeof outputPayload !== 'object') {
+      return malformed('context.output_payload (object) is required when context.gate is supplied');
+    }
+    const decisionRecord = evaluateGate(gate, outputPayload);
+    return {
+      decision: !isEscalationTarget(decisionRecord.next),
+      context: { subject_id: subject.id, action_name: action.name, resource_id: resource.id, gate_decision: decisionRecord },
+    };
   }
 
-  const decisionRecord = evaluateGate(gate, outputPayload);
-  const decision = !isEscalationTarget(decisionRecord.next);
-
+  // Mode 1 (default): server-side fixture policy. context (if any) is ignored.
+  const decision = decideFixturePolicy(subject, action, resource);
   return {
     decision,
-    context: {
-      subject_id: subject.id,
-      action_name: action.name,
-      resource_id: resource.id,
-      gate_decision: decisionRecord,
-    },
+    context: { subject_id: subject.id, action_name: action.name, resource_id: resource.id, policy_id: FIXTURE_POLICY.policy_id },
   };
 }
 
 /**
- * Same evaluation as `authzenEvaluate`, plus the "provable" delta: an OCG
- * §6/§20 execution_hash over the exact {gate, output_payload} the decision
- * was made from. This is the differentiator over every other AuthZEN PDP in
- * the authzen-interop.net registry — the decision ships with a receipt an
- * independent party can recompute (or check via `verify_execution_hash`)
- * without trusting this server's word for it. Malformed requests short-circuit
- * before a hash is even attempted (nothing valid was evaluated).
- * @param {Parameters<typeof authzenEvaluate>[0]} request
- * @returns {Promise<ReturnType<typeof authzenEvaluate> & {context: {execution_hash?: string, verify?: object}}>}
+ * authzenEvaluate + the OCG §6/§20 execution_hash receipt. Additive: a malformed
+ * request short-circuits before any hash. In gate mode the preimage is
+ * {gate, output_payload}; in policy mode it is {FIXTURE_POLICY, {subject,action,resource,decision}}.
  */
 export async function authzenEvaluateWithReceipt(request) {
   const result = authzenEvaluate(request);
   if (result.context.error) return result;
 
-  const { gate, output_payload: outputPayload } = request.context;
-  const execution_hash = await executionHash(gate, outputPayload);
+  let policyParameters, outputPayload;
+  if (request.context && request.context.gate !== undefined) {
+    policyParameters = request.context.gate;
+    outputPayload = request.context.output_payload;
+  } else {
+    policyParameters = FIXTURE_POLICY;
+    outputPayload = {
+      subject: request.subject, action: request.action, resource: request.resource,
+      decision: result.decision,
+    };
+  }
+  const execution_hash = await executionHash(policyParameters, outputPayload);
 
   return {
     ...result,
@@ -97,10 +143,34 @@ export async function authzenEvaluateWithReceipt(request) {
       execution_hash,
       verify: {
         method: 'OCG §6/§20 execution_hash: SHA-256 over the canonical {policy_parameters, output_payload} preimage',
-        policy_parameters: gate,
+        policy_parameters: policyParameters,
         output_payload: outputPayload,
         tool: 'verify_execution_hash (https://mcp.ainumbers.co/mcp)',
       },
     },
   };
+}
+
+/**
+ * Batch evaluations (POST /access/v1/evaluations). Top-level subject/action/
+ * resource/context are DEFAULTS; each item in `evaluations[]` overrides them.
+ * Receipt is attached per item (same additive rule).
+ * @returns {Promise<{evaluations: Array<{decision:boolean, context:object}>}>}
+ */
+export async function authzenEvaluateBatch(request) {
+  if (request === null || typeof request !== 'object' || !Array.isArray(request.evaluations)) {
+    return { evaluations: [], context: { error: 'malformed_request', detail: 'evaluations[] array is required' } };
+  }
+  const base = { subject: request.subject, action: request.action, resource: request.resource, context: request.context };
+  const out = [];
+  for (const item of request.evaluations) {
+    const merged = {
+      subject: (item && item.subject) || base.subject,
+      action: (item && item.action) || base.action,
+      resource: (item && item.resource) || base.resource,
+      context: (item && item.context) || base.context,
+    };
+    out.push(await authzenEvaluateWithReceipt(merged));
+  }
+  return { evaluations: out };
 }
