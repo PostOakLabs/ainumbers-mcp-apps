@@ -52,7 +52,7 @@ ok('malformed: no request', authzenEvaluate(undefined).decision === false && aut
 ok('malformed: missing subject.id', authzenEvaluate({ subject: {}, action, resource, context: { gate, output_payload: {} } }).context.error === 'malformed_request');
 ok('malformed: missing action.name', authzenEvaluate({ subject, action: {}, resource, context: { gate, output_payload: {} } }).context.error === 'malformed_request');
 ok('malformed: missing resource.id', authzenEvaluate({ subject, action, resource: {}, context: { gate, output_payload: {} } }).context.error === 'malformed_request');
-ok('malformed: missing context', authzenEvaluate({ subject, action, resource }).context.error === 'malformed_request');
+ok('no context: decides via built-in policy (context is OPTIONAL)', !('error' in authzenEvaluate({ subject, action, resource }).context));
 ok('malformed: context.gate not a gate shape', authzenEvaluate({ subject, action, resource, context: { gate: { input: '/x' }, output_payload: {} } }).context.error === 'malformed_request');
 ok('malformed: missing output_payload', authzenEvaluate({ subject, action, resource, context: { gate } }).context.error === 'malformed_request');
 ok('malformed: output_payload not an object', authzenEvaluate({ subject, action, resource, context: { gate, output_payload: 'nope' } }).context.error === 'malformed_request');

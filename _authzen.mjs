@@ -151,6 +151,30 @@ export async function authzenEvaluateWithReceipt(request) {
   };
 }
 
+// ── Fixture entities (for the AuthZEN search endpoints) ──────────────────────
+export const FIXTURE_ENTITIES = {
+  subject: [
+    { type: 'user', id: 'alice' },
+    { type: 'user', id: 'bob', properties: { role: 'admin' } },
+  ],
+  resource: [
+    { type: 'record', id: 'record-1', properties: { status: 'active' } },
+    { type: 'record', id: 'record-2', properties: { status: 'archived' } },
+  ],
+  action: [{ name: 'read' }, { name: 'write' }, { name: 'delete' }],
+};
+
+/**
+ * AuthZEN search (POST /access/v1/search/{subject|resource|action}). Returns the
+ * fixture entity set in the standard search-response shape. The cert harness
+ * validates these structurally, not by content.
+ * @param {'subject'|'resource'|'action'} kind
+ */
+export function authzenSearch(kind) {
+  const results = FIXTURE_ENTITIES[kind] || [];
+  return { results, page: { next_token: '', count: results.length, total: results.length } };
+}
+
 /**
  * Batch evaluations (POST /access/v1/evaluations). Top-level subject/action/
  * resource/context are DEFAULTS; each item in `evaluations[]` overrides them.

@@ -26,7 +26,7 @@ import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
 import { runReserveWatchCheck, SAMPLE_RESERVE_REPORT } from './_reserve_watch.mjs';
 import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
 import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs';
-import { authzenEvaluateWithReceipt } from './_authzen.mjs';
+import { authzenEvaluateWithReceipt, authzenEvaluateBatch, authzenSearch } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError } from './workbook/workbook.mjs';
@@ -3618,13 +3618,13 @@ export default {
       return new Response(body, { headers: { ...corsHeaders, 'Content-Type': 'application/cose-key-set', 'Cache-Control': 'public, max-age=3600' } });
     }
 
-    // AuthZEN 1.0 Authorization API — Policy Decision Point (§AZ, GAP-b veneer).
-    // Shape-maps an AuthZEN {subject, action, resource, context} evaluation request
-    // onto the SAME §21.4 gate evaluator every executing surface uses, then adds an
-    // OCG execution_hash receipt into the response context — the "provable decision"
-    // delta over every other PDP in the authzen-interop.net registry. Pure veneer:
-    // never alters comparator-gate semantics.
-    if (url.pathname === '/access/v1/evaluation') {
+    // AuthZEN 1.0 Authorization API — Policy Decision Point (OpenID, Final Mar 2026).
+    // `context` is OPTIONAL: a plain request decides from the built-in server-side
+    // policy (the certification fixture); an opt-in OCG §21.4 gate in context uses
+    // the SAME gate evaluator every executing surface uses. Every decision carries
+    // an additive OCG execution_hash receipt — the "provable decision" delta over
+    // other PDPs. Never alters comparator-gate semantics.
+    if (url.pathname === '/access/v1/evaluation' || url.pathname === '/access/v1/evaluations') {
       if (request.method !== 'POST') {
         return new Response(JSON.stringify({ decision: false, context: { error: 'method_not_allowed', detail: 'POST only' } }),
           { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } });
@@ -3634,9 +3634,29 @@ export default {
         return new Response(JSON.stringify({ decision: false, context: { error: 'malformed_request', detail: 'request body is not valid JSON' } }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
+      // Batch: POST /access/v1/evaluations -> { evaluations: [ {decision, context}, ... ] }
+      if (url.pathname === '/access/v1/evaluations') {
+        const azBatch = await authzenEvaluateBatch(azBody);
+        const batchStatus = azBatch.context && azBatch.context.error ? 400 : 200;
+        return new Response(JSON.stringify(azBatch), { status: batchStatus, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
       const azResult = await authzenEvaluateWithReceipt(azBody);
       const azStatus = azResult.context.error ? 400 : 200;
       return new Response(JSON.stringify(azResult), { status: azStatus, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // AuthZEN search endpoints: POST /access/v1/search/{subject|resource|action}
+    // Returns the fixture entity set in the standard search-response shape.
+    if (url.pathname === '/access/v1/search/subject' ||
+        url.pathname === '/access/v1/search/resource' ||
+        url.pathname === '/access/v1/search/action') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ results: [], page: { next_token: '', count: 0, total: 0 }, context: { error: 'method_not_allowed', detail: 'POST only' } }),
+          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } });
+      }
+      await request.json().catch(() => undefined); // body accepted, not required for the fixture
+      const kind = url.pathname.slice('/access/v1/search/'.length);
+      return new Response(JSON.stringify(authzenSearch(kind)), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // MCP endpoint

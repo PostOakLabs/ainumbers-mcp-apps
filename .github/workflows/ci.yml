@@ -110,6 +110,14 @@ jobs:
         # unresolved-pointer tamper cases.
         run: node scripts/validate-private-inputs.test.mjs
 
+      - name: 🔑 AuthZEN mapping (OCG §21.4 gate mode)
+        run: node scripts/authzen-mapping.test.mjs
+
+      - name: 🔑 AuthZEN certification fixtures (8 decisions + context-optional + batch)
+        # Proves the PDP returns the 8 mandated AuthZEN cert decisions with context
+        # optional, plus batch and the opt-in OCG gate mode, all with receipts.
+        run: node scripts/authzen-cert.test.mjs
+
       - name: 🕐 ttlMs cache-key is input-hash-only (§M1.5)
         # Proves the advertised cacheHint.cacheKey:"input_hash" contract: identical
         # policy_parameters (any key order) -> identical key; a changed input -> a
