@@ -27,6 +27,7 @@
       "compute_15c3_3_reserve",
       "verify_witness_cosignatures",
       "compute_discount_window_capacity",
+      "rollforward_y14_capital_worksheet",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -51,7 +52,8 @@
       "test_hpml_escrow",
       "test_bifsg_bias_thresholds",
       "compute_ltv_ratios",
-      "compute_rwa_erba_2026"
+      "compute_rwa_erba_2026",
+      "check_securitization_risk_retention"
     ],
     "emir": [
       "run_t1_readiness_diagnostic",

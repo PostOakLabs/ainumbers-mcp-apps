@@ -370,7 +370,16 @@ import * as art435    from './art-435-bhc-schedule-hc-balance-sheet.kernel.mjs';
 import * as art436    from './art-436-bhc-schedule-hcr-capital.kernel.mjs';
 import * as art437    from './art-437-fr2052a-inflow-outflow-classifier.kernel.mjs';
 import * as art438    from './art-438-eval-attestation-receipt-composer.kernel.mjs';
+import * as art439    from './art-439-y14-capital-worksheet-rollforward.kernel.mjs';
 import * as art44     from './art-44-arc-stablefx-model.kernel.mjs';
+import * as art442    from './art-442-nmd-behavioral-repricing-mapper.kernel.mjs';
+import * as art443    from './art-443-irrbb-basis-risk-nii-shock-calculator.kernel.mjs';
+import * as art444    from './art-444-collateral-haircut-engine.kernel.mjs';
+import * as art445    from './art-445-credit-concentration-topn-sector.kernel.mjs';
+import * as art446    from './art-446-counterparty-internal-limit-check.kernel.mjs';
+import * as art447    from './art-447-securitization-risk-retention-check.kernel.mjs';
+import * as art448    from './art-448-ifrs17-loss-component-tracker.kernel.mjs';
+import * as art449    from './art-449-solvency2-scr-module-aggregator.kernel.mjs';
 import * as art45     from './art-45-arc-xreserve-linter.kernel.mjs';
 import * as art46     from './art-46-arc-paymaster-model.kernel.mjs';
 import * as art47     from './art-47-arc-cctp-transfer.kernel.mjs';
@@ -812,7 +821,16 @@ export const KERNELS = {
   'art-436-bhc-schedule-hcr-capital':                         art436,
   'art-437-fr2052a-inflow-outflow-classifier':                art437,
   'art-438-eval-attestation-receipt-composer':                art438,
+  'art-439-y14-capital-worksheet-rollforward':                art439,
   'art-44-arc-stablefx-model':                                art44,
+  'art-442-nmd-behavioral-repricing-mapper':                  art442,
+  'art-443-irrbb-basis-risk-nii-shock-calculator':            art443,
+  'art-444-collateral-haircut-engine':                        art444,
+  'art-445-credit-concentration-topn-sector':                 art445,
+  'art-446-counterparty-internal-limit-check':                art446,
+  'art-447-securitization-risk-retention-check':              art447,
+  'art-448-ifrs17-loss-component-tracker':                    art448,
+  'art-449-solvency2-scr-module-aggregator':                  art449,
   'art-45-arc-xreserve-linter':                               art45,
   'art-46-arc-paymaster-model':                               art46,
   'art-47-arc-cctp-transfer':                                 art47,
