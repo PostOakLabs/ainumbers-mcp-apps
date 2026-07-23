@@ -35,6 +35,7 @@ export const UTILITY_TOOL_NAMES = [
   'redline_diff',
   'redline_verify',
   'lei_kyb_check',
+  'acdc_said_check',
   'workbook_evaluate',
   'workbook_range_digest',
   'workbook_csv_parse',

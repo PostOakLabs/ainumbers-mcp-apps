@@ -29,6 +29,7 @@ import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs
 import { authzenEvaluateWithReceipt, authzenEvaluateBatch, authzenSearch } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
+import { runAcdcSaidCheck } from './acdc-said-check.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError } from './workbook/workbook.mjs';
 import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
@@ -2782,6 +2783,27 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
+  server.registerTool('acdc_said_check', {
+    title: 'Recompute ACDC / vLEI credential SAIDs (structural integrity)',
+    description:
+      'Agent-facing mirror of the tools/553 browser workbench (VS-1) -- recomputes the self-addressing ' +
+      'identifiers (SAIDs) of a pasted ACDC / vLEI credential JSON (top-level "d" plus any nested a/e/r ' +
+      'blocks) under the KERI/CESR Blake3-256 ("E") or SHA2-256 ("I") derivation codes, and cross-checks ' +
+      'the declared schema SAID ("s") against a pinned table of 6 official GLEIF vLEI schema SAIDs. Reuses ' +
+      'the SAME vendored SAID-check module as T553 -- the same credential produces byte-identical findings ' +
+      'in either surface. Returns per-field match/mismatch/unsupported/unknown findings plus a receipt. ' +
+      'This is a STRUCTURAL check only -- NOT the KERI chain of trust, NOT issuer authority, NOT revocation ' +
+      'state. No network egress.',
+    inputSchema: {
+      credential: z.record(z.any()).describe('ACDC / vLEI credential JSON object (v, d, i, ri, s, a, e, r fields).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ credential }) => {
+    const result = await runAcdcSaidCheck({ credential });
+    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
   // -------------------------------------------------------------------------
   // Workbook tools (WB-4) -- agent-facing parity with the browser workbook
   // (tools/554-workbook-table-editor.html, WB-1/2/3). Reuses WB-1's headless
@@ -3350,7 +3372,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion',
-    'redline_diff', 'redline_verify', 'lei_kyb_check',
+    'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
     'pain001_validate', 'camt053_parse', 'recon_match',
   ]);
