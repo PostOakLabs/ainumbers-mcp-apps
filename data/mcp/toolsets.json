@@ -26,6 +26,7 @@
       "convert_tempo_fee_amm",
       "compute_15c3_3_reserve",
       "verify_witness_cosignatures",
+      "compute_discount_window_capacity",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -96,6 +97,7 @@
       "lint_trace_cat_reports",
       "validate_regf_call_frequency",
       "verify_witness_cosignatures",
+      "compute_cyber_incident_notification_clock",
       "verify_merkle_batch"
     ],
     "ai-act": [
