@@ -98,6 +98,7 @@
       "validate_regf_call_frequency",
       "verify_witness_cosignatures",
       "compute_cyber_incident_notification_clock",
+      "compose_eval_attestation_receipt",
       "verify_merkle_batch"
     ],
     "ai-act": [
