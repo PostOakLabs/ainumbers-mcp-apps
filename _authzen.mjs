@@ -65,6 +65,70 @@ export function decideFixturePolicy(subject, action, resource) {
   return false; // deny-by-default for any other action
 }
 
+// ── Official interop harness policy (openid/authzen todo-app scenario) ──────
+// AUTHZEN-CERT-HARNESS-2: the `authzen-todo-backend` reference harness
+// (openid/authzen interop/authzen-todo-backend) validates against a FIXED
+// citadel/smith user set with `can_read_user`/`can_read_todos`/
+// `can_create_todo`/`can_update_todo`/`can_delete_todo` actions — a distinct
+// action vocabulary from the certification fixture above. Handled as a
+// separate total rule set so the certification fixture (read/write/delete)
+// is untouched. Directory + expected decisions are public test fixtures from
+// the harness's own `src/directory.ts` + `test/decisions-*.json`, not secrets.
+export const TODO_APP_POLICY = {
+  policy_id: 'authzen-todo-app-interop-v1',
+  rules: [
+    'can_read_user: permit',
+    'can_read_todos: permit',
+    'can_create_todo: permit iff subject.roles includes "admin" or "editor"',
+    'can_update_todo / can_delete_todo: permit iff admin, or (editor and resource ownerID == subject id)',
+    'default: deny',
+  ],
+};
+
+const TODO_DIRECTORY = {
+  'rick@the-citadel.com': { id: 'rick@the-citadel.com', roles: ['admin', 'evil_genius'] },
+  'CiRmZDA2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs': { id: 'rick@the-citadel.com', roles: ['admin', 'evil_genius'] },
+  'morty@the-citadel.com': { id: 'morty@the-citadel.com', roles: ['editor'] },
+  'CiRmZDE2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs': { id: 'morty@the-citadel.com', roles: ['editor'] },
+  'summer@the-smiths.com': { id: 'summer@the-smiths.com', roles: ['editor'] },
+  'CiRmZDI2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs': { id: 'summer@the-smiths.com', roles: ['editor'] },
+  'beth@the-smiths.com': { id: 'beth@the-smiths.com', roles: ['viewer'] },
+  'CiRmZDM2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs': { id: 'beth@the-smiths.com', roles: ['viewer'] },
+  'jerry@the-smiths.com': { id: 'jerry@the-smiths.com', roles: ['viewer'] },
+  'CiRmZDQ2MTRkMy1jMzlhLTQ3ODEtYjdiZC04Yjk2ZjVhNTEwMGQSBWxvY2Fs': { id: 'jerry@the-smiths.com', roles: ['viewer'] },
+};
+
+const TODO_ACTIONS = new Set([
+  'can_read_user', 'can_read_todos', 'can_create_todo', 'can_update_todo', 'can_delete_todo',
+]);
+
+function resolveTodoUser(subject) {
+  const key = subject && (subject.identity || subject.id);
+  return (key && TODO_DIRECTORY[key]) || null;
+}
+
+function ownerIdOf(resource) {
+  return (resource && resource.ownerID) || prop(resource, 'ownerID');
+}
+
+/** Pure todo-app interop policy → boolean. Total rule set, deny-by-default. */
+export function decideTodoAppPolicy(subject, action, resource) {
+  const name = action.name;
+  if (name === 'can_read_user' || name === 'can_read_todos') return true;
+  const user = resolveTodoUser(subject);
+  const roles = (user && user.roles) || [];
+  const isAdmin = roles.includes('admin');
+  const isEditor = roles.includes('editor');
+  if (name === 'can_create_todo') return isAdmin || isEditor;
+  if (name === 'can_update_todo' || name === 'can_delete_todo') {
+    if (isAdmin) return true;
+    if (!isEditor) return false;
+    const uid = (user && user.id) || subject.id;
+    return ownerIdOf(resource) === uid;
+  }
+  return false;
+}
+
 function validateTriple(request) {
   if (request === null || typeof request !== 'object') return malformed('request must be an object');
   const { subject, action, resource } = request;
@@ -106,11 +170,19 @@ export function authzenEvaluate(request) {
     };
   }
 
-  // Mode 1 (default): server-side fixture policy. context (if any) is ignored.
-  const decision = decideFixturePolicy(subject, action, resource);
+  // Mode 1 (default): server-side policy. context (if any) is ignored.
+  // The interop harness's todo-app actions dispatch to a separate rule set
+  // (TODO_APP_POLICY) from the certification fixture (FIXTURE_POLICY).
+  const usesTodoAppPolicy = TODO_ACTIONS.has(action.name);
+  const decision = usesTodoAppPolicy
+    ? decideTodoAppPolicy(subject, action, resource)
+    : decideFixturePolicy(subject, action, resource);
   return {
     decision,
-    context: { subject_id: subject.id, action_name: action.name, resource_id: resource.id, policy_id: FIXTURE_POLICY.policy_id },
+    context: {
+      subject_id: subject.id, action_name: action.name, resource_id: resource.id,
+      policy_id: usesTodoAppPolicy ? TODO_APP_POLICY.policy_id : FIXTURE_POLICY.policy_id,
+    },
   };
 }
 
@@ -128,7 +200,7 @@ export async function authzenEvaluateWithReceipt(request) {
     policyParameters = request.context.gate;
     outputPayload = request.context.output_payload;
   } else {
-    policyParameters = FIXTURE_POLICY;
+    policyParameters = TODO_ACTIONS.has(request.action.name) ? TODO_APP_POLICY : FIXTURE_POLICY;
     outputPayload = {
       subject: request.subject, action: request.action, resource: request.resource,
       decision: result.decision,
