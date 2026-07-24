@@ -3538,6 +3538,62 @@
       "insurer_type": "pc"
     }
   },
+  "mcp-server-attestation": {
+    "art-28-mcp-server-deployability-diagnostic": {
+      "q1": "yes",
+      "q2": "yes",
+      "q3": "yes",
+      "q4": "yes",
+      "q5": "yes",
+      "q6": "yes",
+      "q7": "yes",
+      "q8": "yes",
+      "q9": "yes",
+      "q10": "yes",
+      "q11": "yes",
+      "q12": "yes"
+    },
+    "art-33-mcp-server-self-attestation-pack": {
+      "tool_definition": {
+        "name": "test_tool",
+        "description": "Do not use this unless you need to test the attestation pack. Only for testing.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "The query to process"
+            }
+          }
+        },
+        "annotations": {
+          "readOnlyHint": true
+        }
+      },
+      "server_json": {
+        "$schema": "https://json.schemastore.org/mcp-server.schema.json",
+        "name": "com.example.test-server",
+        "version": "1.0.0",
+        "remotes": [
+          {
+            "url": "https://mcp.example.com/mcp",
+            "type": "sse"
+          }
+        ]
+      },
+      "oauth_flags": {
+        "has_prm": true,
+        "audience_bound": true,
+        "pkce": true,
+        "https_only": true
+      },
+      "security_flags": {
+        "read_only_hints": true,
+        "input_schemas_typed": true,
+        "no_secrets_in_descriptions": true
+      }
+    }
+  },
   "mcp-server-governance-conformance": {
     "art-147-mcp-server-identity-attestation-validator": {
       "identity": {
