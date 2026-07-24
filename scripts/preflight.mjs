@@ -44,12 +44,20 @@ const FULL = process.argv.includes('--full');
 
 // Each gate: { name, args:[...node argv], env?, needsSite? }. Mirrors .github/workflows/ci.yml "validate".
 const gates = [
+  { name: 'preflight↔CI parity (no gate drift)',  args: ['scripts/check-preflight-parity.mjs'] },
   { name: 'tool-name collisions',                 args: ['scripts/check-tool-names.mjs'] },
+  { name: 'WASM deterministic self-test (§CW-1.b)',args: ['scripts/check-wasm-deterministic.selftest.mjs'] },
+  { name: 'WASM deterministic profile (§CW-1.b)', args: ['scripts/check-wasm-deterministic.mjs'] },
   { name: 'surface-parity (counts/discovery)',    args: ['scripts/surface-parity.mjs'] },
   { name: 'worker hot-path invariants',           args: ['scripts/check-worker-invariants.mjs'] },
+  { name: 'malformed-body fast-fail (audit F1)',  args: ['scripts/test-malformed-body-fastfail.mjs'] },
   { name: 'build parity + pre-deploy count guard',args: ['scripts/build-mcp-parity.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
+  { name: 'input-attestations gate (§23)',        args: ['scripts/validate-input-attestations.test.mjs'] },
+  { name: 'private-inputs gate (§25)',            args: ['scripts/validate-private-inputs.test.mjs'] },
+  { name: 'AuthZEN mapping (§21.4)',              args: ['scripts/authzen-mapping.test.mjs'] },
+  { name: 'AuthZEN certification fixtures',       args: ['scripts/authzen-cert.test.mjs'] },
   { name: 'cross-tool artifact round-trip (AUD-C1)', args: ['scripts/gate-crosstool-roundtrip.mjs'] },
   { name: 'export-format consistency (AUD-C2)',    args: ['scripts/gate-export-format-consistency.mjs'] },
   { name: 'negative gate-enforcement (AUD-E2)',    args: ['scripts/gate-negative-enforcement.mjs'] },

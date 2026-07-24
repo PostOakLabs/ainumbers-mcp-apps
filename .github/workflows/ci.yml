@@ -37,6 +37,12 @@ jobs:
         # broken bundle now blocks the deploy instead of taking the worker down.
         run: npx wrangler@4.99.0 deploy --dry-run --outdir /tmp/worker-build
 
+      - name: 🔁 Preflight↔CI parity (no gate drift)
+        # Fails if this Validate job runs a `node scripts/*.mjs` gate that the local
+        # pre-push preflight.mjs does NOT run — the drift that let §23 reach CI-red on
+        # master (run 30105102021, 2026-07-24). Keeps "green preflight ⇒ green CI" true.
+        run: node scripts/check-preflight-parity.mjs
+
       - name: 🏷 Tool-name collision check (CONTRACT §A4.1)
         # Fails on a fatal mcp_name collision (node-vs-node, pilot-vs-pilot, or utility
         # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
