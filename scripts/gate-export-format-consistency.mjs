@@ -118,12 +118,24 @@ function findHexHash(text) {
   // the words "execution_hash" in prose (e.g. art-251's output_payload describes creating "an
   // execution_hash immediately upon trigger event") BEFORE the metadata block that carries the
   // real value, so first-label-only anchoring returns null for such artifacts even though the
-  // hash is present. Return the 64-hex from the first label window that actually contains one.
+  // hash is present.
+  // Some artifacts (e.g. art-306/307's claim/receipt-bundle output_payload) legitimately ECHO
+  // their own input arrays, each element carrying an "execution_hash"/"receipt_hash" label next
+  // to a real-looking 64-hex value (placeholder aaaa…/bbbb… hashes in fixture data) — those
+  // labels sort before the metadata block's true label and would be picked up by a first-match
+  // scan. exporters/_meta.mjs metaBlock() always renders chaingraph_version immediately after
+  // execution_hash, and no input-echoed object carries that field, so prefer the first window
+  // that contains BOTH labels (the real metadata block); fall back to any hex-bearing window
+  // only if no such block is found.
+  let fallback = null;
   for (const label of text.matchAll(/execution_?[Hh]ash/g)) {
-    const m = text.slice(label.index, label.index + 400).match(/[0-9a-f]{64}/);
-    if (m) return m[0];
+    const window = text.slice(label.index, label.index + 400);
+    const m = window.match(/[0-9a-f]{64}/);
+    if (!m) continue;
+    if (fallback === null) fallback = m[0];
+    if (/chaingraph_?[Vv]ersion/.test(window)) return m[0];
   }
-  return null;
+  return fallback;
 }
 
 async function main() {
