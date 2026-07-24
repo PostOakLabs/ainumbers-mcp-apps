@@ -2928,7 +2928,7 @@ function getDilithium(opts_) {
     });
 }
 /** ML-DSA-44 for 128-bit security level. Not recommended after 2030, as per ASD. */
-const ml_dsa44 = /* @__PURE__ */ (() => getDilithium({
+export const ml_dsa44 = /* @__PURE__ */ (() => getDilithium({
     ...PARAMS[2],
     CRH_BYTES: 64,
     TR_BYTES: 64,
@@ -2972,7 +2972,13 @@ async function sha256(bytes) {
 // Secured document = artifact MINUS audit_signature.proof (a proof is never part of its own input).
 function securedDocument(artifact) {
   const a = structuredClone(artifact);
-  if (a && a.audit_signature && 'proof' in a.audit_signature) delete a.audit_signature.proof;
+  if (a && a.audit_signature && 'proof' in a.audit_signature) {
+    delete a.audit_signature.proof;
+    // A proof-only audit_signature (no DSSE fields) was synthesized purely to hold the proof —
+    // strip the now-empty wrapper so the secured document is byte-identical to a pre-sign artifact
+    // that had no audit_signature key at all (else JCS canon diverges → verify always fails). §16.
+    if (Object.keys(a.audit_signature).length === 0) delete a.audit_signature;
+  }
   return a;
 }
 
