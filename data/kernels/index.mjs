@@ -388,13 +388,16 @@ import * as art453    from './art-453-model-validation-status.kernel.mjs';
 import * as art454    from './art-454-globe-jurisdictional-etr.kernel.mjs';
 import * as art455    from './art-455-globe-sbie-topup.kernel.mjs';
 import * as art456    from './art-456-globe-safe-harbour-tests.kernel.mjs';
+import * as art457    from './art-457-globe-gir-composer.kernel.mjs';
 import * as art458    from './art-458-attribute-sampling-plan.kernel.mjs';
 import * as art459    from './art-459-sod-matrix-check.kernel.mjs';
 import * as art46     from './art-46-arc-paymaster-model.kernel.mjs';
 import * as art460    from './art-460-ipe-integrity-verifier.kernel.mjs';
+import * as art461    from './art-461-control-test-evidence-composer.kernel.mjs';
 import * as art462    from './art-462-je-ruleset-screen.kernel.mjs';
 import * as art463    from './art-463-recalc-suite.kernel.mjs';
 import * as art464    from './art-464-confirmation-matcher.kernel.mjs';
+import * as art465    from './art-465-workpaper-bundle-composer.kernel.mjs';
 import * as art466    from './art-466-dora-roi-builder.kernel.mjs';
 import * as art467    from './art-467-dora-incident-classifier.kernel.mjs';
 import * as art47     from './art-47-arc-cctp-transfer.kernel.mjs';
@@ -856,13 +859,16 @@ export const KERNELS = {
   'art-454-globe-jurisdictional-etr':                         art454,
   'art-455-globe-sbie-topup':                                 art455,
   'art-456-globe-safe-harbour-tests':                         art456,
+  'art-457-globe-gir-composer':                               art457,
   'art-458-attribute-sampling-plan':                          art458,
   'art-459-sod-matrix-check':                                 art459,
   'art-46-arc-paymaster-model':                               art46,
   'art-460-ipe-integrity-verifier':                           art460,
+  'art-461-control-test-evidence-composer':                   art461,
   'art-462-je-ruleset-screen':                                art462,
   'art-463-recalc-suite':                                     art463,
   'art-464-confirmation-matcher':                             art464,
+  'art-465-workpaper-bundle-composer':                        art465,
   'art-466-dora-roi-builder':                                 art466,
   'art-467-dora-incident-classifier':                         art467,
   'art-47-arc-cctp-transfer':                                 art47,

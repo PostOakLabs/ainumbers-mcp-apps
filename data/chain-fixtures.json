@@ -2582,6 +2582,42 @@
       "tp_ict": false
     }
   },
+  "dora-roi-annual-cycle": {
+    "art-466-dora-roi-builder": {
+      "entity": {
+        "entity_name": "Test Bank NV",
+        "entity_lei": "529900T8BM49AURSDO55"
+      },
+      "providers": [
+        {
+          "provider_id": "prov-1",
+          "name": "CloudCo Ireland Ltd",
+          "lei": "529900T8BM49AURSDO55",
+          "country": "IE",
+          "service_type": "cloud_iaas"
+        }
+      ],
+      "functions": [
+        {
+          "function_id": "fn-1",
+          "provider_id": "prov-1",
+          "name": "Core banking hosting",
+          "critical": true,
+          "function_type": "ict_services"
+        }
+      ],
+      "contracts": [
+        {
+          "contract_id": "ctr-1",
+          "function_id": "fn-1",
+          "provider_id": "prov-1",
+          "contract_reference": "CTR-2026-001",
+          "start_date": "2024-01-01",
+          "governing_law": "Ireland"
+        }
+      ]
+    }
+  },
   "ebl-control-evidence": {
     "art-352-etr-control-evidence-checker": {
       "document_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -2964,6 +3000,87 @@
   "genius-reserve-disclosure": {
     "art-275-genius-reserve-disclosure-checker": {}
   },
+  "globe-annual-cycle": {
+    "art-454-globe-jurisdictional-etr": {
+      "jurisdiction_name": "Ruritania",
+      "minimum_rate": 0.15,
+      "entities": [
+        {
+          "entity_name": "Ruritania OpCo 1",
+          "net_income_or_loss": 600000,
+          "covered_taxes": 60000
+        },
+        {
+          "entity_name": "Ruritania OpCo 2",
+          "net_income_or_loss": 300000,
+          "covered_taxes": 30000
+        },
+        {
+          "entity_name": "Ruritania HoldCo",
+          "net_income_or_loss": 100000,
+          "covered_taxes": 10000
+        }
+      ],
+      "de_minimis_election": false,
+      "stock_based_comp_election": false,
+      "aggregate_deferred_tax_adjustment": false
+    },
+    "art-456-globe-safe-harbour-tests": {
+      "revenue_eur": 8000000,
+      "profit_before_tax_eur": 500000,
+      "simplified_covered_taxes": 10000,
+      "fiscal_year": 2024,
+      "sbie_amount": 0
+    },
+    "art-455-globe-sbie-topup": {
+      "payroll_costs": 10000000,
+      "tangible_asset_carrying_value": 20000000,
+      "target_year": 2025,
+      "policy_rate_table": [
+        {
+          "year": 2024,
+          "payroll_rate": 0.1,
+          "tangible_asset_rate": 0.08
+        },
+        {
+          "year": 2025,
+          "payroll_rate": 0.096,
+          "tangible_asset_rate": 0.074
+        },
+        {
+          "year": 2026,
+          "payroll_rate": 0.092,
+          "tangible_asset_rate": 0.068
+        }
+      ],
+      "globe_income": 5000000,
+      "top_up_tax_percentage": 0.03,
+      "qdmtt_paid": 20000
+    },
+    "art-457-globe-gir-composer": {
+      "mne_group_name": "Acme Global Group",
+      "fiscal_year": 2024,
+      "gir_schema_version": "OECD-GIR-2023-07",
+      "jurisdictions": [
+        {
+          "jurisdiction_code": "DE",
+          "jurisdictional_etr": 0.12,
+          "sbie_amount": 500000,
+          "topup_tax": 900000,
+          "constituent_entities": [
+            {
+              "entity_name": "Acme DE Holdco",
+              "allocation_share": 0.6
+            },
+            {
+              "entity_name": "Acme DE OpCo",
+              "allocation_share": 0.4
+            }
+          ]
+        }
+      ]
+    }
+  },
   "gpi-mt-to-mx-translation": {
     "art-244-gpi-tracker-lifecycle-simulator": {
       "current_status": "ACSP",
@@ -3016,6 +3133,47 @@
           "actual_amount": 1000000,
           "forecast_amount": 1020000,
           "horizon_days": 1
+        }
+      ]
+    }
+  },
+  "icfr-control-test-cycle": {
+    "art-461-control-test-evidence-composer": {
+      "control_id": "CTRL-AP-014",
+      "population_hash": "sha256:pop-aaa111",
+      "reporting_period": "2026-Q2",
+      "tester_id": "tester-jsmith",
+      "tolerable_exception_count": 0,
+      "sample": [
+        {
+          "item_id": "INV-1001"
+        },
+        {
+          "item_id": "INV-1002"
+        },
+        {
+          "item_id": "INV-1003"
+        },
+        {
+          "item_id": "INV-1004"
+        }
+      ],
+      "test_results": [
+        {
+          "item_id": "INV-1001",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1002",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1003",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1004",
+          "result": "pass"
         }
       ]
     }
@@ -4660,6 +4818,243 @@
   },
   "state-proof-verification": {
     "art-279-state-proof-verifier": {}
+  },
+  "substantive-procedure-cycle": {
+    "art-462-je-ruleset-screen": {
+      "ruleset_version": "2026.1",
+      "extract_population_hash": "sha256:abc123",
+      "active_rules": [
+        "weekend_holiday",
+        "round_number",
+        "suspense_manual",
+        "post_close",
+        "unusual_user_account"
+      ],
+      "rule_params": {
+        "weekend_days": [
+          0,
+          6
+        ],
+        "holiday_dates": [
+          "2026-01-01"
+        ],
+        "round_number_increment": 1000,
+        "suspense_accounts": [
+          "9999-SUSPENSE"
+        ],
+        "post_close_date": "2026-01-31",
+        "authorized_user_account_pairs": [
+          {
+            "user_id": "u1",
+            "account_id": "1000-CASH"
+          },
+          {
+            "user_id": "u2",
+            "account_id": "2000-AP"
+          }
+        ]
+      },
+      "entries": [
+        {
+          "entry_id": "JE-1",
+          "posting_date": "2026-01-10",
+          "amount": 5000,
+          "account_id": "1000-CASH",
+          "user_id": "u1",
+          "description": "round posting",
+          "is_manual": false
+        },
+        {
+          "entry_id": "JE-2",
+          "posting_date": "2026-01-11",
+          "amount": 1234.56,
+          "account_id": "9999-SUSPENSE",
+          "user_id": "u2",
+          "description": "suspense clearing",
+          "is_manual": false
+        },
+        {
+          "entry_id": "JE-3",
+          "posting_date": "2026-02-03",
+          "amount": 750,
+          "account_id": "3000-EXP",
+          "user_id": "u1",
+          "description": "post close adj",
+          "is_manual": false
+        },
+        {
+          "entry_id": "JE-4",
+          "posting_date": "2026-01-12",
+          "amount": 420,
+          "account_id": "4000-REV",
+          "user_id": "u3",
+          "description": "unusual pairing",
+          "is_manual": false
+        },
+        {
+          "entry_id": "JE-5",
+          "posting_date": "2026-01-13",
+          "amount": 310,
+          "account_id": "1000-CASH",
+          "user_id": "u1",
+          "description": "clean entry",
+          "is_manual": false
+        }
+      ]
+    },
+    "art-463-recalc-suite": {
+      "tolerance": {
+        "abs": 0,
+        "pct": 5
+      },
+      "depreciation": [
+        {
+          "asset_id": "A-1",
+          "method": "straight_line",
+          "cost": 10000,
+          "salvage_value": 1000,
+          "useful_life_years": 9,
+          "period_number": 1,
+          "client_reported_depreciation": 1000
+        }
+      ],
+      "interest_accrual": [
+        {
+          "item_id": "I-1",
+          "principal": 100000,
+          "annual_rate_pct": 6,
+          "days_accrued": 90,
+          "day_count_basis": "actual_360",
+          "client_reported_interest": 1490
+        }
+      ],
+      "eps": [
+        {
+          "label": "FY2026",
+          "net_income": 5000000,
+          "preferred_dividends": 200000,
+          "weighted_avg_shares_basic": 1000000,
+          "weighted_avg_shares_diluted": 1100000,
+          "client_reported_eps_basic": 4.8,
+          "client_reported_eps_diluted": 3.8
+        }
+      ],
+      "amortization": [
+        {
+          "item_id": "M-1",
+          "principal": 120000,
+          "periods_total": 10,
+          "client_reported_amortization": 12000
+        }
+      ],
+      "prepaid_rollforward": [
+        {
+          "item_id": "P-1",
+          "beginning_balance": 50000,
+          "additions": 10000,
+          "amortized_current_period": 5000,
+          "client_reported_ending_balance": 60000
+        }
+      ]
+    },
+    "art-464-confirmation-matcher": {
+      "tolerance_abs": 0,
+      "tolerance_pct": 2,
+      "confirmations": [
+        {
+          "confirmation_id": "C-1",
+          "counterparty_id": "cp-A",
+          "type": "bank",
+          "confirmed_balance": 100000,
+          "confirmation_date": "2026-01-31"
+        },
+        {
+          "confirmation_id": "C-2",
+          "counterparty_id": "cp-B",
+          "type": "bank",
+          "confirmed_balance": 50100,
+          "confirmation_date": "2026-01-31"
+        },
+        {
+          "confirmation_id": "C-3",
+          "counterparty_id": "cp-C",
+          "type": "ar",
+          "confirmed_balance": 20000,
+          "confirmation_date": "2026-01-31"
+        },
+        {
+          "confirmation_id": "C-4",
+          "counterparty_id": "cp-D",
+          "type": "ar",
+          "confirmed_balance": 7500,
+          "confirmation_date": "2026-01-31"
+        }
+      ],
+      "ledger_balances": [
+        {
+          "counterparty_id": "cp-A",
+          "type": "bank",
+          "ledger_balance": 100000,
+          "as_of_date": "2026-01-31"
+        },
+        {
+          "counterparty_id": "cp-B",
+          "type": "bank",
+          "ledger_balance": 50000,
+          "as_of_date": "2026-01-31"
+        },
+        {
+          "counterparty_id": "cp-C",
+          "type": "ar",
+          "ledger_balance": 15000,
+          "as_of_date": "2026-01-31"
+        },
+        {
+          "counterparty_id": "cp-E",
+          "type": "ar",
+          "ledger_balance": 9000,
+          "as_of_date": "2026-01-31"
+        }
+      ]
+    },
+    "art-465-workpaper-bundle-composer": {
+      "procedure_id": "PROC-AR-CONFIRM-2026Q2",
+      "population_hash": "sha256:aaaa1111bbbb2222",
+      "kernel_artifacts": [
+        {
+          "tool_id": "art-462-je-ruleset-screen",
+          "execution_hash": "1111aaaa"
+        },
+        {
+          "tool_id": "art-463-recalc-suite",
+          "execution_hash": "2222bbbb"
+        },
+        {
+          "tool_id": "art-464-confirmation-matcher",
+          "execution_hash": "3333cccc"
+        }
+      ],
+      "exceptions": [
+        {
+          "item_id": "EXC-1",
+          "reason_code": "TOLERANCE_EXCEEDED",
+          "disposition": "ACCEPTED_IMMATERIAL",
+          "disposed_by_role": "engagement_reviewer"
+        }
+      ],
+      "preparer": {
+        "role": "staff_auditor",
+        "statement": "Prepared the substantive procedure workpapers for this area."
+      },
+      "reviewer": {
+        "role": "engagement_reviewer",
+        "statement": "Reviewed the prepared workpapers and disposed all noted exceptions."
+      },
+      "partner": {
+        "role": "engagement_partner",
+        "statement": "Released the area for reporting."
+      }
+    }
   },
   "swift-ledger-transfer-readiness": {
     "art-288-map-iso20022-to-evm-calldata": {
