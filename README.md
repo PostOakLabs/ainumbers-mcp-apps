@@ -23,6 +23,19 @@ No auth, no API key, no account. Production runs on Cloudflare Workers (`/health
 
 **Live endpoint:** `https://mcp.ainumbers.co/mcp` (streamable HTTP) · **Docs:** [ainumbers.co/mcp.html](https://ainumbers.co/mcp.html) · **Registry:** [`co.ainumbers/tools`](https://registry.modelcontextprotocol.io/v0.1/servers?search=co.ainumbers) on the Official MCP Registry
 
+## Run your own (org-hosted)
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/PostOakLabs/ainumbers-mcp-apps)
+
+Fork this repo and deploy the button above to run the same server inside your own Cloudflare account: no auth to add, no build step at deploy time, the Worker boots straight from the `data/` and `kernels/` already committed here.
+
+Two edits to `wrangler.jsonc` before that first deploy will succeed on a fresh account:
+
+- **`routes`** points at `mcp.ainumbers.co`, a zone this fork doesn't own. Rename `name` and either delete `routes` (ship on the free `workers.dev` subdomain) or point it at a zone in your own account.
+- **`queues` / `workflows`** feed an internal analytics loop and are guarded in code (`if (env.EVENTS_QUEUE)`, `if (env.RENEWAL_WATCH_WORKFLOW)`) — the MCP handshake and every tool call work without them. Queues need a Workers Paid plan; drop both blocks to stay free-tier.
+
+Everything else, including the `ASSETS` binding serving the committed tool data, works unmodified. Full write-up (WAF rate-limit recipe, re-vendor cadence, conformance-attestation offer): [ainumbers.co/mcp.html#deploy-your-own](https://ainumbers.co/mcp.html#deploy-your-own).
+
 ## Tools
 
 **Read-only MCP tools** — count intentionally not hardcoded here (it drifted stale the last time it was). See `data/counts.json` for the live figure; never hand-type this number, `scripts/surface-parity.mjs` and the site repo's count-drift gate both check against it. Fifteen tools render as interactive widgets, the rest are ChainGraph compute nodes plus a handful of catalog and discovery utility tools: `list_ainumbers_tools`, `find_tool`, `find_chain`, `build_workflow_links`, `run_chain`, `verify_execution_hash`, `build_chaingraph`, `emit_chaingraph_artifact`, `build_session_receipt`.
