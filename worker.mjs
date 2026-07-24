@@ -12,6 +12,9 @@ import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
+import { isConformantEvidence as haIsConformantEvidence, evaluateHaGate } from './kernels/_hagate.mjs';
+import { assembleEvidenceBundle, exportEvidenceBundleSdJwt } from './kernels/_haevidence.mjs';
+import { rawPubkeyToDidKey } from './kernels/_proof.mjs';
 import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
 import { validateDefinition as checklistValidateDefinition, definitionDigest as checklistDefinitionDigest, buildStepReceipt as checklistBuildStepReceipt, verifyRun as checklistVerifyRun } from './checkrun.mjs';
@@ -2607,6 +2610,102 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ step_receipts, run_receipt }) => {
     const result = await checklistVerifyRun({ runReceipt: run_receipt ?? null, stepReceipts: step_receipts });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  // -------------------------------------------------------------------------
+  // §27 Human Accountability worker MCP parity (HA-RETRO-1) -- headless agent
+  // access to the same gate-precondition evaluator and evidence-bundle assembler
+  // that back the browser verify.html HA signing/gate/export card. Wraps
+  // kernels/_hagate.mjs + kernels/_haevidence.mjs verbatim; no second implementation.
+  // -------------------------------------------------------------------------
+  server.registerTool('ha_record_validate', {
+    title: 'Validate a §27 human-accountability record',
+    description:
+      'Structural (non-cryptographic) §27.2 signed-named-human check: does this record carry a §16 ' +
+      'whole-artifact proof (eddsa-jcs-2022) whose verificationMethod is bound to the record\'s own ' +
+      'identity.id? Does NOT verify the signature bytes -- pair with verify_execution_hash / a proof ' +
+      'verifier for that. Use before counting a record toward ha_gate_status.',
+    inputSchema: {
+      record: z.record(z.any()).describe('A single human_accountability_records[] entry to check.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ record }) => {
+    const conformant = haIsConformantEvidence(record);
+    const result = {
+      conformant,
+      reason: conformant
+        ? '§27.2 structural shape present: eddsa-jcs-2022 proof with verificationMethod bound to identity.id'
+        : 'missing audit_signature.proof, wrong cryptosuite, or verificationMethod not bound to identity.id',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('ha_gate_status', {
+    title: 'Evaluate a §27.4/§27.5 human-accountability gate precondition',
+    description:
+      'Given a step\'s haGatePolicy and the human_accountability_records[] collected for a subject, ' +
+      'returns whether the gate is satisfied, held, rejected, escalated, or overridden -- same algorithm ' +
+      'as the browser verify.html HA gate card (kernels/_hagate.mjs, SPEC.md §27.4-27.5). A rejection ' +
+      'record is terminal-blocking regardless of policy; an active time-boxed override (§27.5) takes ' +
+      'precedence over the underlying policy. Pure function: caller supplies nowISO for determinism.',
+    inputSchema: {
+      gate_policy: z.enum(['auto_pass', 'review_required', 'dual_control', 'escalate', 'hold', 'reject', 'emergency_override']).describe('The step\'s declared haGatePolicy.'),
+      threshold: z.number().int().min(1).optional().describe('N for dual_control/review_required/hold. Default 1 (2 for dual_control).'),
+      role: z.string().describe('The haRole a satisfying approval record must carry.'),
+      subject_hash: z.string().describe('The sealed artifact\'s sha256: subject hash.'),
+      records: z.array(z.record(z.any())).optional().describe('Collected human_accountability_records over this subject. Default: [].'),
+      now_iso: z.string().describe('Caller-supplied ISO 8601 clock (determinism; never Date.now() internally).'),
+      require_conformant: z.boolean().optional().describe('Require §27.2 structural signature shape on every record (default true).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ gate_policy, threshold, role, subject_hash, records, now_iso, require_conformant }) => {
+    const result = evaluateHaGate({
+      gatePolicy: gate_policy, threshold, role, subjectHash: subject_hash,
+      records: records || [], nowISO: now_iso,
+      requireConformant: require_conformant === undefined ? true : require_conformant,
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  server.registerTool('ha_bundle_export', {
+    title: 'Assemble (and optionally SD-JWT-export) a §27.6 evidence bundle',
+    description:
+      'Assembles a §27.6 haEvidenceBundle from a subject\'s collected human_accountability_records[] ' +
+      '(reviewers, approvers, annotations, exception rationale, timestamps) -- same algorithm as the ' +
+      'browser verify.html HA export card (kernels/_haevidence.mjs). Set sd_jwt:true to also export it ' +
+      'as a Selective Disclosure JWT (§13.12), signed EdDSA over a fresh ephemeral did:key (generated ' +
+      'per call, never reused) -- subject_hash/verification_result/kernel_version/policy_version/' +
+      'timestamps/submission_receipt are always-disclosed; reviewers/approvers/annotations/' +
+      'exception_rationale/input_hashes are selectively disclosable.',
+    inputSchema: {
+      subject_hash: z.string().describe('Required. The sha256: subject hash the bundle documents.'),
+      records: z.array(z.record(z.any())).optional().describe('human_accountability_records over this subject. Default: [].'),
+      input_hashes: z.array(z.string()).optional(),
+      kernel_version: z.string().optional(),
+      policy_version: z.string().optional(),
+      verification_result: z.string().optional().describe('The §16/§18/§20 verdict.'),
+      submission_receipt: z.string().optional().describe('Populate ONLY after a real transmission -- never fabricate.'),
+      sd_jwt: z.boolean().optional().describe('When true, also return an SD-JWT export of the bundle (default false).'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ subject_hash, records, input_hashes, kernel_version, policy_version, verification_result, submission_receipt, sd_jwt }) => {
+    let bundle;
+    try {
+      bundle = assembleEvidenceBundle({
+        subjectHash: subject_hash, records: records || [], inputHashes: input_hashes,
+        kernelVersion: kernel_version, policyVersion: policy_version,
+        verificationResult: verification_result, submissionReceipt: submission_receipt,
+      });
+    } catch (e) {
+      return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] };
+    }
+    const result = { bundle };
+    if (sd_jwt) {
+      const kp = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+      const issuerDid = await rawPubkeyToDidKey(kp.publicKey);
+      result.sd_jwt_export = await exportEvidenceBundleSdJwt(bundle, { privateKey: kp.privateKey, verificationMethod: issuerDid });
+    }
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 

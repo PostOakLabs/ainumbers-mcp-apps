@@ -41,7 +41,9 @@ mkdirSync(KERNELS_BUNDLE, { recursive: true });
 // _rfc3161.mjs (§20/§23 shared rfc3161-tst verifier) depends on _anchor-testutil.mjs's DER helpers —
 // both must vendor so validate_input_attestations can import verifyRfc3161 at runtime.
 // _csv_injection.mjs (WB-5, #508) is workbook.mjs's shared CSV-injection helper — must vendor too.
-const KERNEL_FILE_RE = /^((_hash|_proof|_gateval|_rfc3161|_anchor-testutil|_csv_injection|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
+// _hagate.mjs/_haevidence.mjs (HA-RETRO-1, §27) back the ha_record_validate/ha_gate_status/
+// ha_bundle_export worker MCP tools — must vendor too.
+const KERNEL_FILE_RE = /^((_hash|_proof|_gateval|_rfc3161|_anchor-testutil|_csv_injection|_hagate|_haevidence|index)\.mjs|[a-z0-9-]+\.kernel\.mjs)$/;
 for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
   const src = readFileSync(resolve(KERNELS_SRC, f));
   writeFileSync(resolve(KERNELS_DATA, f), src);
