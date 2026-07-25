@@ -28,6 +28,7 @@
       "verify_witness_cosignatures",
       "compute_discount_window_capacity",
       "rollforward_y14_capital_worksheet",
+      "reconcile_aml_lookback_completeness",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [

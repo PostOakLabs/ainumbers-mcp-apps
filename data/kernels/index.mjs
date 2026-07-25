@@ -401,10 +401,14 @@ import * as art465    from './art-465-workpaper-bundle-composer.kernel.mjs';
 import * as art466    from './art-466-dora-roi-builder.kernel.mjs';
 import * as art467    from './art-467-dora-incident-classifier.kernel.mjs';
 import * as art47     from './art-47-arc-cctp-transfer.kernel.mjs';
+import * as art470    from './art-470-lookback-completeness-reconciler.kernel.mjs';
+import * as art471    from './art-471-disposition-sampling-frame.kernel.mjs';
 import * as art472    from './art-472-cbcr-builder.kernel.mjs';
 import * as art473    from './art-473-interquartile-benchmark.kernel.mjs';
 import * as art474    from './art-474-validate-mt700-lc-fields.kernel.mjs';
 import * as art475    from './art-475-cfpb-1071-coverage-check.kernel.mjs';
+import * as art476    from './art-476-map-agent-payment-mandate.kernel.mjs';
+import * as art477    from './art-477-intraday-liquidity-monitoring.kernel.mjs';
 import * as art48     from './art-48-treasury-clearing-fit-diagnostic.kernel.mjs';
 import * as art49     from './art-49-clearing-access-model-selector.kernel.mjs';
 import * as art50     from './art-50-ficc-margin-netting-estimator.kernel.mjs';
@@ -874,10 +878,14 @@ export const KERNELS = {
   'art-466-dora-roi-builder':                                 art466,
   'art-467-dora-incident-classifier':                         art467,
   'art-47-arc-cctp-transfer':                                 art47,
+  'art-470-lookback-completeness-reconciler':                 art470,
+  'art-471-disposition-sampling-frame':                       art471,
   'art-472-cbcr-builder':                                     art472,
   'art-473-interquartile-benchmark':                          art473,
   'art-474-validate-mt700-lc-fields':                         art474,
   'art-475-cfpb-1071-coverage-check':                         art475,
+  'art-476-map-agent-payment-mandate':                        art476,
+  'art-477-intraday-liquidity-monitoring':                    art477,
   'art-48-treasury-clearing-fit-diagnostic':                  art48,
   'art-49-clearing-access-model-selector':                    art49,
   'art-50-ficc-margin-netting-estimator':                     art50,

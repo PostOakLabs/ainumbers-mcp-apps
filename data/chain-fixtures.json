@@ -1,4 +1,64 @@
 {
+  "2052a-classify-daily": {
+    "art-437-fr2052a-inflow-outflow-classifier": {
+      "boundary_table_version": "2026-07-01",
+      "bucket_boundaries": [
+        {
+          "bucket_label": "Overnight",
+          "max_days": 1
+        },
+        {
+          "bucket_label": "2-30 days",
+          "max_days": 30
+        },
+        {
+          "bucket_label": "31-90 days",
+          "max_days": 90
+        },
+        {
+          "bucket_label": ">90 days",
+          "max_days": 9999
+        }
+      ],
+      "rows": [
+        {
+          "row_id": "r0",
+          "flow_type": "inflow",
+          "amount_musd": 1200,
+          "maturity_days": 1,
+          "is_intercompany": false
+        },
+        {
+          "row_id": "r1",
+          "flow_type": "outflow",
+          "amount_musd": 900,
+          "maturity_days": 45,
+          "is_intercompany": false
+        },
+        {
+          "row_id": "r2",
+          "flow_type": "outflow",
+          "amount_musd": 400,
+          "maturity_days": 7,
+          "is_intercompany": false
+        },
+        {
+          "row_id": "r3",
+          "flow_type": "inflow",
+          "amount_musd": 650,
+          "maturity_days": 90,
+          "is_intercompany": false
+        },
+        {
+          "row_id": "r4",
+          "flow_type": "outflow",
+          "amount_musd": 300,
+          "maturity_days": 30,
+          "is_intercompany": true
+        }
+      ]
+    }
+  },
   "aca-226j-response-composer": {
     "art-298-aca-affordability-safe-harbor": {
       "tax_year": "2026",
@@ -1609,6 +1669,180 @@
   "ca-genai-disclosure": {
     "art-315-ab2013-training-data-disclosure-linter": {}
   },
+  "call-report-edit-gate": {
+    "art-432-call-report-rc-balance-sheet": {
+      "entity_id": "FDIC-CERT-3510",
+      "reporting_period": "2026-03-31",
+      "rounding_tolerance_usd": 1,
+      "cash_and_due_from_usd": 226409000,
+      "securities_htm_usd": 0,
+      "securities_afs_usd": 864213000,
+      "loans_and_leases_net_usd": 1191560000,
+      "bank_premises_usd": 21670000,
+      "other_assets_usd": 368340000,
+      "total_deposits_usd": 2128004000,
+      "borrowings_usd": 250000000,
+      "other_liabilities_usd": 52478000,
+      "common_stock_usd": 3020000,
+      "surplus_usd": 177631000,
+      "retained_earnings_usd": 61059000,
+      "aoci_usd": 0
+    },
+    "art-433-call-report-rcr-capital": {
+      "entity_id": "FDIC-CERT-3510",
+      "reporting_period": "2026-03-31",
+      "constants_version": "2026-07-23.basel3-standardized-v1",
+      "is_gsib": false,
+      "cet1_capital_usd": 186870000,
+      "additional_tier1_capital_usd": 0,
+      "tier2_capital_usd": 15731000,
+      "total_rwa_usd": 1535559000,
+      "total_leverage_exposure_usd": 2672192000
+    },
+    "art-434-call-report-edit-check-gate": {
+      "rounding_tolerance_usd": 1,
+      "rc_output_payload": {
+        "entity_id": "FDIC-CERT-3510",
+        "reporting_period": "2026-03-31",
+        "report_form": "FFIEC 031",
+        "schedule": "RC",
+        "assets": [
+          {
+            "key": "cash_and_due_from_usd",
+            "mdrm": "RCON0071",
+            "label": "Cash and balances due from depository institutions",
+            "value_usd": 226409000
+          },
+          {
+            "key": "securities_htm_usd",
+            "mdrm": "RCON1754",
+            "label": "Held-to-maturity securities",
+            "value_usd": 0
+          },
+          {
+            "key": "securities_afs_usd",
+            "mdrm": "RCON1773",
+            "label": "Available-for-sale securities",
+            "value_usd": 864213000
+          },
+          {
+            "key": "loans_and_leases_net_usd",
+            "mdrm": "RCON2122",
+            "label": "Total loans and leases, net of unearned income and allowance",
+            "value_usd": 1191560000
+          },
+          {
+            "key": "bank_premises_usd",
+            "mdrm": "RCON2145",
+            "label": "Bank premises and fixed assets",
+            "value_usd": 21670000
+          },
+          {
+            "key": "other_assets_usd",
+            "mdrm": "RCON2160",
+            "label": "Other assets",
+            "value_usd": 368340000
+          }
+        ],
+        "total_assets_usd": 2672192000,
+        "total_assets_mdrm": "RCON2170",
+        "liabilities": [
+          {
+            "key": "total_deposits_usd",
+            "mdrm": "RCON2200",
+            "label": "Total deposits",
+            "value_usd": 2128004000
+          },
+          {
+            "key": "borrowings_usd",
+            "mdrm": "RCON2800",
+            "label": "Total borrowings",
+            "value_usd": 250000000
+          },
+          {
+            "key": "other_liabilities_usd",
+            "mdrm": "RCON2930",
+            "label": "Other liabilities",
+            "value_usd": 52478000
+          }
+        ],
+        "total_liabilities_usd": 2430482000,
+        "total_liabilities_mdrm": "RCON2948",
+        "equity": [
+          {
+            "key": "common_stock_usd",
+            "mdrm": "RCON3230",
+            "label": "Common stock",
+            "value_usd": 3020000
+          },
+          {
+            "key": "surplus_usd",
+            "mdrm": "RCON3839",
+            "label": "Surplus",
+            "value_usd": 177631000
+          },
+          {
+            "key": "retained_earnings_usd",
+            "mdrm": "RCON3632",
+            "label": "Retained earnings",
+            "value_usd": 61059000
+          },
+          {
+            "key": "aoci_usd",
+            "mdrm": "RCON3216",
+            "label": "Accumulated other comprehensive income",
+            "value_usd": 0
+          }
+        ],
+        "total_equity_capital_usd": 241710000,
+        "total_equity_capital_mdrm": "RCON3210",
+        "total_liabilities_and_equity_usd": 2672192000,
+        "identity_delta_usd": 0,
+        "identity_balanced": true,
+        "rounding_tolerance_usd": 1,
+        "boundary_note": "Line-item values are caller-declared from the institution's own books; this kernel performs only the arithmetic aggregation into Schedule RC totals and the Total assets == Total liabilities + Total equity capital identity check. It does not derive, estimate, or audit any individual line item.",
+        "xbrl_json_annex1_note": "MDRM concept codes above (RCON2170/RCON2948/RCON3210) align with the §13.13 xBRL-JSON export profile's Annex 1 FFIEC Call Report mapping; rendering to that profile is a separate exporter work unit, not performed by this kernel."
+      },
+      "rcr_output_payload": {
+        "entity_id": "FDIC-CERT-3510",
+        "reporting_period": "2026-03-31",
+        "report_form": "FFIEC 031",
+        "schedule": "RC-R",
+        "constants_version": "2026-07-23.basel3-standardized-v1",
+        "is_gsib": false,
+        "cet1_capital_usd": 186870000,
+        "additional_tier1_capital_usd": 0,
+        "tier1_capital_usd": 186870000,
+        "tier2_capital_usd": 15731000,
+        "total_capital_usd": 202601000,
+        "total_rwa_usd": 1535559000,
+        "total_leverage_exposure_usd": 2672192000,
+        "ratios": {
+          "cet1_ratio_pct": 0.121695,
+          "cet1_min_pct": 0.045,
+          "cet1_pass": true,
+          "tier1_ratio_pct": 0.121695,
+          "tier1_min_pct": 0.06,
+          "tier1_pass": true,
+          "total_capital_ratio_pct": 0.13194,
+          "total_capital_min_pct": 0.08,
+          "total_capital_pass": true,
+          "supplementary_leverage_ratio_pct": 0.069931,
+          "slr_min_pct": 0.03,
+          "slr_pass": true
+        },
+        "eslr": {
+          "applicable": false,
+          "buffer_pct": 0,
+          "required_slr_pct": null,
+          "pass": true,
+          "final_rule_citation": "eSLR final rule, published 2025-12-01, effective 2026-04-01 (§0.2)"
+        },
+        "boundary_note": "Capital component and RWA values are caller-declared; this kernel performs only ratio arithmetic and threshold comparison against caller-declared, version-pinned minimums. It does not calculate risk weights, classify exposures, or derive GSIB status.",
+        "mdrm_note": "Schedule RC-R MDRM item prefixes vary by advanced vs. standardized approach and reporting vintage; capital-component field names here mirror the FDIC BankFind Suite mnemonics (RBCT1J tier1, RBCT2 tier2, RWAJT total RWA), which the FDIC itself derives from filed Call Report Schedule RC-R submissions."
+      }
+    }
+  },
   "canton-capital-efficiency": {
     "503-canton-tokenization-readiness-diagnostic": {
       "q1": "yes",
@@ -1984,6 +2218,57 @@
       "originator_account": "DE89370400440532013000",
       "beneficiary_name": "Test Recipient Corp",
       "beneficiary_account": "GB82WEST12345698765432"
+    }
+  },
+  "cecl-allowance-quarterly": {
+    "art-426-cecl-ecl-calculator": {
+      "method": "warm",
+      "constants_version": "2026-07-23.cecl-warm-v1",
+      "prior_allowance_balance_usd": 500000,
+      "charge_offs_usd": 20000,
+      "recoveries_usd": 5000,
+      "forecast_weights": [
+        {
+          "scenario": "baseline",
+          "weight": 0.6
+        },
+        {
+          "scenario": "downside",
+          "weight": 0.4
+        }
+      ],
+      "segments": [
+        {
+          "segment_id": "retail-auto",
+          "exposure_balance_usd": 10000000,
+          "remaining_life_years": 3,
+          "scenarios": [
+            {
+              "scenario": "baseline",
+              "annual_loss_rate_pct": 0.012
+            },
+            {
+              "scenario": "downside",
+              "annual_loss_rate_pct": 0.025
+            }
+          ]
+        },
+        {
+          "segment_id": "retail-card",
+          "exposure_balance_usd": 5000000,
+          "remaining_life_years": 2,
+          "scenarios": [
+            {
+              "scenario": "baseline",
+              "annual_loss_rate_pct": 0.03
+            },
+            {
+              "scenario": "downside",
+              "annual_loss_rate_pct": 0.06
+            }
+          ]
+        }
+      ]
     }
   },
   "claim-dispute-bundle-assembly": {
@@ -2616,6 +2901,44 @@
           "governing_law": "Ireland"
         }
       ]
+    }
+  },
+  "dw-capacity-check": {
+    "art-427-discount-window-capacity": {
+      "margin_table_version": "2026-07-01",
+      "collateral_positions": [
+        {
+          "category": "U.S. Treasury securities",
+          "par_value_musd": 2000,
+          "margin_pct": 100
+        },
+        {
+          "category": "Agency MBS",
+          "par_value_musd": 1500,
+          "margin_pct": 96
+        },
+        {
+          "category": "Municipal bonds",
+          "par_value_musd": 500,
+          "margin_pct": 90
+        },
+        {
+          "category": "Consumer loans",
+          "par_value_musd": 1000,
+          "margin_pct": 80
+        }
+      ],
+      "runnable_liabilities": [
+        {
+          "label": "Uninsured deposits",
+          "balance_musd": 2500
+        },
+        {
+          "label": "Wholesale funding",
+          "balance_musd": 500
+        }
+      ],
+      "coverage_target_pct": 100
     }
   },
   "ebl-control-evidence": {
@@ -3570,6 +3893,56 @@
       "income_type": "Dividend",
       "form_date": "2024-03-15",
       "reference_date": "2025-07-05"
+    }
+  },
+  "large-exposures-check": {
+    "art-425-large-exposures-limit-check": {
+      "tier1_capital_musd": 10000,
+      "caller_is_gsib": true,
+      "counterparties": [
+        {
+          "counterparty_id": "cp-A",
+          "counterparty_name": "Standalone Corp A",
+          "connected_group_id": null,
+          "is_gsib": false,
+          "exposures": [
+            {
+              "label": "Term loan",
+              "gross_exposure_musd": 2000,
+              "crm_eligible": true,
+              "crm_value_musd": 400
+            }
+          ]
+        },
+        {
+          "counterparty_id": "cp-B",
+          "counterparty_name": "Group B Sub 1",
+          "connected_group_id": "grp1",
+          "is_gsib": false,
+          "exposures": [
+            {
+              "label": "Revolving credit",
+              "gross_exposure_musd": 1000,
+              "crm_eligible": false,
+              "crm_value_musd": 0
+            }
+          ]
+        },
+        {
+          "counterparty_id": "cp-C",
+          "counterparty_name": "Group B Sub 2",
+          "connected_group_id": "grp1",
+          "is_gsib": false,
+          "exposures": [
+            {
+              "label": "Bond holding",
+              "gross_exposure_musd": 800,
+              "crm_eligible": true,
+              "crm_value_musd": 300
+            }
+          ]
+        }
+      ]
     }
   },
   "license-compatibility-check": {
