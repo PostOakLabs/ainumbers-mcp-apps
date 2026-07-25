@@ -11,7 +11,19 @@ import { precomputeDiscovery } from './scripts/precompute-discovery.mjs';
 import { UTILITY_TOOL_COUNT, UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const REPO = resolve(ROOT, '..', 'repo');
+// REPO must NOT be derived from this script's own location (import.meta.url/ROOT) — that
+// silently resolves to the wrong checkout when generate.mjs is run from an isolated worktree
+// (MCPCOUNTS-FIX-1, MCPCOUNTS-DRIFT-CAUSE-2026-07-25.md: the site-repo write went into a stray
+// worktree and was discarded 5x). Resolve against an explicit --repo=<path> flag, then
+// AINUMBERS_REPO, then the invoking shell's cwd — all of which reflect where the session
+// actually intends the site checkout to be.
+function resolveRepoPath() {
+  const flag = process.argv.find(a => a.startsWith('--repo='));
+  if (flag) return resolve(flag.slice('--repo='.length));
+  if (process.env.AINUMBERS_REPO) return resolve(process.env.AINUMBERS_REPO);
+  return resolve(process.cwd(), '..', 'repo');
+}
+const REPO = resolveRepoPath();
 const DATA = resolve(ROOT, 'data');
 
 mkdirSync(resolve(DATA,'tools'),{recursive:true});

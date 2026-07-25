@@ -170,6 +170,18 @@ jobs:
         # Semantic compare (parsed-JSON / \r-normalized) — robust to line-ending + formatting noise.
         run: SITE_REPO=_site node scripts/check-vendor-fresh.mjs
 
+      - name: 🔢 utility-tools count parity vs site (MCPCOUNTS-FIX-1)
+        # Compares this worker's own UTILITY_TOOL_COUNT (utility-tools.mjs, the actual
+        # producer worker.mjs registers from) against the SITE's committed
+        # data/mcp-counts.json.utility_tools, failing the worker PR/push when they
+        # disagree. Closes the gap verify-counts --check structurally cannot: that gate
+        # only proves the site's own sentinels agree with a number the site trusts
+        # blindly, never that the number is true against what the worker serves
+        # (MCPCOUNTS-DRIFT-CAUSE-2026-07-25.md — 34 vs true 37, stale for months because
+        # nothing cross-checked it). Advisory on pull_request (paired site PR may not
+        # have merged yet), strict on push to master (the deploy path).
+        run: SITE_REPO=_site node scripts/check-utility-count-parity.mjs
+
       - name: 📐 schema-validate vendored chaingraph.json (OCG v0.4 SSOT)
         # Validates the worker's shipped data/chaingraph.json against the standard/ JSON Schema in the
         # site repo, so a malformed node object can't deploy. Mirrors the site's schema-validate gate.
