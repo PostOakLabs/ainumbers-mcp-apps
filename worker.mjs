@@ -33,7 +33,7 @@ import { authzenEvaluateWithReceipt, authzenEvaluateBatch, authzenSearch } from 
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { runAcdcSaidCheck } from './acdc-said-check.mjs';
-import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError } from './workbook/workbook.mjs';
+import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError, exportArtifact as wbExportArtifact } from './workbook/workbook.mjs';
 import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
@@ -2920,6 +2920,27 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return wb;
   }
 
+  // artifact-envelope output mode (WB-BRIDGE-1) -- shared by all three workbook
+  // tools below. Same kernel/hash path as tools/554's "Export as OCG Artifact"
+  // button (chaingraph/workbook/workbook.mjs exportArtifact(), vendored
+  // verbatim into ./workbook/workbook.mjs by generate.mjs): a caller who wants
+  // a hash-stable, IPE-shaped artifact instead of a bare values/digest payload
+  // sets as_artifact:true. provenance fields sit OUTSIDE execution_hash, same
+  // determinism contract as the browser tool.
+  const provenanceSchema = z.object({
+    source_description: z.string().optional().describe('Free-text description of what this sheet is (provenance, not hashed).'),
+    created_by: z.string().optional().describe('Identity slot for who/what produced this sheet -- free text or did:key (provenance, not hashed).'),
+  }).optional().describe('Optional provenance metadata, only used when as_artifact is true. Never affects execution_hash.');
+  const asArtifactSchema = z.boolean().optional().describe(
+    'When true, returns a full OpenChainGraph v0.4 artifact (policy_parameters/output_payload/execution_hash/' +
+    'provenance) via the same exportArtifact() path as the tools/554 browser workbook\'s "Export as OCG ' +
+    'Artifact" button, instead of this tool\'s normal bare payload. Default false.'
+  );
+  async function buildArtifactResult(wb, meta) {
+    const artifact = await wbExportArtifact(wb, meta || {});
+    return { content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }], structuredContent: artifact };
+  }
+
   server.registerTool('workbook_evaluate', {
     title: 'Evaluate workbook cells (formulas + literals) and return computed values',
     description:
@@ -2927,15 +2948,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'tools/554 browser workbook uses -- topo-sorted dependency graph, ~20 functions (SUM AVG MIN MAX COUNT ' +
       'COUNTIF IF AND OR NOT ROUND ABS CONCAT LEN LEFT RIGHT TRIM UPPER LOWER SUMIF), cycles resolve to ' +
       '"#CYCLE!" and any non-finite result to "#NUM!" rather than propagating. Returns the computed value of ' +
-      'every supplied cell -- pure, no digest, no receipt.',
-    inputSchema: { cells: wbCellsSchema },
+      'every supplied cell -- pure, no digest, no receipt -- unless as_artifact is true, in which case it ' +
+      'returns a full OCG v0.4 artifact instead (see as_artifact).',
+    inputSchema: { cells: wbCellsSchema, as_artifact: asArtifactSchema, provenance: provenanceSchema },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ cells }) => {
+  }, async ({ cells, as_artifact, provenance }) => {
     let wb;
     try { wb = buildWorkbookFromCells(cells); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
       return { isError: true, content: [{ type: 'text', text: msg }] };
     }
+    if (as_artifact) return buildArtifactResult(wb, provenance);
     const values = {};
     for (const ref of Object.keys(cells)) values[ref] = wb.cells[ref] ? wb.cells[ref].value : null;
     return { content: [{ type: 'text', text: JSON.stringify(values, null, 2) }], structuredContent: { values } };
@@ -2949,19 +2972,23 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'the rest of OCG uses, per chaingraph/workbook/INPUT-MANIFEST.md (WB-2). Returns one `ranges[]` ' +
       'fragment of the Spreadsheet Input Manifest schema; assemble the full manifest (source.csv_digest, ' +
       'produced_by/produced_at) around it. Same range digested from the same cells in the tools/554 browser ' +
-      'workbook always produces the same values_digest.',
+      'workbook always produces the same values_digest -- unless as_artifact is true, in which case it returns ' +
+      'a full OCG v0.4 artifact over the WHOLE sheet instead of a single-range fragment (see as_artifact).',
     inputSchema: {
       cells: wbCellsSchema,
       range: z.string().describe('A1-style cell or range reference to digest, e.g. "B2" or "B2:D9".'),
       semantics: z.string().optional().describe('Free-text pointer describing what this range means to the consuming policy_parameters.'),
+      as_artifact: asArtifactSchema,
+      provenance: provenanceSchema,
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ cells, range, semantics }) => {
+  }, async ({ cells, range, semantics, as_artifact, provenance }) => {
     let wb;
     try { wb = buildWorkbookFromCells(cells); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
       return { isError: true, content: [{ type: 'text', text: msg }] };
     }
+    if (as_artifact) return buildArtifactResult(wb, provenance);
     let values_digest;
     try { values_digest = await wbRangeDigest(wb, range); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
@@ -2978,15 +3005,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'fields, embedded quotes/commas/newlines, CRLF -- and REJECTS malformed input rather than repairing it ' +
       '(deterministic beats forgiving for hash-stable digests). Numeric-looking and TRUE/FALSE cells are ' +
       'type-coerced; everything else stays a string. Returns the resulting A1-style cells (raw + evaluated ' +
-      'value) plus the sheet\'s row/column extent, ready for workbook_evaluate or workbook_range_digest.',
-    inputSchema: { csv: z.string().describe('CSV text to parse.') },
+      'value) plus the sheet\'s row/column extent, ready for workbook_evaluate or workbook_range_digest -- ' +
+      'unless as_artifact is true, in which case it returns a full OCG v0.4 artifact instead (see as_artifact).',
+    inputSchema: { csv: z.string().describe('CSV text to parse.'), as_artifact: asArtifactSchema, provenance: provenanceSchema },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ csv }) => {
+  }, async ({ csv, as_artifact, provenance }) => {
     let wb;
     try { wb = csvToWorkbook(csv); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
       return { isError: true, content: [{ type: 'text', text: msg }] };
     }
+    if (as_artifact) return buildArtifactResult(wb, provenance);
     const cells = {};
     for (const [ref, cell] of Object.entries(wb.cells)) cells[ref] = { raw: cell.raw, value: cell.value };
     const result = { cells, rows: wb.rows, cols: wb.cols };
