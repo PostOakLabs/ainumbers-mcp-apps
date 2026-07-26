@@ -1,0 +1,82 @@
+name: Registry Drift (scheduled)
+
+# REGISTRY-DRIFT-GATE-1: server.json sat committed at 0.4.9 while the live MCP Registry
+# still served 0.4.8 (and "476 tools" while the worker actually served 530) for days —
+# committing a version bump is not publishing it, and nothing caught the gap. The
+# MCP Registry is our only free discovery channel; a silently stale listing under-sells
+# the project to the one audience we can't afford to buy.
+#
+# This CANNOT block the already-merged push that caused the drift (nothing to block by
+# the time this runs) — it only raises: a failing scheduled run + a tracking issue, same
+# shape as vendor-freshness-schedule.yml. sync-registry.mjs's plain (no-flag) dry-run,
+# which DOES run in ci.yml/preflight on every push, never fails on drift — the normal
+# bump -> commit -> push -> (Tim publishes by hand later) flow is legitimately "ahead"
+# for a while and must not cry wolf on every version-bump PR. --check-drift is the
+# strict mode, used only here, on a schedule, independent of any push.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # every 6 hours
+  workflow_dispatch: {}      # manual trigger for seeding/verifying the gate
+
+permissions:
+  contents: read
+
+jobs:
+  check-drift:
+    name: Compare server.json vs live MCP Registry
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '22'
+
+      - name: 🔄 Registry drift check (strict, scheduled)
+        run: node scripts/sync-registry.mjs --check-drift
+
+  raise-on-drift:
+    name: Raise a tracking issue on drift
+    needs: check-drift
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🚨 Open or update the registry-drift tracking issue
+        # No new third-party action: gh CLI ships preinstalled on ubuntu-latest runners.
+        # Idempotent — reuses one open issue by title match instead of spamming a new
+        # issue every 6h cycle while the drift persists.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Registry drift: server.json ahead of live MCP Registry"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          BODY="Scheduled registry-drift check (REGISTRY-DRIFT-GATE-1) found local \`server.json\` committed ahead of what the live MCP Registry serves.
+
+          This means a version bump was committed and pushed but never published — the registry (our only free discovery channel) is advertising a stale version/tool count.
+
+          **Fix:** run \`.\\mcp-publisher.exe publish\` (needs the gitignored \`key.pem\`; Tim's act).
+
+          Failing run: \$RUN_URL"
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "Still diverged as of this cycle. $RUN_URL"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+          fi
