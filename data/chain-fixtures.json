@@ -812,6 +812,38 @@
     },
     "art-277-agreement-acceptance-binder": {}
   },
+  "aml-lookback-cycle": {
+    "art-470-lookback-completeness-reconciler": {
+      "periods": [
+        {
+          "period_label": "2023-Q4",
+          "source_record_count": 500,
+          "extract_record_count": 500,
+          "dedup_record_count": 500,
+          "snapshot_available": true
+        },
+        {
+          "period_label": "2024-Q1",
+          "source_record_count": 620,
+          "extract_record_count": 620,
+          "dedup_record_count": 620,
+          "snapshot_available": true
+        }
+      ]
+    },
+    "art-90-sanctions-screening-fit-diagnostic": {},
+    "art-97-sanctions-screening-quality-scorer": {},
+    "art-471-disposition-sampling-frame": {
+      "confidence_level": 95,
+      "disposition_population_size": 1000,
+      "tolerable_deviation_rate": 5,
+      "expected_deviation_rate": 0,
+      "disposition_population_hash": "abc123",
+      "reviewer_roster": [
+        "reviewer_1"
+      ]
+    }
+  },
   "anchored-extract-verification": {
     "art-286-anchored-extract-verifier": {}
   },
@@ -2190,6 +2222,53 @@
     "cry-04-merkle-batch-verifier": {
       "proof_entries": [],
       "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "cbcr-annual-publish": {
+    "art-472-cbcr-builder": {
+      "schema_version": "oecd-cbcr-xml-3.0-2026-07-01",
+      "export_mode": "private_filing",
+      "reporting_entity_name": "Synthetic Global Holdings Ltd",
+      "reporting_entity_tin": "SYN-TIN-000001",
+      "table1_jurisdictions": [
+        {
+          "jurisdiction_code": "IE",
+          "related_party_revenue": 400,
+          "unrelated_party_revenue": 600,
+          "total_revenue": 1000,
+          "profit_before_tax": 200,
+          "income_tax_paid": 25,
+          "income_tax_accrued": 30,
+          "stated_capital": 500,
+          "accumulated_earnings": 1200,
+          "number_of_employees": 50,
+          "tangible_assets": 2000
+        },
+        {
+          "jurisdiction_code": "DE",
+          "related_party_revenue": 100,
+          "unrelated_party_revenue": 900,
+          "total_revenue": 1000,
+          "profit_before_tax": 80,
+          "income_tax_paid": 20,
+          "income_tax_accrued": 22,
+          "stated_capital": 300,
+          "accumulated_earnings": 700,
+          "number_of_employees": 120,
+          "tangible_assets": 1500
+        }
+      ],
+      "table2_entities": [
+        {
+          "entity_name": "Synthetic Ireland Ltd",
+          "jurisdiction_code": "IE"
+        },
+        {
+          "entity_name": "Synthetic Germany GmbH",
+          "jurisdiction_code": "DE"
+        }
+      ],
+      "rounding_tolerance": 1
     }
   },
   "cbpr-address-lint-chain": {
@@ -6051,6 +6130,32 @@
         "platform_not_applicable": true,
         "oss_scheme_configured": true
       }
+    }
+  },
+  "vop-liability-evidence": {
+    "art-376-score-payee-name-match": {
+      "account_name": "John Smith",
+      "reference_name": "John Smith"
+    },
+    "art-377-build-vop-session-receipt": {
+      "session_id": "vop-sess-0001",
+      "attempts": [
+        {
+          "attempt_id": "a1",
+          "match_result": {
+            "source": "score_payee_name_match",
+            "algorithm_version": "vop-namematch-1.0.0",
+            "score": 100,
+            "match_band": "MATCH"
+          },
+          "warning_shown": {
+            "text": "",
+            "severity": "none"
+          },
+          "consumer_action": "proceeded",
+          "asserted_at": "2026-07-18T09:00:00Z"
+        }
+      ]
     }
   },
   "wholesale-settlement-audit-pack": {
