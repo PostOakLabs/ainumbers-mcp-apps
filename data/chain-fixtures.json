@@ -4725,6 +4725,21 @@
   "pqc-fit": {
     "art-85-pqc-timeline-fit-diagnostic": {}
   },
+  "pqc-migration-evidence": {
+    "art-386-lint-cbom-structure": {},
+    "art-387-pqc-deadline-ladder-calculator": {
+      "reference_date": "2030-12-30",
+      "inventory": [
+        {
+          "row_id": "KE-1",
+          "system_class": "commercial-fin",
+          "asset_type": "key-establishment",
+          "deployment_date": "2024-01-01",
+          "fips_140_2_certified": false
+        }
+      ]
+    }
+  },
   "producer-license-reciprocity": {
     "art-267-check-producer-license-reciprocity": {
       "resident_state": "OR",
