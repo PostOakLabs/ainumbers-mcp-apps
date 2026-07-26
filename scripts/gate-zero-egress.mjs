@@ -64,6 +64,43 @@ const FORBIDDEN = [
 // A dynamic import() whose specifier is NOT a local relative path (./ or ../).
 const NONLOCAL_IMPORT = /\bimport\s*\(\s*['"](?!\.\.?\/)([^'"]+)['"]/g;
 
+export { FORBIDDEN, NONLOCAL_IMPORT };
+
+// Strip `//` line comments and `/* */` block comments from source before it is matched against
+// FORBIDDEN/NONLOCAL_IMPORT, so a quoted-in-prose filename (e.g. a comment explaining an import
+// failure mode) cannot trip the gate. String/template literals are tracked and left untouched —
+// a `//` inside `"https://…"` is NOT a comment and must survive verbatim, since that literal is
+// exactly the kind of thing this gate needs to keep seeing.
+function stripComments(src) {
+  let out = '';
+  let quote = null; // active string-literal delimiter: '"', "'", or '`'
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (quote) {
+      out += c;
+      if (c === '\\') { if (i + 1 < src.length) { out += src[++i]; } continue; }
+      if (c === quote) quote = null;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') { quote = c; out += c; continue; }
+    if (c === '/' && src[i + 1] === '/') {
+      while (i < src.length && src[i] !== '\n') i++;
+      out += '\n';
+      continue;
+    }
+    if (c === '/' && src[i + 1] === '*') {
+      i += 2;
+      while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) i++;
+      i++; // land on the closing '/'
+      continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+export { stripComments };
+
 function readLocalClosure(entryFile, dir) {
   // BFS over relative './x' or '../x' import specifiers only (static import + our own dynamic
   // import( scan below already flags any non-local one) — never resolves bare/package specifiers,
@@ -74,7 +111,7 @@ function readLocalClosure(entryFile, dir) {
     const file = stack.pop();
     if (seen.has(file)) continue;
     if (!existsSync(file)) { seen.set(file, `<<missing: ${file}>>`); continue; }
-    const src = readFileSync(file, 'utf8');
+    const src = stripComments(readFileSync(file, 'utf8'));
     seen.set(file, src);
     const specRe = /from\s+['"](\.\.?\/[^'"]+)['"]|import\s*\(\s*['"](\.\.?\/[^'"]+)['"]/g;
     let m;
