@@ -3145,6 +3145,140 @@
       }
     }
   },
+  "emir-recon-cycle": {
+    "art-482-emir-recon-adjudicator": {
+      "tr_response": {
+        "as_of_date": "2026-07-27",
+        "trades": [
+          {
+            "uti": "UTI0001",
+            "tr_match_status": "MATCHED",
+            "lifecycle_event": "NEW",
+            "tr_reported": {
+              "notional_amount": 1000000,
+              "price": 101.25,
+              "effective_date": "2026-01-15",
+              "maturity_date": "2031-01-15",
+              "settlement_currency": "USD",
+              "delta": 0.42
+            }
+          }
+        ]
+      },
+      "firm_state": {
+        "trades": [
+          {
+            "uti": "UTI0001",
+            "submitted": {
+              "notional_amount": 1000000,
+              "price": 101.25,
+              "effective_date": "2026-01-15",
+              "maturity_date": "2031-01-15",
+              "settlement_currency": "US DOLLAR",
+              "delta": 0.55
+            }
+          }
+        ]
+      },
+      "policy": {
+        "field_tolerance_table_version": "ESMA74-362-2683-PHASE2-2026-04-27",
+        "fields": [
+          {
+            "field_name": "notional_amount",
+            "type": "numeric",
+            "numeric_tolerance": 10
+          },
+          {
+            "field_name": "price",
+            "type": "numeric",
+            "numeric_tolerance": 0.01
+          },
+          {
+            "field_name": "effective_date",
+            "type": "date",
+            "date_tolerance_days": 0
+          },
+          {
+            "field_name": "maturity_date",
+            "type": "date",
+            "date_tolerance_days": 0
+          },
+          {
+            "field_name": "settlement_currency",
+            "type": "enum",
+            "enum_equivalence": {
+              "USD": "USD",
+              "US DOLLAR": "USD"
+            }
+          },
+          {
+            "field_name": "delta",
+            "type": "numeric",
+            "numeric_tolerance": 0.05
+          }
+        ],
+        "suppression_list": [
+          "delta"
+        ]
+      }
+    },
+    "art-483-emir-break-ageing": {
+      "current_break_set": [
+        {
+          "break_key": "UTI0002::notional_amount",
+          "uti": "UTI0002",
+          "field_name": "notional_amount"
+        },
+        {
+          "break_key": "UTI0005::price",
+          "uti": "UTI0005",
+          "field_name": "price"
+        }
+      ],
+      "prior_sealed_break_set": [
+        {
+          "break_key": "UTI0002::notional_amount",
+          "uti": "UTI0002",
+          "field_name": "notional_amount",
+          "first_seen_at": "2026-07-10T00:00:00.000Z",
+          "recurrence_count": 3
+        },
+        {
+          "break_key": "UTI0009::maturity_date",
+          "uti": "UTI0009",
+          "field_name": "maturity_date",
+          "first_seen_at": "2026-07-20T00:00:00.000Z",
+          "recurrence_count": 1
+        }
+      ],
+      "policy": {
+        "evaluated_at": "2026-07-27T00:00:00.000Z",
+        "ageing_limits": [
+          {
+            "bucket_name": "0-5d",
+            "min_days": 0,
+            "max_days": 5
+          },
+          {
+            "bucket_name": "6-10d",
+            "min_days": 6,
+            "max_days": 10
+          },
+          {
+            "bucket_name": "11-20d",
+            "min_days": 11,
+            "max_days": 20
+          },
+          {
+            "bucket_name": "21d-plus",
+            "min_days": 21,
+            "max_days": 999999
+          }
+        ],
+        "escalation_days": 10
+      }
+    }
+  },
   "emir-reconciliation-and-lifecycle": {
     "art-156-emir-counterparty-pairing-reconciler": {
       "report_a": {
@@ -3327,6 +3461,78 @@
       "group_a_total": 100,
       "group_b_approvals": 90,
       "group_b_total": 100
+    }
+  },
+  "fatca-ro-certification-cycle": {
+    "art-490-fatca-crs-submission-check": {
+      "submission_id": "SUB-2025-US-0001",
+      "schema_version": "OECD-CRS-XML-SCHEMA-v2.0",
+      "certification_period": "2025",
+      "suppressed_rule_codes": [],
+      "mandatory_element_rules": [
+        {
+          "rule_code": "BR-ACCTNUM-001",
+          "element_path": "account_number",
+          "applies_to": "all",
+          "description": "AccountNumber element is required on every record (BR-ACCTNUM-001)."
+        }
+      ],
+      "records": [
+        {
+          "doc_ref_id": "US2025DOC0001",
+          "doc_type_indic": "OECD1",
+          "tin": "000000001",
+          "birth_date": "1980-01-15",
+          "address_street": "1 Synthetic Way",
+          "address_city": "Springfield",
+          "address_country_code": "US",
+          "element_values": {
+            "account_number": "ACCT-0001"
+          }
+        },
+        {
+          "doc_ref_id": "US2025DOC0002",
+          "corr_doc_ref_id": "US2025DOC0001",
+          "doc_type_indic": "OECD2",
+          "tin": "000000002",
+          "birth_date": "1975-06-30",
+          "address_street": "2 Synthetic Way",
+          "address_city": "Springfield",
+          "address_country_code": "US",
+          "element_values": {
+            "account_number": "ACCT-0002"
+          }
+        }
+      ]
+    },
+    "art-491-ro-remediation-closure": {
+      "certification_period": "2025",
+      "cutoff_at": "2026-07-01T00:00:00Z",
+      "evaluated_at": "2026-06-15T00:00:00Z",
+      "notifications": [
+        {
+          "notification_id": "NOTIF-0001",
+          "notification_code": "ICMM-TYPE1-RECOVERABLE",
+          "doc_ref_id": "US2025DOC0001"
+        },
+        {
+          "notification_id": "NOTIF-0002",
+          "notification_code": "CRS-STATUS-REJECTED",
+          "doc_ref_id": "US2025DOC0002"
+        }
+      ],
+      "remediation_records": [
+        {
+          "notification_id": "NOTIF-0001",
+          "resubmitted_doc_ref_id": "US2025DOC0001-CORR1",
+          "resubmitted_at": "2026-05-01T00:00:00Z"
+        },
+        {
+          "notification_id": "NOTIF-0002",
+          "resubmitted_doc_ref_id": "US2025DOC0002-CORR1",
+          "resubmitted_at": "2026-05-10T00:00:00Z"
+        }
+      ]
     }
   },
   "food-traceability-fsma204": {
@@ -4356,6 +4562,133 @@
       "outcome_status": "pass"
     }
   },
+  "model-validation-cycle": {
+    "art-488-model-replication-diff": {
+      "model_spec": {
+        "version": "credit-scorecard-v3.2",
+        "as_of_date": "2026-01-01",
+        "transform": "linear",
+        "intercept": 10,
+        "coefficients": {
+          "x1": 2,
+          "x2": -1
+        }
+      },
+      "tolerance": {
+        "abs_tolerance": 0.5,
+        "rel_tolerance": null
+      },
+      "records": [
+        {
+          "id": "r1",
+          "segment": "prime",
+          "features": {
+            "x1": 5,
+            "x2": 3
+          },
+          "reported_value": 17
+        },
+        {
+          "id": "r2",
+          "segment": "prime",
+          "features": {
+            "x1": 2,
+            "x2": 4
+          },
+          "reported_value": 9.8
+        }
+      ]
+    },
+    "art-489-model-test-battery": {
+      "as_of_date": "2026-01-15",
+      "threshold_version": "policy-2026-Q1",
+      "thresholds": {
+        "gini_min": 0.4,
+        "ks_min": 0.3,
+        "psi_max": 0.25,
+        "csi_max": 0.25,
+        "calibration_max_diff": 0.05
+      },
+      "discrimination": {
+        "scored_outcomes": [
+          {
+            "id": "a",
+            "score": 0.9,
+            "outcome": 1
+          },
+          {
+            "id": "b",
+            "score": 0.8,
+            "outcome": 1
+          },
+          {
+            "id": "c",
+            "score": 0.3,
+            "outcome": 0
+          },
+          {
+            "id": "d",
+            "score": 0.2,
+            "outcome": 0
+          },
+          {
+            "id": "e",
+            "score": 0.6,
+            "outcome": 1
+          },
+          {
+            "id": "f",
+            "score": 0.1,
+            "outcome": 0
+          }
+        ]
+      },
+      "stability": {
+        "population_bins": [
+          {
+            "bin": "low",
+            "expected_count": 100,
+            "actual_count": 90
+          },
+          {
+            "bin": "high",
+            "expected_count": 100,
+            "actual_count": 110
+          }
+        ],
+        "characteristic_bins": [
+          {
+            "characteristic": "ltv",
+            "bin": "low",
+            "expected_count": 50,
+            "actual_count": 40
+          },
+          {
+            "characteristic": "ltv",
+            "bin": "high",
+            "expected_count": 50,
+            "actual_count": 60
+          }
+        ]
+      },
+      "backtest": {
+        "bins": [
+          {
+            "bin": "1",
+            "predicted_rate": 0.05,
+            "actual_rate": 0.07,
+            "n": 100
+          },
+          {
+            "bin": "2",
+            "predicted_rate": 0.1,
+            "actual_rate": 0.09,
+            "n": 80
+          }
+        ]
+      }
+    }
+  },
   "mortgage-agency-pricing-and-eligibility": {
     "art-223-conforming-loan-limit": {
       "loan_amount": 700000,
@@ -4831,6 +5164,291 @@
         "TX",
         "IL",
         "CO"
+      ]
+    }
+  },
+  "rdarr-attestation-cycle": {
+    "art-480-rdarr-aggregation-recompute": {
+      "base_currency": "USD",
+      "reported_figure": 5000,
+      "aggregation_policy": {
+        "exclude_flagged": true,
+        "netting": {
+          "enabled": true,
+          "by": "counterparty"
+        },
+        "rounding": {
+          "decimal_places": 2,
+          "mode": "half_up"
+        }
+      },
+      "hierarchy": [
+        {
+          "node_id": "ROOT",
+          "parent_node_id": null,
+          "label": "Total Credit Risk RWA"
+        },
+        {
+          "node_id": "RETAIL",
+          "parent_node_id": "ROOT",
+          "label": "Retail"
+        },
+        {
+          "node_id": "CORP",
+          "parent_node_id": "ROOT",
+          "label": "Corporate"
+        }
+      ],
+      "extract": [
+        {
+          "line_id": "L1",
+          "node_id": "RETAIL",
+          "counterparty": "CP-A",
+          "amount": 2000,
+          "currency": "USD",
+          "fx_rate_to_base": 1,
+          "include": true
+        },
+        {
+          "line_id": "L2",
+          "node_id": "RETAIL",
+          "counterparty": "CP-A",
+          "amount": -500,
+          "currency": "USD",
+          "fx_rate_to_base": 1,
+          "include": true
+        },
+        {
+          "line_id": "L3",
+          "node_id": "CORP",
+          "counterparty": "CP-B",
+          "amount": 3000,
+          "currency": "EUR",
+          "fx_rate_to_base": 1.08,
+          "include": true
+        },
+        {
+          "line_id": "L4",
+          "node_id": "CORP",
+          "counterparty": "CP-C",
+          "amount": 400,
+          "currency": "USD",
+          "fx_rate_to_base": 1,
+          "include": false
+        }
+      ]
+    },
+    "art-481-rdarr-quality-scorecard": {
+      "guide_version": "ECB Guide on effective risk data aggregation and risk reporting, 3 May 2024",
+      "cutoff_date": "2026-06-30",
+      "mandatory_attributes": [
+        "exposure_class",
+        "currency"
+      ],
+      "hierarchy_node_ids": [
+        "RETAIL",
+        "CORP"
+      ],
+      "thresholds": {
+        "completeness_pct": 98,
+        "referential_integrity_pct": 100,
+        "timeliness_pct": 95,
+        "reconciliation_coverage_pct": 90,
+        "manual_adjustment_ratio_pct": 5
+      },
+      "extract": [
+        {
+          "record_id": "R1",
+          "node_id": "RETAIL",
+          "as_of_date": "2026-06-30",
+          "reconciled": true,
+          "manual_adjustment": false,
+          "attributes": {
+            "exposure_class": "retail",
+            "currency": "USD"
+          }
+        },
+        {
+          "record_id": "R2",
+          "node_id": "CORP",
+          "as_of_date": "2026-07-01",
+          "reconciled": true,
+          "manual_adjustment": false,
+          "attributes": {
+            "exposure_class": "corp",
+            "currency": "EUR"
+          }
+        },
+        {
+          "record_id": "R3",
+          "node_id": "XXX",
+          "as_of_date": "2026-06-29",
+          "reconciled": false,
+          "manual_adjustment": true,
+          "attributes": {
+            "exposure_class": "corp"
+          }
+        },
+        {
+          "record_id": "R4",
+          "node_id": "RETAIL",
+          "as_of_date": "2026-06-30",
+          "reconciled": true,
+          "manual_adjustment": false,
+          "attributes": {
+            "exposure_class": "retail",
+            "currency": "USD"
+          }
+        }
+      ]
+    }
+  },
+  "regrpt-submission-cycle": {
+    "art-484-regrpt-editcheck-runner": {
+      "report_instance": {
+        "as_of": "2026-03-31",
+        "cells": [
+          {
+            "cell_ref": "RCON2170",
+            "schedule": "RC",
+            "line_item": "total_assets",
+            "value": 1000
+          },
+          {
+            "cell_ref": "RCON2948",
+            "schedule": "RC",
+            "line_item": "total_liabilities",
+            "value": 700
+          },
+          {
+            "cell_ref": "RCON3210",
+            "schedule": "RC",
+            "line_item": "total_equity_capital",
+            "value": 300
+          },
+          {
+            "cell_ref": "RCFA7206",
+            "schedule": "RC-R",
+            "line_item": "cet1_capital",
+            "value": 250
+          },
+          {
+            "cell_ref": "RCFA7206_TIEOUT",
+            "schedule": "RC-R-SUMMARY",
+            "line_item": "cet1_capital_restated",
+            "value": 250
+          },
+          {
+            "cell_ref": "RCFAB588",
+            "schedule": "RC-R",
+            "line_item": "total_rwa",
+            "value": 2000
+          },
+          {
+            "cell_ref": "RCONK652",
+            "schedule": "RC",
+            "line_item": "entity_id",
+            "value": "FDIC-CERT-1234"
+          }
+        ]
+      },
+      "rule_set": {
+        "version": "FFIEC-2026-01-22",
+        "source": "FFIEC Call Report Validity and Quality Edits, effective 2026-01-22",
+        "rules": [
+          {
+            "edit_id": "FFIEC-VE-0142",
+            "type": "arithmetic_identity",
+            "schedule": "RC",
+            "description": "Total assets equals total liabilities plus total equity capital.",
+            "severity": "fatal",
+            "target_ref": "RCON2170",
+            "component_refs": [
+              "RCON2948",
+              "RCON3210"
+            ],
+            "tolerance": 1
+          },
+          {
+            "edit_id": "FFIEC-VE-0891",
+            "type": "cross_schedule_tie_out",
+            "schedule": "RC-R",
+            "description": "CET1 capital ties out to its RC-R summary restatement.",
+            "severity": "fatal",
+            "ref_a": "RCFA7206",
+            "ref_b": "RCFA7206_TIEOUT",
+            "tolerance": 0
+          },
+          {
+            "edit_id": "FFIEC-VE-0203",
+            "type": "sign_domain",
+            "schedule": "RC-R",
+            "description": "Total risk-weighted assets is positive.",
+            "severity": "fatal",
+            "ref": "RCFAB588",
+            "domain": "positive"
+          },
+          {
+            "edit_id": "FFIEC-VE-0004",
+            "type": "mandatory_field",
+            "schedule": "RC",
+            "description": "Entity identifier is present.",
+            "severity": "fatal",
+            "ref": "RCONK652"
+          }
+        ]
+      },
+      "suppressions": []
+    },
+    "art-485-regrpt-variance-explainer": {
+      "instance_pair": {
+        "prior": {
+          "as_of": "2026-03-31",
+          "cells": [
+            {
+              "line_item": "total_loans",
+              "value": 10000
+            },
+            {
+              "line_item": "total_deposits",
+              "value": 9000
+            }
+          ]
+        },
+        "current": {
+          "as_of": "2026-06-30",
+          "cells": [
+            {
+              "line_item": "total_loans",
+              "value": 11500
+            },
+            {
+              "line_item": "total_deposits",
+              "value": 9050
+            },
+            {
+              "line_item": "other_real_estate_owned",
+              "value": 200
+            }
+          ]
+        }
+      },
+      "materiality_policy": {
+        "version": "FFIEC-MATERIALITY-2026-Q2",
+        "default_threshold_abs": 100,
+        "default_threshold_pct": 0.05,
+        "per_line_overrides": {
+          "other_real_estate_owned": {
+            "abs": 50,
+            "pct": 0
+          }
+        }
+      },
+      "explanations": [
+        {
+          "line_item": "total_loans",
+          "text": "Growth from a Q2 syndicated-loan participation purchase."
+        }
       ]
     }
   },
@@ -5521,6 +6139,140 @@
         "role": "engagement_partner",
         "statement": "Released the area for reporting."
       }
+    }
+  },
+  "swift-csp-attestation-cycle": {
+    "art-486-cscf-control-applicability": {
+      "architecture_type": "A1",
+      "cscf_version": "2026",
+      "component_inventory": [
+        "swift_alliance_access",
+        "hsm",
+        "jump_server"
+      ],
+      "control_matrix": [
+        {
+          "control_number": "1.1",
+          "tier": "mandatory",
+          "applicable_architecture_types": [
+            "A1",
+            "A2",
+            "A3",
+            "A4"
+          ],
+          "evidence_ref": "SWIFT.io evidence"
+        },
+        {
+          "control_number": "1.2",
+          "tier": "mandatory",
+          "applicable_architecture_types": [
+            "ALL"
+          ],
+          "evidence_ref": "Network diagram"
+        },
+        {
+          "control_number": "2.1",
+          "tier": "mandatory",
+          "applicable_architecture_types": [
+            "A1",
+            "A2"
+          ],
+          "evidence_ref": "Access control list"
+        },
+        {
+          "control_number": "2.4A",
+          "tier": "advisory",
+          "applicable_architecture_types": [
+            "A1",
+            "A2",
+            "A3"
+          ],
+          "evidence_ref": "Logging config export"
+        },
+        {
+          "control_number": "5.1",
+          "tier": "mandatory",
+          "applicable_architecture_types": [
+            "A1",
+            "B",
+            "C"
+          ],
+          "evidence_ref": "HSM audit report"
+        },
+        {
+          "control_number": "7.2",
+          "tier": "advisory",
+          "applicable_architecture_types": [
+            "ALL"
+          ],
+          "evidence_ref": "Pen-test report"
+        }
+      ],
+      "implementation_status": {
+        "1.1": {
+          "implemented": true,
+          "evidence_provided": true
+        },
+        "1.2": {
+          "implemented": true,
+          "evidence_provided": true
+        },
+        "2.1": {
+          "implemented": false,
+          "evidence_provided": false
+        },
+        "5.1": {
+          "implemented": true,
+          "evidence_provided": true
+        },
+        "7.2": {
+          "not_applicable": true,
+          "na_reason": "No externally exposed pen-test surface for this architecture"
+        }
+      }
+    },
+    "art-487-assessor-independence-check": {
+      "architecture_type": "A1",
+      "assessment_route": "external",
+      "permitted_routes": [
+        "external"
+      ],
+      "claimed_assessor_certifications": [
+        "CISA",
+        "CISSP"
+      ],
+      "required_certifications": [
+        "CISA"
+      ],
+      "identity_set": [
+        {
+          "person_id": "ext-assessor-01",
+          "roles": [
+            "assessor"
+          ]
+        },
+        {
+          "person_id": "emp-jsmith",
+          "roles": [
+            "implementer",
+            "network_admin"
+          ]
+        },
+        {
+          "person_id": "emp-rjones",
+          "roles": [
+            "third_line_reviewer"
+          ]
+        }
+      ],
+      "implementer_person_ids": [
+        "emp-jsmith"
+      ],
+      "assessor_person_ids": [
+        "ext-assessor-01"
+      ],
+      "assessment_date": "2026-09-15",
+      "attestation_deadline": "2026-12-31"
     }
   },
   "swift-ledger-transfer-readiness": {
