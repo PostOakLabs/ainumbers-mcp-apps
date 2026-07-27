@@ -119,6 +119,20 @@ async function initialize() {
   return info;
 }
 
+// MCPVER-ECHO-FIX-1: an unsupported/bogus protocolVersion must NOT be echoed back — the server
+// must respond with a version it actually implements (PROTO), never claim support it lacks.
+async function versionNegotiationHonesty() {
+  const bogus = '9999-01-01-not-a-real-version';
+  const { result, error } = await call('initialize', {
+    protocolVersion: bogus, capabilities: {}, clientInfo: { name: 'ci-smoke-negotiation', version: '1' },
+  }, 4);
+  if (error) throw new Error(`version-negotiation initialize JSON-RPC error ${error.code}: ${error.message}`);
+  const got = result && result.protocolVersion;
+  if (got === bogus) throw new Error(`server echoed unsupported protocolVersion "${bogus}" verbatim — version-negotiation regression`);
+  if (!got) throw new Error('version-negotiation initialize returned no protocolVersion');
+  return { requested: bogus, negotiated: got };
+}
+
 async function exportRoundTrip() {
   // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
   const list = await call('tools/list', {}, 2);
@@ -151,6 +165,10 @@ async function exportRoundTrip() {
     try {
       const info = await initialize();
       console.log(`✓ /mcp initialize OK — ${info.name} v${info.version} (${URL})`);
+
+      const vn = await versionNegotiationHonesty();
+      console.log(`✓ version-negotiation honesty OK — requested "${vn.requested}" got server version "${vn.negotiated}" (not echoed)`);
+
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
         process.exitCode = 0; return;

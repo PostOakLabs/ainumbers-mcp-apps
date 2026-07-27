@@ -774,7 +774,7 @@ const HOT_TOOLS = new Set([
 // ── O(1) static discovery — per-method, no large parse ─────────────────────
 // The Worker runs on the Cloudflare FREE plan (~10ms CPU/request). The four discovery responses
 // are immutable per deploy and captured at build time (scripts/precompute-discovery.mjs).
-//   • initialize → a tiny parsed object (protocolVersion is echoed from the request).
+//   • initialize → a tiny parsed object (protocolVersion echoed only if supported, else server default).
 //   • the LIST responses (tools/list is ~330KB) → served as PRE-FRAMED SSE TEXT with an
 //     "id":__OCG_ID__ placeholder. Splicing the id is a single cheap string replace, so a cold
 //     isolate never JSON.parses NOR re-stringifies the 330KB tools/list — that parse+stringify was
@@ -3863,7 +3863,15 @@ export default {
         try {
           if (method === 'initialize') {
             const init = await getStaticInitialize(env);
-            const result = { protocolVersion: body.params?.protocolVersion || init.protocolVersion,
+            // Version negotiation (MCP spec, Basic/Lifecycle): echo the client's protocolVersion
+            // ONLY if it matches a version this worker actually implements. Otherwise respond with
+            // the server's own supported version (never error — the client decides whether to
+            // disconnect). init.protocolVersion is the ONLY version this stateless worker
+            // implements: capabilities/serverInfo never vary by requested version, so echoing an
+            // unimplemented value would claim support the worker does not have (MCPVER-ECHO-FIX-1).
+            const requestedVersion = body.params?.protocolVersion;
+            const negotiatedVersion = requestedVersion === init.protocolVersion ? requestedVersion : init.protocolVersion;
+            const result = { protocolVersion: negotiatedVersion,
                              capabilities: init.capabilities, serverInfo: init.serverInfo };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
             return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
