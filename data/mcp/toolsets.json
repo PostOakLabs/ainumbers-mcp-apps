@@ -67,7 +67,9 @@
       "validate_emir_upi",
       "reconcile_emir_pairing",
       "validate_emir_lifecycle_event",
-      "run_emir_reporting_fit"
+      "run_emir_reporting_fit",
+      "adjudicate_emir_reconciliation",
+      "age_emir_reconciliation_breaks"
     ],
     "anchors": [
       "build_agent_traffic_policy",
