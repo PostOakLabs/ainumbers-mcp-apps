@@ -24,6 +24,18 @@ const TIMEOUT = Number(process.env.MCP_SMOKE_TIMEOUT_MS ?? 15000);
 const PROTO = '2025-06-18';
 const ACCEPT = 'application/json, text/event-stream';
 
+// SEP-2243 routing headers. Every smoke request SENDS them, so a green smoke actually
+// proves the header path end to end (and that the Cloudflare WAF forwards them).
+// Mcp-Name applies only to the methods that carry a name/uri in params.
+function sep2243Headers(method, params) {
+  const h = { 'mcp-method': method };
+  const name = (method === 'tools/call' || method === 'prompts/get') ? params?.name
+             : (method === 'resources/read') ? params?.uri
+             : undefined;
+  if (name !== undefined) h['mcp-name'] = String(name);
+  return h;
+}
+
 // POST a JSON-RPC request and STREAM the response, resolving on the first object whose id matches.
 // Returns { result, error }. Throws on timeout/HTTP error/no-match-before-end.
 async function call(method, params, id) {
@@ -33,7 +45,10 @@ async function call(method, params, id) {
   try {
     res = await fetch(URL, {
       method: 'POST', signal: controller.signal,
-      headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+      headers: {
+        'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO,
+        ...sep2243Headers(method, params),
+      },
       body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
     });
   } catch (e) {
@@ -133,6 +148,51 @@ async function versionNegotiationHonesty() {
   return { requested: bogus, negotiated: got };
 }
 
+// SEP-2243 (MCP-728 §T1). Two assertions, and BOTH matter:
+//   (a) a header/body MISMATCH is rejected with HTTP 400 + JSON-RPC -32020 (HeaderMismatch).
+//       ⛔ Not -32602 (that is §T2's unknown-tool condition) and not -32001 (renumbered by
+//       modelcontextprotocol#2907).
+//   (b) a request sending NO SEP-2243 headers still works — the dual-support window. This is
+//       the outage guard: it fails loudly if validation ever starts rejecting on ABSENCE.
+async function sep2243HeaderValidation() {
+  // (a) Mcp-Method says prompts/get, the body says tools/list.
+  const bad = await fetch(URL, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO,
+      'mcp-method': 'prompts/get',
+    },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 301, method: 'tools/list', params: {} }),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const badText = await bad.text();
+  if (bad.status !== 400) {
+    throw new Error(`SEP-2243 mismatch returned HTTP ${bad.status}, expected 400: ${badText.slice(0, 200)}`);
+  }
+  let badObj;
+  try { badObj = JSON.parse(badText); } catch { throw new Error(`SEP-2243 mismatch body is not JSON: ${badText.slice(0, 200)}`); }
+  if (badObj?.error?.code !== -32020) {
+    throw new Error(`SEP-2243 mismatch returned code ${badObj?.error?.code}, expected -32020 (HeaderMismatch)`);
+  }
+
+  // (b) Legacy client: no SEP-2243 headers at all must still answer 200 and list tools.
+  const legacy = await fetch(URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: ACCEPT },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 302, method: 'tools/list', params: {} }),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const legacyText = await legacy.text();
+  if (legacy.status !== 200) {
+    throw new Error(`legacy (no SEP-2243 headers) tools/list returned HTTP ${legacy.status} — dual-support broken: ${legacyText.slice(0, 200)}`);
+  }
+  const legacyLine = legacyText.split('\n').find((l) => l.startsWith('data:'));
+  const legacyObj = JSON.parse((legacyLine || legacyText).replace(/^data:\s*/, ''));
+  const legacyTools = legacyObj.result?.tools?.length ?? 0;
+  if (!legacyTools) throw new Error('legacy (no SEP-2243 headers) tools/list returned no tools — dual-support broken');
+  return { code: badObj.error.code, legacyTools };
+}
+
 async function exportRoundTrip() {
   // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
   const list = await call('tools/list', {}, 2);
@@ -168,6 +228,9 @@ async function exportRoundTrip() {
 
       const vn = await versionNegotiationHonesty();
       console.log(`✓ version-negotiation honesty OK — requested "${vn.requested}" got server version "${vn.negotiated}" (not echoed)`);
+
+      const sep = await sep2243HeaderValidation();
+      console.log(`✓ SEP-2243 headers OK — mismatch rejected with HTTP 400 / ${sep.code} (HeaderMismatch); header-less legacy request still lists ${sep.legacyTools} tools`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');

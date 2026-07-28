@@ -3671,6 +3671,97 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 // ---------------------------------------------------------------------------
+// SEP-2243 — HTTP header standardization for Streamable HTTP (MCP 2026-07-28)
+// ---------------------------------------------------------------------------
+// A client MAY mirror JSON-RPC routing fields into HTTP headers so intermediaries
+// can route/authorize without parsing the body. A server that parses the body MUST
+// validate that the headers agree with it, and MUST reject a disagreement with
+// HTTP 400 + JSON-RPC -32020 (HeaderMismatch). Code -32020, not -32001: the SEP's
+// original -32001 was renumbered by modelcontextprotocol#2907 (see
+// research/MCP728-Q1-MISMATCH-1-2026-07-27.md). -32602 is a DIFFERENT condition
+// (unknown tool/resource, §T2) and must not be reused here.
+//
+// ⛔ DUAL-SUPPORT: we reject on MISMATCH ONLY, never on ABSENCE. The SEP also makes
+// a missing required header a rejection, but the 2026-07-28 publication is not a
+// switch-off for current-version clients, and every client in the field today sends
+// none of these headers. Rejecting absence would take /mcp down for all of them.
+// When the dual-support window closes, absence becomes a rejection here too.
+
+// `=?base64?<b64>?=` sentinel: any header value that is not safely plain-ASCII is
+// transported Base64-encoded and MUST be decoded before comparison. A raw string
+// compare false-rejects every non-ASCII tool name.
+const MCP_B64_SENTINEL = /^=\?base64\?(.*)\?=$/;
+
+function decodeMcpHeaderValue(raw) {
+  const m = MCP_B64_SENTINEL.exec(raw);
+  if (!m) return { ok: true, value: raw };
+  try {
+    const bin = atob(m[1]);
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    return { ok: true, value: new TextDecoder('utf-8', { fatal: true }).decode(bytes) };
+  } catch {
+    return { ok: false, value: null };
+  }
+}
+
+// The body value a given header must agree with. Returns undefined when the header
+// does not apply to this method (e.g. Mcp-Name on tools/list) — undefined means
+// "nothing to compare", which is not a mismatch.
+function mcpNameBodyValue(body) {
+  const m = body?.method;
+  if (m === 'tools/call' || m === 'prompts/get') return body?.params?.name;
+  if (m === 'resources/read') return body?.params?.uri;
+  return undefined;
+}
+
+/**
+ * Validate SEP-2243 headers against the parsed JSON-RPC body.
+ * @returns {null} when the request is conformant (including when it sends no
+ *   SEP-2243 headers at all), or `{ header, headerValue, bodyValue, reason }`.
+ */
+function validateMcpHeaders(request, body) {
+  if (!body || typeof body !== 'object') return null;
+  const h = request.headers; // Headers lookups are case-insensitive per fetch spec.
+
+  const checks = [
+    // MCP-Protocol-Version mirrors the modern _meta field. Only compare when the
+    // body actually carries it: a legacy `initialize` handshake negotiates the
+    // version in params and has no _meta to disagree with.
+    ['MCP-Protocol-Version', h.get('mcp-protocol-version'),
+      body?._meta?.['io.modelcontextprotocol/protocolVersion']],
+    ['Mcp-Method', h.get('mcp-method'), body?.method],
+    ['Mcp-Name', h.get('mcp-name'), mcpNameBodyValue(body)],
+  ];
+
+  for (const [name, rawHeader, bodyValue] of checks) {
+    if (rawHeader === null || rawHeader === undefined) continue; // absence is allowed
+    const decoded = decodeMcpHeaderValue(rawHeader.trim());
+    if (!decoded.ok) {
+      return { header: name, headerValue: rawHeader, bodyValue: null, reason: 'undecodable Base64 sentinel value' };
+    }
+    if (bodyValue === undefined) continue; // header does not apply to this method
+    // Header NAMES are case-insensitive (handled above); header VALUES are not.
+    if (decoded.value !== String(bodyValue)) {
+      return { header: name, headerValue: decoded.value, bodyValue: String(bodyValue), reason: 'does not match the request body' };
+    }
+  }
+  // Mcp-Param-{Name} headers come from an `x-mcp-header` annotation in a tool's
+  // inputSchema. We declare none, so there is nothing to validate — and unknown
+  // Mcp-Param-* headers MUST be forwarded and ignored, never rejected.
+  return null;
+}
+
+function mcpHeaderMismatchResponse(mismatch, body, corsHeaders) {
+  const detail = mismatch.bodyValue === null
+    ? `${mismatch.header} header value '${mismatch.headerValue}' has an ${mismatch.reason}`
+    : `${mismatch.header} header value '${mismatch.headerValue}' ${mismatch.reason} value '${mismatch.bodyValue}'`;
+  return new Response(
+    JSON.stringify({ jsonrpc: '2.0', id: body?.id ?? null, error: { code: -32020, message: `Header mismatch: ${detail}` } }),
+    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Cloudflare Workers entry point
 // ---------------------------------------------------------------------------
 export default {
@@ -3680,7 +3771,9 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : 'https://ainumbers.co',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id',
+      // SEP-2243 routing headers must survive the browser preflight, or a browser
+      // client that sends them never reaches the worker at all.
+      'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version, Mcp-Method, Mcp-Name',
       'Access-Control-Expose-Headers': 'Mcp-Session-Id',
     };
 
@@ -3843,6 +3936,13 @@ export default {
           JSON.stringify({ jsonrpc: '2.0', error: { code: -32700, message: 'Parse error: request body is not valid JSON' }, id: null }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // SEP-2243 header validation runs BEFORE dispatch, so a mismatched header on a
+      // call to an unknown tool returns -32020 (transport), not -32602 (application).
+      const headerMismatch = validateMcpHeaders(request, body);
+      if (headerMismatch) {
+        return mcpHeaderMismatchResponse(headerMismatch, body, corsHeaders);
       }
 
       // Extract telemetry fields from tools/call requests.

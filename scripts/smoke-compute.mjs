@@ -67,7 +67,12 @@ function payloadOf(result) {
 async function callOnce(name, policy_parameters) {
   const r = await fetch(URL, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+    // SEP-2243 (MCP-728 §T1): mirror the JSON-RPC routing fields into headers, so every
+    // compute call in this smoke exercises the header-validation path rather than bypassing it.
+    headers: {
+      'content-type': 'application/json', accept: 'application/json, text/event-stream',
+      'mcp-method': 'tools/call', 'mcp-name': name,
+    },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call',
       params: { name, arguments: { compute: 'server', policy_parameters } } }),
   });
