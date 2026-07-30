@@ -1012,6 +1012,13 @@ async function verifyClosureViaAnchor(escalation_record, closure) {
 
 function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null, mrtr = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
+  // SEP-1865 (final, MCP-728 §T5 A0 delta 2): MCP Apps is negotiated as an EXTENSION, not implied
+  // by shipping ui:// resources. Declare it so clients that check capabilities.extensions before
+  // rendering a widget see it advertised. We do not gate behavior on the client's own advertisement
+  // here — the PILOT tool result already carries plain text + a direct tool URL alongside
+  // `_meta.ui.resourceUri` (registerAppTool below), so a client that never declares the extension
+  // still gets a working non-UI fallback for free; there is nothing to strip or special-case.
+  server.server.registerCapabilities({ extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } });
   // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
   // — registering the full set per request trips the Cloudflare FREE-plan CPU limit (1102). Every
   // tool registration routes through server.registerTool (ext-apps registerAppTool + the exporters'
@@ -4128,7 +4135,7 @@ export default {
         endpoints: [
           { url: 'https://mcp.ainumbers.co/mcp', transport: 'streamable-http', protocol_version: '2025-06-18', authentication: 'none' },
         ],
-        capabilities: { tools: {}, resources: {}, prompts: {} },
+        capabilities: { tools: {}, resources: {}, prompts: {}, extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } },
         registry: 'co.ainumbers/tools',
         documentation: 'https://ainumbers.co/mcp.html',
         standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
