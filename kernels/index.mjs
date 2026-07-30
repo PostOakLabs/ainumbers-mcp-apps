@@ -425,7 +425,14 @@ import * as art489    from './art-489-model-test-battery.kernel.mjs';
 import * as art49     from './art-49-clearing-access-model-selector.kernel.mjs';
 import * as art490    from './art-490-fatca-crs-submission-check.kernel.mjs';
 import * as art491    from './art-491-ro-remediation-closure.kernel.mjs';
+import * as art492    from './art-492-classify-settlement-finality.kernel.mjs';
+import * as art494    from './art-494-icm-quorum-forgery-classifier.kernel.mjs';
+import * as art499    from './art-499-check-safeguarding-reconciliation.kernel.mjs';
 import * as art50     from './art-50-ficc-margin-netting-estimator.kernel.mjs';
+import * as art500    from './art-500-classify-safeguarding-method.kernel.mjs';
+import * as art501    from './art-501-build-safeguarding-audit-evidence.kernel.mjs';
+import * as art502    from './art-502-bind-attested-subject.kernel.mjs';
+import * as art503    from './art-503-build-dual-control-certification.kernel.mjs';
 import * as art51     from './art-51-cross-margining-benefit-estimator.kernel.mjs';
 import * as art52     from './art-52-digital-trade-fit-diagnostic.kernel.mjs';
 import * as art53     from './art-53-mletr-ebl-conformance-validator.kernel.mjs';
@@ -916,7 +923,14 @@ export const KERNELS = {
   'art-49-clearing-access-model-selector':                    art49,
   'art-490-fatca-crs-submission-check':                       art490,
   'art-491-ro-remediation-closure':                           art491,
+  'art-492-classify-settlement-finality':                     art492,
+  'art-494-icm-quorum-forgery-classifier':                    art494,
+  'art-499-check-safeguarding-reconciliation':                art499,
   'art-50-ficc-margin-netting-estimator':                     art50,
+  'art-500-classify-safeguarding-method':                     art500,
+  'art-501-build-safeguarding-audit-evidence':                art501,
+  'art-502-bind-attested-subject':                            art502,
+  'art-503-build-dual-control-certification':                 art503,
   'art-51-cross-margining-benefit-estimator':                 art51,
   'art-52-digital-trade-fit-diagnostic':                      art52,
   'art-53-mletr-ebl-conformance-validator':                   art53,
