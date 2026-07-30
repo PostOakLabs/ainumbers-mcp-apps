@@ -863,7 +863,154 @@ async function fragmentLink(artifact) {
   return { ledger_url: 'https://ledger.ainumbers.co/#a=v1.' + b64 };
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null } = {}) {
+// ---------------------------------------------------------------------------
+// MRTR (SEP-2322) requestState codec — MCP 2026-07-28 basic/patterns/mrtr.
+//
+// Spec, Server Requirements (Basic Workflow) item 4, verbatim: "If a client request
+// contains a `requestState` field, servers MUST treat `requestState` as an
+// attacker-controlled input. If `requestState` influences authorization, resource
+// access, or business logic, servers MUST protect its integrity (e.g. HMAC or AEAD)
+// and MUST reject state that fails verification."
+// Item 5 (SHOULD, replay bounding): carry the authenticated principal, a short expiry
+// (TTL), and an identifier for the originating request (method + digest of salient
+// parameters) INSIDE the protected payload, and verify each on receipt.
+//
+// Our state carries the §22.8.3 escalation open-record hash, which selects WHICH open
+// record a supplied closure resolves — business logic — so integrity protection is
+// MUST-level here, not optional. A bare record hash in requestState is NOT sufficient.
+//
+// Key: env.MRTR_STATE_KEY (a secret) when configured — state then verifies across
+// isolates and deploys. When it is absent the codec falls back to a per-isolate
+// ephemeral random key: integrity still holds (a tampered or foreign state fails
+// verification), and the only degradation is that a retry landing on a different
+// isolate fails to verify, which the spec's Error Handling section covers — the server
+// answers with a NEW InputRequiredResult rather than an error. Never emits unprotected
+// state under any configuration.
+//
+// Single-use is deliberately NOT enforced: resolving an escalation record is idempotent
+// (it re-verifies a closure against a deterministic §22.8.3 hash and redeems nothing),
+// so the spec's one-time-redemption carve-out does not apply.
+// ---------------------------------------------------------------------------
+const MRTR_STATE_TTL_MS = 15 * 60 * 1000; // short expiry (spec item 5)
+// The ML-2 closure endpoint lives on the anchor worker (8 tools incl. verify_escalation_closure).
+const ANCHOR_MCP_URL = 'https://anchor.ainumbers.co/mcp';
+let _mrtrEphemeralKeyPromise = null;      // per-isolate fallback, generated at most once
+
+function mrtrB64uEncode(bytes) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+function mrtrB64uDecode(str) {
+  const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+async function mrtrStateKey(env) {
+  const secret = env?.MRTR_STATE_KEY;
+  if (typeof secret === 'string' && secret.length >= 32) {
+    return { key: await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']), durable: true };
+  }
+  _mrtrEphemeralKeyPromise ||= crypto.subtle.generateKey({ name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
+  return { key: await _mrtrEphemeralKeyPromise, durable: false };
+}
+// Identifier for the originating request (spec item 5): method + digest of the salient
+// parameters. A retry whose tool name or arguments differ produces a different digest and
+// is rejected, so state cannot be replayed onto a different call.
+async function mrtrSha256Hex(obj) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sharedCgCanon(obj))));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function mrtrRequestBinding(toolName, args) {
+  return { m: 'tools/call:' + String(toolName), d: await mrtrSha256Hex({ name: toolName, arguments: args ?? {} }) };
+}
+// Principal: this endpoint is unauthenticated (no OAuth, no session — SEP-2567 stateless),
+// so there is no authenticated principal to bind. We bind a digest of the Authorization
+// header when one is present so a token-bearing caller's state cannot be presented by a
+// different bearer; absent a header the field is the constant 'anon' and the principal
+// check degenerates, exactly as it must on an anonymous endpoint.
+async function mrtrPrincipal(request) {
+  const auth = request?.headers?.get?.('Authorization');
+  if (!auth) return 'anon';
+  return 'sha256:' + (await mrtrSha256Hex(auth)).slice(0, 32);
+}
+async function mrtrSeal(env, payload) {
+  const { key, durable } = await mrtrStateKey(env);
+  const body = mrtrB64uEncode(new TextEncoder().encode(JSON.stringify(payload)));
+  const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode('mrtr.v1.' + body)));
+  return { requestState: 'mrtr.v1.' + body + '.' + mrtrB64uEncode(mac), durable };
+}
+// Returns { ok:true, payload } or { ok:false, reason } — never throws on hostile input.
+async function mrtrOpen(env, state, expect) {
+  if (typeof state !== 'string' || !state.startsWith('mrtr.v1.')) return { ok: false, reason: 'malformed' };
+  const parts = state.split('.');
+  if (parts.length !== 4) return { ok: false, reason: 'malformed' };
+  const [, , body, macB64] = parts;
+  let verified = false;
+  try {
+    const { key } = await mrtrStateKey(env);
+    verified = await crypto.subtle.verify('HMAC', key, mrtrB64uDecode(macB64),
+      new TextEncoder().encode('mrtr.v1.' + body));
+  } catch (_) { return { ok: false, reason: 'malformed' }; }
+  if (!verified) return { ok: false, reason: 'integrity' }; // MUST reject state that fails verification
+  let payload;
+  try { payload = JSON.parse(new TextDecoder().decode(mrtrB64uDecode(body))); }
+  catch (_) { return { ok: false, reason: 'malformed' }; }
+  if (!payload || typeof payload !== 'object') return { ok: false, reason: 'malformed' };
+  if (!(typeof payload.exp === 'number') || Date.now() > payload.exp) return { ok: false, reason: 'expired' };
+  if (expect?.principal !== undefined && payload.sub !== expect.principal) return { ok: false, reason: 'principal' };
+  if (expect?.binding && (payload.m !== expect.binding.m || payload.d !== expect.binding.d)) {
+    return { ok: false, reason: 'request_mismatch' };
+  }
+  return { ok: true, payload };
+}
+
+// §22.8.4 closure verification is the anchor worker's shipped verify_escalation_closure tool
+// (signature + LTV/anchor + record-hash recompute + approver decision). This compute worker never
+// re-implements any of it — it forwards the pair and reports the verdict verbatim. A transport
+// failure returns valid:false with a reason; it never reports a closure as resolved on a failure.
+async function verifyClosureViaAnchor(escalation_record, closure) {
+  const { record_hash: _dropRecordHash, opened_at: _dropOpenedAt, ...deterministic } = escalation_record;
+  const body = {
+    jsonrpc: '2.0', id: 1, method: 'tools/call',
+    params: {
+      name: 'verify_escalation_closure',
+      arguments: { escalation_record: deterministic, closure: { ...closure, record_hash: escalation_record.record_hash } },
+    },
+    _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28' },
+  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(ANCHOR_MCP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'MCP-Protocol-Version': '2026-07-28' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    const text = await res.text();
+    let jsonStr = text;
+    if (text.startsWith('event:')) {
+      const line = text.split('\n').find((l) => l.startsWith('data: '));
+      if (line) jsonStr = line.slice(6);
+    }
+    const parsed = JSON.parse(jsonStr);
+    const verdict = parsed?.result?.structuredContent
+      ?? (() => { try { return JSON.parse(parsed?.result?.content?.[0]?.text ?? 'null'); } catch (_) { return null; } })();
+    if (parsed?.error) return { valid: false, reason: 'closure_verifier_error', detail: parsed.error };
+    if (!verdict || typeof verdict !== 'object') return { valid: false, reason: 'closure_verifier_unreadable', http_status: res.status };
+    return verdict;
+  } catch (e) {
+    return { valid: false, reason: 'closure_verifier_unreachable', detail: String(e?.message ?? e) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null, mrtr = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // tools/call O(1): when a single tool is requested, register ONLY that tool instead of all ~186
   // — registering the full set per request trips the Cloudflare FREE-plan CPU limit (1102). Every
@@ -1721,11 +1868,13 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         .describe('Map of step tool_id -> policy_parameters overrides. Omitted steps run with {} (kernels needing required fields are reported, not failed silently).'),
       compute: z.enum(['auto', 'server', 'browser']).optional()
         .describe('"auto"/"server" (default) runs kernel-backed steps server-side; "browser" returns a zero-egress delegation bundle to run client-side.'),
+      escalation_transport: z.enum(['resolve_handle', 'input_required']).optional()
+        .describe('How an OCG §22.8 escalation is delivered. "resolve_handle" (DEFAULT) never blocks: the run COMPLETES with status "escalated" plus the open record, its record_hash and a resolve handle, and a human closes it out of band. "input_required" opts into the SEP-2322 multi-round-trip: the call answers with an InputRequiredResult asking for the §22.8.4 closure, and the retry (echoing requestState) resolves the record inline.'),
       mandate: z.object({}).passthrough().optional()
         .describe('Optional §22 Work Mandate artifact. When supplied: §16 signature is verified and validity window is checked (unsigned/bad-sig/expired returns a structured error); mandate_hash is folded into every step and the composite receipt as a conditional-presence key, proving which policy governed this run. A no-mandate run is byte-identical to the pre-binding baseline (linear-hash-freeze invariant).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ chain, inputs, compute, mandate }) => {
+  }, async ({ chain, inputs, compute, mandate, escalation_transport }) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
       return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
@@ -1798,6 +1947,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     const results = new Array(chainSteps.length).fill(null);
     const decisions = [];
     const path_taken = [];
+    // §22.8.2(d): the open record attaches whenever a decision ROUTED to "escalate" — including
+    // when the escalating step is the LAST step, where no step gets skipped_by_escalation. Inferring
+    // escalation from the skipped statuses alone misses that case, so carry the decision itself.
+    let escalatedByDecision = null;
     let prevHash = null, prevId = null;
     let idx = 0;
     while (idx < chainSteps.length) {
@@ -1859,6 +2012,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           for (let j = idx + 1; j < chainSteps.length; j++) {
             if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_escalation' };
           }
+          escalatedByDecision = dec; // the decision that routed to "escalate" (§22.8.3 `decision`)
           idx = chainSteps.length; // halt
           continue;
         }
@@ -1874,8 +2028,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       idx++;
     }
     const resultsList = results.filter((r) => r !== null);
-    // §22.8.2: detect escalation — set when any step was skipped_by_escalation.
-    const escalated = resultsList.some((r) => r.status === 'skipped_by_escalation');
+    // §22.8.2: escalation is a property of the DECISION (`next === "escalate"`), not of the skipped
+    // statuses it happens to produce. skipped_by_escalation stays the per-step marker.
+    const escalated = escalatedByDecision !== null || resultsList.some((r) => r.status === 'skipped_by_escalation');
 
     const ran = resultsList.filter((r) => r.status === 'ok');
     // Composite artifact over the REAL step outputs. Deterministic preimage: only mandate_type +
@@ -1911,7 +2066,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // never enter the preimage. Attached to composite_output as adjacent metadata (like §20 anchor_bindings).
     let escalation_record = null;
     if (escalated) {
-      const triggeringDec = decisions[decisions.length - 1]; // the decision that routed to "escalate"
+      const triggeringDec = escalatedByDecision ?? decisions[decisions.length - 1]; // the decision that routed to "escalate"
       const halted_steps = resultsList.filter((r) => r.status === 'skipped_by_escalation').map((r) => gvStepId(chainSteps[r.order - 1], r.order - 1));
       // record_hash preimage: { mandate_hash?, decision, halted_steps } — opened_at EXCLUDED (§22.8.3).
       const recordPreimage = Object.assign(
@@ -1975,6 +2130,141 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       if (db.ledger_url) out.ledger_url = db.ledger_url;
       else out.ledger_url_note = db.ledger_url_note;
     }
+
+    // -----------------------------------------------------------------------
+    // §22.8 escalation TRANSPORT (MCP-728 §T3). §22.8.5 leaves it transport-agnostic;
+    // this is the binding. Decision 2 (2026-07-09): the NON-BLOCKING resolve handle is
+    // the DEFAULT and `input_required` is opt-in — an agent cannot produce a passkey
+    // inline (human device, async), and management-by-exception ends the agent's job at
+    // escalation, so run_chain never blocks unless the caller asks for it.
+    // Everything below is response metadata: no artifact field moves, no hash changes.
+    // -----------------------------------------------------------------------
+    if (escalation_record) {
+      out.status = 'escalated';
+      out.escalation_resolve = {
+        record_hash: escalation_record.record_hash,
+        closure_shape: 'OCG SPEC.md §22.8.4 closure { record_hash, decision, anchor, envelope }',
+        sign_with: { endpoint: ANCHOR_MCP_URL, tool: 'create_signature_envelope', payload: escalation_record.record_hash },
+        verify_with: { endpoint: ANCHOR_MCP_URL, tool: 'verify_escalation_closure' },
+        ledger_url: out.ledger_url ?? null,
+        transport: 'resolve_handle',
+        note: 'Non-blocking. The run COMPLETED with status "escalated"; the open record is queued for human review and closes out of band. Passkey-sign record_hash with create_signature_envelope, then close with verify_escalation_closure.',
+      };
+
+      const wantsInputRequired = (escalation_transport ?? 'resolve_handle') === 'input_required';
+      if (wantsInputRequired && mrtr) {
+        // Bind the state to the originating request (spec item 5): method + digest of the
+        // arguments AS RECEIVED, which is exactly what a conformant client echoes on retry.
+        const binding = await mrtrRequestBinding('run_chain', mrtr.args);
+        const buildInputRequired = async (why) => {
+          const sealed = await mrtrSeal(mrtr.env, {
+            v: 1,
+            record_hash: escalation_record.record_hash,
+            chain,
+            sub: mrtr.principal,
+            m: binding.m,
+            d: binding.d,
+            exp: Date.now() + MRTR_STATE_TTL_MS,
+          });
+          // MUST NOT send an inputRequests entry for a capability the client did not declare
+          // (spec item 7) — passkey approval is an elicitation, so without the elicitation
+          // capability we send requestState alone, which item 6 permits.
+          const canElicit = mrtr.clientCaps?.elicitation != null;
+          const payload = { requestState: sealed.requestState };
+          if (canElicit) {
+            payload.inputRequests = {
+              escalation_closure: {
+                method: 'elicitation/create',
+                params: {
+                  mode: 'form',
+                  message: 'Chain "' + chain + '" escalated (OCG §22.8). A human approver must passkey-sign escalation record ' +
+                    escalation_record.record_hash + ' with create_signature_envelope on ' + ANCHOR_MCP_URL +
+                    ', then supply the §22.8.4 closure to resolve it.',
+                  requestedSchema: {
+                    type: 'object',
+                    properties: {
+                      record_hash: { type: 'string', description: 'The §22.8.3 escalation-record hash the closure signs (64 hex).' },
+                      decision: { type: 'string', enum: ['approve', 'reject'], description: 'The approver decision.' },
+                      envelope: { type: 'string', description: 'JSON of the Anchorproof signature envelope whose signed payload IS record_hash.' },
+                      anchor: { type: 'string', description: 'JSON of the §20 anchor binding produced by the envelope (optional).' },
+                    },
+                    required: ['record_hash', 'decision', 'envelope'],
+                  },
+                },
+              },
+            };
+          }
+          out.escalation_resolve.transport = 'input_required';
+          out.escalation_resolve.state_key = sealed.durable ? 'configured_secret' : 'ephemeral_isolate_key';
+          if (why) out.escalation_resolve.reissued_because = why;
+          out._mrtr = payload; // consumed and stripped by the /mcp response post-processor
+        };
+
+        if (mrtr.requestState) {
+          // RETRY leg. requestState is attacker-controlled: verify integrity, expiry, principal
+          // and request binding BEFORE it influences anything.
+          const opened = await mrtrOpen(mrtr.env, mrtr.requestState, { principal: mrtr.principal, binding });
+          if (!opened.ok) {
+            // Spec Error Handling: prefer a fresh InputRequiredResult over an error.
+            await buildInputRequired('requestState rejected: ' + opened.reason);
+          } else {
+            // The §22.8.3 hash binding — the load-bearing check. The record hash carried in the
+            // protected state MUST equal the hash recomputed from THIS run's open record.
+            const state_hash_matches = opened.payload.record_hash === escalation_record.record_hash;
+            const raw = mrtr.inputResponses?.escalation_closure;
+            const supplied = raw?.content ?? raw?.structuredContent ?? null;
+            const parseMaybe = (v) => { if (v == null) return null; if (typeof v !== 'string') return v; try { return JSON.parse(v); } catch (_) { return null; } };
+            const closure = supplied ? {
+              record_hash: supplied.record_hash,
+              decision: supplied.decision,
+              envelope: parseMaybe(supplied.envelope),
+              ...(supplied.anchor != null ? { anchor: parseMaybe(supplied.anchor) } : {}),
+            } : null;
+            if (!state_hash_matches) {
+              out.escalation_resolve.transport = 'input_required';
+              out.escalation_resolve.resolution = {
+                resolved: false, reason: 'state_record_hash_mismatch',
+                state_record_hash: opened.payload.record_hash,
+                live_record_hash: escalation_record.record_hash,
+                detail: 'The integrity-protected requestState references a different §22.8.3 record than this run reproduced. Nothing was resolved.',
+              };
+            } else if (!closure || !closure.envelope) {
+              await buildInputRequired('closure missing or unparseable in inputResponses');
+            } else if (closure.record_hash !== escalation_record.record_hash) {
+              out.escalation_resolve.transport = 'input_required';
+              out.escalation_resolve.resolution = {
+                resolved: false, reason: 'closure_record_hash_mismatch',
+                closure_record_hash: closure.record_hash ?? null,
+                live_record_hash: escalation_record.record_hash,
+                state_record_hash_matched: true,
+                detail: 'The closure binds a different record hash (§22.8.4: the binding is hash equality, nothing softer).',
+              };
+            } else {
+              // Hashes agree three ways (state, closure, live recompute). Resolution itself is the
+              // shipped ML-2 closure check on the anchor worker — never re-implemented here.
+              const verdict = await verifyClosureViaAnchor(escalation_record, closure);
+              out.escalation_resolve.transport = 'input_required';
+              out.escalation_resolve.resolution = {
+                resolved: verdict.valid === true,
+                state_record_hash_matched: true,
+                closure_record_hash_matched: true,
+                record_hash: escalation_record.record_hash,
+                approver_decision: closure.decision ?? null,
+                closure_verification: verdict,
+                verified_by: { endpoint: ANCHOR_MCP_URL, tool: 'verify_escalation_closure' },
+              };
+            }
+          }
+        } else {
+          await buildInputRequired(null); // FIRST leg — ask for the closure
+        }
+      } else if (wantsInputRequired && !mrtr) {
+        out.escalation_resolve.note = 'escalation_transport "input_required" needs the MRTR request context (a tools/call over /mcp). Returned the non-blocking resolve handle instead.';
+      }
+    }
+    // When out._mrtr is set the /mcp post-processor replaces this whole result with the
+    // SEP-2322 InputRequiredResult; the text block below is only what would surface if it
+    // somehow reached a caller unprocessed.
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
@@ -4070,7 +4360,20 @@ export default {
             );
           }
         }
-        const server = buildServer(data, onlyTool ? { onlyTool } : {});
+        // SEP-2322 MRTR context. `requestState` and `inputResponses` ride the REQUEST PARAMS, not
+        // the tool arguments, so the SDK's tool callback never sees them — hand them to buildServer.
+        // `args` is the arguments object AS RECEIVED: the request-binding digest is taken over it,
+        // and a conformant client echoes it byte-for-byte on retry.
+        const mrtrCtx = isToolCall ? {
+          env,
+          args: body?.params?.arguments ?? {},
+          requestState: typeof body?.params?.requestState === 'string' ? body.params.requestState : null,
+          inputResponses: (body?.params?.inputResponses && typeof body.params.inputResponses === 'object') ? body.params.inputResponses : null,
+          clientCaps: body?._meta?.['io.modelcontextprotocol/clientCapabilities']
+            ?? body?.params?._meta?.['io.modelcontextprotocol/clientCapabilities'] ?? null,
+          principal: await mrtrPrincipal(request),
+        } : null;
+        const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}) });
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         const { req, res } = toReqRes(request);
         res.on('close', () => { transport.close(); server.close(); });
@@ -4121,6 +4424,35 @@ export default {
           } catch (_) {
             response = rawResponse;
           }
+        } else if (isToolCall) {
+          // SEP-2322: a tool that needs another round trip marks its result with structuredContent._mrtr.
+          // The MCP SDK's CallToolResult shape cannot express an InputRequiredResult, so — exactly as the
+          // tools/list defaultConfig injection above does — swap the result at the transport edge.
+          // `resultType: "input_required"` is snake_case; a camelCase value is an unrecognized resultType
+          // that clients MUST treat as invalid. (The blanket resultType:"complete" stamp on every OTHER
+          // result is the compute worker's own T4-equivalent step, not this one.)
+          // The body is consumed exactly once here; every branch below rebuilds a Response from
+          // `text`, so a parse failure can never leave an already-drained rawResponse behind.
+          const text = await rawResponse.text();
+          const h = {};
+          for (const [k, v] of rawResponse.headers.entries()) h[k] = v;
+          delete h['content-length'];
+          let newText = text;
+          try {
+            let jsonStr = text, prefix = '', suffix = '';
+            if (text.startsWith('event:')) {
+              const lines = text.split('\n');
+              const di = lines.findIndex(l => l.startsWith('data: '));
+              if (di >= 0) { prefix = lines.slice(0, di).join('\n') + '\ndata: '; suffix = '\n' + lines.slice(di + 1).join('\n'); jsonStr = lines[di].slice(6); }
+            }
+            const parsed = JSON.parse(jsonStr);
+            const mrtrPayload = parsed?.result?.structuredContent?._mrtr;
+            if (mrtrPayload && (mrtrPayload.requestState || mrtrPayload.inputRequests)) {
+              parsed.result = { resultType: 'input_required', ...(mrtrPayload.inputRequests ? { inputRequests: mrtrPayload.inputRequests } : {}), ...(mrtrPayload.requestState ? { requestState: mrtrPayload.requestState } : {}) };
+              newText = prefix + JSON.stringify(parsed) + suffix;
+            }
+          } catch (_) { /* not JSON we recognise — pass the original bytes through untouched */ }
+          response = new Response(newText, { status: rawResponse.status, headers: h });
         } else {
           response = rawResponse;
         }
