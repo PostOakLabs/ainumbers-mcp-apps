@@ -5,7 +5,7 @@
 
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { McpError, ErrorCode } from '@modelcontextprotocol/sdk/types.js';
+import { McpError, ErrorCode, SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/sdk/types.js';
 import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
@@ -760,16 +760,17 @@ const HOT_TOOLS = new Set([
   'find_tool', 'find_chain', 'run_chain',
 ]);
 
-// ── §M1.6 dual-version window (MCP 2026-07-28 RC pin) ───────────────────────
-// RC revision pinned: draft dated 2026-06-xx, "Streamable HTTP: initialize + sessions optional"
-// (drops the MANDATORY initialize handshake + session ids). A later RC revision that changes this
-// shape should be a one-file diff here. This worker is ALREADY stateless — every request builds a
-// fresh transport/server (sessionIdGenerator: undefined, no cached McpServer) and every JSON-RPC
-// method below (tools/list, tools/call, ...) is handled independently of whether `initialize` was
-// ever called on this "connection" — there is no connection, no session memory. So BOTH the current
-// (initialize-first) handshake AND the RC (no-initialize, call tools/list or tools/call directly)
-// handshake already work unmodified; scripts/smoke-mcp.mjs proves both paths green post-deploy.
-// `initialize` itself stays supported (never removed) for clients still on the current spec rev.
+// ── §M1.6 dual-version window (MCP 2026-07-28 FINAL) ────────────────────────
+// FINAL text (modelcontextprotocol.io/specification/2026-07-28): "There is no negotiation
+// handshake" on the modern per-request path; `initialize` is a LEGACY (2025-11-25 and earlier)
+// concept the FINAL spec still requires servers to answer for dual-era support. This worker is
+// ALREADY stateless — every request builds a fresh transport/server (sessionIdGenerator:
+// undefined, no cached McpServer) and every JSON-RPC method below (tools/list, tools/call, ...)
+// is handled independently of whether `initialize` was ever called on this "connection" — there
+// is no connection, no session memory. So BOTH the legacy (initialize-first) handshake AND the
+// modern (no-initialize, call tools/list or tools/call directly, MCP-Protocol-Version header)
+// handshake already work; scripts/smoke-mcp.mjs proves both paths green post-deploy.
+// `initialize` itself stays supported (never removed) for clients still on a legacy spec rev.
 
 // ── O(1) static discovery — per-method, no large parse ─────────────────────
 // The Worker runs on the Cloudflare FREE plan (~10ms CPU/request). The four discovery responses
@@ -3761,6 +3762,30 @@ function mcpHeaderMismatchResponse(mismatch, body, corsHeaders) {
   );
 }
 
+// MCP728-T2B: the MODERN per-request version assertion (MCP-Protocol-Version header, or the
+// _meta mirror) is checked HERE — before dispatch — so BOTH the O(1) static-discovery fast path
+// (initialize/tools|resources|prompts-list, below) and the full SDK-transport path see the SAME
+// validation. Previously only the SDK path validated it (and did so with its own generic -32000,
+// not the FINAL spec's -32022 + structured data.supported/data.requested) while the static path
+// ignored the header outright — two regimes, one unvalidated (MCP728-Q3-CONFIRM-1). This does NOT
+// touch `initialize`'s legacy params.protocolVersion soft-negotiation (MCPVER-ECHO-FIX-1, still
+// correct for a legacy client with no header) — only an explicit MODERN header assertion errors.
+function unsupportedMcpVersionResponse(request, body, corsHeaders) {
+  const requested =
+    request.headers.get('MCP-Protocol-Version') ||
+    body?.params?._meta?.['io.modelcontextprotocol/protocolVersion'] ||
+    undefined;
+  if (!requested || SUPPORTED_PROTOCOL_VERSIONS.includes(requested)) return null;
+  return new Response(
+    JSON.stringify({
+      jsonrpc: '2.0', id: body?.id ?? null,
+      error: { code: -32022, message: `Unsupported protocol version: ${requested}`,
+               data: { supported: SUPPORTED_PROTOCOL_VERSIONS, requested } },
+    }),
+    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Cloudflare Workers entry point
 // ---------------------------------------------------------------------------
@@ -3944,6 +3969,11 @@ export default {
       if (headerMismatch) {
         return mcpHeaderMismatchResponse(headerMismatch, body, corsHeaders);
       }
+
+      // MCP728-T2B: reject an unsupported MODERN protocol-version assertion before dispatch,
+      // so the static fast path (initialize/list) and the SDK path get identical treatment.
+      const versionError = unsupportedMcpVersionResponse(request, body, corsHeaders);
+      if (versionError) return versionError;
 
       // Extract telemetry fields from tools/call requests.
       // Never log payloads, parameters, or outputs -- only structural metadata.

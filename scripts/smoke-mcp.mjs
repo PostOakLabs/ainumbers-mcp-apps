@@ -214,6 +214,39 @@ async function unknownToolErrorCode() {
   return { unknownCode: error.code, deferredChecked: true, deferredTool: deferred.name };
 }
 
+// MCP728-T2B: an unsupported MODERN protocol-version assertion (MCP-Protocol-Version header)
+// must be rejected with the FINAL spec's -32022 + HTTP 400 + structured error.data.supported/
+// error.data.requested, with the request id preserved — never the SDK's generic -32000 nor a
+// dropped id. Checked on BOTH regimes that used to diverge (MCP728-Q3-CONFIRM-1): the O(1)
+// static fast path (initialize) and the full SDK-transport path (an unrecognized method, the
+// exact server/discover repro that surfaced the bug).
+async function protocolVersionRejection() {
+  const bad = '2026-07-28';
+  const post = (id, method, params) => fetch(URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': bad },
+    body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const assertRejected = async (res, id, label) => {
+    const text = await res.text();
+    if (res.status !== 400) throw new Error(`${label} w/ unsupported version header returned HTTP ${res.status}, expected 400: ${text.slice(0, 200)}`);
+    let obj;
+    try { obj = JSON.parse(text); } catch { throw new Error(`${label} w/ unsupported version header body is not JSON: ${text.slice(0, 200)}`); }
+    if (obj?.error?.code !== -32022) throw new Error(`${label} w/ unsupported version header returned code ${obj?.error?.code}, expected -32022 (MCP728-T2B regression)`);
+    if (obj?.id !== id) throw new Error(`${label} w/ unsupported version header lost request id (got ${obj?.id}, expected ${id})`);
+    if (!Array.isArray(obj?.error?.data?.supported) || !obj.error.data.supported.length) throw new Error(`${label} w/ unsupported version header missing error.data.supported array`);
+    if (obj?.error?.data?.requested !== bad) throw new Error(`${label} w/ unsupported version header missing/wrong error.data.requested`);
+    return obj;
+  };
+  const initObj = await assertRejected(
+    await post(501, 'initialize', { protocolVersion: PROTO, capabilities: {}, clientInfo: { name: 'ci-smoke-ver', version: '1' } }),
+    501, 'initialize (static fast path)',
+  );
+  await assertRejected(await post(502, 'server/discover'), 502, 'server/discover (SDK path)');
+  return { code: initObj.error.code };
+}
+
 async function exportRoundTrip() {
   // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
   const list = await call('tools/list', {}, 2);
@@ -255,6 +288,9 @@ async function exportRoundTrip() {
 
       const ut = await unknownToolErrorCode();
       console.log(`✓ MCP-728 T2 unknown-tool code OK — ${ut.unknownCode}` + (ut.deferredChecked ? `; deferred-but-real tool "${ut.deferredTool}" still resolves (§M1.1)` : ' (no deferred tool found to check §M1.1)'));
+
+      const pv = await protocolVersionRejection();
+      console.log(`✓ MCP728-T2B protocol-version rejection OK — HTTP 400 / ${pv.code} + data.supported/data.requested + id preserved, on both the static fast path and the SDK path`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
