@@ -2696,8 +2696,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     description:
       'BM25 search over all ' + (chaingraph?.chains?.length ?? 0) + ' AINumbers ChainGraph chains. ' +
       'Returns ranked chains with their full recipe: ordered node sequence, deep-links, composer URL, and entry tool mcp_name. ' +
-      'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps. ' +
-      'Do NOT use prompts/list or resources for agent chain discovery — use this tool.',
+      'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps.',
     inputSchema: {
       query: z.string().describe('Natural-language or keyword search (e.g. "AML programme", "DORA ICT readiness", "MiCA CASP", "PQC migration", "Basel capital").'),
       top_n: z.number().min(1).max(20).optional().describe('Max results to return (default 5).'),
@@ -3684,7 +3683,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         'Walk me through the Agent Commerce Cross-Protocol Conformance workflow' + (scope ? ' for ' + scope : '') + ' using AINumbers ChainGraph tools. ' +
         'This chain validates one agent purchase end-to-end across the converged agentic commerce stack: ' +
         'AP2 v0.2 Intent→Cart→Payment (FIDO Alliance, 60+ orgs) + ACP CheckoutRequest/Response (OpenAI/Stripe) + Visa TAP RFC 9421 HTTP Message Signature + x402 settlement leg (Coinbase CDP, ~69k agents, 165M+ txns 2026). ' +
-        'All ChainGraph tools run client-side — zero PII, zero egress. Use synthetic transaction payloads only.\n\n' +
+        'Deterministic OpenChainGraph compute node. By default (compute:"auto") inputs are computed server-side on Cloudflare Workers for gpu:false nodes with a registered kernel; compute:"browser" forces client-side execution and returns a browser delegation URL instead. gpu:true nodes always delegate to the browser. Inputs are processed transiently to compute the response and are not stored, logged, or retained. Use synthetic or anonymised inputs only. Exports an AP2 artifact with execution_hash for chain provenance.\n\n' +
         'Step 1 — AP2 Mandate Chain Validator (ART-01): open https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html. ' +
         'Validate the AP2 v0.2 Intent→Cart→Payment mandate trio. ' +
         'Export the AP2 artifact JSON (execution_hash = H1). Or call validate_ap2_mandate_chain via MCP.\n\n' +
@@ -3825,7 +3824,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       title: node.display_name,
       description:
         node.display_name + ': OpenChainGraph compute node (' + node.mandate_type + ').' + deadlineNote +
-        ' Runs deterministically in-browser; zero PII, zero egress. Exports an AP2 artifact with execution_hash for chain provenance.' +
+        ' Deterministic OpenChainGraph compute node. By default (compute:"auto") inputs are computed server-side on Cloudflare Workers for gpu:false nodes with a registered kernel; compute:"browser" forces client-side execution and returns a browser delegation URL instead. gpu:true nodes always delegate to the browser. Inputs are processed transiently to compute the response and are not stored, logged, or retained. Use synthetic or anonymised inputs only. Exports an AP2 artifact with execution_hash for chain provenance.' +
         (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
         (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
         ' Open at: ' + node.url,
