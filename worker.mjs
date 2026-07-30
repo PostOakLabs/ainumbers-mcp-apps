@@ -2196,6 +2196,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           }
           out.escalation_resolve.transport = 'input_required';
           out.escalation_resolve.state_key = sealed.durable ? 'configured_secret' : 'ephemeral_isolate_key';
+          if (!sealed.durable) {
+            out.escalation_resolve.state_key_note = 'MRTR_STATE_KEY is not configured, so requestState is sealed with a per-isolate ephemeral key: integrity holds, but a retry served by a different isolate fails verification and is answered with a fresh InputRequiredResult. Configure the secret for cross-isolate durability.';
+          }
           if (why) out.escalation_resolve.reissued_because = why;
           out._mrtr = payload; // consumed and stripped by the /mcp response post-processor
         };
