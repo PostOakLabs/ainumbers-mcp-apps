@@ -193,6 +193,27 @@ async function sep2243HeaderValidation() {
   return { code: badObj.error.code, legacyTools };
 }
 
+// MCP-728 §T2: a genuinely unknown mcp_name is a JSON-RPC PROTOCOL error, -32602, NOT a
+// tool-result with isError:true, and NOT -32002 (an older/wrong code this WU corrects).
+// MCP-500 §M1.1 regression, same call: a tool that is REGISTERED but not in the lean-core
+// advertised set (defer_loading:true) must still resolve — it must NOT false-reject as
+// "unknown" just because tools/list hid it behind the deferred-loading hint.
+async function unknownToolErrorCode() {
+  const bogus = 'definitely_not_a_real_tool_' + Date.now();
+  const { result, error } = await call('tools/call', { name: bogus, arguments: {} }, 401);
+  if (!error) throw new Error(`unknown tool "${bogus}" returned no JSON-RPC error (got result: ${JSON.stringify(result).slice(0, 200)}) — MCP-728 T2 requires a protocol-level error, not a tool result`);
+  if (error.code !== -32602) throw new Error(`unknown tool "${bogus}" returned code ${error.code}, expected -32602`);
+  if (error.code === -32002) throw new Error('unknown tool returned the retired -32002 code — MCP-728 T2 regression');
+
+  const list = await call('tools/list', {}, 402);
+  if (list.error) throw new Error(`tools/list error ${list.error.code}: ${list.error.message}`);
+  const deferred = (list.result?.tools ?? []).find((t) => t.defaultConfig?.defer_loading === true);
+  if (!deferred) return { unknownCode: error.code, deferredChecked: false };
+  const out = await call('tools/call', { name: deferred.name, arguments: {} }, 403);
+  if (out.error?.code === -32602) throw new Error(`M1.1 regression: registered-but-deferred tool "${deferred.name}" was rejected as unknown (-32602)`);
+  return { unknownCode: error.code, deferredChecked: true, deferredTool: deferred.name };
+}
+
 async function exportRoundTrip() {
   // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
   const list = await call('tools/list', {}, 2);
@@ -231,6 +252,9 @@ async function exportRoundTrip() {
 
       const sep = await sep2243HeaderValidation();
       console.log(`✓ SEP-2243 headers OK — mismatch rejected with HTTP 400 / ${sep.code} (HeaderMismatch); header-less legacy request still lists ${sep.legacyTools} tools`);
+
+      const ut = await unknownToolErrorCode();
+      console.log(`✓ MCP-728 T2 unknown-tool code OK — ${ut.unknownCode}` + (ut.deferredChecked ? `; deferred-but-real tool "${ut.deferredTool}" still resolves (§M1.1)` : ' (no deferred tool found to check §M1.1)'));
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
