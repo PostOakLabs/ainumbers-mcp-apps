@@ -4013,22 +4013,31 @@ export default {
             ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
           ]));
-          // A Removed tool (§M2.2) is treated exactly like an unknown tool: dropped from the
-          // advertised set AND rejected on tools/call with the same clean -32602-shaped result —
-          // never a 500. Deprecated tools stay fully known/callable (advisory only).
-          if (known.has(toolName) && lifecycleStatusOf(data, toolName) !== 'Removed') {
+          const isKnown = known.has(toolName);
+          const isRemoved = isKnown && lifecycleStatusOf(data, toolName) === 'Removed';
+          if (isKnown && !isRemoved) {
             onlyTool = toolName;
-          } else {
-            // Unknown tool name → emit the SDK's exact -32602 tool-result WITHOUT building the
-            // full ~186-tool server. That full build (onlyTool stays null → every node's zod schema
-            // constructed) is the cold-isolate 1102 source for probe/garbage tools/call hitting the
-            // public endpoint. The known-set is verified to cover ALL registered tools exactly
-            // (scripts/build-mcp-parity.mjs: 0 false-reject), so this never rejects a valid tool.
-            // Result shape is byte-identical to the SDK's unregistered-tool response (captured in
-            // build-mcp-parity): result.content text + isError:true, NOT a JSON-RPC error.
-            const result = { content: [{ type: 'text', text: 'MCP error -32602: Tool ' + toolName + ' not found' }], isError: true };
+          } else if (isRemoved) {
+            // A Removed tool (§M2.2) is a DIFFERENT condition from a genuinely unknown name:
+            // it keeps its own tool-result-shaped rejection (gate-deprecation-lifecycle.mjs
+            // asserts result.isError + no thrown JSON-RPC error, HTTP 200, never a 500).
+            // Not this row's scope (MCP-728 T2 is the unknown-tool code, not lifecycle status).
+            const result = { content: [{ type: 'text', text: 'MCP error: Tool ' + toolName + ' not found (Removed)' }], isError: true };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
             return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+          } else {
+            // Genuinely unknown tool name → a JSON-RPC protocol-level error (MCP-728 T2), NOT a
+            // tool result. Emitted directly WITHOUT building the full ~186-tool server. That full
+            // build (onlyTool stays null → every node's zod schema constructed) is the
+            // cold-isolate 1102 source for probe/garbage tools/call hitting the public endpoint.
+            // The known-set is verified to cover ALL registered tools exactly
+            // (scripts/build-mcp-parity.mjs: 0 false-reject), so this never rejects a valid tool.
+            // Plain JSON (not SSE), matching this worker's other JSON-RPC error responses
+            // (-32700 parse error, -32020 header mismatch) and the anchor worker's shape.
+            return new Response(
+              JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32602, message: 'Tool not found: ' + toolName } }),
+              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
         }
         const server = buildServer(data, onlyTool ? { onlyTool } : {});
