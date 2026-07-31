@@ -1086,7 +1086,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       structuredContent: { tool_id: m.tool_id, version: m.version, inputs: inputs ?? {}, url: BASE_URL + '/tools/' + slug + '.html' },
     }));
 
-    registerAppResource(server, m.title, uri, {}, async () => ({
+    registerAppResource(server, m.title, uri, { title: m.title }, async () => ({
       contents: [{ uri, mimeType: RESOURCE_MIME_TYPE, text: await loadWidget(slug) }],
     }));
   }
@@ -3450,6 +3450,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   };
 
   regPrompt('aml_programme_workflow', {
+    title: 'AML Programme Assembly Workflow',
     description: 'Step-by-step workflow for assembling a complete AML programme using AINumbers browser tools (T110 > T116 > T119 > T131). Returns an orchestration guide; the full audited run is available at the AML Programme Composer.',
     argsSchema: {
       entity_type:        z.string().optional().describe('Type of entity (e.g. bank, EMI, VASP, MSB). Scopes risk-tier calibration.'),
@@ -3484,6 +3485,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
 
 
   regPrompt('dora_readiness_workflow', {
+    title: 'DORA ICT Readiness Workflow',
     description: 'Step-by-step DORA ICT readiness workflow: run the diagnostic triage, then the orchestrated composer (T300 > T304 > T307 > T310), export composite Policy Mandate.',
     argsSchema: {
       entity_type: z.string().optional().describe('Type of financial entity (e.g. credit institution, payment institution, investment firm, insurance undertaking)'),
@@ -3657,6 +3659,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   regPrompt('mcp_server_audit_workflow', {
+    title: 'MCP Server Audit Workflow',
     description: 'End-to-end MCP server audit: score readiness, lint tool definitions, scan for tool poisoning, audit OAuth. All server-side -- no browser required.',
     argsSchema: {
       server_name: z.string().describe('Human-readable name of the MCP server being audited'),
