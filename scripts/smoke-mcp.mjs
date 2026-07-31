@@ -221,7 +221,11 @@ async function unknownToolErrorCode() {
 // static fast path (initialize) and the full SDK-transport path (an unrecognized method, the
 // exact server/discover repro that surfaced the bug).
 async function protocolVersionRejection() {
-  const bad = '2026-07-28';
+  // ⚠ WAS '2026-07-28'. MCP728-CONFORM-FIX-2 makes that a SUPPORTED version, so keeping it here
+  // would assert the worker rejects the revision it now implements — the smoke would fail the
+  // deploy for doing the right thing. The rejection rule itself is unchanged; only the probe
+  // version moved to one that is genuinely unsupported.
+  const bad = '1900-01-01';
   const post = (id, method, params) => fetch(URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': bad },
@@ -243,8 +247,90 @@ async function protocolVersionRejection() {
     await post(501, 'initialize', { protocolVersion: PROTO, capabilities: {}, clientInfo: { name: 'ci-smoke-ver', version: '1' } }),
     501, 'initialize (static fast path)',
   );
-  await assertRejected(await post(502, 'server/discover'), 502, 'server/discover (SDK path)');
+  await assertRejected(
+    await post(502, 'tools/call', { name: 'list_ainumbers_tools', arguments: {} }),
+    502, 'tools/call (SDK path)',
+  );
   return { code: initObj.error.code };
+}
+
+// MCP728-CONFORM-FIX-2 — the 2026-07-28 rules that only a LIVE endpoint can prove.
+// scripts/gate-mcp-era.mjs asserts every pre-dispatch rule offline in CI; the checks below are the
+// ones that ride the SDK transport path, which fetch-to-node cannot drive under plain Node. Each
+// modern-era assertion is PAIRED with a legacy control, because a fix that strands old clients is
+// the outage this whole discipline exists to prevent.
+async function era2026Conformance() {
+  const MODERN = '2026-07-28';
+  const modernMeta = {
+    'io.modelcontextprotocol/protocolVersion': MODERN,
+    'io.modelcontextprotocol/clientCapabilities': {},
+  };
+  const post = (headers, body) => fetch(URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: ACCEPT, ...headers },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const readJson = async (res) => {
+    const text = await res.text();
+    if (text.startsWith('event:')) {
+      const line = text.split('\n').find((l) => l.startsWith('data: '));
+      if (line) return JSON.parse(line.slice(6));
+    }
+    try { return JSON.parse(text); } catch { throw new Error('non-JSON body: ' + text.slice(0, 200)); }
+  };
+
+  // (1) server/discover — a modern client learns versions + capabilities here, not from initialize.
+  const disc = await post(
+    { 'mcp-protocol-version': MODERN, 'mcp-method': 'server/discover' },
+    { jsonrpc: '2.0', id: 601, method: 'server/discover', params: { _meta: modernMeta } },
+  );
+  if (disc.status !== 200) throw new Error(`server/discover returned HTTP ${disc.status}, expected 200`);
+  const discObj = await readJson(disc);
+  const r = discObj?.result;
+  if (!r) throw new Error(`server/discover error ${discObj?.error?.code}: ${discObj?.error?.message}`);
+  if (r.resultType !== 'complete') throw new Error(`server/discover resultType is "${r.resultType}", expected "complete"`);
+  if (!Array.isArray(r.supportedVersions) || !r.supportedVersions.includes(MODERN)) {
+    throw new Error('server/discover supportedVersions does not include ' + MODERN);
+  }
+  // SEP-1865 must be reachable WITHOUT the legacy initialize handshake.
+  if (!r.capabilities?.extensions?.['io.modelcontextprotocol/ui']) {
+    throw new Error('server/discover does not advertise the MCP Apps (SEP-1865) ui extension');
+  }
+
+  // (2) resultType on tools/list — "The result MUST include a resultType field."
+  const tl = await post(
+    { 'mcp-protocol-version': MODERN, 'mcp-method': 'tools/list' },
+    { jsonrpc: '2.0', id: 602, method: 'tools/list', params: { _meta: modernMeta } },
+  );
+  const tlObj = await readJson(tl);
+  if (tlObj?.result?.resultType !== 'complete') throw new Error(`tools/list resultType is "${tlObj?.result?.resultType}", expected "complete"`);
+  const toolCount = tlObj.result.tools?.length ?? 0;
+  if (toolCount === 0) throw new Error('tools/list returned no tools');
+
+  // (3) unknown RPC method → 404 + -32601 (modern era only).
+  const unk = await post(
+    { 'mcp-protocol-version': MODERN, 'mcp-method': 'no/such/method' },
+    { jsonrpc: '2.0', id: 603, method: 'no/such/method', params: { _meta: modernMeta } },
+  );
+  const unkObj = await readJson(unk);
+  if (unk.status !== 404) throw new Error(`modern unknown method returned HTTP ${unk.status}, expected 404`);
+  if (unkObj?.error?.code !== -32601) throw new Error(`modern unknown method returned code ${unkObj?.error?.code}, expected -32601`);
+
+  // (3b) LEGACY CONTROL for the same shape — an old client must still get 200, never a 404.
+  const unkLegacy = await post({}, { jsonrpc: '2.0', id: 604, method: 'no/such/method', params: {} });
+  if (unkLegacy.status !== 200) throw new Error(`LEGACY unknown method returned HTTP ${unkLegacy.status}, expected 200 — legacy clients are being stranded`);
+
+  // (4) DELETE → 405, and Allow must stop advertising the verb SEP-2567 removed.
+  const del = await fetch(URL, { method: 'DELETE', signal: AbortSignal.timeout(TIMEOUT) });
+  if (del.status !== 405) throw new Error(`DELETE returned HTTP ${del.status}, expected 405`);
+  if (/DELETE/.test(del.headers.get('allow') ?? '')) throw new Error(`DELETE still advertised in Allow: ${del.headers.get('allow')}`);
+
+  // (5) LEGACY CONTROL — a bare, header-less, _meta-less request still works.
+  const bare = await post({}, { jsonrpc: '2.0', id: 605, method: 'tools/list', params: {} });
+  if (bare.status !== 200) throw new Error(`LEGACY bare tools/list returned HTTP ${bare.status}, expected 200`);
+
+  return { tools: toolCount, supported: r.supportedVersions.length };
 }
 
 async function exportRoundTrip() {
@@ -291,6 +377,9 @@ async function exportRoundTrip() {
 
       const pv = await protocolVersionRejection();
       console.log(`✓ MCP728-T2B protocol-version rejection OK — HTTP 400 / ${pv.code} + data.supported/data.requested + id preserved, on both the static fast path and the SDK path`);
+
+      const era = await era2026Conformance();
+      console.log(`✓ 2026-07-28 era OK — server/discover (${era.supported} versions, SEP-1865 ui advertised), resultType on ${era.tools} tools, unknown method 404/-32601 modern + 200 legacy, DELETE 405`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');

@@ -127,8 +127,13 @@ export async function precomputeDiscovery() {
   // appears inside the payload itself).
   const ID_PLACEHOLDER = '__OCG_ID__';
   const wtxt = (name, str) => writeFileSync(resolve(DATA, 'mcp', 'static', name), str);
+  // ⭐ THE SINGLE FRAMING POINT for tools/list and every named-toolset profile. `resultType` is
+  // stamped HERE, once, rather than on 548 tools — the FINAL text requires "The result MUST
+  // include a resultType field", and "complete" is the defined value for a finished result
+  // (MCP728-CONFORM-FIX-2). The worker's SDK fallback path stamps the same field the same way,
+  // so static bytes and SDK output stay in agreement.
   const frame = (label, resultObj) => {
-    const txt = 'event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER + ',"result":' + JSON.stringify(resultObj) + '}\n\n';
+    const txt = 'event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER + ',"result":' + JSON.stringify({ resultType: 'complete', ...resultObj }) + '}\n\n';
     if (txt.split(ID_PLACEHOLDER).length !== 2) throw new Error('precompute: id placeholder collision in ' + label + ' — choose a more unique ID_PLACEHOLDER');
     return txt;
   };
