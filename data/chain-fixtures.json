@@ -1478,6 +1478,82 @@
       ]
     }
   },
+  "avax-evergreen-l1-onboarding": {
+    "art-495-avax-permissioning-control-classifier": {
+      "precompiles": {
+        "txallowlist": {
+          "activated": true
+        },
+        "deployerallowlist": {
+          "activated": true
+        },
+        "nativeminter": {
+          "activated": false
+        },
+        "feemanager": {
+          "activated": false
+        },
+        "rewardmanager": {
+          "activated": false
+        }
+      },
+      "application_controls": {
+        "fee_policy_control": true,
+        "native_asset_issuance_control": false,
+        "reward_distribution_control": false
+      },
+      "validator_manager_mode": "poa"
+    },
+    "art-459-sod-matrix-check": {
+      "ruleset_version": "sod-ruleset-v1",
+      "conflict_ruleset": [
+        {
+          "role_a": "AP_ENTRY",
+          "role_b": "AP_APPROVE",
+          "reason_code": "SOD_AP_ENTRY_APPROVE"
+        }
+      ],
+      "assignments": [
+        {
+          "user_id": "u1",
+          "roles": [
+            "AP_ENTRY"
+          ]
+        },
+        {
+          "user_id": "u2",
+          "roles": [
+            "AP_APPROVE"
+          ]
+        }
+      ]
+    },
+    "art-497-validator-change-control-receipt": {
+      "validator_ref": "VAL-07",
+      "change_type": "weight_change",
+      "prior_weight": 1200,
+      "posterior_weight": 1500,
+      "total_stake_weight": 50000,
+      "authorizing_identities": [
+        "ID-A",
+        "ID-B",
+        "ID-C"
+      ],
+      "quorum_required": 3,
+      "quorum_achieved": 3,
+      "effective_epoch": "epoch-4821",
+      "as_of": "2026-07-30"
+    },
+    "art-496-l1-continuous-fee-runway": {
+      "validator_count": 50,
+      "fee_rate_avax_per_validator_month": 1.33,
+      "fee_growth_rate_annual_pct": 10,
+      "infra_cost_annual": 12000,
+      "current_balance": 6000,
+      "as_of": 1753900000,
+      "target_runway_months": 24
+    }
+  },
   "basel-sco60-crypto-exposure-classification": {
     "art-281-sco60-crypto-asset-exposure-classifier": {
       "position": {
