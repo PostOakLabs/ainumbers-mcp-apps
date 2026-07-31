@@ -29,6 +29,7 @@
       "compute_discount_window_capacity",
       "rollforward_y14_capital_worksheet",
       "reconcile_aml_lookback_completeness",
+      "build_dual_control_certification",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -104,6 +105,7 @@
       "verify_witness_cosignatures",
       "compute_cyber_incident_notification_clock",
       "compose_eval_attestation_receipt",
+      "classify_t1_posttrade_timing",
       "verify_merkle_batch"
     ],
     "ai-act": [
