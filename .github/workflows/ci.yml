@@ -86,6 +86,14 @@ jobs:
         # a typed 400/-32700 before the transport is touched. Guards against the regression.
         run: node scripts/test-malformed-body-fastfail.mjs
 
+      - name: 🕰️ 2026-07-28 era-gated request rules (MCP728-CONFORM-FIX-2)
+        # Invokes the Worker's fetch handler directly against the committed ./data assets, so the
+        # modern-era rules (version negotiation, server/discover, resultType, required headers and
+        # _meta, header-vs-body version match, GET/DELETE 405) are checked BEFORE deploy — not only
+        # by the post-deploy smoke. Every modern-era rejection is paired with a legacy control, so a
+        # change that strands old clients fails here rather than in the field.
+        run: node scripts/gate-mcp-era.mjs
+
       - name: 🪞 Single-tool build parity (O(1) tools/call == full build)
         # buildServer(data,{onlyTool}) must register the requested tool's definition byte-identically
         # to the full build, and the loadData-derived known-set must cover ALL registered tools (no
