@@ -4445,6 +4445,25 @@
       "q11": "yes",
       "q12": "yes"
     },
+    "art-18-mcp-developer-readiness-scorecard": {
+      "answers": {
+        "tooldef_schema": "yes",
+        "tooldef_desc": "yes",
+        "tooldef_ann": "yes",
+        "serverjson_name": "yes",
+        "serverjson_meta": "yes",
+        "serverjson_pkg": "yes",
+        "oauth_prm": "yes",
+        "oauth_aud": "yes",
+        "oauth_pass": "yes",
+        "transport_origin": "yes",
+        "transport_bind": "yes",
+        "poison_clean": "yes",
+        "poison_trust": "yes",
+        "spec_rev": "yes",
+        "spec_stateless": "yes"
+      }
+    },
     "art-33-mcp-server-self-attestation-pack": {
       "tool_definition": {
         "name": "test_tool",
