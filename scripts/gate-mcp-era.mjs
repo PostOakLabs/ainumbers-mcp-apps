@@ -95,6 +95,21 @@ const MODERN_H = { 'MCP-Protocol-Version': MODERN };
     `status=${r.status} code=${r.body.error?.code}`);
 }
 
+// ---- SDK transport version compatibility -------------------------------------
+// The SDK's validateProtocolVersion rejects any mcp-protocol-version outside its own frozen
+// SUPPORTED_PROTOCOL_VERSIONS with 400 + -32000, so worker.mjs swaps 2026-07-28 for a version the
+// SDK accepts before handing the request to the transport. This asserts that substitute is still
+// in the SDK's list — a Dependabot bump that drops it would otherwise 400 every modern-era
+// tools/call, and the offline harness cannot drive the SDK path to catch it live.
+{
+  const { SUPPORTED_PROTOCOL_VERSIONS } = await import('@modelcontextprotocol/sdk/types.js');
+  const src = readFileSync(join(HERE, '..', 'worker.mjs'), 'utf8');
+  const fallback = /MCP_SDK_FALLBACK_VERSION\s*=\s*'([^']+)'/.exec(src)?.[1];
+  check('SDK-transport fallback version is still accepted by the installed SDK',
+    !!fallback && SUPPORTED_PROTOCOL_VERSIONS.includes(fallback),
+    `fallback=${fallback} sdk=${SUPPORTED_PROTOCOL_VERSIONS.join(',')}`);
+}
+
 // ---- server/discover ---------------------------------------------------------
 
 {

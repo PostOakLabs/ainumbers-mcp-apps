@@ -789,6 +789,9 @@ const HOT_TOOLS = new Set([
 // so `data.supported[0]` reads as the preferred one).
 const MCP_MODERN_VERSION = '2026-07-28';
 const MCP_SUPPORTED_VERSIONS = [MCP_MODERN_VERSION, ...SUPPORTED_PROTOCOL_VERSIONS.filter((v) => v !== MCP_MODERN_VERSION)];
+// The version handed to the SDK transport in place of 2026-07-28 — see the strip at the
+// toReqRes call. Must be a version the SDK's own frozen list accepts.
+const MCP_SDK_FALLBACK_VERSION = '2025-06-18';
 
 // ⛔ ERA GATING, MIRRORING THE SHIPPED ANCHOR PATTERN (anchor-suite PR #42, 5f62af1) — do not
 // invent a second dialect. Enforcement of the modern per-request rules is gated on an EXPLICIT
@@ -4566,7 +4569,25 @@ export default {
         } : null;
         const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}) });
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-        const { req, res } = toReqRes(request);
+        // ⛔ STRIP THE MODERN VERSION HEADER BEFORE THE SDK TRANSPORT (MCP728-CONFORM-FIX-2).
+        // The SDK's validateProtocolVersion rejects ANY mcp-protocol-version outside its own
+        // SUPPORTED_PROTOCOL_VERSIONS with 400 + -32000, and that list is frozen upstream — it
+        // carries no 2026-07-28. So every modern-era request that reaches the transport (unknown
+        // method, tools/call) was answered "Bad Request: Unsupported protocol version" by the SDK,
+        // no matter what this worker had already decided. Caught by the post-deploy smoke on the
+        // first master run, not by the offline gate, which cannot drive this path.
+        // The era decision is made ABOVE and is unaffected: by the time the request reaches here
+        // it has passed every modern-era rule, so the header has done its whole job. We hand the
+        // transport a version it accepts and let it get on with dispatch.
+        // Rebuilt bodyless on purpose — request.json() already drained the stream, and the parsed
+        // body is passed to handleRequest explicitly below.
+        let sdkRequest = request;
+        if (request.headers.get('mcp-protocol-version') === MCP_MODERN_VERSION) {
+          const h = new Headers(request.headers);
+          h.set('mcp-protocol-version', MCP_SDK_FALLBACK_VERSION);
+          sdkRequest = new Request(request.url, { method: request.method, headers: h });
+        }
+        const { req, res } = toReqRes(sdkRequest);
         res.on('close', () => { transport.close(); server.close(); });
         // Watchdog backstop: a stateless per-request handler must never hang. If the Node-shim
         // `res` is left unfinished for some message shape, the runtime kills it at ~30s with a
