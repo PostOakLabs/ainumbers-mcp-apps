@@ -4063,6 +4063,18 @@ const ALLOWED_ORIGINS = new Set([
 // compare false-rejects every non-ASCII tool name.
 const MCP_B64_SENTINEL = /^=\?base64\?(.*)\?=$/;
 
+// ⛔⛔ PERMANENT mcp_name aliases (NORMTERM-FIX-MCPNAME-2, 2026-08-01) — resolved on DISPATCH
+// only, never as a second tool registration. An old name is rewritten to its new name before
+// any known-tool lookup or server build, so `tools/call` under either name reaches the SAME
+// registered tool and returns the SAME execution_hash. Old names are NEVER added to the
+// _registeredMcpNames set / chaingraph node mcp_name, so they never appear in tools/list — an
+// agent discovers only the new name. No deprecation window (SO #0): these stay accepted
+// permanently, never removed.
+const MCP_NAME_ALIASES = {
+  attest_mcp_server: 'lint_mcp_server_conformance',
+  attest_settlement_orchestrator: 'lint_settlement_orchestrator_conformance',
+};
+
 function decodeMcpHeaderValue(raw) {
   const m = MCP_B64_SENTINEL.exec(raw);
   if (!m) return { ok: true, value: raw };
@@ -4465,6 +4477,12 @@ export default {
       // Extract telemetry fields from tools/call requests.
       // Never log payloads, parameters, or outputs -- only structural metadata.
       const isToolCall = body?.method === 'tools/call';
+      // Alias resolution happens BEFORE toolName is read anywhere else — including the
+      // known-tool set below and the SDK transport dispatch at handleRequest(req, res, body) —
+      // so an old-name call and a new-name call take the identical path from here on.
+      if (isToolCall && body?.params?.name && MCP_NAME_ALIASES[body.params.name]) {
+        body.params.name = MCP_NAME_ALIASES[body.params.name];
+      }
       const toolName   = isToolCall ? (body?.params?.name ?? 'unknown') : null;
       const chainDepth = isToolCall ? (body?.params?.arguments?.chain_depth ?? 0) : null;
 
