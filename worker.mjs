@@ -4720,7 +4720,10 @@ export default {
         if (isToolCall && env.ANALYTICS) {
           const latencyMs = Date.now() - t0;
           const success   = response.status < 500;
-          // Salted caller hash: forward-deploy compatible, no PII, no reversible identifier.
+          // Coarse dedup key for rate/abuse pattern counting, NOT an anonymization mechanism:
+          // 'ain-mcp-v1:' is a fixed public pepper (source is public), not a per-record salt.
+          // IPv4 is a small enumerable space, so anyone with the source can precompute this
+          // hash for every routable address and reverse it -- treat it as pseudonymous, not hidden.
           const callerRaw = request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '';
           const callerBuf = await crypto.subtle.digest('SHA-256',
             new TextEncoder().encode('ain-mcp-v1:' + callerRaw));
