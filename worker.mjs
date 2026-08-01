@@ -1317,11 +1317,40 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       });
     }
 
+    // §2 (CHAINLINK-EMIT-1): composed-surface link -- ONE link that opens the whole chain,
+    // alongside the per-tool links above. Named chain -> Workbench permalink (#chain=&in=);
+    // ad-hoc sequence -> Canvas permalink (#g= v2, per-node inp). Both formats already ship
+    // in chaingraph/workbench/{workbench,canvas}.html -- emit only what exists (§2.3).
+    let composed_link;
+    if (chain) {
+      composed_link = {
+        surface: 'workbench',
+        url: BASE_URL + '/chaingraph/workbench/workbench.html#chain=' + encodeURIComponent(chain),
+      };
+    } else {
+      const canvasState = {
+        v: 2,
+        n: result.map((s, i) => {
+          const node = { i: i + 1, t: s.tool_id, x: 80 + i * 304, y: 280 };
+          const fields = rawSteps[i].fields;
+          if (fields && Object.keys(fields).length) node.inp = fields;
+          return node;
+        }),
+        e: result.slice(1).map((_, i) => ({ f: i + 1, t: i + 2 })),
+      };
+      const canvasB64 = base64urlEncode(canvasState);
+      composed_link = {
+        surface: 'canvas',
+        url: BASE_URL + '/chaingraph/workbench/canvas.html#g=' + canvasB64,
+      };
+    }
+
     const output = {
       chain: chain ?? null,
       chain_title: chainMeta?.title ?? null,
       chain_description: chainMeta?.description ?? null,
       composer_url: chainMeta?.composer_url ?? null,
+      composed_link,
       step_count: result.length,
       steps: result,
       warnings,
