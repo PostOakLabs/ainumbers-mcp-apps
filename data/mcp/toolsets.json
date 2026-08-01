@@ -31,6 +31,9 @@
       "reconcile_aml_lookback_completeness",
       "build_dual_control_certification",
       "check_mica_reserve_disclosure",
+      "build_conditional_relief_collateral_receipt",
+      "build_allocation_decision_receipt",
+      "verify_settlement_asset_backing",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -130,6 +133,7 @@
       "build_traiga_safe_harbor_pack",
       "map_ai_act_procurement_clauses",
       "build_ai_training_data_lineage_record",
+      "build_allocation_decision_receipt",
       "aggregate_execution_receipts",
       "detect_transaction_anomalies",
       "score_credit_default_risk"
