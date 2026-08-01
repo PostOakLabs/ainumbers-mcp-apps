@@ -326,6 +326,94 @@ jobs:
           wranglerVersion: '4.99.0'   # project uses Wrangler 4 features (run_worker_first, assets binding); v3 default rejects them
           command: deploy
 
+      # -----------------------------------------------------------------------
+      # MRTR_STATE_KEY provisioning (MRTR-STATE-KEY-1).
+      #
+      # worker.mjs:946 (mrtrStateKey) seals SEP-2322 `requestState` with env.MRTR_STATE_KEY
+      # when it is configured, and falls back to a PER-ISOLATE ephemeral key when it is not.
+      # Integrity holds either way, but under the ephemeral key a retry served by a different
+      # isolate fails verification and is answered with a fresh InputRequiredResult instead of
+      # resolving. Configuring the secret is therefore the correct steady state.
+      #
+      # This is deliberately NOT a human duty (SO #0, SURVIVES-THE-MAINTAINER): CI generates
+      # the value at run time, and no human and no session ever sees it. The value is masked,
+      # never echoed, never written to a log/artifact/summary, and never committed. Only the
+      # NAME is ever read back — `wrangler secret list` returns names, never values.
+      #
+      # Ordering matters: `wrangler secret put` itself produces a NEW worker version, so these
+      # steps sit BETWEEN deploy and the post-deploy smoke. The smoke then certifies a version
+      # that actually has the secret. This is NOT a second deployer (CONTRACT §A4.3) — it runs
+      # inside the one gated Actions job, and the whole job is `if: push && ref == master`, so
+      # it can never run on the PR/dry-run path.
+      #
+      # Idempotent by construction: provisioning is gated on the secret being ABSENT, so a
+      # steady-state deploy skips both the generate and the put, and no key churn occurs.
+      # -----------------------------------------------------------------------
+      - name: 🔎 Is MRTR_STATE_KEY already provisioned? (names only — never values)
+        id: mrtr_probe
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.99.0'
+          command: secret list
+
+      - name: 🔑 Generate MRTR_STATE_KEY (only when absent)
+        if: ${{ !contains(steps.mrtr_probe.outputs.command-output, 'MRTR_STATE_KEY') }}
+        # 32 random bytes, base64url (43 chars) — comfortably over the >=32-char length
+        # worker.mjs:947 requires before it will treat the secret as usable. Masked on the line
+        # it is created so it can never surface in this or any later step's log.
+        run: |
+          KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))")
+          echo "::add-mask::$KEY"
+          echo "MRTR_STATE_KEY=$KEY" >> "$GITHUB_ENV"
+          echo "Generated a new MRTR_STATE_KEY (value masked and never printed)."
+
+      - name: 🔐 Provision MRTR_STATE_KEY (only when absent)
+        if: ${{ !contains(steps.mrtr_probe.outputs.command-output, 'MRTR_STATE_KEY') }}
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.99.0'
+          # `secrets:` makes the action run `wrangler secret put` for each listed NAME, reading
+          # the value from this step's env. `command:` is set explicitly because the action
+          # defaults to `deploy` when it is empty — which would make this a second deployer.
+          secrets: |
+            MRTR_STATE_KEY
+          command: secret list
+        env:
+          MRTR_STATE_KEY: ${{ env.MRTR_STATE_KEY }}
+
+      - name: 🛡 Re-read secret names after provisioning
+        id: mrtr_verify
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.99.0'
+          command: secret list
+
+      - name: 🛡 Gate — MRTR_STATE_KEY must be provisioned on the deployed worker
+        # THE anti-revert gate. Provisioning without this just moves the silent failure: if the
+        # secret is ever deleted, rotated away, or lost in a worker re-create, the very next
+        # deploy goes RED here instead of quietly reverting to the ephemeral-key fallback.
+        # Compares two independently-sourced sides: the live Cloudflare secret-name list on the
+        # left, the name worker.mjs actually reads on the right. Reads NAMES only.
+        env:
+          SECRET_NAMES: ${{ steps.mrtr_verify.outputs.command-output }}
+        run: |
+          if printf '%s' "$SECRET_NAMES" | grep -q 'MRTR_STATE_KEY'; then
+            echo "OK: MRTR_STATE_KEY is provisioned on the live worker (name observed; value never read)."
+          else
+            echo "RED: MRTR_STATE_KEY is NOT provisioned on the live worker." >&2
+            echo "  worker.mjs:946 will fall back to a per-isolate ephemeral key, so a SEP-2322" >&2
+            echo "  requestState retry served by a different isolate is reissued instead of resolving." >&2
+            echo "  Expected the provisioning step above to have set it. Check whether" >&2
+            echo "  CLOUDFLARE_API_TOKEN still carries Workers Scripts:Edit (secret-write)." >&2
+            exit 1
+          fi
+
       - name: 🔌 Post-deploy /mcp smoke test
         # The lasting guardrail. Performs a real MCP `initialize` against the LIVE endpoint
         # after deploy. Catches runtime tool-registration throws (e.g. duplicate mcp_name)
