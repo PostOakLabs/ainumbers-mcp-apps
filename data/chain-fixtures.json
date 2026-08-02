@@ -812,6 +812,129 @@
     },
     "art-277-agreement-acceptance-binder": {}
   },
+  "allocation-decision-receipt": {
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "art-444-collateral-haircut-engine": {
+      "haircut_table_version": "2026-07-01",
+      "holding_period_days": 10,
+      "fx_haircut_pct": 8,
+      "min_haircut_floor_pct": 0,
+      "haircut_table": [
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "0-1y",
+          "haircut_pct": 0.5
+        },
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 2
+        },
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": ">5y",
+          "haircut_pct": 4
+        },
+        {
+          "asset_class": "corporate_aaa_a",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 4
+        },
+        {
+          "asset_class": "corporate_bbb",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 6
+        },
+        {
+          "asset_class": "equity_main_index",
+          "maturity_bucket": null,
+          "haircut_pct": 15
+        }
+      ],
+      "exposure": {
+        "amount": 100000000,
+        "currency": "USD",
+        "asset_class": "cash"
+      },
+      "collateral_items": [
+        {
+          "item_id": "c0",
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "1-5y",
+          "market_value": 60000000,
+          "currency": "USD"
+        },
+        {
+          "item_id": "c1",
+          "asset_class": "corporate_aaa_a",
+          "maturity_bucket": "1-5y",
+          "market_value": 30000000,
+          "currency": "USD"
+        },
+        {
+          "item_id": "c2",
+          "asset_class": "equity_main_index",
+          "maturity_bucket": null,
+          "market_value": 20000000,
+          "currency": "EUR"
+        }
+      ]
+    },
+    "art-515-build-allocation-decision-receipt": {
+      "obligation_ref": "OBL-DEMO-01",
+      "as_of": "2026-06-30",
+      "eligibility_schedule_ref": "ELIG-2026-06",
+      "inventory_ref": "INV-2026-06-30",
+      "haircut_table_version": "HC-2026Q2",
+      "obligation_amount": "1000000",
+      "objective": "cheapest_to_deliver",
+      "eligibility_schedule": [
+        {
+          "asset_id": "A1",
+          "eligible": true
+        },
+        {
+          "asset_id": "A2",
+          "eligible": true
+        }
+      ],
+      "inventory_snapshot": [
+        {
+          "asset_id": "A1",
+          "available_amount": "600000",
+          "cost_bps": "5",
+          "hqla": true,
+          "haircut_pct": "0"
+        },
+        {
+          "asset_id": "A2",
+          "available_amount": "600000",
+          "cost_bps": "2",
+          "hqla": false,
+          "haircut_pct": "0"
+        }
+      ],
+      "allocation_chosen": [
+        {
+          "asset_id": "A2",
+          "amount": "600000"
+        },
+        {
+          "asset_id": "A1",
+          "amount": "400000"
+        }
+      ],
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    }
+  },
   "aml-lookback-cycle": {
     "art-470-lookback-completeness-reconciler": {
       "periods": [
@@ -2611,6 +2734,189 @@
       "renewal_commensurate": false
     }
   },
+  "conditional-relief-collateral": {
+    "art-06-genius-act-reserve-attestation": {},
+    "art-512-check-mica-reserve-disclosure": {
+      "issuer_id": "ISSUER-DEMO-01",
+      "disclosure_ref": "RESERVE-DISCLOSURE-2026-06",
+      "rules_version": "reader-rules-1.0",
+      "as_of": "2026-06-30",
+      "token_type": "EMT",
+      "tokens_in_circulation": "500000000",
+      "reserve_components": [
+        {
+          "component_id": "C1",
+          "asset_class": "bank_deposit",
+          "amount": "205000000",
+          "custodian_type": "credit_institution",
+          "segregated": true
+        },
+        {
+          "component_id": "C2",
+          "asset_class": "sovereign_bill",
+          "amount": "200000000",
+          "custodian_type": "credit_institution",
+          "segregated": false
+        },
+        {
+          "component_id": "C3",
+          "asset_class": "reverse_repo",
+          "amount": "107500000",
+          "custodian_type": "investment_firm",
+          "segregated": false
+        }
+      ],
+      "declared_rules": {
+        "eligible_asset_classes": [
+          "bank_deposit",
+          "sovereign_bill",
+          "reverse_repo"
+        ],
+        "concentration_limits": {
+          "bank_deposit": "60",
+          "sovereign_bill": "60",
+          "reverse_repo": "30"
+        },
+        "acceptable_custodian_types": [
+          "credit_institution",
+          "investment_firm",
+          "casp"
+        ],
+        "cadence_days": 31
+      },
+      "disclosure_dates": [
+        "2026-01-31",
+        "2026-02-28",
+        "2026-03-31",
+        "2026-04-30",
+        "2026-05-31",
+        "2026-06-30"
+      ],
+      "window_start": "2026-01-01",
+      "window_end": "2026-06-30",
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    },
+    "art-280-reserve-proof-verifier": {},
+    "505-tokenized-collateral-eligibility-checker": {
+      "asset_type": "ust",
+      "notional": 1000000,
+      "transfer_restrictions": {},
+      "custody_linkage": "dtc"
+    },
+    "art-444-collateral-haircut-engine": {
+      "haircut_table_version": "2026-07-01",
+      "holding_period_days": 10,
+      "fx_haircut_pct": 8,
+      "min_haircut_floor_pct": 0,
+      "haircut_table": [
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "0-1y",
+          "haircut_pct": 0.5
+        },
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 2
+        },
+        {
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": ">5y",
+          "haircut_pct": 4
+        },
+        {
+          "asset_class": "corporate_aaa_a",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 4
+        },
+        {
+          "asset_class": "corporate_bbb",
+          "maturity_bucket": "1-5y",
+          "haircut_pct": 6
+        },
+        {
+          "asset_class": "equity_main_index",
+          "maturity_bucket": null,
+          "haircut_pct": 15
+        }
+      ],
+      "exposure": {
+        "amount": 100000000,
+        "currency": "USD",
+        "asset_class": "cash"
+      },
+      "collateral_items": [
+        {
+          "item_id": "c0",
+          "asset_class": "sovereign_aaa_aa",
+          "maturity_bucket": "1-5y",
+          "market_value": 60000000,
+          "currency": "USD"
+        },
+        {
+          "item_id": "c1",
+          "asset_class": "corporate_aaa_a",
+          "maturity_bucket": "1-5y",
+          "market_value": 30000000,
+          "currency": "USD"
+        },
+        {
+          "item_id": "c2",
+          "asset_class": "equity_main_index",
+          "maturity_bucket": null,
+          "market_value": 20000000,
+          "currency": "EUR"
+        }
+      ]
+    },
+    "art-514-conditional-relief-collateral-receipt": {
+      "relief_regime": "conditional_no_action_relief",
+      "relied_on_version": "2026-03-01",
+      "condition_set": {
+        "version": "2026-03-01",
+        "conditions": [
+          {
+            "condition_id": "COND-01",
+            "description": "Reserve attestation filed for the period",
+            "evidence_status": "met"
+          },
+          {
+            "condition_id": "COND-02",
+            "description": "Issuer remains on the declared permitted list",
+            "evidence_status": "met"
+          },
+          {
+            "condition_id": "COND-03",
+            "description": "Daily valuation reported to the declared cadence",
+            "evidence_status": "met"
+          }
+        ]
+      },
+      "asset_class": "payment_stablecoin",
+      "issuer_permitted_status": true,
+      "declared_valuation": 5000000,
+      "declared_haircut_pct": 2,
+      "declared_reporting_cadence": "daily",
+      "last_report_ref": "RPT-2026-07-31-001",
+      "position_size": 5000000,
+      "capital_charge_table": [
+        {
+          "asset_class": "payment_stablecoin",
+          "charge_pct": 8
+        },
+        {
+          "asset_class": "tokenized_treasury",
+          "charge_pct": 2
+        }
+      ],
+      "revocation_charge_pct": 100,
+      "revocation_eligible_without_relief": true,
+      "as_of": "2026-07-31T23:59:59Z"
+    }
+  },
   "content-credential-verification": {
     "art-123-c2pa-manifest-validator": {
       "claim_generator": "Adobe Firefly 3.0",
@@ -3760,6 +4066,367 @@
               "entity_name": "Acme DE OpCo",
               "allocation_share": 0.4
             }
+          ]
+        }
+      ]
+    }
+  },
+  "government-payment-lifecycle": {
+    "art-521-settlement-asset-backing-invariant": {
+      "as_of": "2026-08-01",
+      "value_in_circulation_minor_units": 10000000,
+      "backing_ratio_bps": 10000,
+      "idle_cost_bps": 50,
+      "cost_per_crossing_minor_units": 1500,
+      "buffers": [
+        {
+          "buffer_id": "buffer-backing",
+          "role": "backing_account",
+          "asset_type": "conventional-asset",
+          "backs": "circulation",
+          "balance_minor_units": 6000000,
+          "min_minor_units": 1000000,
+          "max_minor_units": null
+        },
+        {
+          "buffer_id": "buffer-payout",
+          "role": "payout_buffer",
+          "asset_type": "settlement-asset",
+          "backs": "circulation",
+          "balance_minor_units": 4200000,
+          "min_minor_units": 500000,
+          "max_minor_units": 8000000
+        },
+        {
+          "buffer_id": "buffer-issuance",
+          "role": "settlement_balance",
+          "asset_type": "settlement-asset",
+          "backs": "new_issuance",
+          "balance_minor_units": 900000,
+          "min_minor_units": 200000,
+          "max_minor_units": null
+        }
+      ],
+      "movements": [
+        {
+          "movement_id": "MOVE-1",
+          "from": "buffer-backing",
+          "to": "buffer-payout",
+          "amount_minor_units": 200000
+        }
+      ]
+    },
+    "art-06-genius-act-reserve-attestation": {},
+    "art-512-check-mica-reserve-disclosure": {
+      "issuer_id": "ISSUER-DEMO-01",
+      "disclosure_ref": "RESERVE-DISCLOSURE-2026-06",
+      "rules_version": "reader-rules-1.0",
+      "as_of": "2026-06-30",
+      "token_type": "EMT",
+      "tokens_in_circulation": "500000000",
+      "reserve_components": [
+        {
+          "component_id": "C1",
+          "asset_class": "bank_deposit",
+          "amount": "205000000",
+          "custodian_type": "credit_institution",
+          "segregated": true
+        },
+        {
+          "component_id": "C2",
+          "asset_class": "sovereign_bill",
+          "amount": "200000000",
+          "custodian_type": "credit_institution",
+          "segregated": false
+        },
+        {
+          "component_id": "C3",
+          "asset_class": "reverse_repo",
+          "amount": "107500000",
+          "custodian_type": "investment_firm",
+          "segregated": false
+        }
+      ],
+      "declared_rules": {
+        "eligible_asset_classes": [
+          "bank_deposit",
+          "sovereign_bill",
+          "reverse_repo"
+        ],
+        "concentration_limits": {
+          "bank_deposit": "60",
+          "sovereign_bill": "60",
+          "reverse_repo": "30"
+        },
+        "acceptable_custodian_types": [
+          "credit_institution",
+          "investment_firm",
+          "casp"
+        ],
+        "cadence_days": 31
+      },
+      "disclosure_dates": [
+        "2026-01-31",
+        "2026-02-28",
+        "2026-03-31",
+        "2026-04-30",
+        "2026-05-31",
+        "2026-06-30"
+      ],
+      "window_start": "2026-01-01",
+      "window_end": "2026-06-30",
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    },
+    "art-280-reserve-proof-verifier": {},
+    "art-513-public-money-settlement-receipt": {
+      "payment_ref": "PMT-2026-0001-OPAQUE",
+      "payer_class": "business",
+      "declared_revenue_code": "REV-1200-CUSTOMS",
+      "revenue_code_table": [
+        {
+          "code": "REV-1100-INCOME",
+          "ministry": "Ministry of Finance"
+        },
+        {
+          "code": "REV-1200-CUSTOMS",
+          "ministry": "Ministry of Revenue and Customs"
+        },
+        {
+          "code": "REV-1300-LICENCE",
+          "ministry": "Ministry of Commerce"
+        }
+      ],
+      "treasury_account_credited": "TSA-MAIN-001",
+      "currency": "USD",
+      "amount_collected": 1000,
+      "fees": [
+        {
+          "type": "acquirer_fee",
+          "amount": 2.5
+        }
+      ],
+      "amount_credited": 997.5,
+      "rails": [
+        {
+          "rail": "rtgs",
+          "settlement_ref": "RTGS-REF-88431",
+          "declared_finality_basis": "central_bank_settlement_finality_statute",
+          "settled": true
+        }
+      ],
+      "reconciliation_window": "2026-07-01/2026-07-31",
+      "as_of": "2026-07-31T23:59:59Z"
+    },
+    "art-259-compute-multilateral-netting": {
+      "base_currency": "USD",
+      "entities": [
+        {
+          "entity_id": "ENTITY_A",
+          "name": "Parent Co"
+        },
+        {
+          "entity_id": "ENTITY_B",
+          "name": "Sub US"
+        },
+        {
+          "entity_id": "ENTITY_C",
+          "name": "Sub EU"
+        }
+      ],
+      "gross_positions": [
+        {
+          "from_entity": "ENTITY_A",
+          "to_entity": "ENTITY_B",
+          "amount": 1000,
+          "currency": "USD"
+        },
+        {
+          "from_entity": "ENTITY_B",
+          "to_entity": "ENTITY_C",
+          "amount": 800,
+          "currency": "USD"
+        },
+        {
+          "from_entity": "ENTITY_C",
+          "to_entity": "ENTITY_A",
+          "amount": 600,
+          "currency": "USD"
+        }
+      ],
+      "fx_rates": {}
+    },
+    "art-368-compute-fx-netting-positions": {
+      "positions": [
+        {
+          "ccy": "EUR",
+          "pay": 850000,
+          "rec": 620000,
+          "spot": 1.085,
+          "fwd_bps": 0,
+          "vol_30d": 0.032
+        },
+        {
+          "ccy": "GBP",
+          "pay": 420000,
+          "rec": 580000,
+          "spot": 1.265,
+          "fwd_bps": 0,
+          "vol_30d": 0.038
+        },
+        {
+          "ccy": "JPY",
+          "pay": 95000000,
+          "rec": 72000000,
+          "spot": 0.00665,
+          "fwd_bps": 0,
+          "vol_30d": 0.041
+        }
+      ]
+    },
+    "art-518-bulk-disbursement-integrity": {
+      "run_reference": "RUN-2026-07-31-PENSION",
+      "as_of": "2026-07-31",
+      "currency": "USD",
+      "authorized_control_total": {
+        "payee_count": 4,
+        "total_minor_units": 400000
+      },
+      "per_payee_limit_minor_units": 150000,
+      "per_run_limit_minor_units": 1000000,
+      "payee_records": [
+        {
+          "payee_ref": "PAYEE-A001",
+          "amount_minor_units": 100000,
+          "rail": "ach",
+          "duplicate_key": "h_9f2c1a"
+        },
+        {
+          "payee_ref": "PAYEE-A002",
+          "amount_minor_units": 100000,
+          "rail": "ach",
+          "duplicate_key": "h_3b7d90"
+        },
+        {
+          "payee_ref": "PAYEE-A003",
+          "amount_minor_units": 100000,
+          "rail": "mobile_wallet",
+          "duplicate_key": "h_51ae22"
+        },
+        {
+          "payee_ref": "PAYEE-A004",
+          "amount_minor_units": 100000,
+          "rail": "cash_agent",
+          "duplicate_key": "h_e40d18"
+        }
+      ],
+      "declared_exclusions": [],
+      "prior_run_payee_refs": [
+        "PAYEE-A001",
+        "PAYEE-A002",
+        "PAYEE-A003",
+        "PAYEE-A004"
+      ]
+    },
+    "art-516-daily-reconciliation-attestation": {
+      "reconciliation_date": "2026-07-31",
+      "as_of": "2026-07-31",
+      "currency": "USD",
+      "ageing_tolerance_days": 5,
+      "declared_population": {
+        "record_count": 1000,
+        "control_total_minor_units": 5000000
+      },
+      "matched": {
+        "record_count": 970,
+        "total_minor_units": 4850000
+      },
+      "unmatched": {
+        "record_count": 20,
+        "total_minor_units": 100000
+      },
+      "partially_matched": {
+        "record_count": 10,
+        "total_minor_units": 50000
+      },
+      "exceptions": [
+        {
+          "exception_id": "EXC-0001",
+          "reason_code": "timing_difference",
+          "opened_date": "2026-07-29",
+          "amount_minor_units": 60000
+        },
+        {
+          "exception_id": "EXC-0002",
+          "reason_code": "duplicate_submission",
+          "opened_date": "2026-07-30",
+          "amount_minor_units": 40000
+        }
+      ],
+      "prior_period_exceptions": [
+        {
+          "exception_id": "EXC-0000",
+          "reason_code": "timing_difference",
+          "opened_date": "2026-07-25"
+        }
+      ],
+      "resolved_exceptions": [
+        {
+          "exception_id": "EXC-0000",
+          "resolution_reason": "matched in overnight batch, evidenced by settlement confirmation SC-2026-0725-11"
+        }
+      ]
+    },
+    "art-517-audit-trail-completeness": {
+      "window_start": "2026-07-01T00:00:00Z",
+      "window_end": "2026-07-01T23:59:59Z",
+      "continuity_mechanism": "sequence_number",
+      "sequence_start": 1000,
+      "sequence_end": 1010,
+      "observed_sequence_numbers": [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007,
+        1008,
+        1009,
+        1010
+      ],
+      "observed_event_counts_by_type": {
+        "transaction": 850,
+        "user_activity": 140,
+        "privileged_action": 12
+      },
+      "declared_retention_period_days": 120,
+      "required_retention_period_days": 90,
+      "gap_candidates": []
+    },
+    "art-459-sod-matrix-check": {
+      "ruleset_version": "sod-ruleset-v1",
+      "conflict_ruleset": [
+        {
+          "role_a": "AP_ENTRY",
+          "role_b": "AP_APPROVE",
+          "reason_code": "SOD_AP_ENTRY_APPROVE"
+        }
+      ],
+      "assignments": [
+        {
+          "user_id": "u1",
+          "roles": [
+            "AP_ENTRY"
+          ]
+        },
+        {
+          "user_id": "u2",
+          "roles": [
+            "AP_APPROVE"
           ]
         }
       ]
