@@ -466,6 +466,680 @@
       }
     }
   },
+  "run_call_report_edit_checks": {
+    "type": "object",
+    "properties": {
+      "all_fatal_passed": {
+        "type": "boolean"
+      },
+      "check_count": {
+        "type": "integer"
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "severity": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "coverage_note": {
+        "type": "string"
+      },
+      "entity_id": {
+        "type": "string"
+      },
+      "fatal_failure_count": {
+        "type": "integer"
+      },
+      "gate_status": {
+        "type": "string"
+      },
+      "report_form": {
+        "type": "string"
+      },
+      "reporting_period": {
+        "type": "string"
+      },
+      "rounding_tolerance_usd": {
+        "type": "integer"
+      },
+      "warning_failure_count": {
+        "type": "integer"
+      }
+    }
+  },
+  "compose_control_test_evidence": {
+    "type": "object",
+    "properties": {
+      "control_id": {
+        "type": "string"
+      },
+      "coverage_complete": {
+        "type": "boolean"
+      },
+      "deficiency": {
+        "type": "string"
+      },
+      "exception_count": {
+        "type": "integer"
+      },
+      "exception_rate": {
+        "type": "integer"
+      },
+      "extra_results": {
+        "type": "array"
+      },
+      "fail_count": {
+        "type": "integer"
+      },
+      "gate_status": {
+        "type": "string"
+      },
+      "missing_results": {
+        "type": "array"
+      },
+      "not_a_severity_judgment": {
+        "type": "string"
+      },
+      "pass_count": {
+        "type": "integer"
+      },
+      "population_hash": {
+        "type": "string"
+      },
+      "reporting_period": {
+        "type": "string"
+      },
+      "sample_size": {
+        "type": "integer"
+      },
+      "test_conclusion": {
+        "type": "string"
+      },
+      "tested_count": {
+        "type": "integer"
+      },
+      "tester_id": {
+        "type": "string"
+      },
+      "tester_role": {
+        "type": "string"
+      },
+      "tolerable_exception_count": {
+        "type": "integer"
+      },
+      "within_tolerance": {
+        "type": "boolean"
+      }
+    }
+  },
+  "compose_workpaper_bundle": {
+    "type": "object",
+    "properties": {
+      "disposed_exception_count": {
+        "type": "integer"
+      },
+      "exception_count": {
+        "type": "integer"
+      },
+      "exceptions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "disposed_by_role": {
+              "type": "string"
+            },
+            "disposition": {
+              "type": "string"
+            },
+            "item_id": {
+              "type": "string"
+            },
+            "reason_code": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "kernel_artifact_count": {
+        "type": "integer"
+      },
+      "kernel_artifacts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "execution_hash": {
+              "type": "string"
+            },
+            "tool_id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "malformed_kernel_artifacts": {
+        "type": "array"
+      },
+      "population_hash": {
+        "type": "string"
+      },
+      "procedure_id": {
+        "type": "string"
+      },
+      "roles": {
+        "type": "object",
+        "properties": {
+          "partner": {
+            "type": "object",
+            "properties": {
+              "declared": {
+                "type": "boolean"
+              },
+              "gate_status": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "string"
+              }
+            }
+          },
+          "preparer": {
+            "type": "object",
+            "properties": {
+              "declared": {
+                "type": "boolean"
+              },
+              "role": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "string"
+              }
+            }
+          },
+          "reviewer": {
+            "type": "object",
+            "properties": {
+              "declared": {
+                "type": "boolean"
+              },
+              "role": {
+                "type": "string"
+              },
+              "statement": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "undisposed_exceptions": {
+        "type": "array"
+      }
+    }
+  },
+  "build_cbcr_report": {
+    "type": "object",
+    "properties": {
+      "all_fatal_passed": {
+        "type": "boolean"
+      },
+      "anomaly_flags": {
+        "type": "array"
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "jurisdiction_code": {
+              "type": "string"
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "severity": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "export_mode": {
+        "type": "string"
+      },
+      "fatal_failure_count": {
+        "type": "integer"
+      },
+      "gate_status": {
+        "type": "string"
+      },
+      "jurisdictions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "accumulated_earnings": {
+              "type": "integer"
+            },
+            "income_tax_accrued": {
+              "type": "integer"
+            },
+            "income_tax_paid": {
+              "type": "integer"
+            },
+            "jurisdiction_code": {
+              "type": "string"
+            },
+            "number_of_employees": {
+              "type": "integer"
+            },
+            "profit_before_tax": {
+              "type": "integer"
+            },
+            "stated_capital": {
+              "type": "integer"
+            },
+            "tangible_assets": {
+              "type": "integer"
+            },
+            "total_revenue": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "not_submittable": {
+        "type": "string"
+      },
+      "orphan_entities": {
+        "type": "array"
+      },
+      "schema_version": {
+        "type": "string"
+      },
+      "xml_schema_skeleton": {
+        "type": "object",
+        "properties": {
+          "reporting_entity": {
+            "type": "object",
+            "properties": {
+              "entity_name": {
+                "type": "string"
+              },
+              "tin": {
+                "type": "string"
+              }
+            }
+          },
+          "root_element": {
+            "type": "string"
+          },
+          "schema_version": {
+            "type": "string"
+          },
+          "table1_jurisdiction_count": {
+            "type": "integer"
+          },
+          "table2_entity_count": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "register_source_arrival_freshness": {
+    "type": "object",
+    "properties": {
+      "execution_state": {
+        "type": "string"
+      },
+      "decision": {
+        "type": "string"
+      },
+      "reason": {
+        "type": "string"
+      },
+      "source_count": {
+        "type": "integer"
+      },
+      "sources": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source_id": {
+              "type": "string"
+            },
+            "expected_as_of": {
+              "type": "integer"
+            },
+            "freshness_threshold_hours": {
+              "type": "integer"
+            },
+            "arrived": {
+              "type": "boolean"
+            },
+            "observed_as_of": {
+              "type": "integer"
+            },
+            "late": {
+              "type": "boolean"
+            },
+            "stale": {
+              "type": "boolean"
+            },
+            "source_status": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "missing_sources": {
+        "type": "array"
+      },
+      "late_or_stale_sources": {
+        "type": "array"
+      },
+      "unknown_freshness_sources": {
+        "type": "array"
+      }
+    }
+  },
+  "check_nway_balance_closure": {
+    "type": "object",
+    "properties": {
+      "decision": {
+        "type": "object",
+        "properties": {
+          "gate_policy": {
+            "type": "string"
+          },
+          "execution_state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "measure_label": {
+        "type": "string"
+      },
+      "authoritative_system_id": {
+        "type": "string"
+      },
+      "closure_tolerance_minor": {
+        "type": "integer"
+      },
+      "system_count": {
+        "type": "integer"
+      },
+      "as_of_consistent": {
+        "type": "boolean"
+      },
+      "as_of_values": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "systems": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "system_id": {
+              "type": "string"
+            },
+            "balance_minor": {
+              "type": "integer"
+            },
+            "as_of": {
+              "type": "string"
+            },
+            "is_authoritative": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "pairwise": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "pair": {
+              "type": "string"
+            },
+            "system_a": {
+              "type": "string"
+            },
+            "system_b": {
+              "type": "string"
+            },
+            "against_authoritative": {
+              "type": "boolean"
+            },
+            "balance_difference_minor": {
+              "type": "integer"
+            },
+            "declared_difference_minor": {
+              "type": "integer"
+            },
+            "difference_minor": {
+              "type": "integer"
+            },
+            "difference_basis": {
+              "type": "string"
+            },
+            "declared_vs_balance_delta_minor": {
+              "type": "integer"
+            },
+            "declared_agrees_with_balances": {
+              "type": "boolean"
+            },
+            "within_tolerance": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "triples": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "triple": {
+              "type": "string"
+            },
+            "systems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "leg_ab_minor": {
+              "type": "integer"
+            },
+            "leg_bc_minor": {
+              "type": "integer"
+            },
+            "leg_ac_minor": {
+              "type": "integer"
+            },
+            "residual_minor": {
+              "type": "integer"
+            },
+            "residual_basis": {
+              "type": "string"
+            },
+            "within_tolerance": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "triple_count": {
+        "type": "integer"
+      },
+      "closure_holds": {
+        "type": "boolean"
+      },
+      "max_abs_residual_minor": {
+        "type": "integer"
+      },
+      "break_pairs": {
+        "type": "array"
+      },
+      "declared_disagreements": {
+        "type": "array"
+      },
+      "suspect_systems": {
+        "type": "array"
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "boundary_note": {
+        "type": "string"
+      }
+    }
+  },
+  "reconcile_report_to_general_ledger": {
+    "type": "object",
+    "properties": {
+      "as_of": {
+        "type": "string"
+      },
+      "currency": {
+        "type": "string"
+      },
+      "appendix_schedule_version": {
+        "type": "string"
+      },
+      "appendix_schedule_source": {
+        "type": "string"
+      },
+      "reporting_cadence": {
+        "type": "string"
+      },
+      "schedule_cadence": {
+        "type": "string"
+      },
+      "cadence_refused": {
+        "type": "boolean"
+      },
+      "gl_closed_declared": {
+        "type": "boolean"
+      },
+      "gl_closed": {
+        "type": "boolean"
+      },
+      "gl_as_of": {
+        "type": "string"
+      },
+      "account_count": {
+        "type": "integer"
+      },
+      "accounts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "account_id": {
+              "type": "string"
+            },
+            "reported_figure_minor_units": {
+              "type": "integer"
+            },
+            "gl_figure_minor_units": {
+              "type": "integer"
+            },
+            "designed_plug_minor_units": {
+              "type": "integer"
+            },
+            "designed_plug_display": {
+              "type": "string"
+            },
+            "designed_plug_reason_code": {
+              "type": "string"
+            },
+            "tolerance_minor_units": {
+              "type": "integer"
+            },
+            "residual_minor_units": {
+              "type": "integer"
+            },
+            "residual_display": {
+              "type": "string"
+            },
+            "within_tolerance": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "breaking_account_count": {
+        "type": "integer"
+      },
+      "plugged_account_count": {
+        "type": "integer"
+      },
+      "decision": {
+        "type": "object",
+        "properties": {
+          "gate_policy": {
+            "type": "string"
+          },
+          "execution_state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "rationale": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
