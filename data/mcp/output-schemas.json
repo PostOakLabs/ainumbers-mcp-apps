@@ -307,6 +307,165 @@
       }
     }
   },
+  "score_mcp_server_readiness": {
+    "type": "object",
+    "properties": {
+      "answers_used": {
+        "type": "object",
+        "properties": {
+          "oauth_aud": {
+            "type": "string"
+          },
+          "oauth_pass": {
+            "type": "string"
+          },
+          "oauth_prm": {
+            "type": "string"
+          },
+          "poison_clean": {
+            "type": "string"
+          },
+          "poison_trust": {
+            "type": "string"
+          },
+          "serverjson_meta": {
+            "type": "string"
+          },
+          "serverjson_name": {
+            "type": "string"
+          },
+          "serverjson_pkg": {
+            "type": "string"
+          },
+          "spec_rev": {
+            "type": "string"
+          },
+          "spec_stateless": {
+            "type": "string"
+          },
+          "tooldef_ann": {
+            "type": "string"
+          },
+          "tooldef_desc": {
+            "type": "string"
+          },
+          "tooldef_schema": {
+            "type": "string"
+          },
+          "transport_bind": {
+            "type": "string"
+          },
+          "transport_origin": {
+            "type": "string"
+          }
+        }
+      },
+      "gaps": {
+        "type": "array"
+      },
+      "gaps_count": {
+        "type": "integer"
+      },
+      "note": {
+        "type": "string"
+      },
+      "overall": {
+        "type": "integer"
+      },
+      "sections": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "pct": {
+              "type": "integer"
+            },
+            "tool": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "verdict": {
+        "type": "string"
+      }
+    }
+  },
+  "run_mcp_deployability_diagnostic": {
+    "type": "object",
+    "properties": {
+      "all_answered": {
+        "type": "boolean"
+      },
+      "domain_scores": {
+        "type": "object",
+        "properties": {
+          "defs": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "pct": {
+                "type": "integer"
+              }
+            }
+          },
+          "ops": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "pct": {
+                "type": "integer"
+              }
+            }
+          },
+          "security": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "pct": {
+                "type": "integer"
+              }
+            }
+          },
+          "transport": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "pct": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "gaps": {
+        "type": "array"
+      },
+      "is_deployable": {
+        "type": "boolean"
+      },
+      "score_pct": {
+        "type": "integer"
+      },
+      "verdict": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
