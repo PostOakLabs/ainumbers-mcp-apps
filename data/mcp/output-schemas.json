@@ -146,6 +146,167 @@
       }
     }
   },
+  "validate_ap2_mandate_chain": {
+    "type": "object",
+    "properties": {
+      "validation_verdict": {
+        "type": "string"
+      },
+      "checks_run": {
+        "type": "integer"
+      },
+      "failing_checks": {
+        "type": "array"
+      },
+      "warning_checks": {
+        "type": "array"
+      },
+      "mandate_ids": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "type": "string"
+          },
+          "cart": {
+            "type": "string"
+          },
+          "payment": {
+            "type": "string"
+          }
+        }
+      },
+      "has_cart": {
+        "type": "boolean"
+      },
+      "human_not_present": {
+        "type": "boolean"
+      }
+    }
+  },
+  "simulate_spend_policy": {
+    "type": "object",
+    "properties": {
+      "bypass_paths_detected": {
+        "type": "array"
+      },
+      "compliance_flags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "fail_count": {
+        "type": "integer"
+      },
+      "fail_rate_pct": {
+        "type": "number"
+      },
+      "pass_count": {
+        "type": "integer"
+      },
+      "top_fail_reasons": {
+        "type": "object",
+        "properties": {
+          "EXCEEDS_DAILY_LIMIT": {
+            "type": "integer"
+          },
+          "EXCEEDS_MONTHLY_LIMIT": {
+            "type": "integer"
+          },
+          "EXCEEDS_PER_TX_LIMIT": {
+            "type": "integer"
+          }
+        }
+      },
+      "total_approved_spend": {
+        "type": "number"
+      },
+      "total_transactions": {
+        "type": "integer"
+      },
+      "verdict": {
+        "type": "string"
+      }
+    }
+  },
+  "model_x402_settlement": {
+    "type": "object",
+    "properties": {
+      "eligible_rails": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "finality_sec": {
+        "type": "integer"
+      },
+      "monthly_cost_usd": {
+        "type": "integer"
+      },
+      "per_tx_fee_usd": {
+        "type": "number"
+      },
+      "recommended_rail": {
+        "type": "string"
+      }
+    }
+  },
+  "classify_dora_incident": {
+    "type": "object",
+    "properties": {
+      "major_incident": {
+        "type": "boolean"
+      },
+      "determination_code": {
+        "type": "string"
+      },
+      "qualifying_criteria": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "reporting_clock": {
+        "type": "object",
+        "properties": {
+          "detection_datetime": {
+            "type": "string"
+          },
+          "classification_datetime": {
+            "type": "string"
+          },
+          "initial_notification_deadline": {
+            "type": "string"
+          },
+          "intermediate_report_deadline": {
+            "type": "string"
+          },
+          "final_report_deadline": {
+            "type": "string"
+          }
+        }
+      },
+      "entity_type": {
+        "type": "string"
+      },
+      "incident_type": {
+        "type": "string"
+      },
+      "cross_border": {
+        "type": "boolean"
+      },
+      "third_party_ict": {
+        "type": "boolean"
+      },
+      "competent_authority_note": {
+        "type": "string"
+      },
+      "regulatory_framework": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
