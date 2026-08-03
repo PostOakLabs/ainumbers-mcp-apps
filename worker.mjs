@@ -1052,15 +1052,28 @@ async function verifyClosureViaAnchor(escalation_record, closure) {
 async function callAnchorSuiteTool(toolName, args) {
   const body = {
     jsonrpc: '2.0', id: 1, method: 'tools/call',
-    params: { name: toolName, arguments: args },
-    _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28' },
+    // Request _meta is PARAMS-level per MCP SEP-2243 (a request's own metadata, not the
+    // envelope's) -- anchor-suite's modern-era validator requires both fields here or 400s
+    // with "request _meta is missing required field(s)". Measured live (curl) 2026-08-03.
+    params: {
+      name: toolName, arguments: args,
+      _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28', 'io.modelcontextprotocol/clientCapabilities': {} },
+    },
   };
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
   try {
     const res = await fetch(ANCHOR_MCP_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'MCP-Protocol-Version': '2026-07-28' },
+      // anchor-suite enforces SEP-2243 header/body agreement once _meta declares a modern
+      // protocolVersion (same convention this worker itself enforces) -- Mcp-Method/Mcp-Name
+      // must mirror the body's method/tool name or a modern-era call is rejected before it
+      // ever reaches the tool. Measured live (curl) 2026-08-03: omitting these two headers
+      // while a 2026-07-28 _meta is present 400s with "Mcp-Method header is missing".
+      headers: {
+        'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream',
+        'MCP-Protocol-Version': '2026-07-28', 'Mcp-Method': 'tools/call', 'Mcp-Name': toolName,
+      },
       body: JSON.stringify(body),
       signal: ctrl.signal,
     });
