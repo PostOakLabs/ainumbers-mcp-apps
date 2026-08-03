@@ -47,6 +47,7 @@ export const UTILITY_TOOL_NAMES = [
   'ha_record_validate',
   'ha_gate_status',
   'ha_bundle_export',
+  'build_evidence_pack',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;
