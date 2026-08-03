@@ -4491,6 +4491,152 @@
       ]
     }
   },
+  "government-payment-programme-assurance": {
+    "art-523-identity-proofing-assurance-level": {
+      "level_definition": {
+        "framework_id": "vendor-framework-A-tiers",
+        "framework_version": "2026-01",
+        "levels": [
+          {
+            "level_id": "tier-1",
+            "criteria": [
+              {
+                "criterion_id": "id-doc",
+                "description": "one identity document",
+                "required_evidence_type": "government_id",
+                "min_strength": 30
+              }
+            ]
+          },
+          {
+            "level_id": "tier-2",
+            "criteria": [
+              {
+                "criterion_id": "id-doc",
+                "description": "verified identity document",
+                "required_evidence_type": "government_id",
+                "min_strength": 60
+              },
+              {
+                "criterion_id": "biometric",
+                "description": "biometric match",
+                "required_evidence_type": "biometric_match",
+                "min_strength": 60
+              }
+            ]
+          },
+          {
+            "level_id": "tier-3",
+            "criteria": [
+              {
+                "criterion_id": "id-doc",
+                "description": "verified identity document, high assurance",
+                "required_evidence_type": "government_id",
+                "min_strength": 85
+              },
+              {
+                "criterion_id": "biometric",
+                "description": "biometric match, high assurance",
+                "required_evidence_type": "biometric_match",
+                "min_strength": 85
+              }
+            ]
+          }
+        ]
+      },
+      "evidence_items": [
+        {
+          "evidence_id": "e1",
+          "type": "government_id",
+          "strength": 70,
+          "verification_method": "document_authentication"
+        },
+        {
+          "evidence_id": "e2",
+          "type": "biometric_match",
+          "strength": 65,
+          "verification_method": "live_capture"
+        }
+      ],
+      "declared_target_level": "tier-2",
+      "as_of": "2026-08-01"
+    },
+    "art-519-payment-data-migration-completeness": {
+      "migration_id": "MIGR-2026-CASEDOCS-01",
+      "as_of": "2026-07-31",
+      "currency": "PAGES",
+      "reconciliation_tolerance_minor_units": 0,
+      "partitions": [
+        {
+          "partition_label": "CONTRACTS",
+          "source_record_count": 4000,
+          "source_control_total_minor_units": 1250000,
+          "target_record_count": 3995,
+          "target_control_total_minor_units": 1248500,
+          "known_exclusions": [
+            {
+              "reason_code": "duplicate_scan_deduplicated_pre_migration",
+              "excluded_record_count": 5,
+              "excluded_value_minor_units": 1500
+            }
+          ]
+        },
+        {
+          "partition_label": "CORRESPONDENCE",
+          "source_record_count": 8000,
+          "source_control_total_minor_units": 960000,
+          "target_record_count": 8000,
+          "target_control_total_minor_units": 960000,
+          "known_exclusions": []
+        }
+      ]
+    },
+    "art-520-operator-exit-data-portability": {
+      "as_of": "2026-08-01",
+      "contractual_operator": true,
+      "data_categories": [
+        {
+          "category": "transaction_ledger",
+          "export_exists": true,
+          "format": "csv",
+          "format_open": true,
+          "export_cadence": "daily",
+          "last_successful_export": "2026-07-31"
+        },
+        {
+          "category": "customer_account_master",
+          "export_exists": true,
+          "format": "json",
+          "format_open": true,
+          "export_cadence": "weekly",
+          "last_successful_export": "2026-07-28"
+        }
+      ],
+      "declared_components": [
+        {
+          "name": "core_ledger_engine",
+          "controlled_by": "operator"
+        },
+        {
+          "name": "reporting_warehouse",
+          "controlled_by": "operator"
+        }
+      ],
+      "dependencies": [
+        {
+          "name": "clearing_network_access",
+          "single_supplier": false,
+          "substitutable": true
+        }
+      ],
+      "escrow_arrangements": {
+        "exists": true,
+        "description": "source escrow held by a third-party agent"
+      },
+      "notice_period_days": 180,
+      "transition_assistance_terms": "180 days of vendor-supplied migration support per the exit schedule"
+    }
+  },
   "gpi-mt-to-mx-translation": {
     "art-244-gpi-tracker-lifecycle-simulator": {
       "current_status": "ACSP",
