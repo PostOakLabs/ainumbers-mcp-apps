@@ -13779,7 +13779,7 @@
       "description": "Maps creator answers to the SolSea and ALL.ART 4-tier embedded-license menu: Private/No Commercial, Personal/Public Display/No Commercial, Public Display/No Commercial, or Reproduction/Commercial. Outputs the elected tier id, label, rights vector, decision path, and source citation. Not legal advice. Selection only.",
       "input_schema_ref": "chaingraph/art-203-embedded-license-selector.html#manifest",
       "consumes": [
-        "art-198-rights-matrix-comparator"
+        "art-198-cross-license-rights-comparator"
       ],
       "feeds": [
         "art-204-license-compatibility-checker"
@@ -13838,7 +13838,7 @@
       "input_schema_ref": "chaingraph/art-204-license-compatibility-checker.html#manifest",
       "consumes": [
         "art-203-embedded-license-selector",
-        "art-198-rights-matrix-comparator"
+        "art-198-cross-license-rights-comparator"
       ],
       "feeds": [
         "art-205-license-terms-assembler"
@@ -24230,20 +24230,20 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:c712461e3738d99efd948256b9a9bf6a56f0c3c18aeca6685fb4acad40be39be","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:6784aa8d8ebe52de0d2ab52e2bb48d95559cd4796016eb7fd5388ca559b9d73b","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
   "compute_proof": {
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "HAVNhoD7VcWT+0gnbP8AuFULas14PCHK57mJyeoWeosE/A0eUF3TxzjpbqZqhEISPoXkRBHrr1G1hC0CwJWm/hDscJkz/g+DGflfiVc2wPNJ/SVUVMqEExR54TrglirII/rX6d5pe0arTHw7LQHc9O4iOr+KTrTuJOFZm+WNxYQfBFbl+akimIPQrByM4WRM9JJF8BpykOD9EvGFjR/MtSsFN20mK/JX16yWb4sbtXM4s42mi5sQrYIqB1m/lHvLHQAfOow1aW94ex9w1gg2WYBBkxQOhhqQq8Z7nEevxBMv3RLNZ5NHlmUZZbSGNleIeQO2GDXHoYOI1FDbSmTz3w==",
+    "seal": "FvMJZPQOKthw+9geIRW+LU5pGIYv/jY4FxMZiIsakhcl7WmwYcjdrVsILMKBGToiJ1fmYA2mxuRMXcJVve62gQgcJqegazqBbf6yIxc0I5O0P7fxLSOuDX+Bn+mr5svdLEkHmpjFNSD7YowmeRyhxwppSCZHYeNgqujiJY+XV2oHo/P7VTjULymGyRTRqfXNtoe/nrDzB1QOtFmGWl5THQ0pqMIKO4boVZzmLxryi/jXRS1jJcj/65yW5aKboXXeLUqdSJoRdeWV73+VS4sM6yNt99ALBAGnuQGsd3kKrLQuc4xb4/Dh7cQIdPZEpr9QYWNwHDOQP/2nwLpS7o2hnw==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:c712461e3738d99efd948256b9a9bf6a56f0c3c18aeca6685fb4acad40be39be",
+      "kernel_digest": "sha256:6784aa8d8ebe52de0d2ab52e2bb48d95559cd4796016eb7fd5388ca559b9d73b",
       "output": {
         "cc_burned": 12,
         "cc_usd_price": 12.5,
-        "disambiguation": "Computes synchronizer traffic economics for a single message/envelope. For settlement/counterparty structure validation on Canton, see diagnose_canton_readiness (art-503), validate_canton_dvp_atomicity (art-507), and validate_canton_party_allowlist (art-509) -- those validate structure, this computes traffic cost.",
+        "disambiguation": "Computes synchronizer traffic economics for a single message/envelope. For settlement/counterparty structure validation on Canton, see diagnose_canton_readiness, validate_canton_dvp_atomicity, and validate_canton_party_allowlist -- those validate structure, this computes traffic cost.",
         "effective_rate_usd_per_mb": 60,
         "envelope_mb": 2.5,
         "free_period_applies": false,
@@ -41178,12 +41178,16 @@
       "name": "dw-capacity-check",
       "domain": "Corporate Treasury & FX",
       "title": "Discount Window Borrowing-Capacity Check",
-      "description": "Single-node Federal Reserve Discount Window borrowing-capacity check: lendable collateral value against a runnable-liability / uninsured-deposit coverage target.",
+      "description": "Two-step BCBS 248 / Federal Reserve intraday liquidity chain. Step 1 computes daily maximum intraday liquidity usage from a caller-supplied time-stamped transaction list and classifies it against a caller-supplied list of available intraday liquidity sources. Step 2 checks Discount Window borrowing capacity -- lendable collateral value against a runnable-liability / uninsured-deposit coverage target -- as one of those declared sources.",
       "composer_url": "https://ainumbers.co/chaingraph/chains/dw-capacity-check.html",
       "steps": [
         {
+          "tool_id": "art-477-intraday-liquidity-monitoring",
+          "handoff": "daily maximum intraday usage classified against declared available liquidity sources feeds the Discount Window capacity check for the DW-source leg"
+        },
+        {
           "tool_id": "art-427-discount-window-capacity",
-          "handoff": "lendable value vs. coverage-target result feeds the Discount Window Preparedness Act evidence pack and LCR pre-positioned-collateral disclosure; standalone recurring check"
+          "handoff": "lendable value vs. coverage-target result feeds the Discount Window Preparedness Act evidence pack and LCR pre-positioned-collateral disclosure. Final stage."
         }
       ]
     },
@@ -46457,7 +46461,7 @@
       "title": "FR Y-9C Schedule HC to HC-R Capital Chain",
       "spec_version": "0.8.0",
       "wave": 71,
-      "description": "Gated two-step chain for top-tier bank holding companies (Y-9C panel, total consolidated assets >= $3B). Step 1 maps caller-declared Schedule HC balance-sheet line items into Schedule HC totals and checks the balance-sheet identity. Step 2 consumes those totals alongside caller-supplied capital components to compute Schedule HC-R capital ratios and the supplementary leverage ratio, gated dual_control(2) before the capital-adequacy result is treated as final -- any failed capital-ratio or SLR threshold requires two distinct approver sign-offs (recorded, not yet runtime-gated pending HA-RETRO-1 wiring).",
+      "description": "Gated three-step chain for top-tier bank holding companies (Y-9C panel, total consolidated assets >= $3B). Step 1 maps caller-declared Schedule HC balance-sheet line items into Schedule HC totals and checks the balance-sheet identity. Step 2 consumes those totals alongside caller-supplied capital components to compute Schedule HC-R capital ratios and the supplementary leverage ratio, gated dual_control(2) before the capital-adequacy result is treated as final -- any failed capital-ratio or SLR threshold requires two distinct approver sign-offs (recorded, not yet runtime-gated pending HA-RETRO-1 wiring). Step 3, reached only on a passing capital-adequacy result, rolls forward the caller-declared FR Y-14A/Q capital worksheet and cross-checks its ending total capital against Step 2's reported total-capital figure.",
       "composer_url": "https://ainumbers.co/chaingraph/chains/y9c-schedule-hc-hcr-capital.html",
       "regulatory_refs": [
         "FR Y-9C (Financial Statements for Holding Companies) Schedule HC",
@@ -46471,7 +46475,7 @@
         },
         {
           "tool_id": "art-436-bhc-schedule-hcr-capital",
-          "handoff": "CET1/Tier1/Total capital ratios and SLR against caller-declared, version-pinned minimums. Final stage.",
+          "handoff": "CET1/Tier1/Total capital ratios and SLR against caller-declared, version-pinned minimums. On pass, reported total capital feeds Stage 3's Y-14 worksheet roll-forward cross-check.",
           "gate": {
             "input": "/ratios/total_capital_pass",
             "rules": [
@@ -46481,13 +46485,17 @@
                 "next": "end"
               }
             ],
-            "default": "end",
+            "default": "art-439-y14-capital-worksheet-rollforward",
             "gate_policy": "dual_control",
             "gate_threshold": {
               "role": "approver",
               "threshold": 2
             }
           }
+        },
+        {
+          "tool_id": "art-439-y14-capital-worksheet-rollforward",
+          "handoff": "FR Y-14A/Q capital worksheet roll-forward and cross-check against Stage 2's reported total capital. Final stage."
         }
       ]
     }

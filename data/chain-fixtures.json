@@ -3365,6 +3365,65 @@
     }
   },
   "dw-capacity-check": {
+    "art-477-intraday-liquidity-monitoring": {
+      "start_of_day_available_musd": 500,
+      "transactions": [
+        {
+          "tx_id": "t1",
+          "time_hhmm": "08:00",
+          "flow_type": "inflow",
+          "amount_musd": 100
+        },
+        {
+          "tx_id": "t2",
+          "time_hhmm": "09:30",
+          "flow_type": "outflow",
+          "amount_musd": 250
+        },
+        {
+          "tx_id": "t3",
+          "time_hhmm": "10:15",
+          "flow_type": "outflow",
+          "amount_musd": 120
+        },
+        {
+          "tx_id": "t4",
+          "time_hhmm": "13:00",
+          "flow_type": "inflow",
+          "amount_musd": 200
+        },
+        {
+          "tx_id": "t5",
+          "time_hhmm": "15:45",
+          "flow_type": "outflow",
+          "amount_musd": 80
+        }
+      ],
+      "time_specific_obligations": [
+        {
+          "obligation_id": "o1",
+          "due_time_hhmm": "10:00",
+          "settled_time_hhmm": "09:45",
+          "amount_musd": 150
+        },
+        {
+          "obligation_id": "o2",
+          "due_time_hhmm": "14:00",
+          "settled_time_hhmm": "13:30",
+          "amount_musd": 90
+        }
+      ],
+      "available_intraday_sources": [
+        {
+          "source_id": "src-cb-balance",
+          "amount_musd": 200
+        },
+        {
+          "source_id": "src-committed-line",
+          "amount_musd": 150
+        }
+      ]
+    },
     "art-427-discount-window-capacity": {
       "margin_table_version": "2026-07-01",
       "collateral_positions": [
@@ -7818,6 +7877,37 @@
       "tier2_capital_usd": 15000000,
       "total_rwa_usd": 1800000000,
       "total_leverage_exposure_usd": 2700000000
+    },
+    "art-439-y14-capital-worksheet-rollforward": {
+      "entity_id": "FDIC-CERT-3510",
+      "reporting_period": "2026-03-31",
+      "constants_version": "2026-07-23.y14-capital-rollforward-v1",
+      "beginning_balances": {
+        "cet1": 180000000,
+        "at1": 8000000,
+        "t2": 14000000
+      },
+      "additions": {
+        "cet1": 9000000,
+        "at1": 0,
+        "t2": 1000000
+      },
+      "deductions": {
+        "cet1": 2130000,
+        "at1": 0,
+        "t2": 0
+      },
+      "published_scenario": {
+        "name": "2026 Federal Reserve Severely Adverse Scenario",
+        "citation": "12 CFR 252.146; FRB DFAST 2026 Scenarios, published 2026-02-06",
+        "cet1_adjustment_usd": 0,
+        "at1_adjustment_usd": 0,
+        "t2_adjustment_usd": 0
+      },
+      "cross_check": {
+        "reported_total_capital_usd": 209870000,
+        "tolerance_usd": 1000
+      }
     }
   }
 }
