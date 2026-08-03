@@ -39,6 +39,7 @@ export const UTILITY_TOOL_NAMES = [
   'workbook_evaluate',
   'workbook_range_digest',
   'workbook_csv_parse',
+  'workbook_roundtrip_verify',
   'pain001_validate',
   'camt053_parse',
   'recon_match',
