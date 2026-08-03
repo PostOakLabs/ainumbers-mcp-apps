@@ -1044,6 +1044,47 @@ async function verifyClosureViaAnchor(escalation_record, closure) {
   }
 }
 
+// anchor_stamp (AGENTGLUE-BUILD-2, AGENT-GLUE-BUILD-SPEC.md §(b)) shares this transport with
+// verifyClosureViaAnchor above: same ANCHOR_MCP_URL, same 8s AbortController timeout, same
+// SSE-or-JSON response parsing. Generic over the anchor-suite tool name so anchor_hash (single)
+// and anchor_batch (array) both go through one call site. Never synthesizes a result on any
+// failure branch -- returns { ok:false, reason } verbatim for the caller to relay unanchored.
+async function callAnchorSuiteTool(toolName, args) {
+  const body = {
+    jsonrpc: '2.0', id: 1, method: 'tools/call',
+    params: { name: toolName, arguments: args },
+    _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28' },
+  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(ANCHOR_MCP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'MCP-Protocol-Version': '2026-07-28' },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+    });
+    const text = await res.text();
+    let jsonStr = text;
+    if (text.startsWith('event:')) {
+      const line = text.split('\n').find((l) => l.startsWith('data: '));
+      if (line) jsonStr = line.slice(6);
+    }
+    const parsed = JSON.parse(jsonStr);
+    if (parsed?.error) return { ok: false, reason: 'anchor_suite_error: ' + (parsed.error?.message ?? JSON.stringify(parsed.error)) };
+    const payload = parsed?.result?.content?.[0]?.text;
+    if (typeof payload !== 'string') return { ok: false, reason: 'anchor_suite_unreadable_response (http ' + res.status + ')' };
+    let result;
+    try { result = JSON.parse(payload); } catch (e) { return { ok: false, reason: 'anchor_suite_unparseable_response: ' + (e?.message ?? e) }; }
+    if (parsed?.result?.isError || result?.error) return { ok: false, reason: 'anchor_suite_tool_error: ' + (result?.error ?? 'unknown') };
+    return { ok: true, result };
+  } catch (e) {
+    return { ok: false, reason: 'anchor_suite_unreachable: ' + String(e?.message ?? e) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null, mrtr = null } = {}) {
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // SEP-1865 (final, MCP-728 §T5 A0 delta 2): MCP Apps is negotiated as an EXTENSION, not implied
@@ -3209,6 +3250,89 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // anchor_stamp (AGENTGLUE-BUILD-2, AGENT-GLUE-BUILD-SPEC.md §(b)) -- server-to-server call to
+  // the anchor-suite MCP endpoint (callAnchorSuiteTool above), the tool an agent currently has NO
+  // way to reach: today an agent can build and verify an OCG artifact but cannot anchor one
+  // (anchoring is browser-only, anchor.ainumbers.co/sign/sign.html). Verify-only-posture mirror:
+  // this tool never mints its own anchor evidence, only relays anchor-suite's real TSA/OTS
+  // response, and self-checks anchored_hash equality before reporting success. ANY failure --
+  // unreachable, error, timeout, or a mismatch -- returns {ok:false, unanchored:true, reason},
+  // NEVER a synthesized binding (the whole point of this spec item: a caller checking .ok before
+  // appending to anchor_bindings[] is the safety property, and a fake-but-well-formed binding
+  // would pass shape checks and fail only at independent re-verification).
+  // -------------------------------------------------------------------------
+  server.registerTool('anchor_stamp', {
+    title: 'Anchor an execution_hash (or batch) at a real timestamp authority',
+    description:
+      'Calls the anchor-suite MCP server (server-to-server, not the browser CORS-gated relay) to ' +
+      'timestamp one execution_hash, or batch-anchor an array via anchor-suite\'s own anchor_batch ' +
+      '(one upstream call per batch, RFC 6962 Merkle root anchored, per-hash merkle_inclusion ' +
+      'returned), and shapes the result as literal OCG v0.7 section 20 anchor_bindings entries ready ' +
+      'to append to an artifact. Success is only reported after this tool independently confirms ' +
+      'anchored_hash (or, for a batch entry, merkle_inclusion.leaf) equals the caller-supplied hash -- ' +
+      'it does not merely trust anchor-suite\'s response. On ANY failure -- anchor-suite unreachable, ' +
+      'erroring, timing out, or an equality mismatch -- returns {ok:false, unanchored:true, reason} ' +
+      'verbatim, never a fabricated binding. Caller-invoked only; not wired into any automatic ' +
+      'per-artifact-emission path.',
+    inputSchema: {
+      execution_hash: z.union([
+        z.string().describe('A single sha256:... execution_hash to anchor.'),
+        z.array(z.string()).min(2).describe('2+ execution_hash values to batch-anchor in one upstream call (anchor_batch).'),
+      ]).describe('The execution_hash(es) to anchor.'),
+      authority: z.enum(['rfc3161-tst', 'opentimestamps']).optional()
+        .describe('Defaults to whatever anchor-suite\'s own anchor_hash/anchor_batch default to today (currently sigstore for rfc3161-tst) -- this tool does not own or hardcode a preference beyond that mirror.'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  }, async ({ execution_hash, authority }) => {
+    const normalize = (h) => String(h).replace(/^sha256:/, '').toLowerCase().trim();
+    const hashes = Array.isArray(execution_hash) ? execution_hash.map(normalize) : [normalize(execution_hash)];
+    if (hashes.some((h) => !/^[0-9a-f]{64}$/.test(h))) {
+      const out = { ok: false, unanchored: true, reason: 'execution_hash must be 64 hex chars, optionally sha256:-prefixed.' };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+    // Mirrors anchor-suite's own anchor_batch default (sigstore) -- see callAnchorSuiteTool comment.
+    const authorities = authority === 'opentimestamps' ? ['opentimestamps'] : ['sigstore'];
+
+    let out;
+    if (hashes.length === 1) {
+      const call = await callAnchorSuiteTool('anchor_hash', { hash: 'sha256:' + hashes[0], authorities });
+      if (!call.ok) {
+        out = { ok: false, unanchored: true, reason: call.reason };
+      } else {
+        const { anchor_bindings, failures } = call.result;
+        const binding = Array.isArray(anchor_bindings) ? anchor_bindings[0] : undefined;
+        const expected = 'sha256:' + hashes[0];
+        if (!binding || binding.anchored_hash !== expected) {
+          out = { ok: false, unanchored: true, reason: failures?.[0]?.reason ?? 'anchor-suite returned no binding whose anchored_hash matches execution_hash' };
+        } else {
+          out = { ok: true, anchor_binding: binding };
+        }
+      }
+    } else {
+      const call = await callAnchorSuiteTool('anchor_batch', { hashes: hashes.map((h) => 'sha256:' + h), authorities });
+      if (!call.ok) {
+        out = { ok: false, unanchored: true, reason: call.reason };
+      } else {
+        const { anchor_bindings, entries, failures } = call.result;
+        if (!Array.isArray(anchor_bindings) || anchor_bindings.length === 0 || !Array.isArray(entries) || entries.length !== hashes.length) {
+          out = { ok: false, unanchored: true, reason: failures?.[0]?.reason ?? 'anchor-suite returned an incomplete batch result' };
+        } else {
+          const mismatch = entries.find((e, i) => e?.hash !== 'sha256:' + hashes[i] || e?.merkle_inclusion?.leaf == null);
+          if (mismatch) {
+            out = { ok: false, unanchored: true, reason: 'batch entry hash/leaf did not match caller-supplied execution_hash' };
+          } else {
+            out = {
+              ok: true,
+              anchor_bindings: entries.map((e) => anchor_bindings.map((b) => ({ ...b, merkle_inclusion: e.merkle_inclusion }))),
+            };
+          }
+        }
+      }
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+  });
+
+  // -------------------------------------------------------------------------
   // OTLP GenAI span tools (OTELSPAN-1 OS-3) -- headless agent parity with the browser
   // tools/556 composer/linter and tools/566 span-receipt verifier (otelspan.mjs is the
   // single shared logic, byte-identical lint/receipt engines). otlp_span_receipt also
@@ -3978,7 +4102,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
-    'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack',
+    'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack', 'anchor_stamp',
     'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
     'pain001_validate', 'camt053_parse', 'recon_match',
