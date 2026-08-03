@@ -2830,9 +2830,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     description:
       'BM25 search over all ' + (chaingraph?.chains?.length ?? 0) + ' AINumbers ChainGraph chains. ' +
       'Returns ranked chains with their full recipe: ordered node sequence, deep-links, composer URL, and entry tool mcp_name. ' +
-      'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps.',
+      'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps. ' +
+      'Task-shaped queries work well: "reserve composition recompute", "FR 2052a classification", "CCP margin replication", ' +
+      '"SR 26-2 model validation benchmark", "litigation damages recompute", "evidence pack assembly".',
     inputSchema: {
-      query: z.string().describe('Natural-language or keyword search (e.g. "AML programme", "DORA ICT readiness", "MiCA CASP", "PQC migration", "Basel capital").'),
+      query: z.string().describe('Natural-language or keyword search (e.g. "AML programme", "DORA ICT readiness", "MiCA CASP", "PQC migration", "Basel capital", "reserve composition", "2052a classification", "CCP margin", "model validation benchmark", "damages recompute", "evidence pack").'),
       top_n: z.number().min(1).max(20).optional().describe('Max results to return (default 5).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
@@ -2861,10 +2863,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     description:
       'BM25 search over all ' + (chaingraph?.nodes?.filter(n => n.status === 'live').length ?? 0) + ' live AINumbers ChainGraph node tools. ' +
       'Returns ranked tools with mcp_name, URL, mandate type, and wave. ' +
-      'Use to locate a specific computation node (e.g. "FRTB expected shortfall", "MiCA own funds", "XVA calculator") ' +
+      'Use to locate a specific computation node (e.g. "FRTB expected shortfall", "MiCA own funds", "XVA calculator", ' +
+      '"reserve composition", "2052a", "initial margin", "model validation benchmark", "TVM / damages calculator") ' +
       'before calling it. Complements find_chain (chain-level) and list_ainumbers_tools (catalog-level).',
     inputSchema: {
-      query: z.string().describe('Natural-language or keyword search (e.g. "FRTB", "XVA", "MiCA own funds", "AML risk rating", "stress test").'),
+      query: z.string().describe('Natural-language or keyword search (e.g. "FRTB", "XVA", "MiCA own funds", "AML risk rating", "stress test", "reserve composition", "2052a", "initial margin", "model validation").'),
       top_n: z.number().min(1).max(20).optional().describe('Max results to return (default 5).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
@@ -4790,7 +4793,17 @@ export default {
             resultType: 'complete',
             supportedVersions: MCP_SUPPORTED_VERSIONS,
             capabilities: init.capabilities,
-            instructions: 'AINumbers compute: deterministic, client-side financial and compliance calculators exposed as MCP tools. Every result is reproducible from its inputs (zero fetch, zero side effects).',
+            instructions:
+              'AINumbers compute: deterministic, client-side financial and compliance calculators exposed as MCP tools. ' +
+              'Every result is reproducible from its inputs (zero fetch, zero side effects) and returned as a verifiable OCG receipt (execution_hash). ' +
+              'Common tasks and where to start: ' +
+              'reserve composition / redemption coverage recompute for a stablecoin issuer -> find_chain("reserve composition") or find_tool("reserve"); ' +
+              'FR 2052a liquidity position classification -> find_tool("2052a") or find_chain("2052a classification"); ' +
+              'CCP margin replication or a clearing workflow check -> find_chain("margin") or find_tool("initial margin"); ' +
+              'model-validation benchmark for SR 26-2 / MRM workpapers -> find_tool("<calculator name>") then verify_execution_hash; ' +
+              'damages or interest recompute for a litigation or expert workpaper -> find_tool("<calculator name>") then anchor_stamp; ' +
+              'evidence-pack assembly for an audit or attestation engagement -> build_evidence_pack, or find_chain("evidence pack"). ' +
+              'For anything else: find_chain(query) for a multi-step workflow, find_tool(query) for a single calculator, list_ainumbers_tools for the full catalog.',
             _meta: { 'io.modelcontextprotocol/serverInfo': init.serverInfo },
           } }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
