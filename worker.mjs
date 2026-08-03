@@ -34,6 +34,7 @@ import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { runAcdcSaidCheck } from './acdc-said-check.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError, exportArtifact as wbExportArtifact } from './workbook/workbook.mjs';
+import { verifyRoundtrip } from './workbook/roundtrip-verify.mjs';
 import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
@@ -3635,6 +3636,39 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
+  // XLR-4 (WORKBOOK-ROUNDTRIP-BUILD-SPEC.md) -- agent-facing mirror of the XLR-2
+  // browser comparator. SAME signature and SAME module (./workbook/roundtrip-verify.mjs,
+  // vendored verbatim from chaingraph/workbook/ by generate.mjs) as the site tool --
+  // no forked logic, so the same manifest + pasted text always produce the same receipt
+  // in either surface.
+  server.registerTool('workbook_roundtrip_verify', {
+    title: 'Verify a pasted-back Excel round-trip against a Spreadsheet Input Manifest',
+    description:
+      'Compares a WB-2 Spreadsheet Input Manifest (expected digests) against pasted-back CSV/TSV text per ' +
+      'manifest range (observed, e.g. after a recompute in Excel) and returns an XLR-1 round-trip receipt -- ' +
+      '`result: "match"|"mismatch"` plus a `mismatches[]` cell list when expected_by_ref text is also supplied. ' +
+      'SAME comparator module as the tools/ round-trip page (XLR-2/XLR-3) -- byte-identical receipt for the ' +
+      'same inputs. Paste-intake is untrusted: finite-gate (#NUM! for NaN/Infinity) and CSV-injection ' +
+      'sanitization apply identically to WB-1\'s CSV import. Verify-only -- never operates Excel, never ingests .xlsx.',
+    inputSchema: {
+      manifest: z.record(z.any()).describe('WB-2 Spreadsheet Input Manifest object (input-manifest.schema.json) -- the expected side.'),
+      observed_by_ref: z.record(z.string(), z.string()).describe('Map of manifest range ref -> pasted-back CSV/TSV text for that range (e.g. { "B2:C3": "10,widget\\r\\n20,gadget\\r\\n" }). One entry required per manifest.ranges[].ref.'),
+      expected_by_ref: z.record(z.string(), z.string()).optional().describe('OPTIONAL map of manifest range ref -> the actual expected CSV/TSV text (e.g. the pq-export the manifest was built from). Supplying it resolves a digest mismatch to per-cell mismatches[] entries instead of a single range-level entry.'),
+      produced_by: z.string().describe('Identity slot for who/what produced this receipt -- required, no default (pure: no identity read).'),
+      produced_at: z.string().describe('ISO-8601 timestamp -- required, no default (pure: no wall-clock read).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ manifest, observed_by_ref, expected_by_ref, produced_by, produced_at }) => {
+    let result;
+    try {
+      result = await verifyRoundtrip(manifest, observed_by_ref, { expectedByRef: expected_by_ref, producedBy: produced_by, producedAt: produced_at });
+    } catch (e) {
+      const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
+      return { isError: true, content: [{ type: 'text', text: msg }] };
+    }
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
   // -------------------------------------------------------------------------
   // ISO 20022 workbench tools (IW-4) -- agent-facing parity with the browser
   // schema-subset validator / camt.053 workbench (tools/555, tools/565, IW-1/IW-3).
@@ -4117,7 +4151,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack', 'anchor_stamp',
     'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
-    'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
+    'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse', 'workbook_roundtrip_verify',
     'pain001_validate', 'camt053_parse', 'recon_match',
   ]);
 

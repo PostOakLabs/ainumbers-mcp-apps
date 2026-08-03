@@ -99,6 +99,18 @@ mkdirSync(WORKBOOK_BUNDLE_DIR, { recursive: true });
   writeFileSync(resolve(WORKBOOK_BUNDLE_DIR, 'workbook.mjs'), src);
 }
 
+// XLR-4: vendor the XLR-2 comparator (roundtrip-verify.mjs) verbatim into the SAME
+// workbook/ dir as workbook.mjs above — it imports './workbook.mjs' and
+// '../kernels/_csv_injection.mjs' relative to its own location, both already
+// satisfied by the workbook.mjs vendor step and the kernel vendor step above.
+// Same two targets (data/ ASSETS + ROOT Worker bundle), same verbatim discipline.
+{
+  const ROUNDTRIP_SRC = resolve(REPO, 'chaingraph', 'workbook', 'roundtrip-verify.mjs');
+  const src = readFileSync(ROUNDTRIP_SRC);
+  writeFileSync(resolve(WORKBOOK_DATA_DIR, 'roundtrip-verify.mjs'), src);
+  writeFileSync(resolve(WORKBOOK_BUNDLE_DIR, 'roundtrip-verify.mjs'), src);
+}
+
 // ---------------------------------------------------------------------------
 // Emit data/counts.json — single source of truth for all numeric stats used
 // in mcp.html, chaingraph-hub.html, JSON-LD, og:description, i18n strings.
