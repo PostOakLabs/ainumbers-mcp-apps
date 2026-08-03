@@ -1729,6 +1729,31 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     for (const p of proof) h = p.dir === 'left' ? await drSha256Hex(p.hash + h) : await drSha256Hex(h + p.hash);
     return h;
   }
+  // Extracted so build_evidence_pack (AGENTGLUE-BUILD-1) can call the SAME in-process logic
+  // instead of a second MCP round-trip. Throws on invalid input.
+  async function buildDisclosureManifestCore({ room_label, entries }) {
+    if (!Array.isArray(entries) || entries.length === 0) {
+      throw new Error('entries must be a non-empty array of {path,size,digest,content_type}.');
+    }
+    const bad = entries.find((e) => !e || typeof e.path !== 'string' || typeof e.digest !== 'string');
+    if (bad) {
+      throw new Error('Each entry needs a string path and digest.');
+    }
+    const sorted = entries.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+    const root = await drMerkleRoot(sorted);
+    const manifest = {
+      schema: 'ainumbers-disclosure-manifest-v1',
+      room_label: room_label || 'Untitled Room',
+      version: 1,
+      prev_manifest_digest: null,
+      generated_at: new Date().toISOString(),
+      entry_count: sorted.length,
+      entries: sorted,
+      merkle_root: 'sha256:' + root,
+      merkle_leaf_scheme: 'sha256(path|digest|size), duplicate-last on odd level',
+    };
+    return { manifest, merkle_root: manifest.merkle_root };
+  }
 
   server.registerTool('build_disclosure_manifest', {
     title: 'Build a signed data-room disclosure manifest',
@@ -1750,27 +1775,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ room_label, entries }) => {
-    if (!Array.isArray(entries) || entries.length === 0) {
-      return { isError: true, content: [{ type: 'text', text: 'entries must be a non-empty array of {path,size,digest,content_type}.' }] };
-    }
-    const bad = entries.find((e) => !e || typeof e.path !== 'string' || typeof e.digest !== 'string');
-    if (bad) {
-      return { isError: true, content: [{ type: 'text', text: 'Each entry needs a string path and digest.' }] };
-    }
-    const sorted = entries.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
-    const root = await drMerkleRoot(sorted);
-    const manifest = {
-      schema: 'ainumbers-disclosure-manifest-v1',
-      room_label: room_label || 'Untitled Room',
-      version: 1,
-      prev_manifest_digest: null,
-      generated_at: new Date().toISOString(),
-      entry_count: sorted.length,
-      entries: sorted,
-      merkle_root: 'sha256:' + root,
-      merkle_leaf_scheme: 'sha256(path|digest|size), duplicate-last on odd level',
-    };
-    const out = { manifest, merkle_root: manifest.merkle_root };
+    let out;
+    try { out = await buildDisclosureManifestCore({ room_label, entries }); }
+    catch (e) { return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] }; }
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
@@ -2619,33 +2626,12 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // for EU AI Act Art. 12 / DORA audit trails, plus a PTG-01 regulator-framed prompt.
   // Mirrors CRY-05 kernel logic (no kernel dependency here — pure Worker compute).
   // -------------------------------------------------------------------------
-  server.registerTool('build_session_receipt', {
-    title: 'Build a session audit receipt (Merkle root)',
-    description:
-      'Aggregates execution_hashes from N ChainGraph tool calls in one agent session into a ' +
-      'single SHA-256 Merkle root (session_receipt_root). Returns a tamper-evident session receipt ' +
-      'and a regulator-framed PTG-01 audit prompt. ' +
-      'One receipt covers an entire agent session: supply all execution_hashes in call order. ' +
-      'The Merkle root is deterministic — the same hashes in the same order always produce the same root. ' +
-      'Compliant with EU AI Act Art. 12 (transparency) and DORA ICT audit-trail requirements.',
-    inputSchema: {
-      execution_hashes: z.array(z.string()).describe(
-        'Ordered list of execution_hash values from ChainGraph tool calls in this session (each produced by emit_chaingraph_artifact or a kernel tool). Minimum 1.'
-      ),
-      tool_ids: z.array(z.string()).optional().describe(
-        'tool_id values corresponding to execution_hashes, in the same order. Used for the audit narrative.'
-      ),
-      session_id: z.string().optional().describe(
-        'Optional agent session identifier for the audit narrative (e.g. a UUID or timestamp).'
-      ),
-      framing: z.string().optional().describe(
-        'Optional framing context for the PTG-01 regulator prompt (e.g. "DORA incident review" or "EU AI Act Art.12 transparency log").'
-      ),
-    },
-    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ execution_hashes, tool_ids, session_id, framing }) => {
+  // Extracted so build_evidence_pack (AGENTGLUE-BUILD-1) can call the SAME in-process logic
+  // in-process instead of a second MCP round-trip. Throws on invalid input (isError mapping is
+  // the caller's job — build_session_receipt below, and build_evidence_pack).
+  async function buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing }) {
     if (!execution_hashes || execution_hashes.length === 0) {
-      return { isError: true, content: [{ type: 'text', text: 'execution_hashes must be a non-empty array.' }] };
+      throw new Error('execution_hashes must be a non-empty array.');
     }
     // Merkle tree: SHA-256 of concatenated hex strings (no prefix), binary tree, duplicate last leaf if odd.
     const normalize = (h) => String(h).replace(/^sha256:/, '').toLowerCase();
@@ -2679,7 +2665,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'Each execution_hash is independently verifiable via verify_execution_hash. ' +
       'The Merkle root proves the complete set of tool calls in this session has not been tampered with. ' +
       'Regulatory alignment: EU AI Act Art. 12 (transparency log); DORA ICT audit trail; ChainGraph Standard v0.4 §C (session receipt).';
-    const receipt = {
+    return {
       chaingraph_version: '0.4.0',
       receipt_type: 'session_receipt',
       session_receipt_root,
@@ -2693,6 +2679,36 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       ptg01_prompt,
       spec: 'ChainGraph Standard v0.4 §C',
     };
+  }
+
+  server.registerTool('build_session_receipt', {
+    title: 'Build a session audit receipt (Merkle root)',
+    description:
+      'Aggregates execution_hashes from N ChainGraph tool calls in one agent session into a ' +
+      'single SHA-256 Merkle root (session_receipt_root). Returns a tamper-evident session receipt ' +
+      'and a regulator-framed PTG-01 audit prompt. ' +
+      'One receipt covers an entire agent session: supply all execution_hashes in call order. ' +
+      'The Merkle root is deterministic — the same hashes in the same order always produce the same root. ' +
+      'Compliant with EU AI Act Art. 12 (transparency) and DORA ICT audit-trail requirements.',
+    inputSchema: {
+      execution_hashes: z.array(z.string()).describe(
+        'Ordered list of execution_hash values from ChainGraph tool calls in this session (each produced by emit_chaingraph_artifact or a kernel tool). Minimum 1.'
+      ),
+      tool_ids: z.array(z.string()).optional().describe(
+        'tool_id values corresponding to execution_hashes, in the same order. Used for the audit narrative.'
+      ),
+      session_id: z.string().optional().describe(
+        'Optional agent session identifier for the audit narrative (e.g. a UUID or timestamp).'
+      ),
+      framing: z.string().optional().describe(
+        'Optional framing context for the PTG-01 regulator prompt (e.g. "DORA incident review" or "EU AI Act Art.12 transparency log").'
+      ),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ execution_hashes, tool_ids, session_id, framing }) => {
+    let receipt;
+    try { receipt = await buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing }); }
+    catch (e) { return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] }; }
     return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
   });
 
@@ -3093,6 +3109,103 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     try { bundle = await recordChainRunAsLinks(run_chain_result); }
     catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
     return { content: [{ type: 'text', text: JSON.stringify(bundle, null, 2) }], structuredContent: bundle };
+  });
+
+  // -------------------------------------------------------------------------
+  // build_evidence_pack (AGENTGLUE-BUILD-1, AGENT-GLUE-BUILD-SPEC.md §(a)) -- compositor over the
+  // three existing evidence-assembly tools (build_session_receipt, ha_bundle_export,
+  // build_disclosure_manifest), calling their SAME in-process functions -- no new hashing path,
+  // no reimplementation. One call instead of 4-6 hand-chained round-trips. HA section is omitted
+  // (never fabricated) when no ha_records are supplied. Partial failure = whole-call isError, no
+  // silent drop of a section.
+  // -------------------------------------------------------------------------
+  server.registerTool('build_evidence_pack', {
+    title: 'Assemble a complete evidence pack in one call',
+    description:
+      'Composes a session receipt (build_session_receipt logic), an optional §27.6 HA evidence bundle ' +
+      '(ha_bundle_export logic, included only when ha_records is supplied and non-empty), and a ' +
+      'disclosure manifest (build_disclosure_manifest logic) from one array of already-produced ' +
+      'artifacts, all keyed to the same input hashes -- replacing what today takes 4-6 separate tool ' +
+      'calls with hand-carried hashes. Calls the same in-process functions those standalone tools use; ' +
+      'if any one section fails to build, the whole call fails isError:true with that section\'s own ' +
+      'message -- no partial pack.',
+    inputSchema: {
+      artifacts: z.array(z.object({
+        execution_hash: z.string().describe('sha256:... -- the OCG artifact hash this entry documents.'),
+        tool_id: z.string().optional(),
+        output_payload: z.record(z.any()).optional().describe('Present when caller has the full artifact, not just its hash.'),
+      })).min(1).describe('Already-produced artifacts this pack documents, in call order.'),
+      subject_hash: z.string().optional().describe('The sha256: subject hash the pack documents (defaults to artifacts[0].execution_hash if omitted).'),
+      ha_records: z.array(z.record(z.any())).optional().describe('§27 human_accountability_records -- omit entirely for no HA section.'),
+      kernel_version: z.string().optional(),
+      policy_version: z.string().optional(),
+      verification_result: z.string().optional().describe('The §16/§18/§20 verdict.'),
+      submission_receipt: z.string().optional().describe('Populate ONLY after a real transmission -- never fabricate (same rule as ha_bundle_export).'),
+      session_id: z.string().optional(),
+      framing: z.string().optional().describe('Optional framing context for the session receipt\'s PTG-01 regulator prompt.'),
+      room_label: z.string().optional().describe('Label for the disclosure-manifest room.'),
+      sd_jwt: z.boolean().optional().describe('When true, also return an SD-JWT export of the HA bundle (mirrors ha_bundle_export, default false; no-op when ha_records is absent).'),
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  }, async ({ artifacts, subject_hash, ha_records, kernel_version, policy_version, verification_result, submission_receipt, session_id, framing, room_label, sd_jwt }) => {
+    const execution_hashes = artifacts.map((a) => a.execution_hash);
+    const tool_ids = artifacts.map((a) => a.tool_id).filter((id) => id !== undefined);
+    const effective_subject_hash = subject_hash ?? artifacts[0].execution_hash;
+
+    let session_receipt;
+    try {
+      session_receipt = await buildSessionReceiptCore({
+        execution_hashes,
+        tool_ids: tool_ids.length === artifacts.length ? tool_ids : undefined,
+        session_id,
+        framing,
+      });
+    } catch (e) {
+      return { isError: true, content: [{ type: 'text', text: 'session_receipt: ' + (e?.message ?? String(e)) }] };
+    }
+
+    let ha_bundle;
+    let sd_jwt_export;
+    if (ha_records && ha_records.length > 0) {
+      try {
+        ha_bundle = assembleEvidenceBundle({
+          subjectHash: effective_subject_hash, records: ha_records, inputHashes: execution_hashes,
+          kernelVersion: kernel_version, policyVersion: policy_version,
+          verificationResult: verification_result, submissionReceipt: submission_receipt,
+        });
+      } catch (e) {
+        return { isError: true, content: [{ type: 'text', text: 'ha_bundle: ' + (e?.message ?? String(e)) }] };
+      }
+      if (sd_jwt) {
+        const kp = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
+        const issuerDid = await rawPubkeyToDidKey(kp.publicKey);
+        sd_jwt_export = await exportEvidenceBundleSdJwt(ha_bundle, { privateKey: kp.privateKey, verificationMethod: issuerDid });
+      }
+    }
+
+    const disclosureEntries = artifacts.map((a) => {
+      if (a.output_payload !== undefined) {
+        const json = JSON.stringify(a.output_payload);
+        return { path: a.tool_id ?? a.execution_hash, size: json.length, digest: a.execution_hash, content_type: 'application/json' };
+      }
+      return { path: a.tool_id ?? a.execution_hash, size: 0, digest: a.execution_hash, content_type: 'application/hash-only' };
+    });
+    let disclosure_manifest;
+    try {
+      const { manifest } = await buildDisclosureManifestCore({ room_label, entries: disclosureEntries });
+      disclosure_manifest = manifest;
+    } catch (e) {
+      return { isError: true, content: [{ type: 'text', text: 'disclosure_manifest: ' + (e?.message ?? String(e)) }] };
+    }
+
+    const out = {
+      session_receipt,
+      ...(ha_bundle !== undefined ? { ha_bundle } : {}),
+      disclosure_manifest,
+      ...(sd_jwt_export !== undefined ? { sd_jwt_export } : {}),
+      spec: 'AGENT-GLUE-BUILD-SPEC.md §(a)',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
   // -------------------------------------------------------------------------
@@ -3865,7 +3978,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
-    'build_disclosure_manifest', 'verify_disclosure_inclusion',
+    'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack',
     'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse',
     'pain001_validate', 'camt053_parse', 'recon_match',
