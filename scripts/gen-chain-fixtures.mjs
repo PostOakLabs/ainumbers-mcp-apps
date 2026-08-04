@@ -40,6 +40,30 @@ function gitShow(gitDir, path) {
   }
 }
 
+// --- OCG Standard §25 ocg-private-input@1: a kernel's own fixture vector carries only
+// the sha256-salted@1 COMMITMENT (matching what a live artifact's policy_parameters
+// actually contains — required for golden-parity to hash-verify correctly). That
+// commitment is useless as a chain-execution input: buildArtifact(raw) needs the
+// caller's actual private witness (the salt + plaintext figures) to recompute it.
+// kernels/fixtures/<tool_id>.disclosure.json (test-only, §25 "Salt handling") carries
+// exactly that witness, keyed by the same vector `name` and a `pointer` naming which
+// committed field it discloses. Merge it in for chain-fixture purposes only — never
+// touches the golden-parity vector itself.
+function applyPrivateInputDisclosure(tid, pp, vectorName) {
+  const discRaw = gitShow(SITE, `chaingraph/kernels/fixtures/${tid}.disclosure.json`);
+  if (!discRaw) return pp;
+  let disc;
+  try { disc = JSON.parse(discRaw); } catch { return pp; }
+  const vec = (disc.vectors ?? []).find((v) => v.name === vectorName) ?? disc.vectors?.[0];
+  if (!vec || typeof vec.salt !== 'string' || !vec.input_value || typeof vec.input_value !== 'object') return pp;
+  const commitField = typeof vec.pointer === 'string' ? vec.pointer.replace(/^\//, '') : null;
+  const merged = { ...pp };
+  if (commitField) delete merged[commitField];
+  merged.salt = vec.salt;
+  Object.assign(merged, vec.input_value);
+  return merged;
+}
+
 // --- resolve a single step's fixture policy_parameters ---------------------------
 function resolveFixture(tid) {
   // 1. conformance/vectors/<tool_id>.fixture.json
@@ -48,7 +72,7 @@ function resolveFixture(tid) {
     try {
       const obj = JSON.parse(vectorRaw);
       if (obj.policy_parameters && typeof obj.policy_parameters === 'object') {
-        return { pp: obj.policy_parameters, src: 'vectors' };
+        return { pp: applyPrivateInputDisclosure(tid, obj.policy_parameters, null), src: 'vectors' };
       }
     } catch {
       // fall through
@@ -60,9 +84,10 @@ function resolveFixture(tid) {
   if (kernelRaw) {
     try {
       const obj = JSON.parse(kernelRaw);
-      const pp = obj?.vectors?.[0]?.policy_parameters;
+      const vector0 = obj?.vectors?.[0];
+      const pp = vector0?.policy_parameters;
       if (pp && typeof pp === 'object') {
-        return { pp, src: 'kernels/fixtures' };
+        return { pp: applyPrivateInputDisclosure(tid, pp, vector0.name), src: 'kernels/fixtures' };
       }
     } catch {
       // fall through
