@@ -36,6 +36,7 @@ import { runAcdcSaidCheck } from './acdc-said-check.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError, exportArtifact as wbExportArtifact } from './workbook/workbook.mjs';
 import { verifyRoundtrip } from './workbook/roundtrip-verify.mjs';
 import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
+import { buildMmrCommitment, verifyConsistency as mmrVerifyConsistency } from './_mmr.mjs';
 // GAP-a (2026-07-10): re-export the durable Workflow class so wrangler.jsonc's `workflows`
 // binding (class_name: "RenewalWatchWorkflow") can find it on the main script, per CF Workflows'
 // requirement that the bound class be exported from the entrypoint module.
@@ -2684,7 +2685,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // Extracted so build_evidence_pack (AGENTGLUE-BUILD-1) can call the SAME in-process logic
   // in-process instead of a second MCP round-trip. Throws on invalid input (isError mapping is
   // the caller's job — build_session_receipt below, and build_evidence_pack).
-  async function buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing }) {
+  async function buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing, prior_receipt }) {
     if (!execution_hashes || execution_hashes.length === 0) {
       throw new Error('execution_hashes must be a non-empty array.');
     }
@@ -2706,6 +2707,19 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       level = next;
     }
     const session_receipt_root = level[0];
+    // MMR peaks-bag commitment over the SAME leaf set — additive, DAG-INTEGRITY-BUILD-SPEC.md §3.
+    // session_receipt_root above stays computed exactly as before; this is a NEW canonical root
+    // for consistency proofs across a growing session (append-only, CT-style guarantee).
+    const { mmr_peaks, mmr_size, mmr_bagged_root } = await buildMmrCommitment(execution_hashes);
+    let consistency_proof = null;
+    if (prior_receipt) {
+      consistency_proof = await mmrVerifyConsistency({
+        prior_mmr_peaks: prior_receipt.mmr_peaks,
+        prior_mmr_size: prior_receipt.mmr_size,
+        prior_mmr_bagged_root: prior_receipt.mmr_bagged_root,
+        new_execution_hashes: execution_hashes,
+      });
+    }
     const generated_at = new Date().toISOString();
     const framingStr = framing ?? 'Agent session audit trail';
     const toolList = (tool_ids ?? []).map((id, i) => '  ' + (i + 1) + '. ' + id + ' → ' + execution_hashes[i]).join('\n');
@@ -2731,6 +2745,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       generated_at,
       framing: framingStr,
       merkle_algorithm: 'SHA-256 binary tree, duplicate-last-leaf padding',
+      mmr_peaks,
+      mmr_size,
+      mmr_bagged_root,
+      mmr_algorithm: 'MMR peaks-bag, SHA-256, RFC 6962-style leafHash/nodeHash',
+      consistency_proof,
       ptg01_prompt,
       spec: 'ChainGraph Standard v0.4 §C',
     };
@@ -2758,11 +2777,21 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       framing: z.string().optional().describe(
         'Optional framing context for the PTG-01 regulator prompt (e.g. "DORA incident review" or "EU AI Act Art.12 transparency log").'
       ),
+      prior_receipt: z.object({
+        mmr_peaks: z.array(z.string()),
+        mmr_size: z.number(),
+        mmr_bagged_root: z.string().nullable().optional(),
+      }).optional().describe(
+        'An earlier receipt from this SAME session (its mmr_peaks/mmr_size/mmr_bagged_root). ' +
+        'When supplied, execution_hashes MUST start with that earlier receipt\'s full leaf set — ' +
+        'the response\'s consistency_proof then proves this receipt provably APPENDS to the prior one ' +
+        '(CT-style append-only guarantee) without operating a log.'
+      ),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ execution_hashes, tool_ids, session_id, framing }) => {
+  }, async ({ execution_hashes, tool_ids, session_id, framing, prior_receipt }) => {
     let receipt;
-    try { receipt = await buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing }); }
+    try { receipt = await buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing, prior_receipt }); }
     catch (e) { return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] }; }
     return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
   });
