@@ -3207,6 +3207,24 @@
       ]
     }
   },
+  "corporate-action-entitlement": {
+    "art-546-dtcc-ca-iso20022-validator": {
+      "message_function": "NOTIFICATION",
+      "event_type": "DVCA",
+      "cusip": "037833100",
+      "dtc_participant_number": "0443",
+      "record_date": "2027-01-15",
+      "payable_date": "2027-02-01",
+      "reference_id": "CA-OPAQUE-2027-0001"
+    },
+    "art-547-corporate-action-entitlement-recompute": {
+      "corporate_action_type": "DVCA",
+      "position_qty": 1200,
+      "ratio_or_rate": 0.42,
+      "record_date": "2027-01-15",
+      "reference_id": "CA-OPAQUE-2027-0001"
+    }
+  },
   "corporate-treasury-statement-reconciliation": {
     "art-258-parse-camt053-reconciliation": {
       "opening_balance": 10000,
@@ -7248,10 +7266,57 @@
       "artifacts": []
     }
   },
+  "settlement-discipline-penalty-v2": {
+    "art-543-csdr-penalty-recompute": {
+      "recompute_id": "DEMO-CSDR-2026Q3",
+      "rate_table_version": "CSDR-RTS-2025-10",
+      "open_fails": [
+        {
+          "fail_id": "FAIL-1",
+          "isin": "DE000TEST001",
+          "asset_class": "equity",
+          "penalty_type": "sefp",
+          "reference_price": 100,
+          "quantity": 1000,
+          "fail_days": 3,
+          "partial_settled_pct": 0
+        }
+      ]
+    },
+    "art-84-settlement-efficiency-kpi": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "settlement-discipline-ssi-hygiene": {
     "art-80-ssi-conformance-checker": {},
     "cry-05-agent-action-audit-trail-aggregator": {
       "artifacts": []
+    }
+  },
+  "slate-reporting-readiness": {
+    "art-544-slate-report-validator": {
+      "reports": [
+        {
+          "loan_id": "LOAN-1001",
+          "effective_date": "2026-08-01",
+          "rate_type": "FLAT",
+          "rate": 4.25,
+          "collateral_type": "CASH",
+          "collateral_value": 100000,
+          "counterparty_id": "CPTY-77",
+          "security_identifier": "037833100",
+          "quantity": 5000,
+          "loan_type": "NEW"
+        }
+      ]
+    },
+    "art-545-slate-readiness-diagnostic": {
+      "reporting_agent_registered": true,
+      "same_day_capture_configured": true,
+      "field_spec_mapping_complete": true,
+      "unique_loan_identifier_scheme": true,
+      "recordkeeping_retention_configured": true
     }
   },
   "solvency-ii-reconciliation-and-capital": {
