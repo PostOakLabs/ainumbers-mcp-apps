@@ -2563,7 +2563,10 @@
       "ccp_skin_in_game_minor_units": 30000000000,
       "assessment_powers_cap_declared": true,
       "assessment_powers_cap_minor_units": 100000000000,
-      "member_figures_commitment": "sha256:abb47369cd5665fa19e76b84c34d54a954002bde70b23fb168d1432647abfccd"
+      "salt": "b2b384a6e64b95ac12db9de1fe3bede49808888215e91e6477a600daf395bc1b",
+      "defaulter_im_minor_units": 100000000,
+      "defaulter_default_fund_minor_units": 20000000,
+      "surviving_member_default_fund_pool_minor_units": 400000000000
     },
     "art-530-default-fund-cover2-sizing": {
       "as_of": "2026-08-01",
