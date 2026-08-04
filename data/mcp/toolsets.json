@@ -111,6 +111,7 @@
       "compute_cyber_incident_notification_clock",
       "compose_eval_attestation_receipt",
       "classify_t1_posttrade_timing",
+      "classify_ledger_consensus_finality",
       "attest_margin_call_lifecycle",
       "verify_merkle_batch"
     ],
