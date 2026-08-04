@@ -2549,6 +2549,113 @@
       ]
     }
   },
+  "chain-ccp-default-waterfall": {
+    "art-529-ccp-default-waterfall-recompute": {
+      "currency": "USD",
+      "waterfall_structure": [
+        "defaulter_im",
+        "defaulter_default_fund",
+        "ccp_skin_in_game",
+        "surviving_member_default_fund_pro_rata",
+        "assessment_powers"
+      ],
+      "loss_amount_minor_units": 50000000,
+      "ccp_skin_in_game_minor_units": 30000000000,
+      "assessment_powers_cap_declared": true,
+      "assessment_powers_cap_minor_units": 100000000000,
+      "member_figures_commitment": "sha256:abb47369cd5665fa19e76b84c34d54a954002bde70b23fb168d1432647abfccd"
+    },
+    "art-530-default-fund-cover2-sizing": {
+      "as_of": "2026-08-01",
+      "fund_size_minor_units": 200000000,
+      "members": [
+        {
+          "member_id": "member-alpha",
+          "exposure_minor_units": 200000000
+        },
+        {
+          "member_id": "member-beta",
+          "exposure_minor_units": 150000000
+        },
+        {
+          "member_id": "member-gamma",
+          "exposure_minor_units": 60000000
+        }
+      ],
+      "stress_scenarios": [
+        {
+          "scenario_id": "gfc_2008",
+          "loss_bps": 4620
+        },
+        {
+          "scenario_id": "covid_2020",
+          "loss_bps": 3240
+        }
+      ]
+    }
+  },
+  "chain-ccp-pqd-benchmark": {
+    "art-528-cross-ccp-pqd-comparator": {
+      "entity_a": {
+        "ccp": "FICC",
+        "division": "GSD"
+      },
+      "entity_b": {
+        "ccp": "FICC",
+        "division": "NSCC"
+      },
+      "fields": [
+        "backtest_coverage_pct",
+        "largest_deficiency_usd"
+      ]
+    }
+  },
+  "chain-member-margin-call-to-porting": {
+    "art-531-member-margin-call-lifecycle": {
+      "call_id": "MC-0001",
+      "member_ref": "MEMBER-REF-1042",
+      "currency": "USD",
+      "amount_minor_units": 250000000,
+      "sla_minutes": 60,
+      "issued_at": "2026-07-31T14:00:00Z",
+      "as_of": "2026-07-31T15:30:00Z",
+      "confirmed_at": "2026-07-31T14:10:00Z",
+      "funded_at": "2026-07-31T14:45:00Z"
+    },
+    "art-532-client-porting-check": {
+      "client_ref": "CLIENT-A1",
+      "backup_member_id": "BACKUP-MEMBER-77",
+      "backup_member_consent_status": "consented",
+      "default_event_at": "2026-08-04T09:00:00Z",
+      "evaluated_at": "2026-08-04T15:00:00Z",
+      "porting_window_hours": 48,
+      "positions": [
+        {
+          "position_id": "POS-1",
+          "product_type": "interest_rate_swap",
+          "currency": "USD",
+          "notional_minor_units": 5000000000,
+          "complete": true
+        },
+        {
+          "position_id": "POS-2",
+          "product_type": "repo",
+          "currency": "USD",
+          "notional_minor_units": 1200000000,
+          "complete": true
+        }
+      ],
+      "collateral": [
+        {
+          "collateral_id": "COLL-1",
+          "asset_type": "ust_bill",
+          "currency": "USD",
+          "amount_minor_units": 600000000,
+          "complete": true
+        }
+      ]
+    }
+  },
   "claim-dispute-bundle-assembly": {
     "art-306-agent-insurability-evidence-scorer": {
       "underwriter_profile": "aiuc",

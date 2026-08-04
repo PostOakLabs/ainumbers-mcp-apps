@@ -59,7 +59,8 @@
       "test_bifsg_bias_thresholds",
       "compute_ltv_ratios",
       "compute_rwa_erba_2026",
-      "check_securitization_risk_retention"
+      "check_securitization_risk_retention",
+      "compare_cross_ccp_pqd_fields"
     ],
     "emir": [
       "run_t1_readiness_diagnostic",
@@ -110,6 +111,7 @@
       "compute_cyber_incident_notification_clock",
       "compose_eval_attestation_receipt",
       "classify_t1_posttrade_timing",
+      "attest_margin_call_lifecycle",
       "verify_merkle_batch"
     ],
     "ai-act": [
