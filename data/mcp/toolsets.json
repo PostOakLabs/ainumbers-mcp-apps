@@ -77,7 +77,8 @@
       "validate_emir_lifecycle_event",
       "run_emir_reporting_fit",
       "adjudicate_emir_reconciliation",
-      "age_emir_reconciliation_breaks"
+      "age_emir_reconciliation_breaks",
+      "recompute_csdr_penalty"
     ],
     "anchors": [
       "build_agent_traffic_policy",
