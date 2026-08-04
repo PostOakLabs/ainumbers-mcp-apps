@@ -473,9 +473,16 @@ import * as art530    from './art-530-default-fund-cover2-sizing.kernel.mjs';
 import * as art531    from './art-531-member-margin-call-lifecycle.kernel.mjs';
 import * as art532    from './art-532-client-porting-check.kernel.mjs';
 import * as art533    from './art-533-mra-remediation-closure-register.kernel.mjs';
+import * as art534    from './art-534-aml-lookback-disposition-rollup.kernel.mjs';
+import * as art535    from './art-535-fdic370-output-file-validator.kernel.mjs';
+import * as art536    from './art-536-reg-w-affiliate-transaction-tester.kernel.mjs';
+import * as art537    from './art-537-qfc-recordkeeping-file-validator.kernel.mjs';
 import * as art54     from './art-54-digital-trade-rules-checker.kernel.mjs';
+import * as art544    from './art-544-slate-report-validator.kernel.mjs';
 import * as art549    from './art-549-g20-corridor-cost-gap.kernel.mjs';
 import * as art55     from './art-55-trade-document-provenance-verifier.kernel.mjs';
+import * as art550    from './art-550-reg-e-remittance-disclosure-check.kernel.mjs';
+import * as art551    from './art-551-mt101-coexistence-readiness-diff.kernel.mjs';
 import * as art56     from './art-56-tokenized-settlement-fit-diagnostic.kernel.mjs';
 import * as art57     from './art-57-deposit-token-compliance-validator.kernel.mjs';
 import * as art58     from './art-58-cross-network-settlement-validator.kernel.mjs';
@@ -1009,9 +1016,16 @@ export const KERNELS = {
   'art-531-member-margin-call-lifecycle':                     art531,
   'art-532-client-porting-check':                             art532,
   'art-533-mra-remediation-closure-register':                 art533,
+  'art-534-aml-lookback-disposition-rollup':                  art534,
+  'art-535-fdic370-output-file-validator':                    art535,
+  'art-536-reg-w-affiliate-transaction-tester':               art536,
+  'art-537-qfc-recordkeeping-file-validator':                 art537,
   'art-54-digital-trade-rules-checker':                       art54,
+  'art-544-slate-report-validator':                           art544,
   'art-549-g20-corridor-cost-gap':                            art549,
   'art-55-trade-document-provenance-verifier':                art55,
+  'art-550-reg-e-remittance-disclosure-check':                art550,
+  'art-551-mt101-coexistence-readiness-diff':                 art551,
   'art-56-tokenized-settlement-fit-diagnostic':               art56,
   'art-57-deposit-token-compliance-validator':                art57,
   'art-58-cross-network-settlement-validator':                art58,

@@ -1012,6 +1012,58 @@
       }
     }
   },
+  "aml-lookback-closure-cycle": {
+    "art-470-lookback-completeness-reconciler": {
+      "periods": [
+        {
+          "period_label": "2023-Q4",
+          "source_record_count": 500,
+          "extract_record_count": 500,
+          "dedup_record_count": 500,
+          "snapshot_available": true
+        },
+        {
+          "period_label": "2024-Q1",
+          "source_record_count": 620,
+          "extract_record_count": 620,
+          "dedup_record_count": 620,
+          "snapshot_available": true
+        }
+      ]
+    },
+    "art-471-disposition-sampling-frame": {
+      "confidence_level": 95,
+      "disposition_population_size": 1000,
+      "tolerable_deviation_rate": 5,
+      "expected_deviation_rate": 0,
+      "disposition_population_hash": "abc123",
+      "reviewer_roster": [
+        "reviewer_1"
+      ]
+    },
+    "art-534-aml-lookback-disposition-rollup": {
+      "lookback_id": "LB-2026-CONSENT-ORDER-7",
+      "lookback_close_date": "2026-06-30",
+      "as_of": "2026-07-15",
+      "population_size": 500,
+      "sample_frame_population_size": 500,
+      "sample_frame_size": 2,
+      "sampled_items": [
+        {
+          "customer_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "alert_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "disposition": "no_sar",
+          "rationale_reference": "REVIEW-NOTE-0001"
+        },
+        {
+          "customer_id": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "alert_id": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "disposition": "sar_filed",
+          "rationale_reference": "SAR-FILING-REF-9931"
+        }
+      ]
+    }
+  },
   "aml-lookback-cycle": {
     "art-470-lookback-completeness-reconciler": {
       "periods": [
@@ -5983,6 +6035,57 @@
       "year": 2026
     }
   },
+  "mra-consent-order-closure-cycle": {
+    "art-533-mra-remediation-closure-register": {
+      "register_id": "DEMO-MRA-2026Q2",
+      "evaluated_at": "2026-05-01T00:00:00Z",
+      "overdue_grace_days": 30,
+      "issue_id_commitment_scheme": "sha256-salted@1",
+      "issues": [
+        {
+          "issue_id": "sha256:6afb36ec72484939831daff6370395f9f4fe87bb0891ebe1dd644488acf8d738",
+          "commitment_text": "Remediate model-risk validation backlog per MRA Article 3.",
+          "committed_date": "2026-06-01T00:00:00Z",
+          "milestones": [
+            {
+              "milestone_id": "MS-1",
+              "description": "Independent validation of the top-10 models complete",
+              "required_evidence_type": "validation_report"
+            },
+            {
+              "milestone_id": "MS-2",
+              "description": "Remediation plan approved by model risk committee",
+              "required_evidence_type": "committee_minutes"
+            }
+          ]
+        }
+      ],
+      "remediation_status": [
+        {
+          "issue_id": "sha256:6afb36ec72484939831daff6370395f9f4fe87bb0891ebe1dd644488acf8d738",
+          "milestone_id": "MS-1",
+          "closed_at": "2026-04-01T00:00:00Z",
+          "evidence": [
+            {
+              "evidence_id": "EVID-001",
+              "evidence_type": "validation_report"
+            }
+          ]
+        },
+        {
+          "issue_id": "sha256:6afb36ec72484939831daff6370395f9f4fe87bb0891ebe1dd644488acf8d738",
+          "milestone_id": "MS-2",
+          "closed_at": "2026-04-15T00:00:00Z",
+          "evidence": [
+            {
+              "evidence_id": "EVID-002",
+              "evidence_type": "committee_minutes"
+            }
+          ]
+        }
+      ]
+    }
+  },
   "multilateral-netting-settlement": {
     "art-259-compute-multilateral-netting": {
       "base_currency": "USD",
@@ -6321,6 +6424,38 @@
       ]
     }
   },
+  "qfc-recordkeeping-cycle": {
+    "art-537-qfc-recordkeeping-file-validator": {
+      "as_of_date": "2026-06-30",
+      "institution_ref": "IDI-SYNTH-0001",
+      "file_records": [
+        {
+          "row_ref": "FR-1",
+          "position_id": "sha256-salted@1:aa11",
+          "counterparty_id": "sha256-salted@1:cc01",
+          "qfc_type": "interest_rate_swap",
+          "currency_code": "USD",
+          "notional_minor_units": 500000000,
+          "collateral_minor_units": 25000000
+        },
+        {
+          "row_ref": "FR-2",
+          "position_id": "sha256-salted@1:aa22",
+          "counterparty_id": "sha256-salted@1:cc02",
+          "qfc_type": "repurchase_agreement",
+          "currency_code": "USD",
+          "notional_minor_units": 200000000,
+          "collateral_minor_units": 21000000
+        }
+      ],
+      "control_totals": {
+        "position_count": 2,
+        "distinct_counterparty_count": 2,
+        "notional_minor_units": 700000000,
+        "collateral_minor_units": 46000000
+      }
+    }
+  },
   "rdarr-attestation-cycle": {
     "art-480-rdarr-aggregation-recompute": {
       "base_currency": "USD",
@@ -6453,6 +6588,33 @@
             "exposure_class": "retail",
             "currency": "USD"
           }
+        }
+      ]
+    }
+  },
+  "reg-w-23a-23b-testing-cycle": {
+    "art-536-reg-w-affiliate-transaction-tester": {
+      "policy_vintage": "12 CFR 223, eCFR as of 2026-01-01",
+      "capital_base": 10000000,
+      "single_affiliate_limit_pct": 10,
+      "aggregate_affiliate_limit_pct": 20,
+      "collateral_coverage_required_pct": 130,
+      "transactions": [
+        {
+          "affiliate_id": "affiliate-alpha-holdings",
+          "transaction_id": "txn-0001",
+          "transaction_type": "credit",
+          "amount": 300000,
+          "collateral_value": 400000,
+          "market_terms_substantially_same": true
+        },
+        {
+          "affiliate_id": "affiliate-alpha-holdings",
+          "transaction_id": "txn-0002",
+          "transaction_type": "other",
+          "amount": 200000,
+          "collateral_value": null,
+          "market_terms_substantially_same": true
         }
       ]
     }
