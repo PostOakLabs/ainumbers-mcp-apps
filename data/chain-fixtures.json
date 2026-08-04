@@ -548,6 +548,83 @@
       "include_citations": true
     }
   },
+  "agentic-payment-mandate-lint": {
+    "art-25-a2a-agent-card-validator": {
+      "agent_card": {
+        "name": "Test Agent",
+        "description": "A test payment agent",
+        "url": "https://agent.example.com",
+        "version": "1.0",
+        "protocolVersion": "1.0",
+        "capabilities": {
+          "streaming": false,
+          "pushNotifications": false,
+          "extensions": []
+        },
+        "defaultInputModes": [
+          "text/plain"
+        ],
+        "defaultOutputModes": [
+          "application/json"
+        ],
+        "skills": [
+          {
+            "id": "pay",
+            "name": "Payment",
+            "description": "Execute payments",
+            "tags": [
+              "payment"
+            ]
+          }
+        ]
+      }
+    },
+    "art-31-a2a-x402-extension-mandate-validator": {
+      "agent_card": {
+        "capabilities": {
+          "extensions": [
+            {
+              "uri": "https://ainumbers.co/x402/v1",
+              "params": {
+                "payment_authority": {
+                  "scope": [
+                    "payment"
+                  ],
+                  "max_amount": 1000,
+                  "asset": "USDC"
+                },
+                "settlement_rail": {
+                  "scheme": "exact",
+                  "network": "base-sepolia",
+                  "asset": "USDC"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "payment_payload": {
+        "scheme": "exact",
+        "network": "base-sepolia",
+        "maxAmountRequired": "500",
+        "resource": "https://api.example.com/pay",
+        "payTo": "0xabc123",
+        "asset": "USDC"
+      },
+      "mandate_cap": {
+        "max_amount": 1000,
+        "asset": "USDC"
+      }
+    },
+    "art-16-google-ap2-mandate-builder": {
+      "mandate_type": "checkout",
+      "stage": "open",
+      "agent_id": "did:web:agent.example.com",
+      "subject": "urn:user:demo-001",
+      "merchant": "merchant.example.com",
+      "amount": "3239 USD"
+    }
+  },
   "ai-content-disclosure-conformance": {
     "art-126-ai-act-art50-marking-checker": {
       "actions": [
@@ -6976,6 +7053,72 @@
       "fx_rate_used": 17.03,
       "fx_rate_mid": 17.2,
       "service_name": "SDG-3pct-exact"
+    }
+  },
+  "stablecoin-reserve-scorecard": {
+    "art-280-reserve-proof-verifier": {},
+    "art-512-check-mica-reserve-disclosure": {
+      "issuer_id": "ISSUER-DEMO-01",
+      "disclosure_ref": "RESERVE-DISCLOSURE-2026-06",
+      "rules_version": "reader-rules-1.0",
+      "as_of": "2026-06-30",
+      "token_type": "EMT",
+      "tokens_in_circulation": "500000000",
+      "reserve_components": [
+        {
+          "component_id": "C1",
+          "asset_class": "bank_deposit",
+          "amount": "205000000",
+          "custodian_type": "credit_institution",
+          "segregated": true
+        },
+        {
+          "component_id": "C2",
+          "asset_class": "sovereign_bill",
+          "amount": "200000000",
+          "custodian_type": "credit_institution",
+          "segregated": false
+        },
+        {
+          "component_id": "C3",
+          "asset_class": "reverse_repo",
+          "amount": "107500000",
+          "custodian_type": "investment_firm",
+          "segregated": false
+        }
+      ],
+      "declared_rules": {
+        "eligible_asset_classes": [
+          "bank_deposit",
+          "sovereign_bill",
+          "reverse_repo"
+        ],
+        "concentration_limits": {
+          "bank_deposit": "60",
+          "sovereign_bill": "60",
+          "reverse_repo": "30"
+        },
+        "acceptable_custodian_types": [
+          "credit_institution",
+          "investment_firm",
+          "casp"
+        ],
+        "cadence_days": 31
+      },
+      "disclosure_dates": [
+        "2026-01-31",
+        "2026-02-28",
+        "2026-03-31",
+        "2026-04-30",
+        "2026-05-31",
+        "2026-06-30"
+      ],
+      "window_start": "2026-01-01",
+      "window_end": "2026-06-30",
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
     }
   },
   "state-proof-verification": {
