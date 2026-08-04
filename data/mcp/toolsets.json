@@ -34,6 +34,8 @@
       "build_conditional_relief_collateral_receipt",
       "build_allocation_decision_receipt",
       "verify_settlement_asset_backing",
+      "compute_custody_segregation_ratio",
+      "compute_por_liabilities_composite",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -113,6 +115,7 @@
       "classify_t1_posttrade_timing",
       "classify_ledger_consensus_finality",
       "attest_margin_call_lifecycle",
+      "compute_asset_liability_coverage",
       "verify_merkle_batch"
     ],
     "ai-act": [

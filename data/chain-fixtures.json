@@ -4114,6 +4114,96 @@
       "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   },
+  "exchange-assurance-pack": {
+    "art-538-custody-segregation-ratio": {
+      "segregated_assets": [
+        {
+          "asset_class": "cash",
+          "custody_location_type": "qualified_custodian_bank",
+          "amount_musd": 60
+        },
+        {
+          "asset_class": "securities",
+          "custody_location_type": "qualified_custodian_bank",
+          "amount_musd": 30
+        },
+        {
+          "asset_class": "BTC",
+          "custody_location_type": "cold_storage_multisig",
+          "amount_musd": 25
+        }
+      ],
+      "customer_claims": [
+        {
+          "asset_class": "cash",
+          "amount_musd": 50
+        },
+        {
+          "asset_class": "securities",
+          "amount_musd": 30
+        },
+        {
+          "asset_class": "BTC",
+          "amount_musd": 20
+        }
+      ],
+      "over_segregation_ceiling": null
+    },
+    "art-539-asset-liability-coverage": {
+      "assets": [
+        {
+          "asset_class": "cash",
+          "amount_musd": 60
+        },
+        {
+          "asset_class": "securities",
+          "amount_musd": 30
+        },
+        {
+          "asset_class": "digital_assets",
+          "amount_musd": 25
+        }
+      ],
+      "liabilities": [
+        {
+          "liability_class": "payables",
+          "amount_musd": 40
+        },
+        {
+          "liability_class": "accrued_liabilities",
+          "amount_musd": 20
+        }
+      ]
+    },
+    "art-540-por-liabilities-composer": {
+      "por_input": {
+        "inclusion_verified": true,
+        "computed_root": {
+          "sum": 120
+        }
+      },
+      "reported_total_liabilities_musd": 100,
+      "liabilities_attestation_source": "issuer_attested_balance_sheet"
+    },
+    "art-541-best-execution-recompute": {
+      "fills": [
+        {
+          "side": "buy",
+          "execution_price": 10.02,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 100
+        },
+        {
+          "side": "sell",
+          "execution_price": 10.03,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 200
+        }
+      ]
+    }
+  },
   "export-control-circumvention": {
     "art-94-eccn-dual-use-classifier": {},
     "art-95-circumvention-diligence-assessor": {},

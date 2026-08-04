@@ -1140,6 +1140,130 @@
       }
     }
   },
+  "compute_custody_segregation_ratio": {
+    "type": "object",
+    "properties": {
+      "line_items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "asset_class": {
+              "type": "string"
+            },
+            "segregated_custody_assets_musd": {
+              "type": "number"
+            },
+            "customer_claims_musd": {
+              "type": "number"
+            },
+            "segregation_ratio": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "total_segregated_musd": {
+        "type": "number"
+      },
+      "total_claims_musd": {
+        "type": "number"
+      },
+      "segregation_ratio": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "status": {
+        "type": "string"
+      },
+      "over_segregation_ceiling": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "custody_location_breakdown": {
+        "type": "object"
+      },
+      "formula": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
+  "compute_por_liabilities_composite": {
+    "type": "object",
+    "properties": {
+      "composite_determination": {
+        "type": "string"
+      },
+      "reserve_to_liability_ratio": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "inclusion_verified": {
+        "type": "boolean"
+      },
+      "computed_root": {
+        "type": "object",
+        "properties": {
+          "sum": {
+            "type": "number"
+          }
+        }
+      },
+      "reported_total_liabilities_musd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "liabilities_attestation_source": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "por_input_supplied": {
+        "type": "boolean"
+      },
+      "not_proven": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "formula": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      },
+      "regulatory_framework": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
