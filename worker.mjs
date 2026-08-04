@@ -2121,9 +2121,19 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
               } };
             }
             // §18 compute_proof — attach iff the receipt is about THIS exact output (hash-excluded). Mirror Mode 4.
-            if (node.compute_proof && node.compute_proof.journal
-                && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
-              artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+            // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
+            // literal (PROOFREADY-WORKER-DERIVE-1) -- the kernel literal cannot know whether a proof will
+            // actually attach for a given input's output_payload. A node with no compute_proof at all keeps
+            // whatever the kernel emitted (the genuinely-unprovable bucket; not this row's concern).
+            if (node.compute_proof && node.compute_proof.journal) {
+              if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+                artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+                artifact.compute_proof_ready = 'ready';
+                delete artifact.deferred_reason;
+              } else {
+                artifact.compute_proof_ready = 'deferred';
+                artifact.deferred_reason = 'a compute_proof exists for this kernel but its journal.output does not match this input\'s output_payload -- the receipt attests a different output';
+              }
             }
             results[idx] = { order: idx + 1, tool_id: tid, status: 'ok', inputs_source, mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact };
             prevHash = artifact.execution_hash; prevId = tid;
@@ -2604,9 +2614,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
           // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
           // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
-          if (node.compute_proof && node.compute_proof.journal
-              && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
-            artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+          // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
+          // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
+          if (node.compute_proof && node.compute_proof.journal) {
+            if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+              artifact.compute_proof_ready = 'ready';
+              delete artifact.deferred_reason;
+            } else {
+              artifact.compute_proof_ready = 'deferred';
+              artifact.deferred_reason = 'a compute_proof exists for this kernel but its journal.output does not match this input\'s output_payload -- the receipt attests a different output';
+            }
           }
           const out = {
             mode: 'server_compute',
@@ -4254,9 +4272,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
             // §18 — attach the node's offline compute-integrity receipt iff it is ABOUT this exact output
             // (journal.output JCS-equals the produced output_payload). Hash-excluded; never alters the
             // execution_hash. A mismatching input gets no proof (the receipt proves one specific output).
-            if (node.compute_proof && node.compute_proof.journal
-                && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
-              artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+            // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
+            // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
+            if (node.compute_proof && node.compute_proof.journal) {
+              if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+                artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
+                artifact.compute_proof_ready = 'ready';
+                delete artifact.deferred_reason;
+              } else {
+                artifact.compute_proof_ready = 'deferred';
+                artifact.deferred_reason = 'a compute_proof exists for this kernel but its journal.output does not match this input\'s output_payload -- the receipt attests a different output';
+              }
             }
             return {
               content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
