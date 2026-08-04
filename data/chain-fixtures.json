@@ -2627,6 +2627,22 @@
       "beneficiary_account": "GB82WEST12345698765432"
     }
   },
+  "ccp-margin-monitor": {
+    "art-528-cross-ccp-pqd-comparator": {
+      "entity_a": {
+        "ccp": "FICC",
+        "division": "GSD"
+      },
+      "entity_b": {
+        "ccp": "FICC",
+        "division": "NSCC"
+      },
+      "fields": [
+        "backtest_coverage_pct",
+        "largest_deficiency_usd"
+      ]
+    }
+  },
   "cecl-allowance-quarterly": {
     "art-426-cecl-ecl-calculator": {
       "method": "warm",

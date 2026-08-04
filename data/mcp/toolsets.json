@@ -62,7 +62,8 @@
       "compute_ltv_ratios",
       "compute_rwa_erba_2026",
       "check_securitization_risk_retention",
-      "compare_cross_ccp_pqd_fields"
+      "compare_cross_ccp_pqd_fields",
+      "check_reg_e_remittance_disclosure"
     ],
     "emir": [
       "run_t1_readiness_diagnostic",
