@@ -27,6 +27,57 @@ export function metaBlock(artifact = {}) {
   };
 }
 
+// §6 CB-5 — pinning level per CLAUSE-BINDING-BUILD-SPEC.md §1.3. A bare string (legacy §1.1
+// form) is always L0/unpinned; the §1.2 object needs scheme+id to count at all, +path for L2,
+// +in_force_from on top of path for L3. A year alone is never a date (spec §1.3 warning).
+function pinLevel(c) {
+  if (!c || typeof c !== 'object') return 'L0';
+  if (!c.scheme || !c.id) return 'L0';
+  if (!c.path) return 'L1';
+  return c.in_force_from ? 'L3' : 'L2';
+}
+
+function pullCitations(container) {
+  const out = [];
+  const rc = container?.regulatory_citations;
+  if (Array.isArray(rc)) out.push(...rc);
+  const rb = container?.regulatory_basis;
+  if (typeof rb === 'string' && rb) out.push(rb);
+  else if (Array.isArray(rb)) out.push(...rb.filter((x) => typeof x === 'string' && x));
+  return out;
+}
+
+/**
+ * §6 CB-5 (CLAUSE-BINDING-BUILD-SPEC.md) — terse, structured rendering of the §1.2 citation
+ * binding, agent-facing. POST-HASH ONLY: reads `regulatory_citations`/`regulatory_basis` already
+ * inside `output_payload`/`policy_parameters` (§1.4 preimage) as shipped on the signed artifact —
+ * never re-derives execution_hash, never mutates the artifact. A view, not a fact (OCG §13).
+ */
+export function citationBinding(artifact = {}) {
+  const raw = [...pullCitations(artifact?.output_payload), ...pullCitations(artifact?.policy_parameters)];
+  const citations = raw.map((c) =>
+    typeof c === 'string'
+      ? { pinned: false, level: 'L0', text: c }
+      : {
+          pinned: true,
+          level: pinLevel(c),
+          scheme: c?.scheme ?? null,
+          id: c?.id ?? null,
+          path: c?.path ?? null,
+          in_force_from: c?.in_force_from ?? null,
+          jurisdiction: c?.jurisdiction ?? null,
+          superseded_by: c?.superseded_by ?? null,
+        }
+  );
+  return {
+    count: citations.length,
+    citations,
+    note: citations.length
+      ? 'Read from the signed artifact preimage (CLAUSE-BINDING-BUILD-SPEC.md §1.4) — not independently signed on its own; verify the artifact JSON at metadata.verify_url.'
+      : 'No regulatory_citations/regulatory_basis present on this artifact.',
+  };
+}
+
 /** <tool_id>-<short_hash>.<ext> — short_hash = first 8 hex chars of execution_hash. */
 export function exportFilename(artifact = {}, ext) {
   const tid = (artifact?.tool_id ?? 'artifact').toString().replace(/[^a-z0-9._-]/gi, '_');
