@@ -39886,7 +39886,7 @@
         "mcp_name": "simulate_agent_spend_policy",
         "display_name": "Agentic Mandate Sandbox",
         "url": "https://ainumbers.co/chaingraph/art-15-agentic-mandate-sandbox.html",
-        "wave": "ORPHANNODE-ONBOARD-2",
+        "wave": "A",
         "mandate_type": "agent_guardrail_mandate",
         "gpu": false
       },
@@ -39895,7 +39895,7 @@
         "mcp_name": "draft_ap2_mandate_credential",
         "display_name": "Google AP2 Mandate Builder",
         "url": "https://ainumbers.co/chaingraph/art-16-google-ap2-mandate-builder.html",
-        "wave": "ORPHANNODE-ONBOARD-2",
+        "wave": "A",
         "mandate_type": "payment_policy",
         "gpu": false
       },
@@ -39904,7 +39904,7 @@
         "mcp_name": "validate_ap2_mandate_credential",
         "display_name": "AP2/MCP Policy Validator",
         "url": "https://ainumbers.co/chaingraph/art-17-ap2-mcp-policy-validator.html",
-        "wave": "ORPHANNODE-ONBOARD-2",
+        "wave": "A",
         "mandate_type": "scheme_rule",
         "gpu": false
       },
@@ -39913,7 +39913,7 @@
         "mcp_name": "score_mcp_server_readiness",
         "display_name": "MCP Developer Readiness Scorecard",
         "url": "https://ainumbers.co/chaingraph/art-18-mcp-developer-readiness-scorecard.html",
-        "wave": "ORPHANNODE-ONBOARD-2",
+        "wave": "A",
         "mandate_type": "compliance_control",
         "gpu": false
       },
