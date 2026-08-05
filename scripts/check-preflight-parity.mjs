@@ -23,12 +23,25 @@ const PREFLIGHT = resolve(ROOT, "scripts/preflight.mjs");
 // can't run on a developer's machine before a push. Keep this list tight — every
 // entry is a hole in "green preflight ⇒ green CI", so only add ones that are
 // physically impossible locally (need a live deployed worker or the cloud env).
+// `date` = when the entry was added/last re-verified; entries older than
+// STALE_DAYS print a warning so a "physically impossible" claim gets re-checked
+// instead of aging silently (run-chain-corpus.mjs sat here for months allowlisted
+// on a FALSE reason — see PREPUSH-GAP-1 / memory project-ainumbers-prepush-gap-2026-08-04).
+const STALE_DAYS = 90;
 const CI_ONLY = new Map([
-  ["run-chain-corpus.mjs", "integration corpus — runs in the post-build job, not the static Validate gates"],
-  ["smoke-mcp.mjs", "post-deploy smoke — needs the live deployed /mcp endpoint"],
-  ["hash-sweep.mjs", "post-deploy — sweeps the live worker"],
-  ["verify-mcp-registered.mjs", "post-deploy — checks the live MCP registry"],
+  ["smoke-mcp.mjs", { reason: "post-deploy smoke — needs the live deployed /mcp endpoint", date: "2026-08-05" }],
+  ["hash-sweep.mjs", { reason: "post-deploy — sweeps the live worker", date: "2026-08-05" }],
+  ["verify-mcp-registered.mjs", { reason: "post-deploy — checks the live MCP registry", date: "2026-08-05" }],
 ]);
+
+function warnStaleEntries(now) {
+  for (const [name, { date }] of CI_ONLY) {
+    const ageDays = (now - new Date(date + "T00:00:00Z").getTime()) / 86_400_000;
+    if (ageDays > STALE_DAYS) {
+      console.warn(`⚠ CI_ONLY["${name}"] is ${Math.floor(ageDays)}d old (>${STALE_DAYS}d) — re-verify it's still physically impossible to run pre-push before trusting it.`);
+    }
+  }
+}
 
 function scriptBasenames(text) {
   const out = new Set();
@@ -49,6 +62,8 @@ function ciGates(text) {
 }
 
 function main() {
+  warnStaleEntries(Date.now());
+
   const ci = ciGates(readFileSync(CI, "utf8"));
   const pre = scriptBasenames(readFileSync(PREFLIGHT, "utf8"));
 
