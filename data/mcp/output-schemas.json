@@ -1264,6 +1264,75 @@
       }
     }
   },
+  "attest_calc_agent_independence": {
+    "type": "object",
+    "properties": {
+      "calc_agent_id": {
+        "type": "string"
+      },
+      "interested_parties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "party_role": {
+              "type": "string"
+            },
+            "party_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "label": {
+              "type": "string"
+            },
+            "party_id_commitment_scheme": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "relationship_declaration": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "disclosure_note": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "trigger_ref": {
+        "type": "object",
+        "properties": {
+          "execution_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tool_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "independence_asserted": {
+        "type": "boolean"
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}

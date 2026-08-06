@@ -10,7 +10,7 @@ import { buildCsv } from './csv.mjs';
 import { buildPdf } from './pdf.mjs';
 import { buildXbrl } from './xbrl.mjs';
 import { buildVc } from './vc.mjs';
-import { metaBlock, bytesToBase64, citationBinding } from './_meta.mjs';
+import { metaBlock, bytesToBase64 } from './_meta.mjs';
 
 // All five formats implemented. xbrl takes a second arg (the taxonomy) and may
 // throw for an unknown/pending taxonomy — the dispatcher catches it. vc (W3C
@@ -79,10 +79,6 @@ export function exportArtifact({ artifact, format, xbrl_taxonomy, isFormatAllowe
     media_type: built.media_type,
     bytes_base64: bytesToBase64(built.bytes),
     metadata: metaBlock(artifact),
-    // §6 CB-5 — terse, structured §1.2 citation binding, inline in the MCP tool result.
-    // Post-hash rendering only (exporters/_meta.mjs citationBinding()); never touches
-    // policy_parameters/output_payload, so it cannot move execution_hash.
-    citation_binding: citationBinding(artifact),
   };
 }
 
@@ -104,10 +100,7 @@ export function registerExportArtifact(server, z, opts = {}) {
       'xbrl (xbrl_taxonomy="ocg-ext" works now; eba-corep-* return a pending error until their ' +
       'concept maps are populated from the published EBA taxonomy), and vc — a W3C Verifiable Credentials 2.0 ' +
       'rendering (OCG §13.11, application/vc+json) available on every node; it re-states the canonical ' +
-      'execution_hash via ocg:hashAnchor and mints no new hash/proof. Every result also carries ' +
-      'citation_binding (CLAUSE-BINDING-BUILD-SPEC.md §6 CB-5): a terse, structured read of the §1.2 ' +
-      'regulatory_citations/regulatory_basis already inside the signed preimage — post-hash rendering ' +
-      'only, mints nothing. readOnlyHint: true; zero PII, zero payload logging.',
+      'execution_hash via ocg:hashAnchor and mints no new hash/proof. readOnlyHint: true; zero PII, zero payload logging.',
     inputSchema: {
       artifact: z.record(z.any()).describe('Full v0.4 ChainGraph artifact (policy_parameters + output_payload + execution_hash + chain).'),
       format: z.enum(['xlsx', 'csv', 'pdf', 'xbrl', 'vc']).describe('Export profile. xlsx/csv/pdf/xbrl/vc implemented; vc = W3C Verifiable Credentials 2.0 (base profile, all nodes).'),
@@ -125,9 +118,6 @@ export function registerExportArtifact(server, z, opts = {}) {
       media_type: res.media_type,
       bytes: Math.ceil((res.bytes_base64.length * 3) / 4),
       metadata: res.metadata,
-      // §6 CB-5 (CLAUSE-BINDING-BUILD-SPEC.md) — terse §1.2 citation binding, inline here so an
-      // agent reading the tool result sees governing authority without a second call.
-      citation_binding: res.citation_binding,
       note: 'Generated view of a verified artifact (OCG §13). Not independently verifiable — verify the JSON artifact at metadata.verify_url.',
     };
     return {
@@ -142,7 +132,6 @@ export function registerExportArtifact(server, z, opts = {}) {
         media_type: res.media_type,
         bytes_base64: res.bytes_base64,
         metadata: res.metadata,
-        citation_binding: res.citation_binding,
       },
     };
   });
