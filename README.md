@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/PostOakLabs/ainumbers-mcp-apps/actions/workflows/ci.yml/badge.svg)](https://github.com/PostOakLabs/ainumbers-mcp-apps/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MCP Queen operational grade](https://mcpqueen.com/badge/co.ainumbers/tools.svg)](https://mcpqueen.com/s/co.ainumbers/tools)
 
 An agent calling a fintech tool by name has no way to know if the tool actually ran the math it claims to have run. This server closes that gap for the AINumbers.co suite: every tool call is deterministic, zero PII, and served straight from the suite's own single-file HTML, not a paraphrase of it.
 
