@@ -92,6 +92,12 @@ Branch, then PR. CI runs the `validate` job: tool-name collisions, surface-parit
 
 Dependabot auto-merges every dependency update (patch, minor, and major, all CI-gated), so run `git pull --rebase` before pushing any local branch since `master` moves on its own.
 
+## Independent monitoring
+
+[![MCP Queen grade](https://mcpqueen.com/badge/co.ainumbers/tools.svg)](https://mcpqueen.com/s/co.ainumbers/tools)
+
+[MCP Queen](https://mcpqueen.com) is a third-party operational probe: it continuously re-checks the live `/mcp` endpoint's protocol handshake and tool-schema responses and grades what it observes. This is not a security or compliance attestation, ours or theirs — it describes observable server behavior only.
+
 ## Develop
 
 ```bash
