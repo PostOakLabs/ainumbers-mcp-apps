@@ -1333,6 +1333,159 @@
       }
     }
   },
+  "check_iolta_three_way_reconciliation": {
+    "type": "object",
+    "properties": {
+      "decision": {
+        "type": "object",
+        "properties": {
+          "gate_policy": {
+            "type": "string"
+          },
+          "execution_state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "verdict": {
+        "type": "string"
+      },
+      "statement_period": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        }
+      },
+      "reconciliation_tolerance_minor": {
+        "type": "integer"
+      },
+      "three_way": {
+        "type": "object",
+        "properties": {
+          "bank_ending_balance_minor": {
+            "type": "integer"
+          },
+          "deposits_in_transit_total_minor": {
+            "type": "integer"
+          },
+          "uncleared_checks_total_minor": {
+            "type": "integer"
+          },
+          "adjusted_bank_balance_minor": {
+            "type": "integer"
+          },
+          "trust_ledger_ending_balance_minor": {
+            "type": "integer"
+          },
+          "client_ledger_total_minor": {
+            "type": "integer"
+          },
+          "bank_vs_trust_minor": {
+            "type": "integer"
+          },
+          "trust_vs_clients_minor": {
+            "type": "integer"
+          },
+          "bank_vs_clients_minor": {
+            "type": "integer"
+          },
+          "equality_holds": {
+            "type": "boolean"
+          }
+        }
+      },
+      "client_count": {
+        "type": "integer"
+      },
+      "client_ledgers": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "client_id": {
+              "type": "string"
+            },
+            "ending_balance_minor": {
+              "type": "integer"
+            },
+            "as_of": {
+              "type": "string"
+            },
+            "opening_balance_minor": {
+              "type": "integer"
+            },
+            "low_point_minor": {
+              "type": "integer"
+            },
+            "low_point_date": {
+              "type": "string"
+            },
+            "entry_count": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "negative_balance_findings": {
+        "type": "array"
+      },
+      "outstanding_items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            },
+            "amount_minor": {
+              "type": "integer"
+            },
+            "description": {
+              "type": "string"
+            },
+            "age_days": {
+              "type": "integer"
+            },
+            "age_bucket": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "outstanding_summary": {
+        "type": "object"
+      },
+      "period_boundary_consistent": {
+        "type": "boolean"
+      },
+      "period_boundary_mismatches": {
+        "type": "array"
+      },
+      "findings": {
+        "type": "array"
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "clause_note": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
