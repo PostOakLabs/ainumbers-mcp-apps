@@ -36,6 +36,7 @@
       "verify_settlement_asset_backing",
       "compute_custody_segregation_ratio",
       "compute_por_liabilities_composite",
+      "compute_note_h_margin_debit",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -79,7 +80,9 @@
       "run_emir_reporting_fit",
       "adjudicate_emir_reconciliation",
       "age_emir_reconciliation_breaks",
-      "recompute_csdr_penalty"
+      "recompute_csdr_penalty",
+      "classify_emir3_active_account_status",
+      "classify_emir3_simm_approval_scope"
     ],
     "anchors": [
       "build_agent_traffic_policy",
@@ -119,6 +122,7 @@
       "attest_margin_call_lifecycle",
       "compute_asset_liability_coverage",
       "verify_kya_x402_scope",
+      "classify_emir3_active_account_status",
       "verify_merkle_batch"
     ],
     "ai-act": [
