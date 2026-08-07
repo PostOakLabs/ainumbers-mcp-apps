@@ -37,6 +37,8 @@
       "compute_custody_segregation_ratio",
       "compute_por_liabilities_composite",
       "compute_note_h_margin_debit",
+      "check_genius_reserve_disclosure_conformance",
+      "verify_proof_of_reserves_consistency",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [

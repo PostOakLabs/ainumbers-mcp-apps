@@ -1486,6 +1486,92 @@
       }
     }
   },
+  "verify_proof_of_reserves_consistency": {
+    "type": "object",
+    "properties": {
+      "overall_determination": {
+        "type": "string",
+        "enum": [
+          "CONSISTENT",
+          "INCONSISTENT",
+          "INDETERMINATE"
+        ]
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "check": {
+              "type": "string"
+            },
+            "verdict": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "computed_reserve_root": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "declared_reserve_root": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "computed_liability_root": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "declared_liability_root": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "coverage_ratio_pct": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "reserve_figure_cross_check": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "not_proven": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "string"
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "determination_note": {
+        "type": "string"
+      },
+      "regulatory_framework": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
