@@ -6154,6 +6154,32 @@
       "outcome_status": "pass"
     }
   },
+  "model-risk-lineage-pack": {
+    "art-562-compile-model-risk-lineage-pack": {
+      "model_id": "MODEL-CREDIT-PD-01",
+      "as_of_date": "2026-08-05",
+      "inventory_ref": {
+        "execution_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "tool_id": "art-450-model-inventory-entry"
+      },
+      "outcome_ref": {
+        "execution_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "tool_id": "art-451-model-outcome-analysis"
+      },
+      "validation_status_ref": {
+        "execution_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "tool_id": "art-453-model-validation-status"
+      },
+      "replication_ref": {
+        "execution_hash": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "tool_id": "art-488-model-replication-diff"
+      },
+      "test_battery_ref": {
+        "execution_hash": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "tool_id": "art-489-model-test-battery"
+      }
+    }
+  },
   "model-validation-cycle": {
     "art-488-model-replication-diff": {
       "model_spec": {
