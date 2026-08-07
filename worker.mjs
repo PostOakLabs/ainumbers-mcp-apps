@@ -5102,7 +5102,10 @@ export default {
           ctx.waitUntil(Promise.resolve().then(() => {
             try {
               env.ANALYTICS.writeDataPoint({
-                blobs:   [toolName, callerHash, success ? 'ok' : 'error'],
+                // 4th blob = worker identity, matching apexlogics-mcp/ocs-mcp's
+                // existing self-tag shape (MCPATTRIB-1) -- lets the shared
+                // Analytics Engine dataset be split back out per worker.
+                blobs:   [toolName, callerHash, success ? 'ok' : 'error', 'ainumbers-mcp'],
                 doubles: [latencyMs, chainDepth ?? 0],
                 indexes: [toolName],
               });
