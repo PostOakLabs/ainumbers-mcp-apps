@@ -118,6 +118,7 @@
       "classify_ledger_consensus_finality",
       "attest_margin_call_lifecycle",
       "compute_asset_liability_coverage",
+      "verify_kya_x402_scope",
       "verify_merkle_batch"
     ],
     "ai-act": [

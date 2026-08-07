@@ -704,6 +704,112 @@
       "include_citations": true
     }
   },
+  "agentic-commerce-convergence": {
+    "art-564-ucp-checkout-payload-lint": {
+      "payload": {
+        "ucp": {
+          "version": "2026-04-08"
+        },
+        "id": "checkout_abc123",
+        "status": "ready_for_complete",
+        "currency": "USD",
+        "line_items": [
+          {
+            "id": "li_1",
+            "item": {
+              "id": "sku_1",
+              "name": "Widget"
+            },
+            "quantity": 2,
+            "totals": [
+              {
+                "type": "subtotal",
+                "amount": 4000
+              },
+              {
+                "type": "total",
+                "amount": 4000
+              }
+            ]
+          }
+        ],
+        "totals": [
+          {
+            "type": "subtotal",
+            "amount": 4000
+          },
+          {
+            "type": "tax",
+            "amount": 320,
+            "display_text": "Sales tax"
+          },
+          {
+            "type": "total",
+            "amount": 4320
+          }
+        ],
+        "links": [
+          {
+            "url": "https://merchant.example/tos",
+            "type": "terms_of_service"
+          }
+        ]
+      }
+    },
+    "art-12-acp-checkout-conformance-validator": {
+      "message_type_override": "auto",
+      "payload": {
+        "message_type": "CheckoutRequest",
+        "request_id": "req-abc-001",
+        "merchant_id": "merchant-acme",
+        "agent_id": "agent:acme:shopping-bot:v2",
+        "amount": 49.99,
+        "currency": "USD",
+        "items": [
+          {
+            "sku": "WIDGET-001",
+            "unit_price": 24.99,
+            "quantity": 2
+          }
+        ],
+        "timestamp": "2026-06-19T10:00:00.000Z",
+        "redirect_url": "https://acme.com/checkout/confirm",
+        "signature": "ed25519:MEYCIQDexampleSignatureHere",
+        "idempotency_key": "idem-abc-001"
+      }
+    },
+    "art-01-ap2-mandate-chain-validator": {
+      "validate_at": "2026-06-19T12:00:00.000Z",
+      "hnp_mode": "strict",
+      "intent": {
+        "mandate_type": "intent",
+        "mandate_id": "intent-001-acme",
+        "issued_at": "2026-06-19T11:00:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "human_not_present": false,
+        "scope": {
+          "merchant_ids": [
+            "merch-acme-42"
+          ],
+          "currency": "USD",
+          "max_amount": 500
+        }
+      },
+      "payment": {
+        "mandate_type": "payment",
+        "mandate_id": "pay-001-acme",
+        "parent_mandate_id": "intent-001-acme",
+        "parent_hash": "a3f1c2d4e5b6a7f8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+        "issued_at": "2026-06-19T11:05:00.000Z",
+        "expires_at": "2026-06-19T13:00:00.000Z",
+        "merchant_id": "merch-acme-42",
+        "currency": "USD",
+        "amount": 249.99,
+        "payment_method": "card",
+        "human_not_present": false
+      }
+    }
+  },
   "agentic-payment-mandate-lint": {
     "art-25-a2a-agent-card-validator": {
       "agent_card": {
