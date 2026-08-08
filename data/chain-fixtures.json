@@ -2174,6 +2174,92 @@
       "business_indicator": 800000
     }
   },
+  "beacon-sampled-audit-testing": {
+    "art-583-beacon-seeded-fair-sampling-deriver": {
+      "beacon_source": "drand_quicknet",
+      "beacon_round": "4321000",
+      "beacon_randomness": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85",
+      "item_manifest_hash": "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "item_count": 250,
+      "sample_size": 10,
+      "algorithm_id": "hmac-drbg-sha256-v1"
+    },
+    "art-574-certified-payroll-prevailing-wage-recompute": {
+      "project_ref": "SYNTH-PROJ-574-A",
+      "week_ending_label": "2026-08-01 payroll week",
+      "currency": "USD",
+      "pwa_mode": true,
+      "wage_determination": [
+        {
+          "classification": "Electrician",
+          "base_rate_minor_units": 4200,
+          "fringe_rate_minor_units": 1100
+        }
+      ],
+      "payroll_rows": [
+        {
+          "worker_id": "W-1",
+          "classification": "Electrician",
+          "st_hours": 40,
+          "ot_hours": 4,
+          "rate_paid_minor_units": 4200,
+          "fringe_paid_minor_units": 1100
+        }
+      ],
+      "submitted_payroll": [
+        {
+          "worker_id": "W-1",
+          "gross_minor_units": 241600
+        }
+      ]
+    },
+    "art-572-multi-garnishment-stacking-recompute": {
+      "employee_ref": "SYNTH-EMP-001",
+      "period_label": "2026-01-15 biweekly pay period",
+      "currency": "USD",
+      "gross_minor_units": 100000,
+      "legally_required_deductions": [
+        {
+          "label": "Federal income tax withholding",
+          "amount_minor_units": 15000
+        },
+        {
+          "label": "FICA",
+          "amount_minor_units": 7650
+        },
+        {
+          "label": "State income tax withholding",
+          "amount_minor_units": 4000
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "ord-1",
+          "label": "Child support order, county court",
+          "type": "child_support",
+          "arrears_over_12wk": false,
+          "second_family": false,
+          "claimed_amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "label": "Creditor garnishment",
+          "type": "creditor",
+          "claimed_amount_minor_units": 30000
+        }
+      ],
+      "noticed_amounts": [
+        {
+          "order_id": "ord-1",
+          "amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "amount_minor_units": 0
+        }
+      ]
+    }
+  },
   "benefits-nondiscrimination-composer": {
     "art-301-section125-ndt": {
       "nhce_eligible_count": 180,
@@ -2463,6 +2549,73 @@
         "boundary_note": "Capital component and RWA values are caller-declared; this kernel performs only ratio arithmetic and threshold comparison against caller-declared, version-pinned minimums. It does not calculate risk weights, classify exposures, or derive GSIB status.",
         "mdrm_note": "Schedule RC-R MDRM item prefixes vary by advanced vs. standardized approach and reporting vintage; capital-component field names here mirror the FDIC BankFind Suite mnemonics (RBCT1J tier1, RBCT2 tier2, RWAJT total RWA), which the FDIC itself derives from filed Call Report Schedule RC-R submissions."
       }
+    }
+  },
+  "camt053-parallel-run-recon-pack": {
+    "art-563-mt9xx-camt-statement-migration-mapper": {
+      "message_text": ":20:STMT2026080601\n:25:DE89370400440532013000\n:28C:5/1\n:60F:C260801USD100000,00\n:61:2608020802D1500,00NTRFREF12345//BANKREF01\n:86:Payment to vendor ABC invoice 1234\n:61:2608030803C5000,00NTRFREF67890//BANKREF02\n:86:Incoming wire from customer XYZ\n:62F:C260803USD103500,00\n",
+      "declared_mt_type": "940"
+    },
+    "art-258-parse-camt053-reconciliation": {
+      "opening_balance": 10000,
+      "closing_balance": 10500,
+      "day_count_convention": "ACT/360",
+      "transactions": [
+        {
+          "amount": 2000,
+          "credit_debit_indicator": "CRDT",
+          "bk_tx_cd": {
+            "domain": "PMNT",
+            "family": "RCDT"
+          },
+          "remittance_info": {
+            "structured": true,
+            "end_to_end_id": "E2E-001"
+          }
+        },
+        {
+          "amount": 1500,
+          "credit_debit_indicator": "DBIT",
+          "bk_tx_cd": {
+            "domain": "PMNT",
+            "family": "ICDT"
+          },
+          "remittance_info": {
+            "structured": true,
+            "end_to_end_id": "E2E-002"
+          }
+        }
+      ]
+    },
+    "art-519-payment-data-migration-completeness": {
+      "migration_id": "MIGR-2026-CASEDOCS-01",
+      "as_of": "2026-07-31",
+      "currency": "PAGES",
+      "reconciliation_tolerance_minor_units": 0,
+      "partitions": [
+        {
+          "partition_label": "CONTRACTS",
+          "source_record_count": 4000,
+          "source_control_total_minor_units": 1250000,
+          "target_record_count": 3995,
+          "target_control_total_minor_units": 1248500,
+          "known_exclusions": [
+            {
+              "reason_code": "duplicate_scan_deduplicated_pre_migration",
+              "excluded_record_count": 5,
+              "excluded_value_minor_units": 1500
+            }
+          ]
+        },
+        {
+          "partition_label": "CORRESPONDENCE",
+          "source_record_count": 8000,
+          "source_control_total_minor_units": 960000,
+          "target_record_count": 8000,
+          "target_control_total_minor_units": 960000,
+          "known_exclusions": []
+        }
+      ]
     }
   },
   "canton-capital-efficiency": {
@@ -7653,6 +7806,24 @@
         "sii_ifrs17_reconciliation_done": true,
         "ics_assessed": true
       }
+    }
+  },
+  "stablecoin-examiner-pack": {
+    "art-582-genius-reserve-disclosure-conformance-monitor": {},
+    "art-584-proof-of-reserves-verifier": {},
+    "art-585-sanctions-screening-evidence-pack": {
+      "screening": {
+        "query": "synthetic-test-entity-01",
+        "decision": "clear",
+        "match_count": 0
+      },
+      "dataset_ref": {
+        "dataset_id": "opensanctions-default",
+        "version": "20260810",
+        "digest_algo": "sha256",
+        "published_digest": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+      },
+      "caller_computed_digest": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
     }
   },
   "stablecoin-remittance-corridor-economics": {
