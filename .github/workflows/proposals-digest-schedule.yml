@@ -59,7 +59,17 @@ jobs:
           echo "" >> /tmp/digest.md
           echo "_Generated $(date -u +%Y-%m-%dT%H:%M:%SZ) by proposals-digest-schedule.yml. Triage: a human merges; nothing here auto-builds._" >> /tmp/digest.md
 
+          if grep -q '^- \[#' /tmp/digest.md; then
+            echo "has_content=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_content=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 📝 Open or update the running digest issue
+        # BOTISSUE-HYGIENE-1: skip entirely when the digest cycle found nothing to
+        # triage (no open proposals PRs, no open suggest-tool-or-chain issues) —
+        # an empty digest issue exists only to be closed by a human.
+        if: steps.digest.outputs.has_content == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

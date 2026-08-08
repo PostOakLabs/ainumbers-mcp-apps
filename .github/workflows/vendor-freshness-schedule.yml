@@ -93,3 +93,25 @@ jobs:
           else
             gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
           fi
+
+  close-on-green:
+    name: Auto-close the drift issue on a green run
+    needs: check-freshness
+    if: success()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: 🟢 Close the vendor-drift tracking issue if it's open
+        # Same title-match used by raise-on-drift to find the alarm issue —
+        # a recovered check closes its own alarm instead of leaving it open (BOTISSUE-HYGIENE-1).
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Vendor drift: worker data/ behind site main"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            gh issue close "$EXISTING" --repo "$GITHUB_REPOSITORY" --comment "Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL"
+          fi
