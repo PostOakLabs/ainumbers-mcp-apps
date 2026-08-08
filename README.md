@@ -7,7 +7,7 @@ An agent calling a fintech tool by name has no way to know if the tool actually 
 
 An [MCP Apps](https://blog.modelcontextprotocol.io/posts/2026-01-26-mcp-apps/) (SEP-1865) server that exposes the [AINumbers.co](https://ainumbers.co) fintech tool suite to any MCP host, including Claude, ChatGPT, M365 Copilot, VS Code, and Cursor.
 
-![baas_provider_comparator, one of the 15 flagship widget tools, the same HTML MCP Apps hosts render inline in chat](docs/mcp-widget-demo.gif)
+![baas_provider_comparator, one of the flagship widget tools, the same HTML MCP Apps hosts render inline in chat](docs/mcp-widget-demo.gif)
 
 ## Quick start
 
@@ -38,13 +38,13 @@ Everything else, including the `ASSETS` binding serving the committed tool data,
 
 ## Tools
 
-**Read-only MCP tools** — count intentionally not hardcoded here (it drifted stale the last time it was). See `data/counts.json` for the live figure; never hand-type this number, `scripts/surface-parity.mjs` and the site repo's count-drift gate both check against it. Fifteen tools render as interactive widgets, the rest are ChainGraph compute nodes plus a handful of catalog and discovery utility tools: `list_ainumbers_tools`, `find_tool`, `find_chain`, `build_workflow_links`, `run_chain`, `verify_execution_hash`, `build_chaingraph`, `emit_chaingraph_artifact`, `build_session_receipt`.
+**Read-only MCP tools** — count intentionally not hardcoded here (it drifted stale the last time it was). See `data/counts.json` for the live figure; never hand-type this number, `scripts/surface-parity.mjs` and the site repo's count-drift gate both check against it. The flagship widgets below render as interactive widgets, the rest are ChainGraph compute nodes plus a handful of catalog and discovery utility tools: `list_ainumbers_tools`, `find_tool`, `find_chain`, `build_workflow_links`, `run_chain`, `verify_execution_hash`, `build_chaingraph`, `emit_chaingraph_artifact`, `build_session_receipt`.
 
 Every tool declares `readOnlyHint: true`. No account, no auth, zero PII, nothing mutates state.
 
-### The 15 flagship widgets
+### The flagship widgets
 
-Each renders as the actual single-file AINumbers tool, served as a `text/html;profile=mcp-app` resource and driven by the AIN Bridge (prefill, run, Policy Mandate export):
+Each renders as the actual single-file AINumbers tool, served as a `text/html;profile=mcp-app` resource and driven by the AIN Bridge (prefill, run, Policy Mandate export). This table IS the enumeration — its row count is the widget count, never a number typed elsewhere:
 
 | MCP tool | AINumbers tool |
 |---|---|
@@ -63,6 +63,7 @@ Each renders as the actual single-file AINumbers tool, served as a `text/html;pr
 | `scan_tool_poisoning` | T282 MCP Tool-Poisoning Scanner |
 | `validate_a2a_agent_card` | T283 A2A Agent Card Validator |
 | `inspect_visa_tap_signature` | T286 Visa TAP Signature Inspector |
+| `run_kernel_vm` | Kernel VM Widget |
 
 `list_ainumbers_tools` and `find_tool` search the full catalog (see `data/counts.json` for the current tool count) and return deep-links. Prefill-enabled tools accept `#in=<base64url(JSON of {element_id: value})>[&run=1]` for one-click invocation. `find_chain` and `build_workflow_links` return ordered deep-links for a named multi-tool workflow. `run_chain` executes one server-side. `verify_execution_hash` independently re-verifies a returned artifact's hash.
 

@@ -7,6 +7,7 @@
  *   P2. Auto-derive loop ABSENT from worker.mjs (guard against re-adding the 283 chain Prompts).
  *   P3. find_chain and find_tool are registered as utility tools in worker.mjs.
  *   P4. counts.json mcp_tools_total = live nodes + pilot + UTIL_TOOL_COUNT (10).
+ *   P5. README.md "flagship widgets" table row count = counts.json pilot_widgets.
  *
  * This is a fast static gate — it does NOT start the server or make HTTP requests.
  * Run: node scripts/surface-parity.mjs
@@ -21,6 +22,7 @@ import { UTILITY_TOOL_COUNT } from '../utility-tools.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const workerPath   = resolve(here, '..', 'worker.mjs');
 const countsPath   = resolve(here, '..', 'data', 'counts.json');
+const readmePath   = resolve(here, '..', 'README.md');
 
 const MAX_PROMPTS = 15; // target ~12; allow headroom for future additions
 
@@ -67,6 +69,22 @@ console.log(`[P4] counts.json mcp_tools_total: ${actual} (expected ${liveNodes} 
 if (actual !== expected) {
   errors.push(`P4: mcp_tools_total mismatch. counts.json says ${actual}, expected ${expected} (${liveNodes}+${pilot}+${EXPECTED_UTIL}). Re-run node generate.mjs and commit data/counts.json.`);
   ok = false;
+}
+
+// ── P5: README flagship-widgets table row count vs counts.json pilot_widgets ─
+const readme = readFileSync(readmePath, 'utf8');
+const tableSectionMatch = readme.match(/^### .*flagship widgets[\s\S]*?(?=\n## )/m);
+if (!tableSectionMatch) {
+  errors.push('P5: could not find a "flagship widgets" table section heading in README.md.');
+  ok = false;
+} else {
+  const rows = [...tableSectionMatch[0].matchAll(/^\| `[^`]+` \|/gm)];
+  const readmeWidgetCount = rows.length;
+  console.log(`[P5] README flagship-widgets table rows: ${readmeWidgetCount} (counts.json pilot_widgets: ${pilot})`);
+  if (readmeWidgetCount !== pilot) {
+    errors.push(`P5: README.md flagship-widgets table has ${readmeWidgetCount} rows but counts.json pilot_widgets is ${pilot}. Add/remove the missing widget row(s) in README.md — never hand-type the count.`);
+    ok = false;
+  }
 }
 
 // ── summary ─────────────────────────────────────────────────────────────────
