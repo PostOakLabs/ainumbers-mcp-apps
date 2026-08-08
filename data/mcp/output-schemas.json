@@ -1572,6 +1572,280 @@
       }
     }
   },
+  "sweep_docket_deadlines": {
+    "type": "object",
+    "properties": {
+      "decision": {
+        "type": "object",
+        "properties": {
+          "gate_policy": {
+            "type": "string"
+          },
+          "execution_state": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "as_of_date": {
+        "type": "string"
+      },
+      "due_soon_days_threshold": {
+        "type": "integer"
+      },
+      "due_soon_days_threshold_is_default": {
+        "type": "boolean"
+      },
+      "roll_rule": {
+        "type": "object",
+        "properties": {
+          "roll_weekends": {
+            "type": "boolean"
+          },
+          "roll_weekends_is_default": {
+            "type": "boolean"
+          },
+          "roll_direction": {
+            "type": "string"
+          },
+          "roll_direction_is_default": {
+            "type": "boolean"
+          },
+          "holiday_dates": {
+            "type": "array"
+          }
+        }
+      },
+      "record_count": {
+        "type": "integer"
+      },
+      "records": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "record_id": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string"
+            },
+            "rolled_date": {
+              "type": "string"
+            },
+            "days_remaining": {
+              "type": "integer"
+            },
+            "roll": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "conflicts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "record_ids": {
+              "type": "array"
+            },
+            "dates": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      "sweep_summary": {
+        "type": "object"
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "clause_note": {
+        "type": "string"
+      },
+      "not_legal_advice_note": {
+        "type": "string"
+      }
+    }
+  },
+  "classify_redline_round_changes": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "round_summary": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "round_number": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "round_label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "total_segments": {
+            "type": "integer"
+          },
+          "changed_count": {
+            "type": "integer"
+          },
+          "accepted_count": {
+            "type": "integer"
+          },
+          "reverted_count": {
+            "type": "integer"
+          },
+          "modified_count": {
+            "type": "integer"
+          },
+          "new_count": {
+            "type": "integer"
+          },
+          "deleted_count": {
+            "type": "integer"
+          }
+        }
+      },
+      "round_chain": {
+        "type": "object",
+        "properties": {
+          "round_number": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "prior_round_digest": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "classifications": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "segment_id": {
+              "type": "string"
+            },
+            "classification": {
+              "type": "string"
+            },
+            "baseline_text": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "prior_text": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "current_text": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "changed": {
+              "type": "boolean"
+            },
+            "diff": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "op": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "diff_transcript": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "segment_id": {
+              "type": "string"
+            },
+            "classification": {
+              "type": "string"
+            },
+            "diff": {
+              "type": "array"
+            }
+          }
+        }
+      },
+      "rejected_inputs": {
+        "type": "array"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "attribution_note": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
