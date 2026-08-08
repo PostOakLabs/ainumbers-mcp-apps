@@ -6710,6 +6710,46 @@
       ]
     }
   },
+  "muni-spending-exception-tracker-pack": {
+    "art-569-muni-arbitrage-spending-exception-checker": {
+      "issue_date": "2026-01-15",
+      "as_of_date": "2026-12-01",
+      "gross_proceeds_minor": 10000000000,
+      "elected_exception": "6_MONTH",
+      "reasonable_retainage": false,
+      "expenditure_schedule": [
+        {
+          "date": "2026-02-01",
+          "amount_minor": 4000000000,
+          "description": "construction draw 1"
+        },
+        {
+          "date": "2026-04-15",
+          "amount_minor": 3500000000,
+          "description": "construction draw 2"
+        },
+        {
+          "date": "2026-07-10",
+          "amount_minor": 2500000000,
+          "description": "construction draw 3"
+        }
+      ]
+    },
+    "art-408-evidence-bundle-tier-labeler": {
+      "artifact_tool_id": "art-04-agent-identity-attestation-checker",
+      "artifact_execution_hash": "sha256:aaaa1111",
+      "proof_refs": [
+        "receipt:art-04-envelope-check"
+      ],
+      "gate_results": {
+        "envelope_well_formed": true,
+        "execution_hash_recomputes": true,
+        "chain_execution_valid": false,
+        "mandate_gates_valid": false,
+        "compute_integrity_proof_valid": false
+      }
+    }
+  },
   "mutual-nda-composer": {
     "art-276-mutual-nda-composer": {},
     "art-277-agreement-acceptance-binder": {}
@@ -7638,6 +7678,56 @@
             "justification": "vulnerable_code_not_in_execute_path"
           }
         ]
+      }
+    }
+  },
+  "sec16b-early-warning-pack": {
+    "art-573-section16b-short-swing-profit-recompute": {
+      "insider_ref": "SYNTH-INSIDER-001",
+      "issuer_ref": "SYNTH-ISSUER-CO",
+      "currency": "USD",
+      "transactions": [
+        {
+          "txn_id": "txn-1",
+          "type": "buy",
+          "date": "2026-01-10",
+          "price_minor_units": 1000,
+          "shares": 100
+        },
+        {
+          "txn_id": "txn-2",
+          "type": "buy",
+          "date": "2026-02-10",
+          "price_minor_units": 1200,
+          "shares": 100
+        },
+        {
+          "txn_id": "txn-3",
+          "type": "sell",
+          "date": "2026-04-01",
+          "price_minor_units": 2000,
+          "shares": 150
+        }
+      ],
+      "insider_status": {
+        "officer_or_director": true,
+        "ten_pct_owner": false,
+        "foreign_private_issuer": false
+      },
+      "demand_letter_claimed_profit_minor_units": 140000
+    },
+    "art-408-evidence-bundle-tier-labeler": {
+      "artifact_tool_id": "art-04-agent-identity-attestation-checker",
+      "artifact_execution_hash": "sha256:aaaa1111",
+      "proof_refs": [
+        "receipt:art-04-envelope-check"
+      ],
+      "gate_results": {
+        "envelope_well_formed": true,
+        "execution_hash_recomputes": true,
+        "chain_execution_valid": false,
+        "mandate_gates_valid": false,
+        "compute_integrity_proof_valid": false
       }
     }
   },
