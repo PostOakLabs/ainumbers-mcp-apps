@@ -123,6 +123,7 @@
       "classify_ledger_consensus_finality",
       "attest_margin_call_lifecycle",
       "compute_asset_liability_coverage",
+      "oracle_price_aggregation",
       "verify_kya_x402_scope",
       "classify_emir3_active_account_status",
       "sweep_docket_deadlines",
