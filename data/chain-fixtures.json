@@ -6944,6 +6944,56 @@
       "pro_rata_enabled": true
     }
   },
+  "pe-waterfall-true-up-pack": {
+    "art-567-pe-waterfall-lp-recompute": {
+      "fund_id": "FUND-A",
+      "waterfall": {
+        "pref_rate": 0.08,
+        "compounding_basis": "simple",
+        "day_count_convention": "actual/365",
+        "gp_catchup_pct": 1,
+        "carry_pct": 0.2,
+        "tier_structure": "european_whole_fund",
+        "clawback_flag": true
+      },
+      "cashflows": [
+        {
+          "date": "2025-01-01",
+          "type": "contribution",
+          "amount": 1000000
+        },
+        {
+          "date": "2026-01-01",
+          "type": "distribution",
+          "amount": 1300000
+        }
+      ],
+      "gp_reported_allocation": {
+        "tiers": [
+          {
+            "tier": "return_of_capital",
+            "lp_amount": 1000000,
+            "gp_amount": 0
+          },
+          {
+            "tier": "preferred_return",
+            "lp_amount": 80000,
+            "gp_amount": 0
+          },
+          {
+            "tier": "gp_catchup",
+            "lp_amount": 0,
+            "gp_amount": 20000
+          },
+          {
+            "tier": "carry_residual",
+            "lp_amount": 160000,
+            "gp_amount": 40000
+          }
+        ]
+      }
+    }
+  },
   "pharma-serialization-custody": {
     "art-112-dscsa-transaction-statement-verifier": {
       "product_identifier": "00312345678906.SN12345",
@@ -8590,6 +8640,27 @@
       "q12_runbook": "yes"
     }
   },
+  "tmpg-fails-charge-claim-pack": {
+    "art-575-tmpg-fails-charge-recompute": {
+      "diff_tolerance_minor": 0,
+      "fails": [
+        {
+          "fail_id": "fail-A",
+          "par_amount_minor": 10000000,
+          "days_failed": 10,
+          "reference_rate_bps": 250,
+          "claimed_charge_minor": 1389
+        },
+        {
+          "fail_id": "fail-B",
+          "par_amount_minor": 5000000,
+          "days_failed": 5,
+          "reference_rate_bps": 0,
+          "claimed_charge_minor": 2083
+        }
+      ]
+    }
+  },
   "tokenization-prep": {
     "art-201-iscc-content-code-generator": {},
     "art-202-tdmrep-reservation-builder": {},
@@ -8752,6 +8823,117 @@
       "nAnomalies": 2,
       "trendType": "flat",
       "seed": 42
+    }
+  },
+  "trust-audit-closeout-pack": {
+    "art-566-iolta-three-way-reconciliation": {
+      "reconciliation_tolerance_minor": 100,
+      "statement_period": {
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-30"
+      },
+      "bank": {
+        "ending_balance_minor": 5000000,
+        "statement_date": "2026-06-30"
+      },
+      "trust_ledger": {
+        "ending_balance_minor": 5050000,
+        "as_of": "2026-06-30"
+      },
+      "client_ledgers": [
+        {
+          "client_id": "client-A",
+          "ending_balance_minor": 3000000,
+          "as_of": "2026-06-30",
+          "entries": [
+            {
+              "date": "2026-06-05",
+              "amount_minor": 500000,
+              "description": "deposit retainer"
+            },
+            {
+              "date": "2026-06-20",
+              "amount_minor": -200000,
+              "description": "disbursement"
+            }
+          ]
+        },
+        {
+          "client_id": "client-B",
+          "ending_balance_minor": 2050000,
+          "as_of": "2026-06-30",
+          "entries": []
+        }
+      ],
+      "outstanding_items": [
+        {
+          "type": "deposit_in_transit",
+          "date": "2026-06-29",
+          "amount_minor": 100000,
+          "description": "client A retainer deposited 6/29"
+        },
+        {
+          "type": "uncleared_check",
+          "date": "2026-06-15",
+          "amount_minor": 50000,
+          "description": "disbursement check #1042"
+        }
+      ]
+    },
+    "art-588-docket-deadline-sweep": {
+      "as_of_date": "2026-08-08",
+      "due_soon_days_threshold": 7,
+      "roll_rule": {
+        "roll_weekends": true,
+        "roll_direction": "forward",
+        "holiday_dates": [
+          "2026-08-10"
+        ]
+      },
+      "records": [
+        {
+          "date": "2026-08-08",
+          "action": "File answer",
+          "type": "filing",
+          "source": "court order",
+          "done": false
+        },
+        {
+          "date": "2026-08-09",
+          "action": "Serve discovery responses",
+          "type": "discovery",
+          "source": "FRCP 26",
+          "done": false
+        },
+        {
+          "date": "2026-07-01",
+          "action": "Initial disclosures",
+          "type": "discovery",
+          "source": "FRCP 26(a)",
+          "done": true
+        },
+        {
+          "date": "2026-09-15",
+          "action": "Pretrial conference",
+          "type": "hearing",
+          "source": "scheduling order",
+          "done": false
+        }
+      ]
+    },
+    "art-408-evidence-bundle-tier-labeler": {
+      "artifact_tool_id": "art-04-agent-identity-attestation-checker",
+      "artifact_execution_hash": "sha256:aaaa1111",
+      "proof_refs": [
+        "receipt:art-04-envelope-check"
+      ],
+      "gate_results": {
+        "envelope_well_formed": true,
+        "execution_hash_recomputes": true,
+        "chain_execution_valid": false,
+        "mandate_gates_valid": false,
+        "compute_integrity_proof_valid": false
+      }
     }
   },
   "us-treasury-clearing": {
