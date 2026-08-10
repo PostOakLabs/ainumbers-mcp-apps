@@ -1,0 +1,49 @@
+{
+  "shard_id": "FV-ENGINE-FLOOR-1",
+  "spec_anchor": "FV-ENGINE-FLOOR-1 (board row) + FV-PBT-FLOOR-BUILD-SPEC.md §2/§3/§4 (pattern reused, not the same denominator) + OCG SPEC.md §21 (properties derived from) + §4 (metamorphic property derived from)",
+  "population_definition": "one artifact: run_chain, the worker's chain-orchestration engine (mcp-apps-poc/worker.mjs). NOT a member of check-fv-floor-coverage.mjs's kernel population -- see relationship_to_kernel_floor_gate below.",
+  "human_sign_off": {
+    "status": "PENDING",
+    "name": null,
+    "date": null
+  },
+  "independence_sentence": "This item was reviewed and attested independently; the single signature (when applied) is a mechanical convenience over the one enumerated digest, not a bulk review.",
+  "per_item_basis_of_review": "Oracle-equivalent gate (real fixture-backed chain must complete, produce a 64-hex composite_execution_hash, verify hash_valid===true, and reproduce the identical hash on a second independent run) ran and passed before any property was trusted. All four properties (step order, input threading, gate-table evaluation, metamorphic hash order-independence) ran green. Negative control (--negative-control flag, deliberately flips one passing assertion to failing) run and confirmed to fail as expected -- see negative_control below.",
+  "relationship_to_kernel_floor_gate": "run_chain is worker-repo orchestration code, not a chaingraph.meta.json kernel -- it has no kernel_digest, no fixtures.json, and is not in check-fv-floor-coverage.mjs's live-kernel denominator. This artifact does not touch that gate, its baseline, or its count in any way. It borrows that rollout's PROVEN zero-dep pattern (mulberry32 PRNG, oracle-then-property pipeline, digest header, PENDING sign-off convention) as a separate, worker-repo-local floor -- not a 579th row.",
+  "coverage_boundary": "Covers: the integration seam run_chain owns over kernel code it calls -- step ordering (SPEC.md §21.1), parent-hash/chain-depth threading (§21.1, verified via the composite artifact's chain.parent_hashes/parent_tool_ids -- see §21-silence finding #1 for why not the per-step value directly), decision-gate evaluation (§21.4, tested directly against kernels/_gateval.mjs's evaluateGate -- the exact module run_chain imports, not a reimplementation), and that chain position never leaks into a step's own execution_hash (metamorphic, derived from §4's fixed hash preimage). Does NOT cover: cross-runner divergence -- no browser leg exists or is planned (FV-ENGINE-RUNNER-SCOPE-1 found only 2 independent runners exist; CHAIN-DIFF-HARNESS-1, the worker-vs-browser differential, was separately stopped by Tim's 2026-08-10 ruling and is not reopened here). Does NOT cover: individual kernel correctness (each kernel's own floor, if/when it lands, owns that). Does NOT duplicate scripts/run-chain-corpus.mjs (full-corpus completion/determinism/schema-conformance regression, already CI-wired) -- this file is additive on the specific §21.1/§21.4 threading and gate-table obligations that script never asserts.",
+  "silence_findings": [
+    "SPEC.md §21.1 describes per-step chain_depth/parent_hashes/parent_tool_ids threading, but the public run_chain MCP response trims `artifact` from each step summary and the composite output_payload.steps (§21.2) carries no per-RAN-step chain_depth/parent_* triple. §21 does not state whether §21.1 threading must be independently verifiable through the public surface. This floor verifies it via the one observable §21 does expose end-to-end: the composite artifact's own chain.parent_hashes/parent_tool_ids.",
+    "SPEC.md §21.4 does not state what happens when a rule's `next` targets a non-existent step id. run_chain's own code defensively clamps an unresolvable/backward target to idx+1 (worker.mjs), which is not derivable from §21.4's normative text (§21.4 treats forward-only/valid targets and acyclicity as a static property enforced by validate-chains, §15). This floor names the gap; it does not assert or invent a specific runtime fallback contract."
+  ],
+  "negative_control": {
+    "command": "node scripts/__proptests__/run_chain.engine.proptest.mjs --negative-control",
+    "expected_outcome": "exit 0 (the control mode's own success condition is that the harness DETECTED the deliberately-flipped assertion and failed the underlying property check)",
+    "observed_outcome": "PASS -- P2_input_threading_skips_failed_step_per_21_1 flipped from 0 violations to 1 violation as designed; script printed '✓ --negative-control: harness correctly FAILED' and exited 0",
+    "run_at": "authoring session, before the real (non-control) run was trusted"
+  },
+  "real_run": {
+    "command": "node scripts/__proptests__/run_chain.engine.proptest.mjs",
+    "exit_code": 0,
+    "oracle_equivalent": "PASS (agent-commerce-conformance: steps_ran=4, composite_execution_hash 64-hex, hash_valid=true, deterministic across two independent runs)",
+    "properties": [
+      { "name": "P1_step_order_matches_declared_array_order", "checked": 8, "violations": 0 },
+      { "name": "P2_input_threading_skips_failed_step_per_21_1", "checked": 3, "violations": 0 },
+      { "name": "P3_gate_evaluation_matches_21_4_table", "checked": 22, "violations": 0 },
+      { "name": "P4_metamorphic_step_hash_order_independent_composite_order_dependent", "checked": 3, "violations": 0 }
+    ]
+  },
+  "items": [
+    {
+      "artifact_id": "run_chain",
+      "artifact_kind": "engine (not a kernel)",
+      "properties_tested": ["step_order", "input_threading_per_21_1", "gate_table_21_4", "metamorphic_reorder_step_hash_invariance"],
+      "engine_digest_at_authoring": "sha256:728040787df93b9f7ec64c02a95ab9c8f75d6594135bc1fe82f04d29a47ae71b",
+      "engine_digest_source": "mcp-apps-poc/worker.mjs (whole file, LF-normalized SHA-256) -- run_chain is not split into its own module",
+      "digest_gate": "INFORMATIONAL ONLY -- no coverage/freshness CI gate reads this header (unlike check-fv-floor-coverage.mjs for kernels). A future FV-ENGINE-FLOOR staleness follow-on could add one; not built here.",
+      "floor_file": "mcp-apps-poc/scripts/__proptests__/run_chain.engine.proptest.mjs",
+      "fixture_oracle_equivalent_result": "PASS",
+      "real_run_result": "PASS",
+      "negative_control_result": "PASS (control correctly failed the underlying check)"
+    }
+  ]
+}
