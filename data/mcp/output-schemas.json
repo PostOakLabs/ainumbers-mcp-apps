@@ -2089,6 +2089,292 @@
       }
     }
   },
+  "recompute_x402_eip712_digest": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "domain": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "chain_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verifying_contract": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "authorization": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "to": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "valid_after": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "valid_before": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nonce": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "domain_separator": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "struct_hash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "domain_typehash": {
+        "type": "string"
+      },
+      "transfer_with_authorization_typehash": {
+        "type": "string"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
+  "verify_x402_signer_recovery": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "recovered_signer": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "claimed_from": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "recovered_signer_matches_claimed_from": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "recovery_id": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "recovery_id_source": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
+  "check_x402_domain_nonce_window": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "expected": {
+        "type": "object",
+        "properties": {
+          "expected_chain_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "expected_verifying_contract": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "signed_domain": {
+        "type": "object",
+        "properties": {
+          "chain_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verifying_contract": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "domain_chain_match": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "domain_contract_match": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "window": {
+        "type": "object",
+        "properties": {
+          "valid_after": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "valid_before": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "now_unix": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "authorization_within_window": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "authorization_expired": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "authorization_not_yet_valid": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "nonce": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "nonce_well_formed": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "nonce_already_used": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "disclosure": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
