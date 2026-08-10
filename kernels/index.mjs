@@ -531,7 +531,10 @@ import * as art59     from './art-59-settlement-asset-finality-classifier.kernel
 import * as art590    from './art-590-x402-eip712-digest-recomputer.kernel.mjs';
 import * as art591    from './art-591-x402-signer-recovery-verifier.kernel.mjs';
 import * as art592    from './art-592-x402-domain-nonce-window-checker.kernel.mjs';
+import * as art593    from './art-593-webbotauth-nonce-replay-check.kernel.mjs';
+import * as art594    from './art-594-tempo-mpp-voucher-receipt-verifier.kernel.mjs';
 import * as art60     from './art-60-agent-economy-runtime-fit-diagnostic.kernel.mjs';
+import * as art604    from './art-604-erc8004-registry-entry-verifier.kernel.mjs';
 import * as art61     from './art-61-x402-batch-settlement-reconciler.kernel.mjs';
 import * as art62     from './art-62-ap2-payment-receipt-verifier.kernel.mjs';
 import * as art63     from './art-63-agent-service-metering-modeler.kernel.mjs';
@@ -1118,7 +1121,10 @@ export const KERNELS = {
   'art-590-x402-eip712-digest-recomputer':                      art590,
   'art-591-x402-signer-recovery-verifier':                      art591,
   'art-592-x402-domain-nonce-window-checker':                   art592,
+  'art-593-webbotauth-nonce-replay-check':                      art593,
+  'art-594-tempo-mpp-voucher-receipt-verifier':                 art594,
   'art-60-agent-economy-runtime-fit-diagnostic':                art60,
+  'art-604-erc8004-registry-entry-verifier':                    art604,
   'art-61-x402-batch-settlement-reconciler':                    art61,
   'art-62-ap2-payment-receipt-verifier':                        art62,
   'art-63-agent-service-metering-modeler':                      art63,

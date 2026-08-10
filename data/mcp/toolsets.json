@@ -39,6 +39,7 @@
       "compute_note_h_margin_debit",
       "check_genius_reserve_disclosure_conformance",
       "verify_proof_of_reserves_consistency",
+      "verify_tempo_mpp_voucher",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [

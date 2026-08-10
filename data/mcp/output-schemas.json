@@ -2375,6 +2375,39 @@
       }
     }
   },
+  "check_webbotauth_nonce_replay": {
+    "type": "object",
+    "properties": {
+      "format_ok": {
+        "type": "boolean"
+      },
+      "spread_ok": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "fresh": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "already_used": {
+        "type": "boolean"
+      },
+      "nonce_valid": {
+        "type": "boolean"
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "ACCEPT",
+          "REFUSE"
+        ]
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
