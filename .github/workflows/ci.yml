@@ -48,6 +48,12 @@ jobs:
         # reuse) — the class that 500s the /mcp handshake. Warns on pilot↔node twins.
         run: node scripts/check-tool-names.mjs
 
+      - name: 📜 Credits registry coverage (vendored-code license gate)
+        run: node scripts/check-credits-coverage.mjs mcp-apps-poc
+
+      - name: 📜 Credits notices freshness (generated from registry)
+        run: node scripts/gen-credits.mjs mcp-apps-poc --check
+
       - name: 🧪 WASM Deterministic Profile self-test (CHEAPWINS-SPEC.md §CW-1.b)
         # Proves the gate below actually detects violations (relaxed-SIMD / shared-memory /
         # atomics), not just that it passes on the already-clean shipped wasm.

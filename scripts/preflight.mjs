@@ -46,6 +46,8 @@ const FULL = process.argv.includes('--full');
 const gates = [
   { name: 'preflight↔CI parity (no gate drift)',  args: ['scripts/check-preflight-parity.mjs'] },
   { name: 'tool-name collisions',                 args: ['scripts/check-tool-names.mjs'] },
+  { name: 'Credits registry coverage',            args: ['scripts/check-credits-coverage.mjs', 'mcp-apps-poc'] },
+  { name: 'Credits notices freshness',            args: ['scripts/gen-credits.mjs', 'mcp-apps-poc', '--check'] },
   { name: 'WASM deterministic self-test (§CW-1.b)',args: ['scripts/check-wasm-deterministic.selftest.mjs'] },
   { name: 'WASM deterministic profile (§CW-1.b)', args: ['scripts/check-wasm-deterministic.mjs'] },
   { name: 'surface-parity (counts/discovery)',    args: ['scripts/surface-parity.mjs'] },
