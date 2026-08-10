@@ -228,10 +228,20 @@ async function main() {
     });
     const hash = hashResult.result?.value;
 
+    // ── 6b. Read back per-step results (window.collected — already exposed at
+    // driveStep() time). Additive: existing callers that only read
+    // composite_execution_hash / hash_ok are unaffected. ──
+    const collectedResult = await cdp.send('Runtime.evaluate', {
+      expression: 'window.collected.map(function(c){return {tool_id:c.tool_id,execution_hash:(c.mandate&&c.mandate.execution_hash)||null};})',
+      returnByValue: true,
+    });
+    const steps = Array.isArray(collectedResult.result?.value) ? collectedResult.result.value : [];
+
     console.log(JSON.stringify({
       chain_id: chainId,
       composite_execution_hash: hash || null,
       hash_ok: typeof hash === 'string' && /^[0-9a-f]{64}$/.test(hash),
+      steps,
       findings,
     }, null, 2));
 
