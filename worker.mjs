@@ -4890,6 +4890,24 @@ export default {
             const result = { resultType: 'complete', protocolVersion: negotiatedVersion,
                              capabilities: init.capabilities, serverInfo: init.serverInfo };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+            // Fire-and-forget attribution write -- clientInfo/UA/ASN only, so future queries
+            // can distinguish callers (MCPUSAGE-ATTRIB-LOG-1). Never blocks the response.
+            // No IP, no per-user identifier: ASN is network-level, not individual.
+            if (env.ANALYTICS) {
+              const clientName    = String(body.params?.clientInfo?.name ?? 'unknown').slice(0, 128);
+              const clientVersion = String(body.params?.clientInfo?.version ?? 'unknown').slice(0, 32);
+              const userAgent     = String(request.headers.get('User-Agent') ?? 'unknown').slice(0, 256);
+              const asn           = String(request.cf?.asn ?? 'unknown');
+              ctx.waitUntil(Promise.resolve().then(() => {
+                try {
+                  env.ANALYTICS.writeDataPoint({
+                    blobs:   ['initialize', clientName, clientVersion, 'ainumbers-mcp', userAgent, asn],
+                    doubles: [1],
+                    indexes: [clientName],
+                  });
+                } catch (_) { /* telemetry is best-effort; never affect the response */ }
+              }));
+            }
             return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
           }
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
