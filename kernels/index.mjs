@@ -533,9 +533,23 @@ import * as art591    from './art-591-x402-signer-recovery-verifier.kernel.mjs';
 import * as art592    from './art-592-x402-domain-nonce-window-checker.kernel.mjs';
 import * as art593    from './art-593-webbotauth-nonce-replay-check.kernel.mjs';
 import * as art594    from './art-594-tempo-mpp-voucher-receipt-verifier.kernel.mjs';
+import * as art595    from './art-595-ap2-cartmandate-hashchain-builder.kernel.mjs';
+import * as art597    from './art-597-c2pa-aiml-assertion-decoder.kernel.mjs';
+import * as art598    from './art-598-input-attestation-verifier.kernel.mjs';
+import * as art599    from './art-599-gleif-snapshot-digest.kernel.mjs';
 import * as art60     from './art-60-agent-economy-runtime-fit-diagnostic.kernel.mjs';
+import * as art600    from './art-600-lei-relationship-consistency.kernel.mjs';
+import * as art602    from './art-602-mica-register-presence-check.kernel.mjs';
+import * as art603    from './art-603-stablecoin-reserve-3source-recompute.kernel.mjs';
 import * as art604    from './art-604-erc8004-registry-entry-verifier.kernel.mjs';
+import * as art605    from './art-605-merkle-airdrop-proof-verifier.kernel.mjs';
+import * as art606    from './art-606-erc165-interface-id-verifier.kernel.mjs';
+import * as art607    from './art-607-erc1967-proxy-slot-classifier.kernel.mjs';
+import * as art608    from './art-608-erc2981-royalty-calculator.kernel.mjs';
+import * as art609    from './art-609-jwks-pinned-directory-check.kernel.mjs';
 import * as art61     from './art-61-x402-batch-settlement-reconciler.kernel.mjs';
+import * as art610    from './art-610-erc4626-vault-share-math.kernel.mjs';
+import * as art611    from './art-611-erc7540-async-vault-request-accounting.kernel.mjs';
 import * as art62     from './art-62-ap2-payment-receipt-verifier.kernel.mjs';
 import * as art63     from './art-63-agent-service-metering-modeler.kernel.mjs';
 import * as art64     from './art-64-ai-act-highrisk-fit-diagnostic.kernel.mjs';
@@ -1123,9 +1137,23 @@ export const KERNELS = {
   'art-592-x402-domain-nonce-window-checker':                   art592,
   'art-593-webbotauth-nonce-replay-check':                      art593,
   'art-594-tempo-mpp-voucher-receipt-verifier':                 art594,
+  'art-595-ap2-cartmandate-hashchain-builder':                  art595,
+  'art-597-c2pa-aiml-assertion-decoder':                        art597,
+  'art-598-input-attestation-verifier':                         art598,
+  'art-599-gleif-snapshot-digest':                              art599,
   'art-60-agent-economy-runtime-fit-diagnostic':                art60,
+  'art-600-lei-relationship-consistency':                       art600,
+  'art-602-mica-register-presence-check':                       art602,
+  'art-603-stablecoin-reserve-3source-recompute':               art603,
   'art-604-erc8004-registry-entry-verifier':                    art604,
+  'art-605-merkle-airdrop-proof-verifier':                      art605,
+  'art-606-erc165-interface-id-verifier':                       art606,
+  'art-607-erc1967-proxy-slot-classifier':                      art607,
+  'art-608-erc2981-royalty-calculator':                         art608,
+  'art-609-jwks-pinned-directory-check':                        art609,
   'art-61-x402-batch-settlement-reconciler':                    art61,
+  'art-610-erc4626-vault-share-math':                           art610,
+  'art-611-erc7540-async-vault-request-accounting':             art611,
   'art-62-ap2-payment-receipt-verifier':                        art62,
   'art-63-agent-service-metering-modeler':                      art63,
   'art-64-ai-act-highrisk-fit-diagnostic':                      art64,
