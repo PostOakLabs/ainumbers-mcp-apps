@@ -2408,6 +2408,165 @@
       }
     }
   },
+  "verify_merkle_airdrop_proof": {
+    "type": "object",
+    "properties": {
+      "leaf": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "computed_root": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "path": {
+        "type": "array"
+      },
+      "encoding_variant_used": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "pair_sort_used": {
+        "type": "boolean"
+      },
+      "root_matches_claimed": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "path_intact": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "first_divergent_step": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "recompute_erc4626_vault_share_math": {
+    "type": "object",
+    "properties": {
+      "declared_context": {
+        "type": "object"
+      },
+      "vault_state": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "conversions": {
+        "type": "array"
+      },
+      "fee": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "round_trip": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "rate_drift": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "rounding_table": {
+        "type": "array"
+      },
+      "note": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "recompute_erc7540_request_accounting": {
+    "type": "object",
+    "properties": {
+      "declared_context": {
+        "type": "object"
+      },
+      "request_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "aggregate_by_controller": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "claim_rounding_used": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "opening": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "claims": {
+        "type": "array"
+      },
+      "closing": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "dust": {
+        "type": "object"
+      },
+      "invariants": {
+        "type": "array"
+      },
+      "note": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}

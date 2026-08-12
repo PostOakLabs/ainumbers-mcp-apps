@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "595 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "601 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-08-10",
-  "tool_count": 595,
+  "generated": "2026-08-11",
+  "tool_count": 601,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -24100,6 +24100,296 @@
         ],
         "url": "https://ainumbers.co/tools/art-592-x402-domain-nonce-window-checker.html",
         "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "check_webbotauth_nonce_replay",
+      "description": "Check a Visa TAP-shaped nonce for format, freshness against an 8-minute created/expires window, and an optional caller-supplied seen-nonce record. Stateless \u2014 replay prevention depends on the caller's own storage.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nonce": {
+            "type": "string"
+          },
+          "created": {
+            "type": "number"
+          },
+          "expires": {
+            "type": "number"
+          },
+          "now_unix": {
+            "type": "number"
+          },
+          "max_age_s": {
+            "type": "number"
+          },
+          "seen_nonces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "nonce_already_used": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nonce",
+          "created",
+          "expires",
+          "now_unix"
+        ]
+      },
+      "metadata": {
+        "tool_id": "art-593-webbotauth-nonce-replay-check",
+        "category": "chaingraph",
+        "tags": [
+          "visa-tap",
+          "rfc9421",
+          "web-bot-auth",
+          "nonce",
+          "replay-defense",
+          "agent-identity"
+        ],
+        "url": "https://ainumbers.co/tools/art-593-webbotauth-nonce-replay-check.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "build_ap2_cartmandate_hashchain",
+      "description": "Builds a deterministic hash-chain over an ordered cart_items array for an illustrative AP2 CartMandate VDC, or re-verifies a prior chain's links against a (possibly tampered) cart_items and reports whether it is intact plus the earliest divergent index.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent_id": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "merchant": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "cart_items": {
+            "type": "array"
+          },
+          "claimed_links": {
+            "type": "array"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-595-ap2-cartmandate-hashchain-builder",
+        "category": "x402-acp-eudi-wallet-and-basel-3-1-reporting",
+        "tags": [
+          "payment_policy",
+          "ap2",
+          "cartmandate",
+          "hash-chain",
+          "keccak256",
+          "verifiable-credential",
+          "mcp:build_ap2_cartmandate_hashchain"
+        ],
+        "url": "https://ainumbers.co/tools/art-595-ap2-cartmandate-hashchain-builder.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "decode_c2pa_aiml_assertions",
+      "description": "Decodes ALL c2pa.actions/c2pa.actions.v2 action entries (full edit history, not just the first), the IPTC digitalsourcetype vocabulary (unrecognized codes surfaced, never dropped), and c2pa.ai_training/c2pa.ai_generative_training opt-out assertions off a C2PA manifest. Reports assertions only -- never adjudicates truth; absence means nothing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "assertions": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-597-c2pa-aiml-assertion-decoder",
+        "category": "content-provenance-and-media-authenticity",
+        "tags": [
+          "compliance_control",
+          "c2pa",
+          "ai-provenance",
+          "digitalsourcetype",
+          "training-opt-out",
+          "mcp:decode_c2pa_aiml_assertions"
+        ],
+        "url": "https://ainumbers.co/tools/art-597-c2pa-aiml-assertion-decoder.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "verify_input_attestations",
+      "description": "Verify SPEC.md \u00a723 input_attestations entries against a target artifact's policy_parameters. Resolves each entry's RFC 6901 pointer, binds its digest, and reports per-entry {pointer, type, structural, verifiable, freshness_status} across all four defined types (vc-2.0, c2pa-manifest, rfc3161-snapshot, zktls). rfc3161-snapshot reuses the same \u00a720 RFC 3161 verifier; vc-2.0 reuses the \u00a716 eddsa-jcs-2022 Data Integrity machinery; c2pa-manifest imports art-123's structural check; zktls is reported structural-only with verifiable:external, never OCG-confirmed. Zero network, no state change.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "target_policy_parameters": {
+            "type": "object"
+          },
+          "input_attestations": {
+            "type": "array"
+          },
+          "verification_time": {
+            "type": "string"
+          },
+          "tsa_root_pem": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_policy_parameters",
+          "input_attestations"
+        ]
+      },
+      "metadata": {
+        "tool_id": "art-598-input-attestation-verifier",
+        "category": "chaingraph",
+        "tags": [
+          "input-attestation",
+          "c2pa",
+          "rfc3161",
+          "verifiable-credentials",
+          "zktls",
+          "provenance",
+          "spec-23"
+        ],
+        "url": "https://ainumbers.co/tools/art-598-input-attestation-verifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "check_mica_register_presence",
+      "description": "Reports whether a named entity was present in a pasted ESMA MiCA register extract as of a caller-supplied retrieval date, pinned by a SHA-256 digest of the pasted bytes. Never an authorisation or current-status claim.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "register_type": {
+            "type": "string"
+          },
+          "entity_identifier": {
+            "type": "string"
+          },
+          "register_extract": {
+            "type": "string"
+          },
+          "retrieval_date": {
+            "type": "string"
+          },
+          "register_source_ref": {
+            "type": "string"
+          },
+          "delimiter": {
+            "type": "string"
+          },
+          "header_row": {
+            "type": "boolean"
+          },
+          "match_column": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ]
+          },
+          "case_sensitive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "register_type",
+          "entity_identifier",
+          "register_extract",
+          "retrieval_date"
+        ]
+      },
+      "metadata": {
+        "tool_id": "art-602-mica-register-presence-check",
+        "category": "mica-casp-lifecycle",
+        "tags": [
+          "compliance_mandate",
+          "mica",
+          "esma",
+          "register",
+          "presence-as-of-date",
+          "snapshot-digest",
+          "mcp:check_mica_register_presence"
+        ],
+        "url": "https://ainumbers.co/tools/art-602-mica-register-presence-check.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "recompute_stablecoin_reserve_3source",
+      "description": "Recomputes stablecoin reserve ratio, WAM, and per-holding GENIUS eligible-asset match from three independently-sourced legs (issuer disclosure, EDGAR N-MFP Part 1 summary, declared on-chain supply), then reconciles them, skew-gated on as-of date. Never a solvency claim, never an audit, never a third-party sign-off.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "max_as_of_skew_days": {
+            "type": "number"
+          },
+          "leg_a": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "leg_b": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "leg_c": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "required": []
+      },
+      "metadata": {
+        "tool_id": "art-603-stablecoin-reserve-3source-recompute",
+        "category": "stablecoin-reserves",
+        "tags": [
+          "compliance_mandate",
+          "genius-act",
+          "stablecoin",
+          "reserve-ratio",
+          "wam",
+          "edgar-nmfp",
+          "three-source-reconcile",
+          "mcp:recompute_stablecoin_reserve_3source"
+        ],
+        "url": "https://ainumbers.co/tools/art-603-stablecoin-reserve-3source-recompute.html",
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
         "prefill": false
