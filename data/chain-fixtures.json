@@ -6182,6 +6182,84 @@
       "artifacts": []
     }
   },
+  "mica-register-crosscheck": {
+    "art-602-mica-register-presence-check": {
+      "register_type": "white_paper",
+      "entity_identifier": "984500XXXXXXXXXXXX02",
+      "register_extract": "lei,issuer_name,crypto_asset_name,notification_date,home_member_state\n984500XXXXXXXXXXXX01,Example Issuer SA,EXAMPLE-EURO-TOKEN,2026-01-15,FR\n984500XXXXXXXXXXXX02,Second Issuer NV,SECOND-TOKEN,2026-02-03,NL\n984500XXXXXXXXXXXX03,Third Issuer GmbH,THIRD-TOKEN,2026-03-21,DE\n",
+      "retrieval_date": "2026-08-11",
+      "register_source_ref": "ESMA crypto-asset white paper register export (synthetic sample)",
+      "delimiter": ",",
+      "header_row": true,
+      "match_column": "lei",
+      "case_sensitive": true
+    },
+    "art-512-check-mica-reserve-disclosure": {
+      "issuer_id": "ISSUER-DEMO-01",
+      "disclosure_ref": "RESERVE-DISCLOSURE-2026-06",
+      "rules_version": "reader-rules-1.0",
+      "as_of": "2026-06-30",
+      "token_type": "EMT",
+      "tokens_in_circulation": "500000000",
+      "reserve_components": [
+        {
+          "component_id": "C1",
+          "asset_class": "bank_deposit",
+          "amount": "205000000",
+          "custodian_type": "credit_institution",
+          "segregated": true
+        },
+        {
+          "component_id": "C2",
+          "asset_class": "sovereign_bill",
+          "amount": "200000000",
+          "custodian_type": "credit_institution",
+          "segregated": false
+        },
+        {
+          "component_id": "C3",
+          "asset_class": "reverse_repo",
+          "amount": "107500000",
+          "custodian_type": "investment_firm",
+          "segregated": false
+        }
+      ],
+      "declared_rules": {
+        "eligible_asset_classes": [
+          "bank_deposit",
+          "sovereign_bill",
+          "reverse_repo"
+        ],
+        "concentration_limits": {
+          "bank_deposit": "60",
+          "sovereign_bill": "60",
+          "reverse_repo": "30"
+        },
+        "acceptable_custodian_types": [
+          "credit_institution",
+          "investment_firm",
+          "casp"
+        ],
+        "cadence_days": 31
+      },
+      "disclosure_dates": [
+        "2026-01-31",
+        "2026-02-28",
+        "2026-03-31",
+        "2026-04-30",
+        "2026-05-31",
+        "2026-06-30"
+      ],
+      "window_start": "2026-01-01",
+      "window_end": "2026-06-30",
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    },
+    "art-06-genius-act-reserve-attestation": {},
+    "art-582-genius-reserve-disclosure-conformance-monitor": {}
+  },
   "mica-token-scoping": {
     "art-105-mica-token-service-scoper": {},
     "cry-05-agent-action-audit-trail-aggregator": {
