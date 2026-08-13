@@ -40,6 +40,8 @@
       "check_genius_reserve_disclosure_conformance",
       "verify_proof_of_reserves_consistency",
       "verify_tempo_mpp_voucher",
+      "check_mica_register_presence",
+      "recompute_stablecoin_reserve_3source",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [

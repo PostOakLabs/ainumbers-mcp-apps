@@ -2408,6 +2408,230 @@
       }
     }
   },
+  "decode_c2pa_aiml_assertions": {
+    "type": "object",
+    "properties": {
+      "actions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "digital_source_type": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "when": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "software_agent": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      "digital_source_type_summary": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "training_mining_opt_out": {
+        "type": [
+          "boolean",
+          "string"
+        ]
+      },
+      "unrecognized_source_types": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
+  "check_mica_register_presence": {
+    "type": "object",
+    "properties": {
+      "register_type": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "register_label": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "entity_identifier": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "retrieval_date": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "register_source_ref": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "register_snapshot_digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "snapshot": {
+        "type": "object"
+      },
+      "search": {
+        "type": "object"
+      },
+      "match_found": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "matched_row": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "matched_rows": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "match_count": {
+        "type": "number"
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "verdict_unavailable_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "judgment_required": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "rationale": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "not_proven": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "fence": {
+        "type": "string"
+      }
+    }
+  },
+  "recompute_stablecoin_reserve_3source": {
+    "type": "object",
+    "properties": {
+      "overall_determination": {
+        "type": "string"
+      },
+      "leg_a": {
+        "type": "object"
+      },
+      "leg_b": {
+        "type": "object"
+      },
+      "leg_c": {
+        "type": "object"
+      },
+      "max_as_of_skew_days_global": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "as_of_skew_pairs": {
+        "type": "object"
+      },
+      "as_of_skew_threshold_days": {
+        "type": "number"
+      },
+      "reserve_ratio": {
+        "type": "object"
+      },
+      "wam": {
+        "type": "object"
+      },
+      "genius_eligible_holdings": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "provisional_nprm_detail": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "reconciles": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "not_proven": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "determination_note": {
+        "type": "string"
+      },
+      "regulatory_framework": {
+        "type": "string"
+      }
+    }
+  },
   "verify_merkle_airdrop_proof": {
     "type": "object",
     "properties": {
@@ -2461,6 +2685,31 @@
         "items": {
           "type": "string"
         }
+      }
+    }
+  },
+  "check_jwks_pinned_directory": {
+    "type": "object",
+    "properties": {
+      "computed_digest": {
+        "type": "string",
+        "description": "sha256(canonicalize(directory_jwks)), lowercase hex."
+      },
+      "pinned_digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "pinned_digest_well_formed": {
+        "type": "boolean",
+        "description": "True only if pinned_digest is present and matches 64 lowercase-or-mixed-case hex characters."
+      },
+      "digest_match": {
+        "type": "boolean"
+      },
+      "key_count": {
+        "type": "number"
       }
     }
   },
