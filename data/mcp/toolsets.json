@@ -42,6 +42,7 @@
       "verify_tempo_mpp_voucher",
       "check_mica_register_presence",
       "recompute_stablecoin_reserve_3source",
+      "verify_summa_mst_inclusion",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
@@ -157,6 +158,7 @@
       "build_ai_training_data_lineage_record",
       "build_allocation_decision_receipt",
       "examine_lc_document_presentation",
+      "recompute_ccd2_aprc_annex3",
       "aggregate_execution_receipts",
       "detect_transaction_anomalies",
       "score_credit_default_risk"

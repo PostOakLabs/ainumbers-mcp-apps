@@ -7991,6 +7991,53 @@
         "published_digest": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
       },
       "caller_computed_digest": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    },
+    "art-603-stablecoin-reserve-3source-recompute": {
+      "leg_a": {
+        "report_period": "2027-02",
+        "period_end_date": "2027-02-28",
+        "as_of": "2027-02-28",
+        "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "total_reserves_usd": 1050000000,
+        "outstanding_tokens_reported": 1000000000,
+        "token_price": 1,
+        "reserves_in_fund_fraction": 0.8,
+        "asset_breakdown": [
+          {
+            "asset_class": "us_coin_and_currency",
+            "amount_usd": 50000000,
+            "maturity_bucket_days": 0
+          },
+          {
+            "asset_class": "treasury_bill_93d_or_less",
+            "amount_usd": 800000000,
+            "maturity_bucket_days": 20,
+            "institution": "US Treasury"
+          },
+          {
+            "asset_class": "government_mmf_solely_foregoing",
+            "amount_usd": 200000000,
+            "maturity_bucket_days": 25,
+            "institution": "Fund X"
+          }
+        ]
+      },
+      "leg_b": {
+        "as_of": "2027-02-28",
+        "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "accession_number": "0001234567-27-000123",
+        "total_net_assets": 840000000,
+        "nav_per_share": 1,
+        "shares_outstanding": 840000000,
+        "wam_days": 21,
+        "wal_days": 40,
+        "filing_date": "2027-03-05"
+      },
+      "leg_c": {
+        "as_of": "2027-02-28",
+        "source_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "onchain_supply": 1000200000
+      }
     }
   },
   "stablecoin-remittance-corridor-economics": {
