@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "610 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "618 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-08-14",
-  "tool_count": 610,
+  "generated": "2026-08-15",
+  "tool_count": 618,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -22618,6 +22618,148 @@
       }
     },
     {
+      "name": "build_dise_caption_category_matrix",
+      "description": "Builds a coverage matrix crosswalking trial-balance captions to DISE natural-expense-categories per ASU 2023-07, and flags any income-statement caption with no mapped rows. Also computes an optional dollar coverage percentage when trial balance amounts are supplied. Browser-based, client-side only, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "captions",
+          "mappings"
+        ],
+        "properties": {
+          "captions": {
+            "type": "array",
+            "description": "Entity income statement captions, optionally with total balances"
+          },
+          "mappings": {
+            "type": "array",
+            "description": "TB caption to DISE category mapping rows"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "dise-caption-category-matrix-builder",
+        "category": "cat-2",
+        "tags": [
+          "DISE",
+          "segment reporting",
+          "ASC 280",
+          "ASU 2023-07",
+          "expense disaggregation",
+          "significant expense categories",
+          "coverage matrix",
+          "gap analysis"
+        ],
+        "url": "https://ainumbers.co/tools/581-dise-caption-category-matrix-builder.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "analyze_dise_readiness_gaps",
+      "description": "Classifies every required-DISE-category by income-statement-caption cell as no_coverage, partial_coverage or full_coverage from a pasted coverage matrix, ranks the gaps by materiality or category, and returns a plain-English remediation note for each. Browser-based, client-side only, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "required_categories",
+          "captions",
+          "coverage_rows"
+        ],
+        "properties": {
+          "required_categories": {
+            "type": "array",
+            "description": "Categories the entity has determined it must be able to report separately"
+          },
+          "captions": {
+            "type": "array",
+            "description": "Income statement captions in scope, optionally with total balances"
+          },
+          "coverage_rows": {
+            "type": "array",
+            "description": "Caption plus category coverage rows from the matrix builder"
+          },
+          "threshold_pct": {
+            "type": "number",
+            "description": "Dollar coverage percentage at or above which a caption counts as fully mapped. Default 95."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "dise-readiness-gap-analyzer",
+        "category": "cat-2",
+        "tags": [
+          "DISE",
+          "readiness",
+          "gap analysis",
+          "segment reporting",
+          "ASC 280",
+          "ASU 2023-07",
+          "chart of accounts",
+          "expense disaggregation"
+        ],
+        "url": "https://ainumbers.co/tools/582-dise-readiness-gap-analyzer.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "verify_ics23_proof",
+      "description": "Verifies an ICS23 existence or non-existence Merkle proof against a commitment root and one of three pinned ProofSpec presets (iavl, tendermint, smt), entirely offline in the browser. Returns a PASS or FAIL verdict and names the specific check that failed.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "proofInput",
+          "rootInput",
+          "keyInput",
+          "specInput"
+        ],
+        "properties": {
+          "proofInput": {
+            "type": "string"
+          },
+          "rootInput": {
+            "type": "string"
+          },
+          "keyInput": {
+            "type": "string"
+          },
+          "specInput": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "585-ics23-proof-verifier",
+        "category": "cat-11",
+        "tags": [
+          "ICS23",
+          "ICS 023",
+          "IBC",
+          "Cosmos",
+          "Merkle proof",
+          "existence proof",
+          "non-existence proof",
+          "ProofSpec",
+          "iavl",
+          "tendermint",
+          "smt",
+          "vector commitment",
+          "offline verifier",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/585-ics23-proof-verifier.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
       "name": "calculate_naic_clo_rbc_factor",
       "description": "Recomputes NAIC Life RBC per-tranche CLO/CBO/CDO capital charges against the LR002 Column (2) factor grid (Proposal 2026-12-IRE), including the BSL thin-tranche 11.77% surcharge for designation 2.C or below at <=4% thickness. Sums per-tranche requirements into a portfolio total. Verify-only.",
       "inputSchema": {
@@ -22650,6 +22792,165 @@
         "execution_type": "browser-reference",
         "version": "1.0.0",
         "prefill": true
+      }
+    },
+    {
+      "name": "verify_summa_mst_inclusion",
+      "description": "Verifies a Merkle-sum-tree inclusion proof for one leaf against a published root: recomputes both the hash chain and the sum chain independently, and rejects negative or over-bound balances anywhere in the path (the Maxwell 2022/043 'broken MST' hazard). Verify-only -- never a solvency claim.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "root",
+          "proof"
+        ],
+        "properties": {
+          "root": {
+            "type": "object",
+            "description": "{hash, sum}"
+          },
+          "proof": {
+            "type": "object",
+            "description": "{leaf:{id,balance}, path:[{side,sibling_hash,sibling_sum}]}"
+          },
+          "max_balance": {
+            "type": "string",
+            "description": "Decimal-string BigInt domain bound"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "620-summa-mst-inclusion-checker",
+        "category": "compliance",
+        "tags": [
+          "Summa",
+          "proof-of-reserves",
+          "Merkle sum tree",
+          "MST",
+          "inclusion proof",
+          "solvency",
+          "crypto exchange",
+          "verification"
+        ],
+        "url": "https://ainumbers.co/tools/620-summa-mst-inclusion-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "reanchor_receipt_pq",
+      "description": "Client-side only tool \u2014 never MCP-invocable. Key generation and signing must happen in the caller's own browser tab; this tool never receives or returns a private key, so it cannot be exposed as a remote MCP tool call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "623-pq-receipt-reanchor",
+        "category": "compliance",
+        "tags": [
+          "post-quantum",
+          "PQC",
+          "SLH-DSA",
+          "ML-DSA",
+          "FIPS 205",
+          "FIPS 204",
+          "dual signature",
+          "attestation",
+          "receipt",
+          "re-anchor"
+        ],
+        "url": "https://ainumbers.co/tools/623-pq-receipt-reanchor.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "verify_vcjcs_envelope",
+      "description": "Independently recomputes the eddsa-jcs-2022 signature and every embedded execution_hash of a VC-JCS-wrapped export, entirely offline.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "export_document": {
+            "type": "object"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "vcjcs-envelope-verifier",
+        "category": "mcp",
+        "tags": [
+          "VC-JCS",
+          "eddsa-jcs-2022",
+          "did:key",
+          "Ed25519",
+          "Data Integrity Proof",
+          "execution_hash",
+          "offline verifier",
+          "airgapped",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/624-vcjcs-envelope-verifier.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "verify_c2sp_tlog_checkpoint",
+      "description": "Verifies a C2SP checkpoint signed note, its witness cosignature quorum against a tlog-policy trust policy, and an RFC 6962 inclusion proof against the checkpoint root. Browser-based, client-side only, zero network calls, zero PII.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "checkpoint",
+          "policy",
+          "proof"
+        ],
+        "properties": {
+          "checkpoint": {
+            "type": "string",
+            "description": "C2SP checkpoint as signed-note text"
+          },
+          "policy": {
+            "type": "string",
+            "description": "C2SP tlog-policy text naming the log and witness keys and the quorum rule"
+          },
+          "proof": {
+            "type": "object",
+            "description": "RFC 6962 inclusion proof: leaf value, leaf index, bottom-up sibling path"
+          },
+          "tile_path": {
+            "type": "string",
+            "description": "Optional tlog-tiles path for the tile the leaf was read from"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "c2sp-tlog-verifier",
+        "category": "mcp",
+        "tags": [
+          "C2SP",
+          "transparency log",
+          "checkpoint",
+          "signed note",
+          "tlog-cosignature",
+          "RFC 6962",
+          "inclusion proof",
+          "tlog-policy",
+          "tlog-tiles",
+          "Sigsum",
+          "Rekor",
+          "offline verifier"
+        ],
+        "url": "https://ainumbers.co/tools/625-c2sp-tlog-verifier.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
       }
     },
     {
@@ -24898,6 +25199,46 @@
           "mcp:recompute_mla_mapr_actuarial"
         ],
         "url": "https://ainumbers.co/tools/art-616-mla-mapr-actuarial-recompute.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "recompute_ccd2_aprc_annex3",
+      "description": "Recomputes the CCD2 Directive (EU) 2023/2225 Annex III APRC from a drawdown/repayment schedule by bracketed bisection on Annex III Part I's present-value-equality equation. Returns aprc_pct (rounded per Annex III Part I remark (d)), converged, bracketed, iterations_used, residual_at_convergence. Reports non-convergence honestly rather than guessing. Verify-only, no compliance determination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "drawdowns": {
+            "type": "array",
+            "description": "Array of {amount, full_periods, fraction} or {amount, t_years}"
+          },
+          "repayments": {
+            "type": "array",
+            "description": "Array of {amount, full_periods, fraction} or {amount, t_years}"
+          }
+        },
+        "required": [
+          "drawdowns",
+          "repayments"
+        ]
+      },
+      "metadata": {
+        "tool_id": "art-619-ccd2-aprc-annex3-recompute",
+        "category": "chaingraph",
+        "tags": [
+          "compliance_mandate",
+          "ccd2",
+          "eu-2023-2225",
+          "annex-iii",
+          "aprc",
+          "consumer-credit",
+          "bisection-solver",
+          "mcp:recompute_ccd2_aprc_annex3"
+        ],
+        "url": "https://ainumbers.co/tools/art-619-ccd2-aprc-annex3-recompute.html",
         "ap2_export": false,
         "execution_type": "browser-reference",
         "version": "1.0.0",
