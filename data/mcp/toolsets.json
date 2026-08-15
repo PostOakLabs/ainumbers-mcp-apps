@@ -130,6 +130,8 @@
       "verify_kya_x402_scope",
       "classify_emir3_active_account_status",
       "sweep_docket_deadlines",
+      "verify_input_attestations",
+      "recompute_erc4337_userop_math",
       "verify_merkle_batch"
     ],
     "ai-act": [
