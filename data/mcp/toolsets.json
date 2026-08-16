@@ -43,6 +43,7 @@
       "check_mica_register_presence",
       "recompute_stablecoin_reserve_3source",
       "verify_summa_mst_inclusion",
+      "aggregate_summa_mst_liabilities",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [

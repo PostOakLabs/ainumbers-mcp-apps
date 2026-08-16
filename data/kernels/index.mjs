@@ -554,10 +554,15 @@ import * as art613    from './art-613-erc4337-userop-math.kernel.mjs';
 import * as art614    from './art-614-eip7702-authorization-tuple-decoder.kernel.mjs';
 import * as art615    from './art-615-mla-charge-inclusion-classifier.kernel.mjs';
 import * as art616    from './art-616-mla-mapr-actuarial-recompute.kernel.mjs';
+import * as art617    from './art-617-m3p-monthly-cap-calculator.kernel.mjs';
 import * as art618    from './art-618-naic-clo-rbc-factor-calculator.kernel.mjs';
 import * as art619    from './art-619-ccd2-aprc-annex3-recompute.kernel.mjs';
 import * as art62     from './art-62-ap2-payment-receipt-verifier.kernel.mjs';
 import * as art620    from './art-620-summa-mst-inclusion-checker.kernel.mjs';
+import * as art621    from './art-621-summa-mst-liability-aggregator.kernel.mjs';
+import * as art626    from './art-626-deterministic-amortization-schedule.kernel.mjs';
+import * as art627    from './art-627-effective-date-rule-version-registry.kernel.mjs';
+import * as art628    from './art-628-declarative-decision-tree-evaluator.kernel.mjs';
 import * as art63     from './art-63-agent-service-metering-modeler.kernel.mjs';
 import * as art633    from './art-633-asc280-reportable-segment-tester.kernel.mjs';
 import * as art634    from './art-634-codm-expense-significance-classifier.kernel.mjs';
@@ -1168,10 +1173,15 @@ export const KERNELS = {
   'art-614-eip7702-authorization-tuple-decoder':                art614,
   'art-615-mla-charge-inclusion-classifier':                    art615,
   'art-616-mla-mapr-actuarial-recompute':                       art616,
+  'art-617-m3p-monthly-cap-calculator':                         art617,
   'art-618-naic-clo-rbc-factor-calculator':                     art618,
   'art-619-ccd2-aprc-annex3-recompute':                         art619,
   'art-62-ap2-payment-receipt-verifier':                        art62,
   'art-620-summa-mst-inclusion-checker':                        art620,
+  'art-621-summa-mst-liability-aggregator':                     art621,
+  'art-626-deterministic-amortization-schedule':                art626,
+  'art-627-effective-date-rule-version-registry':               art627,
+  'art-628-declarative-decision-tree-evaluator':                art628,
   'art-63-agent-service-metering-modeler':                      art63,
   'art-633-asc280-reportable-segment-tester':                   art633,
   'art-634-codm-expense-significance-classifier':               art634,
