@@ -3419,6 +3419,243 @@
       }
     }
   },
+  "test_asc280_reportable_segment": {
+    "type": "object",
+    "properties": {
+      "is_reportable_by_quantitative_threshold": {
+        "type": "boolean"
+      },
+      "tests_met": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tests_not_assessable": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tests": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "coverage_75_pct": {
+        "type": "object"
+      },
+      "aggregation_criteria": {
+        "type": "object"
+      },
+      "unanswered_aggregation_criteria": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "management_judgment_required": {
+        "type": "boolean"
+      },
+      "aggregation_criteria_answered_count": {
+        "type": "number"
+      },
+      "aggregation_criteria_met_count": {
+        "type": "number"
+      },
+      "majority_of_criteria_met": {
+        "type": "boolean"
+      },
+      "reportable_segment_count": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "practical_limit_consideration_advised": {
+        "type": "boolean"
+      },
+      "threshold_pct": {
+        "type": "number"
+      },
+      "coverage_threshold_pct": {
+        "type": "number"
+      },
+      "comparison_basis": {
+        "type": "string"
+      },
+      "rounding_steps": {
+        "type": "string"
+      },
+      "oracle": {
+        "type": "string"
+      },
+      "regulatory_basis": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
+  "classify_codm_expense_significance": {
+    "type": "object",
+    "properties": {
+      "included_in_segment_profit_measure": {
+        "type": "boolean"
+      },
+      "regularly_provided_to_codm": {
+        "type": "boolean"
+      },
+      "easily_computable_from_codm_information": {
+        "type": "boolean"
+      },
+      "assessed_significant": {
+        "type": "boolean"
+      },
+      "specified_item_50_22": {
+        "type": "string"
+      },
+      "input_outside_declared_domain": {
+        "type": "boolean"
+      },
+      "evaluated_under_50_26A": {
+        "type": "boolean"
+      },
+      "must_disclose_separately_50_26A": {
+        "type": "boolean"
+      },
+      "folds_into_other_segment_items_50_26B": {
+        "type": "boolean"
+      },
+      "other_segment_items_buckets": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "outside_significant_expense_principle": {
+        "type": "boolean"
+      },
+      "separate_disclosure_required_50_22": {
+        "type": "boolean"
+      },
+      "citation": {
+        "type": "string"
+      },
+      "basis": {
+        "type": "string"
+      },
+      "segment_level_duties_not_decided_here": {
+        "type": "string"
+      },
+      "bucket_c_scope_note": {
+        "type": "string"
+      }
+    }
+  },
+  "classify_rate_rec_5pct_threshold": {
+    "type": "object",
+    "properties": {
+      "reconciling_item_category": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "category_recognized": {
+        "type": "boolean"
+      },
+      "reconciling_item_amount": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "pretax_income": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "statutory_rate_pct": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "entity_is_public_business_entity": {
+        "type": "boolean"
+      },
+      "threshold_base_amount": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "threshold_amount": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "pct_of_threshold_base": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "crosses_5pct_threshold": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "must_disclose_separately": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "required_disaggregation": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "disaggregation_citation": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "denominator_near_zero_caveat": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "management_judgment_required": {
+        "type": "boolean"
+      },
+      "not_assessable_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "break_even_judgment_note": {
+        "type": "string"
+      },
+      "citation": {
+        "type": "string"
+      },
+      "basis": {
+        "type": "string"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
