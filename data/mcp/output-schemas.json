@@ -3419,6 +3419,281 @@
       }
     }
   },
+  "compute_deterministic_amortization_schedule": {
+    "type": "object",
+    "properties": {
+      "convention": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "periods_per_year": {
+        "type": "number"
+      },
+      "schedule": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "rate_solve": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "final_plug": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "remeasurement": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "rounding_steps": {
+        "type": "array"
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "day_count_source": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
+  "resolve_rule_version": {
+    "type": "object",
+    "properties": {
+      "resolution_status": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "RESOLVED or NO_BINDING_ENTRY, or null when the input was refused with an error_code."
+      },
+      "error_code": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "message": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "standard_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "filer_status": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fiscal_year_end": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fiscal_year_begin": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fiscal_year_begin_basis": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "declared or inferred_prior_year_plus_one_day. An inference is never presented as a fact."
+      },
+      "effective_for_annual_periods_beginning": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "effective_for_interim_periods_beginning": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "early_adoption_permitted": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "binding_for_queried_annual_period": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "binding_for_queried_interim_periods": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "first_binding_period_end": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "transition_method": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "parameter_set": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Parameter name to {value, effective_from, effective_to, source, source_digest, status}. status is IN_FORCE, NO_VERSION_IN_FORCE, or AMBIGUOUS_MULTIPLE_VERSIONS_IN_FORCE."
+      },
+      "parameter_set_as_of": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The measurement date used, which is the fiscal year's beginning, matching how effective-date language is written."
+      },
+      "entry_digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "citation": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "registry_digest_recomputed": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "resolution_path": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "closed_filer_status_enum": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "float_sensitive": {
+        "type": "boolean"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
+  "evaluate_decision_tree": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "error_code": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "message": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "matched_node_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "matched_citation": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "path": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "weight": {},
+      "tree_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "tree_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "tree_digest_recomputed": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "closed_operator_set": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
   "test_asc280_reportable_segment": {
     "type": "object",
     "properties": {
