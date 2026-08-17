@@ -112,3 +112,6 @@ node scripts/surface-parity.mjs     # verify counts.json matches the registered 
 `pilot.mjs` is the single source of truth for the widget tool set. After changing any pilot tool in the site repo, run `node generate.mjs`, commit `data/` and `kernels/`, and push. CI validates and deploys.
 
 All tool content is client-side, deterministic, and zero PII. Code is MIT licensed (see `LICENSE`); content is CC BY 4.0, Post Oak Labs. See `README-SPEC.md` for architecture and history.
+
+<!-- automerge-label.yml end-to-end proof, WORKER-VENDOR-LAND-0817-2 addendum, 2026-08-17 -->
+
