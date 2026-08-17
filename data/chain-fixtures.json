@@ -9385,6 +9385,38 @@
       "redemption_window": "t0"
     }
   },
+  "x402-spend-evidence": {
+    "art-590-x402-eip712-digest-recomputer": {
+      "name": "USD Coin",
+      "version": "2",
+      "chainId": 1,
+      "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "from": "0x2A1530C4C41db0B0b2bB646CB5Eb1A67b7158667",
+      "to": "0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f2",
+      "value": 1000000,
+      "validAfter": 0,
+      "validBefore": 2000000000,
+      "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    "art-591-x402-signer-recovery-verifier": {
+      "digest": "0xb68e5d60d6169bad9739d30399af8f8c7378d464d25f4d971911ab65ef0b014b",
+      "r": "0x9b74dd5c8bb58124bcc04c7a561231fca3e1fddfac2e9b2e361bb494b6b9dbb6",
+      "s": "0x62b4d6e9bc1f5fb62742981efd25c46dcc979a8b37ca92705c690d8ce0b56712",
+      "yParity": 0,
+      "claimedFrom": "0x7e5f4552091a69125d5dfcb7b8c2659029395bdf"
+    },
+    "art-592-x402-domain-nonce-window-checker": {
+      "expected_chain_id": 1,
+      "expected_verifying_contract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "chainId": 1,
+      "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "validAfter": 0,
+      "validBefore": 2000000000,
+      "now_unix": 1000000000,
+      "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "nonce_already_used": false
+    }
+  },
   "y9c-schedule-hc-hcr-capital": {
     "art-435-bhc-schedule-hc-balance-sheet": {
       "entity_id": "RSSD-1073757",
