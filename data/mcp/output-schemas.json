@@ -3931,6 +3931,86 @@
       }
     }
   },
+  "track_globe_transition_deferred_tax": {
+    "type": "object",
+    "properties": {
+      "constants_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "minimum_rate": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "cutoff_date": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "transition_year_start_date": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "exclusion_rules": {
+        "type": "array"
+      },
+      "canonical_order": {
+        "type": "string"
+      },
+      "items": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "item_count": {
+        "type": "number"
+      },
+      "items_excluded": {
+        "type": "number"
+      },
+      "items_capped": {
+        "type": "number"
+      },
+      "items_uplifted": {
+        "type": "number"
+      },
+      "items_in_error": {
+        "type": "number"
+      },
+      "items_manual_review": {
+        "type": "number"
+      },
+      "jurisdictional_roll_forward_total": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "total_is_complete": {
+        "type": "boolean"
+      },
+      "error_code": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "rounding_steps": {
+        "type": "array"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}
