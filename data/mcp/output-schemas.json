@@ -2458,6 +2458,43 @@
       }
     }
   },
+  "correlate_ap2_cartmandate_x402": {
+    "type": "object",
+    "properties": {
+      "correlation_status": {
+        "type": "string",
+        "enum": [
+          "CORRELATED",
+          "NOT_CORRELATED",
+          "INDETERMINATE"
+        ]
+      },
+      "cart_total_matches_authorization_value": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "merchant_matches_authorization_to": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "cart_chain_intact": {
+        "type": "boolean"
+      },
+      "disclosure": {
+        "type": "string"
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "decode_c2pa_aiml_assertions": {
     "type": "object",
     "properties": {
