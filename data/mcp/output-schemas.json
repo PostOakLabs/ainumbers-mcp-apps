@@ -4011,6 +4011,67 @@
       }
     }
   },
+  "compute_authzen_conformance_fixture": {
+    "type": "object",
+    "properties": {
+      "spec": {
+        "type": "string"
+      },
+      "decision_count": {
+        "type": "number"
+      },
+      "decisions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "object"
+            },
+            "action": {
+              "type": "object"
+            },
+            "resource": {
+              "type": "object"
+            },
+            "decision": {
+              "type": "boolean"
+            },
+            "context_invariant": {
+              "type": "boolean"
+            },
+            "expected": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "matches_expected": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      "all_match_expected": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "all_context_invariant": {
+        "type": "boolean"
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}

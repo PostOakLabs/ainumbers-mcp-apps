@@ -4001,6 +4001,116 @@
       ]
     }
   },
+  "dora-roi-gleif-preflight-pack": {
+    "art-466-dora-roi-builder": {
+      "entity": {
+        "entity_name": "Test Bank NV",
+        "entity_lei": "529900T8BM49AURSDO55"
+      },
+      "providers": [
+        {
+          "provider_id": "prov-1",
+          "name": "CloudCo Ireland Ltd",
+          "lei": "529900T8BM49AURSDO55",
+          "country": "IE",
+          "service_type": "cloud_iaas"
+        }
+      ],
+      "functions": [
+        {
+          "function_id": "fn-1",
+          "provider_id": "prov-1",
+          "name": "Core banking hosting",
+          "critical": true,
+          "function_type": "ict_services"
+        }
+      ],
+      "contracts": [
+        {
+          "contract_id": "ctr-1",
+          "function_id": "fn-1",
+          "provider_id": "prov-1",
+          "contract_reference": "CTR-2026-001",
+          "start_date": "2024-01-01",
+          "governing_law": "Ireland"
+        }
+      ]
+    },
+    "art-599-gleif-snapshot-digest": {
+      "lei": "5493001KJTIIGC8Y1R12",
+      "source_text": "<LEIRecord><LEI>5493001KJTIIGC8Y1R12</LEI><Entity><LegalName>SPECIMEN ENTITY</LegalName></Entity><Registration><LastUpdateDate>2026-06-30T12:00:00.000Z</LastUpdateDate><RegistrationStatus>ISSUED</RegistrationStatus></Registration></LEIRecord>",
+      "captured_at": "2026-08-11T00:00:00Z",
+      "source_format": "xml",
+      "golden_copy_as_of": "2026-06-30"
+    },
+    "art-600-lei-relationship-consistency": {
+      "subject_lei": "5493001KJTIIGC8Y1R12",
+      "relationships": [
+        {
+          "start_node_lei": "5493001KJTIIGC8Y1R12",
+          "end_node_lei": "7LTWFZYICNSX8D621K86",
+          "relationship_type": "IS_DIRECTLY_CONSOLIDATED_BY",
+          "relationship_status": "ACTIVE",
+          "start_date": "2020-01-01"
+        },
+        {
+          "start_node_lei": "7LTWFZYICNSX8D621K86",
+          "end_node_lei": "529900T8BM49AURSDO55",
+          "relationship_type": "IS_ULTIMATELY_CONSOLIDATED_BY",
+          "relationship_status": "ACTIVE",
+          "start_date": "2019-01-01",
+          "exception_code": "NON_PUBLIC"
+        }
+      ]
+    },
+    "art-601-dora-roi-gleif-preflight-pack": {
+      "dora_roi_artifact": {
+        "execution_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "tool_id": "art-466-dora-roi-builder"
+      },
+      "counterparties": [
+        {
+          "counterparty_id": "provider-1",
+          "gleif_snapshot": {
+            "lei": "5493001KJTIIGC8Y1R12",
+            "lei_checksum_valid": true,
+            "source_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "captured_at": "2026-08-17T00:00:00Z",
+            "last_update_date": "2026-01-01",
+            "snapshot_captured": true
+          },
+          "lei_relationship_check": {
+            "subject_lei": "5493001KJTIIGC8Y1R12",
+            "records_assessed": true,
+            "consistent": true,
+            "violation_count": 0
+          }
+        },
+        {
+          "counterparty_id": "provider-2",
+          "gleif_snapshot": {
+            "lei": "213800WSGIIZCXF1P572",
+            "lei_checksum_valid": true,
+            "source_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "captured_at": "2026-08-17T00:00:00Z",
+            "last_update_date": "2026-02-01",
+            "snapshot_captured": true
+          },
+          "lei_relationship_check": {
+            "subject_lei": "213800WSGIIZCXF1P572",
+            "records_assessed": true,
+            "consistent": true,
+            "violation_count": 0
+          }
+        }
+      ],
+      "attestation": {
+        "name": "Jane Doe",
+        "title": "Head of ICT Risk",
+        "timestamp": "2026-08-17T12:00:00Z"
+      }
+    }
+  },
   "dw-capacity-check": {
     "art-477-intraday-liquidity-monitoring": {
       "start_of_day_available_musd": 500,
@@ -4775,6 +4885,34 @@
   },
   "genius-reserve-disclosure": {
     "art-275-genius-reserve-disclosure-checker": {}
+  },
+  "gl-tieout-recompute": {
+    "art-526-report-gl-reconciliation": {
+      "as_of": "2026-07-31",
+      "currency": "USD",
+      "appendix_schedule_version": "FR2052a-AppVIII-2026Q2",
+      "appendix_schedule_source": "FR 2052a Appendix VIII, rev 2026-Q2 (firm-by-firm alignment)",
+      "reporting_cadence": "monthly",
+      "schedule_cadence": "monthly",
+      "gl_closed": true,
+      "gl_as_of": "2026-07-31",
+      "tolerance_minor_units": 100,
+      "accounts": [
+        {
+          "account_id": "GL-1001",
+          "reported_figure_minor_units": 500000000,
+          "gl_figure_minor_units": 495000000,
+          "designed_plug_minor_units": 5000000,
+          "designed_plug_reason_code": "SB6_carrying_value_adjustment"
+        },
+        {
+          "account_id": "GL-1002",
+          "reported_figure_minor_units": 120000000,
+          "gl_figure_minor_units": 120000000,
+          "designed_plug_minor_units": 0
+        }
+      ]
+    }
   },
   "globe-annual-cycle": {
     "art-454-globe-jurisdictional-etr": {
@@ -5611,6 +5749,63 @@
       "annual_license_cost": 500000,
       "discount_rate_pct": 10,
       "projection_years": 5
+    }
+  },
+  "interest-accrual-recompute": {
+    "art-463-recalc-suite": {
+      "tolerance": {
+        "abs": 0,
+        "pct": 5
+      },
+      "depreciation": [
+        {
+          "asset_id": "A-1",
+          "method": "straight_line",
+          "cost": 10000,
+          "salvage_value": 1000,
+          "useful_life_years": 9,
+          "period_number": 1,
+          "client_reported_depreciation": 1000
+        }
+      ],
+      "interest_accrual": [
+        {
+          "item_id": "I-1",
+          "principal": 100000,
+          "annual_rate_pct": 6,
+          "days_accrued": 90,
+          "day_count_basis": "actual_360",
+          "client_reported_interest": 1490
+        }
+      ],
+      "eps": [
+        {
+          "label": "FY2026",
+          "net_income": 5000000,
+          "preferred_dividends": 200000,
+          "weighted_avg_shares_basic": 1000000,
+          "weighted_avg_shares_diluted": 1100000,
+          "client_reported_eps_basic": 4.8,
+          "client_reported_eps_diluted": 3.8
+        }
+      ],
+      "amortization": [
+        {
+          "item_id": "M-1",
+          "principal": 120000,
+          "periods_total": 10,
+          "client_reported_amortization": 12000
+        }
+      ],
+      "prepaid_rollforward": [
+        {
+          "item_id": "P-1",
+          "beginning_balance": 50000,
+          "additions": 10000,
+          "amortized_current_period": 5000,
+          "client_reported_ending_balance": 60000
+        }
+      ]
     }
   },
   "intl-wire-iso-preflight": {
@@ -9239,6 +9434,69 @@
         "drr_ready": true,
         "platform_not_applicable": true,
         "oss_scheme_configured": true
+      }
+    }
+  },
+  "visa-tap-agent-verification": {
+    "art-129-webbotauth-signature-verifier": {
+      "covered_components": [
+        {
+          "name": "method",
+          "value": "POST"
+        },
+        {
+          "name": "@authority",
+          "value": "api.example.com"
+        },
+        {
+          "name": "@path",
+          "value": "/agent/v1/execute"
+        }
+      ],
+      "signature_params": "(\"method\" \"@authority\" \"@path\");created=1750000000;keyid=\"key-2026-06\";tag=\"web-bot-auth\";alg=\"ed25519\"",
+      "signature_b64": "ruUab1uVdHazfuOcU0E4qLcTnOM2Z7zYHiluP5qxDZkKbw8EjPNarFHL7G2fS2DhnFH1xlpbihrIkOm8jwxIDA==",
+      "public_key_jwk": {
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "WrHvnND7oaWfvrGxUU3FNeJaQDwYj4K3e5fl0fH5p2g"
+      },
+      "alg": "ed25519",
+      "created": 1750000000,
+      "now_unix": 1750003600,
+      "max_age_s": 3600
+    },
+    "art-593-webbotauth-nonce-replay-check": {
+      "nonce": "aB3dEfGhIjKlMnOpQrStUvWxYz012345",
+      "created": 1750000000,
+      "expires": 1750000300,
+      "now_unix": 1750000060,
+      "max_age_s": 3600
+    },
+    "art-609-jwks-pinned-directory-check": {
+      "directory_jwks": {
+        "keys": [
+          {
+            "kty": "OKP",
+            "crv": "Ed25519",
+            "kid": "key-2026-06",
+            "x": "WrHvnND7oaWfvrGxUU3FNeJaQDwYj4K3e5fl0fH5p2g"
+          }
+        ]
+      },
+      "pinned_digest": "45d28be3698cb02c2a658ecb15c292076254ca24cd797bc75a39dacd244a028d"
+    },
+    "art-130-signature-directory-validator": {
+      "well_known_path": "/.well-known/http-message-signatures-directory",
+      "keyid": "key-2026-06",
+      "directory_jwks": {
+        "keys": [
+          {
+            "kty": "OKP",
+            "crv": "Ed25519",
+            "kid": "key-2026-06",
+            "x": "WrHvnND7oaWfvrGxUU3FNeJaQDwYj4K3e5fl0fH5p2g"
+          }
+        ]
       }
     }
   },
