@@ -1361,6 +1361,63 @@
   "anchored-extract-verification": {
     "art-286-anchored-extract-verifier": {}
   },
+  "ap2-x402-cart-correlation": {
+    "art-595-ap2-cartmandate-hashchain-builder": {
+      "agent_id": "did:example:agent-001",
+      "subject": "did:example:subject-001",
+      "merchant": "shop.example.com",
+      "stage": "open",
+      "cart_items": [
+        {
+          "sku": "SKU-100",
+          "description": "Widget",
+          "quantity": 2,
+          "unit_price": 9.99,
+          "currency": "USD"
+        },
+        {
+          "sku": "SKU-200",
+          "description": "Gadget",
+          "quantity": 1,
+          "unit_price": 24.5,
+          "currency": "USD"
+        }
+      ]
+    },
+    "art-596-ap2-x402-cart-correlation": {
+      "cart_root": "0x2eeb01a35e5facd325ab3b60ba97fe4d26222584419fdf93106d3ca3575729fb",
+      "cart_items": [
+        {
+          "sku": "SKU-100",
+          "description": "Widget",
+          "quantity": 2,
+          "unit_price": 9.99,
+          "currency": "USD"
+        },
+        {
+          "sku": "SKU-200",
+          "description": "Gadget",
+          "quantity": 1,
+          "unit_price": 24.5,
+          "currency": "USD"
+        }
+      ],
+      "merchant": "0x2a1530c4c41db0b0b2bb646cb5eb1a67b7158667",
+      "x402_spend_evidence": {
+        "authorization": {
+          "from": "0x2a1530c4c41db0b0b2bb646cb5eb1a67b7158667",
+          "to": "0x2a1530c4c41db0b0b2bb646cb5eb1a67b7158667",
+          "value": "44.480000000000004",
+          "validAfter": "0",
+          "validBefore": "2000000000",
+          "nonce": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        },
+        "digest": "0xb68e5d60d6169bad9739d30399af8f8c7378d464d25f4d971911ab65ef0b014b",
+        "verdict": "AUTHORIZATION_VALID",
+        "disclosure": "ev"
+      }
+    }
+  },
   "arc-agentic-commerce": {
     "art-42-arc-fit-diagnostic": {
       "q1_cpn_connectivity": "yes",
