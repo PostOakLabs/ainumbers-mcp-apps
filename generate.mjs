@@ -2,7 +2,7 @@
 // from ../repo into ./data so the server deploys standalone (Render web service AND
 // Cloudflare Workers static assets both read ./data).
 // Re-run after any AINumbers deploy that touches the pilot tools:  node generate.mjs
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,12 +30,36 @@ mkdirSync(resolve(DATA,'tools'),{recursive:true});
 mkdirSync(resolve(DATA,'manifests'),{recursive:true});
 mkdirSync(resolve(DATA,'mcp'),{recursive:true});
 mkdirSync(resolve(DATA,'chaingraph'),{recursive:true});
+mkdirSync(resolve(DATA,'fv-status'),{recursive:true});
 for (const slug of PILOT) {
   writeFileSync(resolve(DATA,'tools',slug+'.html'), readFileSync(resolve(REPO,'tools',slug+'.html')));
   writeFileSync(resolve(DATA,'manifests',slug+'.manifest.json'), readFileSync(resolve(REPO,'manifests',slug+'.manifest.json')));
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
+
+// ---------------------------------------------------------------------------
+// fv-status/*.json (FV-AGENTSURFACE-BUILD-1) — one generator-emitted artifact
+// per spec_digest, produced by ../repo/scripts/gen-fv-status.mjs. Vendored
+// byte-for-byte (not regenerated here — this repo never runs the site's
+// generators, only copies their output, same as chaingraph.json above), plus
+// a small index worker.mjs reads to build the MCP tool-description pointer.
+// ---------------------------------------------------------------------------
+const FV_STATUS_SRC = resolve(REPO, 'fv-status');
+const fvStatusEntries = [];
+if (existsSync(FV_STATUS_SRC)) {
+  for (const f of readdirSync(FV_STATUS_SRC).filter((f) => f.endsWith('.json'))) {
+    const bytes = readFileSync(resolve(FV_STATUS_SRC, f));
+    writeFileSync(resolve(DATA, 'fv-status', f), bytes);
+    const parsed = JSON.parse(bytes.toString('utf8'));
+    fvStatusEntries.push({ spec_digest: parsed.spec_digest, url: '/fv-status/' + f });
+  }
+}
+writeFileSync(resolve(DATA, 'mcp', 'fv-status-index.json'), JSON.stringify({
+  note: 'one entry per spec_digest present under fv-status/ — today every live ChainGraph node shares one spec_digest (one chaingraph/standard/SPEC.md); worker.mjs degrades to "no pointer" if this list is empty or ambiguous, never fabricates one',
+  entries: fvStatusEntries,
+}, null, 2) + '\n');
+console.log('vendored', fvStatusEntries.length, 'fv-status artifact(s) into ./data/fv-status');
 
 // ---------------------------------------------------------------------------
 // Vendor OCG kernel modules in two places:
@@ -368,6 +392,15 @@ let selfFails = 0;
   const src  = JSON.parse(readFileSync(resolve(REPO, 'chaingraph', 'chaingraph.json'), 'utf8'));
   if (JSON.stringify(vend) !== JSON.stringify(src)) {
     console.error('SELF-CHECK FAIL: data/chaingraph/chaingraph.json does not match site source'); selfFails++;
+  }
+}
+
+// fv-status/*.json — byte equality (straight copy, not a regenerate)
+if (existsSync(FV_STATUS_SRC)) {
+  for (const f of readdirSync(FV_STATUS_SRC).filter((f) => f.endsWith('.json'))) {
+    const src  = readFileSync(resolve(FV_STATUS_SRC, f));
+    const vend = readFileSync(resolve(DATA, 'fv-status', f));
+    if (!src.equals(vend)) { console.error(`SELF-CHECK FAIL: data/fv-status/${f} does not match site source`); selfFails++; }
   }
 }
 

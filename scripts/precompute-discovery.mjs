@@ -34,11 +34,14 @@ function loadDataFromDisk() {
     manifests[slug] = JSON.parse(get('manifests/' + slug + '.manifest.json'));
     widgets[slug] = stripCspMeta(get('tools/' + slug + '.html')) + glue;
   }
+  let fvStatusIndex = { entries: [] };
+  try { fvStatusIndex = JSON.parse(get('mcp/fv-status-index.json')); } catch { /* none yet */ }
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
     chaingraph: JSON.parse(get('chaingraph/chaingraph.json')),
     searchIndex: JSON.parse(get('search-index.json')),
+    fvStatusIndex,
   };
 }
 
