@@ -739,7 +739,8 @@ async function loadData(env) {
   const searchIndex = await (await get('search-index.json')).json();
   const chainFixtures = await (await get('chain-fixtures.json')).json();
   const lifecycle = await (await get('mcp/lifecycle.json')).json();
-  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle };
+  const fvStatusIndex = await (await get('mcp/fv-status-index.json')).json();
+  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex };
   return dataCache;
 }
 
@@ -1100,7 +1101,17 @@ async function callAnchorSuiteTool(toolName, args) {
   }
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures }, { onlyTool = null, mrtr = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex }, { onlyTool = null, mrtr = null } = {}) {
+  // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
+  // spec_digest exists under fv-status/ (today exactly one, since every live
+  // node shares one chaingraph/standard/SPEC.md) — an ambiguous or empty
+  // index degrades to no pointer rather than guessing which digest a node
+  // belongs to (never fabricated).
+  const fvStatusEntries = fvStatusIndex?.entries ?? [];
+  const fvStatusNote = fvStatusEntries.length === 1
+    ? ' FV-status (published/proven/still-trusted for this spec): ' + fvStatusEntries[0].url +
+      ' — a snapshot, not a subscription; this receipt verifies offline regardless of whether that file is ever fetched.'
+    : '';
   const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' });
   // SEP-1865 (final, MCP-728 §T5 A0 delta 2): MCP Apps is negotiated as an EXTENSION, not implied
   // by shipping ui:// resources. Declare it so clients that check capabilities.extensions before
@@ -4227,7 +4238,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         ' Deterministic OpenChainGraph compute node. By default (compute:"auto") inputs are computed server-side on Cloudflare Workers for gpu:false nodes with a registered kernel; compute:"browser" forces client-side execution and returns a browser delegation URL instead. gpu:true nodes always delegate to the browser. Inputs are processed transiently to compute the response and are not stored, logged, or retained. Use synthetic or anonymised inputs only. Exports an AP2 artifact with execution_hash for chain provenance.' +
         (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
         (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
-        ' Open at: ' + node.url,
+        ' Open at: ' + node.url + fvStatusNote,
       inputSchema: {
         policy_parameters: z.record(z.any()).optional()
           .describe('Input parameters for this tool\'s decision function. For gpu:false nodes with a registered kernel, these are computed server-side when compute is "auto" or "server". See the tool\'s manifest for field names.'),
