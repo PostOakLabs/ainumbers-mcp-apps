@@ -1286,11 +1286,14 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'Zero server-side execution -- all tool logic runs deterministically in the user\'s browser. ' +
       'Use this to hand a user a complete workflow: open step 1, run it, export its Policy Mandate, ' +
       'open step 2 (pre-filled from step 1 outputs), repeat. ' +
-      'Named chains: ' + namedChainNames.join(', ') + '.',
+      // Scan finding #3 (2026-08-20): the full named-chain catalog (300+ names) was inlined
+      // here AND in the chain param description — ~10k chars, truncated by most clients.
+      // The names are discoverable via find_chain; state the count, never the list.
+      namedChainNames.length + ' named chains are available — enumerate them with find_chain.',
     inputSchema: {
       chain: z.string().optional().describe(
-        'Name of a pre-defined chain. One of: ' + namedChainNames.join(', ') +
-        '. Mutually exclusive with steps.'
+        'Name of a pre-defined chain (one of ' + namedChainNames.length +
+        ' — enumerate with find_chain). Mutually exclusive with steps.'
       ),
       steps: z.array(z.object({
         tool_id: z.string().describe('Tool slug or tool_id (e.g. "110-customer-risk-rating" or "a2a-fee-calculator")'),
@@ -3438,6 +3441,8 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   server.registerTool('otlp_span_receipt', {
     title: 'Generate or verify a per-span OTel receipt bundle over an OTLP/JSON trace',
     description:
+      // Scan finding #1 (2026-08-20, HIGH): shadowed build_chaingraph — lead with the negative boundary.
+      'OTLP span/trace to receipt bundle; does NOT build a ChainGraph (use build_chaingraph for that). ' +
       'Three modes, chosen by which input is supplied. (1) Pass `trace` alone to GENERATE a receipt bundle: ' +
       'a per-span receipt (span digest, parent-span receipt digest, semconv_snapshot, eddsa-jcs-2022 signature ' +
       'over an ephemeral did:key) for every span, plus a Merkle-rooted (RFC 6962) trace receipt. (2) Pass ' +
@@ -3642,6 +3647,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   server.registerTool('workbook_range_digest', {
     title: 'Digest a workbook range into a Spreadsheet Input Manifest range fragment',
     description:
+      // Scan finding #1 (2026-08-20, HIGH): shadowed emit_chaingraph_artifact — lead with the negative boundary.
+      'Spreadsheet-range digest only; NOT the general artifact emitter (use emit_chaingraph_artifact ' +
+      'to wrap arbitrary computation output — this tool\'s as_artifact mode covers whole-sheet workbook runs only). ' +
       'Evaluates the supplied cells (same evaluator as workbook_evaluate) and computes a canonical ' +
       'values_digest over one A1-style range (e.g. "B2:D9") -- the exact `executionHash(values, {})` path ' +
       'the rest of OCG uses, per chaingraph/workbook/INPUT-MANIFEST.md (WB-2). Returns one `ranges[]` ' +
