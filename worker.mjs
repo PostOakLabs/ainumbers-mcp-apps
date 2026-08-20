@@ -1247,7 +1247,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   server.registerTool('list_ainumbers_tools', {
     title: 'List AINumbers tools',
     description: 'Search the AINumbers catalog (480+ client-side fintech tools). Returns deep-links; prefill-enabled tools accept #in=<base64url(JSON of {element_id: value})>[&run=1] for one-click invocation.',
-    inputSchema: { query: z.string().optional(), category: z.string().optional(), limit: z.number().optional() },
+    inputSchema: {
+      query: z.string().optional().describe('Free-text search over tool name and description. Omit to list without filtering.'),
+      category: z.string().optional().describe('Restrict results to one catalog category (e.g. "mortgage", "kyc"). Omit for all categories.'),
+      limit: z.number().optional().describe('Max rows to return. Default 20.'),
+    },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ query, category, limit }) => {
     const q = (query ?? '').toLowerCase();
@@ -3179,9 +3183,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     inputSchema: {
       subject_hash: z.string().describe('Required. The sha256: subject hash the bundle documents.'),
       records: z.array(z.record(z.any())).optional().describe('human_accountability_records over this subject. Default: [].'),
-      input_hashes: z.array(z.string()).optional(),
-      kernel_version: z.string().optional(),
-      policy_version: z.string().optional(),
+      input_hashes: z.array(z.string()).optional().describe('sha256: hashes of the inputs the verification ran over. Default: [].'),
+      kernel_version: z.string().optional().describe('Version tag of the kernel that produced verification_result.'),
+      policy_version: z.string().optional().describe('Version tag of the policy the kernel was evaluated against.'),
       verification_result: z.string().optional().describe('The §16/§18/§20 verdict.'),
       submission_receipt: z.string().optional().describe('Populate ONLY after a real transmission -- never fabricate.'),
       sd_jwt: z.boolean().optional().describe('When true, also return an SD-JWT export of the bundle (default false).'),
@@ -3251,16 +3255,16 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     inputSchema: {
       artifacts: z.array(z.object({
         execution_hash: z.string().describe('sha256:... -- the OCG artifact hash this entry documents.'),
-        tool_id: z.string().optional(),
+        tool_id: z.string().optional().describe('The tool_id that produced this artifact, if known.'),
         output_payload: z.record(z.any()).optional().describe('Present when caller has the full artifact, not just its hash.'),
       })).min(1).describe('Already-produced artifacts this pack documents, in call order.'),
       subject_hash: z.string().optional().describe('The sha256: subject hash the pack documents (defaults to artifacts[0].execution_hash if omitted).'),
       ha_records: z.array(z.record(z.any())).optional().describe('§27 human_accountability_records -- omit entirely for no HA section.'),
-      kernel_version: z.string().optional(),
-      policy_version: z.string().optional(),
+      kernel_version: z.string().optional().describe('Version tag of the kernel that produced verification_result.'),
+      policy_version: z.string().optional().describe('Version tag of the policy the kernel was evaluated against.'),
       verification_result: z.string().optional().describe('The §16/§18/§20 verdict.'),
       submission_receipt: z.string().optional().describe('Populate ONLY after a real transmission -- never fabricate (same rule as ha_bundle_export).'),
-      session_id: z.string().optional(),
+      session_id: z.string().optional().describe('Session identifier to embed in the receipt, if the caller tracks one.'),
       framing: z.string().optional().describe('Optional framing context for the session receipt\'s PTG-01 regulator prompt.'),
       room_label: z.string().optional().describe('Label for the disclosure-manifest room.'),
       sd_jwt: z.boolean().optional().describe('When true, also return an SD-JWT export of the HA bundle (mirrors ha_bundle_export, default false; no-op when ha_records is absent).'),
@@ -4629,6 +4633,9 @@ export default {
       // client that sends them never reaches the worker at all.
       'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization, Mcp-Session-Id, MCP-Protocol-Version, Mcp-Method, Mcp-Name',
       'Access-Control-Expose-Headers': 'Mcp-Session-Id',
+      // Scan finding #8: /mcp responds JSON-RPC only, never HTML/script -- a restrictive
+      // default-src blocks nothing legitimate and closes the header-omission warning.
+      'Content-Security-Policy': "default-src 'none'",
     };
 
     if (request.method === 'OPTIONS') {
