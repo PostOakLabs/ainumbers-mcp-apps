@@ -45987,7 +45987,7 @@
   "export_capability": [
     "json"
   ],
-  "standards_basis": "implements_standard",
+  "standards_basis": "cites_informative",
   "cited_clause_digest": [
     {
       "digest": "sha256:2d81dcf294e18d029b04d056da7de764a62ffa605ed2e660e0df6c4e46590066",
@@ -46035,7 +46035,7 @@
   "export_capability": [
     "json"
   ],
-  "standards_basis": "implements_standard",
+  "standards_basis": "cites_informative",
   "cited_clause_digest": [
     {
       "digest": "sha256:55eb73880210ba672eed31d82a929c8fc1a558aebc8700615970efc0fc021777",
@@ -46086,12 +46086,12 @@
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
     {
-      "digest": "sha256:2d81dcf294e18d029b04d056da7de764a62ffa605ed2e660e0df6c4e46590066",
+      "digest": "sha256:bb9943b66e58b982d5de1473a1cb924a61b960a86b5a5c935ec09b956de0e770",
       "source_url": "https://eur-lex.europa.eu/eli/reg/2016/1011/2024-01-09/eng",
       "retrieved_at": "2026-08-17",
-      "clause_path": "Art 12(1)(a)-(e)",
+      "clause_path": "Art 12(1)(e)",
       "scheme": "eu-regulation",
-      "id": "Regulation (EU) 2016/1011 Art 12(1)"
+      "id": "Regulation (EU) 2016/1011 Art 12(1)(e)"
     }
   ],
   "compute_proof_ready": "deferred",
@@ -46270,6 +46270,29 @@
   "scope_statement": "The Decision VALUE for each of the 8 fixture requests (whether alice/bob may read/write/delete a given record) is local hand-authored test policy rather than spec-mandated content , AuthZEN §2 explicitly places PDP policy logic out of scope ('The policy language, architecture, and state management aspects of a PDP are beyond the scope of this specification'). What is cited above and exercised by compute() is the request/response ENVELOPE (§5 Subject/Action/Resource, §6.1 request shape with OPTIONAL context, §6.2 response-is-a-Decision, §5.5 boolean-only decision semantics) and the §6.1 context-optional invariant, checked on every decision. CLAUSE-SILENT determination (SO #39(b)(ii), art-617 precedent): the fixture-policy rule table is a design choice named explicitly here, not an omission, and needs no further authority because it is not asserted as spec-mandated.",
   "compute_proof_ready": "deferred",
   "deferred_reason": "New gpu:false node, art-651-authzen-conformance-fixture, scaffolded 2026-08-17 (KERNEL-SCAFFOLD-1). No GPU prove has been run and none is proposed by this scaffold — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real, then measure user_cycles with runq-cpu exec before booking."
+},
+    {
+  "tool_id": "art-653-pta-verifier",
+  "tool_version": "1.0.0",
+  "display_name": "Pta Verifier",
+  "mcp_name": "compute_pta_verifier",
+  "mandate_type": "compliance_control",
+  "wave": 108,
+  "gpu": false,
+  "url": "https://ainumbers.co/tools/653-pta-verifier.html",
+  "description": "Verifies a plain-text-accounting journal supplied as synthetic text: parses dated transactions and their indented postings, checks each transaction's postings sum to zero (double-entry balance), checks any inline running-balance assertions against computed account balances, builds a Merkle root over the parsed transactions for tamper evidence, and emits Evidence Envelope v0.1 receipt fields (schema, event_type, input/output hashes, result_status). Unsupported journal directives (anything outside dated-transaction and posting lines) are listed, not silently dropped or errored on. Scope limit: single-currency amounts only, no multi-commodity or price-conversion support.",
+  "input_schema_ref": "tools/653-pta-verifier.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "planned",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:ebbb6f4037561bc965add6110991854f0ebdb2fe8f9e73b011486ff577dcbd36","valid_from":"2026-07-10"}],
+  "export_capability": ["json"],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-653-pta-verifier, scaffolded 2026-08-20 (KERNEL-SCAFFOLD-1). No GPU prove has been run and none is proposed by this scaffold — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real, then measure user_cycles with runq-cpu exec before booking."
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
