@@ -4109,6 +4109,78 @@
       }
     }
   },
+  "compute_loan_servicing_waterfall_recompute": {
+    "type": "object",
+    "properties": {
+      "application_order": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "payment_amount": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "computed_applied_by_bucket": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "unapplied_remainder": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "core_applied": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "per_bucket_deltas": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string"
+            },
+            "in_declared_order": {
+              "type": "boolean"
+            },
+            "computed_applied": {
+              "type": "integer"
+            },
+            "core_applied": {
+              "type": "integer"
+            },
+            "delta": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "MATCHES",
+          "DIVERGES",
+          "INDETERMINATE"
+        ]
+      },
+      "missing_inputs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "baas_provider_comparator": {
     "type": "object",
     "properties": {}

@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "638 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "643 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-08-20",
-  "tool_count": 638,
+  "generated": "2026-08-21",
+  "tool_count": 643,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -23448,6 +23448,173 @@
       }
     },
     {
+      "name": "compare_agent_spend_control_layers",
+      "description": "Compare agent spend-control mechanisms across platforms (Locus agent connections, Ramp user-delegation and standalone agents) and protocols (AP2 mandates, x402, Visa VIC token scope, Mastercard agentic tokens) on identity model, budget granularity, attenuation rule, expiry, revocation path, audit attribution, and receipt artifact. Read-only local lookup over a dated, cited reference snapshot; no state change, no keys held, nothing sent or registered anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "layers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Subset of layer ids to include."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "agent-spend-control-feature-matrix",
+        "category": "cat-1",
+        "tags": [
+          "agent spend control",
+          "Locus",
+          "Ramp",
+          "AP2",
+          "x402",
+          "Visa VIC",
+          "Mastercard agentic token",
+          "feature matrix"
+        ],
+        "url": "https://ainumbers.co/tools/644-agent-spend-control-feature-matrix.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_interest_accrual_recompute",
+      "description": "Recomputes per-day interest accrual over a caller-declared day-count/compounding convention and diffs the cumulative total against the core's own posted accrual/interest-paid ledger entries. Returns MATCHES, DIVERGES with the first divergent date and cent amount, or INDETERMINATE. Use when an agent needs an independent recompute-and-receipt of a core's interest accrual math, not an audit of the core itself.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "daily_balances",
+          "core_reported_accruals",
+          "product_terms"
+        ],
+        "properties": {
+          "daily_balances": {
+            "type": "array"
+          },
+          "core_reported_accruals": {
+            "type": "array"
+          },
+          "product_terms": {
+            "type": "object"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "661-interest-accrual-recompute",
+        "category": "compliance",
+        "tags": [
+          "interest accrual",
+          "day count convention",
+          "core verification",
+          "recompute",
+          "ledger reconciliation",
+          "compounding",
+          "audit trail"
+        ],
+        "url": "https://ainumbers.co/tools/661-interest-accrual-recompute.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_odnsf_fee_recompute",
+      "description": "Recomputes overdraft and NSF fee events from a posted-transaction ledger under a declared posting-order policy and fee schedule, diffed against core-charged fees. Independent recompute and receipt, not a core alternative or vendor audit.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "ledger",
+          "fee_schedule"
+        ],
+        "properties": {
+          "ledger": {
+            "type": "array",
+            "description": "Posted transaction rows"
+          },
+          "fee_schedule": {
+            "type": "object",
+            "description": "Declared fee amounts, caps, dedup and extended-overdrawn terms"
+          },
+          "core_charged_fees": {
+            "type": "array",
+            "description": "What the core actually charged, to diff against"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "662-odnsf-fee-recompute",
+        "category": "consent-order-remediation",
+        "tags": [
+          "overdraft",
+          "NSF",
+          "fee recompute",
+          "Reg DD",
+          "Reg E",
+          "posting order",
+          "core verify"
+        ],
+        "url": "https://ainumbers.co/tools/662-odnsf-fee-recompute.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_loan_servicing_waterfall_recompute",
+      "description": "Recomputes a single loan payment's application across caller-declared buckets under the note's own bucket application order, and diffs the result against the core's actual applied breakdown.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "application_order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bucket_balances": {
+            "type": "object"
+          },
+          "payment_amount": {
+            "type": "integer"
+          },
+          "core_applied": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "application_order",
+          "bucket_balances",
+          "payment_amount"
+        ]
+      },
+      "metadata": {
+        "tool_id": "664-loan-servicing-waterfall-recompute",
+        "category": "mcp",
+        "tags": [
+          "loan-servicing",
+          "payment-waterfall",
+          "payment-application",
+          "escrow",
+          "core-verify",
+          "recompute",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/664-loan-servicing-waterfall-recompute.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
       "name": "a2a_liquidity_simulator",
       "description": "Model intraday cash flow and prefunding requirements across FedNow, RTP, ACH, SEPA Instant, PIX, and UPI. Single and multi-rail simulation with overdraft risk, opportunity cost, and routing waterfall. Client-side, zero PII. Browser-based, client-side only. Zero PII. Link users to https://ainumbers.co/tools/a2a-liquidity-simulator.html for interactive use.",
       "inputSchema": {
@@ -26206,6 +26373,53 @@
           "mcp:compute_authzen_conformance_fixture"
         ],
         "url": "https://ainumbers.co/tools/art-651-authzen-conformance-fixture.html",
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "compute_loan_servicing_waterfall_recompute_2",
+      "description": "Recomputes a single loan payment's application across caller-declared buckets under the note's own bucket application order, and diffs the result against the core's actual applied breakdown, returning MATCHES, DIVERGES (per-bucket deltas), or INDETERMINATE.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "application_order": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bucket_balances": {
+            "type": "object"
+          },
+          "payment_amount": {
+            "type": "integer"
+          },
+          "core_applied": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "application_order",
+          "bucket_balances",
+          "payment_amount"
+        ]
+      },
+      "metadata": {
+        "tool_id": "art-664-loan-servicing-waterfall-recompute",
+        "category": "chaingraph",
+        "tags": [
+          "loan-servicing",
+          "payment-waterfall",
+          "payment-application",
+          "escrow",
+          "core-verify",
+          "recompute",
+          "mcp:compute_loan_servicing_waterfall_recompute"
+        ],
+        "url": "https://ainumbers.co/tools/art-664-loan-servicing-waterfall-recompute.html",
         "ap2_export": false,
         "execution_type": "browser-reference",
         "version": "1.0.0",
