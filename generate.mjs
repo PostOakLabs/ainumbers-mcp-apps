@@ -19,11 +19,59 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 // actually intends the site checkout to be.
 function resolveRepoPath() {
   const flag = process.argv.find(a => a.startsWith('--repo='));
-  if (flag) return resolve(flag.slice('--repo='.length));
-  if (process.env.AINUMBERS_REPO) return resolve(process.env.AINUMBERS_REPO);
-  return resolve(process.cwd(), '..', 'repo');
+  if (flag) return { path: resolve(flag.slice('--repo='.length)), via: '--repo= flag' };
+  if (process.env.AINUMBERS_REPO) return { path: resolve(process.env.AINUMBERS_REPO), via: 'AINUMBERS_REPO env' };
+  return { path: resolve(process.cwd(), '..', 'repo'), via: 'cwd/../repo fallback (default)' };
 }
-const REPO = resolveRepoPath();
+
+// PREFLIGHT-STALE-REFUSE-1: REPO above is never generate.mjs's OWN checkout —
+// generate.mjs lives in mcp-apps-poc and only READS from the site repo it
+// resolves here, under all three tiers of resolveRepoPath() alike. Vendoring
+// from a dirty or stale site checkout is exactly the "617-stale-nodes vendor"
+// incident (P13, board/done/PREFLIGHT-STALE-REFUSE-1.md), so this check is
+// unconditional (no "own worktree" exemption the way preflight.mjs's default
+// mode has one) — refuse (exit 1, plain diagnosis), never silently vendor a
+// dirty or non-descendant checkout. Always prints the resolved path + how it
+// was reached, and why it was accepted when it is.
+function assertRepoFresh(repoPath, via) {
+  console.log(`[repo-resolve] site-repo: ${repoPath} (via ${via})`);
+  const fixMsg = '   Fix: pass --repo=<path> WITH THE EQUALS (--repo=<path>, not --repo <path>) at a clean, up-to-date checkout, or run from a clean worktree (git fetch + branch off current origin/main).';
+  let isGitRepo = true;
+  try {
+    execSync('git rev-parse --is-inside-work-tree', { cwd: repoPath, stdio: ['ignore', 'ignore', 'ignore'] });
+  } catch { isGitRepo = false; }
+  if (!isGitRepo) {
+    console.error(`❌ REFUSING: ${repoPath} is not a git repository (or does not exist).`);
+    console.error(fixMsg);
+    process.exit(1);
+  }
+  let porcelain = '';
+  try {
+    porcelain = execSync('git status --porcelain', { cwd: repoPath, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch { porcelain = ''; }
+  if (porcelain) {
+    const lines = porcelain.split('\n');
+    console.error(`❌ REFUSING: ${repoPath} is dirty (${lines.length} changed path(s)) — resolved via ${via}, and never this script's own checkout, so it cannot be trusted as a clean vendor source.`);
+    for (const l of lines.slice(0, 10)) console.error(`     ${l}`);
+    if (lines.length > 10) console.error(`     … and ${lines.length - 10} more`);
+    console.error(fixMsg);
+    process.exit(1);
+  }
+  let isDescendant = true;
+  try {
+    execSync('git rev-parse --verify origin/main', { cwd: repoPath, stdio: 'ignore' });
+    execSync('git merge-base --is-ancestor origin/main HEAD', { cwd: repoPath, stdio: 'ignore' });
+  } catch { isDescendant = false; }
+  if (!isDescendant) {
+    console.error(`❌ REFUSING: HEAD in ${repoPath} is not a descendant of origin/main (git merge-base --is-ancestor) — stale checkout.`);
+    console.error(fixMsg);
+    process.exit(1);
+  }
+  console.log('[repo-resolve] accepted: clean and descends from origin/main.');
+}
+
+const { path: REPO, via: REPO_VIA } = resolveRepoPath();
+assertRepoFresh(REPO, REPO_VIA);
 const DATA = resolve(ROOT, 'data');
 
 mkdirSync(resolve(DATA,'tools'),{recursive:true});
