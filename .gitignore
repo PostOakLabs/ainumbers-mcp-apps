@@ -1,5 +1,6 @@
 node_modules/
 nohup.out
+.dev.vars
 
 # MCP registry publishing — never commit key material or the CLI binary
 key.pem
