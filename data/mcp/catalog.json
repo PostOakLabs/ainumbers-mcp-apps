@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "643 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "653 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-08-21",
-  "tool_count": 643,
+  "generated": "2026-08-22",
+  "tool_count": 653,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -988,7 +988,7 @@
         "category": "treasury-strategy",
         "tags": [],
         "url": "https://ainumbers.co/tools/42-cashflow-forecaster-stress-lab.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -5446,7 +5446,7 @@
           "compliance"
         ],
         "url": "https://ainumbers.co/tools/174-peppol-xml-auditor.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -13133,7 +13133,7 @@
           "esma"
         ],
         "url": "https://ainumbers.co/tools/394-mica-periodic-reporting-obligation-mapper.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -13929,7 +13929,7 @@
         "category": "fintech",
         "tags": [],
         "url": "https://ainumbers.co/tools/426-trade-sanctions-compliance-checker.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -13947,7 +13947,7 @@
         "category": "fintech",
         "tags": [],
         "url": "https://ainumbers.co/tools/427-bank-guarantee-structuring-tool.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -14571,7 +14571,7 @@
           "explainability"
         ],
         "url": "https://ainumbers.co/tools/452-fair-lending-ai-bias-assessment.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -14589,7 +14589,7 @@
         "category": "fintech",
         "tags": [],
         "url": "https://ainumbers.co/tools/453-account-takeover-detection-policy-builder.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -14607,7 +14607,7 @@
         "category": "fintech",
         "tags": [],
         "url": "https://ainumbers.co/tools/454-first-party-fraud-mule-detection-framework.html",
-        "ap2_export": false,
+        "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.1.0",
         "prefill": true
@@ -23448,6 +23448,270 @@
       }
     },
     {
+      "name": "validate_dora_roi_xbrl_csv_package",
+      "description": "Validates a prepared DORA Register of Information xBRL-CSV package (report.json, FilingIndicators.csv, parameters.csv, archive filename, table CSVs) against the EBA DPM 4.0 filing rules documented in the CSSF NCA submission guide: exact report.json documentType/extends content, lowercase FilingIndicators booleans, parameters.csv field order and decimalsMonetary=-3, archive naming convention, and representative per-table mandatory-column and LEI-format/checksum checks. Browser-based, client-side only, zero PII, zero network (no GLEIF lookup). Link users to https://ainumbers.co/tools/633-dora-roi-xbrl-csv-validator.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "archiveFilename": {
+            "type": "string"
+          },
+          "reportJson": {
+            "type": "string"
+          },
+          "filingIndicators": {
+            "type": "string"
+          },
+          "parametersCsv": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "633-dora-roi-xbrl-csv-validator",
+        "category": "compliance",
+        "tags": [
+          "DORA",
+          "Register of Information",
+          "xBRL-CSV",
+          "EBA",
+          "DPM 4.0",
+          "ICT third-party risk",
+          "regulatory reporting"
+        ],
+        "url": "https://ainumbers.co/tools/633-dora-roi-xbrl-csv-validator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "calculate_cass15_safeguarding_reconciliation",
+      "description": "Computes the UK CASS 15.8 daily safeguarding reconciliation: per-customer individual balance build-up floored at zero with no cross-customer netting (15.8.31R/15.8.30R), unallocated funds included in the requirement until allocated (15.8.30R(2)), safeguarding resource summed across the four CASS 15.8.26R component types, shortfall/excess/reconciled verdict computed independently per currency (no FX conversion), and the same-day rectification timing note (15.8.50R). Documented-non-standard-method toggle per 15.8.37R. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/634-cass15-safeguarding-reconciliation-calc.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          },
+          "tolerance": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "634-cass15-safeguarding-reconciliation-calc",
+        "category": "compliance",
+        "tags": [
+          "CASS 15",
+          "safeguarding",
+          "reconciliation",
+          "FCA",
+          "e-money",
+          "payment institutions",
+          "PS25/12"
+        ],
+        "url": "https://ainumbers.co/tools/634-cass15-safeguarding-reconciliation-calc.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "check_emir3_active_account_requirement",
+      "description": "Determines an EU counterparty's EMIR Article 7a Active Account Requirement posture: in-scope gate (EUR/PLN IRD, EUR STIR clearing-threshold exceedance), the active-account obligation (Art 7a(1)), the EUR 6 billion representativeness threshold and five-cleared-trades-per-subcategory annual-average test (Art 7a(4)), and the RTS Article 10 reporting deadline (last day of January/July). Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/635-emir3-active-account-requirement-checker.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          },
+          "notionalVolume": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "635-emir3-active-account-requirement-checker",
+        "category": "compliance",
+        "tags": [
+          "EMIR 3",
+          "Active Account Requirement",
+          "AAR",
+          "Article 7a",
+          "clearing",
+          "derivatives",
+          "CCP"
+        ],
+        "url": "https://ainumbers.co/tools/635-emir3-active-account-requirement-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "calculate_basel_sma_operational_risk_capital",
+      "description": "Computes Basel Standardised Measurement Approach operational risk capital: Business Indicator (BI = ILDC+SC+FC per OPE25.5), Business Indicator Component via the marginal 12/15/18% bucket table (OPE25.7), Loss Component (15x average annual losses over 10 years, OPE25.8), Internal Loss Multiplier (ILM = ln(e-1+(LC/BIC)^0.8), OPE25.8), Operational Risk Capital (ORC=BICxILM) and RWA (12.5xORC), with a jurisdiction toggle for the EU/UK national-discretion ILM=1 fix (OPE25.11). Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/636-basel-sma-oprisk-calculator.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jurisdiction": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "636-basel-sma-oprisk-calculator",
+        "category": "compliance",
+        "tags": [
+          "Basel",
+          "operational risk",
+          "SMA",
+          "OPE25",
+          "capital requirements",
+          "BIC",
+          "ILM"
+        ],
+        "url": "https://ainumbers.co/tools/636-basel-sma-oprisk-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "calculate_frtb_sa_sbm_capital",
+      "description": "Computes FRTB Standardised Approach sensitivities-based-method delta capital for a synthetic portfolio across GIRR, FX and Equity risk classes: risk weights per MAR21 Tables 1/9/10, intra-bucket correlations (GIRR tenor-decay formula, equity bucket-group percentages), cross-bucket gamma parameters, and the three correlation scenarios (medium/high x1.25 capped 100%/low per the 2x-100% floor formula), reporting the maximum total per MAR21.7. Demo/educational, delta-only, three risk classes only. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/637-frtb-sa-sbm-calculator.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "637-frtb-sa-sbm-calculator",
+        "category": "compliance",
+        "tags": [
+          "FRTB",
+          "market risk",
+          "SBM",
+          "MAR21",
+          "GIRR",
+          "sensitivities-based method",
+          "trading book"
+        ],
+        "url": "https://ainumbers.co/tools/637-frtb-sa-sbm-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "map_uk_ctp_exposure",
+      "description": "Maps a firm's material/important business services onto the four UK-designated Critical Third Parties (Amazon Web Services EMEA SARL, Google Cloud EMEA Limited, Microsoft Ireland Operations Limited, Oracle Corporation UK Limited; designated effective 13 Jul 2026 per HM Treasury) via legal-entity-exact matching, flags indirect chain exposure via sub-outsourcing/reseller keyword detection, computes HHI provider concentration, and splits CTP-owed duties (PRA/FCA PS16/24-PS24/16 Fundamental Rules 1-6) from firm-retained duties (SS2/21 outsourcing risk assessment, exit strategy, operational-resilience impact tolerances) which designation does not reduce. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/638-uk-ctp-exposure-mapper.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "638-uk-ctp-exposure-mapper",
+        "category": "compliance",
+        "tags": [
+          "UK CTP",
+          "critical third parties",
+          "PRA PS16/24",
+          "FCA PS24/16",
+          "operational resilience",
+          "third-party risk",
+          "cloud concentration"
+        ],
+        "url": "https://ainumbers.co/tools/638-uk-ctp-exposure-mapper.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "estimate_amla_direct_supervision_eligibility",
+      "description": "Estimates whether a credit institution, financial institution, or CASP clears the AMLAR (Regulation EU 2024/1620) Art. 12(1) six-Member-State activity gate for the 2027 AMLA direct-supervision selection round: establishment-based presence always counts, freedom-to-provide-services presence counts only where per-Member-State activity is material (more than 20,000 customers OR more than EUR 50 million annual transaction volume, OR logic), home Member State always counts. Reports gate-margin detail and the selection timeline (selection begins 1 Jul 2027, supervision begins 1 Jan 2028), and discloses that final selection additionally requires AMLA residual-risk-profile ranking under Art. 13, not computable client-side. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/639-amla-direct-supervision-eligibility-estimator.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "639-amla-direct-supervision-eligibility-estimator",
+        "category": "compliance",
+        "tags": [
+          "AMLA",
+          "AMLAR",
+          "direct supervision",
+          "selected obliged entities",
+          "AML/CFT",
+          "EU",
+          "eligibility gate"
+        ],
+        "url": "https://ainumbers.co/tools/639-amla-direct-supervision-eligibility-estimator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "lookup_travel_rule_corridor_status",
+      "description": "Looks up an origin/destination jurisdiction pair for crypto Travel Rule corridor status using an editable reference set keyed to the FATF Seventh Targeted Update (16 Jul 2026: 83 percent of 109 surveyed jurisdictions have legislation in force, 11 in progress, 60 percent of in-force jurisdictions have zero enforcement action; Argentina, Cambodia, Colombia, and Vietnam are named as having no framework). Reports BOTH-LIVE / ONE-SIDED sunrise asymmetry / NEITHER-LIVE / OUT-OF-SCOPE (self-hosted wallet counterparty) verdicts, applies each leg's numeric threshold (EU TFR zero-threshold since 30 Dec 2024 with self-hosted ownership verification above EUR 1,000) to the entered amount to select a full vs reduced required-field tier, and surfaces the enforcement-gap flag beside legislation status. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/640-travel-rule-sunrise-matrix.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "640-travel-rule-sunrise-matrix",
+        "category": "compliance",
+        "tags": [
+          "travel rule",
+          "FATF",
+          "TFR",
+          "crypto-asset transfers",
+          "AML/CFT",
+          "sunrise problem",
+          "VASP"
+        ],
+        "url": "https://ainumbers.co/tools/640-travel-rule-sunrise-matrix.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "model_sanctions_alert_economics",
+      "description": "Models the annualized cost of a sanctions/AML screening program's alert volume: computes alerts per year from screened volume and alert rate, analyst hours from an L1-triage plus L2-escalation tier split (each with its own handle time), annualized cost from a loaded analyst rate, true positives from the false-positive rate, and cost per true positive. Produces a threshold-tuning sensitivity curve (alert-rate deltas to cost deltas) and displays the OFAC IEEPA statutory maximum civil penalty (2026: USD 377,700 per violation) as a labelled context anchor never multiplied into the cost arithmetic. Companion to tool 517 (match-score calibration) for economics rather than matching logic. Browser-based, client-side only, zero PII. Link users to https://ainumbers.co/tools/641-sanctions-alert-economics-modeler.html for interactive use.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "metadata": {
+        "tool_id": "641-sanctions-alert-economics-modeler",
+        "category": "compliance",
+        "tags": [
+          "sanctions screening",
+          "alert economics",
+          "false positives",
+          "AML operations",
+          "threshold tuning",
+          "OFAC"
+        ],
+        "url": "https://ainumbers.co/tools/641-sanctions-alert-economics-modeler.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
       "name": "compare_agent_spend_control_layers",
       "description": "Compare agent spend-control mechanisms across platforms (Locus agent connections, Ramp user-delegation and standalone agents) and protocols (AP2 mandates, x402, Visa VIC token scope, Mastercard agentic tokens) on identity model, budget granularity, attenuation rule, expiry, revocation path, audit attribution, and receipt artifact. Read-only local lookup over a dated, cited reference snapshot; no state change, no keys held, nothing sent or registered anywhere.",
       "inputSchema": {
@@ -23608,6 +23872,58 @@
           "zero-PII"
         ],
         "url": "https://ainumbers.co/tools/664-loan-servicing-waterfall-recompute.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_gl_tieout_recompute",
+      "description": "Recomputes subledger-to-GL tie-out totals under a caller-declared chart-of-accounts mapping, either against a reported trial balance (single-source mode) or diffed between two full sources for conversion balancing (diff mode), returning MATCHES, DIVERGES (per-account-code deltas), or INDETERMINATE.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "period_label": {
+            "type": "string"
+          },
+          "ledger": {
+            "type": "array"
+          },
+          "gl_account_mapping": {
+            "type": "object"
+          },
+          "reported_trial_balance": {
+            "type": "array"
+          },
+          "source_a": {
+            "type": "object"
+          },
+          "source_b": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "metadata": {
+        "tool_id": "665-gl-tieout-recompute",
+        "category": "cat-consent-order-remediation",
+        "tags": [
+          "GL tie-out",
+          "trial balance",
+          "chart of accounts",
+          "conversion balancing",
+          "core verify",
+          "recompute",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/665-gl-tieout-recompute.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
