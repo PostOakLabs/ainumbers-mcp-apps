@@ -452,7 +452,7 @@ jobs:
           MCP_URL: https://mcp.ainumbers.co/mcp
           CHAINGRAPH: ${{ github.workspace }}/data/chaingraph/chaingraph.json
           KERNELS_DIR: ${{ github.workspace }}/kernels
-          THROTTLE_MS: '1500'
+          THROTTLE_MS: '2200'
           NEW_NODE_NAMES: ${{ steps.newnodes.outputs.names }}
 
       - name: Verify MCP tool registration (live tools/list)

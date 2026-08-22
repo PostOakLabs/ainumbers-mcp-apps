@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MCP_URL = process.env.MCP_URL || 'https://mcp.ainumbers.co/mcp';
-const THROTTLE_MS = Number(process.env.THROTTLE_MS || 1500);
+const THROTTLE_MS = Number(process.env.THROTTLE_MS || 2200);
 const PROTO = process.env.MCP_PROTOCOL_VERSION || '2025-06-18';
 const STRICT_LOCAL = process.env.STRICT_LOCAL === '1';
 const RL_RETRIES = Number(process.env.RL_RETRIES || 4);
@@ -44,7 +44,7 @@ for (const n of nodes) {
   const pp = loadFixtureArgs(n.tool_id) || {};
   const usingFixture = pp && Object.keys(pp).length>0;
   const r = await callToolResilient(n, { compute:'server', policy_parameters: pp });
-  if (r.rateLimited) { console.warn('~ ' + n.tool_id + ': SKIPPED (Cloudflare 503 rate-limit after retries - expected on a burst)'); skipped++; await sleep(THROTTLE_MS); continue; }
+  if (r.rateLimited) { console.warn('~ ' + n.tool_id + ': SKIPPED (rate-limited after retries - ' + r.error + ' - expected on a burst)'); skipped++; await sleep(THROTTLE_MS); continue; }
   if (!r.ok) { console.error('X ' + n.tool_id + ': MCP transport failed - ' + r.error); fail++; await sleep(THROTTLE_MS); continue; }
   if (r.propagationExhausted) propRetried++;
   if (r.errorText) {
@@ -64,7 +64,7 @@ for (const n of nodes) {
 }
 
 console.log('\n' + pass + ' hash-valid, ' + fail + ' failed, ' + needInput + ' need-input, ' + skipped + ' rate-limit-skipped' + (localWarn?', '+localWarn+' local warning(s)':'') + (propRetried?', '+propRetried+' propagation-exhausted (real miss)':'') + '.');
-if (skipped) console.log('  -> ' + skipped + ' skipped on Cloudflare 503 (expected on a burst; rotate next run). Not a failure.');
+if (skipped) console.log('  -> ' + skipped + ' skipped on a rate-limit response (503/429, expected on a burst; rotate next run). Not a failure.');
 if (fail) { console.error('hash-sweep FAILED - a deployed node returned hash_valid=false or an unexpected error.'); process.exitCode = 1; } else process.exitCode = 0;
 
 function isPropagationCandidate(errorText){ return /-32602/.test(errorText) && /not found/i.test(errorText); }
@@ -115,7 +115,18 @@ function loadFixtureArgs(toolId){ const f = join(FIXTURES_DIR, toolId + '.fixtur
 async function callTool(name, args, attempt=0){
   try {
     const res = await fetch(MCP_URL, { method:'POST', headers:{ 'content-type':'application/json', accept:'application/json, text/event-stream', 'mcp-protocol-version':PROTO }, body: JSON.stringify({ jsonrpc:'2.0', id:id++, method:'tools/call', params:{ name, arguments:args } }) });
-    if (res.status === 503) { if (attempt < RL_RETRIES) { await sleep(THROTTLE_MS*(attempt+2)); return callTool(name,args,attempt+1); } return { ok:false, rateLimited:true, error:'HTTP 503' }; }
+    if (res.status === 503 || res.status === 429) {
+      if (attempt < RL_RETRIES) {
+        // 429 (our own per-IP MCP_RATE_LIMITER) carries Retry-After; 503 (Cloudflare edge
+        // burst) typically doesn't - fall back to the existing backoff when it's absent.
+        const retryAfterHeader = res.headers.get('retry-after');
+        const retryAfterSec = retryAfterHeader != null ? Number(retryAfterHeader) : NaN;
+        const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec*1000 : THROTTLE_MS*(attempt+2);
+        await sleep(waitMs);
+        return callTool(name,args,attempt+1);
+      }
+      return { ok:false, rateLimited:true, error:'HTTP ' + res.status };
+    }
     const text = await res.text();
     if (!res.ok) return { ok:false, error:'HTTP ' + res.status + ' ' + text.slice(0,100) };
     const j = parseMaybeSSE(text, res.headers.get('content-type') || '');
