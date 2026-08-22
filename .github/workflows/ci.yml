@@ -92,6 +92,15 @@ jobs:
         # a typed 400/-32700 before the transport is touched. Guards against the regression.
         run: node scripts/test-malformed-body-fastfail.mjs
 
+      - name: 🤝 /mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1, 2026-08-22)
+        # The static fast path (initialize / tools|resources|prompts list, Removed-tool
+        # tools/call) served text/event-stream UNCONDITIONALLY, even to an application/json-only
+        # client — reproduced live: mcpqueen scorer dropped 100 -> 62 on 2026-08-12
+        # ("tools/list failed: HTTP 200"), and a plain `curl -d` with no Accept header got 1.7MB
+        # of SSE-framed text a JSON-only parser chokes on. Now content-negotiates on Accept;
+        # SSE-only clients get byte-for-byte unchanged framing (asserted as a negative control).
+        run: node scripts/test-mcp-accept-negotiation.mjs
+
       - name: 🕰️ 2026-07-28 era-gated request rules (MCP728-CONFORM-FIX-2)
         # Invokes the Worker's fetch handler directly against the committed ./data assets, so the
         # modern-era rules (version negotiation, server/discover, resultType, required headers and

@@ -53,6 +53,7 @@ const gates = [
   { name: 'surface-parity (counts/discovery)',    args: ['scripts/surface-parity.mjs'] },
   { name: 'worker hot-path invariants',           args: ['scripts/check-worker-invariants.mjs'] },
   { name: 'malformed-body fast-fail (audit F1)',  args: ['scripts/test-malformed-body-fastfail.mjs'] },
+  { name: '/mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1)', args: ['scripts/test-mcp-accept-negotiation.mjs'] },
   { name: '2026-07-28 era-gated request rules',   args: ['scripts/gate-mcp-era.mjs'] },
   { name: 'build parity + pre-deploy count guard',args: ['scripts/build-mcp-parity.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },

@@ -855,6 +855,51 @@ async function getStaticListTemplate(env, method, toolset) {
   return (_listStatic[key] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
+// ── MCP-CONTENT-NEGOTIATION-FIX-1 ──────────────────────────────────────────────────────────
+// The MCP Streamable HTTP spec requires a POST response to be EITHER `application/json` (one
+// JSON-RPC object) OR `text/event-stream` (SSE), and the choice MUST respect the client's
+// Accept header. None of the results served from this file's static fast path below --
+// initialize / tools|resources|prompts list, and the Removed-tool tools/call rejection -- are
+// genuine server->client streams: each is exactly one JSON-RPC result, precomputed as a single
+// SSE-framed event purely for legacy-client compatibility. Before this fix every one of those
+// sites returned `text/event-stream` UNCONDITIONALLY, so an application/json-only client (e.g.
+// the mcpqueen scorer, or a plain `curl -d` with no Accept header) received `event:
+// message\ndata: {...}` and `JSON.parse` threw on it -- a live interop regression (mcpqueen
+// 100 -> 62, 2026-08-12).
+//
+// clientAcceptsJson: true when the client indicated it can consume a bare JSON body. A missing
+// Accept header, or one that doesn't mention text/event-stream at all (bare `*/*`, or no header
+// the way a plain `curl -d` sends), is treated as JSON-capable -- SSE is opt-in framing for a
+// client that explicitly asked for it and did NOT also offer application/json, never the
+// unconditional default a JSON-only client cannot parse.
+function clientAcceptsJson(request) {
+  const accept = (request.headers.get('Accept') ?? '').toLowerCase();
+  if (accept.includes('application/json')) return true;
+  return !accept.includes('text/event-stream');
+}
+
+// sseToJson: strips the `event: message\ndata: <json>\n\n` envelope that every static/hand-built
+// single-result frame in this file uses (see scripts/precompute-discovery.mjs `frame()`),
+// returning the bare JSON-RPC text. Pure substring ops -- no JSON.parse/re-stringify -- so it's
+// safe to run on the ~330KB tools/list body on every JSON-Accept request.
+function sseToJson(sse) {
+  const dataAt = sse.indexOf('\ndata: ');
+  const end = sse.lastIndexOf('\n\n');
+  if (dataAt === -1 || end === -1 || end <= dataAt) return sse; // not the expected envelope; pass through unchanged
+  return sse.slice(dataAt + 7, end);
+}
+
+// frameResponse: the single choke point for all three static-fast-path result sites below.
+// Emits application/json (content-negotiated, no SSE framing) when the client can take it,
+// text/event-stream (today's unchanged framing) otherwise -- so the SSE path for a client that
+// asked for it is byte-for-byte identical to before this fix.
+function frameResponse(sse, request, corsHeaders) {
+  if (clientAcceptsJson(request)) {
+    return new Response(sseToJson(sse), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
+  return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+}
+
 // BM25 scorer (Workers-runtime safe — no Node APIs).
 function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
   const terms = query.toLowerCase()
@@ -4986,7 +5031,7 @@ export default {
                 } catch (_) { /* telemetry is best-effort; never affect the response */ }
               }));
             }
-            return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+            return frameResponse(sse, request, corsHeaders);
           }
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
           // no JSON.parse / no re-stringify of the (330KB) body. tools/list honors ?toolset=<name>
@@ -4999,7 +5044,7 @@ export default {
           }
           const tpl = await getStaticListTemplate(env, method, toolset);
           const sse = tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id));
-          return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+          return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
       }
 
@@ -5036,7 +5081,7 @@ export default {
             // Not this row's scope (MCP-728 T2 is the unknown-tool code, not lifecycle status).
             const result = { resultType: 'complete', content: [{ type: 'text', text: 'MCP error: Tool ' + toolName + ' not found (Removed)' }], isError: true };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
-            return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+            return frameResponse(sse, request, corsHeaders);
           } else {
             // Genuinely unknown tool name → a JSON-RPC protocol-level error (MCP-728 T2), NOT a
             // tool result. Emitted directly WITHOUT building the full ~186-tool server. That full
