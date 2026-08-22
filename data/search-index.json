@@ -1768,7 +1768,7 @@
       {
         "chain_name": "aml-programme",
         "title": "AML Programme",
-        "description": "Customer risk rating > TM rule building > CTR/SAR thresholds > AML Policy Mandate. Full audited run available in the composer.",
+        "description": "Customer risk rating > TM rule building > CTR/SAR thresholds > AML Policy Mandate. Full receipted run available in the composer.",
         "composer_url": "https://ainumbers.co/chaingraph/chains/aml-consolidation.html",
         "steps": [
           {
@@ -16345,7 +16345,7 @@
         "policy": 2,
         "mandate": 3,
         "full": 1,
-        "audited": 1,
+        "receipted": 1,
         "run": 1,
         "available": 1,
         "in": 1,
@@ -37558,7 +37558,7 @@
       "tm": 5.508037897530106,
       "ctr": 5.508037897530106,
       "thresholds": 4.2087549133998445,
-      "audited": 5.508037897530106,
+      "receipted": 5.508037897530106,
       "available": 3.8985999850960056,
       "110-customer-risk-rating": 4.409425608861996,
       "composite_score": 4.997212273764115,
