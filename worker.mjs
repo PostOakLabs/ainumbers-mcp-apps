@@ -4619,6 +4619,32 @@ function unsupportedMcpVersionResponse(request, body, corsHeaders) {
   );
 }
 
+// C1 (WORKER-HARDENING-GENERATOR-1, 2026-08-22): the CPU-heavy routes below (AuthZEN JCS
+// canonicalization + SHA-256 receipts; kernel execution on tools/call) carried ZERO rate-limit
+// bindings on a Free-plan runtime with a documented 1102-exhaustion history -- one modest client
+// loop could starve every other caller. Two independent Workers Rate Limiting bindings, same
+// binding type + call shape already proven in anchor-suite/src/worker.mjs's RELAY_LIMITER:
+// MCP_RATE_LIMITER (per-IP) bounds one source; MCP_GLOBAL_RATE_LIMITER (keyed on a constant
+// string) bounds aggregate load even under IP-diverse rotation, which a per-IP-only limiter
+// cannot (the audit's A1 finding on the sibling worker, applied here pre-emptively). The binding
+// is a sliding-window REQUEST-RATE limiter, not a true concurrency tracker -- the closest built-in
+// primitive without adding a Durable Object, which the audit calls out as a separate doctrine
+// decision (0xAlpha audit §2 fix 3), not this row's scope. Both bindings are OPTIONAL at read
+// time (undefined in local dev / before provisioning), so absence never blocks traffic -- only an
+// explicit `success:false` from a configured binding does. Checked BEFORE any body parse on every
+// POST to /mcp and /access/v1/* -- earlier and cheaper than the O(1) unknown-tool fast-path
+// further down, which is UNCHANGED and still guards the full ~186-tool build cost for whatever
+// gets past the limiter.
+async function rateLimitExceeded(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const checks = [];
+  if (env.MCP_RATE_LIMITER) checks.push(env.MCP_RATE_LIMITER.limit({ key: ip }));
+  if (env.MCP_GLOBAL_RATE_LIMITER) checks.push(env.MCP_GLOBAL_RATE_LIMITER.limit({ key: 'global' }));
+  if (checks.length === 0) return false; // unconfigured binding -- never block
+  const results = await Promise.all(checks);
+  return results.some((r) => r && r.success === false);
+}
+
 // ---------------------------------------------------------------------------
 // Cloudflare Workers entry point
 // ---------------------------------------------------------------------------
@@ -4636,6 +4662,15 @@ export default {
       // Scan finding #8: /mcp responds JSON-RPC only, never HTML/script -- a restrictive
       // default-src blocks nothing legitimate and closes the header-omission warning.
       'Content-Security-Policy': "default-src 'none'",
+      // C3/A4 (WORKER-HARDENING-GENERATOR-1, 2026-08-22): every dynamic branch below spreads
+      // corsHeaders into its Response, so adding these two here covers all of them in one place --
+      // JSON-RPC/AuthZEN decision responses and SSE must never be cached (a cached SSE reply
+      // through an intermediary is a stale-replay hazard), and nosniff closes the MIME-sniffing
+      // gap the audit noted. The three well-known routes below explicitly re-set Cache-Control to
+      // `public, max-age=3600` AFTER spreading corsHeaders -- that later key wins and stays
+      // correct/unchanged; they keep nosniff from here, which is harmless on a static JSON/CBOR body.
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
     };
 
     if (request.method === 'OPTIONS') {
@@ -4733,6 +4768,10 @@ export default {
         return new Response(JSON.stringify({ decision: false, context: { error: 'method_not_allowed', detail: 'POST only' } }),
           { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } });
       }
+      if (await rateLimitExceeded(request, env)) {
+        return new Response(JSON.stringify({ decision: false, context: { error: 'rate_limited', detail: 'Too many requests. Wait and retry.' } }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } });
+      }
       const azBody = await request.json().catch(() => undefined);
       if (azBody === undefined) {
         return new Response(JSON.stringify({ decision: false, context: { error: 'malformed_request', detail: 'request body is not valid JSON' } }),
@@ -4757,6 +4796,10 @@ export default {
       if (request.method !== 'POST') {
         return new Response(JSON.stringify({ results: [], page: { next_token: '', count: 0, total: 0 }, context: { error: 'method_not_allowed', detail: 'POST only' } }),
           { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } });
+      }
+      if (await rateLimitExceeded(request, env)) {
+        return new Response(JSON.stringify({ results: [], page: { next_token: '', count: 0, total: 0 }, context: { error: 'rate_limited', detail: 'Too many requests. Wait and retry.' } }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } });
       }
       await request.json().catch(() => undefined); // body accepted, not required for the fixture
       const kind = url.pathname.slice('/access/v1/search/'.length);
@@ -4784,6 +4827,15 @@ export default {
         return new Response(
           JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: this MCP server is stateless and does not offer a server-to-client SSE stream or session termination. Use POST for JSON-RPC.' }, id: null }),
           { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // C1: checked before any body parse -- see rateLimitExceeded() above for the two-binding
+      // rationale (per-IP + small global ceiling).
+      if (await rateLimitExceeded(request, env)) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32029, message: 'Rate limit exceeded. Wait and retry.' }, id: null }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } }
         );
       }
 
@@ -5161,8 +5213,13 @@ export default {
       } catch (e) {
         const timedOut = String(e?.message ?? e) === 'handler-timeout';
         console.error('[ainumbers-mcp] handler error:', String(e), e?.stack ?? '');
+        // C2 (WORKER-HARDENING-GENERATOR-1, 2026-08-22): the caller-visible message used to be
+        // String(e) -- any SDK/zod/kernel exception text, which can embed internals. Full detail
+        // (String(e) + stack) still goes to console.error above for diagnosis; the response body
+        // is now a constant. 'Server timeout' is not a leak (the watchdog's own known message)
+        // and stays as-is.
         return Response.json(
-          { jsonrpc: '2.0', error: { code: timedOut ? -32001 : -32603, message: timedOut ? 'Server timeout' : String(e) }, id: body?.id ?? null },
+          { jsonrpc: '2.0', error: { code: timedOut ? -32001 : -32603, message: timedOut ? 'Server timeout' : 'Internal error' }, id: body?.id ?? null },
           { status: timedOut ? 504 : 500, headers: corsHeaders }
         );
       }
