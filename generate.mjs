@@ -276,8 +276,41 @@ const TOOL_FILES = new Set(
 const toolPageUrl = (toolId) =>
   TOOL_FILES.has(toolId) ? 'https://ainumbers.co/tools/' + toolId + '.html' : null;
 
-// Chain docs — one per chain; includes full recipe for find_chain return payload
-const chainDocs = cgChains.map(c => {
+// Live-node filter for the chain projection (WORKER-CHAIN-LIVE-FILTER-1).
+// Node tools are projected `status === 'live'` ONLY — nodeDocs below, toolsetProfiles,
+// outputSchemas, knownToolNames and the counts all carry that predicate. chains[] was the
+// one projection that did not, so find_chain advertised a recipe whose step is a departed
+// tool: `mica-transitional` was returned with entry_mcp_name "route_mica_transitional_deadline"
+// and callable:true while that mcp_name is registered NOWHERE on /mcp (art-99 is
+// status:"deprecated", so the node-tool filters had already dropped it). An external agent
+// was being told it could call something that is gone. Same predicate, same file, now
+// symmetric.
+//
+// A step whose tool_id resolves to NO ChainGraph node is a browser-only HTML tool
+// (no mcp_name, opened via tool_url — 397 such steps across 102 chains today). Those are
+// NOT dead steps and their chains stay: the predicate fires only on a step that resolves to
+// a node whose status is not "live".
+//
+// Scope: this is the DISCOVERY surface (find_chain / data/search-index.json). run_chain and
+// build_workflow_links resolve chains from the vendored chaingraph.json directly in
+// worker.mjs, which is a byte-identical copy of the site SSOT and is not narrowed here.
+const chainDeadSteps = (c) =>
+  (c.steps ?? [])
+    .map((s, i) => ({ pos: i + 1, tool_id: s.tool_id, node: nodeByToolId[s.tool_id] }))
+    .filter((x) => x.node && x.node.status !== 'live');
+const advertisableChains = cgChains.filter((c) => chainDeadSteps(c).length === 0);
+for (const c of cgChains) {
+  const dead = chainDeadSteps(c);
+  if (dead.length) {
+    console.log(
+      'chain "' + c.name + '" withheld from find_chain — non-live step(s): ' +
+      dead.map((d) => 'step' + d.pos + ' ' + d.tool_id + ' (status:' + d.node.status + ')').join(', '),
+    );
+  }
+}
+
+// Chain docs — one per ADVERTISABLE chain; includes full recipe for find_chain return payload
+const chainDocs = advertisableChains.map(c => {
   const steps = (c.steps ?? []).map((s, i) => {
     const node = nodeByToolId[s.tool_id];
     return {
@@ -389,7 +422,7 @@ for (const slug of PILOT) {
 writeFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), JSON.stringify(outputSchemas, null, 2) + '\n');
 console.log('outputSchema projected for', Object.keys(outputSchemas).length, 'tools (read-only from repo/manifests/*)');
 
-console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
+console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains, ' + chainDocs.length + ' advertisable in find_chain) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
 
 // ---------------------------------------------------------------------------
 // Tool deprecation lifecycle (MCP-500-2 §M2.2). Source of truth is the WORKER-repo-local

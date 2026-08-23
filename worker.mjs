@@ -2938,7 +2938,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   server.registerTool('find_chain', {
     title: 'Find ChainGraph workflow chain',
     description:
-      'BM25 search over all ' + (chaingraph?.chains?.length ?? 0) + ' AINumbers ChainGraph chains. ' +
+      // Count the chains this tool actually searches — the index, not chaingraph.json.
+      // generate.mjs withholds any chain whose step resolves to a non-live node
+      // (WORKER-CHAIN-LIVE-FILTER-1), so chaingraph.chains.length would over-report here.
+      'BM25 search over all ' + (searchIndex?.chains?.docs?.length ?? 0) + ' AINumbers ChainGraph chains. ' +
       'Returns ranked chains with their full recipe: ordered node sequence, deep-links, composer URL, and entry tool mcp_name. ' +
       'Agent flow: find_chain(query) → read recipe → call the listed node MCP tools in order, passing parent_hashes between steps. ' +
       'Task-shaped queries work well: "reserve composition recompute", "FR 2052a classification", "CCP margin replication", ' +

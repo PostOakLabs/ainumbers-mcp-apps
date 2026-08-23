@@ -6872,11 +6872,12 @@
       "apor_pct": 5.5,
       "lien_type": "first",
       "is_jumbo": false,
-      "is_rural_or_underserved": false,
-      "creditor_assets_under_2b": false,
-      "loan_count_under_500": false,
-      "property_is_condo_master_policy": false,
-      "year": 2026
+      "year": 2026,
+      "rural_or_underserved_preceding_year": true,
+      "first_lien_covered_txns_sold_or_transferred_count": 120,
+      "creditor_and_affiliate_total_assets": 900000000,
+      "maintains_escrow_for_serviced_loans": true,
+      "serviced_escrows_within_carve_outs": false
     }
   },
   "mra-consent-order-closure-cycle": {
@@ -8062,14 +8063,11 @@
   },
   "servicemember-lending-protections": {
     "art-231-compute-mla-mapr": {
-      "loan_amount": 10000,
-      "term_months": 12,
-      "stated_apr_pct": 28,
-      "finance_charge_total": 800,
-      "credit_insurance_premium_total": 200,
-      "is_credit_card": false,
-      "participation_fee_annual": 0,
-      "application_fee": 0
+      "credit_class": "closed_end",
+      "payment_structure": "single_payment",
+      "loan_amount": 500,
+      "term_days": 45,
+      "finance_charge_total": 28.44
     },
     "art-232-compute-scra-rate-cap": {
       "original_rate_pct": 8,
