@@ -1,0 +1,39 @@
+{
+  // freeze-class: exempt(Tim directive 2026-08-25 — wave 0-2 guardrail build); ships DEFAULT-OFF
+  //
+  // LANE_COUNTER — isolated single-purpose worker (SPEC-DR-05 §2.1–2.3).
+  // Deliberately SEPARATE from ainumbers-mcp: its own script name, its own DO namespace
+  // (migration tag below), its own KV bindings — per Cloudflare DO-lifecycle atomicity,
+  // a new DO class ships in its own migration on its own deployment.
+  //
+  // BEFORE FIRST DEPLOY (Tim/operator, one-time):
+  //   npx wrangler kv namespace create LANE_CEILINGS --env staging
+  //   npx wrangler kv namespace create AIN_IDENTITY_KV --env staging
+  // then replace the two TO_BE_CREATED_PRE_DEPLOY ids with the returned ids.
+  // Deploy: npx wrangler deploy --env staging   (from this directory)
+  "name": "ainumbers-lane-counter",
+  "main": "src/lane-counter.do.mjs",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [{ "name": "LANE_COUNTER", "class_name": "LANE_COUNTER" }]
+  },
+  "migrations": [
+    { "tag": "v1-lane-counter-init", "new_sqlite_classes": ["LANE_COUNTER"] }
+  ],
+  "kv_namespaces": [
+    { "binding": "LANE_CEILINGS", "id": "TO_BE_CREATED_PRE_DEPLOY" },
+    { "binding": "AIN_IDENTITY_KV", "id": "TO_BE_CREATED_PRE_DEPLOY" }
+  ],
+  "wrangler_dev_defaults": {
+    "remote": false
+  },
+  "env": {
+    // Staging: separate script name ⇒ fully isolated deployment + DO namespace.
+    // Production is NOT configured in this file — production enablement is a Tim decision.
+    "staging": {
+      "name": "ainumbers-lane-counter-staging",
+      "workers_dev": true
+    }
+  }
+}
