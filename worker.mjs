@@ -10,6 +10,26 @@ import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
+
+// ---- WAVE-0 guardrails (SPEC-DR-06) — vendored identity verifier, UNCALLED this PR ----
+// freeze-class: exempt(Tim directive 2026-08-25 — wave 0-2 guardrail build); ships DEFAULT-OFF
+import { verifyIdentityHeaders } from './vendor/identity-hmac.mjs';
+
+// DEFAULT-OFF enforcement gate. Activates ONLY when BOTH hold:
+//   (a) the AIN_IDENTITY_KV binding is wired in wrangler.jsonc (Wave-1 work), and
+//   (b) KV key 'ain-identity-enforce' === 'on' (flag flip is Tim-only).
+// Until then this gate early-returns { enforce:false } and the vendored module stays uncalled.
+async function ainIdentityGate(env) {
+  try {
+    const kv = env && env.AIN_IDENTITY_KV;
+    if (!kv || typeof kv.get !== 'function') return { enforce: false, why: 'binding-absent' };
+    const flag = await kv.get('ain-identity-enforce');
+    if (flag !== 'on') return { enforce: false, why: `flag=${String(flag)}` };
+    return { enforce: true, why: 'enforced' }; // unreachable in Wave-0 by contract
+  } catch (e) {
+    return { enforce: false, why: 'kv-error:' + String((e && e.message) || e) };
+  }
+}
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { isConformantEvidence as haIsConformantEvidence, evaluateHaGate } from './kernels/_hagate.mjs';
@@ -4698,6 +4718,18 @@ async function rateLimitExceeded(request, env) {
 // ---------------------------------------------------------------------------
 export default {
   async fetch(request, env, ctx) {
+    // WAVE-0 identity gate — DEFAULT-OFF: returns immediately while 'ain-identity-enforce'
+    // is unset/false (binding unbound ⇒ off). Vendor verify wiring lands in the enforcement PR.
+    const __ainIdentity = await ainIdentityGate(env);
+    if (__ainIdentity.enforce) {
+      const __verdict = await verifyIdentityHeaders(request, env);
+      if (!__verdict.ok) {
+        return new Response(JSON.stringify(__verdict), {
+          status: __verdict.status || 401,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+    }
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
     const corsHeaders = {
