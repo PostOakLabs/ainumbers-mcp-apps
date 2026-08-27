@@ -18,28 +18,20 @@ import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findSiteRepo } from './find-site-repo.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-// A blind '../repo' sibling assumption breaks when this checkout is a nested worktree
-// (mcp-apps-poc/.claude/worktrees/<id>/mcp-apps-poc or mcp-apps-poc/.worktrees/<id>/mcp-apps-poc):
-// '../repo' then resolves inside the worktree nesting, not the real site checkout — silently
-// skipping the site-dependent gates (or, if a stray sibling exists there, comparing against a
-// stale one). Walk up from ROOT looking for the first ancestor with a `repo/.git` — finds a
-// session's own sibling site worktree first, then falls back to the shared workspace root.
-function findSiteRepo(root) {
-  let dir = root;
-  for (let i = 0; i < 8; i++) {
-    const candidate = resolve(dir, 'repo');
-    if (existsSync(resolve(candidate, '.git'))) return candidate;
-    const parent = resolve(dir, '..');
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return resolve(root, '../repo');
-}
-const SITE = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) : findSiteRepo(ROOT);
-const siteOk = existsSync(SITE);
+// findSiteRepo() (FINDSITEREPO-ANCHOR-1, scripts/find-site-repo.mjs) walks up from ROOT looking for
+// the first ancestor with a `repo/.git`, refuses a stale one BY NAME instead of silently anchoring
+// on it, and returns null (never a stale or unverified path) rather than walking further when it
+// finds nothing fresh — see that file for the full rationale.
+const foundSite = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) : findSiteRepo(ROOT);
+// SITE stays a real string (never null) so the schema-validate gate's `resolve(SITE, …)` args below
+// never throw when no site was found — but siteOk is keyed off `foundSite`, never off this sentinel,
+// so an unrelated directory that happens to exist at this bogus path can never be mistaken for a site.
+const SITE = foundSite ?? resolve(ROOT, '.no-site-repo-found');
+const siteOk = foundSite !== null && existsSync(SITE);
 const FULL = process.argv.includes('--full');
 
 // Each gate: { name, args:[...node argv], env?, needsSite? }. Mirrors .github/workflows/ci.yml "validate".
