@@ -36,12 +36,15 @@ function loadDataFromDisk() {
   }
   let fvStatusIndex = { entries: [] };
   try { fvStatusIndex = JSON.parse(get('mcp/fv-status-index.json')); } catch { /* none yet */ }
+  let recipes = null;
+  try { recipes = JSON.parse(get('mcp/recipes.json')); } catch { /* none yet — suite_howto/prompt loop degrade; generate.mjs self-check is the loud gate */ }
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
     chaingraph: JSON.parse(get('chaingraph/chaingraph.json')),
     searchIndex: JSON.parse(get('search-index.json')),
     fvStatusIndex,
+    recipes,
   };
 }
 
