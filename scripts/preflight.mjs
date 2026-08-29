@@ -70,6 +70,13 @@ const gates = [
   { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
   { name: 'id-splice: no string-replacement splice in worker.mjs', args: ['scripts/gate-idreplace-dos.mjs'] },
   { name: 'id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)', args: ['scripts/test-idreplace-dos.mjs'] },
+  // COMPOSITE-FLAG-AGGREGATE-1. NOTE: scripts/linear-hash-freeze.mjs is deliberately NOT wired in
+  // here. It is red on origin/master d33b845 ahead of any change of ours — 8 stale goldens, one
+  // chain no longer fixture-runnable (`current: null`) — measured identically in a detached
+  // origin/master worktree and on this branch, which is how we know this row moved no hash. Wiring
+  // a pre-existing red into preflight would block every push; it needs its own row (goldens
+  // recapture after the WORKER-VENDOR-DRIFT-1 re-vendor).
+  { name: 'composite flag carriage (FB-01/FB-04)', args: ['scripts/gate-composite-flag-carry.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'utility-tools count parity vs site (MCPCOUNTS-FIX-1)', args: ['scripts/check-utility-count-parity.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
