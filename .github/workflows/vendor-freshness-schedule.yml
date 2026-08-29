@@ -15,14 +15,37 @@ name: Vendor Freshness (scheduled)
 # GITHUB_EVENT_NAME on a schedule trigger is "schedule", not "pull_request", so
 # check-vendor-fresh.mjs takes its STRICT path (fails immediately on divergence,
 # no "ahead"/paired-PR tolerance) — correct here since there is no in-flight PR to wait on.
+#
+# ESCALATION (WORKER-VENDOR-DRIFT-1, audit P1-3): re-commenting the same issue every
+# 6h forever has no owner-action path — #289 sat open for ~2 days with the worker
+# serving a stale catalog. After ESCALATE_AFTER_RED_CYCLES consecutive red cycles
+# (counted statelessly from this workflow's own completed default-branch runs, so the
+# count survives issue close/reopen cycles), the drift issue gets the escalation
+# label, the owner is assigned, and an escalation comment names the count.
+#
+# SO #40a DRY-RUN: manual dispatches default to dry_run=true — every check runs for
+# real (they are all read-only), but each irreversible surface (issue create/comment,
+# assign, label, close) is PRINTED as "[dry-run] would ..." instead of performed.
+# Scheduled runs are never dry. Pass -f dry_run=false to force a live dispatch.
 
 on:
   schedule:
     - cron: '0 */6 * * *'   # every 6 hours — the freshness window (N) for this gate
-  workflow_dispatch: {}      # manual trigger for seeding/verifying the gate
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run: print planned actions instead of performing them (no issue create/comment/assign/label/close)'
+        type: boolean
+        required: false
+        default: true
 
 permissions:
   contents: read
+
+env:
+  ESCALATE_AFTER_RED_CYCLES: '2'     # owner-assign after N consecutive red cycles
+  ESCALATION_OWNER: collectrix
+  ESCALATION_LABEL: vendor-drift-escalated
 
 jobs:
   check-freshness:
@@ -64,6 +87,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      actions: read
     steps:
       - name: 📥 Checkout worker (this repo)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -71,16 +95,17 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: 🚨 Open or update the vendor-drift tracking issue
+      - name: 🚨 Open or update the vendor-drift tracking issue (+ escalate after N red cycles)
         # No new third-party action: gh CLI ships preinstalled on ubuntu-latest runners.
         # Idempotent — reuses one open issue by title match instead of spamming a new
         # issue every 6h cycle while the drift persists.
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
         run: |
           TITLE="Vendor drift: worker data/ behind site main"
-          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
           BODY="Scheduled vendor-freshness check (OF-4) found the worker's vendored \`data/chaingraph.json\` and/or \`kernels/\` diverged from \`PostOakLabs/ainumbers\`main beyond one schedule cycle (6h).
 
           This means a site merge touched graph shards/chaingraph.json with no follow-on vendor land — the worker is serving a stale catalog.
@@ -88,10 +113,49 @@ jobs:
           **Fix:** in \`mcp-apps-poc/\`, run \`node generate.mjs\`, commit \`data/\` + \`kernels/\`, push (see CONTRACT §A4).
 
           Failing run: $RUN_URL"
+          EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
-            gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "Still diverged as of this cycle. $RUN_URL"
+            ISSUE="$EXISTING"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] would comment on issue #$ISSUE: \"Still diverged as of this cycle. $RUN_URL\""
+            else
+              gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "Still diverged as of this cycle. $RUN_URL"
+            fi
           else
-            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] would create issue \"$TITLE\" with body:"
+              echo "$BODY"
+              ISSUE=""
+            else
+              ISSUE_URL=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY")
+              ISSUE=$(basename "$ISSUE_URL")
+            fi
+          fi
+
+          # Consecutive red cycles: this workflow's completed default-branch runs,
+          # newest first, current run excluded. success = the streak's end;
+          # cancelled/skipped = neutral (not counted, streak continues through them);
+          # anything else = one more red cycle. Stateless — derived from run history,
+          # never from issue comments, so it survives close/reopen cycles.
+          CONSEC=1
+          while read -r CONCL; do
+            [ -z "$CONCL" ] && continue
+            case "$CONCL" in
+              success) break ;;
+              cancelled|skipped) continue ;;
+              *) CONSEC=$((CONSEC+1)) ;;
+            esac
+          done < <(gh run list --repo "$GITHUB_REPOSITORY" --workflow vendor-freshness-schedule.yml --branch master --status completed --limit 30 --json databaseId,conclusion --jq ".[] | select(.databaseId != $CURRENT_RUN_ID) | .conclusion")
+          echo "Consecutive red cycles (this run included): $CONSEC (escalation threshold: $ESCALATE_AFTER_RED_CYCLES)"
+
+          if [ -n "$ISSUE" ] && [ "$CONSEC" -ge "$ESCALATE_AFTER_RED_CYCLES" ]; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] ESCALATION WOULD FIRE: $CONSEC consecutive red cycles >= $ESCALATE_AFTER_RED_CYCLES — would ensure label '$ESCALATION_LABEL' exists, assign @$ESCALATION_OWNER, add the label, and comment the escalation notice on #$ISSUE"
+            else
+              gh label create "$ESCALATION_LABEL" --repo "$GITHUB_REPOSITORY" --color D93F0B --description "Vendor drift escalated: N consecutive red vendor-freshness cycles" --force
+              gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" --add-assignee "$ESCALATION_OWNER" --add-label "$ESCALATION_LABEL"
+              gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body "🚨 ESCALATION: $CONSEC consecutive red vendor-freshness cycles (threshold $ESCALATE_AFTER_RED_CYCLES). Owner @$ESCALATION_OWNER assigned — the worker is serving a stale catalog; run \`node generate.mjs\` and commit \`data/\` + \`kernels/\` (CONTRACT §A4). $RUN_URL"
+            fi
           fi
 
   close-on-green:
@@ -109,9 +173,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
         run: |
           TITLE="Vendor drift: worker data/ behind site main"
           EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
-            gh issue close "$EXISTING" --repo "$GITHUB_REPOSITORY" --comment "Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[dry-run] would close issue #$EXISTING with comment: \"Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL\""
+            else
+              gh issue close "$EXISTING" --repo "$GITHUB_REPOSITORY" --comment "Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL"
+            fi
+          else
+            echo "No open vendor-drift issue — nothing to close."
           fi

@@ -582,7 +582,13 @@ import * as art65     from './art-65-ai-conformity-pack-builder.kernel.mjs';
 import * as art651    from './art-651-authzen-conformance-fixture.kernel.mjs';
 import * as art652    from './art-652-verify-receipt.kernel.mjs';
 import * as art653    from './art-653-pta-verifier.kernel.mjs';
+import * as art654    from './art-654-perp-funding-implied-yield.kernel.mjs';
+import * as art655    from './art-655-publish-market-mark-head.kernel.mjs';
+import * as art656    from './art-656-derivatives-margin-workbench.kernel.mjs';
+import * as art657    from './art-657-forecast-accuracy-scorer.kernel.mjs';
+import * as art658    from './art-658-publish-index-head.kernel.mjs';
 import * as art66     from './art-66-fria-postmarket-monitoring-builder.kernel.mjs';
+import * as art660    from './art-660-compile-nav-error-evidence-pack.kernel.mjs';
 import * as art661    from './art-661-interest-accrual-recompute.kernel.mjs';
 import * as art662    from './art-662-odnsf-fee-recompute.kernel.mjs';
 import * as art664    from './art-664-loan-servicing-waterfall-recompute.kernel.mjs';
@@ -1218,7 +1224,13 @@ export const KERNELS = {
   'art-651-authzen-conformance-fixture':                        art651,
   'art-652-verify-receipt':                                     art652,
   'art-653-pta-verifier':                                       art653,
+  'art-654-perp-funding-implied-yield':                         art654,
+  'art-655-publish-market-mark-head':                           art655,
+  'art-656-derivatives-margin-workbench':                       art656,
+  'art-657-forecast-accuracy-scorer':                           art657,
+  'art-658-publish-index-head':                                 art658,
   'art-66-fria-postmarket-monitoring-builder':                  art66,
+  'art-660-compile-nav-error-evidence-pack':                    art660,
   'art-661-interest-accrual-recompute':                         art661,
   'art-662-odnsf-fee-recompute':                                art662,
   'art-664-loan-servicing-waterfall-recompute':                 art664,
