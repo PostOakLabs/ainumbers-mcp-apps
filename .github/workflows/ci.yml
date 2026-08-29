@@ -171,6 +171,27 @@ jobs:
         # this WU's). Not blocking §M2.1-§M2.4 above.
         run: node scripts/gate-tool-selection-eval.mjs
 
+      - name: 🧪 Hash-SSOT gate self-test (WORKER-HASH-SSOT-1) — proves the gate below can go RED
+        # SO #34c: a gate only ever observed green has not been observed. Mutation-tests the NEXT
+        # step's own rule function against fixtures that each re-introduce the deleted local
+        # cgCanon/cgExecutionHash copy, plus a clean control and two comment-only negative controls.
+        run: node scripts/gate-hash-ssot.selftest.mjs
+
+      - name: 🔒 Hash-SSOT gate — worker.mjs holds no second execution-hash implementation
+        # worker.mjs carried a local cgCanon/cgExecutionHash pair commented "PARITY: byte-identical
+        # to kernels/_hash.mjs". It was not: it dropped assertIJson(), so two DIFFERENT wire
+        # documents ({"n":9007199254740992} / {"n":9007199254740993}) received the SAME
+        # execution_hash on the live endpoint. A comment asserting parity is not a gate; this is.
+        run: node scripts/gate-hash-ssot.mjs
+
+      - name: 🧮 I-JSON refusal on the hash surface (WORKER-HASH-SSOT-1)
+        # Runtime half: over a real tools/call round-trip, verify_execution_hash and
+        # emit_chaingraph_artifact must refuse non-round-trippable input with a structured -32602
+        # (error.data.reason "ijson_violation") and emit NO digest — while in-range input still
+        # hashes identically to executionHash() recomputed from the SSOT module (SO #34: the
+        # expected value is derived from the primary source, never read back from the tool).
+        run: node scripts/gate-hash-ijson.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
