@@ -192,6 +192,26 @@ jobs:
         # expected value is derived from the primary source, never read back from the tool).
         run: node scripts/gate-hash-ijson.mjs
 
+      - name: 🧪 id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1) — proves the gate below can go RED
+        # SO #34c. Mutation-tests the NEXT step's own rule function against 16 fixtures that each
+        # re-introduce the string-replacement splice (or drop one of the three fixes), plus a clean
+        # control and five negative controls. Its first run caught a real false-positive in the gate.
+        run: node scripts/gate-idreplace-dos.selftest.mjs
+
+      - name: 🔒 id-splice gate — worker.mjs must splice the JSON-RPC id with a replacer FUNCTION
+        # `tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id))` let a String.replace replacement
+        # token in an attacker-supplied id splice the 1.74MB tools/list template into itself: id
+        # "$'" returned 3,480,144 bytes for a ~40-byte unauthenticated request, and batched it
+        # returned a live 503 (Error 1102). Structural half — a function replacement has no grammar.
+        run: node scripts/gate-idreplace-dos.mjs
+
+      - name: 💥 id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)
+        # Runtime half: drives the real worker.mjs default export against a local ASSETS stub and
+        # asserts every String.replace token ($' $` $& $$) round-trips LITERALLY at 1.00x template
+        # size, container ids are refused (-32600), batches are refused before any server build, and
+        # an oversized body is capped (413) — while ordinary ids are byte-for-byte unaffected.
+        run: node scripts/test-idreplace-dos.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -33,6 +33,7 @@ const foundSite = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) :
 const SITE = foundSite ?? resolve(ROOT, '.no-site-repo-found');
 const siteOk = foundSite !== null && existsSync(SITE);
 const FULL = process.argv.includes('--full');
+const SHOW = (process.argv.find((a) => a.startsWith('--show=')) || '').slice(7);
 
 // Each gate: { name, args:[...node argv], env?, needsSite? }. Mirrors .github/workflows/ci.yml "validate".
 const gates = [
@@ -66,6 +67,9 @@ const gates = [
   { name: 'hash-SSOT gate self-test (WORKER-HASH-SSOT-1)', args: ['scripts/gate-hash-ssot.selftest.mjs'] },
   { name: 'hash-SSOT: no second execution-hash impl in worker.mjs', args: ['scripts/gate-hash-ssot.mjs'] },
   { name: 'I-JSON refusal on the hash surface (WORKER-HASH-SSOT-1)', args: ['scripts/gate-hash-ijson.mjs'] },
+  { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
+  { name: 'id-splice: no string-replacement splice in worker.mjs', args: ['scripts/gate-idreplace-dos.mjs'] },
+  { name: 'id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)', args: ['scripts/test-idreplace-dos.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'utility-tools count parity vs site (MCPCOUNTS-FIX-1)', args: ['scripts/check-utility-count-parity.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
@@ -98,6 +102,7 @@ for (const g of gates) {
   const out = (r.stdout || '') + (r.stderr || '');
   if (r.status === 0) {
     console.log('✓');
+    if (SHOW && g.name.includes(SHOW)) console.log(out.split('\n').filter(Boolean).map((l) => '    ' + l).join('\n'));
   } else {
     console.log('✗');
     console.log(out.split('\n').filter(Boolean).slice(-12).map((l) => '    ' + l).join('\n'));
