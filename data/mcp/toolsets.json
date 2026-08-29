@@ -89,7 +89,8 @@
       "age_emir_reconciliation_breaks",
       "recompute_csdr_penalty",
       "classify_emir3_active_account_status",
-      "classify_emir3_simm_approval_scope"
+      "classify_emir3_simm_approval_scope",
+      "compute_derivatives_margin_workbench"
     ],
     "anchors": [
       "build_agent_traffic_policy",
