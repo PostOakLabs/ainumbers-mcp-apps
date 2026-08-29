@@ -825,6 +825,43 @@ const STATIC_LIST_FILE = {
   'prompts/list':   'mcp/static/prompts-list.sse.txt',
 };
 const ID_PLACEHOLDER = '__OCG_ID__';
+
+// ── WORKER-IDREPLACE-DOS-1 (2026-08-29): id-splice hardening on the public endpoint ───────────
+// Structurally enforced by scripts/gate-idreplace-dos.mjs; behaviourally by
+// scripts/test-idreplace-dos.mjs. Both run in preflight and in CI.
+
+// JSON-RPC 2.0 §4: "id: An identifier ... MUST contain a String, Number, or NULL value."
+// A container id is not a valid request AND is the thing that reaches the template splice, so it is
+// refused at the door rather than coerced. `undefined` is excluded here on purpose: an ABSENT id is
+// a notification, a separate and legal shape handled by its own 202 branch above.
+function isValidJsonRpcId(v) {
+  return v === null || typeof v === 'string' || (typeof v === 'number' && Number.isFinite(v));
+}
+
+// Request body cap (P1-2). MCP request bodies are small — the largest legitimate one is a tools/call
+// arguments object — while an unbounded body is free CPU to burn on an unauthenticated endpoint.
+const MAX_REQUEST_BODY_BYTES = 1048576; // 1 MiB
+
+// Assert the substitution did exactly what was intended: one splice, and the bytes that landed are
+// the id JSON we meant to insert.
+//
+// ⚠ This is deliberately a BOUNDED check, not a JSON.parse of the result. Parsing is what this
+// whole static path exists to avoid: the template is ~1.74MB, and a full parse per tools/list would
+// re-open the cold-isolate CPU exhaustion (Error 1102) that the static path was built to close —
+// i.e. the fix would reintroduce the class of failure it is fixing. It does not need to: the
+// template is build-time-generated and already checked by surface-parity + build-mcp-parity, so the
+// ONLY untrusted byte range in the output is the id. Verifying that range exactly, in O(len(id)),
+// covers the entire attack surface. Length equality additionally proves no second splice occurred.
+function assertSingleSplice(out, tpl, idJson) {
+  const at = tpl.indexOf(ID_PLACEHOLDER);
+  if (at < 0) throw new Error('static template carries no id placeholder');
+  if (out.length !== tpl.length - ID_PLACEHOLDER.length + idJson.length) {
+    throw new Error('id splice changed the frame length unexpectedly — replacement was interpreted');
+  }
+  if (out.slice(at, at + idJson.length) !== idJson) {
+    throw new Error('id splice did not insert the intended bytes');
+  }
+}
 let _initStatic = null;
 const _listStatic = {};
 async function getStaticInitialize(env) {
@@ -4941,8 +4978,35 @@ export default {
         );
       }
 
+      // P1-2 (WORKER-IDREPLACE-DOS-1): cap the request body BEFORE parsing it. An unbounded body on
+      // an unauthenticated public endpoint is free CPU — the parse alone is attacker-controlled work.
+      // Content-Length is the byte-accurate check and Cloudflare sets it on a buffered POST; the
+      // post-read length check below is the backstop for a chunked/absent-header request. That second
+      // check counts UTF-16 code units, which is CONSERVATIVE in the safe direction (UTF-8 bytes >=
+      // code units, so anything it rejects is genuinely over the cap).
+      const declaredLength = Number(request.headers.get('content-length'));
+      if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BODY_BYTES) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
+          { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Parse body once -- needed for both the MCP handler and telemetry extraction.
-      const body = await request.json().catch(() => undefined);
+      // Read as TEXT first so the cap can be enforced on a request that declared no Content-Length.
+      // (request.text() drains the stream exactly as request.json() did — the parsed body is passed
+      // explicitly to transport.handleRequest below, and toReqRes() rebuilds the request bodyless,
+      // so nothing downstream re-reads the stream. See the audit-F1 note just below.)
+      const rawBody = await request.text().catch(() => undefined);
+      if (rawBody !== undefined && rawBody.length > MAX_REQUEST_BODY_BYTES) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
+          { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      let body;
+      try { body = rawBody === undefined || rawBody === '' ? undefined : JSON.parse(rawBody); }
+      catch { body = undefined; }
 
       // Fast-fail on a syntactically-invalid JSON body (audit F1, 2026-07-09). `request.json()`
       // consumes the fetch Request's body stream; if it fails to parse, `body` is `undefined`
@@ -4957,6 +5021,32 @@ export default {
       if (body === undefined && request.method === 'POST') {
         return new Response(
           JSON.stringify({ jsonrpc: '2.0', error: { code: -32700, message: 'Parse error: request body is not valid JSON' }, id: null }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // P1-1 (WORKER-IDREPLACE-DOS-1): refuse JSON-RPC BATCHES, structurally and early.
+      // An array body carries no scalar `id` and no string `method`, so it slips past every O(1)
+      // fast path below and lands on the full ~186-tool server build — once per element. That is the
+      // documented Error-1102 (HTTP 503) source, reachable unauthenticated at N-times amplification
+      // for one request. It is also the multiplier that turned the `$'` splice above from a 2x
+      // response into an outage. Rejecting here costs one Array.isArray and happens before any build.
+      // Spec-correct as well as safe: MCP REMOVED JSON-RPC batching in the 2025-06-18 revision, and
+      // this worker has never advertised support for it.
+      if (Array.isArray(body)) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request: JSON-RPC batching is not supported (removed in MCP revision 2025-06-18). Send one request per POST.' }, id: null }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // P0b (WORKER-IDREPLACE-DOS-1): a PRESENT id must be a JSON-RPC scalar (String|Number|Null).
+      // This runs before every dispatch path, so a container id can never reach the template splice
+      // (where JSON.stringify would have rendered it into the 1.7MB frame) nor the SDK transport.
+      // An ABSENT id is untouched here — that is a notification, handled by its own 202 branch.
+      if (body !== undefined && body !== null && typeof body === 'object' && 'id' in body && !isValidJsonRpcId(body.id)) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request: "id" must be a string, number, or null (JSON-RPC 2.0 §4)' }, id: null }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -5100,7 +5190,22 @@ export default {
             if (requested && (await getToolsetNames(env)).has(requested)) toolset = requested;
           }
           const tpl = await getStaticListTemplate(env, method, toolset);
-          const sse = tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id));
+          // ⛔ THE REPLACEMENT MUST BE A FUNCTION (WORKER-IDREPLACE-DOS-1, 2026-08-29 — a live P0).
+          // `String.prototype.replace` with a STRING second argument runs GetSubstitution over it,
+          // which interprets `$'` (everything AFTER the match), `` $` `` (everything BEFORE it),
+          // `$&` (the match) and `$$`. ID_PLACEHOLDER sits at byte 43 of a ~1.74MB template, so the
+          // previous `tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id))` let an id of `"$'"`
+          // splice the rest of the template back into itself: a ~40-byte unauthenticated request
+          // bought a 2x amplified response (measured 3,480,144 bytes), and a batch of them returned
+          // a live HTTP 503 / Cloudflare Error 1102, retryable:false. A single-request DoS.
+          //
+          // A replacer FUNCTION is exempt from that interpretation — its return value is inserted
+          // verbatim — so this is the fix, not merely an escape of the known tokens. (Escaping the
+          // string would be a denylist over a spec-defined grammar; the function has no grammar.)
+          // `body.id` has already been type-validated above, so idJson is a JSON scalar literal.
+          const idJson = JSON.stringify(body.id ?? null);
+          const sse = tpl.replace(ID_PLACEHOLDER, () => idJson);
+          assertSingleSplice(sse, tpl, idJson);
           return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
       }

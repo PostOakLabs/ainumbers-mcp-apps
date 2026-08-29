@@ -33,6 +33,7 @@ const foundSite = process.env.SITE_REPO ? resolve(ROOT, process.env.SITE_REPO) :
 const SITE = foundSite ?? resolve(ROOT, '.no-site-repo-found');
 const siteOk = foundSite !== null && existsSync(SITE);
 const FULL = process.argv.includes('--full');
+const SHOW = (process.argv.find((a) => a.startsWith('--show=')) || '').slice(7);
 
 // Each gate: { name, args:[...node argv], env?, needsSite? }. Mirrors .github/workflows/ci.yml "validate".
 const gates = [
@@ -101,6 +102,7 @@ for (const g of gates) {
   const out = (r.stdout || '') + (r.stderr || '');
   if (r.status === 0) {
     console.log('✓');
+    if (SHOW && g.name.includes(SHOW)) console.log(out.split('\n').filter(Boolean).map((l) => '    ' + l).join('\n'));
   } else {
     console.log('✗');
     console.log(out.split('\n').filter(Boolean).slice(-12).map((l) => '    ' + l).join('\n'));
