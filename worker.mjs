@@ -22,7 +22,7 @@ import { recordChainRunAsLinks } from './intoto.mjs';
 import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace } from './otelspan.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
-import { cgCanon as sharedCgCanon } from './kernels/_hash.mjs';
+import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash } from './kernels/_hash.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
@@ -1494,29 +1494,57 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // Both read-only; verify is pure compute; build reads chaingraph.json (in scope).
   // -------------------------------------------------------------------------
 
-  // Canonicalization per ChainGraph Standard v0.1 §6: recursively sort object
-  // keys (Unicode code point), preserve array order, minimal-whitespace JSON.
-  // PARITY: byte-identical to repo/chaingraph/kernels/_hash.mjs (vendored to
-  // ./data/kernels/_hash.mjs by generate.mjs). Every browser tool now uses that
-  // same recursive canonicalizer, so a tool's exported artifact reproduces here
-  // under verify_execution_hash. Do not edit one copy without the other.
-  const cgCanon = (v) => Array.isArray(v) ? v.map(cgCanon)
-    : (v && typeof v === 'object')
-      ? Object.keys(v).sort().reduce((o, k) => (o[k] = cgCanon(v[k]), o), {})
-      : v;
-  async function cgExecutionHash(policy_parameters, output_payload) {
-    const preimage = JSON.stringify(cgCanon({ policy_parameters, output_payload }));
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(preimage));
-    // Bare hex — no 'sha256:' prefix. Matches _hash.mjs::executionHash() so kernel
-    // artifacts self-verify correctly. The 'sha256:' prefix is an OPTIONAL display
-    // convention used at call sites when presenting to the user (e.g. in receipts).
-    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  // Canonicalization per ChainGraph Standard v0.1 §6 and the execution hash itself come from the
+  // SSOT, ./kernels/_hash.mjs (imported at the top of this file) — the SAME module generate.mjs
+  // inlines into every browser tool and every kernel imports. There is exactly ONE implementation.
+  //
+  // WORKER-HASH-SSOT-1 (2026-08-29) DELETED the local `cgCanon`/`cgExecutionHash` parity copy that
+  // used to live here. Its comment claimed it was byte-identical to the SSOT; it was not. It dropped
+  // the SSOT's assertIJson() guard, so any value outside I-JSON silently produced a digest instead
+  // of an error — {n: 2**53} and {n: 2**53 + 1} both hashed to the SAME execution_hash on the live
+  // public endpoint. Two different artifacts, one receipt, on the tool whose entire claim is "a match
+  // proves these inputs deterministically produce these outputs".
+  //
+  // ⛔ Do NOT reintroduce a local copy of either function, however small or however well-commented:
+  // scripts/gate-hash-ssot.mjs fails the build if a second implementation appears in this file, and
+  // scripts/gate-hash-ssot.selftest.mjs proves that gate actually reds on one.
+  //
+  // Input outside I-JSON is answered with a STRUCTURED JSON-RPC error, never with a hash.
+  const IJSON_SPEC_REF = 'RFC 7493 (I-JSON) / RFC 8785 §3.2.2.3 (JCS) / OCG Standard §6';
+
+  // Returns null when `value` is valid I-JSON, or the SSOT's OWN rejection message when it is not.
+  // Delegates to the imported assertIJson — SO #34: never a second copy of the rule being enforced.
+  function ijsonViolation(value) {
+    try { assertIJson(value); return null; }
+    catch (err) { return String(err?.message ?? err); }
+  }
+
+  // The structured error a hashing tool returns INSTEAD of a digest. `isError` marks it a tool-level
+  // failure (MCP reports tool errors in the result, not at the protocol layer); structuredContent
+  // carries a machine-readable JSON-RPC error object — code -32602 Invalid params, plus a stable
+  // `data.reason` an agent can branch on without parsing prose. No execution_hash is ever emitted
+  // alongside it: a value that cannot round-trip has no canonical form to hash.
+  function ijsonErrorResult(detail, where) {
+    const out = {
+      error: {
+        code: ErrorCode.InvalidParams,   // -32602
+        message: 'Invalid params: input is not I-JSON, so it has no stable canonical form and cannot be hashed.',
+        data: {
+          reason: 'ijson_violation',
+          where,
+          detail,
+          spec: IJSON_SPEC_REF,
+          remedy: 'Pass integers beyond 2^53 as JSON strings; remove NaN/Infinity. No execution_hash is returned for input that cannot round-trip.',
+        },
+      },
+    };
+    return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   }
   // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
   // steps[] definition (the decision policy). Same canonicalizer as §4; no new
   // hash path. Mirrors embed/runChain.mjs cgSha256Hex byte-for-byte.
   async function cgSha256Hex(obj) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(cgCanon(obj))));
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sharedCgCanon(obj))));
     return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
@@ -1528,6 +1556,8 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'policy_parameters + output_payload and compares it to the claimed execution_hash. ' +
       'A match proves the artifact\'s stated inputs deterministically produce its stated outputs. ' +
       'Pass either a full artifact object, or policy_parameters + output_payload + claimed_hash. ' +
+      'Inputs must be I-JSON (RFC 7493): integers beyond 2^53 must be passed as JSON strings, and NaN/Infinity are rejected. ' +
+      'Values outside I-JSON have no stable canonical form, so this tool returns a structured -32602 error (error.data.reason "ijson_violation") instead of a hash. ' +
       'Pure client-safe compute -- no data is stored. Use this to verify artifacts from any vendor that conforms to the ChainGraph Standard.',
     inputSchema: {
       artifact: z.record(z.any()).optional().describe('A full ChainGraph artifact envelope (must contain policy_parameters, output_payload, and execution_hash).'),
@@ -1546,7 +1576,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + output_payload + execution_hash) or policy_parameters + output_payload (+ claimed_hash).' }],
       };
     }
-    const computed_hash = await cgExecutionHash(pp, op);
+    // I-JSON gate BEFORE any digest: a non-round-trippable value must never receive a hash.
+    const ijsonBad = ijsonViolation({ policy_parameters: pp, output_payload: op });
+    if (ijsonBad) return ijsonErrorResult(ijsonBad, 'policy_parameters + output_payload');
+    const computed_hash = await sharedExecutionHash(pp, op);
     // Tolerate the optional "sha256:" prefix (OCG spec convention) on either side.
     const __norm = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
     const valid = claimed != null && __norm(computed_hash) === __norm(claimed);
@@ -1679,7 +1712,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // zero-attestation artifact must still be hash-identical (same pattern as §20 anchor_bindings).
     let execution_hash_unaffected = null;
     if (artifact?.policy_parameters !== undefined && artifact?.output_payload !== undefined && artifact?.execution_hash) {
-      execution_hash_unaffected = __normDigest(await cgExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
+      const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
+      if (ijsonBad) return ijsonErrorResult(ijsonBad, 'artifact.policy_parameters + artifact.output_payload');
+      execution_hash_unaffected = __normDigest(await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
     }
     const all_pass = results.every((r) => r.structural === 'pass' && r.verifiable !== 'failed');
     const out = { results, all_pass, execution_hash_unaffected, spec: 'ChainGraph Standard §23' };
@@ -1705,7 +1740,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     if (typeof saltHex !== 'string' || saltHex.length < 64 || !/^[0-9a-f]+$/i.test(saltHex)) return null;
     const saltBytes = new Uint8Array(saltHex.length / 2);
     for (let i = 0; i < saltBytes.length; i++) saltBytes[i] = parseInt(saltHex.slice(i * 2, i * 2 + 2), 16);
-    const inputBytes = new TextEncoder().encode(JSON.stringify(cgCanon(inputValue)));
+    const inputBytes = new TextEncoder().encode(JSON.stringify(sharedCgCanon(inputValue)));
     const combined = new Uint8Array(saltBytes.length + inputBytes.length);
     combined.set(saltBytes, 0); combined.set(inputBytes, saltBytes.length);
     const digest = await crypto.subtle.digest('SHA-256', combined);
@@ -1791,7 +1826,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // zero-entry artifact must still be hash-identical (same pattern as §20/§23).
     let execution_hash_unaffected = null;
     if (artifact?.policy_parameters !== undefined && artifact?.output_payload !== undefined && artifact?.execution_hash) {
-      execution_hash_unaffected = __normDigest(await cgExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
+      const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
+      if (ijsonBad) return ijsonErrorResult(ijsonBad, 'artifact.policy_parameters + artifact.output_payload');
+      execution_hash_unaffected = __normDigest(await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload)) === __normDigest(artifact.execution_hash);
     }
     const all_pass = results.every((r) => r.verifiable !== 'failed');
     const out = { results, all_pass, execution_hash_unaffected, spec: 'ChainGraph Standard §25 ocg-private-input@1' };
@@ -2189,7 +2226,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
             // actually attach for a given input's output_payload. A node with no compute_proof at all keeps
             // whatever the kernel emitted (the genuinely-unprovable bucket; not this row's concern).
             if (node.compute_proof && node.compute_proof.journal) {
-              if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
                 artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
                 artifact.compute_proof_ready = 'ready';
                 delete artifact.deferred_reason;
@@ -2265,8 +2302,16 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       composite_output.path_taken = path_taken;
     }
     // composite_execution_hash: over RAN steps only (§22.8.2 — escalation_record is hash-excluded adjacent metadata).
-    const composite_hash = ran.length ? await cgExecutionHash(composite_policy, composite_output) : null;
-    const hash_valid = composite_hash ? (await cgExecutionHash(composite_policy, composite_output)) === composite_hash : null;
+    // I-JSON gate before the composite digest. Kernel-produced payloads already pass (every kernel
+    // hashes through the same SSOT, which asserts first), so this can only fire on a genuinely
+    // non-canonicalizable composite — and then the chain result carries a structured error, never a
+    // composite_execution_hash that two different runs could share.
+    const compositeIjsonBad = ran.length
+      ? ijsonViolation({ policy_parameters: composite_policy, output_payload: composite_output })
+      : null;
+    if (compositeIjsonBad) return ijsonErrorResult(compositeIjsonBad, 'run_chain composite_policy + composite_output (OCG §22)');
+    const composite_hash = ran.length ? await sharedExecutionHash(composite_policy, composite_output) : null;
+    const hash_valid = composite_hash ? (await sharedExecutionHash(composite_policy, composite_output)) === composite_hash : null;
 
     // §22.8.3 open escalation record — built AFTER composite_hash (and hash_valid) so opened_at/record_hash
     // never enter the preimage. Attached to composite_output as adjacent metadata (like §20 anchor_bindings).
@@ -2502,6 +2547,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'Mode 2 — supply tool_id + policy_parameters: returns an artifact template envelope and browser prefill URL so an agent can hand the user a pre-filled link; GPU sims always delegate to the browser per §9.2. ' +
       'Mode 3 — supply tool_id only: returns node metadata and artifact schema scaffold. ' +
       'Mode 4 (Compute Binding, v0.4) — supply tool_id + policy_parameters + compute:"server" (or compute:"auto" for gpu:false nodes): runs the registered kernel server-side and returns a verified v0.4 artifact with execution_hash + output_payload in one round-trip. No browser required. gpu:true nodes always delegate to browser. ' +
+      'Hashed input must be I-JSON (RFC 7493): integers beyond 2^53 must be passed as JSON strings, and NaN/Infinity are rejected — values outside I-JSON have no stable canonical form, so a structured -32602 error (error.data.reason "ijson_violation") is returned instead of an execution_hash. ' +
       'readOnlyHint: true. Zero PII, zero payload logging. ' +
       'Pair with verify_execution_hash (independent hash verification) and build_chaingraph (DAG wiring).',
     inputSchema: {
@@ -2559,7 +2605,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       const pp = pre_computed_artifact.policy_parameters;
       const op = pre_computed_artifact.output_payload;
       const claimed = pre_computed_artifact.execution_hash ?? null;
-      const computed_hash = await cgExecutionHash(pp, op);
+      // I-JSON gate BEFORE any digest — a caller-supplied artifact that cannot round-trip gets a
+      // structured error, never a hash it could then present as a verification.
+      const ijsonBad = ijsonViolation({ policy_parameters: pp, output_payload: op });
+      if (ijsonBad) return ijsonErrorResult(ijsonBad, 'pre_computed_artifact.policy_parameters + output_payload');
+      const computed_hash = await sharedExecutionHash(pp, op);
       // Tolerate the optional "sha256:" prefix (OCG spec convention) on either side.
       const __normH = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
       const hash_valid = claimed != null && __normH(computed_hash) === __normH(claimed);
@@ -2659,7 +2709,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
             chain_depth: node.chain_depth ?? 0,
           });
           // Verify the hash we just produced (round-trip self-check).
-          const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
+          const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
+          if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
+          const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
           const hash_valid = recomputed === artifact.execution_hash;
           // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
           // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
@@ -2680,7 +2732,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
           // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
           if (node.compute_proof && node.compute_proof.journal) {
-            if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+            if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
               artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
               artifact.compute_proof_ready = 'ready';
               delete artifact.deferred_reason;
@@ -4324,8 +4376,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
               parent_tool_ids: parent_tool_ids ?? [],
               chain_depth: node.chain_depth ?? 0,
             });
-            // Inline canonical hasher (parity copy; same as cgExecutionHash above)
-            const recomputed = await cgExecutionHash(artifact.policy_parameters, artifact.output_payload);
+            // Round-trip self-check through the SSOT hasher (./kernels/_hash.mjs) — no local copy.
+            const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
+            if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
+            const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
             const hash_valid = recomputed === artifact.execution_hash;
             // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
             // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
@@ -4346,7 +4400,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
             // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
             // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
             if (node.compute_proof && node.compute_proof.journal) {
-              if (JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
                 artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
                 artifact.compute_proof_ready = 'ready';
                 delete artifact.deferred_reason;
