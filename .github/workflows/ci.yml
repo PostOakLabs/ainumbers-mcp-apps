@@ -269,6 +269,15 @@ jobs:
         # cannot see.
         run: node scripts/run-chain-corpus.mjs
 
+      - name: 🏷️ Composite flag carriage (FB-01/FB-04)
+        # COMPOSITE-FLAG-AGGREGATE-1. Both runners used to stamp the composite artifact with a
+        # hardcoded `compliance_flags: []` over children that may have raised flags. This gate
+        # proves the children's flags are carried, that they are carried as HASH-EXCLUDED adjacent
+        # metadata (structural: re-hashing the payload without them reproduces the published
+        # composite_execution_hash, and re-hashing WITH them does not — the mutation control), and
+        # that a genuinely flag-free chain still reports [] without inventing a member.
+        run: node scripts/gate-composite-flag-carry.mjs
+
       - name: 🔁 Cross-tool artifact round-trip (audit AUD-C1)
         # Proves an artifact EMITTED by emit_chaingraph_artifact (Mode 4 server compute) actually
         # VERIFIES through the SEPARATE verify_execution_hash MCP tool — the loop closes across a

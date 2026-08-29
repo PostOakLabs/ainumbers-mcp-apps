@@ -202,6 +202,22 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
   // composite_execution_hash: over RAN steps only (§22.8.2 — escalation_record is hash-excluded adjacent metadata).
   const composite_hash = ran.length ? await executionHash(composite_policy, composite_output) : null;
 
+  // FB-01 (COMPOSITE-FLAG-AGGREGATE-1) — child compliance_flags carried into the composite as
+  // HASH-EXCLUDED ADJACENT METADATA, on the escalation_record posture directly below: computed AFTER
+  // composite_hash and attached to composite_output afterwards, so no preimage byte moves.
+  // Mirror worker.mjs.
+  const step_compliance_flags = ran
+    .map((r) => ({
+      order: r.order,
+      tool_id: r.tool_id,
+      compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : [],
+    }))
+    .filter((s) => s.compliance_flags.length > 0);
+  const aggregated_compliance_flags = [...new Set(step_compliance_flags.flatMap((s) => s.compliance_flags))].sort();
+  if (step_compliance_flags.length) {
+    composite_output.step_compliance_flags = step_compliance_flags; // adjacent metadata — added after hash
+  }
+
   // §22.8.3 open escalation record — built AFTER composite_hash so opened_at/record_hash never enter the preimage.
   let escalation_record = null;
   if (escalated) {
@@ -235,7 +251,9 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     },
     policy_parameters: composite_policy,
     output_payload: composite_output,
-    compliance_flags: [],
+    // Derived union of the RAN steps' flags — hash-excluded (the §4 preimage is
+    // policy_parameters + output_payload only). NOT a hardcoded all-clear.
+    compliance_flags: aggregated_compliance_flags,
     audit_signature: { server_side_executed: true, zero_pii_verified: true, deterministic_run: true },
   } : null;
 
@@ -243,7 +261,9 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     mode: 'embedded_run_chain', chain: chainName, compute_mode: 'server',
     step_count: chainSteps.length,
     steps_ran: ran.length,
-    steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
+    // FB-04: per-step compliance_flags on the result. Response-only, zero preimage impact.
+    // null (not []) for steps that never produced an artifact.
+    steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null })),
     composite_execution_hash: composite_hash,
     composite_artifact,
     spec: hasGates

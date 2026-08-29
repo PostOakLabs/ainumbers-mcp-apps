@@ -2350,6 +2350,27 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     const composite_hash = ran.length ? await sharedExecutionHash(composite_policy, composite_output) : null;
     const hash_valid = composite_hash ? (await sharedExecutionHash(composite_policy, composite_output)) === composite_hash : null;
 
+    // FB-01 (COMPOSITE-FLAG-AGGREGATE-1) — child compliance_flags carried into the composite as
+    // HASH-EXCLUDED ADJACENT METADATA, on the escalation_record posture directly below: everything
+    // here is computed AFTER composite_hash/hash_valid and attached to composite_output afterwards,
+    // so no preimage byte moves and every composite_execution_hash stays frozen.
+    // Before this, the composite stamped a hardcoded `compliance_flags: []` over children that may
+    // have raised flags — an affirmative all-clear the run never earned (SPEC §27.10 honesty).
+    const step_compliance_flags = ran
+      .map((r) => ({
+        order: r.order,
+        tool_id: r.tool_id,
+        compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : [],
+      }))
+      .filter((s) => s.compliance_flags.length > 0);
+    // Composite-level roll-up: deduped, sorted union of the RAN steps' flags. Empty ONLY when the
+    // children really carried none — derived, never asserted.
+    const aggregated_compliance_flags = [...new Set(step_compliance_flags.flatMap((s) => s.compliance_flags))].sort();
+    // Conditional presence keeps the member absent (not `[]`) on flag-free runs.
+    if (step_compliance_flags.length) {
+      composite_output.step_compliance_flags = step_compliance_flags; // adjacent metadata — added after hash
+    }
+
     // §22.8.3 open escalation record — built AFTER composite_hash (and hash_valid) so opened_at/record_hash
     // never enter the preimage. Attached to composite_output as adjacent metadata (like §20 anchor_bindings).
     let escalation_record = null;
@@ -2389,7 +2410,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       },
       policy_parameters: composite_policy,
       output_payload: composite_output,
-      compliance_flags: [],
+      // Derived union of the RAN steps' flags — hash-excluded (never in the §4 preimage, which is
+      // policy_parameters + output_payload only). NOT a hardcoded all-clear.
+      compliance_flags: aggregated_compliance_flags,
       audit_signature: { server_side_executed: true, zero_pii_verified: true, deterministic_run: true },
     } : null;
 
@@ -2397,14 +2420,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       mode: 'server_run_chain', chain, compute_mode: 'server',
       step_count: chainSteps.length,
       steps_ran: ran.length,
-      steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, error: r.error ?? null, hint: r.hint ?? null })),
+      // FB-04 (COMPOSITE-FLAG-AGGREGATE-1): per-step compliance_flags on the response. Response-only
+      // field, zero preimage impact — an MCP agent previously had NO path to any step's caveats.
+      // null (not []) for steps that never produced an artifact, so "no flags" and "never ran" differ.
+      steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null })),
       composite_execution_hash: composite_hash,
       hash_valid,
       composite_artifact,
       note: escalated
         ? 'Escalated (OCG §22.8). Chain halted; human review required. See escalation_record for the open record and record_hash for the closure target.'
         : !hasGates && ran.length === chainSteps.length
-          ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps.'
+          ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps; per-step caveats in steps[].compliance_flags (also rolled up, hash-excluded, on composite_artifact.compliance_flags).'
           : hasGates
             ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions.'
             : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
