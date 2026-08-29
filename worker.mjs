@@ -2388,6 +2388,32 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       composite_output.step_compliance_flags = step_compliance_flags; // adjacent metadata — added after hash
     }
 
+    // RUNCHAIN-LIVE-NARROW-1 — non-live step disclosure, the execution-side residual of
+    // WORKER-CHAIN-LIVE-FILTER-1 (#287). That row narrowed the DISCOVERY surface: find_chain
+    // withholds a chain any of whose steps resolves to a node whose status is not "live".
+    // Execution was deliberately left unnarrowed — and also unmarked, which is the defect.
+    // An agent that holds the chain name by any other route (build_workflow_links, a cached
+    // index, a node page, a hard-coded recipe) still runs it, and every step comes back
+    // status:"ok" with no hint that the catalog calls that node `deprecated`.
+    //
+    // We do NOT refuse. The kernel is present, the compute is deterministic, and the output
+    // is honest arithmetic; refusing would delete working compute and move nothing toward
+    // truth, while breaking a chain that verifies today. What was missing is the DISCLOSURE,
+    // so this adds exactly that and nothing else.
+    //
+    // HASH-EXCLUDED ADJACENT METADATA, on the step_compliance_flags posture directly above:
+    // derived AFTER composite_hash/hash_valid and attached to composite_output afterwards, so
+    // no preimage byte moves and every composite_execution_hash stays byte-identical — the
+    // linear-hash-freeze goldens included. Conditional presence keeps the member absent (not
+    // []) on the all-live runs that are every chain but this class.
+    const non_live_steps = resultsList
+      .map((r) => ({ order: r.order, tool_id: r.tool_id, node: cgById[r.tool_id] }))
+      .filter((x) => x.node && x.node.status !== 'live')
+      .map((x) => ({ order: x.order, tool_id: x.tool_id, node_status: x.node.status ?? null, browser_url: x.node.url ?? null }));
+    if (non_live_steps.length) {
+      composite_output.non_live_steps = non_live_steps; // adjacent metadata — added after hash
+    }
+
     // §22.8.3 open escalation record — built AFTER composite_hash (and hash_valid) so opened_at/record_hash
     // never enter the preimage. Attached to composite_output as adjacent metadata (like §20 anchor_bindings).
     let escalation_record = null;
@@ -2455,6 +2481,19 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     };
     if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
     if (escalation_record) out.escalation_record = escalation_record;
+    // RUNCHAIN-LIVE-NARROW-1 — surface the disclosure on the RESPONSE too, and say it in the note.
+    // Response metadata only; no artifact field moves, no hash changes. Without this an agent has to
+    // read composite_artifact.output_payload to learn a step is departed, which is precisely the
+    // reading it will not do.
+    if (non_live_steps.length) {
+      out.non_live_steps = non_live_steps;
+      out.note = 'NON-LIVE STEP(S): ' +
+        non_live_steps.map((s) => 'step' + s.order + ' ' + s.tool_id + ' (status:' + s.node_status + ')').join(', ') +
+        '. This chain is withheld from find_chain for exactly that reason (WORKER-CHAIN-LIVE-FILTER-1); ' +
+        'it still executes and the run above is real and deterministic, but that step is not a live catalog ' +
+        'tool and its MCP tool name is registered nowhere on /mcp. Treat the result as decision support over ' +
+        'a departed tool, not as a callable-tool receipt. ' + out.note;
+    }
     // ledger_url — response metadata only; never inside any artifact preimage
     if (composite_artifact) {
       const db = await fragmentLink(composite_artifact);

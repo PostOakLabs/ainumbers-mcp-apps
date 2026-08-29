@@ -218,6 +218,17 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     composite_output.step_compliance_flags = step_compliance_flags; // adjacent metadata — added after hash
   }
 
+  // RUNCHAIN-LIVE-NARROW-1 — non-live step disclosure. HASH-EXCLUDED ADJACENT METADATA on the
+  // step_compliance_flags posture above: derived AFTER composite_hash and attached afterwards, so
+  // no preimage byte moves and every composite_execution_hash stays byte-identical. Mirror worker.mjs.
+  const non_live_steps = resultsList
+    .map((r) => ({ order: r.order, tool_id: r.tool_id, node: nodeById[r.tool_id] }))
+    .filter((x) => x.node && x.node.status !== 'live')
+    .map((x) => ({ order: x.order, tool_id: x.tool_id, node_status: x.node.status ?? null, browser_url: x.node.url ?? null }));
+  if (non_live_steps.length) {
+    composite_output.non_live_steps = non_live_steps; // adjacent metadata — added after hash
+  }
+
   // §22.8.3 open escalation record — built AFTER composite_hash so opened_at/record_hash never enter the preimage.
   let escalation_record = null;
   if (escalated) {
@@ -272,6 +283,8 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
   };
   if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
   if (escalation_record) out.escalation_record = escalation_record;
+  // RUNCHAIN-LIVE-NARROW-1 — result-level disclosure. Mirror worker.mjs; response metadata only.
+  if (non_live_steps.length) out.non_live_steps = non_live_steps;
   return out;
 }
 
