@@ -17,6 +17,10 @@
 //   env: MCP_SMOKE_RETRIES (6), MCP_SMOKE_DELAY_MS (4000), MCP_SMOKE_TIMEOUT_MS (15000), MCP_SMOKE_SKIP_EXPORT.
 // Exit 0 = healthy; exit 1 = broken (fails the deploy job → roll back in Cloudflare).
 
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 const URL = process.argv[2] || process.env.MCP_SMOKE_URL || 'https://mcp.ainumbers.co/mcp';
 const RETRIES = Number(process.env.MCP_SMOKE_RETRIES ?? 6);
 const DELAY = Number(process.env.MCP_SMOKE_DELAY_MS ?? 4000);
@@ -90,6 +94,26 @@ async function call(method, params, id) {
   }
   clearTimeout(timer);
   throw new Error(`no JSON-RPC response for ${method} (id ${id}) before stream end. Got: ${buf.slice(0, 200)}`);
+}
+
+// MCP-TOOLSLIST-PAGINATION-1: tools/list is paginated — walk the cursor to exhaustion and return
+// every name. `call()` returns { result } whose `nextCursor` (when present) is echoed as
+// params.cursor. A small delay between pages keeps an 12-page walk clear of the per-IP
+// MCP_RATE_LIMITER window (30 req/min) that the rest of the smoke shares.
+async function listAllToolNames(idBase) {
+  const names = [];
+  let cursor;
+  for (let page = 1, id = idBase; page <= 100; page++, id++) {
+    const { result, error } = await call('tools/list', cursor ? { cursor } : {}, id);
+    if (error) throw new Error(`tools/list page ${page} error ${error.code}: ${error.message}`);
+    const pageNames = (result?.tools ?? []).map((t) => t.name);
+    if (!pageNames.length) throw new Error(`tools/list page ${page} returned no tools`);
+    names.push(...pageNames);
+    cursor = result?.nextCursor;
+    if (!cursor) return { names, pages: page };
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw new Error('tools/list cursor walk did not terminate within 100 pages');
 }
 
 // §M1.6 dual-version window: the 2026-07-28 RC drops the mandatory `initialize` handshake. Prove
@@ -333,12 +357,79 @@ async function era2026Conformance() {
   return { tools: toolCount, supported: r.supportedVersions.length };
 }
 
+// MCP-TOOLSLIST-PAGINATION-1 — the compatibility duty this row ships with, asserted LIVE:
+//   (a) a NO-CURSOR tools/list returns a valid page one (resultType complete, tools non-empty,
+//       nextCursor present, body comfortably under the ~200KB size that breaks thin clients);
+//   (b) a cursor walk to exhaustion yields EXACTLY the full tool set — count and name-set derived
+//       INDEPENDENTLY from the committed static template (SO #34: the gate recomputes its expected
+//       value from the primary source, it does not trust the endpoint under test);
+//   (c) every page stays under the budget;
+//   (d) an invalid cursor is refused -32602 (spec Invalid params), never served page one.
+async function paginationConformance() {
+  const readPage = async (params, id) => {
+    const res = await fetch(URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+      body: JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/list', params }),
+      signal: AbortSignal.timeout(TIMEOUT),
+    });
+    const text = await res.text();
+    if (res.status !== 200) throw new Error(`tools/list (params ${JSON.stringify(params)}) HTTP ${res.status}: ${text.slice(0, 200)}`);
+    const line = text.split('\n').find((l) => l.startsWith('data: '));
+    return { bytes: text.length, obj: JSON.parse((line || text).replace(/^data:\s*/, '')) };
+  };
+
+  // (a) + (c) page one, no cursor
+  const p1 = await readPage({}, 700);
+  if (p1.obj?.result?.resultType !== 'complete') throw new Error(`page one resultType is "${p1.obj?.result?.resultType}", expected "complete"`);
+  const p1Names = (p1.obj.result.tools ?? []).map((t) => t.name);
+  if (!p1Names.length) throw new Error('page one returned no tools');
+  if (typeof p1.obj.result.nextCursor !== 'string') throw new Error('page one carries no nextCursor — pagination regressed to a single 1.74MB reply');
+  if (p1.bytes >= 200 * 1024) throw new Error(`page one body is ${p1.bytes}B — at/above the ~200KB thin-client ceiling`);
+
+  // (b) independent expectation from the committed template
+  const tplPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'mcp', 'static', 'tools-list.sse.txt');
+  const tplLine = readFileSync(tplPath, 'utf8').split('\n').find((l) => l.startsWith('data: '));
+  const tplTools = JSON.parse(tplLine.slice(6).replace('__OCG_ID__', '12345')).result.tools.map((t) => t.name);
+  const tplSet = new Set(tplTools);
+
+  const walked = [...p1Names];
+  const pageBytes = [p1.bytes];
+  let cursor = p1.obj.result.nextCursor;
+  for (let page = 2, id = 701; cursor; page++, id++) {
+    const p = await readPage({ cursor }, id);
+    if (p.obj?.result?.resultType !== 'complete') throw new Error(`page ${page} resultType is "${p.obj?.result?.resultType}", expected "complete"`);
+    if (p.bytes >= 200 * 1024) throw new Error(`page ${page} body is ${p.bytes}B — at/above the ~200KB thin-client ceiling`);
+    walked.push(...(p.obj.result.tools ?? []).map((t) => t.name));
+    pageBytes.push(p.bytes);
+    cursor = p.obj.result.nextCursor;
+    if (page > 100) throw new Error('cursor walk did not terminate within 100 pages');
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  const walkSet = new Set(walked);
+  if (walked.length !== walkSet.size) throw new Error(`cursor walk returned ${walked.length} names with duplicates (${walkSet.size} unique)`);
+  if (walked.length !== tplTools.length) throw new Error(`cursor walk yielded ${walked.length} tools, but the committed template carries ${tplTools.length}`);
+  for (const n of tplTools) if (!walkSet.has(n)) throw new Error(`cursor walk is missing tool "${n}" (template carries it)`);
+  if (walkSet.size !== tplSet.size) throw new Error(`cursor walk advertises a tool the committed template does not carry (${walkSet.size} vs ${tplSet.size} unique)`);
+
+  // (d) invalid cursor → -32602
+  const bad = await fetch(URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 790, method: 'tools/list', params: { cursor: 'v1.999999999' } }),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  const badObj = JSON.parse(await bad.text());
+  if (badObj?.error?.code !== -32602) throw new Error(`invalid cursor returned ${badObj?.error ? badObj.error.code : 'a result'}, expected -32602`);
+
+  return { pages: pageBytes.length, total: walked.length, maxPageBytes: Math.max(...pageBytes), pageOneBytes: p1.bytes, pageOneTools: p1Names.length };
+}
+
 async function exportRoundTrip() {
   // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
-  const list = await call('tools/list', {}, 2);
-  if (list.error) throw new Error(`tools/list error ${list.error.code}: ${list.error.message}`);
-  const names = (list.result?.tools ?? []).map((t) => t.name);
-  if (!names.includes('export_artifact')) throw new Error(`export_artifact not in tools/list (${names.length} tools)`);
+  //    Cursor-aware: the full set is behind the pagination walk, not any single page.
+  const { names, pages } = await listAllToolNames(800);
+  if (!names.includes('export_artifact')) throw new Error(`export_artifact not in tools/list (${names.length} tools over ${pages} pages)`);
 
   // 2) Round-trip — minimal v0.4 artifact in, xlsx blob out.
   const execution_hash = 'sha256:smoke0000000000000000000000000000000000000000000000000000000000';
@@ -380,6 +471,9 @@ async function exportRoundTrip() {
 
       const era = await era2026Conformance();
       console.log(`✓ 2026-07-28 era OK — server/discover (${era.supported} versions, SEP-1865 ui advertised), resultType on ${era.tools} tools, unknown method 404/-32601 modern + 200 legacy, DELETE 405`);
+
+      const pg = await paginationConformance();
+      console.log(`✓ MCP-TOOLSLIST-PAGINATION-1 OK — no-cursor page 1 valid (${pg.pageOneTools} tools, ${pg.pageOneBytes}B); cursor walk to exhaustion: ${pg.total} tools over ${pg.pages} pages (max page ${pg.maxPageBytes}B), full set matches the committed template; invalid cursor -32602`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');

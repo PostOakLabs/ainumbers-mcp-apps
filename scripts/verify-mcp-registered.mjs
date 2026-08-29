@@ -62,44 +62,60 @@ async function main() {
   }
 }
 
+// tools/list is paginated (MCP-TOOLSLIST-PAGINATION-1): walk nextCursor to exhaustion so the
+// registration check sees the FULL set, not just page one. Each page reuses the rate-limit
+// backoff — a 12-page walk can land in the same WAF window the post-deploy hash-sweep burst left.
 async function listTools() {
-  for (let attempt = 0; attempt <= RL_RETRIES; attempt++) {
-    try {
-      const res = await fetch(MCP_URL, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          // MCP Streamable HTTP REQUIRES both — application/json alone => HTTP 406
-          accept: 'application/json, text/event-stream',
-          'mcp-protocol-version': PROTO,
-        },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
-      });
-      const bodyText = await res.text(); // consume fully (releases the socket → clean exit)
-      // 429/503 = WAF rate-limit, not a real failure — back off and retry.
-      if ((res.status === 429 || res.status === 503) && attempt < RL_RETRIES) {
-        console.error(`tools/list HTTP ${res.status} (rate-limited) — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
-        await sleep(RL_BACKOFF_MS); continue;
-      }
-      if (!res.ok) {
-        console.error(`tools/list HTTP ${res.status}`);
-        if (bodyText) console.error(bodyText.slice(0, 300));
+  const names = [];
+  let cursor;
+  for (let page = 1, id = 1; page <= 100; page++, id++) {
+    for (let attempt = 0; attempt <= RL_RETRIES; attempt++) {
+      try {
+        const res = await fetch(MCP_URL, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            // MCP Streamable HTTP REQUIRES both — application/json alone => HTTP 406
+            accept: 'application/json, text/event-stream',
+            'mcp-protocol-version': PROTO,
+          },
+          body: JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/list', params: cursor ? { cursor } : {} }),
+        });
+        const bodyText = await res.text(); // consume fully (releases the socket → clean exit)
+        // 429/503 = WAF rate-limit, not a real failure — back off and retry.
+        if ((res.status === 429 || res.status === 503) && attempt < RL_RETRIES) {
+          console.error(`tools/list page ${page} HTTP ${res.status} (rate-limited) — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
+          await sleep(RL_BACKOFF_MS); continue;
+        }
+        if (!res.ok) {
+          console.error(`tools/list page ${page} HTTP ${res.status}`);
+          if (bodyText) console.error(bodyText.slice(0, 300));
+          return null;
+        }
+        const json = parseMaybeSSE(bodyText, res.headers.get('content-type') || '');
+        if (!json) { console.error(`Could not parse tools/list page ${page} response.`); return null; }
+        if (json.error) { console.error(`tools/list page ${page} error: ${json.error.message || JSON.stringify(json.error)}`); return null; }
+        const pageNames = (json.result?.tools || []).map((t) => t.name);
+        if (!pageNames.length) { console.error(`tools/list page ${page} returned no tools.`); return null; }
+        names.push(...pageNames);
+        cursor = json.result?.nextCursor;
+        break;
+      } catch (e) {
+        if (attempt < RL_RETRIES) {
+          console.error(`tools/list page ${page} failed: ${e.message} — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
+          await sleep(RL_BACKOFF_MS); continue;
+        }
+        console.error(`tools/list page ${page} failed: ${e.message}`);
         return null;
       }
-      const json = parseMaybeSSE(bodyText, res.headers.get('content-type') || '');
-      if (!json) { console.error('Could not parse tools/list response.'); return null; }
-      if (json.error) { console.error(`tools/list error: ${json.error.message || JSON.stringify(json.error)}`); return null; }
-      return (json.result?.tools || []).map((t) => t.name);
-    } catch (e) {
-      if (attempt < RL_RETRIES) {
-        console.error(`tools/list failed: ${e.message} — retry ${attempt + 1}/${RL_RETRIES} after ${RL_BACKOFF_MS}ms`);
-        await sleep(RL_BACKOFF_MS); continue;
-      }
-      console.error(`tools/list failed: ${e.message}`);
-      return null;
     }
+    if (cursor === undefined) {
+      if (names.length === 0) return null; // loop never advanced — treat as failure, not empty
+      return names;
+    }
+    if (cursor !== undefined && page === 100) { console.error('cursor walk did not terminate within 100 pages.'); return null; }
   }
-  return null;
+  return names;
 }
 
 // Streamable-HTTP servers may answer as JSON or as a single SSE event ("event: message\ndata: {…}").
