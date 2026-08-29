@@ -892,6 +892,141 @@ async function getStaticListTemplate(env, method, toolset) {
   return (_listStatic[key] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
+// ── MCP-TOOLSLIST-PAGINATION-1 (2026-08-29): spec cursor pagination on the list templates ────
+// The live tools/list reply grew to 1.74MB (694 tools) in ONE frame — thin clients and scanners
+// that cap or time out on large bodies fail to consume those bytes at all (mcpqueen scored 62/C,
+// down from 100/A, reporting "tools/list failed: HTTP 200" on exactly this). The MCP spec's answer
+// is cursor pagination: a page result carries `nextCursor`, the client echoes it as `params.cursor`
+// to fetch the next page, and the page that ends the list omits `nextCursor`.
+//
+// ARCHITECTURE — do not regress the reason the static path exists: the templates are PRE-FRAMED
+// TEXT precisely so a cold isolate never JSON.parses / re-stringifies the 1.74MB body (that parse
+// burned the Free plan's ~10ms CPU budget → Error 1102). Pagination is therefore pure string
+// slicing on the template bytes:
+//   • the list array is located by its key ('"tools":[' / '"resources":[' / '"prompts":[');
+//   • ONE page of top-level elements is found with a string/escape/depth-aware scan — O(one page,
+//     ≤ LIST_PAGE_MAX_BYTES) per request, never O(template), never a parse;
+//   • the page is recomposed into a fresh SSE frame (ID_PLACEHOLDER intact) and flows through the
+//     UNCHANGED id-splice + assertSingleSplice + frameResponse machinery at the dispatch site.
+// A page recomposed over the FULL element range is byte-identical to the template, so the small
+// lists (resources/prompts, and any list under the page budget) keep serving exactly the bytes
+// they served before this change — they simply never produce a nextCursor. The template FILE
+// itself stays the full list: build-time artifacts and every gate that reads them
+// (gate-deprecation-lifecycle, check-worker-invariants, surface-parity) are untouched.
+// The SDK fallback path (static-serve failure) still answers with the full SDK-built list; it is
+// an emergency path that cannot serve static bytes at all, and is deliberately out of scope here.
+
+// Page budget in TEMPLATE bytes. Measured on the 2026-08-29 template: 694 tools, mean 2,528B /
+// p50 2,518B / max 5,142B per tool → 12 pages of 119,306-149,797B carrying 44-74 tools each —
+// comfortably under the ~200KB body size where thin clients and scanners start failing.
+const LIST_PAGE_MAX_BYTES = 150000;
+// The opaque page token: LIST_CURSOR_PREFIX + <byte offset of the page's first element>. Clients
+// treat it as an opaque string per spec; only this worker interprets it, and every token is
+// structurally validated against the CURRENT template before use (a stale token from an earlier
+// deploy, or a forged one, fails the boundary check and is refused -32602).
+const LIST_CURSOR_PREFIX = 'v1.';
+const LIST_ARRAY_KEY = {
+  'tools/list': 'tools',
+  'resources/list': 'resources',
+  'prompts/list': 'prompts',
+};
+// Sentinel returned by buildListPage when params.cursor is present but not a valid token for the
+// current template — the dispatch site turns it into a -32602 JSON-RPC error.
+const LIST_CURSOR_INVALID = Symbol('list-cursor-invalid');
+
+// Locate the start of the template's top-level list array (index of its first element byte), or
+// -1 when the template does not match the expected generated shape. The template is
+// machine-generated single-line JSON whose envelope is
+//   {"jsonrpc":"2.0","id":"__OCG_ID__","result":{"resultType":"complete","<key>":[ … ]}}
+// so the FIRST occurrence of the marker is the real array: every string that could contain the
+// marker text only exists INSIDE the array, i.e. after it.
+function locateListArrayStart(tpl, key) {
+  const marker = '"' + key + '":[';
+  const at = tpl.indexOf(marker);
+  return at < 0 ? -1 : at + marker.length;
+}
+
+// String-scan ONE page of top-level elements of the list array, starting at `from` (an element
+// start). Strings, escapes and nesting depth are tracked, so a ',', '}' or ']' inside a tool
+// description can never be mistaken for an element boundary. Returns
+//   { end, next, arrayEnd } where
+//   end      — index one past the last ACCEPTED element's '}' (tpl.slice(from, end) is the page's
+//              comma-separated element text with no trailing comma; end === from for an empty array)
+//   next     — byte offset of the first element that did NOT fit the budget, or -1 when this page
+//              ends the array
+//   arrayEnd — index of the array's closing ']' when the page ends the array, else -1
+// or null when the scan runs off the template end (malformed — defensive; caller falls back).
+function scanListPageBounds(tpl, from, maxBytes) {
+  let depth = 0, inStr = false, esc = false;
+  let end = -1;        // one past the last ACCEPTED element
+  let elemStart = -1;  // index of the element currently being scanned
+  let i = from;
+  while (i < tpl.length) {
+    const c = tpl[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      i++; continue;
+    }
+    if (c === '"') { inStr = true; i++; continue; }
+    if (c === '{' || c === '[') { if (depth === 0) elemStart = i; depth++; i++; continue; }
+    if (c === '}' || c === ']') {
+      if (c === ']' && depth === 0) return { end: end < 0 ? from : end, next: -1, arrayEnd: i };
+      depth--;
+      if (depth === 0 && c === '}') {
+        const elemEnd = i + 1;
+        const sep = tpl[i + 1];
+        if (sep !== ',') return { end: elemEnd, next: -1, arrayEnd: sep === ']' ? i + 1 : -1 };
+        // Another element follows. The budget applies only once at least one element is
+        // accepted — a single oversized element is always served, alone if it must be. The
+        // rejected element (starting at elemStart) OPENS the next page; it is never dropped.
+        if (end >= 0 && elemEnd - from > maxBytes) return { end, next: elemStart, arrayEnd: -1 };
+        end = elemEnd;
+      }
+      i++; continue;
+    }
+    i++;
+  }
+  return null;
+}
+
+// Compose ONE page of a list template as a fresh SSE frame (ID_PLACEHOLDER intact — the id splice
+// at the dispatch site is unchanged). cursor === undefined → page one; otherwise the token names
+// the byte offset of the page's first element. Returns:
+//   a string            — the composed page frame (template bytes, plus nextCursor when more
+//                         pages follow)
+//   null                — the template does not match the expected generated shape → the caller
+//                         serves the full frame unchanged (pre-pagination behaviour)
+//   LIST_CURSOR_INVALID — params.cursor is present but not a valid token for THIS template
+function buildListPage(tpl, key, cursor) {
+  const arrayStart = locateListArrayStart(tpl, key);
+  if (arrayStart < 0) return null;
+  let from = arrayStart;
+  if (cursor !== undefined) {
+    if (typeof cursor !== 'string' || !cursor.startsWith(LIST_CURSOR_PREFIX)) return LIST_CURSOR_INVALID;
+    const off = Number(cursor.slice(LIST_CURSOR_PREFIX.length));
+    if (!Number.isInteger(off) || off < 0 || off >= tpl.length) return LIST_CURSOR_INVALID;
+    // Structural validation: the offset must land EXACTLY on an element boundary of this
+    // template — the byte itself opens an object and the byte before it is an element separator.
+    if (tpl[off] !== '{' || tpl[off - 1] !== ',') return LIST_CURSOR_INVALID;
+    from = off;
+  }
+  const b = scanListPageBounds(tpl, from, LIST_PAGE_MAX_BYTES);
+  if (!b) return null;
+  const head = tpl.slice(0, arrayStart);
+  const slice = b.end > from ? tpl.slice(from, b.end) : '';
+  if (b.next >= 0) {
+    // More pages follow: close the array here and append the token inside the result object.
+    // The suffix is GUARDED, not assumed: the generated frame ends with the array close, the
+    // result close, the response close and the SSE terminator — anything else falls back.
+    if (!tpl.endsWith(']}}\n\n')) return null;
+    return head + slice + '],"nextCursor":' + JSON.stringify(LIST_CURSOR_PREFIX + b.next) + '}}\n\n';
+  }
+  if (b.arrayEnd < 0) return null;
+  return head + slice + tpl.slice(b.arrayEnd); // byte-identical recomposition of the full frame
+}
+
 // ── MCP-CONTENT-NEGOTIATION-FIX-1 ──────────────────────────────────────────────────────────
 // The MCP Streamable HTTP spec requires a POST response to be EITHER `application/json` (one
 // JSON-RPC object) OR `text/event-stream` (SSE), and the choice MUST respect the client's
@@ -5216,6 +5351,18 @@ export default {
             if (requested && (await getToolsetNames(env)).has(requested)) toolset = requested;
           }
           const tpl = await getStaticListTemplate(env, method, toolset);
+          // MCP-TOOLSLIST-PAGINATION-1: serve ONE page when the template carries a list array.
+          // A no-cursor request gets page one + nextCursor (per spec an unpaginated reply IS page
+          // one); a request echoing our token gets that page; an invalid token is a -32602. A
+          // template that does not match the expected generated shape returns null and falls
+          // through to the untouched full-frame serve below.
+          const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor);
+          if (page === LIST_CURSOR_INVALID) {
+            return mcpJsonRpcErrorResponse(body.id, -32602,
+              'Invalid params: cursor is not a valid page token (echo the nextCursor this server issued)',
+              corsHeaders, 400);
+          }
+          const frameTpl = page === null ? tpl : page;
           // ⛔ THE REPLACEMENT MUST BE A FUNCTION (WORKER-IDREPLACE-DOS-1, 2026-08-29 — a live P0).
           // `String.prototype.replace` with a STRING second argument runs GetSubstitution over it,
           // which interprets `$'` (everything AFTER the match), `` $` `` (everything BEFORE it),
@@ -5230,8 +5377,8 @@ export default {
           // string would be a denylist over a spec-defined grammar; the function has no grammar.)
           // `body.id` has already been type-validated above, so idJson is a JSON scalar literal.
           const idJson = JSON.stringify(body.id ?? null);
-          const sse = tpl.replace(ID_PLACEHOLDER, () => idJson);
-          assertSingleSplice(sse, tpl, idJson);
+          const sse = frameTpl.replace(ID_PLACEHOLDER, () => idJson);
+          assertSingleSplice(sse, frameTpl, idJson);
           return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
       }
