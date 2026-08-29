@@ -34,7 +34,23 @@ import { UTILITY_TOOL_NAMES as UTILITY_NAMES } from '../utility-tools.mjs';
 import { validateChainGates } from './gate-static.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const REPO          = resolve(here, '..', '..', 'repo');
+// FINDSITEREPO-ANCHOR-1 migration (MCP-SUITE-RECIPES-1): the blind '../../repo' sibling
+// assumption anchored on the stray stale clone `AINumbers/.wt/repo` (measured 2026-08-23:
+// HEAD ce514860, 141 commits behind origin/main) — Layer 1 then "validated" NAMED_CHAINS
+// against a dead tree and false-red'd every worker push from a .wt/ worktree with 11-13
+// "missing composer page" errors (CI never saw them: CI has no repo sibling, so the same
+// layers SKIP via their existsSync guards). Same resolution as preflight.mjs's other
+// site-dependent gates: findSiteRepo() returns the first FRESH repo/ candidate or null
+// (loud refusal on a stale one — never a silent walk-past, per FINDSITEREPO-ANCHOR-1).
+// SITE_REPO (which preflight.mjs already passes here) wins; null falls back to the old
+// non-existent default path so Layers 1/2 skip with their existing notes, CI backstops.
+import { findSiteRepo } from './find-site-repo.mjs';
+// Null fallback resolves to a GUARANTEED-nonexistent path — never the legacy '../../repo',
+// which IS the stale clone findSiteRepo just refused (its existsSync() would be true and
+// Layers 1/2 would validate against the dead tree this migration exists to stop anchoring).
+const REPO = process.env.SITE_REPO
+  ? resolve(process.env.SITE_REPO)
+  : (findSiteRepo(resolve(here, '..')) ?? resolve(here, 'validate-chains.site-repo-unresolved'));
 const WORKER_PATH   = process.env.WORKER_PATH    || resolve(here, '..', 'worker.mjs');
 const TOOLS_DIR     = process.env.TOOLS_DIR      || join(REPO, 'tools');
 const GUIDES_DIR    = process.env.GUIDES_DIR     || join(REPO, 'guides');

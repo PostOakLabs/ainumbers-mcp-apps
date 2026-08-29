@@ -50,6 +50,7 @@ export const UTILITY_TOOL_NAMES = [
   'ha_bundle_export',
   'build_evidence_pack',
   'anchor_stamp',
+  'suite_howto',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;
