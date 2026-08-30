@@ -5586,17 +5586,13 @@ export default {
 
         // Fire-and-forget telemetry write -- never blocks the response.
         // Logs structural metadata only; no payloads, parameters, or outputs.
+        // No IP, no per-user identifier: ASN is network-level, not individual
+        // (matches the initialize handler above -- WORKER-ANALYTICS-CLAIM-1 dropped
+        // the truncated-IP-hash field so the "zero PII" claim is byte-true).
         if (isToolCall && env.ANALYTICS) {
           const latencyMs = Date.now() - t0;
           const success   = response.status < 500;
-          // Coarse dedup key for rate/abuse pattern counting, NOT an anonymization mechanism:
-          // 'ain-mcp-v1:' is a fixed public pepper (source is public), not a per-record salt.
-          // IPv4 is a small enumerable space, so anyone with the source can precompute this
-          // hash for every routable address and reverse it -- treat it as pseudonymous, not hidden.
-          const callerRaw = request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '';
-          const callerBuf = await crypto.subtle.digest('SHA-256',
-            new TextEncoder().encode('ain-mcp-v1:' + callerRaw));
-          const callerHash = 'sha256:' + Array.from(new Uint8Array(callerBuf)).map(b => b.toString(16).padStart(2,'0')).join('').slice(0, 16);
+          const asn       = String(request.cf?.asn ?? 'unknown');
 
           ctx.waitUntil(Promise.resolve().then(() => {
             try {
@@ -5604,7 +5600,7 @@ export default {
                 // 4th blob = worker identity, matching apexlogics-mcp/ocs-mcp's
                 // existing self-tag shape (MCPATTRIB-1) -- lets the shared
                 // Analytics Engine dataset be split back out per worker.
-                blobs:   [toolName, callerHash, success ? 'ok' : 'error', 'ainumbers-mcp'],
+                blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp'],
                 doubles: [latencyMs, chainDepth ?? 0],
                 indexes: [toolName],
               });
