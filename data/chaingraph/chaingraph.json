@@ -1349,74 +1349,75 @@
       "status": "live",
       "conformance_fixtures": false,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:4ca4b897808a6d8852181840dd20aa62859b23b1ad3384d78cfcb7d8ddc9e4fa","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof_ready": "ready",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:34a97e2f8bf698256758e5a961ca48865bc61479195b7fe14a950d2761f10bfc","valid_from":"2026-09-01"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
       "compute_proof": {
-        "type": "ZkVmReceipt",
-        "system": "risc0",
-        "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "Htx1CjaVKhGD9kGvIaBBWFueVkVjR2gdxiQn39jhVBQl7DDwEd3Jk55pOmYUNu8Amfin+CFZCtG29WyF2TxzsyJRUAqIWzY2agRG7o77nbd3aqJ7lneV5UQ53I1t4LjrIecmOtuF5pFECo2SDvTw7iFdfWnUeg8QBRc/MQYq3O0Frwb4WAHp2+69WNlCJMJioahsnFr4ZTjYQjvdXQA8Lx/XrxlGSuiV5HTERYW7uEvSd4g1gvmSLyBmy/rubCjtDoL+QoJG35iQf36WhZiiyJmPgCB2OX2/zBuLjn0bvUsl5utev/PYF7EfUH7GFYT5JieFseai0K5yf6Drp0ny4w==",
-        "journal": {
-          "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:4ffd5831c36eaf24cce8a05b03adeae5f708782f9b2425895966aa4edadfb20a",
-          "output": {
-            "competent_authority_note": "Report to your national competent authority (NCA) per DORA Art. 19. Cross-border incidents require coordination per Art. 19(6).",
-            "criteria_detail": [
-              {
-                "article": "DORA Art. 23(1)(a) / ESA RTS Art. 3",
-                "id": "critical_fn",
-                "met": false,
-                "not_assessed": false,
-                "value": "No"
-              },
-              {
-                "article": "DORA Art. 23(1)(b) / ESA RTS Art. 4",
-                "id": "clients",
-                "met": false,
-                "not_assessed": true,
-                "value": "0 (0.0%)"
-              },
-              {
-                "article": "DORA Art. 23(1)(c) / ESA RTS Art. 5",
-                "id": "data_loss",
-                "met": false,
-                "not_assessed": false,
-                "value": "No"
-              },
-              {
-                "article": "DORA Art. 23(1)(d) / ESA RTS Art. 6",
-                "id": "tx_value",
-                "met": false,
-                "not_assessed": true,
-                "value": "Not applicable"
-              },
-              {
-                "article": "DORA Art. 23(1)(e) / ESA RTS Art. 7",
-                "id": "duration",
-                "met": false,
-                "not_assessed": true,
-                "value": "Not applicable"
-              },
-              {
-                "article": "DORA Art. 23(1)(f) / ESA RTS Art. 8",
-                "id": "geographic",
-                "met": false,
-                "not_assessed": false,
-                "value": "1 member state"
-              }
-            ],
-            "cross_border": false,
-            "determination_code": "NON_MAJOR",
-            "entity_type": "other",
-            "incident_type": "other",
-            "major_incident": false,
-            "qualifying_criteria": [],
-            "regulatory_framework": "DORA (EU) 2022/2554 Art. 23 · ESA Joint RTS EBA/RTS/2023/11 (published January 2025)",
-            "reporting_clock": null,
-            "third_party_ict": false
-          }
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "JGN1rwnek9GTt+d1x1v1RersGAWasPaEBX5byPwb6nAd/zm9ilf503s+UokiFyvkvKmUMw7y0gnjwuUNgzPzkimjR2kwLv7HBq9yrP1StOZOp6gaftngw1MwQXOzKjDpFodXLxMYrwEX7k8jVwPfCHDkplkxH0WoIyg8HjWxNZcSxS93HRs2dBhj1CRsFOhFIjaCW6PHGpiXAYJy5okHbSxVln3n/D1IcoEUB1Ma6i2ZfRjlWmUOyJ0ktXhf1fWaArk9TZ5YI/2NADtiJr4hp1jc1ee3pO5HALsw5j+lzEYUMcTzLHX9FizJkEpIepD1cHpLxl/oI0tTVjU4XdyQ/Q==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:62ce51c376375e331199c0320830454cf4ba8fad3ec3c3a89d5bea2f15140de0",
+    "output": {
+      "competent_authority_note": "Report to your national competent authority (NCA) per DORA Art. 19. Cross-border incidents require coordination per Art. 19(6).",
+      "criteria_detail": [
+        {
+          "article": "DORA Art. 23(1)(a) / ESA RTS Art. 3",
+          "id": "critical_fn",
+          "met": false,
+          "not_assessed": false,
+          "value": "No"
+        },
+        {
+          "article": "DORA Art. 23(1)(b) / ESA RTS Art. 4",
+          "id": "clients",
+          "met": false,
+          "not_assessed": true,
+          "value": "0 (0.0%)"
+        },
+        {
+          "article": "DORA Art. 23(1)(c) / ESA RTS Art. 5",
+          "id": "data_loss",
+          "met": false,
+          "not_assessed": false,
+          "value": "No"
+        },
+        {
+          "article": "DORA Art. 23(1)(d) / ESA RTS Art. 6",
+          "id": "tx_value",
+          "met": false,
+          "not_assessed": true,
+          "value": "Not applicable"
+        },
+        {
+          "article": "DORA Art. 23(1)(e) / ESA RTS Art. 7",
+          "id": "duration",
+          "met": false,
+          "not_assessed": true,
+          "value": "Not applicable"
+        },
+        {
+          "article": "DORA Art. 23(1)(f) / ESA RTS Art. 8",
+          "id": "geographic",
+          "met": false,
+          "not_assessed": false,
+          "value": "1 member state"
         }
-      },
+      ],
+      "cross_border": false,
+      "determination_code": "NON_MAJOR",
+      "entity_type": "other",
+      "incident_type": "other",
+      "major_incident": false,
+      "qualifying_criteria": [],
+      "regulatory_framework": "DORA (EU) 2022/2554 Art. 23 · ESA Joint RTS EBA/RTS/2023/11 (published January 2025)",
+      "reporting_clock": null,
+      "third_party_ict": false
+    }
+  }
+},
       "export_capability": [
         "xlsx",
         "csv",
@@ -49069,28 +49070,29 @@
       "status": "live",
       "conformance_fixtures": false,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:78207d018dcf3f06b8aa059f913a99be9170d053e9cdccb55f4db93837d377fb","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof_ready": "ready",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:157a2103a758127d8f6afe40c5c7733d63896ccf6cfaf8a4f9f1ef80b103126f","valid_from":"2026-09-01"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
       "compute_proof": {
-        "type": "ZkVmReceipt",
-        "system": "risc0",
-        "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "HbYOCOkuXurkBFVGiGK2l02pjznOCQlNqKia/M4RSeMwPvfIbqAZUEwNaQHdVx9za3TGESsA1QXDUKyiqcWYghjhsNzvFPuSgyDlpZrkCl7AL0upmfYDMxTdw6vvCZNkE6/UF0bcFbuuFCC/P9Vrc/pYdIbews8MXWzDMATkCOctO7HJkP+Dex/Amw7N+SCQgsRRRoawDoEfhvtKWl0fny9BLpU7v+Sn21Gfcg7orMR9c8kkC12mMvrvWQAX7pyMFsRYXq66Qm9UC/k3691DiaIuE83RCwfQkqymxNOGAuYAvXthi/Y3UXHIMV2mG/T/2J5Oy/JuSyRWgQvkg4QNJA==",
-        "journal": {
-          "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:78207d018dcf3f06b8aa059f913a99be9170d053e9cdccb55f4db93837d377fb",
-          "output": {
-            "flag_rate": 0.05,
-            "flagged_count": 10,
-            "max_anomaly_score": 0.7432,
-            "mean_anomaly_score": 0.4828,
-            "n_transactions_scored": 200,
-            "p95_anomaly_score": 0.6207,
-            "threshold": 0.6,
-            "verdict": "NORMAL — Anomaly Rate Within Baseline"
-          }
-        }
-      },
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "Ca7XnGhzhhr9LJUk9gdnymBPcL+qO9msVo7bEwmdxYUmXk1flDiG+wnYJkB/l6XRxzAtCAju+ShFnD2Wcu0XYxmnVSEfIKFYrjK0uZ3dkfi2DC8UjBgaNrpENlDmF+teGmCJdjkwd3vVV8TQmqtF+Wkxfqk3931pxkRYVoWPjHoKz6JqDjPrdmHg7QFEcUlT4NVDwwTdGpNMM9vj+DovUSTAYGQeg/HHNmocu9xANuvZ2IW3d5L2uSp9xLOZSNqJDPUjFfexQHcaUpUeXpQr7RcMcyv9lh08QmNLPJ6ITLYWIQ8aKgbv7tj6F87+4br8+ZDHmzsTK1URM9ceVQ27Kw==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:b1d65baa185d8313649be87c08002d3557cbf0674e4c730be08bb2ce0756df28",
+    "output": {
+      "flag_rate": 0.0313,
+      "flagged_count": 1,
+      "max_anomaly_score": 0.7444,
+      "mean_anomaly_score": 0.5123,
+      "n_transactions_scored": 32,
+      "p95_anomaly_score": 0.5965,
+      "threshold": 0.6,
+      "verdict": "NORMAL — Anomaly Rate Within Baseline"
+    }
+  }
+},
       "export_capability": [
         "xlsx",
         "csv",
@@ -49361,8 +49363,8 @@
       "compute_images": [
         {
           "system": "sha256-source",
-          "image_id": "sha256:d4edfa0ba9cd195aecdc9a77ffd6e108ca1c8d56ad899e79cfe848617854b65c",
-          "valid_from": "2026-07-12"
+          "image_id": "sha256:748f40841c60b16c54741966869e7515cc7259dc78c0efc7c68f6de6068071df",
+          "valid_from": "2026-08-31"
         },
         {
           "system": "risc0",
@@ -49371,53 +49373,23 @@
         }
       ],
       "compute_proof": {
-        "type": "ZkVmReceipt",
-        "system": "risc0",
-        "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "IpSeO2CgPCxErhReqkLhQhVniUgpBBXkk0hAZobrdl0G40fg7H843mTSSTI/pdPJI0SXrVV6Ksa9YTskNhIwqBxne3tdxHw90VumfteSeurz+4vUHoEbBFORmf0sLw8hL4DG8nfiUUZ0eOfD3gKBn+s2OA5celFOMrLcvRfnyI8WSmy4/eP5NJRpC9shaqrMChdGwFk5vqVDiUaDNOXv5yRCVvt8DX5dMFsqJPFy6+xviFoAeqOPQFJWiiLmEj/TFjgFANcX8kP1c9I3ySeKKf3gdUSG3mpXLJUBdOdwYCMGVD3FSUyFd9WUlT7BltM8Lg/GWCOPK0YSo7cjBtqP7Q==",
-        "journal": {
-          "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:d4edfa0ba9cd195aecdc9a77ffd6e108ca1c8d56ad899e79cfe848617854b65c",
-          "output": {
-            "compliance_flags": [
-              "DORA_MAJOR_INCIDENT_RISK_HIGH",
-              "DORA_REPORTING_THRESHOLD_EXPOSURE",
-              "CRITICAL_FUNCTION_CASCADE_RISK",
-              "RAPID_PROPAGATION_RISK"
-            ],
-            "critical_path_node": "payment_gateway",
-            "dora_reporting_probability": 1,
-            "median_nodes_affected": 4,
-            "n_paths": 500,
-            "node_cascade_probabilities": {
-              "api_gateway": 0,
-              "backup_datacenter": 0,
-              "clearing_interface": 1,
-              "core_banking": 1,
-              "customer_portal": 0,
-              "database_primary": 0,
-              "database_replica": 0,
-              "fraud_detection": 0,
-              "identity_service": 0,
-              "message_broker": 0,
-              "mobile_app": 0,
-              "monitoring": 0,
-              "payment_gateway": 1,
-              "reporting_engine": 0,
-              "swift_gateway": 1,
-              "third_party_kyc": 0
-            },
-            "p25_breach_h": 0.14,
-            "p50_breach_h": 0.36,
-            "p5_breach_h": 0.03,
-            "p75_breach_h": 0.66,
-            "p95_breach_h": 1.41,
-            "topology_id": "bank_core",
-            "verdict": "CRITICAL_CASCADE"
-          }
-        }
-      },
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "Cot8iQWx7NAPRerv1WEAuLwx9a6DTjePzziEyMTTBgIcoCypu3ORfzurdVGfLl14icR5l59yaNFM9v1Le9dC/h13MKh7ugXd23Ta3vf6mEuaw1m0dfe7rtDFV+wqztK6HrGjx3TADE7I3RbtJr+WYYuLtaxdFNbgHBWdTnE6oi4XMxxhbBTEryF2Qp2X4SQO+NiR0ReIC+8XOSynYC2z0ikrdIzU5lCM8U5Fnb7/DBdnoZRbwUWgjtIrareGiTEiLzSx8rmjnOMCAfVJmwJJMgtO1EbfgzUFTgzvw1j6SmMHLJFknRkjxQUXbTaspfAVdqwra6L9xYi84do3JcG4YQ==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:748f40841c60b16c54741966869e7515cc7259dc78c0efc7c68f6de6068071df",
+    "output": {
+      "error": "Unknown failure node id: nosuch_node (topology: bank_core)",
+      "errors": [
+        "Unknown failure node id: nosuch_node (topology: bank_core)"
+      ],
+      "verdict": "ERROR"
+    }
+  }
+},
       "export_capability": [
         "xlsx",
         "csv",
@@ -49498,30 +49470,31 @@
       "status": "live",
       "conformance_fixtures": false,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:4c530398ab42ff734dd6db698e15fbea8f6eaaede6646e324af8e79d514dfa44","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_proof_ready": "ready",
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:85150b0c10d583588c0584d76ea17a3378c4a1af666c1c700db412574c42587b","valid_from":"2026-08-31"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
       "compute_proof": {
-        "type": "ZkVmReceipt",
-        "system": "risc0",
-        "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "BDU2wAw5E9UPhCn/0DbN5GqtCaKZ2BtJ0Oo0Uir8HjwVmsAbSKoTYH+U90suHm7EBd+wbY2janUxOykApMQqUQBx9KAaHY9hYZ+FY5sIxwOoTCaRGOzhGLJINWMvo0dDB17XObE2ou7fowVfXfgLZkclQyX4tlIfKdqWLYk63TIvZGRi26WI9go2MHa6dZTiVIueJRHtjo+g0MySj8AqGRQrIEkqFtfeVYrPyY3J5kJsvZtIqZEM2bmtGX7JNB8JDuRtQTrD8t9P8lDHMDyMWnKf4bu5dBDO7Z+hzuYrPXEuZUFy6UMw33OJIrqWTLsCYZw4d7HadQ2D+a8XniIIpQ==",
-        "journal": {
-          "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:4c530398ab42ff734dd6db698e15fbea8f6eaaede6646e324af8e79d514dfa44",
-          "output": {
-            "d1": 0.173797,
-            "d2": 0.074485,
-            "delta": 0.568988,
-            "delta_risk_band": "MODERATE",
-            "gamma": 0.039568,
-            "price": 4.579025,
-            "rho_per_pct": 0.129008,
-            "theta_per_day": -0.028848,
-            "type": "call",
-            "vega_per_pct": 0.195131
-          }
-        }
-      },
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "EYeGVeOv7nVoHI6VIAWZ88Q0PdOgp8bKzQ8oEdVXU/QfnG+gNSWLBjGOrv/UetbWFU/E7ToLyjuv4tnJRDf81S78FjfgEnA7OZd2ZGjuWH9OZLEakzSQ5vf6U0piMng5ExZnONhPh8bAxJyRWpZUGL9kjSnv1hLMWFuNEglduQIpNQdqbMOKLvWgmXx1u19gPYOEfI4NIWqa1o6IY2E5/BkwSkQyf2THU4ZjDZ8gTdz7MAdYal5PGmgTyoriDcZ/JDxTOEH8ylwW8TD0MGGnNWtvq3wFqlKXHwOvqEoJ3AsrA5KkerzAoYzOSXRV4L7p3XytrDbnZGKpXPEG8ODGnw==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:85150b0c10d583588c0584d76ea17a3378c4a1af666c1c700db412574c42587b",
+    "output": {
+      "d1": 0.173797,
+      "d2": 0.074485,
+      "delta": 0.568988,
+      "delta_risk_band": "MODERATE",
+      "gamma": 0.039568,
+      "price": 4.579025,
+      "rho_per_pct": 0.129008,
+      "theta_per_day": -0.028848,
+      "type": "call",
+      "vega_per_pct": 0.195131
+    }
+  }
+},
       "export_capability": [
         "xlsx",
         "csv",
@@ -49942,11 +49915,12 @@
       "conformance_fixtures": false,
       "compute_capability": "server",
       "compute_proof_ready": "ready",
+      "scope_statement": "Modelling-convention disclosure (RCA02-RESERVE-TAIL-1, 2026-08-30): this simulator is a forward-looking Monte Carlo stress tool. Its over-collateralization buffer (default 2%, policy parameter art36_buffer) and its adverse-tail adequacy test (P5 end-day coverage >= 1.0 + buffer) are DECLARED MODELLING CONVENTIONS of the simulator, not requirements of MiCA Article 36. Regulation (EU) 2023/1114 Article 36(7) requires the reserve at all times to be at least equal in value to the outstanding tokens (100% parity); the Article prescribes neither a percentile adequacy test nor a 2% buffer. No primary-source basis for the 2% figure was retrieved (EBA RTS pages under Article 36 checked 2026-08-30 state no such figure), so the kernel carries 2% as a caller-adjustable modelling default.",
       "compute_images": [
         {
           "system": "sha256-source",
-          "image_id": "sha256:6fce2ba734c51cd45d54192ce1f75dba7e32561d4e7ee9792a7bfae0cdfea260",
-          "valid_from": "2026-07-12"
+          "image_id": "sha256:c66896024cd7ffc75c46cdd7c67e42c929234c4c7ce4b342a372b3627a68377b",
+          "valid_from": "2026-08-31"
         },
         {
           "system": "risc0",
@@ -49955,31 +49929,34 @@
         }
       ],
       "compute_proof": {
-        "type": "ZkVmReceipt",
-        "system": "risc0",
-        "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "Baj+aUZ06Ndurv3fsCNNGVEh3Zy7Gs9lEAnSLec+AYANtMGuDFvuLpb1r3TVANYjKZ5TuGMDQ34vWYzvKXej1BB9oyM80YknVXj9aWMCK6mvTfvXnHoOnXU+Y9ExbE5/GeD3polc+ezfXr5ho+2aKGXxt+yU4wxPYSAuyqtEKbImQBuYpwk+i8lrg0zyagQjrsfoLm6y5rB1G0N1DMDb0BIJxtde0nDWbkL1KmhWvQXuMeZEELVyciHcd7xA0uLxIqmtwFDtx+1QeNt0usUvpqKlBtQYuuvb6+iMuT+pFCsBhSeKpMcln3lfNgLcXumgoSQvGY08ptrC1HQUBARP2A==",
-        "journal": {
-          "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:6fce2ba734c51cd45d54192ce1f75dba7e32561d4e7ee9792a7bfae0cdfea260",
-          "output": {
-            "art36_buffer_adequate_pct": 100,
-            "breach_probability_pct": 62.8,
-            "compliance_flags": [
-              "MICA_ART36_RESERVE_BREACH_LIKELY",
-              "MICA_ART36_BUFFER_SUFFICIENT"
-            ],
-            "coverage_p50_end_day": 0.7117,
-            "coverage_p5_end_day": 0.0289,
-            "horizon_days": 30,
-            "n_paths": 500,
-            "peak_breach_pct": 80,
-            "scenario": "moderate",
-            "verdict": "BREACH_LIKELY"
-          }
-        }
-      },
+  "type": "ZkVmReceipt",
+  "system": "risc0",
+  "receiptFormat": "groth16-bn254",
+  "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+  "seal": "IqEaZXQoDaqbRm4hQW1LxpeJ2OAncXUpf8BmwXwPq2sW2SQEwq/igUt946Bs6lz3DvBDW0D10vP3nxXir4AgBQ4k6j0sk9FQG30XSnUhVq/iUB6bkJ0ok4DJqXs5TTi+LfW11pC7DznC8ct3/Cdmiaa/xt+CiihPkU8gI1JPjMoaTA544eUMF6UQRr50PZydI2yz/FzlpRRtT6WNSzjWQAl7CxA5dTX/47N6TN9ppWVJ91G1L/bAKsy2EcQf82WILZLsm5Mn2GeQnwNGwAmHlgMIIH11oyVqPqYAEqQxFIUqS5oKBvnMaVEId9WTx8eFrAe9ypeP56WTHK0BvjaWdQ==",
+  "journal": {
+    "chaingraph_version": "0.4.0",
+    "kernel_digest": "sha256:c66896024cd7ffc75c46cdd7c67e42c929234c4c7ce4b342a372b3627a68377b",
+    "output": {
+      "art36_buffer_adequate_pct": 0,
+      "breach_probability_pct": 0,
+      "compliance_flags": [
+        "MICA_ART36_RESERVE_ADEQUATE",
+        "MICA_ART36_BUFFER_INSUFFICIENT"
+      ],
+      "coverage_p50_end_day": 1.0396,
+      "coverage_p5_end_day": 1.0082,
+      "horizon_days": 2,
+      "n_paths": 50,
+      "peak_breach_pct": 0,
+      "scenario": "moderate",
+      "verdict": "ADEQUATE",
+      "warnings": [
+        "MICA_ART36_BUFFER_INSUFFICIENT"
+      ]
+    }
+  }
+},
       "export_capability": [
         "xlsx",
         "csv",
