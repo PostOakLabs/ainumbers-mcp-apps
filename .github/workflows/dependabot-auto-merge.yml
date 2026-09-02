@@ -10,6 +10,9 @@ jobs:
       pull-requests: write
     steps:
       - name: Auto-merge once CI passes
-        run: gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}"
+        # env-indirect (zizmor alert-37 pattern): the server-constructed
+        # html_url is never interpolated directly into the run: command.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --squash "$PR_URL"
