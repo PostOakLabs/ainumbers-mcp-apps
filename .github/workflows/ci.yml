@@ -27,7 +27,11 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        # --ignore-scripts (DEPENDABOT-AUTOMERGE-SCOPE-1, 2026-09-03): no
+        # dependency in the lockfile ships an install lifecycle script, so
+        # nothing legitimate is skipped — and a future dep that adds one
+        # cannot execute code at install time in CI.
+        run: npm ci --ignore-scripts
 
       - name: 🧱 Worker bundles (dry-run) — gate against missing committed deps
         # `wrangler deploy --dry-run` bundles worker.mjs WITHOUT deploying. It fails
@@ -381,7 +385,13 @@ jobs:
           package-manager-cache: false
 
       - name: 📦 Install dependencies
-        run: npm ci
+        # --ignore-scripts (DEPENDABOT-AUTOMERGE-SCOPE-1, 2026-09-03): install
+        # scripts have no business executing in a job that holds
+        # CLOUDFLARE_API_TOKEN/CLOUDFLARE_ACCOUNT_ID. No lockfile dependency
+        # ships an install lifecycle script, so the build is unaffected (the
+        # wrangler bundle below resolves installed package FILES, which
+        # --ignore-scripts installs in full).
+        run: npm ci --ignore-scripts
 
       - name: 🚀 Deploy worker
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0

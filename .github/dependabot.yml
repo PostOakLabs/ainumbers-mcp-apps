@@ -7,7 +7,15 @@ version: 2
 # to satisfy it. Dependabot SECURITY ALERTS stay ON (separate feature, unaffected);
 # the few npm deps (hono + @modelcontextprotocol/*) are bumped manually. To
 # re-enable: re-add the npm ecosystem block + a `registries:` entry backed by a
-# read:packages Dependabot secret.
+# read:packages Dependabot secret. ANY npm ecosystem block added here MUST carry
+#   cooldown:
+#     default-days: 7
+# so a zero-day-malicious release ages 7 days before Dependabot even opens a PR
+# (DEPENDABOT-AUTOMERGE-SCOPE-1, 2026-09-03). Measured that same day: npm
+# version-update PRs kept arriving AFTER the npm block was removed above
+# (#209 hono 2026-08-04, #250 grouped 2026-08-12, #301/#302 2026-09-03), so the
+# merge-scope gate in dependabot-auto-merge.yml is the load-bearing control:
+# only allowlisted patch bumps auto-merge, everything else needs a human.
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"

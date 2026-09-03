@@ -1,5 +1,20 @@
-﻿name: Dependabot auto-merge
+name: Dependabot auto-merge
 on: pull_request
+
+# Auto-merge SCOPE (DEPENDABOT-AUTOMERGE-SCOPE-1, 2026-09-03): only PATCH-level
+# semver bumps of an explicit allowlist of runtime dependencies may auto-merge.
+# The allowlist is the package.json `dependencies` set — the runtime deps on the
+# live /mcp request path:
+#   @modelcontextprotocol/ext-apps, @modelcontextprotocol/sdk, express,
+#   fetch-to-node, hono, zod
+# Everything else — minor/major bumps, transitive/off-list deps (qs, fast-uri,
+# ip-address, ...), grouped updates, GitHub-Actions bumps, prereleases,
+# unparseable titles — is labeled `deps-human-review` and NEVER auto-merged.
+# A zero-day-malicious upstream release therefore cannot reach production
+# without human eyes, however green its CI is.
+# BACKSTOP: the post-deploy /mcp smoke (scripts/smoke-mcp.mjs in the ci.yml
+# deploy job) stays the final guard — every merge that deploys still has to
+# pass a real MCP `initialize` against the live endpoint before CI goes green.
 
 jobs:
   auto-merge:
@@ -8,11 +23,73 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write # gh label create / label APIs live under the issues permission
     steps:
-      - name: Auto-merge once CI passes
+      - name: Scope gate — allowlisted patch bumps only; everything else → human review
         # env-indirect (zizmor alert-37 pattern): the server-constructed
-        # html_url is never interpolated directly into the run: command.
+        # html_url and the PR title are never interpolated into the run:
+        # command — only env vars are. The one title-derived value that reaches
+        # a command line is the verdict, whose vocabulary is fixed
+        # (AUTO_MERGE*/HUMAN_REVIEW*), so it cannot inject flags or commands.
+        # Fail-closed: if the semver parse or node itself errors, `set -e`
+        # fails the step and NO merge happens.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_URL: ${{ github.event.pull_request.html_url }}
-        run: gh pr merge --auto --squash "$PR_URL"
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          VERDICT=$(node <<'DEPENDABOT_SCOPE_EOF'
+          // Scope gate (DEPENDABOT-AUTOMERGE-SCOPE-1). AUTO_MERGE only when the
+          // PR title names exactly ONE dependency from the allowlist AND the
+          // bump is strictly patch-level semver (same major.minor, higher
+          // patch, no prerelease on either side). Everything else, including
+          // grouped updates and unparsable titles, is HUMAN_REVIEW.
+          const ALLOWLIST = [
+            '@modelcontextprotocol/ext-apps',
+            '@modelcontextprotocol/sdk',
+            'express',
+            'fetch-to-node',
+            'hono',
+            'zod',
+          ];
+          const title = process.env.PR_TITLE || '';
+          const m = title.match(/bump\s+(\S+)\s+from\s+(\S+)\s+to\s+(\S+?)(?:\s+in\s+the\s+\S+\s+group)?\s*$/i);
+          const parseSemver = (v) => {
+            const mm = String(v).replace(/^v/, '').match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z][0-9A-Za-z.-]*))?(\+[0-9A-Za-z.-]+)?$/);
+            return mm ? { major: +mm[1], minor: +mm[2], patch: +mm[3], pre: mm[4] || null } : null;
+          };
+          let verdict;
+          if (!m) {
+            verdict = 'HUMAN_REVIEW title-is-not-a-single-dependency-bump';
+          } else {
+            const name = m[1];
+            const from = parseSemver(m[2]);
+            const to = parseSemver(m[3]);
+            if (!from || !to) verdict = 'HUMAN_REVIEW version-not-parsable-as-semver';
+            else if (from.pre || to.pre) verdict = 'HUMAN_REVIEW prerelease-involved';
+            else if (!ALLOWLIST.includes(name)) verdict = 'HUMAN_REVIEW dependency-not-in-allowlist:' + name;
+            else if (to.major !== from.major || to.minor !== from.minor) verdict = 'HUMAN_REVIEW bump-is-not-patch-level';
+            else if (to.patch <= from.patch) verdict = 'HUMAN_REVIEW not-an-upgrade';
+            else verdict = 'AUTO_MERGE patch ' + name + ' ' + m[2] + ' -> ' + m[3];
+          }
+          console.log(verdict);
+          DEPENDABOT_SCOPE_EOF
+          )
+          echo "dependabot scope verdict: ${VERDICT}"
+          case "$VERDICT" in
+            AUTO_MERGE*)
+              # Same --auto contract as before this gate: GitHub still merges
+              # only once every required check is green. The gate only narrows
+              # which PRs get that treatment.
+              gh pr merge --auto --squash "$PR_URL"
+              ;;
+            *)
+              gh label create deps-human-review \
+                --color 0E8A16 \
+                --description "Dependabot bump outside auto-merge scope (allowlisted runtime deps, patch-level only); human review required" \
+                || true
+              gh pr edit "$PR_URL" --add-label deps-human-review
+              gh pr comment "$PR_URL" --body "Not auto-merged: ${VERDICT}. Auto-merge is limited to patch-level bumps of allowlisted runtime dependencies; this PR needs human review and a human merge."
+              ;;
+          esac
