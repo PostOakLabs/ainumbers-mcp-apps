@@ -5480,7 +5480,10 @@ export default {
       // build), so this short-circuit is behaviour-faithful AND cheap. Code -32601 per the JSON-RPC
       // spec for this class, matching the SSE branch's method-class refusal above and the SDK.
       // Plain JSON (not SSE), same envelope shape as the unknown-tool response below.
-      if (body && body.id !== undefined && !isKnownMethod(method)) {
+      // ⛔ String methods ONLY: a body with NO/invalid method field is NOT the unknown-method
+      // class — it must keep reaching the SDK's own fast 400/-32700 shape-error response
+      // (scripts/test-malformed-body-fastfail.mjs control case asserts exactly that).
+      if (body && body.id !== undefined && typeof method === 'string' && !isKnownMethod(method)) {
         return new Response(
           JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32601, message: 'Method not found: ' + method } }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
