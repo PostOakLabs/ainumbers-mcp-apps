@@ -16,7 +16,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
+import { buildServer, widgetGlue, stripCspMeta, KNOWN_REQUEST_METHODS } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
 import { UTILITY_TOOL_NAMES } from '../utility-tools.mjs';
 
@@ -106,6 +106,63 @@ const missingFromDerived = [...registered].filter((n) => !derivedKnown.has(n)); 
 const extraInDerived = [...derivedKnown].filter((n) => !registered.has(n));      // harmless (routes to full build)
 if (missingFromDerived.length) { console.error('✗ known-set UNDER-covers (would false-reject): ' + missingFromDerived.join(', ')); failures++; }
 else console.log('✓ known-set covers all ' + registered.size + ' registered tools (0 false-reject); ' + extraInDerived.length + ' extra (harmless)');
+
+// ── MW2-UNKNOWN-METHOD-GUARD-1: method allowlist parity (0 false-reject) ──────────────────────
+// The worker short-circuits any request method outside KNOWN_REQUEST_METHODS with -32601 WITHOUT
+// building the server. That is only safe if the allowlist exactly covers every method the full
+// build (SDK dispatch) would NOT answer with -32601. Derive that set INDEPENDENTLY from the SDK:
+// probe the full-build server with each candidate method and record whether the SDK itself returns
+// -32601 ("Method not found"). SO #34: the gate recomputes the answer from the primary source (the
+// SDK's own dispatch), it never reads the allowlist it is validating as its evidence.
+// ⛔ HARDCODED — deliberately NOT derived from the worker's allowlist. Deriving the probe set
+// from the set under test would make an allowlist entry invisible to this gate by construction
+// (mutation test: dropping 'ping' from the allowlist passed the gate until this list was pinned).
+const METHOD_CANDIDATES = [
+  // worker routes + static discovery:
+  'initialize', 'tools/list', 'resources/list', 'prompts/list', 'server/discover', 'tools/call',
+  // SDK dispatch surface (server/index.js 1.29.0) and neighbours:
+  'ping', 'prompts/get', 'resources/read', 'resources/templates/list',
+  'completion/complete', 'logging/setLevel', 'resources/subscribe', 'resources/unsubscribe',
+  'tasks/get', 'tasks/list', 'tasks/result', 'tasks/cancel',
+  // probe/garbage classes that must NOT be allowed:
+  'server/info', 'resources/subscribe/extras', 'completion/foo', 'tasks/submit',
+  'sampling/createMessage', 'roots/list', 'elicitation/create', 'garbage/probe/method',
+  'tools/delete', 'initialize/v2',
+];
+const sdkHandled = [], sdkUnhandled = [];
+for (const m of new Set(METHOD_CANDIDATES)) {
+  const resp = await rpcOnce(buildServer(data, {}), m, {});
+  if (resp.error?.code === -32601) sdkUnhandled.push(m); else sdkHandled.push(m);
+}
+const workerAllowed = new Set(KNOWN_REQUEST_METHODS);
+// Every allowlist entry MUST have been probed — otherwise the gate is blind to it (SO #34).
+const unprobed = [...workerAllowed].filter((m) => !METHOD_CANDIDATES.includes(m));
+if (unprobed.length) {
+  console.error('✗ allowlist entries never probed by this gate (gate blind spot): ' + unprobed.join(', '));
+  failures++;
+}
+// FALSE-REJECT: SDK handles it but the worker would short-circuit it — changes a real answer into
+// an error. NEVER permitted.
+const methodFalseRejects = sdkHandled.filter((m) => !workerAllowed.has(m));
+// OVER-ALLOW: worker claims it but the SDK itself answers -32601 — harmless but drift; report.
+const methodOverAllow = [...workerAllowed].filter((m) => sdkUnhandled.includes(m));
+if (methodFalseRejects.length) {
+  console.error('✗ method allowlist UNDER-covers (would FALSE-REJECT with -32601): ' + methodFalseRejects.join(', '));
+  failures++;
+} else {
+  console.log('✓ method allowlist covers all ' + sdkHandled.length + ' SDK-handled methods (0 false-reject); ' +
+    methodOverAllow.length + ' over-allowed (SDK also answers -32601 there — harmless): ' +
+    (methodOverAllow.join(', ') || 'none'));
+}
+// Baseline for the short-circuit: the SDK's OWN answer to a garbage method is -32601 — the worker's
+// early-exit must match that code and shape.
+const garbageResp = await rpcOnce(buildServer(data, {}), 'garbage/probe/method', {});
+if (garbageResp.error?.code === -32601) {
+  console.log('✓ SDK full-build baseline: garbage method → -32601 ' + JSON.stringify(garbageResp.error.message));
+} else {
+  console.error('✗ SDK full-build baseline changed: garbage method → ' + JSON.stringify(garbageResp));
+  failures++;
+}
 
 // ── PRE-DEPLOY count-drift guard ──────────────────────────────────────────────
 // The committed data/counts.json.mcp_tools_total MUST equal the ACTUAL registered tool count.

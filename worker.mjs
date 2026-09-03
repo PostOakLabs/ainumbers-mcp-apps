@@ -836,6 +836,29 @@ function isModernEra(request, body) {
 }
 
 const STATIC_DISCOVERY_METHODS = new Set(['initialize', 'tools/list', 'resources/list', 'prompts/list']);
+
+// MW2-UNKNOWN-METHOD-GUARD-1 — the allowlist of JSON-RPC REQUEST methods this worker (or the SDK
+// transport it hands off to) can answer. Mirror of the known-TOOL-name set at the tools/call
+// fallthrough (MCP-728 T2): any method OUTSIDE this set is short-circuited with a JSON-RPC -32601
+// error (plain JSON, status 200) WITHOUT loading data or building the full ~186-tool server
+// (onlyTool=null → every node's zod schema constructed) — the cold-isolate 1102 source for
+// probe/garbage methods hitting the public endpoint. Membership = the worker's own routes
+// (server/discover, tools/call) + STATIC_DISCOVERY_METHODS + every request method the SDK server
+// dispatches (sdk server/index.js 1.29.0 — derived empirically by the parity gate: the full build
+// answers -32601 to completion/complete, logging/setLevel, resources/subscribe, resources/unsubscribe
+// and tasks/* because buildServer registers none of those capabilities, so those methods take the
+// cheap -32601 short-circuit too; if a future change registers them, the parity gate's 0
+// false-reject check fails and the allowlist must be re-widened).
+// notifications/* (id-less) are already 202'd earlier and can never reach the guard.
+const KNOWN_REQUEST_METHODS = new Set([
+  ...STATIC_DISCOVERY_METHODS,
+  'server/discover', 'tools/call',
+  'ping', 'prompts/get', 'resources/read', 'resources/templates/list',
+]);
+// Exported for scripts/build-mcp-parity.mjs — the gate independently re-derives the SDK-handled
+// method set and asserts this allowlist matches it (SO #34: the gate never trusts the artifact).
+const isKnownMethod = (m) => typeof m === 'string' && KNOWN_REQUEST_METHODS.has(m);
+export { KNOWN_REQUEST_METHODS, isKnownMethod };
 const STATIC_LIST_FILE = {
   'tools/list':     'mcp/static/tools-list.sse.txt',
   'resources/list': 'mcp/static/resources-list.sse.txt',
@@ -5446,6 +5469,25 @@ export default {
           assertSingleSplice(sse, tpl, idJson);
           return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
+      }
+
+      // Unknown METHOD short-circuit (MW2-UNKNOWN-METHOD-GUARD-1) — the method-class mirror of the
+      // unknown-TOOL short-circuit below (MCP-728 T2). Any request method outside
+      // KNOWN_REQUEST_METHODS is answered here, without loadData() or the full ~186-tool build
+      // (onlyTool=null → every node's zod schema constructed) — the cold-isolate 1102 source for
+      // probe/garbage methods on the public endpoint. The SDK's own answer to such a method is
+      // "Method not found" (-32601, verified by scripts/build-mcp-parity.mjs against the real full
+      // build), so this short-circuit is behaviour-faithful AND cheap. Code -32601 per the JSON-RPC
+      // spec for this class, matching the SSE branch's method-class refusal above and the SDK.
+      // Plain JSON (not SSE), same envelope shape as the unknown-tool response below.
+      // ⛔ String methods ONLY: a body with NO/invalid method field is NOT the unknown-method
+      // class — it must keep reaching the SDK's own fast 400/-32700 shape-error response
+      // (scripts/test-malformed-body-fastfail.mjs control case asserts exactly that).
+      if (body && body.id !== undefined && typeof method === 'string' && !isKnownMethod(method)) {
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32601, message: 'Method not found: ' + method } }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       try {
