@@ -5098,6 +5098,39 @@ export default {
     // the SAME gate evaluator every executing surface uses. Every decision carries
     // an additive OCG execution_hash receipt — the "provable decision" delta over
     // other PDPs. Never alters comparator-gate semantics.
+
+    // WORKER-CAPS-1 (2026-09-03, audit WORK-1): the P1-2 request-body cap the /mcp branch
+    // enforces (same MAX_REQUEST_BODY_BYTES, same two-step shape: Content-Length first,
+    // then the post-read length backstop for a chunked/absent header — read the P1-2 comment
+    // block in the /mcp branch below) now guards EVERY /access/v1 JSON parse. Before this,
+    // each rate-limited /access/v1 request could carry an arbitrarily large body, fully
+    // parsed — and on evaluation(s) additionally canonicalized + SHA-256'd per receipt.
+    // `request.text()` drains the stream exactly as `request.json()` did, so the branches
+    // below must use the returned parsed value only (they do — nothing re-reads the stream).
+    // The rejection is byte-identical to /mcp's P1-2 (413 + the same body): one canonical
+    // over-cap error across the whole public surface, no per-route client handling needed.
+    // Enforced by scripts/test-access-caps.mjs (preflight gate).
+    async function readAccessV1BodyWithCap(request) {
+      const declaredLength = Number(request.headers.get('content-length'));
+      if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BODY_BYTES) {
+        return { overCap: true, body: undefined };
+      }
+      const raw = await request.text().catch(() => undefined);
+      if (raw !== undefined && raw.length > MAX_REQUEST_BODY_BYTES) {
+        return { overCap: true, body: undefined };
+      }
+      let body;
+      try { body = raw === undefined || raw === '' ? undefined : JSON.parse(raw); }
+      catch { body = undefined; }
+      return { overCap: false, body };
+    }
+    function accessV1BodyCapResponse(corsHeaders) {
+      return new Response(
+        JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
+        { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (url.pathname === '/access/v1/evaluation' || url.pathname === '/access/v1/evaluations') {
       if (request.method !== 'POST') {
         return new Response(JSON.stringify({ decision: false, context: { error: 'method_not_allowed', detail: 'POST only' } }),
@@ -5107,7 +5140,12 @@ export default {
         return new Response(JSON.stringify({ decision: false, context: { error: 'rate_limited', detail: 'Too many requests. Wait and retry.' } }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } });
       }
-      const azBody = await request.json().catch(() => undefined);
+      // WORKER-CAPS-1: cap the parse BEFORE it happens (see readAccessV1BodyWithCap above).
+      // An under-cap body that is not valid JSON still falls through to the route's own
+      // malformed_request 400 below — the cap only polices SIZE, nothing else changes.
+      const azRead = await readAccessV1BodyWithCap(request);
+      if (azRead.overCap) return accessV1BodyCapResponse(corsHeaders);
+      const azBody = azRead.body;
       if (azBody === undefined) {
         return new Response(JSON.stringify({ decision: false, context: { error: 'malformed_request', detail: 'request body is not valid JSON' } }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -5136,7 +5174,11 @@ export default {
         return new Response(JSON.stringify({ results: [], page: { next_token: '', count: 0, total: 0 }, context: { error: 'rate_limited', detail: 'Too many requests. Wait and retry.' } }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } });
       }
-      await request.json().catch(() => undefined); // body accepted, not required for the fixture
+      // WORKER-CAPS-1: same cap on the search routes' parse. The body is accepted and not
+      // required here (fixture responses), so an under-cap body that is not valid JSON stays
+      // accepted-and-ignored — only the SIZE is newly policed, via the shared helper above.
+      const searchRead = await readAccessV1BodyWithCap(request);
+      if (searchRead.overCap) return accessV1BodyCapResponse(corsHeaders);
       const kind = url.pathname.slice('/access/v1/search/'.length);
       return new Response(JSON.stringify(authzenSearch(kind)), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }

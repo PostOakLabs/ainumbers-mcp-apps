@@ -70,6 +70,7 @@ const gates = [
   { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
   { name: 'id-splice: no string-replacement splice in worker.mjs', args: ['scripts/gate-idreplace-dos.mjs'] },
   { name: 'id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)', args: ['scripts/test-idreplace-dos.mjs'] },
+  { name: '/access/v1 body+batch caps (WORKER-CAPS-1)', args: ['scripts/test-access-caps.mjs'] },
   // COMPOSITE-FLAG-AGGREGATE-1. NOTE: scripts/linear-hash-freeze.mjs is deliberately NOT wired in
   // here. It is red on origin/master d33b845 ahead of any change of ours — 8 stale goldens, one
   // chain no longer fixture-runnable (`current: null`) — measured identically in a detached

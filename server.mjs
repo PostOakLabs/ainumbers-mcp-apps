@@ -115,7 +115,14 @@ if (resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1] ?? '')) 
       await server.connect(transport);
       await transport.handleRequest(req, res, req.body);
     } catch (e) {
-      if (!res.headersSent) res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message: String(e) }, id: null });
+      // C2 mirror (WORKER-CAPS-1, 2026-09-03; audit WORK-3): the caller-visible message used to
+      // be String(e) — the internals-leak shape worker.mjs's C2 fix removed (2026-08-22; any
+      // SDK/zod/kernel exception text can embed internals). Full detail (String(e) + stack) goes
+      // to console.error for diagnosis; the response body is a constant. Dev-only surface (this
+      // listener runs only when server.mjs is executed directly), closed so the leak shape has
+      // no home left. Enforced by scripts/test-access-caps.mjs.
+      console.error('[ainumbers-apps] server.mjs handler error:', String(e), e?.stack ?? '');
+      if (!res.headersSent) res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message: 'Internal error' }, id: null });
     }
   });
   app.get('/healthz', (_req, res) => res.json({ ok: true, widgets: PILOT.length }));
