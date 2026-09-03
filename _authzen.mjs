@@ -253,9 +253,32 @@ export function authzenSearch(kind) {
  * Receipt is attached per item (same additive rule).
  * @returns {Promise<{evaluations: Array<{decision:boolean, context:object}>}>}
  */
+
+// WORKER-CAPS-1 (2026-09-03, audit WORK-2): batch item cap. The AuthZEN 1.0 spec (§7
+// boxcarring) defines the batch envelope but is explicitly silent on batch capacity — its
+// own §2 puts "policy language, architecture, and state management aspects of a PDP"
+// beyond scope (clause snapshot: research/clause-snapshots/authzen-authorization-api-1.0.md).
+// This is therefore a STATED ENGINEERING CAP, not spec guidance: each item costs a gate-eval
+// + RFC 8785 canonicalization + SHA-256 receipt round, so an unbounded evaluations[] is
+// N hash rounds + ~2x response amplification inside ONE rate-limited request (the same
+// amplification class /mcp closed with its P1-1 array rejection). Over-cap is a STRUCTURED
+// error — never silent truncation: the caller must learn the batch was refused, not be
+// handed a plausible-looking partial result. Enforced by scripts/test-access-caps.mjs.
+export const MAX_BATCH_EVALUATIONS = 64;
+
 export async function authzenEvaluateBatch(request) {
   if (request === null || typeof request !== 'object' || !Array.isArray(request.evaluations)) {
     return { evaluations: [], context: { error: 'malformed_request', detail: 'evaluations[] array is required' } };
+  }
+  if (request.evaluations.length > MAX_BATCH_EVALUATIONS) {
+    return {
+      evaluations: [],
+      context: {
+        error: 'batch_too_large',
+        detail: `evaluations[] carries ${request.evaluations.length} items; the maximum is ${MAX_BATCH_EVALUATIONS}. Split the batch and retry.`,
+        max_items: MAX_BATCH_EVALUATIONS,
+      },
+    };
   }
   const base = { subject: request.subject, action: request.action, resource: request.resource, context: request.context };
   const out = [];
