@@ -5484,9 +5484,15 @@ export default {
       // class — it must keep reaching the SDK's own fast 400/-32700 shape-error response
       // (scripts/test-malformed-body-fastfail.mjs control case asserts exactly that).
       if (body && body.id !== undefined && typeof method === 'string' && !isKnownMethod(method)) {
+        // Fix-forward of #306 (2026-09-03): the pre-existing house convention
+        // (scripts/smoke-mcp.mjs §3, enforced in post-deploy CI) maps a modern-era
+        // unknown METHOD to HTTP 404 with the -32601 body, while LEGACY clients
+        // keep getting 200 — never a 404 (smoke-mcp §3b's legacy-stranding
+        // control). The blanket 200 here regressed the modern leg and reddened
+        // the deploy's own post-deploy smoke (run 33785132605).
         return new Response(
           JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32601, message: 'Method not found: ' + method } }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: isModernEra(request, body) ? 404 : 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
