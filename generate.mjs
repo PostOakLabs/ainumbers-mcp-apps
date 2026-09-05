@@ -487,11 +487,12 @@ function cellText(s) {
     process.exit(1);
   }
   const ssot = JSON.parse(readFileSync(spPath, 'utf8'));
-  const items = ssot.prompts ?? [];
+  // Spec §3.3 shape: the SSOT is a bare ARRAY of prompt objects.
+  const items = Array.isArray(ssot) ? ssot : null;
   const requiredFields = ['id', 'title', 'one_line', 'doorways', 'arguments', 'body', 'verify_surface'];
-  const bad = items.filter((p) => requiredFields.some((f) => p[f] === undefined) || !Array.isArray(p.arguments) || p.arguments.some((a) => !a.name || !a.description));
-  if (ssot.count !== items.length || items.length !== 5 || bad.length) {
-    console.error('SELF-CHECK FAIL: mcp/showcase-prompts.json malformed — count=' + ssot.count + ' items=' + items.length + ' (expected 5), malformed: ' + bad.map((p) => p.id).join(', '));
+  const bad = (items ?? []).filter((p) => requiredFields.some((f) => p[f] === undefined) || !Array.isArray(p.arguments) || p.arguments.some((a) => !a.name || !a.description));
+  if (!Array.isArray(items) || items.length !== 5 || bad.length) {
+    console.error('SELF-CHECK FAIL: mcp/showcase-prompts.json malformed — items=' + (items ? items.length : 'not-an-array') + ' (expected 5, bare array per AGENT-REACH-BUILD-SPEC §3.3), malformed: ' + bad.map((p) => p.id).join(', '));
     process.exit(1);
   }
   const dupes = items.map((p) => p.id).filter((id, i, a) => a.indexOf(id) !== i);
