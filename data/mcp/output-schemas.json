@@ -39362,6 +39362,17 @@
       }
     }
   },
+  "compute_verify_receipt": {
+    "type": "object",
+    "properties": {
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "compute_loan_servicing_waterfall_recompute": {
     "type": "object",
     "properties": {
