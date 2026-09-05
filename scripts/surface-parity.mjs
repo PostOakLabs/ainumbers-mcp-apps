@@ -120,7 +120,8 @@ if (!tableSectionMatch) {
       const ssotPath = resolve(cand, 'mcp', 'showcase-prompts.json');
       if (existsSync(ssotPath)) {
         const ssot = JSON.parse(readFileSync(ssotPath, 'utf8'));
-        if (JSON.stringify(ssot.prompts ?? []) !== JSON.stringify(items)) {
+        const ssotItems = Array.isArray(ssot) ? ssot : (ssot.prompts ?? []);
+        if (JSON.stringify(ssotItems) !== JSON.stringify(items)) {
           errors.push('P6: data/mcp/showcase-prompts.json diverged from site SSOT ' + ssotPath + ' — re-run node generate.mjs.');
           ok = false;
         } else {
