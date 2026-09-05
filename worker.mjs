@@ -747,7 +747,11 @@ async function loadData(env) {
   // never fire on a correctly vendored deploy.
   let recipes = null;
   try { recipes = await (await get('mcp/recipes.json')).json(); } catch { recipes = null; }
-  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes };
+  // Showcase prompts (MCP-SHOWCASE-PROMPTS-1) — generate.mjs projection of the site SSOT
+  // mcp/showcase-prompts.json. Same tolerant-load discipline as recipes above.
+  let showcasePrompts = null;
+  try { showcasePrompts = await (await get('mcp/showcase-prompts.json')).json(); } catch { showcasePrompts = null; }
+  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts };
   return dataCache;
 }
 
@@ -1223,7 +1227,7 @@ async function callAnchorSuiteTool(toolName, args) {
   }
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes }, { onlyTool = null, mrtr = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts }, { onlyTool = null, mrtr = null } = {}) {
   // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
   // spec_digest exists under fv-status/ (today exactly one, since every live
   // node shares one chaingraph/standard/SPEC.md) — an ambiguous or empty
@@ -4765,6 +4769,37 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         messages: [{ role: 'user', content: { type: 'text', text } }],
       };
     });
+  }
+
+  // MCP-SHOWCASE-PROMPTS-1: the five end-to-end estate showcase prompts, projected verbatim
+  // from the site SSOT mcp/showcase-prompts.json (data/mcp/showcase-prompts.json here) —
+  // a second, parallel source beside the recipes above (recipes stay the chain-workflow SSOT;
+  // these are the non-chain demos: page + worker + receipt + ledger + anchor). Typed arguments
+  // per the SSOT `arguments[]`; the body ships as the single user message verbatim, followed
+  // by resource_link content blocks for the verify surface (ledger / node / anchor URLs).
+  // Registered through the same regPrompt dedupe; a name collision with a flagship or recipe
+  // prompt can never 500 the /mcp handshake.
+  for (const sp of (showcasePrompts?.prompts ?? [])) {
+    const argsSchema = {};
+    for (const a of (sp.arguments ?? [])) {
+      argsSchema[a.name] = a.required
+        ? z.string().describe(a.description)
+        : z.string().optional().describe(a.description);
+    }
+    regPrompt(sp.id, {
+      title: sp.title,
+      description: sp.one_line,
+      argsSchema,
+    }, () => ({
+      description: sp.one_line,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: sp.body },
+          ...(sp.verify_surface ?? []).map((u) => ({ type: 'resource_link', uri: u, name: u })),
+        ],
+      }],
+    }));
   }
 
   return server;
