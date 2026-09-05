@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "1176 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "1180 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
   "generated": "2026-09-05",
-  "tool_count": 1176,
+  "tool_count": 1180,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -24376,6 +24376,152 @@
       }
     },
     {
+      "name": "compute_best_execution_evidence_pack",
+      "description": "Compiles a caller-declared best-execution monitoring evidence pack: fill-weighted average price improvement in bps (2dp half-up), declared negative-improvement venues, and a REVIEW_ITEM_FLAGGED / WITHIN_POLICY verdict. Declared per-venue fills only; reads no order store, venue connection, or fill observer. Rounding is 2dp half-up. Invalid inputs fail closed and are named.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "venues": {
+            "type": "array",
+            "description": "Declared per-venue records: venue (non-empty string), fills (integer > 0), avg_improvement_bps (finite number).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "venue": {
+                  "type": "string"
+                },
+                "fills": {
+                  "type": "number"
+                },
+                "avg_improvement_bps": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "venue",
+                "fills",
+                "avg_improvement_bps"
+              ]
+            }
+          }
+        },
+        "required": [
+          "venues"
+        ]
+      },
+      "metadata": {
+        "tool_id": "681-best-execution-evidence-pack",
+        "category": "regtech",
+        "tags": [
+          "best execution",
+          "price improvement",
+          "execution policy",
+          "monitoring MI",
+          "MiFIR",
+          "RTS 27",
+          "RTS 28",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/681-best-execution-evidence-pack.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "compute_consolidation_cta",
+      "description": "Computes foreign-subsidiary consolidation figures from declared inputs: equity translated at declared current and historical rates (2dp half-up), the cumulative translation adjustment as the difference, and the parent/minority-interest split at the declared ownership percentage. Translation and split arithmetic over caller-declared synthetic inputs only: no accounting advice, no framework-conformance determination, and nothing is posted anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sub_equity_fc": {
+            "type": "number",
+            "description": "subsidiary equity in functional currency"
+          },
+          "rate_current": {
+            "type": "number",
+            "description": "declared current translation rate"
+          },
+          "rate_historical": {
+            "type": "number",
+            "description": "declared historical translation rate"
+          },
+          "parent_ownership_pct": {
+            "type": "number",
+            "description": "declared parent ownership percentage"
+          }
+        },
+        "required": [
+          "sub_equity_fc",
+          "rate_current",
+          "rate_historical",
+          "parent_ownership_pct"
+        ]
+      },
+      "metadata": {
+        "tool_id": "683-consolidation-cta-minority-interest",
+        "category": "accounting",
+        "tags": [
+          "consolidation",
+          "CTA",
+          "cumulative translation adjustment",
+          "minority interest",
+          "non-controlling interest",
+          "translation method",
+          "current rate",
+          "historical rate",
+          "FX translation",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/683-consolidation-cta-minority-interest.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_intercompany_elimination_netting",
+      "description": "Computes an intercompany elimination and netting summary from declared entity pairs: matched and mismatched pair counts, elimination total (sum of the smaller side of every pair), unmatched residual (sum of mismatch differences), the mismatch listing, and an overall GAPS_FOUND or ALL_MATCHED verdict. Matching arithmetic over caller-declared synthetic inputs only: not legal advice, not an audit opinion, not a settlement instruction \u2014 nothing is posted or paid anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pairs": {
+            "type": "array",
+            "description": "declared entity pairs with a, b, a_receivable, b_payable"
+          }
+        },
+        "required": [
+          "pairs"
+        ]
+      },
+      "metadata": {
+        "tool_id": "684-intercompany-elimination-netting",
+        "category": "accounting",
+        "tags": [
+          "intercompany",
+          "elimination",
+          "netting",
+          "consolidation",
+          "receivable",
+          "payable",
+          "matching",
+          "mismatch",
+          "settlement summary",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/684-intercompany-elimination-netting.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
       "name": "a2a_liquidity_simulator",
       "description": "Model intraday cash flow and prefunding requirements across FedNow, RTP, ACH, SEPA Instant, PIX, and UPI. Single and multi-rail simulation with overdraft risk, opportunity cost, and routing waterfall. Client-side, zero PII. Browser-based, client-side only. Zero PII. Link users to https://ainumbers.co/tools/a2a-liquidity-simulator.html for interactive use.",
       "inputSchema": {
@@ -24993,7 +25139,12 @@
       "name": "score_mcp_server_readiness",
       "description": "Rolls up caller-supplied yes/partial/no answers across six MCP ship-readiness sections (tool definitions, server.json/registry, OAuth 2.1, transport security, tool-poisoning hygiene, spec-revision compliance) into an overall 0-100 score and a prioritized gap list. Stage 4 (terminal) of the Agentic Policy Chain. Self-reported rollup; validate each weak section with its own deep-dive tool. Deterministic, zero PII.",
       "inputSchema": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "answers": {
+            "type": "object"
+          }
+        }
       },
       "metadata": {
         "tool_id": "art-18-mcp-developer-readiness-scorecard",
@@ -45294,10 +45445,7 @@
         "type": "object",
         "properties": {
           "over_segregation_ceiling": {
-            "type": [
-              "number",
-              "null"
-            ]
+            "type": "number"
           },
           "segregated_assets": {
             "type": "array",
@@ -45388,10 +45536,7 @@
         "type": "object",
         "properties": {
           "por_input": {
-            "type": [
-              "object",
-              "null"
-            ],
+            "type": "object",
             "properties": {
               "inclusion_verified": {
                 "type": "boolean"
@@ -45407,10 +45552,7 @@
             }
           },
           "reported_total_liabilities_musd": {
-            "type": [
-              "number",
-              "null"
-            ]
+            "type": "number"
           },
           "liabilities_attestation_source": {
             "type": "string"
@@ -47111,22 +47253,13 @@
         "type": "object",
         "properties": {
           "reserve_proof": {
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": "object"
           },
           "liability_branch": {
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": "object"
           },
           "published_reserve_figures": {
-            "type": [
-              "object",
-              "null"
-            ]
+            "type": "object"
           }
         }
       },
@@ -47320,10 +47453,7 @@
             "type": "string"
           },
           "chainId": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "verifyingContract": {
             "type": "string"
@@ -47335,22 +47465,13 @@
             "type": "string"
           },
           "value": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "validAfter": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "validBefore": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "nonce": {
             "type": "string"
@@ -47394,22 +47515,13 @@
             "type": "string"
           },
           "v": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "yParity": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "chainId": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "claimedFrom": {
             "type": "string"
@@ -47442,49 +47554,31 @@
         "type": "object",
         "properties": {
           "expected_chain_id": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "expected_verifying_contract": {
             "type": "string"
           },
           "chainId": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "verifyingContract": {
             "type": "string"
           },
           "validAfter": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "validBefore": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "now_unix": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "nonce": {
             "type": "string"
           },
           "nonce_already_used": {
-            "type": [
-              "boolean",
-              "null"
-            ]
+            "type": "boolean"
           }
         }
       },
@@ -48551,28 +48645,19 @@
         "type": "object",
         "properties": {
           "entryPointVersion": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "string"
           },
           "entryPoint": {
             "type": "string"
           },
           "chainId": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "sender": {
             "type": "string"
           },
           "nonce": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "initCode": {
             "type": "string"
@@ -48584,64 +48669,34 @@
             "type": "string"
           },
           "callGasLimit": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "verificationGasLimit": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "preVerificationGas": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "maxFeePerGas": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "maxPriorityFeePerGas": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "declaredBaseFeePerGas": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "declaredActualGasUsed": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "declaredActualGasCostWei": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "string"
           },
           "declaredL1DataFeeWei": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "string"
           },
           "reconciliationToleranceWei": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "string"
           }
         }
       },
@@ -48672,19 +48727,13 @@
         "type": "object",
         "properties": {
           "chainId": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "address": {
             "type": "string"
           },
           "nonce": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "signature": {
             "type": "string"
@@ -48696,16 +48745,10 @@
             "type": "string"
           },
           "v": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           },
           "yParity": {
-            "type": [
-              "string",
-              "number"
-            ]
+            "type": "number"
           }
         }
       },
@@ -49224,10 +49267,7 @@
             "type": "string"
           },
           "transition_year_start_date": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "exclusion_rules": {
             "type": "array"
@@ -50579,6 +50619,78 @@
       }
     },
     {
+      "name": "compose_ap2_prompt",
+      "description": "Transforms a OpenChainGraph artifact JSON into a structured, regulator-framed prompt for an external LLM. Returns prompt text and Claude.ai deep link. No inference performed \u2014 pure template composition.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "task",
+          "audience"
+        ],
+        "properties": {
+          "artifact_json": {
+            "type": "string",
+            "description": "OpenChainGraph artifact JSON from any suite tool"
+          },
+          "task": {
+            "type": "string",
+            "enum": [
+              "board_memo",
+              "regulatory_submission",
+              "risk_memo",
+              "remediation_plan",
+              "plain_english_summary",
+              "period_comparison",
+              "top_3_risks"
+            ],
+            "description": "Output task type"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "board",
+              "risk_committee",
+              "regulator",
+              "quant",
+              "ops"
+            ],
+            "description": "Target audience for the generated prompt"
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "formal",
+              "technical",
+              "plain"
+            ],
+            "default": "formal"
+          },
+          "include_citations": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "x_schema_provenance": "authored-from-page-embedded-manifest-and-kernel-fixture-0 2026-09-05"
+      },
+      "metadata": {
+        "tool_id": "ptg-01-ap2-prompt-template-generator",
+        "category": "chaingraph",
+        "tags": [
+          "AP2",
+          "prompt engineering",
+          "template",
+          "agentic",
+          "OpenChainGraph",
+          "regulatory"
+        ],
+        "url": "https://ainumbers.co/tools/ptg-01-ap2-prompt-template-generator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
       "name": "compute_options_greeks",
       "description": "Prices a European option and computes full Black-Scholes Greeks.",
       "inputSchema": {
@@ -50760,7 +50872,7 @@
     },
     {
       "name": "calculate_xva",
-      "description": "Monte Carlo XVA/CVA/DVA/FVA calculator for OTC derivatives.",
+      "description": "Monte Carlo XVA/CVA/DVA/FVA calculator. Simulates GBM exposure paths for OTC derivatives and computes CVA, DVA, and FVA from discounted expected exposure. Zero-egress.",
       "inputSchema": {
         "type": "object",
         "required": [
