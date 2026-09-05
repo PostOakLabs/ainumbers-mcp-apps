@@ -2171,6 +2171,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'a step whose kernel needs inputs you omit is reported per-step (status "input_required"), never failed silently. ' +
       'Steps that are browser-only (gpu:true or no registered kernel) are listed for browser delegation. ' +
       'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash. ' +
+      'Each server-mode run also returns an OpenTelemetry GenAI span document as a resource link (one execute_tool span per executed step under an invoke_agent parent). ' +
       'Response includes a ledger_url fragment link for human verification at ledger.ainumbers.co.',
     inputSchema: {
       chain: z.string().describe('Chain name, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
@@ -2532,6 +2533,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // escalation, so run_chain never blocks unless the caller asks for it.
     // Everything below is response metadata: no artifact field moves, no hash changes.
     // -----------------------------------------------------------------------
+    let otelResourceLink = null; // MCP-OTEL-LINK-1 — set below when the composite artifact exists
     if (escalation_record) {
       out.status = 'escalated';
       out.escalation_resolve = {
@@ -2661,7 +2663,34 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // When out._mrtr is set the /mcp post-processor replaces this whole result with the
     // SEP-2322 InputRequiredResult; the text block below is only what would surface if it
     // somehow reached a caller unprocessed.
-    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+
+    // MCP-OTEL-LINK-1 — expose the existing OTel GenAI span tree of THIS run as a resource_link.
+    // The span document is derived from the result we are already returning (chainRunToOtlpTrace:
+    // one execute_tool span per status:"ok" step — input_required/skipped steps produce NO span —
+    // under an invoke_agent parent carrying the composite hash and chain name). Response metadata
+    // only: no artifact field moves, no hash changes. A data: URI serves the document on request —
+    // no new route, no storage, no outbound push.
+    if (composite_artifact) {
+      const stepMeta = {};
+      for (const r of ran) {
+        const kd = r.artifact?.audit_signature?.build_identity?.kernel_digest;
+        if (kd) stepMeta[r.tool_id] = { kernel_digest: kd };
+      }
+      const otelDoc = chainRunToOtlpTrace(out, {
+        service: 'ainumbers-chaingraph-worker',
+        compositeExecutionHash: composite_hash,
+        stepMeta,
+      });
+      // encodeURIComponent + unescape gives a Latin-1 string safe for btoa (same posture as line ~683)
+      const otelUri = 'data:application/json;base64,' +
+        btoa(unescape(encodeURIComponent(JSON.stringify(otelDoc))));
+      out.otel_span_link = otelUri; // response metadata mirror of the resource_link block
+      otelResourceLink = { type: 'resource_link', name: `otel-spans-${chain}.json`, uri: otelUri, mimeType: 'application/json' };
+    }
+
+    const runChainContent = [{ type: 'text', text: JSON.stringify(out, null, 2) }];
+    if (otelResourceLink) runChainContent.push(otelResourceLink);
+    return { content: runChainContent, structuredContent: out };
   });
 
   // -------------------------------------------------------------------------
