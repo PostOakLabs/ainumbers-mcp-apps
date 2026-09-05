@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "1167 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "1171 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-09-03",
-  "tool_count": 1167,
+  "generated": "2026-09-04",
+  "tool_count": 1171,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -23972,6 +23972,173 @@
           "zero-PII"
         ],
         "url": "https://ainumbers.co/tools/669-algo-execution-schedule-simulator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_eba_im_model_validation_tracker",
+      "description": "Rolls up a caller-declared internal-model inventory: counts by declared status, lists pending submission ids, ages each pending submission in whole days to the declared as_of, and issues an overall verdict under a named 180-day aging rule. Tracker over declared synthetic inputs only: no register, no SSR tape, no cutoff feed, no network, no recommendation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "description": "YYYY-MM-DD snapshot date"
+          },
+          "models": {
+            "type": "array",
+            "description": "entries: id, status (submitted|approved|rejected), submitted (YYYY-MM-DD)"
+          }
+        },
+        "required": [
+          "as_of",
+          "models"
+        ]
+      },
+      "metadata": {
+        "tool_id": "674-eba-im-model-validation-tracker",
+        "category": "compliance",
+        "tags": [
+          "EBA",
+          "internal models",
+          "model validation",
+          "model inventory",
+          "pending age",
+          "supervisory tracking",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/674-eba-im-model-validation-tracker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_recordkeeping_completeness_mapper",
+      "description": "Rolls up a caller-declared books-and-records channel inventory: total, captured count, completeness percentage, uncaptured names, retrieval-pass count, and an overall COMPLETE/GAPS_FOUND verdict. Arithmetic of declared inputs only -- does not check live records systems; not_run retrieval tests are gaps, never assumed passes. Invalid inputs fail closed and are named.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channels": {
+            "type": "array",
+            "description": "Declared channels: {name, captured (boolean), retrieval_test (pass|fail|not_run)}."
+          }
+        },
+        "required": [
+          "channels"
+        ]
+      },
+      "metadata": {
+        "tool_id": "675-recordkeeping-completeness-mapper",
+        "category": "regtech",
+        "tags": [
+          "recordkeeping",
+          "books and records",
+          "off-channel comms",
+          "completeness",
+          "channel inventory",
+          "retrieval test",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/675-recordkeeping-completeness-mapper.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_proxy_voting_record",
+      "description": "Computes a proxy voting record from declared meeting dates, record-date positions, and a voting instruction: entitled shares as the position sum, whole days before the declared vote deadline, deadline status, and an overall VOTE_RECORDED or INSTRUCTION_LATE verdict. Record arithmetic over caller-declared synthetic inputs only: no registrar check, no share register, no voting advice, and no instruction is transmitted anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "meeting": {
+            "type": "object",
+            "description": "record_date and vote_deadline, YYYY-MM-DD"
+          },
+          "positions": {
+            "type": "array",
+            "description": "record-date positions, each {account, shares}"
+          },
+          "instruction": {
+            "type": "object",
+            "description": "received (YYYY-MM-DD) and direction (for, against, abstain, withhold)"
+          }
+        },
+        "required": [
+          "meeting",
+          "positions",
+          "instruction"
+        ]
+      },
+      "metadata": {
+        "tool_id": "676-proxy-voting-record",
+        "category": "capital-markets",
+        "tags": [
+          "proxy voting",
+          "record date",
+          "vote deadline",
+          "entitlement",
+          "shareholder meeting",
+          "SRD II",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/676-proxy-voting-record.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": true
+      }
+    },
+    {
+      "name": "compute_orsa_readiness_pack",
+      "description": "Computes an ORSA readiness pack from declared inputs: scenarios_missing as the declared required climate scenario set minus the declared run set (Directive (EU) 2025/2 Art 45a(2) pair as the documentary default), liquidity_plan from the declared documentation flag (Art 144a(2)), and an overall READY or NOT_READY verdict. Readiness arithmetic over caller-declared synthetic inputs only: no materiality assessment, no legal advice, and nothing is filed anywhere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scenarios_required": {
+            "type": "array",
+            "description": "declared required scenario names"
+          },
+          "scenarios_run": {
+            "type": "array",
+            "description": "declared run scenario names"
+          },
+          "liquidity_plan_documented": {
+            "type": "boolean",
+            "description": "true when the liquidity plan is documented"
+          }
+        },
+        "required": [
+          "scenarios_required",
+          "scenarios_run",
+          "liquidity_plan_documented"
+        ]
+      },
+      "metadata": {
+        "tool_id": "679-orsa-readiness-pack",
+        "category": "insurance",
+        "tags": [
+          "ORSA",
+          "Solvency II",
+          "climate scenario",
+          "orderly transition",
+          "disorderly transition",
+          "liquidity plan",
+          "Directive 2025/2",
+          "EIOPA",
+          "zero network",
+          "zero-PII"
+        ],
+        "url": "https://ainumbers.co/tools/679-orsa-readiness-pack.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
