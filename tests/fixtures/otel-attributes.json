@@ -1,0 +1,21 @@
+{
+  "_comment": "MCP-OTEL-LINK-1 — pinned attribute-name inventory for the OTel GenAI span tree built by otelspan.mjs chainRunToOtlpTrace(). The GenAI conventions are still 'Development' status upstream, so drift is a TEST FAILURE, never a silent rename: if a name moves, update otelspan.mjs and this fixture in the same commit and say so in the PR.",
+  "semconv_snapshot_id": "genai-semconv-snapshot-2026-07-18",
+  "invoke_agent_span": [
+    "gen_ai.operation.name",
+    "gen_ai.system",
+    "gen_ai.agent.name",
+    "ocg.composite_execution_hash"
+  ],
+  "execute_tool_span": [
+    "gen_ai.operation.name",
+    "gen_ai.system",
+    "gen_ai.tool.name",
+    "ocg.execution_hash",
+    "ocg.kernel_digest"
+  ],
+  "resource": [
+    "service.name",
+    "telemetry.sdk.name"
+  ]
+}

@@ -65,7 +65,7 @@ Each renders as the actual single-file AINumbers tool, served as a `text/html;pr
 | `inspect_visa_tap_signature` | T286 Visa TAP Signature Inspector |
 | `run_kernel_vm` | Kernel VM Widget |
 
-`list_ainumbers_tools` and `find_tool` search the full catalog (see `data/counts.json` for the current tool count) and return deep-links. Prefill-enabled tools accept `#in=<base64url(JSON of {element_id: value})>[&run=1]` for one-click invocation. `find_chain` and `build_workflow_links` return ordered deep-links for a named multi-tool workflow. `run_chain` executes one server-side. `verify_execution_hash` independently re-verifies a returned artifact's hash.
+`list_ainumbers_tools` and `find_tool` search the full catalog (see `data/counts.json` for the current tool count) and return deep-links. Prefill-enabled tools accept `#in=<base64url(JSON of {element_id: value})>[&run=1]` for one-click invocation. `find_chain` and `build_workflow_links` return ordered deep-links for a named multi-tool workflow. `run_chain` executes one server-side; each run returns an OpenTelemetry span document as a resource link (one `execute_tool` span per executed step under an `invoke_agent` parent). `verify_execution_hash` independently re-verifies a returned artifact's hash.
 
 ## Architecture
 

@@ -434,9 +434,13 @@ function sv(s) { return { stringValue: String(s) }; }
 function attr(key, value) { return { key, value }; }
 
 /**
- * chainRunToOtlpTrace(runChainResult, { service }) -> OTLP/JSON trace doc.
+ * chainRunToOtlpTrace(runChainResult, { service, compositeExecutionHash, stepMeta }) -> OTLP/JSON trace doc.
  * runChainResult: the structuredContent returned by run_chain (must have chain + steps[]).
  * Only steps with status "ok" become spans (same discipline as intoto.mjs's recordChainRunAsLinks).
+ * opts.compositeExecutionHash: when present, stamped on the parent invoke_agent span as
+ *   ocg.composite_execution_hash (MCP-OTEL-LINK-1).
+ * opts.stepMeta: map tool_id -> { kernel_digest }; when a step has an entry, its execute_tool
+ *   span carries ocg.kernel_digest (the §17 build_identity kernel digest, hash-excluded metadata).
  */
 export function chainRunToOtlpTrace(runChainResult, opts = {}) {
   if (!runChainResult || typeof runChainResult !== 'object') throw new Error('runChainResult must be the object returned by run_chain');
@@ -459,11 +463,13 @@ export function chainRunToOtlpTrace(runChainResult, opts = {}) {
       attr('gen_ai.operation.name', sv('invoke_agent')),
       attr('gen_ai.system', sv('ainumbers-chaingraph')),
       attr('gen_ai.agent.name', sv(chainName)),
+      ...(opts.compositeExecutionHash ? [attr('ocg.composite_execution_hash', sv(opts.compositeExecutionHash))] : []),
     ],
     status: { code: 'STATUS_CODE_OK' },
   }];
 
   ranSteps.forEach((step, i) => {
+    const kernelDigest = opts.stepMeta?.[step.tool_id]?.kernel_digest;
     spans.push({
       traceId, spanId: randHex(8), parentSpanId: rootSpanId, name: `execute_tool ${step.tool_id}`, kind: 'SPAN_KIND_INTERNAL',
       startTimeUnixNano: nanoNow(10 * (i + 1)), endTimeUnixNano: nanoNow(10 * (i + 2)),
@@ -472,6 +478,7 @@ export function chainRunToOtlpTrace(runChainResult, opts = {}) {
         attr('gen_ai.system', sv('ainumbers-chaingraph')),
         attr('gen_ai.tool.name', sv(step.tool_id)),
         attr('ocg.execution_hash', sv(step.execution_hash)),
+        ...(kernelDigest ? [attr('ocg.kernel_digest', sv(kernelDigest))] : []),
       ],
       status: { code: 'STATUS_CODE_OK' },
     });
