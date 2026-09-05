@@ -135,6 +135,7 @@
       "sweep_docket_deadlines",
       "verify_input_attestations",
       "recompute_erc4337_userop_math",
+      "compute_orsa_readiness_pack",
       "verify_merkle_batch"
     ],
     "ai-act": [
