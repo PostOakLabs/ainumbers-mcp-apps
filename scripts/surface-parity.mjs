@@ -14,7 +14,7 @@
  * CI: add as a validate-job step after check-tool-names.mjs.
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { UTILITY_TOOL_COUNT } from '../utility-tools.mjs';
@@ -84,6 +84,53 @@ if (!tableSectionMatch) {
   if (readmeWidgetCount !== pilot) {
     errors.push(`P5: README.md flagship-widgets table has ${readmeWidgetCount} rows but counts.json pilot_widgets is ${pilot}. Add/remove the missing widget row(s) in README.md — never hand-type the count.`);
     ok = false;
+  }
+}
+
+// ── P6: showcase prompts (MCP-SHOWCASE-PROMPTS-1) ────────────────────────────
+// The vendored projection data/mcp/showcase-prompts.json must carry exactly 5 prompts with
+// the SSOT field set, and worker.mjs must register them through the showcase loop. When the
+// site repo is resolvable (AINUMBERS_REPO env or the default ../repo sibling), the projection
+// is additionally asserted deep-equal to the site SSOT (single-writer law: the vendored copy
+// is a projection, never a fork). Site-repo absence is a warning, not a pass substitute for
+// the count — the count check always runs against the vendored file.
+{
+  const spPath = resolve(here, '..', 'data', 'mcp', 'showcase-prompts.json');
+  if (!existsSync(spPath)) {
+    errors.push('P6: data/mcp/showcase-prompts.json missing — re-run node generate.mjs and commit data/.');
+    ok = false;
+  } else {
+    const sp = JSON.parse(readFileSync(spPath, 'utf8'));
+    const items = sp.prompts ?? [];
+    console.log(`[P6] showcase_prompts count: ${items.length} (expected 5)`);
+    if (sp.count !== 5 || items.length !== 5) {
+      errors.push(`P6: showcase_prompts count is ${sp.count}/${items.length}, expected 5 — regenerate from the site SSOT.`);
+      ok = false;
+    }
+    const reqFields = ['id', 'title', 'one_line', 'doorways', 'arguments', 'body', 'verify_surface'];
+    const bad = items.filter((p) => reqFields.some((f) => p[f] === undefined));
+    if (bad.length) { errors.push('P6: malformed showcase prompt(s): ' + bad.map((p) => p.id).join(', ')); ok = false; }
+    if (!src.includes('showcasePrompts?.prompts ?? []')) {
+      errors.push('P6: worker.mjs showcase prompt registration loop missing — prompts will not appear in prompts/list.');
+      ok = false;
+    }
+    const siteCandidates = [process.env.AINUMBERS_REPO, resolve(here, '..', '..', 'repo')].filter(Boolean);
+    let siteChecked = false;
+    for (const cand of siteCandidates) {
+      const ssotPath = resolve(cand, 'mcp', 'showcase-prompts.json');
+      if (existsSync(ssotPath)) {
+        const ssot = JSON.parse(readFileSync(ssotPath, 'utf8'));
+        if (JSON.stringify(ssot.prompts ?? []) !== JSON.stringify(items)) {
+          errors.push('P6: data/mcp/showcase-prompts.json diverged from site SSOT ' + ssotPath + ' — re-run node generate.mjs.');
+          ok = false;
+        } else {
+          console.log('     deep-equal to site SSOT: ' + ssotPath);
+        }
+        siteChecked = true;
+        break;
+      }
+    }
+    if (!siteChecked) warnings.push('P6: site SSOT mcp/showcase-prompts.json not resolvable from this checkout — deep-equal check skipped (count check still enforced).');
   }
 }
 
