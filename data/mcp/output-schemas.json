@@ -1,4 +1,190 @@
 {
+  "diagnose_canton_readiness": {
+    "type": "object",
+    "properties": {
+      "domain_scores": {
+        "type": "object",
+        "properties": {
+          "aml_kya": {
+            "type": "number"
+          },
+          "capital_governance": {
+            "type": "number"
+          },
+          "cash_leg": {
+            "type": "number"
+          },
+          "custody_eligibility": {
+            "type": "number"
+          },
+          "privacy_disclosure": {
+            "type": "number"
+          },
+          "settlement_ops": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "aml_kya",
+          "capital_governance",
+          "cash_leg",
+          "custody_eligibility",
+          "privacy_disclosure",
+          "settlement_ops"
+        ],
+        "additionalProperties": false
+      },
+      "gaps": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "aml_kya",
+            "capital_governance",
+            "cash_leg",
+            "custody_eligibility",
+            "privacy_disclosure"
+          ]
+        }
+      },
+      "total_score": {
+        "type": "number"
+      },
+      "verdict": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "domain_scores",
+      "gaps",
+      "total_score",
+      "verdict"
+    ],
+    "additionalProperties": false
+  },
+  "optimize_settlement_capital": {
+    "type": "object",
+    "properties": {
+      "cet1_ratio": {
+        "type": "number"
+      },
+      "cost_of_capital": {
+        "type": "number"
+      },
+      "portfolio_bps": {
+        "type": "number"
+      },
+      "rows": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "annual_saving_usd": {
+              "type": "number"
+            },
+            "asset_class": {
+              "type": "string"
+            },
+            "capital_freed_usd": {
+              "type": "number"
+            },
+            "capital_legacy_usd": {
+              "type": "number"
+            },
+            "ead_atomic_usd": {
+              "type": "number"
+            },
+            "ead_legacy_usd": {
+              "type": "number"
+            },
+            "flags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "instrument": {
+              "type": "string"
+            },
+            "notional_usd": {
+              "type": "number"
+            },
+            "pfe_legacy_usd": {
+              "type": "number"
+            },
+            "rating": {
+              "type": "string"
+            },
+            "risk_weight": {
+              "type": "number"
+            },
+            "rwa_delta_usd": {
+              "type": "number"
+            },
+            "rwa_legacy_usd": {
+              "type": "number"
+            },
+            "saving_bps": {
+              "type": "number"
+            },
+            "settle_days": {
+              "type": "number"
+            },
+            "settlement_type": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "annual_saving_usd",
+            "asset_class",
+            "capital_freed_usd",
+            "capital_legacy_usd",
+            "ead_atomic_usd",
+            "ead_legacy_usd",
+            "flags",
+            "instrument",
+            "notional_usd",
+            "pfe_legacy_usd",
+            "rating",
+            "risk_weight",
+            "rwa_delta_usd",
+            "rwa_legacy_usd",
+            "saving_bps",
+            "settle_days",
+            "settlement_type"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "total_annual_saving": {
+        "type": "number"
+      },
+      "total_capital_freed": {
+        "type": "number"
+      },
+      "total_notional_usd": {
+        "type": "number"
+      },
+      "total_rwa_delta_usd": {
+        "type": "number"
+      },
+      "verdict": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "cet1_ratio",
+      "cost_of_capital",
+      "portfolio_bps",
+      "rows",
+      "total_annual_saving",
+      "total_capital_freed",
+      "total_notional_usd",
+      "total_rwa_delta_usd",
+      "verdict"
+    ],
+    "additionalProperties": false
+  },
   "check_tokenized_collateral_eligibility": {
     "type": "object",
     "properties": {
@@ -162,6 +348,200 @@
         }
       }
     }
+  },
+  "validate_tokenized_security_lifecycle": {
+    "type": "object",
+    "properties": {
+      "all_gaps": {
+        "type": "array"
+      },
+      "critical_gaps": {
+        "type": "array"
+      },
+      "event_matrix": {
+        "type": "object",
+        "properties": {
+          "coupon_payment": {
+            "type": "string"
+          },
+          "issuance": {
+            "type": "string"
+          },
+          "maturity_redemption": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "coupon_payment",
+          "issuance",
+          "maturity_redemption"
+        ],
+        "additionalProperties": false
+      },
+      "verdict": {
+        "type": "string"
+      },
+      "verdict_badge": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "all_gaps",
+      "critical_gaps",
+      "event_matrix",
+      "verdict",
+      "verdict_badge"
+    ],
+    "additionalProperties": false
+  },
+  "mobilize_margin_collateral": {
+    "type": "object",
+    "properties": {
+      "collateral_detail": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "already_posted": {
+              "type": "boolean"
+            },
+            "asset_type": {
+              "type": "string"
+            },
+            "eligible_value": {
+              "type": "number"
+            },
+            "hc": {
+              "type": "number"
+            },
+            "ineligible": {
+              "type": "boolean"
+            },
+            "mobilizable": {
+              "type": "boolean"
+            },
+            "notional": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "already_posted",
+            "asset_type",
+            "eligible_value",
+            "hc",
+            "ineligible",
+            "mobilizable",
+            "notional"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "gap": {
+        "type": "number"
+      },
+      "im_call": {
+        "type": "number"
+      },
+      "shortfall": {
+        "type": "boolean"
+      },
+      "total_mobilizable": {
+        "type": "number"
+      },
+      "total_required": {
+        "type": "number"
+      },
+      "vm_call": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "collateral_detail",
+      "gap",
+      "im_call",
+      "shortfall",
+      "total_mobilizable",
+      "total_required",
+      "vm_call"
+    ],
+    "additionalProperties": false
+  },
+  "validate_fund_collateral": {
+    "type": "object",
+    "properties": {
+      "adjusted_collateral_value": {
+        "type": "number"
+      },
+      "eligibility": {
+        "type": "string"
+      },
+      "haircut_applied": {
+        "type": "number"
+      },
+      "hqla_tier": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "adjusted_collateral_value",
+      "eligibility",
+      "haircut_applied",
+      "hqla_tier"
+    ],
+    "additionalProperties": false
+  },
+  "validate_collateral_swap_eligibility": {
+    "type": "object",
+    "properties": {
+      "eligibility": {
+        "type": "string"
+      },
+      "hqla_impact": {
+        "type": "string"
+      },
+      "hqla_tier_a": {
+        "type": "string"
+      },
+      "hqla_tier_b": {
+        "type": "string"
+      },
+      "net_economic_value": {
+        "type": "number"
+      },
+      "pacs008": {
+        "type": "object",
+        "properties": {
+          "instructed_amount": {
+            "type": "string"
+          },
+          "settlement_date": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "instructed_amount",
+          "settlement_date"
+        ],
+        "additionalProperties": false
+      },
+      "value_a": {
+        "type": "number"
+      },
+      "value_b": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "eligibility",
+      "hqla_impact",
+      "hqla_tier_a",
+      "hqla_tier_b",
+      "net_economic_value",
+      "pacs008",
+      "value_a",
+      "value_b"
+    ],
+    "additionalProperties": false
   },
   "validate_ap2_mandate_chain": {
     "type": "object",
@@ -8764,6 +9144,133 @@
         }
       }
     }
+  },
+  "generate_attribution_string": {
+    "type": "object",
+    "properties": {
+      "disclaimer": {
+        "type": "string"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "json_ld": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "license_name": {
+        "type": "string"
+      },
+      "license_spdx": {
+        "type": "string"
+      },
+      "license_url": {
+        "type": "string"
+      },
+      "rdfa_html": {
+        "type": "string"
+      },
+      "tasl_line": {
+        "type": "string"
+      },
+      "valid": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      }
+    },
+    "required": [
+      "disclaimer",
+      "errors",
+      "json_ld",
+      "rdfa_html",
+      "tasl_line",
+      "valid"
+    ],
+    "additionalProperties": false
+  },
+  "validate_royalty_split": {
+    "type": "object",
+    "properties": {
+      "cap_bps": {
+        "type": "number"
+      },
+      "config_hash": {
+        "type": "string"
+      },
+      "disclaimer": {
+        "type": "string"
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "bps",
+          "percent"
+        ]
+      },
+      "recipient_count": {
+        "type": "number"
+      },
+      "rules": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "detail": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "pass": {
+              "type": "boolean",
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "detail",
+            "id",
+            "label",
+            "pass"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "sum": {
+        "type": "number"
+      },
+      "valid": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      }
+    },
+    "required": [
+      "cap_bps",
+      "config_hash",
+      "disclaimer",
+      "mode",
+      "recipient_count",
+      "rules",
+      "sum",
+      "valid"
+    ],
+    "additionalProperties": false
   },
   "compute_reg_z_appendix_j_apr": {
     "type": "object",
