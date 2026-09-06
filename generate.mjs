@@ -85,6 +85,11 @@ for (const slug of PILOT) {
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
+// COMPOSER-PLAN-AND-ROOT-WEBMCP-1: vendor the two derived data sets the worker's
+// chain-plan / session-root parity tests assert against (same committed bytes as
+// the site repo's data/ — one fixture truth, both runtimes).
+writeFileSync(resolve(DATA,'chain-plan-hashes.json'), readFileSync(resolve(REPO,'data','chain-plan-hashes.json')));
+writeFileSync(resolve(DATA,'session-root-fixtures.json'), readFileSync(resolve(REPO,'data','session-root-fixtures.json')));
 
 // ---------------------------------------------------------------------------
 // fv-status/*.json (FV-AGENTSURFACE-BUILD-1) — one generator-emitted artifact

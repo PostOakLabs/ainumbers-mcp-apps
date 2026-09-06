@@ -23,7 +23,10 @@ const covered = registry.vendored
   .flatMap(v => (v.paths && v.paths[repoId]) || [])
   .map(p => p.replace(/\\/g, '/'));
 
-const EXCLUDE_DIRS = new Set(['.git', 'node_modules', '.wt', '.wrangler', '.claude-worktrees', '.worktrees', 'bundled', 'dist']);
+// '_site' excluded (COMPOSER-PLAN-AND-ROOT-WEBMCP-1): it is CI's checkout path for the
+// SITE repo (ci.yml actions/checkout path: _site) — never worker content, and CI does not
+// run this local preflight sweep over it. Same class as the .wt/.worktrees exclusions.
+const EXCLUDE_DIRS = new Set(['.git', 'node_modules', '.wt', '.wrangler', '.claude-worktrees', '.worktrees', 'bundled', 'dist', '_site']);
 const VENDOR_PATH_RE = /(^|\/)vendored?\//i;
 const BUNDLE_FILE_RE = /\.bundle\.(mjs|js)$/i;
 

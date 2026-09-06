@@ -2143,11 +2143,45 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       };
     });
 
+    // COMPOSER-PLAN-AND-ROOT-WEBMCP-1: when the ordered built steps exactly match a
+    // named chain in chaingraph.json, attach chain_plan (the IDENTICAL plan preimage
+    // the composer pages hash -- chaingraph/chains/build-chain-pages.mjs buildPreimage)
+    // and chain_plan_hash (same canonicaliser, kernels/_hash.mjs via sharedExecutionHash;
+    // parity gate: site scripts/check-chain-plan-parity.mjs, vendored committed set
+    // data/chain-plan-hashes.json). This is the PLAN artifact, not a run: it is
+    // hash-excluded adjacent metadata only (the §22.8 escalation-record posture) --
+    // run_chain's composite preimage is untouched (linear-hash-freeze).
+    let chainPlan = null;
+    let chainPlanHash = null;
+    const planChainMatch = (chaingraph?.chains ?? []).find((ch) =>
+      Array.isArray(ch?.steps) && ch.steps.length === steps.length &&
+      ch.steps.every((s, i) => s && s.tool_id === steps[i].tool_id));
+    if (planChainMatch) {
+      chainPlan = {
+        policy_parameters: {
+          execution_backend: 'browser',
+          chain_id: planChainMatch.name,
+          step_count: steps.length,
+          step_tool_ids: steps.map((s) => s.tool_id),
+        },
+        output_payload: {
+          chain_title: planChainMatch.title,
+          chain_description: planChainMatch.description,
+          steps: planChainMatch.steps.map((s) => ({ tool_id: s.tool_id, handoff: s.handoff })),
+        },
+      };
+      chainPlanHash = await sharedExecutionHash(chainPlan.policy_parameters, chainPlan.output_payload);
+    }
+
     const out = {
       target: target_tool_id ?? null,
       step_count: steps.length,
       cycle_detected: cycle,
       steps,
+      // Plan parity (COMPOSER-PLAN-AND-ROOT-WEBMCP-1): null when the built step
+      // sequence is not exactly a named chain.
+      chain_plan: chainPlan,
+      chain_plan_hash: chainPlanHash,
       verify_with: 'verify_execution_hash',
       spec: 'ChainGraph Standard v0.1 §7-§8',
       note: 'Execute in order. For each node: call its MCP tool, read execution_hash from the returned artifact, then populate the parent_hash_slots of every downstream node with it. Verify any artifact with verify_execution_hash. All decision compute is deterministic and (for browser tools) client-side.',
