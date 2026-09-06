@@ -491,8 +491,11 @@ function cellText(s) {
   const items = Array.isArray(ssot) ? ssot : null;
   const requiredFields = ['id', 'title', 'one_line', 'doorways', 'arguments', 'body', 'verify_surface'];
   const bad = (items ?? []).filter((p) => requiredFields.some((f) => p[f] === undefined) || !Array.isArray(p.arguments) || p.arguments.some((a) => !a.name || !a.description));
-  if (!Array.isArray(items) || items.length !== 5 || bad.length) {
-    console.error('SELF-CHECK FAIL: mcp/showcase-prompts.json malformed — items=' + (items ? items.length : 'not-an-array') + ' (expected 5, bare array per AGENT-REACH-BUILD-SPEC §3.3), malformed: ' + bad.map((p) => p.id).join(', '));
+  // EXAMPLE-PROMPTS-JSON-1: the site SSOT grew 5 -> 46; the count is the SSOT's business
+  // (ratcheted down-only by the site gate scripts/check-showcase-prompts.mjs), so the
+  // projection accepts whatever non-empty bare array the SSOT carries.
+  if (!Array.isArray(items) || items.length < 1 || bad.length) {
+    console.error('SELF-CHECK FAIL: mcp/showcase-prompts.json malformed — items=' + (items ? items.length : 'not-an-array') + ' (expected a non-empty bare array per AGENT-REACH-BUILD-SPEC §3.3), malformed: ' + bad.map((p) => p.id).join(', '));
     process.exit(1);
   }
   const dupes = items.map((p) => p.id).filter((id, i, a) => a.indexOf(id) !== i);

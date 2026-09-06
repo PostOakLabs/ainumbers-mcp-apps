@@ -88,7 +88,7 @@ if (!tableSectionMatch) {
 }
 
 // ── P6: showcase prompts (MCP-SHOWCASE-PROMPTS-1) ────────────────────────────
-// The vendored projection data/mcp/showcase-prompts.json must carry exactly 5 prompts with
+// The vendored projection data/mcp/showcase-prompts.json must carry the SSOT prompt set with
 // the SSOT field set, and worker.mjs must register them through the showcase loop. When the
 // site repo is resolvable (AINUMBERS_REPO env or the default ../repo sibling), the projection
 // is additionally asserted deep-equal to the site SSOT (single-writer law: the vendored copy
@@ -102,9 +102,11 @@ if (!tableSectionMatch) {
   } else {
     const sp = JSON.parse(readFileSync(spPath, 'utf8'));
     const items = sp.prompts ?? [];
-    console.log(`[P6] showcase_prompts count: ${items.length} (expected 5)`);
-    if (sp.count !== 5 || items.length !== 5) {
-      errors.push(`P6: showcase_prompts count is ${sp.count}/${items.length}, expected 5 — regenerate from the site SSOT.`);
+    console.log(`[P6] showcase_prompts count: ${items.length} (count reads the projection, site gate ratchets it)`);
+    // EXAMPLE-PROMPTS-JSON-1: count is the projection's own consistency (count === prompts.length);
+    // the site gate (check-showcase-prompts.mjs) ratchets the absolute number down-only.
+    if (sp.count !== items.length) {
+      errors.push(`P6: showcase_prompts count is ${sp.count}/${items.length}, count/prompt array mismatch — regenerate from the site SSOT.`);
       ok = false;
     }
     const reqFields = ['id', 'title', 'one_line', 'doorways', 'arguments', 'body', 'verify_surface'];

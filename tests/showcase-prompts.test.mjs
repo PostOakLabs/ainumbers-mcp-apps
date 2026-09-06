@@ -3,7 +3,7 @@
 //
 // Drives the REAL buildServer via InMemoryTransport (same harness as tests/build-evidence-pack.test.mjs).
 // Asserts, for EVERY prompt in data/mcp/showcase-prompts.json:
-//   - prompts/list carries an entry named after the SSOT id (exactly 5 new entries).
+//   - prompts/list carries an entry named after each SSOT id.
 //   - prompts/get for each id returns a first message whose text contains the SSOT `body` VERBATIM.
 //   - the message's remaining content blocks are resource_link blocks for the verify_surface URLs.
 //   - prompts/get for each id is registered with its SSOT-declared arguments (list entry title matches).
@@ -77,7 +77,8 @@ async function main() {
     process.exit(1);
   }
   const items = ssot.prompts;
-  check('SSOT projection carries exactly 5 showcase prompts', items.length === 5, String(items.length));
+  // EXAMPLE-PROMPTS-JSON-1: count follows the SSOT (site gate ratchets it down-only).
+  check('SSOT projection is a non-empty showcase prompt set', items.length >= 1, String(items.length));
 
   await withServer(data, async (rpc) => {
     const listMsg = await rpc('prompts/list', {});
@@ -103,16 +104,16 @@ async function main() {
       check(`"${p.id}" resource_link blocks match verify_surface`, expected.every((u) => links.includes(u)),
         'links=' + JSON.stringify(links));
     }
-    // Delta discipline: exactly the 5 SSOT ids beyond the pre-existing prompt set.
+    // Delta discipline: prompts/list carries every SSOT id, and nothing extra.
     const showcaseEntries = prompts.filter((e) => items.some((p) => p.id === e.name));
-    check('prompts/list grew by exactly the 5 showcase ids', showcaseEntries.length === 5, String(showcaseEntries.length));
+    check('prompts/list carries every SSOT showcase id', showcaseEntries.length === items.length, String(showcaseEntries.length));
   });
 
   if (failed) {
     console.error(`\n✗ ${failed} assertion(s) FAILED`);
     process.exit(1);
   }
-  console.log('\n✅ all assertions passed — five showcase prompts served with verbatim bodies + verify-surface resource links');
+  console.log('\n✅ all assertions passed — showcase prompts served with verbatim bodies + verify-surface resource links');
 }
 
 main().catch((err) => {
