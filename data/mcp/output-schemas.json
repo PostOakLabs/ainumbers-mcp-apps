@@ -42033,6 +42033,59 @@
       }
     }
   },
+  "compute_wash_sale_window_guard": {
+    "type": "object",
+    "properties": {
+      "window_start": {
+        "type": "string",
+        "description": "Sale date minus 30 days, ISO yyyy-mm-dd; window endpoint is inclusive."
+      },
+      "window_end": {
+        "type": "string",
+        "description": "Sale date plus 30 days, ISO yyyy-mm-dd; window endpoint is inclusive."
+      },
+      "replacements_in_window": {
+        "type": "integer",
+        "description": "Count of declared replacement purchases with dates inside the inclusive 61-day window."
+      },
+      "disallowed_loss": {
+        "type": "number",
+        "description": "The declared realized loss rounded 2dp half-up when the window is non-empty, otherwise 0."
+      },
+      "ira_trap": {
+        "type": "boolean",
+        "description": "True when an in-window replacement purchase is declared in a tax-deferred account."
+      },
+      "trace": {
+        "type": "string",
+        "description": "Human-readable restatement of the declared arithmetic."
+      },
+      "overall": {
+        "type": "string",
+        "enum": [
+          "WASH_SALE_FLAGGED",
+          "WASH_SALE_CLEAR"
+        ],
+        "description": "Sign-of-arithmetic verdict over the declared window arithmetic only."
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Conditional warning flags mirrored into the payload; present only when one fired (WSG_IRA_TRAP)."
+      }
+    },
+    "required": [
+      "window_start",
+      "window_end",
+      "replacements_in_window",
+      "disallowed_loss",
+      "ira_trap",
+      "trace",
+      "overall"
+    ]
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
