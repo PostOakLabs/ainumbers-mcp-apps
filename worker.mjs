@@ -68,7 +68,6 @@ const NAMED_CHAINS = {
   'card-programme': {
     title: 'Card Programme',
     description: 'Launch readiness > interchange qualification > PCI-DSS scope > 3DS/EMV compliance > scheme fee benchmarking.',
-    composer_url: BASE_URL + '/guides/card-programme-composer.html',
     steps: [
       { slug: '163-card-programme-launch-readiness-checker',   handoff: 'readiness_score and gap_list feed Stage 2 interchange qualification' },
       { slug: '225-visa-mc-interchange-qualification-tester',  handoff: 'ic_category and qualification_flags feed Stage 3 PCI scope' },
@@ -80,7 +79,6 @@ const NAMED_CHAINS = {
   'iso20022-cutover': {
     title: 'ISO 20022 Cutover',
     description: 'Truncation audit > migration score > cross-rail compatibility check.',
-    composer_url: BASE_URL + '/guides/iso20022-cutover-composer.html',
     steps: [
       { slug: '77-iso-truncation-auditor',             handoff: 'truncation_risks and field_map feed Stage 2 migration scoring' },
       { slug: '101-iso20022-migration-scorer',         handoff: 'migration_score and readiness_flags feed Stage 3 cross-rail check' },
@@ -90,7 +88,6 @@ const NAMED_CHAINS = {
   'agentic-policy': {
     title: 'Agentic Policy',
     description: 'Agentic mandate sandbox > Google AP2 mandate builder > AP2/MCP policy validator > MCP developer readiness scorecard.',
-    composer_url: BASE_URL + '/guides/policy-composer.html',
     steps: [
       { slug: 'rbe-06-agentic-mandate-sandbox',        handoff: 'mandate_draft and guardrail_flags feed Stage 2 AP2 mandate build' },
       { slug: '285-google-ap2-mandate-builder',        handoff: 'ap2_mandate and payment_policy feed Stage 3 policy validation' },
@@ -101,7 +98,6 @@ const NAMED_CHAINS = {
   'treasury-corridor': {
     title: 'Treasury Corridor',
     description: 'FX netting simulation > FX hedge optimisation > corridor savings calculation.',
-    composer_url: BASE_URL + '/guides/treasury-corridor-composer.html',
     steps: [
       { slug: '105-fx-netting-simulator', handoff: 'netting_savings and net_exposure feed Stage 2 hedge optimisation' },
       { slug: '76-fx-hedge-optimizer',    handoff: 'hedge_ratio and instrument_mix feed Stage 3 corridor savings model' },
@@ -253,7 +249,6 @@ const NAMED_CHAINS = {
   'consumer-protection': {
     title: 'Consumer Protection & FCA Consumer Duty',
     description: 'Vulnerability assessment > fair-value assessment > MiFID costs & charges > PRIIPs KID compliance > Consumer Duty board MI > composite consumer-duty mandate.',
-    composer_url: BASE_URL + '/guides/consumer-protection-composer.html',
     steps: [
       { slug: '395-consumer-duty-vulnerability-assessment-builder', handoff: 'vulnerability_segments feed Stage 2 fair-value assessment' },
       { slug: '396-consumer-duty-price-value-assessment',           handoff: 'value_rating and outlier_flags feed Stage 3 costs aggregation' },
@@ -276,7 +271,6 @@ const NAMED_CHAINS = {
   'model-risk-governance': {
     title: 'Model Risk & AI-Fairness Governance',
     description: 'EU AI Act risk classification > SR 11-7 MRM gap assessment > fair-lending bias testing > AI Act Art.9 risk-management system > AI-governance mandate.',
-    composer_url: BASE_URL + '/guides/model-risk-governance-composer.html',
     steps: [
       { slug: '327-eu-ai-act-risk-class-mapper',               handoff: 'risk_tier and obligations feed Stage 2 MRM gap assessment' },
       { slug: '451-sr11-7-model-risk-management-gap-assessor', handoff: 'mrm_gaps and severity feed Stage 3 fair-lending testing' },
@@ -300,7 +294,6 @@ const NAMED_CHAINS = {
   'baas-sponsor-bank': {
     title: 'BaaS / Sponsor-Bank Oversight & Readiness',
     description: 'Provider selection > FBO account structure > ledger architecture > BSA/AML control mapping > sponsor-bank readiness score. Post-Synapse third-party oversight; full audited run in the composer.',
-    composer_url: BASE_URL + '/guides/baas-sponsor-bank-composer.html',
     steps: [
       { slug: '152-baas-provider-comparator',           handoff: 'provider_shortlist feeds Stage 2 FBO structuring' },
       { slug: '153-fbo-account-structure-simulator',    handoff: 'fbo_structure and reconciliation_model feed Stage 3 ledger design' },
@@ -323,7 +316,6 @@ const NAMED_CHAINS = {
   'us-banking-compliance': {
     title: 'US Consumer-Banking Compliance',
     description: 'HMDA reportability > BSA/SAR filing adequacy > Reg E dispute timelines > Durbin interchange analysis > consumer-banking compliance mandate.',
-    composer_url: BASE_URL + '/guides/us-banking-compliance-composer.html',
     steps: [
       { slug: '444-hmda-reportability-checker',            handoff: 'reportable_loans and data_gaps feed Stage 2 BSA/SAR check' },
       { slug: '445-bsa-sar-filing-adequacy-checker',       handoff: 'sar_adequacy_flags feed Stage 3 Reg E workflow' },
@@ -336,7 +328,6 @@ const NAMED_CHAINS = {
   'wealth-advisory-regbi': {
     title: 'US Wealth & Advisory — Reg BI Suitability',
     description: 'Model portfolio risk > Reg BI best-interest check (T463 NEW) > portfolio construction/rebalancing > costs & fee disclosure > Form CRS (T464 NEW). SEC Reg BI 2026 FINRA enforcement priority.',
-    composer_url: BASE_URL + '/guides/wealth-advisory-regbi-composer.html',
     steps: [
       { slug: '429-model-portfolio-risk-analytics',       handoff: 'risk_profile and model_allocation feed Stage 2 Reg BI best-interest check' },
       { slug: '463-reg-bi-best-interest-checker',         handoff: 'reg_bi_verdict and obligation_gaps feed Stage 3 portfolio construction' },
@@ -349,7 +340,6 @@ const NAMED_CHAINS = {
   'bnpl-programme': {
     title: 'BNPL Programme — FCA Regulation',
     description: 'FCA BNPL readiness > affordability modelling > APR calculation > disclosure templates > arrears & collections policy. FCA BNPL regulation in force 15 Jul 2026.',
-    composer_url: BASE_URL + '/guides/bnpl-programme-composer.html',
     steps: [
       { slug: '187-bnpl-fca-readiness-checker',               handoff: 'readiness_score and gap_list feed Stage 2 affordability model' },
       { slug: '190-bnpl-affordability-assessment-modeller',   handoff: 'affordability_result and repayment_schedule feed Stage 3 APR calc' },
@@ -362,7 +352,6 @@ const NAMED_CHAINS = {
   'pi-emi-authorisation': {
     title: 'PI/EMI Authorisation — PSD2/PSRs',
     description: 'PI authorisation readiness > EMI capital requirements > PI own funds (PSD2 Art.9) > PSP safeguarding assessment > PSR APP reimbursement liability. FCA/EBA payment services perimeter.',
-    composer_url: BASE_URL + '/guides/pi-emi-authorisation-composer.html',
     steps: [
       { slug: '404-payment-institution-authorisation-readiness-checker', handoff: 'readiness_gaps and business_volumes feed Stage 2 capital calc' },
       { slug: '405-emi-capital-requirements-calculator',                  handoff: 'emi_capital_requirement and method_results feed Stage 3 own funds' },
@@ -414,7 +403,6 @@ const NAMED_CHAINS = {
   'ccd2-consumer-credit': {
     title: 'EU Consumer Credit (CCD2)',
     description: 'Scope classification > Art. 18 creditworthiness > SECCI pre-contractual disclosure > readiness. CCD2 (Directive (EU) 2023/2225) applies from 20 Nov 2026; brings BNPL and interest-free instalments into scope EU-wide. Full audited run in the composer.',
-    composer_url: BASE_URL + '/guides/ccd2-consumer-credit-composer.html',
     steps: [
       { slug: '481-ccd2-scope-classifier',                          handoff: 'in_scope_products and obligation_tier feed Stage 2' },
       { slug: '482-ccd2-creditworthiness-assessment-builder',       handoff: 'assessment_framework feeds Stage 3 disclosure' },
@@ -479,7 +467,6 @@ const NAMED_CHAINS = {
   'agentic-checkout': {
     title: 'Agentic Checkout Protocol Readiness',
     description: 'Protocol selector (UCP/ACP/x402/Visa TAP) > ACP/UCP product-feed conformance auditor > agent-traffic acceptance policy builder. Produces a composite Policy Mandate covering protocol recommendation, feed conformance gaps, and agent-guardrail policy. T497 x402 Micropayment Pricing Modeler is a standalone branch tool.',
-    composer_url: BASE_URL + '/guides/agentic-checkout-composer.html',
     steps: [
       { slug: '495-agentic-checkout-protocol-selector',          handoff: 'protocol_recommendation and stack_config feed Stage 2 conformance auditor' },
       { slug: '496-acp-ucp-product-feed-conformance-auditor',    handoff: 'conformance_gaps and fix_checklist feed Stage 3 acceptance policy' },
@@ -4298,7 +4285,6 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         'You are helping a UK/EU fintech or payments startup through FCA Payment Institution or E-Money Institution authorisation using AINumbers deterministic tools. ' +
         'All tools run client-side -- zero PII, zero network. Use synthetic or anonymised firm data only.\n\n' +
         'Step 1 -- Build workflow links: call `build_workflow_links` with chain "pi-emi-authorisation". Returns the ordered deep-link set (T404 > T405 > T418 > T269 > T406) and the composer URL.\n\n' +
-        'Step 2 -- Orchestrated run: open the PI/EMI Authorisation Composer at ' + BASE_URL + '/guides/pi-emi-authorisation-composer.html. ' +
         'Stage 1 (T404) assesses PI authorisation readiness against PSRs 2017 Schedule 2: programme of operations, safeguarding, governance, and risk management gaps. ' +
         'Stage 2 (T405) calculates EMI initial capital (EUR 350,000 full / EUR 50,000 small) and ongoing own funds under EMD2 Methods A, B, and C. ' +
         'Stage 3 (T418) calculates PI own funds requirements under PSD2 Article 9 / PSRs 2017; the higher of Methods A, B, and C applies at all times. ' +
