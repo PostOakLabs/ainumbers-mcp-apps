@@ -43,7 +43,8 @@
             "capital_governance",
             "cash_leg",
             "custody_eligibility",
-            "privacy_disclosure"
+            "privacy_disclosure",
+            "settlement_ops"
           ]
         }
       },
@@ -19495,7 +19496,10 @@
               "type": "integer"
             },
             "matched_pattern": {
-              "type": "string"
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "name": {
               "type": "string"
