@@ -196,8 +196,13 @@ console.log('\nC. flat arguments (defect D2) — refused with a message naming t
 const flatKeys = Object.keys(computeParams);
 const flat = await callTool(computeNode.mcp_name, computeParams);
 check(flat?.isError === true, 'flat arguments → tool error', JSON.stringify(flat?.structuredContent?.delegation_reason ?? Object.keys(flat ?? {})));
-check(/policy_parameters/.test(textOf(flat)), 'flat arguments → error names policy_parameters', JSON.stringify(textOf(flat).slice(0, 160)));
-check(flatKeys.some((k) => textOf(flat).includes(k)), 'flat arguments → error quotes the discarded key(s)');
+// Deliberately phrase-specific: the ordinary missing-inputs DELEGATION message also mentions
+// policy_parameters, so a bare /policy_parameters/ match would stay green with the D2 guard
+// removed (measured). These two must be true of the ERROR, not of the fallback.
+check(flat?.isError === true && /Invalid arguments for /.test(textOf(flat)) && /policy_parameters/.test(textOf(flat)),
+  'flat arguments → error names policy_parameters', JSON.stringify(textOf(flat).slice(0, 160)));
+check(flat?.isError === true && flatKeys.some((k) => textOf(flat).includes(k)),
+  'flat arguments → error quotes the discarded key(s)');
 
 // ── D. control: no arguments at all is NOT wrong-shaped ───────────────────────────────────────
 console.log('\nD. no arguments at all — still delegates (unchanged behaviour)');

@@ -216,6 +216,16 @@ jobs:
         # an oversized body is capped (413) — while ordinary ids are byte-for-byte unaffected.
         run: node scripts/test-idreplace-dos.mjs
 
+      - name: 🧭 Delegation reason names the real cause (WORKER-DELEGATION-REASON-1)
+        # A node tool's browser-delegation branch is reached for FOUR causes (no policy_parameters,
+        # compute:"browser", gpu:true, no registered kernel) and used to emit ONE sentence for three
+        # of them: "No kernel registered for this node yet." Zero of the 644 live non-GPU nodes
+        # actually lack a kernel, so that machine-readable instruction was false in every case an
+        # agent can hit — one external agent believed it and published a retracted report. Asserts
+        # each cause reports itself, that a flat-arguments call is refused instead of silently
+        # degrading (zod strips unknown top-level keys), and that a nested call still computes.
+        run: node scripts/check-delegation-reason.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
