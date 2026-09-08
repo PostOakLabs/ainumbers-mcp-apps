@@ -49953,8 +49953,44 @@
       "id": "12 CFR part 1030 Appendix A (Reg DD APY calculation)"
     }
   ],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-663-apy-earned-recompute, built 2026-08-29 (CORE-VERIFY-APY-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Static pre-screen: single-transcendental recompute (one deterministic pow per run), no signature verification, no large-N iteration; cycle class stated FAST, to be confirmed by the exec-only runq-cpu preflight before any booking (CORE-VERIFY-PROVE-1 proves the pack in one GPU session).",
+  "compute_proof": {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "E9AANqZXT7vrA/G4wUEwmYhmCv2HImZOYe0M8h89wBoEAU2TuXzkXb7kUNlEWaE1BGCSBHnjUpulThif9mT70R6RUmuo+UoZWIwNdj2RrJi17fyVVoJ/IX+qdCVRQ0ZRIL2Wf65+ejirXd0ElttmW7v0nQse+TUoyIv/9CaNuhUIl1KSsQAFG3PaMaCP82C7h4h7KSQI+rpHAgTXtMb+Cgpg8pZytEgkXfoydCEycze0u6La1wUBQTIi+3bqWR5NDQTn5oO7bvXl7IC+vZ33iJJ8JXFr8UBKhRJ1SsL0NCsGRPqJfZPEA98TizlapIWu15EAmHb75kzbkwjpBhaFdw==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:8f873b59228d5260e6aaaf4c82cf1f455e515ad601dd4133e74517741edd7608",
+      "output": {
+        "abs_difference_pp": 0.0018947842510250723,
+        "accuracy_band_pp": 0.05,
+        "accuracy_band_provenance": {
+          "effective_from": "2019-07-03",
+          "effective_to": null,
+          "source": "12 CFR 1030.3(f)(2) accuracy tolerance for the annual percentage yield earned",
+          "source_digest": "sha256:a31899e46c5b515c6e5b69bc6ec15ca0a4fb67e4e89ad45c772872cc4dc0a8fc"
+        },
+        "annualization_days": 365,
+        "apy_earned_computed": 6.578105215748975,
+        "apy_earned_computed_rounded": 6.58,
+        "average_daily_balance": 1000,
+        "average_daily_balance_supplied_directly": 1000,
+        "balance_segments_days_sum": null,
+        "balance_segments_used": 0,
+        "days_in_period": 30,
+        "disclosed_apy_earned": 6.58,
+        "interest_earned": 5.25,
+        "manual_review_required": false,
+        "notes": [],
+        "special_formula_declared": false,
+        "verdict": "MATCHES",
+        "warnings": [],
+        "within_accuracy_band": true
+      }
+    }
+  },
+  "compute_proof_ready": "ready",
   "rounding_steps": [
     {
       "step": "average_daily_balance_from_segments",
@@ -50183,9 +50219,8 @@
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no iteration beyond fixed field validation, sqrt-free arithmetic; simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-671-short-sale-locate-ssr-checker, built 2026-09-04 (SHORTSALE-LOCATE-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"FJmvyRr/GfQTx3gULtidDHyT+xfHeZ0zuNtSj8Pf7ikQisdKBO1iw6fjA5JAotxjzennE0U4WdsaKep42QkkMBmsvm0P2JkFAKnxliye9HSrQv+K2pN3sF2u8F+mtA8mJFloxxfFZfBwe9D+TMp2fTGeic8tDCoc0XZzqmMTu2sbvCOqM2nbdgeXG+DCT10U9wFTkaqNbI6co19JDZt9ewhFC+nm6fDVtqJGmEPjSCuAzzVQYj3Xxt73BnFj4Bv0G36Ads5xaeD0lnfQct4R/6Eui11GAfEchpwrteMtoZMJOvNLWmY096j12Mh6Ad+QDeHIcd4BOBg9mT9Dlr7Upw==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:a4568b1c4d2387b3040c0dd0ba7236def99524e05a0fb0b8fd763da431fb0e4e","output":{"locate_satisfied":true,"note":"locate recorded pre-order per declared source dated 2026-09-03","overall":"LOCATE_DOCUMENTED","ssr_restriction":false}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-672-fx-funding-sequencer",
@@ -50207,9 +50242,8 @@
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops inside compute(), no policy-parameter-bounded iteration beyond per-leg mapping (leg count bounded by the caller's declared legs array), sqrt-free integer-minute arithmetic; simple deterministic comparison math expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-672-fx-funding-sequencer, built 2026-09-04 (FX-SEQUENCER-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"J24IQLMU/eaPnDfEdH+qv96MihKkfKoVXVA1byg7vBQJJDrjXvPVVYPbMF4OtuLzOO+WKC+J9aq3YCvC/1diTwT1Xcx7VR6T3Z1ZIGuwTDOX/UtmpiaqFocATZDj8IOPATcWICAHtpyQqIdGG1AGQuB6JhoB2+Y7v49SM/Ve9hQCG+aCB0cunR3bWMOC3BbYheuKGtEwLhoisiNzycOkfQpEvAUkt0ujsw7l7ZSA+FzGiaDDWhn8VmAhO4L9gSYxF5CL/EeVeq9qXTSQJyq4I/9ECQ6a53yUlNEE2o6ctMMf/KFSnx1YomuZXlSwzW4AwdRoS/E+b74Q7l1gK1VK8Q==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:7a8bdff517f46e0feecd70c62f7074135cbea33f386252dd61b94007206771ca","output":{"all_cutoffs_met":true,"margins_minutes":{"EUR":40,"USD":400},"overall":"FUNDING_SEQUENCED","sequence":["EUR","USD"],"trace":"EUR 15:00 - 14:20 = 40 min; USD 21:00 - 14:20 = 400 min; order by tightest first"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-673-lending-recall-prioritizer",
@@ -50231,9 +50265,8 @@
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration beyond per-recall mapping (<=512), pure integer civil-day arithmetic, sqrt-free; simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-673-lending-recall-prioritizer, built 2026-09-04 (RECALL-PRIORITIZER-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"KTqc9EOnYLEE8+JSKEqKXHQM5hK01hOavmMmyvLnGtIv4DgCq60qivXwvvybxQCuOMd6JLEsZP/Gtufxen2xkRjtc0cbYwCmcblWzX5SYquEvtiN2ntEW0y53NbHmrV/EloHnHZbEcnJDE/JUsdNiNYa2oBK7MwcxsjzOqj6maEd1r3Z6y9EymMKKL/wDJTA3C0qlMjRn1A34aO2hXaX8gphQHlfYF5Bfxf1ZGAs4Ekq2Lx8DweVZ18Jxhe3o+F6HclqnHSISspnKf+QVffDHkeobGAIslFi8b4lqMssfzIIhdIQr3iF0QAVRohHFvtjlqWr19G/nPbXJ00K03vScw==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:31d9a8356f9e3c350463c2c5b981a0d7bb78e11ba3d90412bb123ee4963b0719","output":{"overall":"QUEUE_RANKED","queue":["R-A","R-B"],"trace":"R-A due 2026-09-04 is 1 day from as_of -> urgent; rank by due date then qty","urgent":["R-A"]}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-674-eba-im-model-validation-tracker",
@@ -50434,9 +50467,8 @@
       "id": "Dir (EU) 2019/1937"
     }
   ],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration, pure integer civil-day arithmetic, sqrt-free; simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-677-whistleblowing-channel-clock, built 2026-09-04 (WHISTLEBLOW-CLOCK-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"IwcpFcjYj+qfrUWnC/pCWzko3qMQ5iOUC/vyUvWRUPkTVYNI6h4+kpXxbkI/aSgnHRxyiCoRKT2HmXulho3BJhXx8O14O43dqADujyYuMRRfkWaDvDyVseHsJ33dvdYtIZJXNpViqttgSvo2tzU8MCcef/ZrV9GMSEGF0DHdlKIbd0soKYfnnPKnR1WokrEOH1EbTG6DCs8+fxqPTcOdrghXJyQKcsYlyNKofnhPhG1g51vwkjbPrYWvATiMEEzBDa7rbL3ASLoTBvhI3nVXANMqxuV67Ib6V+lm6oyr4HAQqeGH1VF+EupKLBP8szwZi1DbbV7n8zFl4yFo8TEnbA==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:44d66e7fb0a9a0cf87611ad6f6eacd54080cf60d68fa2a39d37fdef885063af0","output":{"ack_days":4,"ack_within_7":true,"followup_due":"2026-11-30","overall":"CLOCKS_COMPLIANT","trace":"2026-09-05 minus 2026-09-01 = 4 days <= 7; follow-up = receipt + 90d"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-678-consultation-response-tracker",
@@ -50471,9 +50503,8 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration beyond the per-consultation map (<=512), sqrt-free integer date arithmetic (civil-days, no transcendental); simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-678-consultation-response-tracker, built 2026-09-04 (CONSULT-TRACKER-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"FJrDdwniSA3BXnwrwUjbaNav09Ou/aqVfT9Y5DzxJ4UDfVF7khU/piwT0etCek8hNpC55THqJU1DKs25AfwgQRzj2+0+By95ewX+sB/r6vnX7hXJRsp2m/TW3W2nN/7/Ju+Yfpr65jEDDJg7CuRGbltpAHEFtIQjvgZU7Ueuh1gmz6XUy9Lf2ezpzhwLoPMXneM6KnaW8QJAZjE/zuuFexqTZqRBM9HffX2i7NUhugKBfDCu0FCnw+vj4yfHOY/TH8+A6qM8rNb9HTuFJPSK7y0QLTbRAdodOs3SDxRLhMkwVecIykkdDTMx84ZTfNgioMoX+SlAixfOho9KNzzc7Q==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:03fc51661183dd63dcd3595fcaf0b6ecd41c91428a1a25a16243d042bd8d2249","output":{"closed_unresponded":1,"days_to_next_close":48,"missed":["C-2"],"open":1,"overall":"ATTENTION_REQUIRED","trace":"C-2 closed 2026-08-30 before as_of with no response; next close 2026-10-21 is 48 days out"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-679-orsa-readiness-pack",
@@ -50552,9 +50583,8 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-680-control-attestation-campaign-roll-up, built 2026-09-04 (ATTEST-CAMPAIGN-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1 exec preflight before booking.",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration (fixed 5-field arithmetic), no transcendentals (half-up rounding by repeated multiplication); simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking."
+  "compute_proof":{"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"FjqNlyqVWjzfQOy+/a/oH5bzXZws4SmoTsniU64nIC4FhQkbCs1oWUv6x50J1cTG5MZbkEnwTtPFaDCSfDIOowAltp2nG/J4GLLVCcoftfc3qTKozzxUAWlNbXK87+DAGWEbG99e2bdwZhq21hg/tX1R/lzKIuLC3+SBWpYqnOAqX6zCxS7mBiI7LjrFMpRcdMWVFY95yYnWzB8HTlB09yZrTpJ4SB5CP41GLw/y1VkpGXj4fDIB8+PCtlQrHTsPKE9g59dPkExbVayFGnLRjA1VT4KBZ6drztg9g9tLG2oRrRaQ3mJIve66OEN0b5XflyyAlcFq7Jv4Qk+lg4NoIA==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:ee9ed419ccbe7db7955e9e733873a1d85d7107239c6d930490eb2e393be9b4a5","output":{"below_threshold":true,"completion_pct":85,"exception_rate_pct":10,"overall":"ESCALATION_FLAGGED","trace":"17/20=85% < declared 90% threshold; exceptions 2/20=10%"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-681-best-execution-evidence-pack",
@@ -50578,9 +50608,8 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-681-best-execution-evidence-pack, built 2026-09-05 (BESTEX-PACK-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1 exec preflight before booking.",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration (single-pass weighted mean over declared venues), no transcendentals (half-up rounding by repeated multiplication); simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking."
+  "compute_proof":{"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"AvtwxhB5Npxk1/C0S9Ol9F/PNw7NP76QSkeWOGqVjJUAFNEtgrOHV4qtPEiqppaiPSN4PDjvokuBpUxRMeF+Tx23p41kw9/5AxbU1yayBuJ4rNQ/jemu+nlnOnrs33xKGRQOfVNQ5azA/Mq/SVZ4isaI6fNHeur2zC9bpLrkRPUiAjIFc4wolkJ/p4sDWNAINd94M9o3pWGizeeNi2YZDBc3WkNmA4H3Mb/OYlFvm2C9daBXuBUku+4dWvxeuVYdFIZxsNDtBufxnbwHIWmw/rVbDE+qvv/mywPaeeiHbAQhvHo4GjU5qCMnA5GnqxUax5C5++LVamcMLjIcSTLyww==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:fdd1917a5a6fa8051b0636a4e2a78af93da66b2cea56d8f699fd0cf8f63a0d20","output":{"negative_venues":["V2"],"overall":"REVIEW_ITEM_FLAGGED","trace":"(60*2.1 + 40*-0.4)/100 = (126-16)/100 = 1.1","weighted_improvement_bps":1.1}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-682-rule-605-publication-composer",
@@ -50615,9 +50644,8 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-682-rule-605-publication-composer, built 2026-09-05 (RULE605-COMPOSER-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1 exec preflight before booking.",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration (fixed 5-field arithmetic, category rows linear in declared count), no transcendentals (half-up rounding by repeated multiplication); simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"Hgs2n5/3I8fxXlI3QErgLw9ID1gsmOH1Q6yLrQBAUWYq4rmTLwNPCgqhHXfgjI6rzv18SFYZ0IPrRThh0VomtxnJ5mlWDH/jKbCTKh39NEpZO4c3OQeY0vz+ZkTO7SGuANyIJNm8PJpWN0mz+w+mRywOdwRq8SD7iArZ5PpvrnUSXMExeK23jX4Gh2c4oPoL59R5pIpOtHpEKUWHXWt2yC7FRsBZVVfUs6vSy78f6Fe/1P6Q56cYENDYv0Q9/vVKDUFCg5ip770UT5WAmSnK0XD5V3KzVOaIKgUbMbsMvM8cOk5BqH/nIHXPEkOfatxsacX4PkIJCshmTzbfvYhD2g==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:102dc03590fc41678c0b5303fa14a37825e69015161b20e6636d79a4210520b4","output":{"eq_ratio":0.8,"overall":"PUBLICATION_ROWS_BUILT","trace":"3.2/4.0 = 0.8 effective-to-quoted"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-683-consolidation-cta-minority-interest",
@@ -50641,9 +50669,8 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "cycle_preflight": "PENDING — static pre-screen: no signature/hash loops, no policy-parameter-bounded iteration, a fixed handful of multiply-round-subtract steps on declared scalars, sqrt-free arithmetic; simple deterministic arithmetic expected FAST; measure user_cycles with runq-cpu exec before any GPU booking.",
-  "deferred_reason": "New gpu:false node, art-683-consolidation-cta-minority-interest, built 2026-09-05 (CONSOLIDATION-CTA-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"FZrG+uo/HzA8J419uSqjjbZ99XgksHSlMnkouDxB5fcm3o+zDqflbbNf4+6O/X0JoOnSY+qCtyDRBuIa7drxVy8XvE5qpGHpGXI5sh2GQtMHbo/oL6pjd7F4Bn4qiPfiG4v7Ic5Ns+x/12op/Ft08FYAiWwZGvdhGbwNzliCWxgO809N65y1OJc+5DRdywQ2GLiXFwPrY8mEJrEQ2tyGRQ+TT2ySybiWbITm32dLJzmaMBg8SNO/Ks/hFvs07SOiCqXk1QNaDUFlTWNW/f2Q12EYkMxwjBfUV7Mqfk1LgCgmq9lSrMlGWMhr5IWSR+P7S0w4+wsVPK0A0IN3E2xE2w==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:b7ec0688403a72ffdb32ee7b1748d3ef2eefe8f5d5c88a05ec33009ad14d7b2e","output":{"cta":10000,"equity_at_current":110000,"equity_at_historical":100000,"minority_interest":22000,"overall":"CONSOLIDATION_COMPUTED","parent_share":88000,"trace":"110000-100000=10000 CTA; split 80/20 of 110000"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-684-intercompany-elimination-netting",
@@ -50665,8 +50692,8 @@
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-684-intercompany-elimination-netting, scaffolded 2026-09-05 (KERNEL-SCAFFOLD-1). No GPU prove has been run and none is proposed by this scaffold — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real, then measure user_cycles with runq-cpu exec before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"Bn8XUC/9Axaj1vb3JLfCMzP6KQ/b76QAiW4oaOwTVCcNOivHbSgbP5THp+Gjv8SdgiTK2nklfl0QwSpOWPNpTyQZkQziuoVHS8T3CR2Tqn0AU/TAKNfcNDfKTmn53UwkESp5S2d3YMPFs9tBorQGuInsMjbldL4YeHzr8VTboWEq60MuUi4REIa+juVkB35SDLxySoQLLcnJ+UF7IF4qMiPosbA92kZIxf/GWJpbifu6QsF2EJi6EJYmRbwglhN9JaopILbh+gCjyWhzKqcBEva1IaFXHgijnMnFBJmEcMUlgAVsONR2AqUmznO4OX6cXvbWeigEBp8L6Xuzx629xg==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:095706cb39c4376c2a3782381693f0cb72986cfd7fabe8cc894cef4d385aece3","output":{"elimination_total":68000,"matched_pairs":1,"mismatched_pairs":1,"mismatches":[{"a":"SUB-1","b":"SUB-3","difference":2000}],"overall":"GAPS_FOUND","trace":"eliminate min(20000,18000)=18000 + matched 50000 = 68000; residual 20000-18000=2000","unmatched_residual":2000}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-685-direct-indexing-fit-screen",
@@ -50718,8 +50745,8 @@
   "compute_images": [{"system":"sha256-source","image_id":"sha256:c2eeb9ad5fe1d0a784bf15f6c3f8a66fbd786a954be75ceaa674755f85586727","valid_from":"2026-09-05"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-06"}],
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-686-ltc-funding-comparator, built 2026-09-05 (LTC-COMPARATOR-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1 exec preflight before booking."
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"GLgjZGf2R2ByN+L7szqI+oEa8mLcvlur11t3XLnq0jAtvtRU1gM7OKcgQK5L5wy8JfwSiM7oonw3urqbELoPcxuLmHD0iBcCSEX/YRHQfQ46cyRmKyaoomauXCXdMXl8LtoEOPs0cC+udz0c6hvi0kgLvIzyOZSFv7LfYe6dNeornztyntQQ/R3RTlfycMN28aIvsK1brjlbGjmxPxQhdSqt/xGEEnT/gB+b4KdJA6XgBPoqEM/u67P9su1TByYcALBbzYdGWPfwdwgggmonay3mVGti17P4FoR8wK5ycGchdsDcdnz3//5JmHsZ9C+Ih7NRy56LNXOCky89pyMYyg==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:c2eeb9ad5fe1d0a784bf15f6c3f8a66fbd786a954be75ceaa674755f85586727","output":{"cheapest":"traditional","hybrid_total":110000,"overall":"CHEAPEST_IDENTIFIED","self_fund_total":120000,"trace":"simple-sum method as declared: 4800*25=120000; 110000; 3200*25=80000","traditional_total":80000}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-687-wash-sale-window-guard",
@@ -50779,9 +50806,8 @@
       "id": "Rev. Rul. 2008-5"
     }
   ],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-687-wash-sale-window-guard, built 2026-09-05 (HARVEST-GUARD-BUILD-1). No GPU prove has been run and none is proposed by this row; deferred per the section 18 steady-state rule (RIDER-KERNEL.md). The static pre-screen is clear: the kernel is straight-line calendar-window and loss arithmetic with no loops bounded by policy_parameters and no transcendentals, so it is expected FAST under GPU-CYCLE-PREFLIGHT-1.",
-  "cycle_preflight": "FAST (static pre-screen: straight-line date-window and loss arithmetic, no loops bounded by policy_parameters, no transcendentals; not yet measured with runq-cpu exec - no prove proposed by this row)"
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"GDciK0o6WAXKzoT7+gvdNJKJLvQeratyeXGLB6b+BHEJFz328SHvEAyy9qVgjBpln9Gx+137qYCquAqaOjbD/Qc8vDhJ4oHUrXd5eB+uEc3wiluLW2ramm0wPPS0lcqnFhOzBoxvoDMwMDqNWEDkV6YZB0x3JpSsomQyxrpoenwliA6bLZ64hc3/PwQomhaVz3vNdtYfcgGPER++DdBGHy9XMjJ5S7300Fyf1WaxvcxILmCR/p3YQfKIa5oiHVYuEr0v1FkPhbi8vb4w7hmqIUcCdwWg2QgLFt//qVzu8XMWW+oPHZ+S97UFzZc5pcnRCrNlZPh/i8jD64b4+C1GAQ==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:90239f1ed800b3758c774493db294a17aec61bb1f994506ea0d1df46f79c6378","output":{"disallowed_loss":1200,"ira_trap":false,"overall":"WASH_SALE_FLAGGED","replacements_in_window":1,"trace":"2026-03-25 is within 2026-02-08..2026-04-09 (sale 2026-03-10 ±30d) so the 1200 loss is disallowed under the declared section 1091 method","window_end":"2026-04-09","window_start":"2026-02-08"}}},
+  "compute_proof_ready": "ready"
 },
     {
   "tool_id": "art-688-education-funding-gap-calculator",
@@ -50815,8 +50841,8 @@
     "json"
   ],
   "standards_basis": "not_applicable",
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-688-education-funding-gap-calculator, built 2026-09-05 (EDUCATION-FUNDING-BUILD-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1 exec preflight before booking."
+  "compute_proof_ready": "ready",
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"BEwj4m4EjrYBddUGM/COIpiKSIq15oAOXcSyvWwirmEOKXAAEnw21b2IRq7Wcitgarjf8ReGFonLGAPyw9LXphNj24LdLfcZVcqjVhIh/HuFe9ytDJsw/P1zMdvwGbtyLQglpCiSk1OEynDN1SNyRmj/MAbOLtFLoA2QUhSHslYvkmZ3KY8si/KL/Ns4B5ep3xdx8WcqEuND00b8ThyNWC8hu/3qO68tgsEjjsX/9IIm/vk8MU88T/rn9VH0FAH6KSdnpsAKKXQ2UrDBeOiD92nWh3uJ8DgjnpynKDfBp3ofcDQM+jxZ70N5XaW9MsRjzazSi1q/FYzVXH5KiiXxxg==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:fc261c3ad8218c3aa80c320728eb8f30767cd816fe91519ce9b0283d28fb6415","output":{"funding_gap":87422.11,"fv_current_balance":32577.89,"overall":"GAP_COMPUTED","trace":"20000 * 1.05^10 = 32577.89 (2dp half-up); gap = 120000 - 32577.89 = 87422.11"}}}
 },
     {
   "tool_id": "art-689-pack-dependency-map",
@@ -50834,13 +50860,44 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:85bcff208b87268413f83990a57e48329b66f8e71716731c46263e13e98121fc","valid_from":"2026-09-05"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-06"}],
-  "export_capability": ["json"],
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:85bcff208b87268413f83990a57e48329b66f8e71716731c46263e13e98121fc",
+      "valid_from": "2026-09-05"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-09-06"
+    }
+  ],
+  "export_capability": [
+    "json"
+  ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-689-pack-dependency-map, built 2026-09-05 (PACK-DEPENDENCY-MAP-BUILD-1). No GPU prove has been run and none is proposed by this row; deferred per the section 18 steady-state rule (RIDER-KERNEL.md). The static pre-screen is clear: the kernel is straight-line set-membership over declared lists with no loops bounded by policy_parameters beyond list length and no transcendentals, so it is expected FAST under GPU-CYCLE-PREFLIGHT-1.",
-  "cycle_preflight": "FAST (static pre-screen: straight-line declared-list membership, no signature/hash loops, no transcendentals; not yet measured with runq-cpu exec - no prove proposed by this row)"
+  "compute_proof_ready": "ready",
+  "compute_proof": {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "D3H4RuAy2LsnK5QdKr5p0BXXtxFXtuhf30xWuJX+yvYoPvbVS13iXBBZFph5W1bYcMDsqZg0uUXuT1k7P1BwcAtUCA7u8RMmXRZnu1Y7Y0uRIHPRG/nSNTWmdjm/el3fBPGkX1LRMk0jb3jnszizHaJWCDzHwciVzaBdBuDkPLoFO5sjBd2gbRZ/rqYRyeoSI77HLz9Z5FEi2LddQH5XVBJKQGR5IScGwLk6chNO/nM+s+NKHsbGtLPrKYhj4KCxIkYLCm2z8E+HNQ4IITEzU57KLkjrEyWNoSUtTsdtQ7UpanOkNuysRidNQzU6hMlL+Bat94ldmgH4wC/zJN9CCQ==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:85bcff208b87268413f83990a57e48329b66f8e71716731c46263e13e98121fc",
+      "output": {
+        "impact_count": 2,
+        "impacted": [
+          "exam-readiness",
+          "close-center"
+        ],
+        "overall": "IMPACT_MAPPED",
+        "trace": "kern-date appears in both declared usage lists"
+      }
+    }
+  }
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
