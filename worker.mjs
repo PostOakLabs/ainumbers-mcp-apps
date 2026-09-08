@@ -1214,6 +1214,49 @@ async function callAnchorSuiteTool(toolName, args) {
   }
 }
 
+// ── WORKER-DELEGATION-REASON-1 ────────────────────────────────────────────────────────────────
+// The browser-delegation branch of a node tool is reached for FOUR distinct causes — no
+// policy_parameters, compute:"browser", a gpu:true node, or genuinely no registered kernel — and
+// it used to emit ONE sentence for the three non-GPU ones: "No kernel registered for this node
+// yet." A live probe of ALL 644 live non-GPU nodes found ZERO with a missing kernel, so on the
+// non-GPU estate that sentence was false in 100% of the cases an agent can actually hit; an
+// external agent read it, believed it, and published a (since retracted) report asserting a
+// missing kernel that does not exist. `instruction` is a machine-readable field an agent acts on,
+// so it must name the cause that actually applies.
+//
+// Pure and exported on purpose: every branch — including no_kernel_registered, which no live node
+// can currently reach — is exercised offline by scripts/check-delegation-reason.mjs.
+// Precedence mirrors the compute guard: gpu:true always delegates (SPEC.md §9.2), then an explicit
+// compute:"browser" is the caller's own instruction, then the missing input, then the kernel.
+export const DELEGATION_ARG_KEYS = ['policy_parameters', 'compute', 'parent_hashes', 'parent_tool_ids'];
+
+export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParameters = false, hasKernel = false } = {}) {
+  if (gpu) {
+    return { reason: 'gpu_node', instruction:
+      'GPU simulation — runs client-side only per ChainGraph Standard v0.4 §9.2. Open URL, run with provided inputs, export artifact.' };
+  }
+  if (compute === 'browser') {
+    return { reason: 'browser_requested', instruction:
+      'Browser delegation was requested by the caller: compute was set to "browser", so nothing was computed server-side. ' +
+      (hasKernel
+        ? 'This node has a registered server-side kernel — omit "compute" (or set it to "auto" or "server") to get a computed artifact with an execution_hash instead. '
+        : 'This node has no registered kernel, so browser execution is the only route for it today. ') +
+      'Otherwise open URL in browser, run, export AP2 artifact.' };
+  }
+  if (!hasPolicyParameters) {
+    return { reason: 'missing_policy_parameters', instruction:
+      'No policy_parameters were supplied, so there was nothing to compute. ' +
+      (hasKernel
+        ? 'This node HAS a registered server-side kernel: call this tool again with the inputs NESTED under policy_parameters — {"policy_parameters": { … }} — and it returns a computed AP2 artifact with an execution_hash. Field names are in the tool\'s manifest. Opening the URL in a browser is an alternative, not the fix.'
+        : 'This node also has no registered kernel, so it must be run in the browser: open URL, run, export AP2 artifact.') };
+  }
+  // Terminal branch — the only one for which the original sentence was ever true. Reached with
+  // hasKernel:false; a node WITH a kernel, inputs, compute:"auto" and gpu:false never gets here at
+  // all (it is computed server-side and returns above), so this stays total without a fifth reason.
+  return { reason: 'no_kernel_registered', instruction:
+    'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
+}
+
 function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts }, { onlyTool = null, mrtr = null } = {}) {
   // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
   // spec_digest exists under fv-status/ (today exactly one, since every live
@@ -4635,6 +4678,32 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     }, async ({ policy_parameters, compute, parent_hashes, parent_tool_ids }) => {
+      // --- Wrong-shaped arguments (WORKER-DELEGATION-REASON-1, defect D2) ---
+      // Every field of this input schema is optional, so zod STRIPS unknown top-level keys: a FLAT
+      // call (the tool's own fields at the top level instead of nested under policy_parameters)
+      // validates cleanly, arrives here with policy_parameters undefined, and silently degrades to
+      // browser delegation. The caller is never told its arguments were discarded. The raw
+      // arguments object AS RECEIVED rides the per-request MRTR context, so compare against it.
+      // Scope is deliberately narrow: ONLY a call that supplied keys and matched none of the four
+      // known ones errors. A call with NO arguments at all is a legitimate "describe this node"
+      // request and keeps today's delegation behaviour untouched.
+      {
+        const raw = (mrtr && mrtr.args && typeof mrtr.args === 'object' && !Array.isArray(mrtr.args)) ? mrtr.args : null;
+        const rawKeys = raw ? Object.keys(raw).filter((k) => k !== '_meta') : [];
+        if (rawKeys.length > 0 && !rawKeys.some((k) => DELEGATION_ARG_KEYS.includes(k))) {
+          return {
+            isError: true,
+            content: [{ type: 'text', text:
+              'Invalid arguments for ' + toolName + ': this tool takes its inputs NESTED under "policy_parameters", ' +
+              'and none of the key(s) you sent (' + rawKeys.join(', ') + ') is a recognised top-level argument — ' +
+              'they were discarded by schema validation, so nothing could be computed. ' +
+              'Retry as {"policy_parameters": {' + rawKeys.map((k) => JSON.stringify(k) + ': …').join(', ') + '}}. ' +
+              'The only top-level arguments are: ' + DELEGATION_ARG_KEYS.join(', ') + '. ' +
+              'Field names for policy_parameters are in this tool\'s manifest.',
+            }],
+          };
+        }
+      }
       // --- Compute Binding (v0.4): server-side dispatch for gpu:false nodes ---
       const effectiveCompute = compute ?? 'auto';
       if (policy_parameters && effectiveCompute !== 'browser' && !node.gpu) {
@@ -4699,7 +4768,16 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           }
         }
       }
-      // --- Browser delegation (gpu:true or no kernel or compute:"browser") ---
+      // --- Browser delegation (gpu:true or no kernel or compute:"browser" or no inputs) ---
+      // WORKER-DELEGATION-REASON-1: name the cause that actually applies instead of asserting a
+      // missing kernel for all of them. The kernel lookup is a static map read (kernels/index.mjs),
+      // so asking here costs nothing and lets the message be true about this specific node.
+      const delegation = delegationReason({
+        gpu: !!node.gpu,
+        compute: effectiveCompute,
+        hasPolicyParameters: !!policy_parameters,
+        hasKernel: !!getKernel(node.tool_id),
+      });
       const chainNote = (parent_hashes && parent_hashes.length)
         ? '\nChain from: ' + parent_hashes.join(', ') + (parent_tool_ids ? ' (' + parent_tool_ids.join(', ') + ')' : '')
         : '';
@@ -4708,7 +4786,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           'ChainGraph tool: ' + node.display_name + '\n' +
           'URL: ' + node.url + '\n' +
           'Open in browser, configure inputs, and run the simulation. ' +
-          'Export the AP2 artifact (JSON with execution_hash) for downstream chaining.' +
+          'Export the AP2 artifact (JSON with execution_hash) for downstream chaining.\n' +
+          // Same sentence as structuredContent.instruction — the text half of the result is what a
+          // client without structured-output support reads, and it must not say something different.
+          'Why this was delegated (' + delegation.reason + '): ' + delegation.instruction +
           chainNote,
         }],
         structuredContent: {
@@ -4723,9 +4804,8 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
           parent_hashes:   parent_hashes   ?? [],
           parent_tool_ids: parent_tool_ids ?? [],
           policy_parameters: policy_parameters ?? {},
-          instruction: node.gpu
-            ? 'GPU simulation — runs client-side only per ChainGraph Standard v0.4 §9.2. Open URL, run with provided inputs, export artifact.'
-            : 'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.',
+          delegation_reason: delegation.reason,
+          instruction: delegation.instruction,
         },
       };
     });
