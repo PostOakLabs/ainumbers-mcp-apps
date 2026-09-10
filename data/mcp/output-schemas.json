@@ -42109,6 +42109,196 @@
       }
     }
   },
+  "assess_exam_readiness_pack": {
+    "type": "object",
+    "description": "Refusal shape: { valid: false, errors: string[] }. Valid shape below; module_annex and evidence_handoff keys appear only when their inputs were supplied.",
+    "properties": {
+      "valid": {
+        "type": "boolean"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "total": {
+        "type": "integer"
+      },
+      "delivered": {
+        "type": "integer"
+      },
+      "open": {
+        "type": "integer"
+      },
+      "overdue_count": {
+        "type": "integer"
+      },
+      "overdue_ids": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "readiness_pct": {
+        "type": "number",
+        "description": "delivered/total as a one-decimal percentage (IEEE-754 binary64, no intermediate rounding)."
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "check": {
+              "type": "string",
+              "enum": [
+                "overdue_requests"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "PASS",
+                "FAIL"
+              ]
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "overall": {
+        "type": "string",
+        "enum": [
+          "READY",
+          "AT_RISK",
+          "NOT_READY"
+        ]
+      },
+      "module_annex": {
+        "type": "object",
+        "properties": {
+          "module": {
+            "type": "string",
+            "enum": [
+              "sec-2026",
+              "amla"
+            ]
+          },
+          "edition": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "item": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "NOT_ASSESSED"
+                  ]
+                },
+                "assessed": {
+                  "type": "boolean"
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "pass": {
+                "type": "integer"
+              },
+              "fail": {
+                "type": "integer"
+              },
+              "not_assessed": {
+                "type": "integer"
+              },
+              "missing": {
+                "type": "integer"
+              }
+            }
+          },
+          "annex_verdict": {
+            "type": "string",
+            "enum": [
+              "COMPLETE",
+              "GAPS",
+              "INCOMPLETE"
+            ]
+          },
+          "first_selection_deadline": {
+            "type": "string"
+          },
+          "pre_effective": {
+            "type": "boolean"
+          },
+          "commencement_rule": {
+            "type": "string"
+          }
+        }
+      },
+      "evidence_handoff": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "composition"
+            ]
+          },
+          "binder_tools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tool_id": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "per_request": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "request_id": {
+                  "type": "string"
+                },
+                "handover": {
+                  "type": "string",
+                  "enum": [
+                    "ELIGIBLE",
+                    "BLOCKED_NOT_DELIVERED",
+                    "BLOCKED_OVERDUE"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "compute_wash_sale_window_guard": {
     "type": "object",
     "properties": {
