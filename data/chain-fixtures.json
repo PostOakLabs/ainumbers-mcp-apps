@@ -1149,7 +1149,14 @@
         "audit_rights": "present"
       }
     },
-    "art-277-agreement-acceptance-binder": {}
+    "art-277-agreement-acceptance-binder": {
+      "referenced_execution_hash": "b8f9d0a0210a5fa2b704fcb625119fe6ae03b819ec9b59f3b3377cdd48f13729",
+      "template_id": "common-paper-mnda-v1.0",
+      "body_sha256": "51accb97035821280371ff3088871e3866927ef0ce60e64ed5244883f11b6cfe",
+      "accepting_party_role": "party_a",
+      "previous_proof_hash": "",
+      "acceptance_statement": ""
+    }
   },
   "allocation-decision-receipt": {
     "505-tokenized-collateral-eligibility-checker": {
@@ -6080,7 +6087,14 @@
         }
       ]
     },
-    "art-277-agreement-acceptance-binder": {}
+    "art-277-agreement-acceptance-binder": {
+      "referenced_execution_hash": "b8f9d0a0210a5fa2b704fcb625119fe6ae03b819ec9b59f3b3377cdd48f13729",
+      "template_id": "common-paper-mnda-v1.0",
+      "body_sha256": "51accb97035821280371ff3088871e3866927ef0ce60e64ed5244883f11b6cfe",
+      "accepting_party_role": "party_a",
+      "previous_proof_hash": "",
+      "acceptance_statement": ""
+    }
   },
   "kyb-beneficial-ownership-attribution": {
     "art-268-compute-cdd-ownership-25pct": {
@@ -7031,8 +7045,25 @@
     }
   },
   "mutual-nda-composer": {
-    "art-276-mutual-nda-composer": {},
-    "art-277-agreement-acceptance-binder": {}
+    "art-276-mutual-nda-composer": {
+      "purpose": "Evaluating a potential vendor relationship for cloud infrastructure services.",
+      "effective_date": "2026-07-10",
+      "mnda_term_mode": "expires_after_period",
+      "mnda_term_years": 1,
+      "confidentiality_term_mode": "fixed_period",
+      "confidentiality_term_years": 3,
+      "governing_law": "Delaware",
+      "jurisdiction": "New Castle, DE",
+      "modifications": ""
+    },
+    "art-277-agreement-acceptance-binder": {
+      "referenced_execution_hash": "b8f9d0a0210a5fa2b704fcb625119fe6ae03b819ec9b59f3b3377cdd48f13729",
+      "template_id": "common-paper-mnda-v1.0",
+      "body_sha256": "51accb97035821280371ff3088871e3866927ef0ce60e64ed5244883f11b6cfe",
+      "accepting_party_role": "party_a",
+      "previous_proof_hash": "",
+      "acceptance_statement": ""
+    }
   },
   "nav-verification-pack": {
     "art-373-recompute-fund-nav": {
