@@ -7,26 +7,46 @@ name: Vendor Freshness (scheduled)
 # install needed) on a schedule, independent of any worker push, so a stale vendor is
 # caught within one cron cycle instead of waiting for someone to notice a live failure.
 #
-# This CANNOT block the already-merged site push (nothing to block by the time this
-# runs) — it only raises: a failing scheduled run + a tracking issue. Master's deploy
-# gate (ci.yml validate → deploy) is unchanged and stays the real enforcement point for
-# the worker's OWN pushes.
+# SELF-HEAL (VENDOR-FRESHNESS-SELFHEAL-1, 2026-09-11): a red that only NAMES the fix
+# ("run generate.mjs and commit the vendored tree") is now the fix. 11 red cycles in
+# 4 days each ended in that sentence with no owner-action path. When the compare finds
+# the vendored tree stale, this workflow — using the EXACT site sha the compare read —
+# runs `node generate.mjs --repo=<site checkout>` (note the `=`; the bare
+# `--repo <path>` form silently no-ops) and opens ONE `vendor/auto-<site-sha8>` PR
+# carrying the regenerated `data/` + `kernels/`, labelled `automerge` so
+# automerge-label.yml merges it itself once CI is green. The PR is opened by the same
+# ainumbers-spec-sync App automerge-label.yml uses — NEVER GITHUB_TOKEN (its pushes
+# fire no workflows, and the ruleset refuses it as bypass; memory 2026-08).
+# If a `vendor/auto-*` PR is already open, its branch is force-updated in place
+# instead of opening a second.
+#
+# RED ONLY ON TRUE FAILURES — the scheduled run goes red only if:
+#   1. generate.mjs fails, or
+#   2. the vendor PR cannot be opened/updated, or
+#   3. the open vendor PR's CI is red.
+# A stale vendor whose vendor PR is open and healthy is a GREEN run with a summary
+# line naming the PR — the PR itself is the remediation in flight.
+#
+# The tracking issue (raise-on-drift + its escalation ladder) stays for the red cases
+# only; close-on-green closes it once a run finds the vendored tree actually CURRENT
+# vs site main — i.e. right after the vendor PR merges and lands on master.
 #
 # GITHUB_EVENT_NAME on a schedule trigger is "schedule", not "pull_request", so
 # check-vendor-fresh.mjs takes its STRICT path (fails immediately on divergence,
-# no "ahead"/paired-PR tolerance) — correct here since there is no in-flight PR to wait on.
+# no "ahead"/paired-PR tolerance) — correct here: there IS an in-flight PR now, but
+# it is one this workflow authored, and the decide step below accounts for it.
 #
-# ESCALATION (WORKER-VENDOR-DRIFT-1, audit P1-3): re-commenting the same issue every
-# 6h forever has no owner-action path — #289 sat open for ~2 days with the worker
-# serving a stale catalog. After ESCALATE_AFTER_RED_CYCLES consecutive red cycles
-# (counted statelessly from this workflow's own completed default-branch runs, so the
-# count survives issue close/reopen cycles), the drift issue gets the escalation
-# label, the owner is assigned, and an escalation comment names the count.
+# ESCALATION (WORKER-VENDOR-DRIFT-1, audit P1-3): after ESCALATE_AFTER_RED_CYCLES
+# consecutive red cycles (counted statelessly from this workflow's own completed
+# default-branch runs, so the count survives issue close/reopen cycles), the drift
+# issue gets the escalation label, the owner is assigned, and an escalation comment
+# names the count.
 #
 # SO #40a DRY-RUN: manual dispatches default to dry_run=true — every check runs for
-# real (they are all read-only), but each irreversible surface (issue create/comment,
-# assign, label, close) is PRINTED as "[dry-run] would ..." instead of performed.
-# Scheduled runs are never dry. Pass -f dry_run=false to force a live dispatch.
+# real (they are all read-only), but each irreversible surface (PR open/update/push,
+# label, issue create/comment/assign/label/close) is PRINTED as "[dry-run] would ..."
+# instead of performed. Scheduled runs are never dry. Pass -f dry_run=false to force
+# a live dispatch.
 
 on:
   schedule:
@@ -34,7 +54,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry-run: print planned actions instead of performing them (no issue create/comment/assign/label/close)'
+        description: 'Dry-run: print planned actions instead of performing them (no PR push/open/label, no issue create/comment/assign/label/close)'
         type: boolean
         required: false
         default: true
@@ -48,11 +68,22 @@ env:
   ESCALATION_LABEL: vendor-drift-escalated
 
 jobs:
-  check-freshness:
-    name: Compare vendored data/ vs site main
+  self-heal:
+    name: Compare vendored data/ vs site main — open the vendor PR when stale
     runs-on: ubuntu-latest
+    # GITHUB_TOKEN stays read-only: reads of PR state only. Every irreversible
+    # surface (branch push, PR open/update/label) is done by the App token minted
+    # below — an App-authored PR fires CI and satisfies the merge ruleset; a
+    # GITHUB_TOKEN-authored one does neither (memory 2026-08).
     permissions:
       contents: read
+      pull-requests: read
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
+    outputs:
+      outcome: ${{ steps.decide.outputs.outcome }}
+      pr_number: ${{ steps.pr.outputs.pr_number || steps.find-pr.outputs.existing_pr }}
+      pr_url: ${{ steps.pr.outputs.pr_url }}
     steps:
       - name: 📥 Checkout worker (this repo)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -73,15 +104,221 @@ jobs:
         with:
           node-version: '22'
 
-      - name: 🔄 Vendor-freshness — data/ + kernels/ vs site main (strict, scheduled)
-        id: freshness
-        run: node scripts/check-vendor-fresh.mjs
+      - name: 🔄 Vendor-freshness compare — data/ + kernels/ vs site main (strict, scheduled)
+        id: compare
         env:
           SITE_REPO: _site
+        run: |
+          set -euo pipefail
+          OUT=$(node scripts/check-vendor-fresh.mjs 2>&1) && RC=0 || RC=$?
+          printf '%s\n' "$OUT"
+          echo "stale_rc=$RC" >> "$GITHUB_OUTPUT"
+          # Stale-artifact count for the PR title "(N stale)": the compare's own
+          # verdict lines — one for chaingraph.json, one "K of M kernels" summary.
+          N=0
+          if [ "$RC" -ne 0 ]; then
+            echo "$OUT" | grep -q 'data/chaingraph/chaingraph.json is STALE' && N=$((N+1))
+            K=$(echo "$OUT" | grep -oE '[0-9]+ of [0-9]+ kernels is STALE' | grep -oE '^[0-9]+' || true)
+            N=$((N + ${K:-0}))
+          fi
+          echo "stale_count=$N" >> "$GITHUB_OUTPUT"
+          # The EXACT baseline the compare read — check-vendor-fresh.mjs fetches
+          # origin itself and prefers origin/main over HEAD; generate must vendor
+          # the same sha, not the checkout-time HEAD.
+          SHA=$(git -C _site rev-parse --verify origin/main 2>/dev/null || git -C _site rev-parse HEAD)
+          SHA8="${SHA:0:8}"
+          echo "site_sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "site_sha8=$SHA8" >> "$GITHUB_OUTPUT"
+          echo "compared vs site main $SHA8; stale artifacts: $N (rc=$RC)"
+
+      - name: 🔎 Find an open vendor/auto-* PR (update-in-place candidate)
+        id: find-pr
+        if: steps.compare.outputs.stale_rc != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          N=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --json number,headRefName \
+            --jq 'map(select(.headRefName | startswith("vendor/auto-")))[0].number // empty')
+          if [ -n "$N" ]; then
+            echo "Open vendor PR #$N found — it will be updated, not duplicated."
+          else
+            echo "No open vendor/auto-* PR."
+          fi
+          echo "existing_pr=$N" >> "$GITHUB_OUTPUT"
+
+      - name: 📦 Install dependencies (only when healing — generate's import closure needs the SDK)
+        if: steps.compare.outputs.stale_rc != '0'
+        # --ignore-scripts (DEPENDABOT-AUTOMERGE-SCOPE-1, 2026-09-03): no
+        # dependency in the lockfile ships an install lifecycle script, so
+        # nothing legitimate is skipped — and a future dep that adds one
+        # cannot execute code at install time in CI.
+        run: npm ci --ignore-scripts
+
+      - name: 🏭 Regenerate the vendored tree at the exact compared site sha
+        id: generate
+        if: steps.compare.outputs.stale_rc != '0'
+        env:
+          SITE_SHA: ${{ steps.compare.outputs.site_sha }}
+        run: |
+          set -euo pipefail
+          # Materialize the exact sha the compare read as the site working tree —
+          # generate.mjs vendors from FILES, and its freshness guard requires a
+          # clean checkout whose HEAD descends from origin/main (detaching at
+          # origin/main satisfies both).
+          git -C _site checkout --detach --quiet "$SITE_SHA"
+          # NOTE the '=': the bare '--repo <path>' form silently no-ops
+          # (generate.mjs only parses '--repo=<path>').
+          node generate.mjs --repo=_site
+          if [ -n "$(git status --porcelain -- ./data ./kernels)" ]; then
+            echo "dirty=true" >> "$GITHUB_OUTPUT"
+            echo "Regenerated tree differs from the vendored tree:"
+            git status --porcelain -- ./data ./kernels | head -20
+          else
+            echo "dirty=false" >> "$GITHUB_OUTPUT"
+            echo "generate produced no diff — the already-open vendor PR (if any) carries this tree."
+          fi
+
+      # Same App + same action pin as automerge-label.yml. BOTH permissions below
+      # are required: the job PUSHES a branch (contents:write) and opens/labels a
+      # PR (pull-requests:write).
+      - name: 🎟 Mint vendor PR token (App — never GITHUB_TOKEN)
+        id: app-token
+        if: steps.compare.outputs.stale_rc != '0' && env.DRY_RUN != 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.SYNC_APP_CLIENT_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-pull-requests: write
+          permission-contents: write
+
+      - name: 🚀 Open or update the ONE vendor/auto-* PR (App-authored)
+        id: pr
+        if: steps.compare.outputs.stale_rc != '0' && steps.generate.outputs.dirty == 'true'
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ github.token }}          # the read-only EXISTING lookup below
+          EXISTING_PR: ${{ steps.find-pr.outputs.existing_pr }}
+          SHA8: ${{ steps.compare.outputs.site_sha8 }}
+          STALE_N: ${{ steps.compare.outputs.stale_count }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          EXISTING="$EXISTING_PR"
+          TITLE="vendor: refresh vendored tree to site main $SHA8 ($STALE_N stale)"
+          # Backticks escaped: the heredoc delimiter is unquoted (we WANT $SHA8 etc.
+          # expanded), so an unescaped `...` pair would EXECUTE inside the capture.
+          BODY=$(cat <<EOF
+          Automated vendor refresh by vendor-freshness-schedule.yml (self-heal, VENDOR-FRESHNESS-SELFHEAL-1).
+
+          - Site main sha vendored: $SHA8
+          - Stale artifacts vs that sha: $STALE_N
+          - Branch: vendor/auto-$SHA8 (regenerated with \`node generate.mjs --repo=<site checkout at $SHA8>\`)
+          - Triggering run: $RUN_URL
+
+          The \`automerge\` label lets automerge-label.yml merge this PR itself once CI is green — no session runs \`gh pr merge\`. If this PR was already open, its branch was force-updated in place to the newest site sha.
+          EOF
+          )
+          if [ "$DRY_RUN" = "true" ]; then
+            if [ -n "$EXISTING" ]; then
+              echo "[dry-run] would update PR #$EXISTING: force-push the regenerated tree to its vendor/auto-* branch and set title \"$TITLE\""
+            else
+              echo "[dry-run] would open PR from branch vendor/auto-$SHA8, titled \"$TITLE\", labelled automerge; body:"
+              echo "$BODY"
+            fi
+            exit 0
+          fi
+          export GH_TOKEN="$APP_TOKEN"
+          if [ -n "$EXISTING" ]; then
+            BRANCH=$(gh pr view "$EXISTING" --repo "$GITHUB_REPOSITORY" --json headRefName --jq .headRefName)
+            echo "Updating existing vendor PR #$EXISTING (branch $BRANCH) instead of opening a second."
+          else
+            BRANCH="vendor/auto-$SHA8"
+          fi
+          git checkout -B "$BRANCH"
+          git config user.name  "ainumbers-spec-sync[bot]"
+          git config user.email "ainumbers-spec-sync[bot]@users.noreply.github.com"
+          git add -A -- data kernels
+          # Two -m flags, not one multi-line literal: an unindented continuation
+          # line inside `run: |` silently invalidates the whole workflow file
+          # (measured 2026-08-16: 11 zero-job failure runs across every branch).
+          git commit \
+            -m "vendor: refresh vendored tree to site main $SHA8 ($STALE_N stale)" \
+            -m "Automated by .github/workflows/vendor-freshness-schedule.yml (self-heal): node generate.mjs --repo=<site checkout at $SHA8>."
+          # App-authored push: an App-authored PR fires CI and satisfies the merge
+          # ruleset; GITHUB_TOKEN does neither (its pushes fire no workflows and the
+          # ruleset refuses it as bypass — memory 2026-08). Checkout ran with
+          # persist-credentials:false, so supply the token explicitly here only.
+          git remote add vendorpush "https://x-access-token:${APP_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if [ -n "$EXISTING" ]; then
+            git push --force vendorpush "HEAD:refs/heads/$BRANCH"
+          else
+            git push vendorpush "HEAD:refs/heads/$BRANCH"
+          fi
+          if [ -n "$EXISTING" ]; then
+            gh pr edit "$EXISTING" --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body "$BODY"
+            gh pr edit "$EXISTING" --repo "$GITHUB_REPOSITORY" --add-label automerge
+            PR_REF="$EXISTING"
+            echo "pr_url=https://github.com/$GITHUB_REPOSITORY/pull/$EXISTING" >> "$GITHUB_OUTPUT"
+          else
+            PR_URL=$(gh pr create --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base master --title "$TITLE" --body "$BODY")
+            PR_REF=$(basename "$PR_URL")
+            gh pr edit "$PR_REF" --repo "$GITHUB_REPOSITORY" --add-label automerge
+            echo "pr_number=$PR_REF" >> "$GITHUB_OUTPUT"
+            echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pr_number=$PR_REF" >> "$GITHUB_OUTPUT"
+          echo "vendor PR ready: #$PR_REF — branch $BRANCH, site sha $SHA8"
+
+      - name: ⚖️ Decide the run outcome (red only on true failures)
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STALE_RC: ${{ steps.compare.outputs.stale_rc }}
+          STALE_N: ${{ steps.compare.outputs.stale_count }}
+          SHA8: ${{ steps.compare.outputs.site_sha8 }}
+          PR_NUMBER: ${{ steps.pr.outputs.pr_number || steps.find-pr.outputs.existing_pr }}
+        run: |
+          set -euo pipefail
+          if [ "$STALE_RC" = "0" ]; then
+            echo "outcome=fresh" >> "$GITHUB_OUTPUT"
+            echo "✓ vendored tree is current vs site main — green."
+            exit 0
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "outcome=healing" >> "$GITHUB_OUTPUT"
+            echo "[dry-run] would now check the vendor PR's CI health; dry runs never go red on this surface (stale artifacts: $STALE_N)."
+            exit 0
+          fi
+          if [ -z "$PR_NUMBER" ]; then
+            # Stale, not dry, and no vendor PR: generate failed (job already red
+            # via that step) or generate produced no diff with no PR open — an
+            # unhealable drift that needs the tracking issue.
+            echo "outcome=red" >> "$GITHUB_OUTPUT"
+            echo "::error title=Vendor stale and unhealed::compare red ($STALE_N stale vs site $SHA8) but no vendor/auto-* PR exists and generate produced no diff."
+            exit 1
+          fi
+          # Rollup entries are check runs (conclusion) or status contexts (state);
+          # uppercased so REST/GraphQL casing drift can never mask a red.
+          ROLLUP=$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json statusCheckRollup \
+            --jq '[.statusCheckRollup[]? | (.conclusion // .state // empty)] | join(",")' | tr '[:lower:]' '[:upper:]')
+          echo "vendor PR #$PR_NUMBER check conclusions/states: ${ROLLUP:-<none reported yet>}"
+          case ",$ROLLUP," in
+            *",FAILURE,"*|*",CANCELLED,"*|*",TIMED_OUT,"*|*",ACTION_REQUIRED,"*|*",STARTUP_FAILURE,"*)
+              echo "outcome=red" >> "$GITHUB_OUTPUT"
+              echo "::error title=Vendor PR CI is red::PR #$PR_NUMBER carries the site-$SHA8 refresh but its checks are failing."
+              exit 1
+              ;;
+          esac
+          echo "outcome=healing" >> "$GITHUB_OUTPUT"
+          echo "### Vendor self-heal: stale vendor is being healed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Stale artifacts vs site main \`$SHA8\`: **$STALE_N** — but vendor PR **#$PR_NUMBER** is open and healthy, labelled \`automerge\`; GitHub merges it itself once CI passes. Green run by design (VENDOR-FRESHNESS-SELFHEAL-1)." >> "$GITHUB_STEP_SUMMARY"
 
   raise-on-drift:
-    name: Raise a tracking issue on drift
-    needs: check-freshness
+    name: Raise a tracking issue on true red (generate / PR-open / PR-CI failure)
+    needs: self-heal
     if: failure()
     runs-on: ubuntu-latest
     permissions:
@@ -103,16 +340,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           CURRENT_RUN_ID: ${{ github.run_id }}
+          HEALING_PR: ${{ needs.self-heal.outputs.pr_number }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
         run: |
           TITLE="Vendor drift: worker data/ behind site main"
-          BODY="Scheduled vendor-freshness check (OF-4) found the worker's vendored \`data/chaingraph.json\` and/or \`kernels/\` diverged from \`PostOakLabs/ainumbers\`main beyond one schedule cycle (6h).
+          BODY="Scheduled vendor-freshness check (OF-4) went RED on a true failure — self-heal (VENDOR-FRESHNESS-SELFHEAL-1) could not complete.
 
-          This means a site merge touched graph shards/chaingraph.json with no follow-on vendor land — the worker is serving a stale catalog.
+          Red means one of: generate.mjs failed, the vendor PR could not be opened/updated, or the open vendor PR's CI is red. The worker is serving a stale catalog.
 
-          **Fix:** in \`mcp-apps-poc/\`, run \`node generate.mjs\`, commit \`data/\` + \`kernels/\`, push (see CONTRACT §A4).
+          **Fix:** in \`mcp-apps-poc/\`, run \`node generate.mjs\`, commit \`data/\` + \`kernels/\`, push (see CONTRACT §A4) — or fix the failing vendor PR.
 
           Failing run: $RUN_URL"
+          if [ -n "$HEALING_PR" ]; then
+            BODY="$BODY
+
+          Healing PR: #$HEALING_PR (its checks are failing — see the run log)."
+          fi
           EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
             ISSUE="$EXISTING"
@@ -159,30 +402,39 @@ jobs:
           fi
 
   close-on-green:
-    name: Auto-close the drift issue on a green run
-    needs: check-freshness
+    name: Auto-close the drift issue once the vendored tree is actually current
+    needs: self-heal
     if: success()
     runs-on: ubuntu-latest
     permissions:
       contents: read
       issues: write
     steps:
-      - name: 🟢 Close the vendor-drift tracking issue if it's open
-        # Same title-match used by raise-on-drift to find the alarm issue —
-        # a recovered check closes its own alarm instead of leaving it open (BOTISSUE-HYGIENE-1).
+      - name: 🟢 Close the vendor-drift tracking issue on a fresh (current) run
+        # Same title-match used by raise-on-drift to find the alarm issue. The issue
+        # closes only when the run found the vendored tree CURRENT vs site main —
+        # i.e. right after the vendor PR merges and lands on master. While the vendor
+        # PR is merely open and healthy (outcome=healing, a green run), the issue
+        # stays: the drift is being healed, not resolved.
         env:
           GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ needs.self-heal.outputs.outcome }}
+          PR_NUMBER: ${{ needs.self-heal.outputs.pr_number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == true }}
         run: |
           TITLE="Vendor drift: worker data/ behind site main"
           EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
-          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
-            if [ "$DRY_RUN" = "true" ]; then
-              echo "[dry-run] would close issue #$EXISTING with comment: \"Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL\""
-            else
-              gh issue close "$EXISTING" --repo "$GITHUB_REPOSITORY" --comment "Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL"
-            fi
-          else
+          if [ -z "$EXISTING" ] || [ "$EXISTING" = "null" ]; then
             echo "No open vendor-drift issue — nothing to close."
+            exit 0
+          fi
+          if [ "$OUTCOME" != "fresh" ]; then
+            echo "Run is green but only via a healing vendor PR (#${PR_NUMBER:-?}); the drift issue #$EXISTING stays open until the vendor PR merges and master goes current."
+            exit 0
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[dry-run] would close issue #$EXISTING with comment: \"Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL\""
+          else
+            gh issue close "$EXISTING" --repo "$GITHUB_REPOSITORY" --comment "Resolved: this scheduled run found data/ and kernels/ current against site main. Closing on the green run. $RUN_URL"
           fi
