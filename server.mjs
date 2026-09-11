@@ -107,12 +107,126 @@ export { buildServer };
 if (resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1] ?? '')) {
   const app = express();
   app.use(express.json({ limit: '4mb' }));
+
+  // ── MCP-STREAMABLE-HTTP-CONFORMANCE-1 ─────────────────────────────────────
+  // The dev door mirrors worker.mjs's transport conformance so scripts/transport-conformance.sh
+  // exercises the same six controls locally. Stateless throughout: the session id issued at
+  // initialize is an opaque echo token — accepted on later requests, never required, so a
+  // request without one behaves exactly as before.
+  const KNOWN_PROTOCOL_VERSIONS = ['2025-03-26', '2025-06-18']; // what the bundled SDK implements
+  const PAGE_SIZE = 1000; // keep in sync with TOOLS_LIST_PAGE_SIZE in worker.mjs (flip to 200 only
+                          // after live-smoke + the site's check-ask-agent-block.mjs are cursor-aware)
+
+  // DELETE /mcp: session end. WITH the id issued at initialize → 204; a bare DELETE has nothing
+  // to end and stays a spec-clean 405 whose Allow never advertises DELETE (SEP-2567 removed it).
+  app.delete('/mcp', (req, res) => {
+    const sid = req.headers['mcp-session-id'];
+    if (sid) return res.status(204).set('Mcp-Session-Id', sid).set('Allow', 'POST, GET, OPTIONS').end();
+    return res.status(405).set('Allow', 'POST, GET, OPTIONS').json({
+      jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: DELETE ends a session and requires the Mcp-Session-Id header issued at initialize. Use POST for JSON-RPC.' }, id: null,
+    });
+  });
+
+  // GET /mcp: SESSION-GATED server->client SSE channel (reference-SDK shape with sessions
+  // enabled): a GET presenting the Mcp-Session-Id issued at initialize streams an immediate
+  // first frame + 25 s keepalive comments and closes on disconnect; a session-less GET gets the
+  // same spec-clean 405 + Allow as before this row (mirrors worker.mjs / gate-mcp-era).
+  app.get('/mcp', (req, res) => {
+    const sid = req.headers['mcp-session-id'];
+    if (sid && String(req.headers.accept ?? '').toLowerCase().includes('text/event-stream')) {
+      res.status(200).set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', Connection: 'keep-alive' });
+      res.set('Mcp-Session-Id', sid);
+      res.write(': stream open\n\n');
+      const timer = setInterval(() => res.write(': ping\n\n'), 25000);
+      req.on('close', () => clearInterval(timer));
+      return;
+    }
+    return res.status(405).set('Allow', 'POST, GET, OPTIONS').json({
+      jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: use POST for JSON-RPC, or GET with Accept: text/event-stream and your Mcp-Session-Id (from initialize) for the server-to-client stream.' }, id: null,
+    });
+  });
+
   app.post('/mcp', async (req, res) => {
     try {
+      // MCP-Protocol-Version: an unknown explicit assertion is a JSON-RPC 400, never a 500
+      // (mirrors unsupportedMcpVersionResponse in worker.mjs; absent header = legacy, allowed).
+      const pv = req.headers['mcp-protocol-version'];
+      if (pv && !KNOWN_PROTOCOL_VERSIONS.includes(String(pv))) {
+        return res.status(400).json({
+          jsonrpc: '2.0', id: req.body?.id ?? null,
+          error: { code: -32022, message: `Unsupported protocol version: ${pv}`, data: { supported: KNOWN_PROTOCOL_VERSIONS, requested: String(pv) } },
+        });
+      }
       const server = buildServer();
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       res.on('close', () => { transport.close(); server.close(); });
       await server.connect(transport);
+      // Issue the session id at initialize; echo it on every other request that presents one.
+      const sid = req.body?.method === 'initialize' ? crypto.randomUUID() : (req.headers['mcp-session-id'] ?? null);
+      if (sid) res.set('Mcp-Session-Id', sid);
+      // tools/list with a cursor → honour it: capture the SDK's full response at the HTTP layer
+      // (Hono's node listener writes head, then N body chunks, then end()) and slice to one page,
+      // adding nextCursor only when a further page exists. Handles both the JSON single-response
+      // shape and the default SSE-framed shape (mirrors worker.mjs's own reframe pattern).
+      const rawCursor = req.body?.method === 'tools/list' ? req.body?.params?.cursor : undefined;
+      if (typeof rawCursor === 'string' && rawCursor !== '') {
+        const offset = /^[0-9]{1,9}$/.test(rawCursor) ? Number(rawCursor) : null;
+        if (offset === null) {
+          return res.status(400).json({
+            jsonrpc: '2.0', id: req.body?.id ?? null,
+            error: { code: -32602, message: 'Invalid params: unknown cursor (this server issues decimal-offset cursors via nextCursor)' },
+          });
+        }
+        const paginate = (parsed) => {
+          const tools = parsed?.result?.tools;
+          if (!Array.isArray(tools)) return false;
+          const total = tools.length;
+          parsed.result.tools = tools.slice(offset, offset + PAGE_SIZE);
+          if (offset + PAGE_SIZE < total) parsed.result.nextCursor = String(offset + PAGE_SIZE);
+          else delete parsed.result.nextCursor;
+          return true;
+        };
+        const origWriteHead = res.writeHead.bind(res);
+        const origWrite = res.write.bind(res);
+        const origEnd = res.end.bind(res);
+        let head = null;
+        const chunks = [];
+        res.writeHead = (...args) => { head = args; return res; };
+        // Hono's node listener hands Uint8Array chunks — Buffer.from(uint8array) copies bytes,
+        // whereas String() of a typed array would yield comma-joined byte codes (measured).
+        const toBuf = (chunk) => (typeof chunk === 'string' ? Buffer.from(chunk, 'utf8') : Buffer.from(chunk));
+        res.write = (chunk, ...rest) => { if (chunk != null) chunks.push(toBuf(chunk)); return res; };
+        res.end = (chunk, ...rest) => {
+          if (chunk != null) chunks.push(toBuf(chunk));
+          const raw = Buffer.concat(chunks).toString('utf8');
+          let out = raw;
+          try {
+            const parsed = JSON.parse(raw);            // JSON single-response shape
+            paginate(parsed);
+            out = JSON.stringify(parsed);
+          } catch {
+            const lines = raw.split('\n');             // SSE-framed shape: one data: line
+            const di = lines.findIndex((l) => l.startsWith('data: '));
+            if (di >= 0) {
+              try {
+                const parsed = JSON.parse(lines[di].slice(6));
+                if (paginate(parsed)) {
+                  lines[di] = 'data: ' + JSON.stringify(parsed);
+                  out = lines.join('\n');
+                }
+              } catch { /* not JSON we recognise — pass through untouched */ }
+            }
+          }
+          if (head) {
+            // body length may have changed → drop the precomputed content-length, let Node chunk
+            const h = head[1];
+            if (h && typeof h === 'object' && !Array.isArray(h)) delete h['content-length'];
+            origWriteHead(...head);
+          }
+          origWrite(Buffer.from(out, 'utf8'));
+          return origEnd();
+        };
+      }
       await transport.handleRequest(req, res, req.body);
     } catch (e) {
       // C2 mirror (WORKER-CAPS-1, 2026-09-03; audit WORK-3): the caller-visible message used to

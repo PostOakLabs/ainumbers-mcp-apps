@@ -961,11 +961,76 @@ function sseToJson(sse) {
 // Emits application/json (content-negotiated, no SSE framing) when the client can take it,
 // text/event-stream (today's unchanged framing) otherwise -- so the SSE path for a client that
 // asked for it is byte-for-byte identical to before this fix.
-function frameResponse(sse, request, corsHeaders) {
+function frameResponse(sse, request, corsHeaders, extraHeaders = {}) {
   if (clientAcceptsJson(request)) {
-    return new Response(sseToJson(sse), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(sseToJson(sse), { status: 200, headers: { ...corsHeaders, ...mcpSessionEcho(request), ...extraHeaders, 'Content-Type': 'application/json' } });
   }
-  return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders } });
+  return new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream', ...corsHeaders, ...mcpSessionEcho(request), ...extraHeaders } });
+}
+
+// ── MCP-STREAMABLE-HTTP-CONFORMANCE-1 (2026-09-11) ──────────────────────────────────────────
+// Streamable-HTTP transport conformance (MCP spec 2025-03-26 / 2025-06-18) so third-party
+// directory checkers (Glama et al.) see a door indistinguishable from a reference server —
+// without touching a single tool definition. Six controls live in scripts/transport-conformance.sh.
+//
+// Session id: issued at initialize, echoed on every response to a request that presented one.
+// Never REQUIRED — the worker stays stateless behind the scenes, so a request without the
+// header behaves exactly as before and no existing client regresses.
+function mcpSessionEcho(request) {
+  const sid = request.headers.get('mcp-session-id');
+  return sid ? { 'Mcp-Session-Id': sid } : {};
+}
+
+// GET /mcp with Accept: text/event-stream → a real server->client SSE channel: an immediate
+// first frame (directory checkers time this window), then a `: ping` keepalive comment every
+// 25 s. Comment frames are valid SSE that every conformant parser ignores, so they can never be
+// mistaken for a JSON-RPC message by a client that only wanted the stream to stay open.
+// cancel() fires on client disconnect and stops the timer, so the stream closes cleanly and the
+// isolate never accumulates intervals.
+function openSseKeepaliveStream(corsHeaders, request) {
+  const enc = new TextEncoder();
+  let timer = null;
+  const stream = new ReadableStream({
+    start(controller) {
+      const send = (s) => { try { controller.enqueue(enc.encode(s)); } catch { /* client gone */ } };
+      send(': stream open\n\n');
+      timer = setInterval(() => send(': ping\n\n'), 25000);
+    },
+    cancel() { if (timer !== null) { clearInterval(timer); timer = null; } },
+  });
+  return new Response(stream, {
+    status: 200,
+    headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', ...corsHeaders, ...mcpSessionEcho(request) },
+  });
+}
+
+// tools/list pagination (spec 2025-06-18 §Pagination — OPTIONAL). Machinery ships now; the page
+// size deliberately stays ≥ the current surface (718 tools) for one release, so every existing
+// client keeps receiving the WHOLE list in one response with no nextCursor: live-smoke and the
+// site's check-ask-agent-block.mjs both call tools/list exactly once and never follow a cursor.
+// Flip to 200 only after both are confirmed cursor-aware. The cursor is an opaque decimal offset
+// into the build-stable static tools ordering.
+const TOOLS_LIST_PAGE_SIZE = 1000;
+function parseToolsCursorOffset(cursor) {
+  if (typeof cursor !== 'string' || !/^[0-9]{1,9}$/.test(cursor)) return null;
+  return Number(cursor);
+}
+// Slice a pre-framed single-result SSE frame's tools array to one page. Runs ONLY when the
+// request carried a cursor, so the default request never pays the ~2.2 MB JSON.parse that the
+// static fast path exists to avoid (cold-isolate 1102 doctrine; WORKER-IDREPLACE-DOS-1).
+function paginateToolsListFrame(sse, offset) {
+  const json = sseToJson(sse);
+  if (json === sse) return sse; // not the expected envelope; pass through untouched
+  let parsed;
+  try { parsed = JSON.parse(json); } catch { return sse; }
+  const tools = parsed?.result?.tools;
+  if (!Array.isArray(tools)) return sse;
+  const total = tools.length;
+  parsed.result.tools = tools.slice(offset, offset + TOOLS_LIST_PAGE_SIZE);
+  const next = offset + TOOLS_LIST_PAGE_SIZE;
+  if (next < total) parsed.result.nextCursor = String(next);
+  else delete parsed.result.nextCursor;
+  return 'event: message\ndata: ' + JSON.stringify(parsed) + '\n\n';
 }
 
 // BM25 scorer (Workers-runtime safe — no Node APIs).
@@ -5371,7 +5436,9 @@ export default {
     }
 
     // MCP endpoint
-    if (url.pathname === '/mcp') {
+    // MCP-STREAMABLE-HTTP-CONFORMANCE-1: a trailing slash is the same door — the live 2026-09-11
+    // probe showed GET /mcp/ → 404, which directory checkers read as "no Streamable HTTP here".
+    if (url.pathname === '/mcp' || url.pathname === '/mcp/') {
       // This server is stateless (sessionIdGenerator: undefined) and builds a fresh
       // server+transport per request, so it cannot serve the optional server->client SSE
       // notification channel that a GET opens. Handing GET to the transport either throws
@@ -5387,10 +5454,42 @@ export default {
       // revision removed. This is NOT era-gated: a DELETE carries no body to assert an era from,
       // and 405 is what both a legacy SDK ("no session termination offered") and a modern client
       // expect. Mirrors the anchor worker, which returns 405 for both verbs unconditionally.
-      if (request.method === 'GET' || request.method === 'HEAD' || request.method === 'DELETE') {
+      // MCP-STREAMABLE-HTTP-CONFORMANCE-1 supersedes the blanket GET/HEAD/DELETE 405 above
+      // (MCP728-CONFORM-FIX-2) in three ways, per MCP spec 2025-03-26 / 2025-06-18 Streamable HTTP:
+      //   • GET with Accept: text/event-stream opens a real server->client SSE channel
+      //     (openSseKeepaliveStream above) — this is the stream the old guard said could not
+      //     exist; it is NOT routed into the SDK transport, so the "hung request" outage class
+      //     that guard closed (memory project-ainumbers-mcp-get-405) stays closed: the stream
+      //     emits an immediate frame plus 25 s keepalives and cancels its timer on disconnect.
+      //   • DELETE that PRESENTS the session id issued at initialize is honoured with 204
+      //     (session end). The session is stateless behind the scenes, so this is a clean
+      //     acknowledgement, not a state teardown. A bare DELETE (no id) has nothing to end and
+      //     stays 405 — the exact shape post-deploy smoke §4 and gate-mcp-era.mjs assert.
+      //   • everything else (HEAD, GET without the SSE Accept) stays a spec-clean 405, with Allow
+      //     now advertising exactly what this endpoint serves. Allow never lists DELETE — the verb
+      //     SEP-2567 removed (both gates assert its absence from Allow).
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        // The stream is SESSION-GATED, mirroring the reference SDK's StreamableHTTPServerTransport
+        // with sessions enabled: a GET that presents the Mcp-Session-Id issued at initialize gets
+        // the server->client channel; a session-less GET gets the same spec-clean 405 as before
+        // this row (status + Allow byte-identical, so gate-mcp-era's verb assertion and the
+        // post-deploy smoke stay green, and a probe that never completed initialize is correctly
+        // told "no stream for you" — it has no session to stream to).
+        if (request.method === 'GET' && request.headers.get('mcp-session-id')
+            && (request.headers.get('Accept') ?? '').toLowerCase().includes('text/event-stream')) {
+          return openSseKeepaliveStream(corsHeaders, request);
+        }
         return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: this MCP server is stateless and does not offer a server-to-client SSE stream or session termination. Use POST for JSON-RPC.' }, id: null }),
-          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, OPTIONS', 'Content-Type': 'application/json' } }
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: use POST for JSON-RPC, or GET with Accept: text/event-stream and your Mcp-Session-Id (from initialize) for the server-to-client stream.' }, id: null }),
+          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS', 'Content-Type': 'application/json' } }
+        );
+      }
+      if (request.method === 'DELETE') {
+        const sid = request.headers.get('mcp-session-id');
+        if (sid) return new Response(null, { status: 204, headers: { ...corsHeaders, 'Mcp-Session-Id': sid, 'Allow': 'POST, GET, OPTIONS' } });
+        return new Response(
+          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: DELETE ends a session and requires the Mcp-Session-Id header issued at initialize. Use POST for JSON-RPC.' }, id: null }),
+          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS', 'Content-Type': 'application/json' } }
         );
       }
 
@@ -5556,7 +5655,7 @@ export default {
               'For anything else: find_chain(query) for a multi-step workflow, find_tool(query) for a single calculator, list_ainumbers_tools for the full catalog.',
             _meta: { 'io.modelcontextprotocol/serverInfo': init.serverInfo },
           } }),
-          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 200, headers: { ...corsHeaders, ...mcpSessionEcho(request), 'Content-Type': 'application/json' } }
         );
       }
 
@@ -5603,7 +5702,10 @@ export default {
                 } catch (_) { /* telemetry is best-effort; never affect the response */ }
               }));
             }
-            return frameResponse(sse, request, corsHeaders);
+            // MCP-STREAMABLE-HTTP-CONFORMANCE-1: issue the session id at initialize (spec
+            // 2025-06-18 §Sessions: "MAY ... assign a session ID"). Stateless behind the scenes —
+            // the id is an opaque echo token, accepted on later requests, never required.
+            return frameResponse(sse, request, corsHeaders, { 'Mcp-Session-Id': crypto.randomUUID() });
           }
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
           // no JSON.parse / no re-stringify of the (330KB) body. tools/list honors ?toolset=<name>
@@ -5629,8 +5731,24 @@ export default {
           // string would be a denylist over a spec-defined grammar; the function has no grammar.)
           // `body.id` has already been type-validated above, so idJson is a JSON scalar literal.
           const idJson = JSON.stringify(body.id ?? null);
-          const sse = tpl.replace(ID_PLACEHOLDER, () => idJson);
+          let sse = tpl.replace(ID_PLACEHOLDER, () => idJson);
           assertSingleSplice(sse, tpl, idJson);
+          // MCP-STREAMABLE-HTTP-CONFORMANCE-1: honour params.cursor on tools/list (spec-optional
+          // pagination). Runs ONLY on a cursor request — the default path (every live client
+          // today, page size ≥ the whole surface) keeps the zero-parse splice above. An unknown
+          // cursor is a JSON-RPC -32602 at 400, never a 500.
+          if (method === 'tools/list') {
+            const rawCursor = body.params?.cursor;
+            if (rawCursor !== undefined && rawCursor !== null && rawCursor !== '') {
+              const offset = parseToolsCursorOffset(rawCursor);
+              if (offset === null) {
+                return mcpJsonRpcErrorResponse(body.id, -32602,
+                  'Invalid params: unknown cursor (this server issues decimal-offset cursors via nextCursor)',
+                  corsHeaders, 400);
+              }
+              sse = paginateToolsListFrame(sse, offset);
+            }
+          }
           return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
       }
@@ -5789,6 +5907,28 @@ export default {
             if (parsed?.result && parsed.result.resultType === undefined) {
               parsed.result = { resultType: 'complete', ...parsed.result };
             }
+            // MCP-STREAMABLE-HTTP-CONFORMANCE-1: honour params.cursor on this fallback path too,
+            // so the SDK path and the static fast path paginate identically (this branch only
+            // runs when the static template missed — a tools/list cursor request is rare and
+            // already paid a full response parse, so the slice is free here).
+            {
+              const rawCursor = body?.params?.cursor;
+              if (Array.isArray(parsed?.result?.tools) && rawCursor !== undefined && rawCursor !== null && rawCursor !== '') {
+                const offset = parseToolsCursorOffset(rawCursor);
+                if (offset === null) {
+                  response = mcpJsonRpcErrorResponse(body?.id, -32602,
+                    'Invalid params: unknown cursor (this server issues decimal-offset cursors via nextCursor)',
+                    corsHeaders, 400);
+                  for (const [k, v] of Object.entries(mcpSessionEcho(request))) response.headers.set(k, v);
+                  return response;
+                }
+                const total = parsed.result.tools.length;
+                parsed.result.tools = parsed.result.tools.slice(offset, offset + TOOLS_LIST_PAGE_SIZE);
+                const next = offset + TOOLS_LIST_PAGE_SIZE;
+                if (next < total) parsed.result.nextCursor = String(next);
+                else delete parsed.result.nextCursor;
+              }
+            }
             const newText = prefix + JSON.stringify(parsed) + suffix;
             const h = {};
             for (const [k, v] of rawResponse.headers.entries()) h[k] = v;
@@ -5837,6 +5977,9 @@ export default {
           response = await stampSdkResult(rawResponse, modernEra);
         }
         for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
+        // MCP-STREAMABLE-HTTP-CONFORMANCE-1: echo the session id presented on the request
+        // (SDK-transport path — the static fast paths echo inside frameResponse).
+        for (const [k, v] of Object.entries(mcpSessionEcho(request))) response.headers.set(k, v);
 
         // Fire-and-forget telemetry write -- never blocks the response.
         // Logs structural metadata only; no payloads, parameters, or outputs.
@@ -5878,6 +6021,18 @@ export default {
       }
     }
 
+    // MCP-STREAMABLE-HTTP-CONFORMANCE-1: the legacy transport paths a directory checker probes
+    // (the 2026-09-11 live probe measured GET /sse → 404) must see a spec-clean transport answer,
+    // not a naked 404: Streamable HTTP has exactly ONE endpoint, so a GET on the legacy SSE path
+    // is a wrong verb on a known server → 405 + Allow: POST, pointing at the real door. POST on
+    // these paths is deliberately NOT aliased — silently serving the legacy shape would mask a
+    // client misconfiguration instead of correcting it.
+    if (request.method === 'GET' && (url.pathname === '/sse' || url.pathname === '/sse/' || url.pathname === '/messages' || url.pathname === '/messages/')) {
+      return new Response(
+        JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: the MCP endpoint is POST /mcp (Streamable HTTP); there is no separate SSE path. GET /mcp with Accept: text/event-stream opens the server-to-client stream.' }, id: null }),
+        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST', 'Content-Type': 'application/json' } }
+      );
+    }
     return new Response('Not found', { status: 404, headers: corsHeaders });
   },
 

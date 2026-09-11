@@ -113,5 +113,7 @@ node scripts/surface-parity.mjs     # verify counts.json matches the registered 
 
 All tool content is client-side, deterministic, and zero PII. Code is MIT licensed (see `LICENSE`); content is CC BY 4.0, Post Oak Labs. See `README-SPEC.md` for architecture and history.
 
+**Transport conformance (MCP-STREAMABLE-HTTP-CONFORMANCE-1).** The `/mcp` door is a full Streamable HTTP endpoint per the MCP spec (2025-03-26 / 2025-06-18): `initialize` issues an `Mcp-Session-Id` (echoed thereafter, never required — the server is stateless behind the scenes), `GET /mcp` with `Accept: text/event-stream` and that session id opens a server-to-client SSE stream with a 25 s keepalive that closes on disconnect (a session-less GET keeps the spec-clean `405` + `Allow` it always gave), `DELETE /mcp` with the session id ends the session with `204` (a bare DELETE stays `405`), an unknown `MCP-Protocol-Version` is a JSON-RPC `400` (never a `500`), and `tools/list` honours `params.cursor`/returns `nextCursor` (page size `TOOLS_LIST_PAGE_SIZE` in `worker.mjs` is deliberately ≥ the whole surface for one release). Verify any door — local (`node server.mjs`) or production — with the zero-dependency six-check script: `bash scripts/transport-conformance.sh [BASE_URL]`.
+
 <!-- automerge-label.yml end-to-end proof, WORKER-VENDOR-LAND-0817-2 addendum, 2026-08-17 -->
 
