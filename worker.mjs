@@ -4709,7 +4709,15 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   ]);
 
   for (const node of (chaingraph?.nodes ?? [])) {
-    if (node.status !== 'live') continue;
+    // ART653-LIVE-SERVE-FIX-1 (2026-09-11): the registry filter excluded every non-`live`
+    // chaingraph status, so a REGISTERED + VENDORED pageless tools-root node could never be
+    // served. Measured: art-653 (`compute_pta_verifier`, status "planned" since it was built,
+    // #1402 2026-08-20) is vendored (kernels/ + data/kernels/ + data/mcp/catalog.json) yet the
+    // dispatcher answered -32602 "Tool not found" (LIVE-DRIFT 2026-09-11T22:15:34Z). The serve
+    // rule is now registration+vendor, not lifecycle prose: every node with an mcp_name is
+    // served EXCEPT chaingraph-`deprecated` nodes, whose exclusion is deliberate and unchanged
+    // (art-99 route_mica_transitional_deadline stays unserved — no other tool's serving changes).
+    if (node.status === 'deprecated') continue;
     const toolName = node.mcp_name;
     if (!toolName || _registeredMcpNames.has(toolName)) continue;
     _registeredMcpNames.add(toolName);
@@ -5793,12 +5801,15 @@ export default {
           // subrequests and NO 330KB tools-list parse (both of which, when this used
           // getStaticDiscovery, pushed a cold-isolate tools/call over the Free subrequest + CPU
           // limits → "too many subrequests" / 1102). It is exactly the set buildServer registers:
-          // PILOT widget names + the 9 fixed utility tools + live ChainGraph node mcp_names. Cached
-          // per isolate on the data object.
+          // PILOT widget names + the 9 fixed utility tools + ChainGraph node mcp_names. Cached
+          // per isolate on the data object. ART653-LIVE-SERVE-FIX-1: the node leg mirrors
+          // buildServer's registration filter (serve every mcp_name except chaingraph-
+          // `deprecated`) — the old `status === 'live'` leg made the dispatcher false-reject
+          // registered+vendored non-live nodes like compute_pta_verifier with -32602.
           const known = (data.__toolNames ||= new Set([
             ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
             ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
-            ...(data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name),
+            ...(data.chaingraph?.nodes ?? []).filter((n) => n.mcp_name && n.status !== 'deprecated').map((n) => n.mcp_name),
           ]));
           const isKnown = known.has(toolName);
           const isRemoved = isKnown && lifecycleStatusOf(data, toolName) === 'Removed';

@@ -61,13 +61,18 @@ if (!hasFindTool)  { errors.push("P3: find_tool tool not found in worker.mjs reg
 
 // ── P4: counts.json mcp_tools_total sanity ──────────────────────────────────
 const EXPECTED_UTIL = UTILITY_TOOL_COUNT; // single source of truth — see utility-tools.mjs
-const liveNodes  = counts.chaingraph_nodes_live ?? 0;
 const pilot      = counts.pilot_widgets ?? 0;
-const expected   = liveNodes + pilot + EXPECTED_UTIL;
+// ART653-LIVE-SERVE-FIX-1: the served node leg mirrors buildServer's registration filter in
+// worker.mjs — every chaingraph node with an mcp_name EXCEPT status "deprecated" (registered+
+// vendored non-live nodes like compute_pta_verifier ARE served). Counted from the VENDORED
+// graph independently of counts.json so this stays a real cross-check, not a tautology.
+const servedNodes = (JSON.parse(readFileSync(resolve(here, '..', 'data', 'chaingraph', 'chaingraph.json'), 'utf8')).nodes ?? [])
+  .filter((n) => n.mcp_name && n.status !== 'deprecated').length;
+const expected   = servedNodes + pilot + EXPECTED_UTIL;
 const actual     = counts.mcp_tools_total ?? 0;
-console.log(`[P4] counts.json mcp_tools_total: ${actual} (expected ${liveNodes} nodes + ${pilot} pilot + ${EXPECTED_UTIL} util = ${expected})`);
+console.log(`[P4] counts.json mcp_tools_total: ${actual} (expected ${servedNodes} served nodes + ${pilot} pilot + ${EXPECTED_UTIL} util = ${expected})`);
 if (actual !== expected) {
-  errors.push(`P4: mcp_tools_total mismatch. counts.json says ${actual}, expected ${expected} (${liveNodes}+${pilot}+${EXPECTED_UTIL}). Re-run node generate.mjs and commit data/counts.json.`);
+  errors.push(`P4: mcp_tools_total mismatch. counts.json says ${actual}, expected ${expected} (${servedNodes}+${pilot}+${EXPECTED_UTIL}). Re-run node generate.mjs and commit data/counts.json.`);
   ok = false;
 }
 

@@ -66,7 +66,10 @@ async function toolDef(data, name, onlyTool) {
 }
 
 const data = loadDataFromDisk();
-const liveNodes = (data.chaingraph?.nodes ?? []).filter((n) => n.status === 'live' && n.mcp_name).map((n) => n.mcp_name);
+// ART653-LIVE-SERVE-FIX-1: mirrors buildServer's registration filter (every mcp_name except
+// chaingraph-`deprecated`). Must stay in lockstep with worker.mjs's dispatch known-set or this
+// gate would false-alarm on newly served registered+vendored nodes (compute_pta_verifier).
+const liveNodes = (data.chaingraph?.nodes ?? []).filter((n) => n.mcp_name && n.status !== 'deprecated').map((n) => n.mcp_name);
 const pilotNames = PILOT.map((slug) => data.manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_'));
 const dupNames = pilotNames.filter((n) => liveNodes.includes(n)); // pilot↔node duplicate mcp_names (dedup path)
 
