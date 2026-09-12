@@ -201,8 +201,13 @@ const liveNodes = cgNodes.filter(n => n.status === 'live').length;
 const gpuFalseNodes = cgNodes.filter(n => n.status === 'live' && n.gpu === false).length;
 // Count MCP tool registrations: ChainGraph nodes + pilot tools + utility tools.
 // Utility count is derived from the single source of truth (utility-tools.mjs) — never hardcode it.
+// ART653-LIVE-SERVE-FIX-1: the served node leg mirrors buildServer's registration filter in
+// worker.mjs (every mcp_name EXCEPT chaingraph-`deprecated`) — NOT `live`-only, which
+// under-counted served registered+vendored non-live nodes (compute_pta_verifier, status
+// "planned"): build-mcp-parity's count-drift gate caught 718 vs 719 registered.
 const UTIL_TOOL_COUNT = UTILITY_TOOL_COUNT;
-const mcpToolsTotal = liveNodes + PILOT.length + UTIL_TOOL_COUNT;
+const servedNodeTools = cgNodes.filter(n => n.mcp_name && n.status !== 'deprecated').length;
+const mcpToolsTotal = servedNodeTools + PILOT.length + UTIL_TOOL_COUNT;
 const counts = {
   chaingraph_nodes_live: liveNodes,
   chaingraph_nodes_gpu_false: gpuFalseNodes,
