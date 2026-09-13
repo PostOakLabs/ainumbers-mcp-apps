@@ -6532,18 +6532,6 @@
       "artifacts": []
     }
   },
-  "mica-transitional": {
-    "art-99-mica-transitional-deadline-router": {
-      "inputs": {
-        "existing_registration": "no",
-        "as_of": "2026-09-12"
-      }
-    },
-    "art-100-mica-casp-authorization-readiness": {},
-    "cry-05-agent-action-audit-trail-aggregator": {
-      "artifacts": []
-    }
-  },
   "mica-travel-rule": {
     "art-104-tfr-travel-rule-batch-validator": {},
     "cry-04-merkle-batch-verifier": {
