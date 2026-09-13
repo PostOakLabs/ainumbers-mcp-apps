@@ -98,11 +98,8 @@ const TOPOLOGIES = {
   },
 };
 
-// ── Quantile helper (linear interpolation between adjacent ranks; empty input
-//    returns 0 — the kernel's guarded-empty convention (mean_detection_hop) —
-//    never NaN, which must not reach output_payload) ───────────────────────────
+// ── Quantile helper ───────────────────────────────────────────────────────────
 function quantile(sorted, q) {
-  if (!sorted.length) return 0;
   const pos = (sorted.length - 1) * q;
   const lo  = Math.floor(pos), hi = Math.ceil(pos);
   return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
