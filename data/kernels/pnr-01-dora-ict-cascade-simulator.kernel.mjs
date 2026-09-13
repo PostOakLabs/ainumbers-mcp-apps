@@ -1714,12 +1714,9 @@ function runCascadePath(nodes, nodeMap, seedIds, cascadeThreshold, mttrScale, rn
   };
 }
 
-// ── Percentile helper (nearest-rank: index ceil(p*n)-1, clamped to [0, n-1];
-//    p=1.0 returns the maximum — never a silent-zero fallback; empty array -> null,
-//    the same null-not-fabricated convention as the percentile call sites below) ─
+// ── Percentile helper ─────────────────────────────────────────────────────────
 function pctAt(arr, p) {
-  if (!arr.length) return null;
-  return arr[Math.min(arr.length - 1, Math.max(0, Math.ceil(arr.length * p) - 1))];
+  return arr[Math.max(0, Math.min(arr.length - 1, Math.floor(arr.length * p)))];
 }
 
 // ── compute ───────────────────────────────────────────────────────────────────
@@ -1807,9 +1804,7 @@ export function compute(pp) {
   }
 
   const medianNodeCounts = pathResults.map(p => p.failedCount).sort((a, b) => a - b);
-  // Median via the same nearest-rank helper at p=0.50 — never the upper median on
-  // even n, and null (not a fabricated 0) on an empty path set.
-  const median_nodes_affected = pctAt(medianNodeCounts, 0.50);
+  const median_nodes_affected = medianNodeCounts[Math.floor(medianNodeCounts.length / 2)] ?? 0;
 
   // Critical path: highest-probability non-seed critical nodes
   const critPathNodes = nodes
