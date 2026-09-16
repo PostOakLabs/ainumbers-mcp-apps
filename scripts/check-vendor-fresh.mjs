@@ -148,6 +148,23 @@ try {
   if (shardMissing) console.log(`INFO: ${shardMissing} shard${shardMissing === 1 ? '' : 's'} awaiting next assemble-land`);
 } catch (e) { console.error('✗ kernel compare error:', e.message); fails++; }
 
+// 3) MCP catalog (data/mcp/catalog.json) — semantic (parsed-JSON) equality vs the site's
+// mcp/catalog.json (generate.mjs byte-copies it into data/mcp/ every run). Compared PARSED, not
+// byte/text: regen_catalog.py's write_stable/prior_date preserves the "generated" date stamp when
+// the substantive content is unchanged, so a no-op site-side regen emits identical structure — a
+// stamp-only difference must never false-red this gate (same rationale as section 1's parsed compare).
+try {
+  const vendCat = JSON.parse(readFileSync(join('data', 'mcp', 'catalog.json'), 'utf8'));
+  const srcCat = JSON.parse(siteRead('mcp/catalog.json'));
+  if (JSON.stringify(vendCat) !== JSON.stringify(srcCat)) {
+    fails += reportDrift(
+      'data/mcp/catalog.json',
+      'Worker may be BEHIND site main, or the site PR modified catalog content.',
+      null,
+    );
+  } else console.log('✓ data/mcp/catalog.json is current');
+} catch (e) { console.error('✗ catalog.json compare error:', e.message); fails++; }
+
 console.log(fails
   ? '\n✗ VENDOR STALE — run `node generate.mjs` (in mcp-apps-poc) and commit data/ + kernels/ in the SAME push.'
   : '\n✓ vendored data/ + kernels/ are current vs PostOakLabs/ainumbers.');
