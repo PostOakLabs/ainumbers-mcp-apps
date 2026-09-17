@@ -91,11 +91,22 @@ async function callToolResilient(n, args){
 
 async function listToolNames(){
   try {
-    const res = await fetch(MCP_URL, { method:'POST', headers:{ 'content-type':'application/json', accept:'application/json, text/event-stream', 'mcp-protocol-version':PROTO }, body: JSON.stringify({ jsonrpc:'2.0', id:id++, method:'tools/list', params:{} }) });
-    const text = await res.text();
-    const j = parseMaybeSSE(text, res.headers.get('content-type') || '');
-    const tools = (j && j.result && j.result.tools) || [];
-    return tools.map((t)=>t.name);
+    // tools/list is paginated (MCP-TOOLSLIST-PAGINATION-1): walk nextCursor to exhaustion so the
+    // propagation check compares against the FULL registered set, not just page one.
+    const names = [];
+    let cursor;
+    for (let page = 1, id = id++; page <= 100; page++, id++) {
+      const res = await fetch(MCP_URL, { method:'POST', headers:{ 'content-type':'application/json', accept:'application/json, text/event-stream', 'mcp-protocol-version':PROTO }, body: JSON.stringify({ jsonrpc:'2.0', id:id, method:'tools/list', params: cursor ? { cursor } : {} }) });
+      const text = await res.text();
+      const j = parseMaybeSSE(text, res.headers.get('content-type') || '');
+      const tools = (j && j.result && j.result.tools) || [];
+      if (!tools.length) { console.warn('tools/list page ' + page + ' returned no tools during propagation check'); return []; }
+      names.push(...tools.map((t)=>t.name));
+      cursor = j.result && j.result.nextCursor;
+      if (!cursor) return names;
+    }
+    console.warn('tools/list cursor walk did not terminate within 100 pages during propagation check');
+    return [];
   } catch (e) { console.warn('tools/list failed during propagation check - ' + e.message); return []; }
 }
 
