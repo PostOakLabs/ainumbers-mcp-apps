@@ -14,8 +14,18 @@
 //   WAVE=15 node verify-mcp-registered.mjs               # one wave
 //   node verify-mcp-registered.mjs run_ai_act_highrisk_fit …   # explicit names
 //   MCP_URL=https://mcp.ainumbers.co/mcp node verify-mcp-registered.mjs --all
+//   node verify-mcp-registered.mjs --count-only          # count-drift gate: live walk == data/counts.json
 //
 // Run AFTER the worker deploy + Actions green. Exit 0 only if every expected name is present.
+//
+// --count-only (MCP-SMOKE-PAGINATION-BUDGET-1) is the count-drift gate: it walks the SAME
+// cursor loop as the registration check and asserts the exhausted count equals committed
+// data/counts.json mcp_tools_total. It lives here, not as its own inline workflow script,
+// because the previous inline version counted page ONE only (73 of 719) and went red on
+// every deploy the moment the post-deploy smoke stopped failing first.
+
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const MCP_URL = process.env.MCP_URL || 'https://mcp.ainumbers.co/mcp';
 const PROTO = process.env.MCP_PROTOCOL_VERSION || '2025-06-18';
@@ -24,6 +34,10 @@ const PROTO = process.env.MCP_PROTOCOL_VERSION || '2025-06-18';
 // (window is 10s, so a few 6s backoffs clear it). Mirrors hash-sweep's RL_RETRIES.
 const RL_RETRIES = Number(process.env.RL_RETRIES || 5);
 const RL_BACKOFF_MS = Number(process.env.RL_BACKOFF_MS || 6000);
+// The worker's own per-IP MCP_RATE_LIMITER is simple { limit: 30, period: 60 }, so a 16-page
+// walk at full speed drains the window and then rides the backoff. Space the pages instead:
+// 60000/27 ≈ 2223ms is the ceiling smoke-mcp.mjs paces to (limit minus 3 for headroom).
+const RL_SPACING_MS = Number(process.env.RL_SPACING_MS || 0);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const WAVES = {
@@ -35,6 +49,8 @@ const WAVES = {
 await main();
 
 async function main() {
+  if (process.argv.includes('--count-only')) { await countDriftGate(); return; }
+
   let expected = process.argv.slice(2).filter((a) => !a.startsWith('--'));
   if (process.argv.includes('--all')) expected = Object.values(WAVES).flat();
   else if (process.env.WAVE) expected = WAVES[process.env.WAVE] || [];
@@ -62,6 +78,24 @@ async function main() {
   }
 }
 
+// Count-drift gate: committed data/counts.json mcp_tools_total (generate.mjs: PILOT.length +
+// chaingraph live nodes + utility) must equal what the LIVE server serves across ALL pages.
+async function countDriftGate() {
+  const countsPath = process.env.COUNTS_JSON || resolve('data/counts.json');
+  const expected = JSON.parse(readFileSync(countsPath, 'utf8')).mcp_tools_total;
+  const live = await listTools();
+  if (!live) { console.error('count-drift gate: tools/list walk did not complete.'); process.exitCode = 2; return; }
+  const unique = new Set(live).size;
+  if (live.length !== expected) {
+    console.error(`DRIFT: live /mcp tools/list count=${live.length} (unique ${unique}) != committed mcp_tools_total=${expected}`);
+    console.error('Fix: run node generate.mjs locally, commit data/counts.json, push.');
+    console.error('If live is a clean multiple of a page size, the caller stopped at page one — walk nextCursor.');
+    process.exitCode = 1; return;
+  }
+  console.log(`OK: live /mcp tool count=${live.length} (unique ${unique}) matches committed mcp_tools_total=${expected}`);
+  process.exitCode = 0;
+}
+
 // tools/list is paginated (MCP-TOOLSLIST-PAGINATION-1): walk nextCursor to exhaustion so the
 // registration check sees the FULL set, not just page one. Each page reuses the rate-limit
 // backoff — a 12-page walk can land in the same WAF window the post-deploy hash-sweep burst left.
@@ -69,6 +103,7 @@ async function listTools() {
   const names = [];
   let cursor;
   for (let page = 1, id = 1; page <= 100; page++, id++) {
+    if (page > 1 && RL_SPACING_MS > 0) await sleep(RL_SPACING_MS);
     for (let attempt = 0; attempt <= RL_RETRIES; attempt++) {
       try {
         const res = await fetch(MCP_URL, {
