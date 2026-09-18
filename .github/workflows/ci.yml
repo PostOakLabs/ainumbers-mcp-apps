@@ -164,6 +164,22 @@ jobs:
         # counts-only-down) so it lands strict-forward without blocking on legacy debt.
         run: node scripts/check-tool-description-quality.mjs
 
+      - name: Tool-strings injection self-test (MCP-TOOL-STRINGS-INJECTION-SCAN-1)
+        # Paired RED/GREEN (SO #34c): a synthetic injected tool description MUST
+        # exit 1 and a clean one MUST exit 0, in the same run — a gate that has
+        # only ever been green has not been observed.
+        run: node scripts/check-tool-strings.mjs --self-test
+
+      - name: Tool-strings injection scan (MCP-TOOL-STRINGS-INJECTION-SCAN-1)
+        # Scans the SERVED bytes (data/mcp/static/tools-list.sse.txt) plus
+        # data/mcp/output-schemas.json — 719 tools, every model-facing string —
+        # for injection-shaped content (role tags, reader-directed instructions,
+        # hidden Unicode by general category, base64 blobs, cross-tool call/skip
+        # instructions) BEFORE any of it is submitted to an external grader.
+        # E-tier = blocking, never baselined; W-tier words = advisory counts
+        # (data/tool-strings-baseline.json). Zero-dep, offline.
+        run: node scripts/check-tool-strings.mjs --check
+
       - name: 🗑 Deprecation lifecycle (§M2.2) — Removed tools 404 cleanly, never 500
         run: node scripts/gate-deprecation-lifecycle.mjs
 

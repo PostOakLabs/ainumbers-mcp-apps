@@ -1,0 +1,22 @@
+{
+  "gate": "scripts/check-tool-strings.mjs",
+  "updated": "2026-09-18T00:49:01Z",
+  "note": "A-tier adjudications only (hand-written; may only shrink). W-tier/LENGTH are advisory counts and need no entries (ADDITIONS A). E-tier is NEVER baselined.",
+  "corpus": {
+    "tools": 719,
+    "outputSchemaEntries": 597,
+    "bytes": 1486442
+  },
+  "advisoryCounts": {
+    "W": {
+      "W_SUSPICIOUS_WORD:credential": 23,
+      "W_SUSPICIOUS_WORD:token": 20,
+      "INTRACHAIN_REFERENCE": 42,
+      "W_SUSPICIOUS_WORD:override": 1
+    },
+    "L": {
+      "L_DESCRIPTION_OVER_1200": 23
+    }
+  },
+  "adjudicated": []
+}

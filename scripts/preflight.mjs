@@ -45,6 +45,8 @@ const gates = [
   { name: 'WASM deterministic profile (§CW-1.b)', args: ['scripts/check-wasm-deterministic.mjs'] },
   { name: 'surface-parity (counts/discovery)',    args: ['scripts/surface-parity.mjs'] },
   { name: 'worker hot-path invariants',           args: ['scripts/check-worker-invariants.mjs'] },
+  { name: 'tool-strings injection self-test (RED/GREEN, MCP-TOOL-STRINGS-INJECTION-SCAN-1)', args: ['scripts/check-tool-strings.mjs', '--self-test'] },
+  { name: 'tool-strings injection scan (MCP-TOOL-STRINGS-INJECTION-SCAN-1)', args: ['scripts/check-tool-strings.mjs', '--check'] },
   { name: 'malformed-body fast-fail (audit F1)',  args: ['scripts/test-malformed-body-fastfail.mjs'] },
   { name: '/mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1)', args: ['scripts/test-mcp-accept-negotiation.mjs'] },
   { name: '2026-07-28 era-gated request rules',   args: ['scripts/gate-mcp-era.mjs'] },
