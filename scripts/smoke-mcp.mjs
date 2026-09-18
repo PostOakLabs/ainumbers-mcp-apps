@@ -12,21 +12,137 @@
 // matching our id, then abort — never block on res.text() waiting for a stream that may stay open.
 // Every request has a hard timeout so the smoke can't hang.
 //
+// RATE BUDGET (MCP-SMOKE-PAGINATION-BUDGET-1, 2026-09-18). Since MCP-TOOLSLIST-PAGINATION-2 a full
+// pass is ~52 requests (16-page cursor walk in paginationConformance + a second 16-page walk in
+// exportRoundTrip + ~20 fixed conformance calls), while /mcp is protected by MCP_RATE_LIMITER —
+// `simple { limit: 30, period: 60 }` per CF-Connecting-IP (wrangler.jsonc) checked in
+// rateLimitExceeded() before any body parse. An unpaced pass therefore ALWAYS trips 429 mid-walk,
+// and the old "retry the whole pass after 4s" loop re-entered a still-drained window six times:
+// every master deploy since #358 was red on HTTP 429 while the deploy itself succeeded.
+// The fix is a single token bucket shared by EVERY request this script makes (not just the walk):
+// never more than (limit − headroom) requests per window, and never two requests closer than
+// window/(limit − headroom). On a 429 we sleep one full window + 1s and resume the SAME request —
+// the pass is never restarted for a limiter response. A hard wall-clock cap bounds the job.
+//
 // Usage:  node scripts/smoke-mcp.mjs [url]
+//         node scripts/smoke-mcp.mjs --self-test   (offline: exercises the pacer, no network)
 //   url default: https://mcp.ainumbers.co/mcp (or env MCP_SMOKE_URL)
-//   env: MCP_SMOKE_RETRIES (6), MCP_SMOKE_DELAY_MS (4000), MCP_SMOKE_TIMEOUT_MS (15000), MCP_SMOKE_SKIP_EXPORT.
+//   env: MCP_SMOKE_RETRIES (2), MCP_SMOKE_DELAY_MS (4000), MCP_SMOKE_TIMEOUT_MS (15000),
+//        MCP_SMOKE_SKIP_EXPORT, MCP_SMOKE_PACE (0 disables pacing — reproduces the 429),
+//        MCP_SMOKE_RL_LIMIT (30), MCP_SMOKE_RL_WINDOW_MS (60000), MCP_SMOKE_RL_HEADROOM (3),
+//        MCP_SMOKE_429_RETRIES (3), MCP_SMOKE_MAX_WALL_MS (600000),
+//        MCP_SMOKE_PROPAGATION_MS (90000).
 // Exit 0 = healthy; exit 1 = broken (fails the deploy job → roll back in Cloudflare).
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const URL = process.argv[2] || process.env.MCP_SMOKE_URL || 'https://mcp.ainumbers.co/mcp';
-const RETRIES = Number(process.env.MCP_SMOKE_RETRIES ?? 6);
+const ARGV = process.argv.slice(2);
+const SELF_TEST = ARGV.includes('--self-test');
+const URL = ARGV.find((a) => !a.startsWith('--')) || process.env.MCP_SMOKE_URL || 'https://mcp.ainumbers.co/mcp';
+// Attempt restarts now cost a full paced pass, and a 429 no longer consumes one (it is absorbed
+// in-request), so the retry count drops from 6 to 2: retries exist for a genuinely transient
+// non-429 fault, and MAX_WALL is the real ceiling.
+const RETRIES = Number(process.env.MCP_SMOKE_RETRIES ?? 2);
 const DELAY = Number(process.env.MCP_SMOKE_DELAY_MS ?? 4000);
 const TIMEOUT = Number(process.env.MCP_SMOKE_TIMEOUT_MS ?? 15000);
 const PROTO = '2025-06-18';
 const ACCEPT = 'application/json, text/event-stream';
+
+// ── Rate pacing ────────────────────────────────────────────────────────────────────────────────
+// `let`, not `const`, only so --self-test can shrink the window and exercise the SHIPPED math.
+// LEGACY mode (`--no-pace` / MCP_SMOKE_PACE=0) reproduces the PRE-FIX behaviour on demand: no
+// bucket, no in-request 429 backoff, no phase resume. It exists so the red this row fixes can be
+// observed deliberately against the live endpoint (SO #34c) instead of only in a CI archive.
+const LEGACY = ARGV.includes('--no-pace') || process.env.MCP_SMOKE_PACE === '0';
+const PACE_ON = !LEGACY;
+let RL_LIMIT = Number(process.env.MCP_SMOKE_RL_LIMIT ?? 30);        // MCP_RATE_LIMITER simple.limit
+let RL_WINDOW_MS = Number(process.env.MCP_SMOKE_RL_WINDOW_MS ?? 60000); // simple.period × 1000
+let RL_HEADROOM = Number(process.env.MCP_SMOKE_RL_HEADROOM ?? 3);   // leave room for a co-running caller
+let RL_BUDGET = Math.max(1, RL_LIMIT - RL_HEADROOM);                // 27 req / 60s
+let RL_SPACING_MS = Math.ceil(RL_WINDOW_MS / RL_BUDGET);            // 2223 ms between any two requests
+let RL_BACKOFF_MS = RL_WINDOW_MS + 1000;                            // 61s: one full window + 1s
+const RL_429_RETRIES = Number(process.env.MCP_SMOKE_429_RETRIES ?? 3);
+let MAX_WALL_MS = Number(process.env.MCP_SMOKE_MAX_WALL_MS ?? 600000);  // 10 min hard cap
+const PROPAGATION_MS = Number(process.env.MCP_SMOKE_PROPAGATION_MS ?? 90000);
+function recomputePace() {
+  RL_BUDGET = Math.max(1, RL_LIMIT - RL_HEADROOM);
+  RL_SPACING_MS = Math.ceil(RL_WINDOW_MS / RL_BUDGET);
+  RL_BACKOFF_MS = RL_WINDOW_MS + 1000;
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let START_MS = Date.now();
+let requestCount = 0;
+let sent = [];               // send timestamps inside the current window
+function resetPace() { sent = []; }
+function wallLeftMs() { return MAX_WALL_MS - (Date.now() - START_MS); }
+function assertWall(label) {
+  if (wallLeftMs() <= 0) throw new Error(`wall-clock budget of ${MAX_WALL_MS}ms exhausted at "${label}" after ${requestCount} requests`);
+}
+
+// Block until sending one more request keeps us inside the budget. Enforces BOTH the sliding-window
+// count and a minimum spacing, so we can neither burst past the limiter nor drift into it.
+async function paceGate(label) {
+  assertWall(label);
+  if (!PACE_ON) return;
+  for (;;) {
+    const now = Date.now();
+    sent = sent.filter((t) => now - t < RL_WINDOW_MS);
+    let wait = 0;
+    if (sent.length >= RL_BUDGET) wait = Math.max(wait, RL_WINDOW_MS - (now - sent[0]) + 50);
+    const last = sent[sent.length - 1];
+    if (last !== undefined) wait = Math.max(wait, RL_SPACING_MS - (now - last));
+    if (wait <= 0) return;
+    if (wait >= wallLeftMs()) throw new Error(`wall-clock budget of ${MAX_WALL_MS}ms cannot absorb a ${wait}ms pace wait at "${label}"`);
+    await sleep(wait);
+  }
+}
+
+// Every network call in this file goes through here. `makeInit` is a THUNK because a retried
+// request needs a fresh AbortSignal (a reused expired signal aborts instantly).
+async function pacedFetch(url, makeInit, label) {
+  for (let attempt = 0; ; attempt++) {
+    await paceGate(label);
+    sent.push(Date.now());
+    requestCount++;
+    const res = await fetch(url, makeInit());
+    if (res.status !== 429) return res;
+    let body = ''; try { body = await res.text(); } catch { /* ignore */ }
+    if (LEGACY) {
+      const e = new Error(`HTTP 429 on ${label}: ${body.slice(0, 200)}`);
+      e.rateLimited = true;
+      throw e;
+    }
+    if (attempt >= RL_429_RETRIES) {
+      const e = new Error(`HTTP 429 on ${label} after ${attempt + 1} paced attempts: ${body.slice(0, 200)}`);
+      e.rateLimited = true;
+      throw e;
+    }
+    if (RL_BACKOFF_MS >= wallLeftMs()) {
+      const e = new Error(`HTTP 429 on ${label} and the ${RL_BACKOFF_MS}ms backoff exceeds the remaining wall budget`);
+      e.rateLimited = true;
+      throw e;
+    }
+    console.error(`  · 429 on ${label} — draining the limiter for ${RL_BACKOFF_MS}ms (window ${RL_WINDOW_MS}ms), then resuming THIS request (no pass restart)`);
+    resetPace();
+    await sleep(RL_BACKOFF_MS);
+  }
+}
+
+// Phase-level backstop: if a phase still surfaces a rate-limited error after the in-request
+// backoffs, drain once more and re-run THAT phase only. Non-429 errors propagate to the attempt loop.
+async function phase(name, fn) {
+  for (let i = 0; ; i++) {
+    try { return await fn(); } catch (e) {
+      if (LEGACY || !e || !e.rateLimited || i >= 1) throw e;
+      console.error(`  · phase "${name}" still rate-limited — draining ${RL_BACKOFF_MS}ms and resuming this phase`);
+      resetPace();
+      await sleep(RL_BACKOFF_MS);
+    }
+  }
+}
 
 // SEP-2243 routing headers. Every smoke request SENDS them, so a green smoke actually
 // proves the header path end to end (and that the Cloudflare WAF forwards them).
@@ -43,20 +159,28 @@ function sep2243Headers(method, params) {
 // POST a JSON-RPC request and STREAM the response, resolving on the first object whose id matches.
 // Returns { result, error }. Throws on timeout/HTTP error/no-match-before-end.
 async function call(method, params, id) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error('timeout')), TIMEOUT);
-  let res;
-  try {
-    res = await fetch(URL, {
+  // controller/timer are (re)built per attempt inside the thunk — a 429 retry must not inherit an
+  // already-fired timeout signal.
+  let controller, timer;
+  const makeInit = () => {
+    if (timer) clearTimeout(timer);
+    controller = new AbortController();
+    timer = setTimeout(() => controller.abort(new Error('timeout')), TIMEOUT);
+    return {
       method: 'POST', signal: controller.signal,
       headers: {
         'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO,
         ...sep2243Headers(method, params),
       },
       body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
-    });
+    };
+  };
+  let res;
+  try {
+    res = await pacedFetch(URL, makeInit, method);
   } catch (e) {
     clearTimeout(timer);
+    if (e && e.rateLimited) throw e;
     throw new Error(`fetch failed/timed out on ${method}: ${e.message}`);
   }
   if (res.status !== 200) {
@@ -98,8 +222,9 @@ async function call(method, params, id) {
 
 // MCP-TOOLSLIST-PAGINATION-1: tools/list is paginated — walk the cursor to exhaustion and return
 // every name. `call()` returns { result } whose `nextCursor` (when present) is echoed as
-// params.cursor. A small delay between pages keeps an 12-page walk clear of the per-IP
-// MCP_RATE_LIMITER window (30 req/min) that the rest of the smoke shares.
+// params.cursor. ⚠ No per-page sleep here any more: the shared token bucket in pacedFetch() paces
+// this walk against the per-IP MCP_RATE_LIMITER (30 req/60s) TOGETHER with every other phase — a
+// per-page sleep paced the walk only against itself, which is exactly why the walk tripped 429.
 async function listAllToolNames(idBase) {
   const names = [];
   let cursor;
@@ -111,7 +236,6 @@ async function listAllToolNames(idBase) {
     names.push(...pageNames);
     cursor = result?.nextCursor;
     if (!cursor) return { names, pages: page };
-    await new Promise((r) => setTimeout(r, 250));
   }
   throw new Error('tools/list cursor walk did not terminate within 100 pages');
 }
@@ -134,10 +258,10 @@ async function rcNoInitializePath() {
 // 9-name lean core with reserve-domain tools, generator-emitted (data/mcp/toolsets.json).
 async function toolsetProfile() {
   const profileUrl = URL + (URL.includes('?') ? '&' : '?') + 'toolset=reserve';
-  const res = await fetch(profileUrl, {
+  const res = await pacedFetch(profileUrl, () => ({
     method: 'POST', headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
     body: JSON.stringify({ jsonrpc: '2.0', id: 201, method: 'tools/list', params: {} }),
-  });
+  }), 'tools/list?toolset=reserve');
   if (res.status !== 200) throw new Error(`?toolset=reserve tools/list HTTP ${res.status}`);
   const text = await res.text();
   const line = text.split('\n').find((l) => l.startsWith('data:'));
@@ -180,7 +304,7 @@ async function versionNegotiationHonesty() {
 //       the outage guard: it fails loudly if validation ever starts rejecting on ABSENCE.
 async function sep2243HeaderValidation() {
   // (a) Mcp-Method says prompts/get, the body says tools/list.
-  const bad = await fetch(URL, {
+  const bad = await pacedFetch(URL, () => ({
     method: 'POST',
     headers: {
       'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO,
@@ -188,7 +312,7 @@ async function sep2243HeaderValidation() {
     },
     body: JSON.stringify({ jsonrpc: '2.0', id: 301, method: 'tools/list', params: {} }),
     signal: AbortSignal.timeout(TIMEOUT),
-  });
+  }), 'SEP-2243 mismatch');
   const badText = await bad.text();
   if (bad.status !== 400) {
     throw new Error(`SEP-2243 mismatch returned HTTP ${bad.status}, expected 400: ${badText.slice(0, 200)}`);
@@ -200,12 +324,12 @@ async function sep2243HeaderValidation() {
   }
 
   // (b) Legacy client: no SEP-2243 headers at all must still answer 200 and list tools.
-  const legacy = await fetch(URL, {
+  const legacy = await pacedFetch(URL, () => ({
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: ACCEPT },
     body: JSON.stringify({ jsonrpc: '2.0', id: 302, method: 'tools/list', params: {} }),
     signal: AbortSignal.timeout(TIMEOUT),
-  });
+  }), 'SEP-2243 legacy control');
   const legacyText = await legacy.text();
   if (legacy.status !== 200) {
     throw new Error(`legacy (no SEP-2243 headers) tools/list returned HTTP ${legacy.status} — dual-support broken: ${legacyText.slice(0, 200)}`);
@@ -250,12 +374,12 @@ async function protocolVersionRejection() {
   // deploy for doing the right thing. The rejection rule itself is unchanged; only the probe
   // version moved to one that is genuinely unsupported.
   const bad = '1900-01-01';
-  const post = (id, method, params) => fetch(URL, {
+  const post = (id, method, params) => pacedFetch(URL, () => ({
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': bad },
     body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
     signal: AbortSignal.timeout(TIMEOUT),
-  });
+  }), `version-rejection ${method}`);
   const assertRejected = async (res, id, label) => {
     const text = await res.text();
     if (res.status !== 400) throw new Error(`${label} w/ unsupported version header returned HTTP ${res.status}, expected 400: ${text.slice(0, 200)}`);
@@ -289,12 +413,12 @@ async function era2026Conformance() {
     'io.modelcontextprotocol/protocolVersion': MODERN,
     'io.modelcontextprotocol/clientCapabilities': {},
   };
-  const post = (headers, body) => fetch(URL, {
+  const post = (headers, body) => pacedFetch(URL, () => ({
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: ACCEPT, ...headers },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(TIMEOUT),
-  });
+  }), `era2026 ${body?.method}`);
   const readJson = async (res) => {
     const text = await res.text();
     if (text.startsWith('event:')) {
@@ -346,7 +470,7 @@ async function era2026Conformance() {
   if (unkLegacy.status !== 200) throw new Error(`LEGACY unknown method returned HTTP ${unkLegacy.status}, expected 200 — legacy clients are being stranded`);
 
   // (4) DELETE → 405, and Allow must stop advertising the verb SEP-2567 removed.
-  const del = await fetch(URL, { method: 'DELETE', signal: AbortSignal.timeout(TIMEOUT) });
+  const del = await pacedFetch(URL, () => ({ method: 'DELETE', signal: AbortSignal.timeout(TIMEOUT) }), 'era2026 DELETE');
   if (del.status !== 405) throw new Error(`DELETE returned HTTP ${del.status}, expected 405`);
   if (/DELETE/.test(del.headers.get('allow') ?? '')) throw new Error(`DELETE still advertised in Allow: ${del.headers.get('allow')}`);
 
@@ -367,12 +491,12 @@ async function era2026Conformance() {
 //   (d) an invalid cursor is refused -32602 (spec Invalid params), never served page one.
 async function paginationConformance() {
   const readPage = async (params, id) => {
-    const res = await fetch(URL, {
+    const res = await pacedFetch(URL, () => ({
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
       body: JSON.stringify({ jsonrpc: '2.0', id, method: 'tools/list', params }),
       signal: AbortSignal.timeout(TIMEOUT),
-    });
+    }), params.cursor ? 'pagination page' : 'pagination page 1');
     const text = await res.text();
     if (res.status !== 200) throw new Error(`tools/list (params ${JSON.stringify(params)}) HTTP ${res.status}: ${text.slice(0, 200)}`);
     const line = text.split('\n').find((l) => l.startsWith('data: '));
@@ -404,7 +528,6 @@ async function paginationConformance() {
     pageBytes.push(p.bytes);
     cursor = p.obj.result.nextCursor;
     if (page > 100) throw new Error('cursor walk did not terminate within 100 pages');
-    await new Promise((r) => setTimeout(r, 250));
   }
   const walkSet = new Set(walked);
   if (walked.length !== walkSet.size) throw new Error(`cursor walk returned ${walked.length} names with duplicates (${walkSet.size} unique)`);
@@ -413,12 +536,12 @@ async function paginationConformance() {
   if (walkSet.size !== tplSet.size) throw new Error(`cursor walk advertises a tool the committed template does not carry (${walkSet.size} vs ${tplSet.size} unique)`);
 
   // (d) invalid cursor → -32602
-  const bad = await fetch(URL, {
+  const bad = await pacedFetch(URL, () => ({
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
     body: JSON.stringify({ jsonrpc: '2.0', id: 790, method: 'tools/list', params: { cursor: 'v1.999999999' } }),
     signal: AbortSignal.timeout(TIMEOUT),
-  });
+  }), 'pagination invalid-cursor');
   const badObj = JSON.parse(await bad.text());
   if (badObj?.error?.code !== -32602) throw new Error(`invalid cursor returned ${badObj?.error ? badObj.error.code : 'a result'}, expected -32602`);
 
@@ -450,48 +573,163 @@ async function exportRoundTrip() {
   return { tools: names.length, bytes: bytes.length };
 }
 
+// Deploy-propagation guard (MCP-SMOKE-PAGINATION-BUDGET-1). A Cloudflare deploy reaches edges
+// one at a time: for a short window, page one can be answered by an edge running the NEW worker
+// while the follow-up cursor request lands on an edge still running the OLD one — which does not
+// know the `v1.<offset>` grammar and answers -32602. That is the `-32602 on attempt 1, never
+// again` signature in runs 35287594400 / 35289335824, and it is NOT a pagination regression.
+// So before any conformance or cursor walk: poll no-cursor tools/list until two CONSECUTIVE
+// answers carry the same nextCursor AND that cursor is actually accepted. Bounded, with its own
+// distinct message so a real regression is never misread as propagation (or as a 429).
+async function propagationGuard() {
+  const deadline = Date.now() + PROPAGATION_MS;
+  let prev;
+  let polls = 0;
+  let lastReason = 'no poll completed';
+  while (Date.now() < deadline) {
+    polls++;
+    const { result, error } = await call('tools/list', {}, 900 + polls);
+    if (error) throw new Error(`propagation poll: tools/list error ${error.code}: ${error.message}`);
+    const cur = result?.nextCursor;
+    if (typeof cur !== 'string') throw new Error('propagation poll: page one carries no nextCursor — pagination is not live on this deploy');
+    if (prev !== cur) { prev = cur; lastReason = 'nextCursor still changing between edges'; continue; }
+    polls++;
+    try {
+      const probe = await call('tools/list', { cursor: cur }, 900 + polls);
+      if (!probe.error) return { polls, cursor: cur };
+      if (probe.error.code !== -32602) throw new Error(`propagation probe: tools/list error ${probe.error.code}: ${probe.error.message}`);
+    } catch (e) {
+      if (e && e.rateLimited) throw e;
+      if (!/-32602/.test(e.message)) throw e;
+    }
+    // An edge still on the old build refused our token. Re-converge from scratch.
+    prev = undefined;
+    lastReason = 'an edge still refuses the issued cursor (-32602) — old worker still serving';
+  }
+  throw new Error(`propagation not converged within ${PROPAGATION_MS}ms over ${polls} polls: ${lastReason}`);
+}
+
+// The step-1 measurement, printed on every run so the request budget is never guessed again.
+function budgetSummary() {
+  const secs = ((Date.now() - START_MS) / 1000).toFixed(1);
+  const perWindow = (requestCount / Math.max(1, (Date.now() - START_MS) / RL_WINDOW_MS)).toFixed(1);
+  console.log(`· budget: ${requestCount} requests in ${secs}s (~${perWindow}/window of ${RL_WINDOW_MS}ms; limiter ${RL_LIMIT}, paced ceiling ${RL_BUDGET})`);
+}
+
+// Offline self-test of the pacer — the deterministic gate for this change. Stubs global fetch,
+// shrinks the window so the SHIPPED math runs fast, and asserts the three properties that matter:
+// spacing, sliding-window ceiling, and 429 → one-window drain → same request retried.
+async function selfTest() {
+  const fails = [];
+  const ok = (cond, msg) => { if (!cond) fails.push(msg); };
+  const init = () => ({ method: 'POST' });
+
+  // (1) spacing + window ceiling. limit 6, headroom 3 → budget 3 per 600ms → spacing 200ms.
+  RL_LIMIT = 6; RL_WINDOW_MS = 600; RL_HEADROOM = 3; recomputePace();
+  ok(RL_BUDGET === 3, `budget math: expected 3, got ${RL_BUDGET}`);
+  ok(RL_SPACING_MS === 200, `spacing math: expected 200, got ${RL_SPACING_MS}`);
+  const stamps = [];
+  globalThis.fetch = async () => { stamps.push(Date.now()); return new Response('{}', { status: 200 }); };
+  START_MS = Date.now(); MAX_WALL_MS = 60000; requestCount = 0; resetPace();
+  for (let i = 0; i < 9; i++) await pacedFetch('https://example.invalid/', init, 'self-test pace');
+  ok(stamps.length === 9, `expected 9 sends, got ${stamps.length}`);
+  ok(requestCount === 9, `expected requestCount 9, got ${requestCount}`);
+  for (let i = 1; i < stamps.length; i++) {
+    ok(stamps[i] - stamps[i - 1] >= RL_SPACING_MS - 30, `send ${i} came ${stamps[i] - stamps[i - 1]}ms after ${i - 1}, below the ${RL_SPACING_MS}ms spacing`);
+  }
+  for (const t of stamps) {
+    const inWindow = stamps.filter((s) => s > t - RL_WINDOW_MS && s <= t).length;
+    ok(inWindow <= RL_BUDGET, `${inWindow} sends inside one ${RL_WINDOW_MS}ms window — above the ${RL_BUDGET} ceiling`);
+  }
+
+  // (2) a 429 drains one full window + 1s and retries THE SAME request; the pass is not restarted.
+  let calls = 0; const times = [];
+  globalThis.fetch = async () => {
+    times.push(Date.now()); calls++;
+    return calls === 1 ? new Response('rate limited', { status: 429 }) : new Response('{}', { status: 200 });
+  };
+  START_MS = Date.now(); resetPace();
+  const res = await pacedFetch('https://example.invalid/', init, 'self-test 429');
+  ok(res.status === 200, `expected the retry to return 200, got ${res.status}`);
+  ok(calls === 2, `expected exactly 2 sends (429 then retry), got ${calls}`);
+  ok(times[1] - times[0] >= RL_BACKOFF_MS - 50, `429 backoff was ${times[1] - times[0]}ms, expected ≥ ${RL_BACKOFF_MS}ms (window + 1s)`);
+
+  // (3) a persistent 429 surfaces a rate-limited error rather than looping forever.
+  calls = 0;
+  globalThis.fetch = async () => { calls++; return new Response('rate limited', { status: 429 }); };
+  START_MS = Date.now(); MAX_WALL_MS = 3000; resetPace();
+  let caught;
+  try { await pacedFetch('https://example.invalid/', init, 'self-test 429-persistent'); } catch (e) { caught = e; }
+  ok(!!caught && caught.rateLimited === true, 'a persistent 429 must throw a rateLimited error');
+
+  // (4) the wall cap is real.
+  START_MS = Date.now() - 10_000; MAX_WALL_MS = 1000;
+  let wallErr;
+  try { await pacedFetch('https://example.invalid/', init, 'self-test wall'); } catch (e) { wallErr = e; }
+  ok(!!wallErr && /wall-clock budget/.test(wallErr.message), 'an exhausted wall budget must throw "wall-clock budget"');
+
+  if (fails.length) {
+    console.error('✗ smoke-mcp pacer self-test FAILED:');
+    for (const f of fails) console.error('  · ' + f);
+    process.exit(1);
+  }
+  console.log('✓ smoke-mcp pacer self-test OK — spacing, sliding-window ceiling, 429 one-window drain + same-request retry, persistent-429 surfacing, wall cap');
+}
+
 (async () => {
+  if (SELF_TEST) { await selfTest(); return; }
   let lastErr;
   for (let i = 1; i <= RETRIES; i++) {
     try {
-      const info = await initialize();
+      START_MS = Date.now();
+      requestCount = 0;
+      resetPace();
+      console.log(`· pacing: ${PACE_ON ? `${RL_BUDGET} req / ${RL_WINDOW_MS}ms (limiter ${RL_LIMIT}, headroom ${RL_HEADROOM}), ≥${RL_SPACING_MS}ms apart, 429 backoff ${RL_BACKOFF_MS}ms ×${RL_429_RETRIES}, wall cap ${MAX_WALL_MS}ms` : 'DISABLED (MCP_SMOKE_PACE=0)'}`);
+
+      const info = await phase('initialize', initialize);
       console.log(`✓ /mcp initialize OK — ${info.name} v${info.version} (${URL})`);
 
-      const vn = await versionNegotiationHonesty();
+      const prop = await phase('propagation', propagationGuard);
+      console.log(`✓ deploy propagation converged — stable nextCursor "${prop.cursor}" accepted after ${prop.polls} paced polls`);
+
+      const vn = await phase('version-negotiation', versionNegotiationHonesty);
       console.log(`✓ version-negotiation honesty OK — requested "${vn.requested}" got server version "${vn.negotiated}" (not echoed)`);
 
-      const sep = await sep2243HeaderValidation();
+      const sep = await phase('SEP-2243', sep2243HeaderValidation);
       console.log(`✓ SEP-2243 headers OK — mismatch rejected with HTTP 400 / ${sep.code} (HeaderMismatch); header-less legacy request still lists ${sep.legacyTools} tools`);
 
-      const ut = await unknownToolErrorCode();
+      const ut = await phase('unknown-tool', unknownToolErrorCode);
       console.log(`✓ MCP-728 T2 unknown-tool code OK — ${ut.unknownCode}` + (ut.deferredChecked ? `; deferred-but-real tool "${ut.deferredTool}" still resolves (§M1.1)` : ' (no deferred tool found to check §M1.1)'));
 
-      const pv = await protocolVersionRejection();
+      const pv = await phase('version-rejection', protocolVersionRejection);
       console.log(`✓ MCP728-T2B protocol-version rejection OK — HTTP 400 / ${pv.code} + data.supported/data.requested + id preserved, on both the static fast path and the SDK path`);
 
-      const era = await era2026Conformance();
+      const era = await phase('era-2026-07-28', era2026Conformance);
       console.log(`✓ 2026-07-28 era OK — server/discover (${era.supported} versions, SEP-1865 ui advertised), resultType on ${era.tools} tools, unknown method 404/-32601 modern + 200 legacy, DELETE 405`);
 
-      const pg = await paginationConformance();
+      const pg = await phase('pagination-conformance', paginationConformance);
       console.log(`✓ MCP-TOOLSLIST-PAGINATION-1 OK — no-cursor page 1 valid (${pg.pageOneTools} tools, ${pg.pageOneBytes}B); cursor walk to exhaustion: ${pg.total} tools over ${pg.pages} pages (max page ${pg.maxPageBytes}B), full set matches the committed template; invalid cursor -32602`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
+        budgetSummary();
         process.exitCode = 0; return;
       }
-      const x = await exportRoundTrip();
+      const x = await phase('export-round-trip', exportRoundTrip);
       console.log(`✓ export_artifact round-trip OK — xlsx blob ${x.bytes}B (PK zip), hash carried, ${x.tools} tools listed`);
 
-      const rc = await rcNoInitializePath();
+      const rc = await phase('rc-no-initialize', rcNoInitializePath);
       console.log(`✓ §M1.6 RC path (no initialize) OK — tools/list + tools/call answered directly, ${rc.tools} tools listed`);
 
-      const ts = await toolsetProfile();
+      const ts = await phase('named-toolset', toolsetProfile);
       console.log(`✓ §M1.2 named toolset OK — ?toolset=reserve advertises ${ts.nonDeferred} non-deferred tools (lean core + reserve profile)`);
 
+      budgetSummary();
       process.exitCode = 0; return;
     } catch (e) {
       lastErr = e;
       console.error(`  attempt ${i}/${RETRIES} failed: ${e.message}`);
+      budgetSummary();
       if (i < RETRIES) await new Promise((r) => setTimeout(r, DELAY));
     }
   }

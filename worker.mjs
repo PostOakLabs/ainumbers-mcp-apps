@@ -1149,6 +1149,17 @@ function openSseKeepaliveStream(corsHeaders, request) {
 // always pages via buildListPage above; these helpers remain only for the SDK EMERGENCY
 // FALLBACK path (static-serve failure), which still honours a cursor opt-in on its parse-paid
 // path — unchanged here.
+// ⚠ TWO CURSOR GRAMMARS LIVE IN THIS FILE, and they are NOT interchangeable (MCP-SMOKE-PAGINATION-
+// BUDGET-1, 2026-09-18): this one is a decimal ARRAY INDEX for the SDK fallback slice below; the
+// static fast path issues `v1.<BYTE offset into the template>` via buildListPage()/
+// LIST_CURSOR_PREFIX (line ~961). They are on disjoint request paths — the static branch
+// (`body.id !== undefined && STATIC_DISCOVERY_METHODS.has(method)`, ~line 5810) RETURNS its page or
+// its -32602 and never falls through, so the only way a `v1.` token reaches here is an emergency
+// static-serve THROW (the catch at ~line 5896). In that join the grammars AGREE on refusal: a
+// `v1.…` token fails this regex → -32602, exactly as buildListPage would answer, so the smoke's
+// "invalid cursor is refused -32602" conformance check holds on both paths.
+// ⛔ Do NOT teach either parser the other's grammar: a 148560 BYTE offset read as an ARRAY INDEX
+// would silently serve an empty page instead of erroring — strictly worse than the -32602.
 const TOOLS_LIST_PAGE_SIZE = 1000;
 function parseToolsCursorOffset(cursor) {
   if (typeof cursor !== 'string' || !/^[0-9]{1,9}$/.test(cursor)) return null;
@@ -5869,6 +5880,10 @@ export default {
           // unpaginated reply IS page one); a request echoing our token gets that page; an
           // invalid token is a -32602. A template that does not match the expected generated
           // shape returns null and falls through to the untouched full-frame serve below.
+          // Grammar note (MCP-SMOKE-PAGINATION-BUDGET-1): tokens issued HERE are `v1.<byte offset>`
+          // (LIST_CURSOR_PREFIX). The SDK fallback's parseToolsCursorOffset() (~line 1153) speaks a
+          // different, decimal-array-index grammar; this branch returns below and never falls into
+          // it, so the two never interpret the same token. Both refuse the other's with -32602.
           const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor);
           if (page === LIST_CURSOR_INVALID) {
             return mcpJsonRpcErrorResponse(body.id, -32602,
