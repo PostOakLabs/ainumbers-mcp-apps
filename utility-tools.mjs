@@ -19,6 +19,7 @@ export const UTILITY_TOOL_NAMES = [
   'export_artifact',
   'find_chain',
   'find_tool',
+  'describe_tool',
   'run_chain',
   'validate_input_attestations',
   'validate_private_inputs',

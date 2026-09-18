@@ -49,6 +49,7 @@ const gates = [
   { name: '/mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1)', args: ['scripts/test-mcp-accept-negotiation.mjs'] },
   { name: '2026-07-28 era-gated request rules',   args: ['scripts/gate-mcp-era.mjs'] },
   { name: 'build parity + pre-deploy count guard',args: ['scripts/build-mcp-parity.mjs'] },
+  { name: 'tools/list trim + describe_tool (MCP-TOOLSLIST-TRIM-DESCRIBE-1)', args: ['scripts/test-describe-tool.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
   { name: 'full-corpus chain E2E + schema conformance (audit E1/E3)', args: ['scripts/run-chain-corpus.mjs'] },
