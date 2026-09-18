@@ -760,6 +760,9 @@ const HOT_TOOLS = new Set([
   'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
   'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
   'find_tool', 'find_chain', 'run_chain', 'suite_howto',
+  // MCP-TOOLSLIST-TRIM-DESCRIBE-1: describe_tool is the discovery layer's definition reader —
+  // deferring it would hide exactly the tool a client needs after find_tool hands it a name.
+  'describe_tool',
 ]);
 
 // Suite conventions paragraph (MCP-SUITE-RECIPES-1) — ONE copy, reused verbatim by the
@@ -1059,6 +1062,101 @@ function buildListPage(tpl, key, cursor) {
   }
   if (b.arrayEnd < 0) return null;
   return head + slice + tpl.slice(b.arrayEnd); // byte-identical recomposition of the full frame
+}
+
+// ── MCP-TOOLSLIST-TRIM-DESCRIBE-1 (2026-09-18): describe_tool + the tools/list outputSchema trim ─
+// The static tools/list frame carried `outputSchema` on 597 of 719 tools = 462,956 bytes of a
+// 2,244,424-byte reply — schema definitions almost no client reads at LIST time (only Claude Code
+// lazy-loads tools client-side today; every other client pays for all 2.24MB up front). This row
+// moves each schema one call away: precompute-discovery.mjs emits list entries WITHOUT
+// `outputSchema` (appending the one-sentence pointer ` Output schema: call describe_tool("<name>").`
+// to the descriptions that lost one) and writes the FULL definitions to a second precomputed static
+// map, data/mcp/static/tool-describe.json, which describe_tool serves per name.
+//
+// CPU budget (why a second static map and not request-time re-derivation — per the O(1) doctrine
+// comment above, ~line 786): re-deriving a definition at request time means a zod→JSON Schema
+// conversion per tool, and doing it for ALL tools means the full-build registration pass this file
+// exists to keep off the hot path (Free plan ~10ms CPU → Error 1102). Parsing the ~2MB describe map
+// wholesale per call would re-open the same budget from the other side. So the loader keeps the map
+// as TEXT (one subrequest, cached per isolate like the list templates) and extracts ONE entry with
+// indexOf + a string/escape/depth-aware scan, JSON.parsing only that ~2-3KB slice — O(entry), never
+// O(map), mirroring exactly how buildListPage serves one page of the list template.
+let _describeStatic = null;
+async function getDescribeTemplate(env) {
+  if (_describeStatic !== null) return _describeStatic;
+  const r = await env.ASSETS.fetch('https://assets.local/mcp/static/tool-describe.json');
+  if (!r.ok) throw new Error('static describe-map asset miss: ' + r.status);
+  return (_describeStatic = await r.text());
+}
+
+// Index of the closing '}' matching the object that opens at `start` (which must point at '{').
+// Same string/escape discipline as scanListPageBounds: a brace inside a string or escape can
+// never terminate the scan. Returns -1 on run-off (malformed template — caller falls back).
+function scanJsonObjectEnd(text, start) {
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') { inStr = true; continue; }
+    if (c === '{') depth++;
+    else if (c === '}') { depth--; if (depth === 0) return i; }
+  }
+  return -1;
+}
+
+// O(entry) lookup of one tool definition in the describe-map TEXT. The pattern `"name":{` can only
+// occur at a real key position in generated single-line JSON — every quote inside a string value is
+// escaped (`\"`), so no in-string occurrence can match an unescaped leading quote. The JSON.parse
+// guard plus a retry on a later match is defensive only.
+function extractDescribeEntry(text, name) {
+  if (typeof name !== 'string' || /[^\w.-]/.test(name)) return null; // mcp_name charset; rejects probe keys
+  const key = '"' + name + '":{';
+  let at = text.indexOf(key);
+  while (at >= 0) {
+    const start = at + key.length - 1;
+    const end = scanJsonObjectEnd(text, start);
+    if (end > start) {
+      try { return JSON.parse(text.slice(start, end + 1)); } catch { /* ghost match — keep scanning */ }
+    }
+    at = text.indexOf(key, at + 1);
+  }
+  return null;
+}
+
+// Shared projection: map entry + request-time lifecycle stamp → the describe_tool structured
+// payload. Exactly the keys of describe_tool's registered outputSchema (SDK-validated on the SDK
+// path; ADDITION C of the row).
+function describeToolPayload(data, def) {
+  return {
+    name: def.name,
+    description: def.description,
+    inputSchema: def.inputSchema,
+    ...(def.outputSchema !== undefined ? { outputSchema: def.outputSchema } : {}),
+    ...(def.annotations !== undefined ? { annotations: def.annotations } : {}),
+    lifecycle_status: lifecycleStatusOf(data, def.name),
+  };
+}
+
+// Edit distance for the describe_tool nearest-names fallback (bounded strings: an mcp_name vs a
+// mistyped name). Classic DP, O(len(a)·len(b)) — error path only, two names per call.
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
 }
 
 // ── MCP-CONTENT-NEGOTIATION-FIX-1 ──────────────────────────────────────────────────────────
@@ -1472,7 +1570,7 @@ export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParam
     'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts }, { onlyTool = null, mrtr = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle }, { onlyTool = null, mrtr = null } = {}) {
   // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
   // spec_digest exists under fv-status/ (today exactly one, since every live
   // node shares one chaingraph/standard/SPEC.md) — an ambiguous or empty
@@ -3506,6 +3604,57 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   });
 
   // -------------------------------------------------------------------------
+  // describe_tool (MCP-TOOLSLIST-TRIM-DESCRIBE-1) — the definition reader for the trimmed
+  // tools/list. The list no longer carries outputSchema (597 entries × ~776B ≈ 463KB removed);
+  // each trimmed description ends with a one-sentence pointer here instead. Registered with an
+  // outputSchema so the SDK itself validates every response against it (row ADDITION C). On the
+  // HTTP worker this SDK callback is NEVER reached — the dispatch layer answers describe_tool
+  // from the static map before any buildServer call (see MCP-TOOLSLIST-TRIM-DESCRIBE-1 block
+  // above) — but direct-transport contexts (tests, precompute, any in-process host) get the same
+  // payload from `data.describeMap` (loaded from data/mcp/static/tool-describe.json).
+  // -------------------------------------------------------------------------
+  server.registerTool('describe_tool', {
+    title: 'Describe one AINumbers tool',
+    description:
+      'Returns the full definition of exactly one AINumbers MCP tool: name, description, inputSchema, outputSchema (the JSON Schema its structuredContent validates against), annotations, and lifecycle_status. ' +
+      'Use it after find_tool or find_chain hands you an mcp_name, or after tools/list whose entries omit outputSchema to keep the catalog reply small — the pointer sentence "Output schema: call describe_tool(\\"<name>\\")." marks exactly those tools. ' +
+      'One call, no side effects, zero network on the server: the definition comes from the vendored catalog. Unknown names are rejected with -32602 plus the nearest registered names.',
+    inputSchema: {
+      name: z.string().describe('Exact mcp_name to describe (e.g. "recompute_payment_waterfall"). Use find_tool for fuzzy search; this takes the exact name only.'),
+    },
+    outputSchema: {
+      name: z.string(),
+      description: z.string(),
+      inputSchema: z.record(z.string(), z.unknown()),
+      outputSchema: z.record(z.string(), z.unknown()).optional(),
+      annotations: z.record(z.string(), z.unknown()).optional(),
+      lifecycle_status: z.enum(['Active', 'Deprecated']),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, ({ name }) => {
+    if (!describeMap) {
+      throw new McpError(ErrorCode.InvalidParams,
+        'describe_tool: definition map not loaded in this context — serve describe_tool through the worker dispatch path (env.ASSETS) or pass data.describeMap (data/mcp/static/tool-describe.json) to buildServer.');
+    }
+    if (typeof name !== 'string' || name === '') {
+      throw new McpError(ErrorCode.InvalidParams, 'Invalid arguments for tool describe_tool: "name" must be a non-empty string.');
+    }
+    const def = describeMap[name];
+    if (!def) {
+      const nearest = (searchIndex?.nodes
+        ? bm25Search(name, searchIndex.nodes, { topN: 5 }).map((r) => r.mcp_name).filter(Boolean)
+        : []);
+      throw new McpError(ErrorCode.InvalidParams,
+        'Tool not found: describe_tool("' + name + '")' + (nearest.length ? ' — nearest registered names: ' + nearest.join(', ') : ' — call find_tool(query) for ranked search.'));
+    }
+    const payload = describeToolPayload({ lifecycle }, def);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }],
+      structuredContent: payload,
+    };
+  });
+
+  // -------------------------------------------------------------------------
   // suite_howto (MCP-SUITE-RECIPES-1) — progressive-disclosure recipe how-to.
   // No args -> compact index (id + one-line "Use when ..." trigger per recipe +
   // suite conventions). With recipe_id -> ONE full recipe. NEVER dumps all
@@ -4851,7 +5000,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     ...PILOT.map((slug) => manifests[slug]?.mcp_tool_definition?.name ?? slug.replace(/-/g, '_')),
     'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
-    'find_chain', 'find_tool', 'run_chain', 'suggest_tool_idea',
+    'find_chain', 'find_tool', 'describe_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack', 'anchor_stamp',
     'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse', 'workbook_roundtrip_verify',
@@ -5963,6 +6112,49 @@ export default {
           ]));
           const isKnown = known.has(toolName);
           const isRemoved = isKnown && lifecycleStatusOf(data, toolName) === 'Removed';
+          // MCP-TOOLSLIST-TRIM-DESCRIBE-1: describe_tool is answered HERE, before any buildServer
+          // call — an O(1) static-map lookup (getDescribeTemplate) instead of even the single-tool
+          // build. Two reasons it cannot ride the SDK path: (1) the row REQUIRES a JSON-RPC
+          // protocol-level -32602 for an unknown name, and the SDK converts every tool-callback
+          // throw into an isError tool RESULT (server/mcp.js catch block) — only this dispatch
+          // layer can emit the protocol error; (2) the callback would need the describe map, which
+          // lives in env.ASSETS, not in buildServer's data. The SDK-registered handler below stays
+          // for direct-transport contexts (tests / stdio-style hosts) and validates output against
+          // describe_tool's declared outputSchema.
+          if (isKnown && !isRemoved && toolName === 'describe_tool') {
+            const name = body?.params?.arguments?.name;
+            if (typeof name !== 'string' || name === '') {
+              return mcpJsonRpcErrorResponse(body.id, -32602,
+                'Invalid params: describe_tool requires { name: string } — the mcp_name to describe',
+                corsHeaders, 400);
+            }
+            let def = null;
+            try { def = extractDescribeEntry(await getDescribeTemplate(env), name); } catch { /* map miss — degrade below */ }
+            if (!def) {
+              // Unknown name → -32602 with the nearest names from find_tool: BM25 top-5 (the same
+              // scorer find_tool itself runs); when the query is too garbled to score (BM25 returns
+              // 0 hits — e.g. "nope"), fall back to the 5 closest registered names by edit distance
+              // so the caller always gets a next step.
+              let nearest = (data.searchIndex?.nodes
+                ? bm25Search(name, data.searchIndex.nodes, { topN: 5 }).map((r) => r.mcp_name).filter(Boolean)
+                : []);
+              if (!nearest.length) {
+                nearest = [...known].filter((n) => n !== 'describe_tool')
+                  .map((n) => [n, levenshtein(name, n)])
+                  .sort((a, b) => a[1] - b[1])
+                  .slice(0, 5)
+                  .map(([n]) => n);
+              }
+              return mcpJsonRpcErrorResponse(body.id, -32602,
+                'Tool not found: describe_tool("' + name + '") — no registered mcp_name by that name',
+                corsHeaders, 200,
+                { nearest_names: nearest, hint: nearest.length ? 'Nearest registered names above; call find_tool for ranked search.' : 'Call find_tool(query) for ranked search or list_ainumbers_tools for the catalog.' });
+            }
+            const payload = describeToolPayload(data, def);
+            const result = { resultType: 'complete', content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }], structuredContent: payload };
+            const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+            return frameResponse(sse, request, corsHeaders);
+          }
           if (isKnown && !isRemoved) {
             onlyTool = toolName;
           } else if (isRemoved) {

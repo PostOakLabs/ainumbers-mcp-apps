@@ -35,6 +35,7 @@
 // Exit 0 = healthy; exit 1 = broken (fails the deploy job → roll back in Cloudflare).
 
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -510,6 +511,9 @@ async function paginationConformance() {
   if (!p1Names.length) throw new Error('page one returned no tools');
   if (typeof p1.obj.result.nextCursor !== 'string') throw new Error('page one carries no nextCursor — pagination regressed to a single 1.74MB reply');
   if (p1.bytes >= 200 * 1024) throw new Error(`page one body is ${p1.bytes}B — at/above the ~200KB thin-client ceiling`);
+  // MCP-TOOLSLIST-TRIM-DESCRIBE-1: list entries carry no outputSchema (one describe_tool call away).
+  const p1SchemaEntries = (p1.obj.result.tools ?? []).filter((t) => 'outputSchema' in t).length;
+  if (p1SchemaEntries) throw new Error(`page one carries ${p1SchemaEntries} outputSchema entries — the describe_tool trim regressed`);
 
   // (b) independent expectation from the committed template
   const tplPath = join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'mcp', 'static', 'tools-list.sse.txt');
@@ -524,6 +528,8 @@ async function paginationConformance() {
     const p = await readPage({ cursor }, id);
     if (p.obj?.result?.resultType !== 'complete') throw new Error(`page ${page} resultType is "${p.obj?.result?.resultType}", expected "complete"`);
     if (p.bytes >= 200 * 1024) throw new Error(`page ${page} body is ${p.bytes}B — at/above the ~200KB thin-client ceiling`);
+    const schemaEntries = (p.obj.result.tools ?? []).filter((t) => 'outputSchema' in t).length;
+    if (schemaEntries) throw new Error(`page ${page} carries ${schemaEntries} outputSchema entries — the describe_tool trim regressed`);
     walked.push(...(p.obj.result.tools ?? []).map((t) => t.name));
     pageBytes.push(p.bytes);
     cursor = p.obj.result.nextCursor;
@@ -546,6 +552,47 @@ async function paginationConformance() {
   if (badObj?.error?.code !== -32602) throw new Error(`invalid cursor returned ${badObj?.error ? badObj.error.code : 'a result'}, expected -32602`);
 
   return { pages: pageBytes.length, total: walked.length, maxPageBytes: Math.max(...pageBytes), pageOneBytes: p1.bytes, pageOneTools: p1Names.length };
+}
+
+// MCP-TOOLSLIST-TRIM-DESCRIBE-1 — describe_tool is the server-side answer to the trimmed list:
+//   (a) page one lists describe_tool (every page does — the full set is behind the walk);
+//   (b) describe_tool("<schema-bearing tool>") returns the FULL definition — name, description,
+//       inputSchema, outputSchema, annotations, lifecycle_status — and the outputSchema is
+//       byte-consistent with the vendored manifest projection (sha256 over canonical JSON, same
+//       serialization both sides: data/mcp/output-schemas.json);
+//   (c) an unknown name is a JSON-RPC PROTOCOL error, -32602, carrying error.data.nearest_names
+//       (the nearest names from find_tool's BM25 index) — never a tool result, never a 500.
+async function describeToolConformance() {
+  const p1 = await call('tools/list', {}, 750);
+  if (p1.error) throw new Error(`describe_tool page-one listing: tools/list error ${p1.error.code}: ${p1.error.message}`);
+  const p1Names = (p1.result?.tools ?? []).map((t) => t.name);
+  if (!p1Names.includes('describe_tool')) throw new Error('tools/list page one does not list describe_tool');
+
+  const name = 'recompute_payment_waterfall';
+  const ok = await call('tools/call', { name: 'describe_tool', arguments: { name } }, 751);
+  if (ok.error) throw new Error(`describe_tool("${name}") error ${ok.error.code}: ${ok.error.message}`);
+  if (ok.result?.isError) throw new Error(`describe_tool("${name}") isError: ` + JSON.stringify(ok.result.content).slice(0, 200));
+  const def = ok.result?.structuredContent;
+  for (const k of ['name', 'description', 'inputSchema', 'outputSchema', 'lifecycle_status']) {
+    if (def?.[k] === undefined) throw new Error(`describe_tool("${name}") structuredContent missing "${k}": ` + JSON.stringify(def).slice(0, 200));
+  }
+  if (def.name !== name) throw new Error(`describe_tool returned "${def.name}", expected "${name}"`);
+  let expected;
+  try { expected = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'mcp', 'output-schemas.json'), 'utf8'))[name]; } catch { /* CI always has the vendored file */ }
+  if (expected) {
+    const h = (o) => createHash('sha256').update(JSON.stringify(o)).digest('hex');
+    if (h(def.outputSchema) !== h(expected)) throw new Error(`describe_tool("${name}") outputSchema sha256 ${h(def.outputSchema)} != vendored projection ${h(expected)} — the schema describe_tool serves diverged from the manifest`);
+    return { name, sha256: h(expected), described: true };
+  }
+  return { name, described: true, vendoredProjection: 'unreadable' };
+}
+
+async function describeToolUnknownName() {
+  const nope = await call('tools/call', { name: 'describe_tool', arguments: { name: 'nope' } }, 752);
+  if (!nope.error) throw new Error('describe_tool("nope") returned a result — expected a JSON-RPC -32602 protocol error');
+  if (nope.error.code !== -32602) throw new Error(`describe_tool("nope") returned ${nope.error.code}, expected -32602`);
+  if (!Array.isArray(nope.error?.data?.nearest_names)) throw new Error('describe_tool("nope") -32602 carries no error.data.nearest_names — callers get no next step');
+  return { code: nope.error.code, nearest: nope.error.data.nearest_names };
 }
 
 async function exportRoundTrip() {
@@ -709,6 +756,12 @@ async function selfTest() {
 
       const pg = await phase('pagination-conformance', paginationConformance);
       console.log(`✓ MCP-TOOLSLIST-PAGINATION-1 OK — no-cursor page 1 valid (${pg.pageOneTools} tools, ${pg.pageOneBytes}B); cursor walk to exhaustion: ${pg.total} tools over ${pg.pages} pages (max page ${pg.maxPageBytes}B), full set matches the committed template; invalid cursor -32602`);
+
+      const dt = await phase('describe-tool', describeToolConformance);
+      console.log(`✓ MCP-TOOLSLIST-TRIM-DESCRIBE-1 OK — describe_tool listed on page one; describe_tool("${dt.name}") full definition, outputSchema sha256 ${dt.sha256} == vendored projection`);
+
+      const dn = await phase('describe-tool-unknown', describeToolUnknownName);
+      console.log(`✓ describe_tool unknown-name OK — -32602 with error.data.nearest_names (${dn.nearest.length} nearest)`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');

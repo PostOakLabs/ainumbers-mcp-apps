@@ -6,7 +6,7 @@
 // pattern that caused each outage, so a future change that reintroduces it fails BEFORE deploy
 // rather than being relearned through an outage. Background: memory project-ainumbers-mcp-server-no-cache.
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -70,6 +70,113 @@ else {
 if (!/request\.method === 'GET'/.test(worker) || !/status: 405/.test(worker))
   fails.push("the GET/HEAD -> 405 short-circuit for /mcp appears removed — a stateless worker can't serve the GET SSE channel; routing GET into the transport hangs + 500s (\"Worker hung\"). Keep the `request.method === 'GET'` => 405 guard.");
 else ok.push('GET/HEAD -> 405 short-circuit present');
+
+// ── MCP-TOOLSLIST-TRIM-DESCRIBE-1 (2026-09-18) ────────────────────────────────────────────────
+// 7) The tools/list trim + describe_tool contract, asserted against the COMMITTED static bytes:
+//    (a) no list entry carries `outputSchema` (it moved behind describe_tool);
+//    (b) every entry whose tool HAS an output schema (data/mcp/output-schemas.json) carries the
+//        ONE pointer sentence at the end of its description — and no other entry does;
+//    (c) describe_tool itself is on PAGE ONE of the default list (the byte-budget page a client
+//        gets with no cursor — replicate the worker's greedy page scan on the template bytes);
+//    (d) data/mcp/static/tool-describe.json exists, covers exactly the served set, and carries
+//        outputSchema exactly for the tools output-schemas.json covers (describe_tool must be
+//        able to hand back what the list dropped);
+//    (e) initialize.json advertises capabilities.tools.listChanged (row ADDITION A — the client
+//        is told the list can change; the SDK auto-declares it, this guard keeps it true).
+{
+  const sseTools = (file) => {
+    const txt = readFileSync(resolve(STATIC, file), 'utf8');
+    const dataLine = txt.replace('__OCG_ID__', '12345').split('\n').find((l) => l.startsWith('data:'));
+    return JSON.parse(dataLine.slice(5).trim()).result.tools;
+  };
+  const LIST_PAGE_MAX_BYTES = 150000; // must equal worker.mjs LIST_PAGE_MAX_BYTES
+  const listFiles = (() => {
+    try { return readdirSync(STATIC).filter((f) => /^tools-list(\..+)?\.sse\.txt$/.test(f)).sort(); }
+    catch { return []; }
+  })();
+  if (!listFiles.length) fails.push('no data/mcp/static/tools-list*.sse.txt artifacts — run generate.mjs.');
+  let schemas = {};
+  try { schemas = JSON.parse(readFileSync(resolve(ROOT, 'data', 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none */ }
+  let page1Names = null;
+  for (const f of listFiles) {
+    let tools;
+    try { tools = sseTools(f); } catch (e) { fails.push(f + ': not parseable as a tools/list frame — ' + e.message); continue; }
+    const withSchema = tools.filter((t) => 'outputSchema' in t);
+    if (withSchema.length) {
+      fails.push(f + ': ' + withSchema.length + ' tool entries still carry outputSchema (' +
+        withSchema.slice(0, 3).map((t) => t.name).join(', ') + (withSchema.length > 3 ? ', …' : '') +
+        ') — the trim regressed; re-run generate.mjs.');
+    }
+    for (const t of tools) {
+      const expected = ' Output schema: call describe_tool("' + t.name + '").';
+      const has = typeof t.description === 'string' && t.description.endsWith(expected);
+      const claims = typeof t.description === 'string' && / Output schema: call describe_tool\("[^"]+"\)\.$/.test(t.description);
+      if (schemas[t.name] && !has) fails.push(f + ': "' + t.name + '" lost its outputSchema without gaining the exact pointer sentence — re-run generate.mjs.');
+      if (!schemas[t.name] && claims) fails.push(f + ': "' + t.name + '" carries a pointer sentence but has no output schema in output-schemas.json — description drift.');
+    }
+    if (f === 'tools-list.sse.txt') {
+      // (c) greedy first-page scan over the template bytes — same rule as worker.mjs
+      // scanListPageBounds/buildListPage: accept elements while the accepted range fits the budget.
+      const txt = readFileSync(resolve(STATIC, f), 'utf8');
+      const marker = '"tools":[';
+      const arr = txt.indexOf(marker);
+      if (arr < 0) fails.push('tools-list.sse.txt: no "tools":[ array — generated shape changed.');
+      else {
+        const from = arr + marker.length;
+        const names = [];
+        let depth = 0, inStr = false, esc = false, elemStart = -1, end = -1;
+        for (let i = from; i < txt.length; i++) {
+          const c = txt[i];
+          if (inStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inStr = false; continue; }
+          if (c === '"') { inStr = true; continue; }
+          if (c === '{' || c === '[') { if (depth === 0) elemStart = i; depth++; continue; }
+          if (c === '}' || c === ']') {
+            if (c === ']' && depth === 0) break;
+            depth--;
+            if (depth === 0 && c === '}') {
+              const elemEnd = i + 1;
+              if (end >= 0 && elemEnd - from > LIST_PAGE_MAX_BYTES) break;
+              end = elemEnd;
+              const m = txt.slice(elemStart, elemEnd).match(/"name":"([^"]+)"/);
+              if (m) names.push(m[1]);
+            }
+          }
+        }
+        page1Names = new Set(names);
+      }
+    }
+  }
+  if (page1Names) {
+    if (!page1Names.has('describe_tool')) fails.push('describe_tool is NOT on page one of tools-list.sse.txt — it must be listed in the first ~' + LIST_PAGE_MAX_BYTES + ' template bytes (register it before the page boundary).');
+    else ok.push('describe_tool present on tools/list page one (' + page1Names.size + ' tools in the no-cursor page)');
+  }
+  // (d) describe map ↔ served set ↔ output-schemas.json agreement.
+  const mapPath = resolve(STATIC, 'tool-describe.json');
+  if (!existsSync(mapPath)) fails.push('missing data/mcp/static/tool-describe.json — describe_tool has nothing to serve; run generate.mjs.');
+  else {
+    const map = JSON.parse(readFileSync(mapPath, 'utf8'));
+    const served = sseTools('tools-list.sse.txt');
+    const servedNames = new Set(served.map((t) => t.name));
+    const missingDef = [...servedNames].filter((n) => !(n in map));
+    const extraDef = Object.keys(map).filter((n) => !servedNames.has(n));
+    if (missingDef.length) fails.push('tool-describe.json is missing definitions for: ' + missingDef.slice(0, 5).join(', ') + (missingDef.length > 5 ? ' …' : '') + ' — re-run generate.mjs.');
+    if (extraDef.length) fails.push('tool-describe.json carries entries the list does not serve: ' + extraDef.slice(0, 5).join(', ') + ' — re-run generate.mjs.');
+    const schemaMismatch = Object.keys(map).filter((n) =>
+      ('outputSchema' in map[n]) !== (!!schemas[n] || n === 'describe_tool'));
+    // (describe_tool's own schema is SDK-declared at registration, not manifest-projected —
+    // output-schemas.json is the MANIFEST projection only, so it never lists describe_tool.)
+    if (schemaMismatch.length) fails.push('tool-describe.json outputSchema presence diverges from output-schemas.json for: ' + schemaMismatch.slice(0, 5).join(', ') + ' — re-run generate.mjs.');
+    if (!missingDef.length && !extraDef.length && !schemaMismatch.length) {
+      ok.push('tool-describe.json covers all ' + Object.keys(map).length + ' served tools with outputSchema exactly where output-schemas.json has one');
+    }
+  }
+  // (e) ADDITION A: capabilities.tools.listChanged stays advertised at initialize.
+  const initP2 = resolve(STATIC, 'initialize.json');
+  if (!existsSync(initP2)) fails.push('missing data/mcp/static/initialize.json — run generate.mjs.');
+  else if (JSON.parse(readFileSync(initP2, 'utf8'))?.capabilities?.tools?.listChanged !== true) {
+    fails.push('initialize.json capabilities.tools.listChanged is not true — the client must be told the tool list can change (row ADDITION A).');
+  } else ok.push('initialize.json advertises capabilities.tools.listChanged: true');
+}
 
 if (fails.length) {
   console.error('✗ worker-invariants FAILED (' + fails.length + '):');

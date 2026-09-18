@@ -40,6 +40,13 @@ function loadDataFromDisk() {
   try { recipes = JSON.parse(get('mcp/recipes.json')); } catch { /* none yet — suite_howto/prompt loop degrade; generate.mjs self-check is the loud gate */ }
   let showcasePrompts = null;
   try { showcasePrompts = JSON.parse(get('mcp/showcase-prompts.json')); } catch { /* none yet — showcase prompt loop degrades; generate.mjs self-check is the loud gate */ }
+  // MCP-TOOLSLIST-TRIM-DESCRIBE-1: give buildServer's describe_tool the same vendored inputs the
+  // worker's dispatch path uses. Both tolerant: a first-ever run has no describe map yet (this
+  // script writes it), and lifecycle.json is optional by contract (defaults to all-Active).
+  let describeMap = null;
+  try { describeMap = JSON.parse(get('mcp/static/tool-describe.json')); } catch { /* first run — written below */ }
+  let lifecycle = { default: 'Active', overrides: {} };
+  try { lifecycle = JSON.parse(get('mcp/lifecycle.json')); } catch { /* none yet */ }
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
@@ -48,6 +55,8 @@ function loadDataFromDisk() {
     fvStatusIndex,
     recipes,
     showcasePrompts,
+    describeMap,
+    lifecycle,
   };
 }
 
@@ -97,6 +106,39 @@ export async function precomputeDiscovery() {
   let outputSchemas = {};
   try { outputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none yet */ }
   for (const t of toolsMsg.result.tools) if (outputSchemas[t.name]) t.outputSchema = outputSchemas[t.name];
+
+  // ── MCP-TOOLSLIST-TRIM-DESCRIBE-1 ────────────────────────────────────────────────────────────
+  // (1) Capture the FULL definitions (outputSchema still attached, descriptions still original)
+  //     into the describe map describe_tool serves: data/mcp/static/tool-describe.json. Exactly
+  //     the keys describe_tool's outputSchema declares — transport hints (cacheHint,
+  //     defaultConfig) are deliberately not part of a definition.
+  // (2) Trim outputSchema OUT of every list entry (597 tools ≈ 463KB of the 2.24MB reply), and
+  //     append to each trimmed description EXACTLY ONE pointer sentence — the manifest prose
+  //     itself is never rewritten. The map above keeps the original description + schema, so
+  //     describe_tool("<name>") returns the definition the list no longer carries.
+  const trimStats = { tools: toolsMsg.result.tools.length, trimmed: 0, outputSchemaBytes: 0, pointerBytes: 0 };
+  const describeEntries = toolsMsg.result.tools.map((t) => {
+    const def = { name: t.name, description: t.description, inputSchema: t.inputSchema };
+    if (t.outputSchema !== undefined) { def.outputSchema = t.outputSchema; }
+    if (t.annotations !== undefined) { def.annotations = t.annotations; }
+    return def;
+  });
+  for (const t of toolsMsg.result.tools) {
+    if (t.outputSchema === undefined) continue;
+    const dropped = JSON.stringify(t.outputSchema);
+    trimStats.outputSchemaBytes += dropped.length;
+    delete t.outputSchema;
+    // describe_tool itself is THE pointer target: its own (SDK-declared, self-describing) schema
+    // is reachable by describing it — pointing it at itself would read as a bug, so no sentence.
+    if (t.name !== 'describe_tool') {
+      const pointer = ' Output schema: call describe_tool("' + t.name + '").';
+      t.description += pointer;
+      trimStats.trimmed++;
+      trimStats.pointerBytes += pointer.length;
+    }
+  }
+  const describeMapOut = {};
+  for (const def of describeEntries) describeMapOut[def.name] = def; // registration order (page order); names unique (check-tool-names gate)
 
   // ttlMs cache metadata (§M1.5) — every AINumbers tool is deterministic pure compute (CONTRACT
   // zero-fetch/zero-side-effect invariant: same inputs -> same execution_hash, forever), so a
@@ -169,6 +211,15 @@ export async function precomputeDiscovery() {
     wtxt('tools-list.' + profile + '.sse.txt', frame('tools/list:' + profile, { tools: profileTools }));
     profileNames.push(profile);
   }
+
+  // describe_tool map (MCP-TOOLSLIST-TRIM-DESCRIBE-1) — one entry per SERVED (non-Removed) tool,
+  // keyed by mcp_name, single-line JSON so the worker's O(entry) extractor can slice it without a
+  // full-map parse (worker.mjs getDescribeTemplate/extractDescribeEntry).
+  writeFileSync(resolve(DATA, 'mcp', 'static', 'tool-describe.json'), JSON.stringify(describeMapOut));
+  console.log('tools/list trim: dropped outputSchema from ' + trimStats.trimmed + '/' + trimStats.tools
+    + ' entries (' + trimStats.outputSchemaBytes + 'B of schemas out, +' + trimStats.pointerBytes
+    + 'B of pointer sentences in); describe map: ' + Object.keys(describeMapOut).length
+    + ' entries -> data/mcp/static/tool-describe.json');
 
   return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length, toolsets: profileNames };
 }
