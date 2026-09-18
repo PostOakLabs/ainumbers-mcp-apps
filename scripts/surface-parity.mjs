@@ -18,6 +18,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { UTILITY_TOOL_COUNT } from '../utility-tools.mjs';
+import { isDescendantOfOriginMain } from './find-site-repo.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const workerPath   = resolve(here, '..', 'worker.mjs');
@@ -94,10 +95,13 @@ if (!tableSectionMatch) {
 
 // ── P6: showcase prompts (MCP-SHOWCASE-PROMPTS-1) ────────────────────────────
 // The vendored projection data/mcp/showcase-prompts.json must carry the SSOT prompt set with
-// the SSOT field set, and worker.mjs must register them through the showcase loop. When the
-// site repo is resolvable (AINUMBERS_REPO env or the default ../repo sibling), the projection
+// the SSOT field set, and worker.mjs must register them through the showcase loop. When a FRESH
+// site repo is resolvable (AINUMBERS_REPO env or the default ../repo sibling, vetted for a
+// resolvable origin/main the same way preflight's findSiteRepo vets candidates), the projection
 // is additionally asserted deep-equal to the site SSOT (single-writer law: the vendored copy
-// is a projection, never a fork). Site-repo absence is a warning, not a pass substitute for
+// is a projection, never a fork). A stale or dead site candidate is refused, never compared
+// against — the deep-equal is skipped with a note instead of false-reding (CI backstops it).
+// Site-repo absence is a warning, not a pass substitute for
 // the count — the count check always runs against the vendored file.
 {
   const spPath = resolve(here, '..', 'data', 'mcp', 'showcase-prompts.json');
@@ -122,23 +126,42 @@ if (!tableSectionMatch) {
       ok = false;
     }
     const siteCandidates = [process.env.AINUMBERS_REPO, resolve(here, '..', '..', 'repo')].filter(Boolean);
+    // WT-REPO-DEAD-WORKTREE-CLEANUP-1: an SSOT file that merely existsSync() is not trustworthy —
+    // the candidate may be a stale or dead site tree (measured 2026-09-18: mcp-apps-poc/.wt/repo,
+    // a 2026-09-10 site tree whose .git gitdir had been pruned; from every worktree under .wt/ it
+    // was exactly this candidate, and every P6 red it produced was false — the same tree was GREEN
+    // in CI). Vet each candidate with the same freshness predicate preflight's findSiteRepo uses
+    // (scripts/find-site-repo.mjs): refuse one with no resolvable origin/main — or a HEAD that is
+    // not a descendant of it — LOUDLY, SKIP the deep-equal with a note (the count checks above
+    // always run; CI backstops the deep-equal), never compare against the stale tree, and never
+    // walk past a refused candidate to the next one (that is how the trap recurs under a new name).
     let siteChecked = false;
+    let refused = null;
     for (const cand of siteCandidates) {
       const ssotPath = resolve(cand, 'mcp', 'showcase-prompts.json');
-      if (existsSync(ssotPath)) {
-        const ssot = JSON.parse(readFileSync(ssotPath, 'utf8'));
-        const ssotItems = Array.isArray(ssot) ? ssot : (ssot.prompts ?? []);
-        if (JSON.stringify(ssotItems) !== JSON.stringify(items)) {
-          errors.push('P6: data/mcp/showcase-prompts.json diverged from site SSOT ' + ssotPath + ' — re-run node generate.mjs.');
-          ok = false;
-        } else {
-          console.log('     deep-equal to site SSOT: ' + ssotPath);
-        }
-        siteChecked = true;
+      if (!existsSync(ssotPath)) continue;
+      const fresh = isDescendantOfOriginMain(cand);
+      if (!fresh.ok) {
+        console.error(`❌ [P6] REFUSING stale site candidate: ${cand} — ${fresh.reason}.`);
+        refused = { cand, reason: fresh.reason };
         break;
       }
+      const ssot = JSON.parse(readFileSync(ssotPath, 'utf8'));
+      const ssotItems = Array.isArray(ssot) ? ssot : (ssot.prompts ?? []);
+      if (JSON.stringify(ssotItems) !== JSON.stringify(items)) {
+        errors.push('P6: data/mcp/showcase-prompts.json diverged from site SSOT ' + ssotPath + ' — re-run node generate.mjs.');
+        ok = false;
+      } else {
+        console.log('     deep-equal to site SSOT: ' + ssotPath);
+      }
+      siteChecked = true;
+      break;
     }
-    if (!siteChecked) warnings.push('P6: site SSOT mcp/showcase-prompts.json not resolvable from this checkout — deep-equal check skipped (count check still enforced).');
+    if (refused) {
+      warnings.push(`P6: site SSOT deep-equal SKIPPED — candidate ${refused.cand} refused: ${refused.reason}. A stale SSOT is never compared (false-red trap); the count checks still ran and CI backstops the deep-equal.`);
+    } else if (!siteChecked) {
+      warnings.push('P6: site SSOT mcp/showcase-prompts.json not resolvable from this checkout — deep-equal check skipped (count check still enforced).');
+    }
   }
 }
 
