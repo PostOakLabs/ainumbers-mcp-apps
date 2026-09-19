@@ -3021,7 +3021,32 @@
   "cbam-liability": {
     "art-70-cbam-default-value-resolver": {},
     "art-69-cbam-embedded-emissions-calculator": {},
-    "art-71-cbam-certificate-cost-engine": {}
+    "art-71-cbam-certificate-cost-engine": {
+      "embedded_emissions_tco2e": 10000,
+      "cbam_factor_year": 2027,
+      "origin_carbon_price_eur_per_t": 5,
+      "eua_reference_price": 65,
+      "import_schedule": [
+        {
+          "quarter": "Q1",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q2",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q3",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q4",
+          "emissions": 2500
+        }
+      ],
+      "annual_imported_net_mass_t": 12000,
+      "cbam_sector": "iron_steel"
+    }
   },
   "cbam-precursor": {
     "art-72-cbam-precursor-emissions-aggregator": {},
