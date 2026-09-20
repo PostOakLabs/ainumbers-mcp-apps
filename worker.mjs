@@ -23,6 +23,7 @@ import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, 
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash } from './kernels/_hash.mjs';
+import { normalizeNullMembers } from './_null_normalize.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
@@ -3254,7 +3255,14 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       if (kernel) {
         try {
           const now = new Date().toISOString();
-          const artifact = await kernel.buildArtifact(policy_parameters, {
+          // MR-R4-NULL-NORMALIZE-WORKER-1: strip null-valued members BEFORE compute AND before the
+          // execution_hash preimage — this same normalized object feeds both (buildArtifact echoes
+          // and hashes its `pp`). Null ARRAY elements are positional and preserved; a manifest input
+          // property declaring x_null_distinct is exempt. Deliberately NOT folded into _hash.mjs:
+          // a hash-only fold would give a null-carrying call and a null-free call identical receipts
+          // while they still answer differently.
+          const pp_input = normalizeNullMembers(policy_parameters, manifests[tool_id]?.input_schema);
+          const artifact = await kernel.buildArtifact(pp_input, {
             now,
             parent_hashes: parent_hashes ?? [],
             parent_tool_ids: parent_tool_ids ?? [],
@@ -5083,7 +5091,14 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         if (kernel) {
           try {
             const now = new Date().toISOString();
-            const artifact = await kernel.buildArtifact(policy_parameters, {
+            // MR-R4-NULL-NORMALIZE-WORKER-1: strip null-valued members BEFORE compute AND before the
+            // execution_hash preimage — this same normalized object feeds both (buildArtifact echoes
+            // and hashes its `pp`). Null ARRAY elements are positional and preserved; a manifest input
+            // property declaring x_null_distinct is exempt. Deliberately NOT folded into _hash.mjs:
+            // a hash-only fold would give a null-carrying call and a null-free call identical receipts
+            // while they still answer differently.
+            const pp_input = normalizeNullMembers(policy_parameters, manifests[node.tool_id]?.input_schema);
+            const artifact = await kernel.buildArtifact(pp_input, {
               now,
               parent_hashes: parent_hashes ?? [],
               parent_tool_ids: parent_tool_ids ?? [],
