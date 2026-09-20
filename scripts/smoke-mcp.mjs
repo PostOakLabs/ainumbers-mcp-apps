@@ -12,9 +12,10 @@
 // matching our id, then abort — never block on res.text() waiting for a stream that may stay open.
 // Every request has a hard timeout so the smoke can't hang.
 //
-// RATE BUDGET (MCP-SMOKE-PAGINATION-BUDGET-1, 2026-09-18). Since MCP-TOOLSLIST-PAGINATION-2 a full
-// pass is ~52 requests (16-page cursor walk in paginationConformance + a second 16-page walk in
-// exportRoundTrip + ~20 fixed conformance calls), while /mcp is protected by MCP_RATE_LIMITER —
+// RATE BUDGET (MCP-SMOKE-PAGINATION-BUDGET-1, 2026-09-18; walk collapsed per MCP-SMOKE-CI-EXEMPTION-1,
+// 2026-09-20). A full pass is ~39 requests: ONE 16-page cursor walk in paginationConformance whose
+// names exportRoundTrip REUSES (the pre-collapse pass walked the pages twice and measured 55), plus
+// ~20 fixed conformance calls. /mcp is protected by MCP_RATE_LIMITER —
 // `simple { limit: 30, period: 60 }` per CF-Connecting-IP (wrangler.jsonc) checked in
 // rateLimitExceeded() before any body parse. An unpaced pass therefore ALWAYS trips 429 mid-walk,
 // and the old "retry the whole pass after 4s" loop re-entered a still-drained window six times:
@@ -221,25 +222,13 @@ async function call(method, params, id) {
   throw new Error(`no JSON-RPC response for ${method} (id ${id}) before stream end. Got: ${buf.slice(0, 200)}`);
 }
 
-// MCP-TOOLSLIST-PAGINATION-1: tools/list is paginated — walk the cursor to exhaustion and return
-// every name. `call()` returns { result } whose `nextCursor` (when present) is echoed as
-// params.cursor. ⚠ No per-page sleep here any more: the shared token bucket in pacedFetch() paces
-// this walk against the per-IP MCP_RATE_LIMITER (30 req/60s) TOGETHER with every other phase — a
-// per-page sleep paced the walk only against itself, which is exactly why the walk tripped 429.
-async function listAllToolNames(idBase) {
-  const names = [];
-  let cursor;
-  for (let page = 1, id = idBase; page <= 100; page++, id++) {
-    const { result, error } = await call('tools/list', cursor ? { cursor } : {}, id);
-    if (error) throw new Error(`tools/list page ${page} error ${error.code}: ${error.message}`);
-    const pageNames = (result?.tools ?? []).map((t) => t.name);
-    if (!pageNames.length) throw new Error(`tools/list page ${page} returned no tools`);
-    names.push(...pageNames);
-    cursor = result?.nextCursor;
-    if (!cursor) return { names, pages: page };
-  }
-  throw new Error('tools/list cursor walk did not terminate within 100 pages');
-}
+// MCP-SMOKE-CI-EXEMPTION-1 (2026-09-20, option 3): there is exactly ONE cursor walk per pass now,
+// inside paginationConformance() below. exportRoundTrip() reuses the names that walk collected
+// instead of walking the pages a second time — the second full walk cost 16 requests per pass for
+// no extra assertion (the page set and the committed template are already proven equal in (b)),
+// and at the 27 req/60s pace it was the whole difference between ~10% and ~28% headroom under the
+// per-IP MCP_RATE_LIMITER (30 req/60s). The old standalone helper is gone so a second walk cannot
+// quietly grow back.
 
 // §M1.6 dual-version window: the 2026-07-28 RC drops the mandatory `initialize` handshake. Prove
 // the worker answers tools/list (and a real tools/call) WITHOUT ever calling initialize first —
@@ -551,7 +540,7 @@ async function paginationConformance() {
   const badObj = JSON.parse(await bad.text());
   if (badObj?.error?.code !== -32602) throw new Error(`invalid cursor returned ${badObj?.error ? badObj.error.code : 'a result'}, expected -32602`);
 
-  return { pages: pageBytes.length, total: walked.length, maxPageBytes: Math.max(...pageBytes), pageOneBytes: p1.bytes, pageOneTools: p1Names.length };
+  return { pages: pageBytes.length, total: walked.length, maxPageBytes: Math.max(...pageBytes), pageOneBytes: p1.bytes, pageOneTools: p1Names.length, names: walked };
 }
 
 // MCP-TOOLSLIST-TRIM-DESCRIBE-1 — describe_tool is the server-side answer to the trimmed list:
@@ -595,11 +584,12 @@ async function describeToolUnknownName() {
   return { code: nope.error.code, nearest: nope.error.data.nearest_names };
 }
 
-async function exportRoundTrip() {
-  // 1) Discovery — export_artifact must be registered. (Stateless: standalone request is fine.)
-  //    Cursor-aware: the full set is behind the pagination walk, not any single page.
-  const { names, pages } = await listAllToolNames(800);
-  if (!names.includes('export_artifact')) throw new Error(`export_artifact not in tools/list (${names.length} tools over ${pages} pages)`);
+async function exportRoundTrip(names) {
+  // 1) Discovery — export_artifact must be registered. Reuses the names the ONE cursor walk in
+  //    paginationConformance() already collected (MCP-SMOKE-CI-EXEMPTION-1: no second walk — the
+  //    full set is behind the pagination walk, not any single page).
+  if (!names?.length) throw new Error('exportRoundTrip received no walked tool names');
+  if (!names.includes('export_artifact')) throw new Error(`export_artifact not in tools/list (${names.length} tools over the shared cursor walk)`);
 
   // 2) Round-trip — minimal v0.4 artifact in, xlsx blob out.
   const execution_hash = 'sha256:smoke0000000000000000000000000000000000000000000000000000000000';
@@ -768,7 +758,7 @@ async function selfTest() {
         budgetSummary();
         process.exitCode = 0; return;
       }
-      const x = await phase('export-round-trip', exportRoundTrip);
+      const x = await phase('export-round-trip', () => exportRoundTrip(pg.names));
       console.log(`✓ export_artifact round-trip OK — xlsx blob ${x.bytes}B (PK zip), hash carried, ${x.tools} tools listed`);
 
       const rc = await phase('rc-no-initialize', rcNoInitializePath);
