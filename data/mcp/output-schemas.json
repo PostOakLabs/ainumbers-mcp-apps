@@ -9986,7 +9986,10 @@
         "type": "integer"
       },
       "apr_pct": {
-        "type": "number"
+        "type": [
+          "number",
+          "null"
+        ]
       },
       "bracketed": {
         "type": "boolean"
@@ -10010,7 +10013,10 @@
         "type": "number"
       },
       "periodic_rate": {
-        "type": "number"
+        "type": [
+          "number",
+          "null"
+        ]
       },
       "periods_per_year": {
         "type": "integer"
