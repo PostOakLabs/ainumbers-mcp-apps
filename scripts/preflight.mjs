@@ -62,6 +62,7 @@ const gates = [
   { name: 'negative gate-enforcement (AUD-E2)',    args: ['scripts/gate-negative-enforcement.mjs'] },
   { name: 'zero-egress determinism (AUD-F4)',      args: ['scripts/gate-zero-egress.mjs'] },
   { name: 'ttlMs cache-key is input-hash-only (§M1.5)', args: ['scripts/test-ttl-cache-key.mjs'] },
+  { name: 'run_chain dedupe echo stability (RUN-1-1)', args: ['scripts/test-run-chain-dedupe-echo.mjs'] },
   { name: 'description-quality dogfood gate (§M2.1)',   args: ['scripts/check-tool-description-quality.mjs'] },
   { name: 'deprecation lifecycle (§M2.2)',              args: ['scripts/gate-deprecation-lifecycle.mjs'] },
   { name: 'tool-selection eval (§M2.4)',                args: ['scripts/gate-tool-selection-eval.mjs'] },
