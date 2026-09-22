@@ -11,6 +11,9 @@
 //   - ha_bundle IS present and matches assembleEvidenceBundle's own shape when ha_records is supplied.
 //   - a thrown section (malformed artifacts) fails the WHOLE call isError:true, no partial pack.
 //   - two calls with identical input produce identical session_receipt_root / merkle_root (determinism).
+//   - DECISIONTRAIL-1: a supplied decision_trail rides the pack verbatim as PACK-LEVEL metadata
+//     (receipt root + merkle_root byte-identical to a trail-free pack); absent when not supplied;
+//     deterministic across identical calls.
 //
 // Usage: node tests/build-evidence-pack.test.mjs
 
@@ -160,6 +163,36 @@ async function main() {
   check('two calls with identical input produce identical disclosure_manifest.merkle_root',
     packNoHa.disclosure_manifest.merkle_root === packAgain.disclosure_manifest.merkle_root,
     `first=${packNoHa.disclosure_manifest.merkle_root} second=${packAgain.disclosure_manifest.merkle_root}`);
+
+  // ── (7) DECISIONTRAIL-1: pack carries the per-step decision trail when supplied ──────────
+  // Order-insensitive deep compare (zod parse may normalize key order; fields must match exactly).
+  const stableArr = (arr) => JSON.stringify((arr ?? []).map((e) => Object.fromEntries(Object.entries(e).sort())));
+  const TRAIL = [
+    { order: 1, tool_id: 'art-228-build-adverse-action-notice', status: 'ok', reason_code: 'gate_routed', gate_rule_id: 'art-228-build-adverse-action-notice#default', next: 'art-227-validate-adverse-action-notice' },
+    { order: 2, tool_id: 'art-09-dora-incident-classifier', status: 'skipped_by_escalation', reason_code: 'skipped_by_escalation', gate_rule_id: 'art-29-dora-readiness-diagnostic#r0', decided_by: 'art-29-dora-readiness-diagnostic' },
+    { order: 3, tool_id: 'art-01-ap2-mandate-chain-validator', status: 'input_required', reason_code: 'input_required', input_required_cause: 'policy_parameters.intent is required.' },
+  ];
+  const packWithTrail = await withServer(data, 'build_evidence_pack', (call) =>
+    call('build_evidence_pack', { artifacts: ARTIFACTS, decision_trail: TRAIL }).then(parse));
+  check('decision_trail carried verbatim when supplied (all three reason-code classes)',
+    stableArr(packWithTrail.decision_trail) === stableArr(TRAIL),
+    JSON.stringify(packWithTrail.decision_trail));
+  check('pack with trail keeps session_receipt_root identical to pack without it (trail is pack-level metadata, outside every section hash)',
+    packWithTrail.session_receipt.session_receipt_root === packNoHa.session_receipt.session_receipt_root,
+    `with=${packWithTrail.session_receipt.session_receipt_root} without=${packNoHa.session_receipt.session_receipt_root}`);
+  check('pack with trail keeps disclosure_manifest.merkle_root identical to pack without it',
+    packWithTrail.disclosure_manifest.merkle_root === packNoHa.disclosure_manifest.merkle_root,
+    `with=${packWithTrail.disclosure_manifest.merkle_root} without=${packNoHa.disclosure_manifest.merkle_root}`);
+
+  // ── (8) DECISIONTRAIL-1: trail absent (no key) when not supplied — conditional presence ──
+  check('decision_trail key absent when not supplied (conditional presence, like ha_bundle)',
+    !('decision_trail' in packNoHa), JSON.stringify(Object.keys(packNoHa)));
+
+  // ── (9) DECISIONTRAIL-1: determinism — identical trail input, identical pack trail ───────
+  const packWithTrailAgain = await withServer(data, 'build_evidence_pack', (call) =>
+    call('build_evidence_pack', { artifacts: ARTIFACTS, decision_trail: TRAIL }).then(parse));
+  check('two calls with identical trail input produce identical pack decision_trail',
+    stableArr(packWithTrail.decision_trail) === stableArr(packWithTrailAgain.decision_trail));
 
   if (failed) {
     console.error(`\n✗ ${failed} assertion(s) FAILED`);
