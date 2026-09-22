@@ -85,7 +85,13 @@ jobs:
               gh pr merge --auto --squash "$PR_URL"
               ;;
             *)
+              # --repo required: this job checks nothing out, so gh has no git
+              # repo to infer the target from (same trap automerge-label.yml
+              # documents, run 31980911540). || true forgives only "already
+              # exists"; any other create failure still fails the edit below —
+              # fail-closed.
               gh label create deps-human-review \
+                --repo "$GITHUB_REPOSITORY" \
                 --color 0E8A16 \
                 --description "Dependabot bump outside auto-merge scope (allowlisted runtime deps, patch-level only); human review required" \
                 || true
