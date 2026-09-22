@@ -764,7 +764,17 @@ const HOT_TOOLS = new Set([
   // MCP-TOOLSLIST-TRIM-DESCRIBE-1: describe_tool is the discovery layer's definition reader —
   // deferring it would hide exactly the tool a client needs after find_tool hands it a name.
   'describe_tool',
+  // RUN-2-1: the batch/estimate surface rides the always-resident set like run_chain —
+  // deferring the fan-out ergonomics tool would hide the very capability it exists to expose.
+  'run_chain_batch',
 ]);
+
+// RUN-2-1 (run_chain_batch): row cap for the synchronous batch. Single-digit on purpose —
+// each row returns its full composite artifact, and the free-plan invocation shares ONE CPU
+// budget across every kernel build in the batch. The companion TOTAL server-kernel-step budget
+// is measured live on the deployed endpoint (see the run-mode registration below); the row cap
+// is a response-size/ergonomics bound, not a copied concurrency default.
+const RUN_CHAIN_BATCH_MAX_ROWS = 8;
 
 // Suite conventions paragraph (MCP-SUITE-RECIPES-1) — ONE copy, reused verbatim by the
 // suite_howto index response and every generated recipe prompt, so the guidance cannot drift
@@ -2725,7 +2735,17 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         .describe('Optional §22 Work Mandate artifact. When supplied: §16 signature is verified and validity window is checked (unsigned/bad-sig/expired returns a structured error); mandate_hash is folded into every step and the composite receipt as a conditional-presence key, proving which policy governed this run. A no-mandate run is byte-identical to the pre-binding baseline (linear-hash-freeze invariant).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async ({ chain, inputs, compute, mandate, escalation_transport }) => {
+  }, async (runChainArgs) => executeChainRun(runChainArgs));
+
+  // ── RUN-2-1 (board row RUN-2-1 / IMPL-PLAN-P0P1 §4 C2): the chain-run engine, moved VERBATIM
+  // out of the run_chain callback so run_chain_batch (registered below) drives the IDENTICAL
+  // per-row semantics — same per-step statuses, same composite preimage, same execution hashes.
+  // Zero logic edits in the move; the corpus + negative-enforcement + composite-flag-carry +
+  // build-parity gates re-prove the moved bytes. Single-run run_chain semantics are untouched:
+  // same engine, same registration, same schema — the callback now delegates. Declared after the
+  // registration on purpose: the callback only executes after buildServer returns, so this const
+  // is initialized by then (no temporal-dead-zone reach).
+  const executeChainRun = async ({ chain, inputs, compute, mandate, escalation_transport }) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
       return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
@@ -3319,6 +3339,106 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     const runChainContent = [{ type: 'text', text: JSON.stringify(out, null, 2) }];
     if (otelResourceLink) runChainContent.push(otelResourceLink);
     return { content: runChainContent, structuredContent: out };
+  }; // ← end executeChainRun (was the run_chain callback body, moved verbatim — RUN-2-1)
+
+  // -------------------------------------------------------------------------
+  // run_chain_batch — RUN-2-1 (IMPL-PLAN-P0P1 §4 C2; absorbs COSTPREFLIGHT-1).
+  // Batch semantics (one handle, per-row terminal states, pre-flight estimate)
+  // inspired by GREP AI (Parcha Labs — https://grep.ai); caps are OURS, measured.
+  // mode:"estimate" ships FIRST: validates every row (chain exists, step counts,
+  // per-step compute feasibility, gate preview, inputs coverage) WITHOUT executing
+  // a single kernel — the CPU-light pre-flight for a planned batch (COSTPREFLIGHT-1).
+  // mode:"run" (follow-up commit) executes each row through executeChainRun — the
+  // SAME engine as run_chain — and reports a per-row terminal status, with caps
+  // measured live on the deployed free-plan endpoint.
+  // -------------------------------------------------------------------------
+  server.registerTool('run_chain_batch', {
+    title: 'Estimate several ChainGraph chain runs in one call',
+    description:
+      'Batch pre-flight over named chains: validates every row (chain exists, step counts, per-step compute ' +
+      'feasibility, inputs coverage, decision-gate preview) in ONE round-trip WITHOUT executing anything — no kernel ' +
+      'runs, no execution_hash is produced. Use it before run_chain / run_chain_batch runs to catch unknown chains, ' +
+      'missing inputs and browser-only steps cheaply, and to read each chain\'s decision-gate rule shapes (OCG §21.4) ' +
+      'ahead of execution. Per-row results: one row\'s problem never hides another\'s. ' +
+      'Deterministic, zero PII, zero payload logging. This is the estimate/plan mode of the batch surface; ' +
+      'execution arrives with mode:"run".',
+    inputSchema: {
+      mode: z.enum(['estimate']).optional()
+        .describe('Batch mode. "estimate" (only mode shipped so far) validates all rows and previews gates without executing anything.'),
+      rows: z.array(z.object({
+        chain: z.string().describe('Chain name for this row, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
+        inputs: z.record(z.record(z.any())).optional()
+          .describe('Map of step tool_id -> policy_parameters for THIS row (same shape as run_chain inputs). Reported per step as inputs_source "caller" when present.'),
+      })).min(1).max(RUN_CHAIN_BATCH_MAX_ROWS)
+        .describe('1-' + RUN_CHAIN_BATCH_MAX_ROWS + ' rows, one chain per row. The cap keeps the synchronous response bounded; for larger fan-out use sequential run_chain calls (docs/client-fan-out-patterns.md).'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ mode, rows }) => {
+    const results = rows.map((row, i) => {
+      const idx = i + 1;
+      const chainMeta = namedChains[row.chain];
+      if (!chainMeta) {
+        return { index: idx, chain: row.chain, status: 'unknown_chain', hint: 'List chains with find_chain or build_workflow_links.' };
+      }
+      const chainSteps = chainMeta.steps ?? [];
+      if (!chainSteps.length) {
+        return { index: idx, chain: row.chain, status: 'no_steps' };
+      }
+      const steps = chainSteps.map((s, si) => {
+        const tid = s.tool_id;
+        const node = cgById[tid];
+        let compute = 'server_kernel';
+        if (!node) compute = 'unknown_node';
+        else if (node.gpu) compute = 'gpu_browser_only';
+        else if (!getKernel(tid)) compute = 'no_kernel_browser_only';
+        const callerPp = row.inputs?.[tid];
+        const fixturePp = chainFixtures?.[row.chain]?.[tid];
+        const stepEst = {
+          order: si + 1,
+          tool_id: tid,
+          mcp_name: node?.mcp_name ?? null,
+          compute,
+          inputs_source: callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none'),
+        };
+        // Gate PREVIEW (OCG §21.4): the static rule shape only — never evaluated here
+        // (evaluation needs the step's output_payload, i.e. execution).
+        if (s.gate) {
+          stepEst.gate_preview = {
+            step_id: gvStepId(s, si),
+            input_pointer: s.gate.input ?? null,
+            rules: (Array.isArray(s.gate.rules) ? s.gate.rules : []).map((r) => ({
+              op: r.op, ...(r.value !== undefined ? { value: r.value } : {}), next: r.next,
+            })),
+            default_next: s.gate.default ?? null,
+            ...(s.gate.gate_policy ? { gate_policy: s.gate.gate_policy } : {}),
+          };
+        }
+        return stepEst;
+      });
+      return {
+        index: idx,
+        chain: row.chain,
+        status: 'ready',
+        step_count: chainSteps.length,
+        server_kernel_steps: steps.filter((s) => s.compute === 'server_kernel').length,
+        browser_delegated_steps: steps.filter((s) => s.compute === 'gpu_browser_only' || s.compute === 'no_kernel_browser_only').length,
+        steps,
+        note: 'Estimate only: NO kernel executed, no execution_hash produced. Steps with inputs_source "none" may come back status "input_required" when run (the kernel needs fields you did not supply and no fixture covers). gate_preview is the static rule shape, never evaluated.',
+      };
+    });
+    const out = {
+      mode: 'run_chain_batch',
+      batch_mode: 'estimate',
+      batch_size: rows.length,
+      summary: {
+        ready: results.filter((r) => r.status === 'ready').length,
+        unknown_chain: results.filter((r) => r.status === 'unknown_chain').length,
+        no_steps: results.filter((r) => r.status === 'no_steps').length,
+      },
+      results,
+      note: 'Estimate/plan mode (COSTPREFLIGHT-1): all row inputs validated, step counts + gate previews reported, zero execution. Batch semantics inspired by GREP AI (grep.ai); caps are ours, measured.',
+    };
+    return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
   // -------------------------------------------------------------------------
