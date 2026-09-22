@@ -22,7 +22,7 @@ import { recordChainRunAsLinks } from './intoto.mjs';
 import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace } from './otelspan.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
-import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash } from './kernels/_hash.mjs';
+import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash } from './kernels/_hash.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
@@ -2555,7 +2555,8 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash. ' +
       'Runs with anything to explain carry decision_trail: per-step reason codes (gate rule id, escalation rule id, input_required cause), hash-excluded adjacent metadata recomputable from the hash-bound decisions[]. ' +
       'Each server-mode run also returns an OpenTelemetry GenAI span document as a resource link (one execute_tool span per executed step under an invoke_agent parent). ' +
-      'Response includes a ledger_url fragment link for human verification at ledger.ainumbers.co.',
+      'Response includes a ledger_url fragment link for human verification at ledger.ainumbers.co. ' +
+      'Server-mode responses also echo a stable `dedupe` object — `dedupe.input_hash` (JCS-SHA-256 over the effective run inputs: chain, per-step inputs after the caller/fixture fallback, and mandate_hash when a mandate governs) beside `dedupe.composite_execution_hash` — so a client can recognize and skip an exact re-run (idempotentHint) without recomputing anything. See docs/IDEMPOTENCY.md.',
     inputSchema: {
       chain: z.string().describe('Chain name, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
       inputs: z.record(z.record(z.any())).optional()
@@ -2824,6 +2825,35 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     if (hasDecisionContent) {
       composite_output.decision_trail = decision_trail; // adjacent metadata — added after hash
     }
+    // RUN-1-1 (IDEMPOTENCY-ECHO-1) — stable client-dedupe echo, response metadata ONLY (docs/IDEMPOTENCY.md).
+    // input_hash is the §PPH-1 JCS-SHA-256 (policyParametersHash, same SSOT canonicalizer as the
+    // execution hash) over the EFFECTIVE run inputs — the exact determinism preimage of this call:
+    //   { chain, compute:'server', steps:[{tool_id, policy_parameters}...], mandate_hash? }
+    // where each policy_parameters resolves with the SAME `??` chain the kernel dispatch below uses
+    // (caller -> fixture -> {}), so "omitted" and "explicitly fixture-equal" hash identically.
+    // mandate_hash is conditional-presence exactly like composite_policy's (a no-mandate run's
+    // input_hash is frozen). escalation_transport is deliberately EXCLUDED: it changes only the
+    // §22.8 transport of an escalation response, never the artifacts a retry would re-derive.
+    // The echo rides on `out` (never composite_policy/composite_output), so no preimage byte moves
+    // and every composite_execution_hash stays byte-identical — the linear-hash-freeze goldens
+    // included. Non-I-JSON input has no canonical form to hash (same §6 posture as the composite):
+    // input_hash stays null with a note instead of an unstable digest.
+    const run_input_preimage = {
+      chain,
+      compute: 'server',
+      steps: chainSteps.map((s, i) => ({
+        tool_id: steps[i],
+        policy_parameters: inputs?.[steps[i]] ?? chainFixtures?.[chain]?.[steps[i]] ?? {},
+      })),
+    };
+    if (hasMandate && mandateHash) run_input_preimage.mandate_hash = mandateHash;
+    const inputIjsonBad = ijsonViolation(run_input_preimage);
+    const input_hash = inputIjsonBad ? null : await sharedPolicyParametersHash(run_input_preimage);
+    const dedupe_echo = {
+      input_hash,
+      composite_execution_hash: composite_hash,
+      ...(input_hash === null ? { input_hash_note: 'input is not I-JSON: it has no stable canonical form to hash (RFC 8785 §3.2.2.3 posture, same as the execution hash)' } : {}),
+    };
 
     // FB-01 (COMPOSITE-FLAG-AGGREGATE-1) — child compliance_flags carried into the composite as
     // HASH-EXCLUDED ADJACENT METADATA, on the escalation_record posture directly below: everything
@@ -2926,6 +2956,10 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       // null (not []) for steps that never produced an artifact, so "no flags" and "never ran" differ.
       steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null })),
       composite_execution_hash: composite_hash,
+      // RUN-1-1 IDEMPOTENCY-ECHO-1 — stable client-dedupe echo (see the block above; docs/IDEMPOTENCY.md).
+      // Response-only: identical effective inputs repeat input_hash AND composite_execution_hash
+      // byte-for-byte on every retry, so a client may skip an exact re-run (idempotentHint).
+      dedupe: dedupe_echo,
       hash_valid,
       composite_artifact,
       note: escalated
