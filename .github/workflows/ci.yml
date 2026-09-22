@@ -292,6 +292,18 @@ jobs:
         # that a genuinely flag-free chain still reports [] without inventing a member.
         run: node scripts/gate-composite-flag-carry.mjs
 
+      - name: 🧭 Decision-trail preimage boundary (DECISIONTRAIL-1)
+        # Per-step decision reason codes (gate rule id / escalation rule id / input_required
+        # cause) on run_chain results, carried as HASH-EXCLUDED adjacent metadata on the
+        # step_compliance_flags posture. The W0-WORKERHEALTH-1 verdict made "fields riding the
+        # hashed preimage" the LIVESMOKE hazard class, so this gate proves the boundary
+        # structurally: re-hashing the composite payload WITHOUT decision_trail reproduces the
+        # published composite_execution_hash, and leaving it in does not (mutation control).
+        # Also proves per-step closed-enum carriage, recomputability from the hash-bound
+        # decisions[], escalation + input_required attribution, conditional presence on
+        # all-ok linear runs, and byte-identical trail replay (determinism).
+        run: node scripts/gate-decision-trail-boundary.mjs
+
       - name: 🔁 Cross-tool artifact round-trip (audit AUD-C1)
         # Proves an artifact EMITTED by emit_chaingraph_artifact (Mode 4 server compute) actually
         # VERIFIES through the SEPARATE verify_execution_hash MCP tool — the loop closes across a

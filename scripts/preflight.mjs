@@ -80,6 +80,7 @@ const gates = [
   // a pre-existing red into preflight would block every push; it needs its own row (goldens
   // recapture after the WORKER-VENDOR-DRIFT-1 re-vendor).
   { name: 'composite flag carriage (FB-01/FB-04)', args: ['scripts/gate-composite-flag-carry.mjs'] },
+  { name: 'decision-trail preimage boundary (DECISIONTRAIL-1)', args: ['scripts/gate-decision-trail-boundary.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'utility-tools count parity vs site (MCPCOUNTS-FIX-1)', args: ['scripts/check-utility-count-parity.mjs'], env: { SITE_REPO: SITE }, needsSite: true },

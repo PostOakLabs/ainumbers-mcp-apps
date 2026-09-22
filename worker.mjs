@@ -2553,6 +2553,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'a step whose kernel needs inputs you omit is reported per-step (status "input_required"), never failed silently. ' +
       'Steps that are browser-only (gpu:true or no registered kernel) are listed for browser delegation. ' +
       'Deterministic, zero PII, zero payload logging. Verify the result with verify_execution_hash. ' +
+      'Runs with anything to explain carry decision_trail: per-step reason codes (gate rule id, escalation rule id, input_required cause), hash-excluded adjacent metadata recomputable from the hash-bound decisions[]. ' +
       'Each server-mode run also returns an OpenTelemetry GenAI span document as a resource link (one execute_tool span per executed step under an invoke_agent parent). ' +
       'Response includes a ledger_url fragment link for human verification at ledger.ainumbers.co.',
     inputSchema: {
@@ -2640,6 +2641,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     const results = new Array(chainSteps.length).fill(null);
     const decisions = [];
     const path_taken = [];
+    // DECISIONTRAIL-1 — stable id for the gate rule (or mandatory default) that fired, derived
+    // ONLY from the decision record run_chain already emits: "<step_id>#r<index>" for a matched
+    // rule, "<step_id>#default" for the fall-through. Recomputable by any verifier holding the
+    // hash-bound decisions[] — never a new source of truth.
+    const trailRuleId = (dec) => dec.step_id + (dec.matched_rule_index === null ? '#default' : '#r' + dec.matched_rule_index);
     // §22.8.2(d): the open record attaches whenever a decision ROUTED to "escalate" — including
     // when the escalating step is the LAST step, where no step gets skipped_by_escalation. Inferring
     // escalation from the skipped statuses alone misses that case, so carry the decision itself.
@@ -2713,7 +2719,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         if (isEscalationTarget(dec.next)) {
           // §22.8.2: HALT — mark all not-yet-run steps skipped_by_escalation (DISTINCT from skipped_by_gate).
           for (let j = idx + 1; j < chainSteps.length; j++) {
-            if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_escalation' };
+            if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_escalation', decided_by: dec.step_id, gate_rule_id: trailRuleId(dec) }; // DECISIONTRAIL-1: attribution captured at mark time
           }
           escalatedByDecision = dec; // the decision that routed to "escalate" (§22.8.3 `decision`)
           idx = chainSteps.length; // halt
@@ -2723,7 +2729,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         if (isTerminalTarget(dec.next)) target = chainSteps.length;
         else { target = idToIndex[dec.next]; if (target === undefined || target <= idx) target = idx + 1; }
         for (let j = idx + 1; j < target && j < chainSteps.length; j++) {
-          if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_gate' };
+          if (results[j] === null) results[j] = { order: j + 1, tool_id: steps[j], status: 'skipped_by_gate', decided_by: dec.step_id, gate_rule_id: trailRuleId(dec) }; // DECISIONTRAIL-1: attribution captured at mark time
         }
         idx = target;
         continue;
@@ -2772,6 +2778,52 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     if (compositeIjsonBad) return ijsonErrorResult(compositeIjsonBad, 'run_chain composite_policy + composite_output (OCG §22)');
     const composite_hash = ran.length ? await sharedExecutionHash(composite_policy, composite_output) : null;
     const hash_valid = composite_hash ? (await sharedExecutionHash(composite_policy, composite_output)) === composite_hash : null;
+
+    // DECISIONTRAIL-1 — per-step decision reason codes (deterministic rescope: runs have NO model
+    // choice, so a step's "why" is route/gate/escalation rationale, not model intent). One entry
+    // per considered step, derived ONLY from state this run already carries (the per-step results
+    // statuses plus the hash-bound decisions[] via trailRuleId) — recomputable by any verifier,
+    // no wall clock, no randomness. Closed reason_code enum:
+    //   ran                    — step executed; no decision consumed its output
+    //   gate_routed            — step executed; a §21.4 gate decision routed control (gate_rule_id, next)
+    //   skipped_by_gate        — bypassed by an earlier gate decision (gate_rule_id + decided_by)
+    //   skipped_by_escalation  — bypassed by an earlier "escalate" decision (gate_rule_id + decided_by)
+    //   input_required         — kernel needed inputs the caller omitted (input_required_cause)
+    //   unknown_node / gpu_browser_only / no_kernel_browser_only — not server-runnable (the status itself)
+    //
+    // PREIMAGE BOUNDARY (W0-WORKERHEALTH-1 standing warning: reason codes are ADDITIVE metadata and
+    // MUST live outside the execution_hash preimage): they ride the SAME hash-excluded adjacent-
+    // metadata posture as step_compliance_flags / non_live_steps / escalation_record — built AFTER
+    // composite_hash/hash_valid and attached to composite_output afterwards, so no preimage byte
+    // moves and every composite_execution_hash stays frozen (linear-hash-freeze goldens included).
+    // scripts/gate-decision-trail-boundary.mjs proves this STRUCTURALLY (re-hashing the payload
+    // without the member reproduces the published hash; leaving it in does not — mutation control).
+    // Conditional presence keeps the member absent (not []) on plain all-ok linear runs, which have
+    // no decision content to explain.
+    const decisionByStepId = new Map(decisions.map((d) => [d.step_id, d]));
+    const decision_trail = resultsList.map((r) => {
+      const base = { order: r.order, tool_id: r.tool_id, status: r.status };
+      if (r.status === 'ok') {
+        const d = decisionByStepId.get(gvStepId(chainSteps[r.order - 1], r.order - 1));
+        if (!d) return { ...base, reason_code: 'ran' };
+        return { ...base, reason_code: 'gate_routed', gate_rule_id: trailRuleId(d), next: d.next };
+      }
+      if (r.status === 'input_required') {
+        return { ...base, reason_code: 'input_required', input_required_cause: r.error ?? 'kernel rejected the supplied policy_parameters' };
+      }
+      if (r.status === 'skipped_by_gate' || r.status === 'skipped_by_escalation') {
+        return {
+          ...base, reason_code: r.status,
+          ...(r.gate_rule_id ? { gate_rule_id: r.gate_rule_id } : {}),
+          ...(r.decided_by ? { decided_by: r.decided_by } : {}),
+        };
+      }
+      return { ...base, reason_code: r.status }; // unknown_node / gpu_browser_only / no_kernel_browser_only
+    });
+    const hasDecisionContent = decisions.length > 0 || resultsList.some((r) => r.status !== 'ok');
+    if (hasDecisionContent) {
+      composite_output.decision_trail = decision_trail; // adjacent metadata — added after hash
+    }
 
     // FB-01 (COMPOSITE-FLAG-AGGREGATE-1) — child compliance_flags carried into the composite as
     // HASH-EXCLUDED ADJACENT METADATA, on the escalation_record posture directly below: everything
@@ -2881,11 +2933,15 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         : !hasGates && ran.length === chainSteps.length
           ? 'All steps ran server-side. composite_execution_hash anchors the chain; verify with verify_execution_hash. Per-step artifacts in composite_artifact.output_payload.steps; per-step caveats in steps[].compliance_flags (also rolled up, hash-excluded, on composite_artifact.compliance_flags).'
           : hasGates
-            ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions.'
+            ? 'Gated chain (OCG §21.4). Decision gates routed control; see decisions[] and path_taken[]. Steps marked "skipped_by_gate" were bypassed by a gate. composite_execution_hash binds the route_plan_digest + decisions. Per-step reason codes (gate rule id / escalation / input_required cause) are in decision_trail — hash-excluded adjacent metadata.'
             : 'Some steps did not run (see per-step status). Supply inputs[tool_id] for "input_required" steps, or call with compute:"browser" for browser-only steps.',
       spec: hasGates ? 'OpenChainGraph Standard v0.8 §21 Chain Execution (decision gates)' : 'ChainGraph Standard v0.4 §12 Compute Binding (chain-level)',
     };
     if (hasGates) { out.route_plan_digest = composite_policy.route_plan_digest; out.decisions = decisions; out.path_taken = path_taken; }
+    // DECISIONTRAIL-1 — response mirror of the adjacent-metadata member. Response-only, zero
+    // preimage impact: an MCP agent reads the per-step reasons without opening the composite
+    // artifact, exactly the FB-04 posture (steps[].compliance_flags).
+    if (hasDecisionContent) out.decision_trail = decision_trail;
     if (escalation_record) out.escalation_record = escalation_record;
     // RUNCHAIN-LIVE-NARROW-1 — surface the disclosure on the RESPONSE too, and say it in the note.
     // Response metadata only; no artifact field moves, no hash changes. Without this an agent has to
@@ -4039,7 +4095,9 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       'artifacts, all keyed to the same input hashes -- replacing what today takes 4-6 separate tool ' +
       'calls with hand-carried hashes. Calls the same in-process functions those standalone tools use; ' +
       'if any one section fails to build, the whole call fails isError:true with that section\'s own ' +
-      'message -- no partial pack.',
+      'message -- no partial pack. Optionally carries a run_chain decision_trail (per-step reason ' +
+      'codes: gate rule id, escalation rule id, input_required cause) as pack-level metadata so an ' +
+      'auditor-facing pack answers "why did each step happen" without a second round-trip.',
     inputSchema: {
       artifacts: z.array(z.object({
         execution_hash: z.string().describe('sha256:... -- the OCG artifact hash this entry documents.'),
@@ -4055,10 +4113,20 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       session_id: z.string().optional().describe('Session identifier to embed in the receipt, if the caller tracks one.'),
       framing: z.string().optional().describe('Optional framing context for the session receipt\'s PTG-01 regulator prompt.'),
       room_label: z.string().optional().describe('Label for the disclosure-manifest room.'),
+      decision_trail: z.array(z.object({
+        order: z.number().int().describe('1-based step order, mirroring the producing run_chain result.'),
+        tool_id: z.string().describe('The step\'s tool_id.'),
+        status: z.string().describe('Per-step status from the run_chain result.'),
+        reason_code: z.string().describe('Closed enum: ran | gate_routed | skipped_by_gate | skipped_by_escalation | input_required | unknown_node | gpu_browser_only | no_kernel_browser_only.'),
+        gate_rule_id: z.string().optional().describe('<step_id>#r<index> or <step_id>#default — the gate rule that fired or bypassed this step. Recomputable from the hash-bound decisions[].'),
+        decided_by: z.string().optional().describe('step_id of the decision that routed control past this step.'),
+        next: z.string().optional().describe('Routing target of the gate decision (a step id, or the terminal "end"/"escalate").'),
+        input_required_cause: z.string().optional().describe('The kernel error that made this step input_required.'),
+      })).optional().describe('Per-step decision reason trail from the run_chain result (pass its decision_trail — response field or composite_output.decision_trail). Carried verbatim into the pack as pack-level metadata, outside every section hash; omitted entirely when not supplied. See DECISIONTRAIL-1.'),
       sd_jwt: z.boolean().optional().describe('When true, also return an SD-JWT export of the HA bundle (mirrors ha_bundle_export, default false; no-op when ha_records is absent).'),
     },
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
-  }, async ({ artifacts, subject_hash, ha_records, kernel_version, policy_version, verification_result, submission_receipt, session_id, framing, room_label, sd_jwt }) => {
+  }, async ({ artifacts, subject_hash, ha_records, kernel_version, policy_version, verification_result, submission_receipt, session_id, framing, room_label, decision_trail, sd_jwt }) => {
     const execution_hashes = artifacts.map((a) => a.execution_hash);
     const tool_ids = artifacts.map((a) => a.tool_id).filter((id) => id !== undefined);
     const effective_subject_hash = subject_hash ?? artifacts[0].execution_hash;
@@ -4113,6 +4181,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       session_receipt,
       ...(ha_bundle !== undefined ? { ha_bundle } : {}),
       disclosure_manifest,
+      // DECISIONTRAIL-1 — the per-step decision trail rides the PACK (pack-level metadata), not
+      // any hashed section: the receipt root hashes execution_hashes, the manifest root hashes
+      // its entries, so carrying the trail here moves no digest in the pack. Conditional
+      // presence: omitted entirely (not []) when the caller has no trail.
+      ...(decision_trail !== undefined ? { decision_trail } : {}),
       ...(sd_jwt_export !== undefined ? { sd_jwt_export } : {}),
       spec: 'AGENT-GLUE-BUILD-SPEC.md §(a)',
     };
