@@ -5,7 +5,9 @@
 // handler directly against the committed ./data assets (the gate-mcp-era.mjs pattern: same local
 // ASSETS stub wrangler serves). Asserts, with numbers quoted for the row's proofs:
 //   1. tools/list page one: byte count, tool count, nextCursor present.
-//   2. Cursor walk to exhaustion: 719 node/pilot/utility tools + describe_tool = 720, 0 duplicate
+//   2. Cursor walk to exhaustion: ALL node/pilot/utility tools == counts.json mcp_tools_total
+//      (describe_tool is itself one of the counted utility names; 721 since RUN-2-1 added
+//      run_chain_batch), 0 duplicate
 //      names, 0 `outputSchema` keys across ALL pages, every page under the budget.
 //   3. describe_tool("recompute_payment_waterfall") returns the full definition and its
 //      outputSchema is byte-identical (sha256 over canonical JSON) to the manifest projection the
@@ -113,7 +115,13 @@ console.log(`· page one: ${p1.bytes} bytes (SSE frame), ${p1Tools.length} tools
   }
   const unique = new Set(walked);
   const committed = JSON.parse(readFileSync(join(DATA_DIR, 'mcp', 'static', 'tools-list.sse.txt'), 'utf8').split('\n').find((l) => l.startsWith('data: ')).replace('__OCG_ID__', '1').slice(6)).result.tools;
-  check('cursor walk: 720 tools (719 + describe_tool)', walked.length === 720, String(walked.length));
+  // RUN-2-1: the pin tracks counts.json mcp_tools_total (which ALREADY counts describe_tool —
+  // it is one of the 43 UTILITY_TOOL_NAMES — so the walked total equals mcp_tools_total, not +1;
+  // the old literal encoded the same thing as "719 + describe_tool = 720"). It stays a HARD PIN:
+  // a silent count change must fail loudly, never auto-pass — bump via counts.json in the same
+  // commit as the surface change, and surface-parity P4 independently re-derives counts.json.
+  const expectedTools = JSON.parse(readFileSync(join(DATA_DIR, 'counts.json'), 'utf8')).mcp_tools_total ?? 0;
+  check('cursor walk: ' + expectedTools + ' tools (mcp_tools_total, describe_tool included)', walked.length === expectedTools, String(walked.length));
   check('cursor walk: 0 duplicate names', walked.length === unique.size, `${walked.length} vs ${unique.size} unique`);
   check('cursor walk: 0 outputSchema keys across all pages', schemaKeys === 0, String(schemaKeys));
   check('cursor walk: matches the committed template tool-for-tool',

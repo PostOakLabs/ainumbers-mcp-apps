@@ -53,6 +53,7 @@ const gates = [
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
   { name: 'full-corpus chain E2E + schema conformance (audit E1/E3)', args: ['scripts/run-chain-corpus.mjs'] },
+  { name: 'run_chain_batch estimate-first + small-N sync batch (RUN-2-1)', args: ['scripts/test-run-chain-batch.mjs'] },
   { name: 'input-attestations gate (§23)',        args: ['scripts/validate-input-attestations.test.mjs'] },
   { name: 'private-inputs gate (§25)',            args: ['scripts/validate-private-inputs.test.mjs'] },
   { name: 'AuthZEN mapping (§21.4)',              args: ['scripts/authzen-mapping.test.mjs'] },
