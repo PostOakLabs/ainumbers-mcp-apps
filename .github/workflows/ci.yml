@@ -283,6 +283,16 @@ jobs:
         # cannot see.
         run: node scripts/run-chain-corpus.mjs
 
+      - name: 📦 run_chain_batch — estimate-first + small-N sync batch (RUN-2-1)
+        # Drives the REAL registered batch tool over InMemoryTransport: estimate mode
+        # executes NOTHING (COSTPREFLIGHT-1); run mode returns all-rows results in ONE
+        # response with PER-ROW terminal status; a batch row's composite_execution_hash is
+        # IDENTICAL to a direct run_chain call (same executeChainRun engine); whole-batch
+        # retry is deterministic; the row cap (8) and the LIVE-MEASURED total step budget
+        # (11, measured on the deployed free-plan endpoint) are both enforced before
+        # execution.
+        run: node scripts/test-run-chain-batch.mjs
+
       - name: 🏷️ Composite flag carriage (FB-01/FB-04)
         # COMPOSITE-FLAG-AGGREGATE-1. Both runners used to stamp the composite artifact with a
         # hardcoded `compliance_flags: []` over children that may have raised flags. This gate

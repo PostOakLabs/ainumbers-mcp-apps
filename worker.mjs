@@ -3345,98 +3345,226 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // run_chain_batch — RUN-2-1 (IMPL-PLAN-P0P1 §4 C2; absorbs COSTPREFLIGHT-1).
   // Batch semantics (one handle, per-row terminal states, pre-flight estimate)
   // inspired by GREP AI (Parcha Labs — https://grep.ai); caps are OURS, measured.
-  // mode:"estimate" ships FIRST: validates every row (chain exists, step counts,
+  // mode:"estimate" shipped FIRST: validates every row (chain exists, step counts,
   // per-step compute feasibility, gate preview, inputs coverage) WITHOUT executing
   // a single kernel — the CPU-light pre-flight for a planned batch (COSTPREFLIGHT-1).
-  // mode:"run" (follow-up commit) executes each row through executeChainRun — the
-  // SAME engine as run_chain — and reports a per-row terminal status, with caps
-  // measured live on the deployed free-plan endpoint.
+  // mode:"run" executes each row through executeChainRun — the SAME engine as
+  // run_chain — and reports a PER-ROW terminal status ('completed' | 'input_required'
+  // | 'escalated' | 'partial' | 'error' | 'unknown_chain' | 'no_steps'): one row's
+  // failure never fails another, and all rows' results ride the ONE response.
+  //
+  // Caps are OURS, measured LIVE on the deployed free-plan endpoint
+  // (https://mcp.ainumbers.co/mcp, 2026-09-22T03:0xZ, probe kept tiny per the row's
+  // back-off rule): an N-step fixture-backed chain via run_chain shares ONE
+  // invocation CPU budget across N kernel builds — the same bound an N-row batch
+  // hits. Chains of 1, 2, 3, 4, 5, 6 and 11 steps ALL completed green in one
+  // invocation (worst case 416 ms / 138 KB response; every probe HTTP 200 with a
+  // full composite_execution_hash; no error -> no back-off needed, and the probe
+  // deliberately stopped there rather than hunting the wall). Measured caps:
+  //   RUN_CHAIN_BATCH_MAX_ROWS = 8            — single-digit rows; each row returns
+  //                                             its full composite artifact.
+  //   RUN_CHAIN_BATCH_MAX_TOTAL_STEPS = 11    — the largest server-kernel-step count
+  //                                             MEASURED completing in one invocation.
+  //                                             A bound from evidence, NOT a claim
+  //                                             about where the wall actually is.
+  // These are measured caps, not copied concurrency defaults. JSON-RPC-level
+  // batching stays REFUSED (-32600): this is ONE tools/call, not a batched
+  // JSON-RPC array.
+  //
+  // Retry semantics: a client retry re-runs the WHOLE batch. Safe because every
+  // chain is deterministic — same inputs -> same per-step outputs, same
+  // composite_execution_hash (wall-clock envelope fields like generated_at differ;
+  // nothing hashed does). See docs/client-fan-out-patterns.md for the blessed
+  // sequential-calls pattern beyond the cap. Mandates and input_required
+  // escalation are NOT accepted on batch rows (keeps the sync path CPU-bounded);
+  // an escalated row always carries the non-blocking resolve_handle record.
   // -------------------------------------------------------------------------
+  const RUN_CHAIN_BATCH_MAX_TOTAL_STEPS = 11;
   server.registerTool('run_chain_batch', {
-    title: 'Estimate several ChainGraph chain runs in one call',
+    title: 'Run or estimate several ChainGraph chains in one call',
     description:
-      'Batch pre-flight over named chains: validates every row (chain exists, step counts, per-step compute ' +
-      'feasibility, inputs coverage, decision-gate preview) in ONE round-trip WITHOUT executing anything — no kernel ' +
-      'runs, no execution_hash is produced. Use it before run_chain / run_chain_batch runs to catch unknown chains, ' +
-      'missing inputs and browser-only steps cheaply, and to read each chain\'s decision-gate rule shapes (OCG §21.4) ' +
-      'ahead of execution. Per-row results: one row\'s problem never hides another\'s. ' +
-      'Deterministic, zero PII, zero payload logging. This is the estimate/plan mode of the batch surface; ' +
-      'execution arrives with mode:"run".',
+      'Batch over named chains in ONE round-trip with a PER-ROW terminal status — one row\'s failure never fails ' +
+      'another, and every row\'s result rides the single response. mode:"run" (default) executes each row through the ' +
+      'same engine as run_chain (composite artifact + execution_hash per row, deterministic); mode:"estimate" validates ' +
+      'every row (chain exists, step counts, compute feasibility, inputs coverage, OCG §21.4 gate rule previews) WITHOUT ' +
+      'executing anything. Capped at ' + RUN_CHAIN_BATCH_MAX_ROWS + ' rows and ' + RUN_CHAIN_BATCH_MAX_TOTAL_STEPS + ' total server-kernel steps per batch — ' +
+      'caps MEASURED live on the deployed free-plan endpoint, where N kernel builds in one invocation share one CPU ' +
+      'budget (an 11-step chain: green at 416 ms). Beyond the cap, use sequential run_chain calls — each call gets its ' +
+      'own CPU budget (the blessed fan-out pattern on this tier; docs/client-fan-out-patterns.md). Retry = re-run the ' +
+      'WHOLE batch: safe, because determinism reproduces byte-identical execution hashes. Mandates and input_required ' +
+      'escalation are not accepted on batch rows; escalated rows carry the non-blocking resolve_handle record. ' +
+      'Zero PII, zero payload logging.',
     inputSchema: {
-      mode: z.enum(['estimate']).optional()
-        .describe('Batch mode. "estimate" (only mode shipped so far) validates all rows and previews gates without executing anything.'),
+      mode: z.enum(['estimate', 'run']).optional()
+        .describe('"run" (default) executes every row server-side through the same engine as run_chain; "estimate" validates all rows and previews gates without executing anything.'),
       rows: z.array(z.object({
         chain: z.string().describe('Chain name for this row, e.g. "agent-commerce-conformance". List names with find_chain or build_workflow_links.'),
         inputs: z.record(z.record(z.any())).optional()
-          .describe('Map of step tool_id -> policy_parameters for THIS row (same shape as run_chain inputs). Reported per step as inputs_source "caller" when present.'),
+          .describe('Map of step tool_id -> policy_parameters for THIS row (same shape as run_chain inputs). Omitted steps run with fixture defaults; kernels needing required fields come back status "input_required", never failed silently.'),
       })).min(1).max(RUN_CHAIN_BATCH_MAX_ROWS)
-        .describe('1-' + RUN_CHAIN_BATCH_MAX_ROWS + ' rows, one chain per row. The cap keeps the synchronous response bounded; for larger fan-out use sequential run_chain calls (docs/client-fan-out-patterns.md).'),
+        .describe('1-' + RUN_CHAIN_BATCH_MAX_ROWS + ' rows, one chain per row. The cap keeps the synchronous response bounded and inside the free-plan CPU budget measured live; for larger fan-out use sequential run_chain calls (docs/client-fan-out-patterns.md).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ mode, rows }) => {
-    const results = rows.map((row, i) => {
+    const effectiveMode = mode ?? 'run';
+
+    // Shared CPU-light validation (pure lookups over already-loaded data — no kernel runs).
+    const validated = rows.map((row, i) => {
       const idx = i + 1;
       const chainMeta = namedChains[row.chain];
-      if (!chainMeta) {
-        return { index: idx, chain: row.chain, status: 'unknown_chain', hint: 'List chains with find_chain or build_workflow_links.' };
-      }
+      if (!chainMeta) return { index: idx, chain: row.chain, status: 'unknown_chain', hint: 'List chains with find_chain or build_workflow_links.' };
       const chainSteps = chainMeta.steps ?? [];
-      if (!chainSteps.length) {
-        return { index: idx, chain: row.chain, status: 'no_steps' };
-      }
-      const steps = chainSteps.map((s, si) => {
-        const tid = s.tool_id;
-        const node = cgById[tid];
-        let compute = 'server_kernel';
-        if (!node) compute = 'unknown_node';
-        else if (node.gpu) compute = 'gpu_browser_only';
-        else if (!getKernel(tid)) compute = 'no_kernel_browser_only';
-        const callerPp = row.inputs?.[tid];
-        const fixturePp = chainFixtures?.[row.chain]?.[tid];
-        const stepEst = {
-          order: si + 1,
-          tool_id: tid,
-          mcp_name: node?.mcp_name ?? null,
-          compute,
-          inputs_source: callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none'),
-        };
-        // Gate PREVIEW (OCG §21.4): the static rule shape only — never evaluated here
-        // (evaluation needs the step's output_payload, i.e. execution).
-        if (s.gate) {
-          stepEst.gate_preview = {
-            step_id: gvStepId(s, si),
-            input_pointer: s.gate.input ?? null,
-            rules: (Array.isArray(s.gate.rules) ? s.gate.rules : []).map((r) => ({
-              op: r.op, ...(r.value !== undefined ? { value: r.value } : {}), next: r.next,
-            })),
-            default_next: s.gate.default ?? null,
-            ...(s.gate.gate_policy ? { gate_policy: s.gate.gate_policy } : {}),
-          };
-        }
-        return stepEst;
-      });
-      return {
-        index: idx,
-        chain: row.chain,
-        status: 'ready',
-        step_count: chainSteps.length,
-        server_kernel_steps: steps.filter((s) => s.compute === 'server_kernel').length,
-        browser_delegated_steps: steps.filter((s) => s.compute === 'gpu_browser_only' || s.compute === 'no_kernel_browser_only').length,
-        steps,
-        note: 'Estimate only: NO kernel executed, no execution_hash produced. Steps with inputs_source "none" may come back status "input_required" when run (the kernel needs fields you did not supply and no fixture covers). gate_preview is the static rule shape, never evaluated.',
-      };
+      if (!chainSteps.length) return { index: idx, chain: row.chain, status: 'no_steps' };
+      return { index: idx, chain: row.chain, chainMeta, chainSteps, row };
     });
+    const serverStepsOf = (chain, chainSteps) => (chainSteps ?? []).filter((s) => {
+      const n = cgById[s.tool_id];
+      return n && !n.gpu && !!getKernel(s.tool_id);
+    }).length;
+    const totalServerSteps = validated.reduce((acc, v) => acc + (v.chainMeta ? serverStepsOf(v.chain, v.chainSteps) : 0), 0);
+
+    const capEcho = {
+      max_rows: RUN_CHAIN_BATCH_MAX_ROWS,
+      max_total_server_kernel_steps: RUN_CHAIN_BATCH_MAX_TOTAL_STEPS,
+      measured_live: '2026-09-22 on https://mcp.ainumbers.co/mcp (deployed free-plan endpoint): fixture-backed chains of 1, 2, 3, 4, 5, 6 and 11 steps each completed via run_chain in one invocation (worst case 416 ms / 138 KB; all HTTP 200 with full composite_execution_hash). 11 kernel builds per invocation is the largest MEASURED green count — the probe stopped there on purpose — so the total step budget is set to 11. Row cap 8 keeps each row\'s full composite artifact inside a bounded synchronous response. Measured caps, not copied concurrency defaults.',
+    };
+
+    // ── mode:"estimate" — the absorbed COSTPREFLIGHT-1. No kernel executes. ──────
+    if (effectiveMode === 'estimate') {
+      const results = validated.map((v) => {
+        if (v.status) return v; // unknown_chain / no_steps already carry their terminal status
+        const steps = v.chainSteps.map((s, si) => {
+          const tid = s.tool_id;
+          const node = cgById[tid];
+          let compute = 'server_kernel';
+          if (!node) compute = 'unknown_node';
+          else if (node.gpu) compute = 'gpu_browser_only';
+          else if (!getKernel(tid)) compute = 'no_kernel_browser_only';
+          const callerPp = v.row.inputs?.[tid];
+          const fixturePp = chainFixtures?.[v.chain]?.[tid];
+          const stepEst = {
+            order: si + 1,
+            tool_id: tid,
+            mcp_name: node?.mcp_name ?? null,
+            compute,
+            inputs_source: callerPp !== undefined ? 'caller' : (fixturePp !== undefined ? 'fixture' : 'none'),
+          };
+          // Gate PREVIEW (OCG §21.4): the static rule shape only — never evaluated here
+          // (evaluation needs the step's output_payload, i.e. execution).
+          if (s.gate) {
+            stepEst.gate_preview = {
+              step_id: gvStepId(s, si),
+              input_pointer: s.gate.input ?? null,
+              rules: (Array.isArray(s.gate.rules) ? s.gate.rules : []).map((r) => ({
+                op: r.op, ...(r.value !== undefined ? { value: r.value } : {}), next: r.next,
+              })),
+              default_next: s.gate.default ?? null,
+              ...(s.gate.gate_policy ? { gate_policy: s.gate.gate_policy } : {}),
+            };
+          }
+          return stepEst;
+        });
+        return {
+          index: v.index,
+          chain: v.chain,
+          status: 'ready',
+          step_count: v.chainSteps.length,
+          server_kernel_steps: steps.filter((s) => s.compute === 'server_kernel').length,
+          browser_delegated_steps: steps.filter((s) => s.compute === 'gpu_browser_only' || s.compute === 'no_kernel_browser_only').length,
+          steps,
+          note: 'Estimate only: NO kernel executed, no execution_hash produced. Steps with inputs_source "none" may come back status "input_required" when run (the kernel needs fields you did not supply and no fixture covers). gate_preview is the static rule shape, never evaluated.',
+        };
+      });
+      const out = {
+        mode: 'run_chain_batch',
+        batch_mode: 'estimate',
+        batch_size: rows.length,
+        total_server_kernel_steps: totalServerSteps,
+        within_step_budget: totalServerSteps <= RUN_CHAIN_BATCH_MAX_TOTAL_STEPS,
+        cap: capEcho,
+        summary: {
+          ready: results.filter((r) => r.status === 'ready').length,
+          unknown_chain: results.filter((r) => r.status === 'unknown_chain').length,
+          no_steps: results.filter((r) => r.status === 'no_steps').length,
+        },
+        results,
+        note: 'Estimate/plan mode (COSTPREFLIGHT-1): all row inputs validated, step counts + gate previews reported, zero execution. Batch semantics inspired by GREP AI (grep.ai); caps are ours, measured.',
+      };
+      return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    }
+
+    // ── mode:"run" — small-N sync batch, per-row terminal status ─────────────────
+    // Budget refusal BEFORE any execution (CPU-light): the whole batch must fit the
+    // live-measured per-invocation kernel-step budget.
+    if (totalServerSteps > RUN_CHAIN_BATCH_MAX_TOTAL_STEPS) {
+      const errOut = {
+        error: 'batch_step_budget_exceeded',
+        detail: 'This batch needs ' + totalServerSteps + ' server-kernel steps in one invocation; the measured budget is ' + RUN_CHAIN_BATCH_MAX_TOTAL_STEPS + '. N kernel builds share ONE free-plan CPU budget per invocation — measured live on the deployed endpoint (cap comment on run_chain_batch). Split the batch, drop rows, or use sequential run_chain calls (docs/client-fan-out-patterns.md).',
+        total_server_kernel_steps: totalServerSteps,
+        max_total_server_kernel_steps: RUN_CHAIN_BATCH_MAX_TOTAL_STEPS,
+      };
+      return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+    }
+
+    const results = [];
+    const summary = { completed: 0, input_required: 0, escalated: 0, partial: 0, error: 0, unknown_chain: 0, no_steps: 0 };
+    for (const v of validated) {
+      if (v.status) { // unknown_chain / no_steps: terminal for THIS row only
+        const row = { index: v.index, chain: v.chain, terminal_status: v.status };
+        if (v.hint) row.hint = v.hint;
+        results.push(row);
+        summary[v.status]++;
+        continue;
+      }
+      try {
+        // Same engine, same defaults as a direct run_chain call — resolve_handle escalation
+        // (non-blocking), auto compute, no mandate. Nothing here can block the batch.
+        const rowRes = await executeChainRun({
+          chain: v.chain,
+          inputs: v.row.inputs,
+          compute: 'auto',
+          mandate: undefined,
+          escalation_transport: 'resolve_handle',
+        });
+        const out = rowRes.structuredContent ?? {};
+        const stepStatuses = (out.steps ?? []).map((s) => s.status);
+        let terminal;
+        if (out.status === 'escalated') terminal = 'escalated';
+        else if (stepStatuses.includes('input_required')) terminal = 'input_required';
+        else if (stepStatuses.length && stepStatuses.every((s) => s === 'ok' || s === 'skipped_by_gate')) terminal = 'completed';
+        else terminal = 'partial';
+        // Trim the per-row OTel span document (a base64 data: URI, tens of KB) from the batch
+        // response — response metadata, regenerable by calling run_chain directly for that row.
+        // Every hashed byte stays.
+        if (out.otel_span_link) delete out.otel_span_link;
+        const row = {
+          index: v.index,
+          chain: v.chain,
+          terminal_status: terminal,
+          step_count: out.step_count ?? null,
+          steps_ran: out.steps_ran ?? null,
+          composite_execution_hash: out.composite_execution_hash ?? null,
+          result: out,
+        };
+        if (out.ledger_url) row.ledger_url = out.ledger_url;
+        results.push(row);
+        summary[terminal]++;
+      } catch (err) {
+        results.push({ index: v.index, chain: v.chain, terminal_status: 'error', error: String(err?.message ?? err) });
+        summary.error++;
+      }
+    }
     const out = {
       mode: 'run_chain_batch',
-      batch_mode: 'estimate',
+      batch_mode: 'run',
       batch_size: rows.length,
-      summary: {
-        ready: results.filter((r) => r.status === 'ready').length,
-        unknown_chain: results.filter((r) => r.status === 'unknown_chain').length,
-        no_steps: results.filter((r) => r.status === 'no_steps').length,
-      },
+      total_server_kernel_steps: totalServerSteps,
+      cap: capEcho,
+      summary,
       results,
-      note: 'Estimate/plan mode (COSTPREFLIGHT-1): all row inputs validated, step counts + gate previews reported, zero execution. Batch semantics inspired by GREP AI (grep.ai); caps are ours, measured.',
+      retry_semantics: 'A retry re-runs the WHOLE batch. Safe: every chain is deterministic — same inputs reproduce the same per-step outputs and the same composite_execution_hash (only wall-clock envelope fields like generated_at differ). Fill inputs for any "input_required" row before retrying; escalated rows need no retry (the run completed; see result.escalation_resolve).',
+      beyond_cap: 'For fan-out beyond the cap, make sequential run_chain calls — each call gets its own free-plan CPU budget (the blessed pattern on this tier; docs/client-fan-out-patterns.md). Async/Workflows-based batch is on WATCH (paid tier / design row).',
+      note: 'Batch semantics inspired by GREP AI (grep.ai); caps are ours, measured live.',
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
