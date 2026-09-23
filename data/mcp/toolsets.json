@@ -44,6 +44,7 @@
       "recompute_stablecoin_reserve_3source",
       "verify_summa_mst_inclusion",
       "aggregate_summa_mst_liabilities",
+      "compute_regulatory_obligations_register",
       "simulate_stablecoin_reserve"
     ],
     "mortgage": [
