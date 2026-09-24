@@ -5769,14 +5769,18 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     });
   }
 
-  // MCP-SHOWCASE-PROMPTS-1: the five end-to-end estate showcase prompts, projected verbatim
+  // MCP-SHOWCASE-PROMPTS-1: the end-to-end estate showcase prompts, projected verbatim
   // from the site SSOT mcp/showcase-prompts.json (data/mcp/showcase-prompts.json here) —
   // a second, parallel source beside the recipes above (recipes stay the chain-workflow SSOT;
   // these are the non-chain demos: page + worker + receipt + ledger + anchor). Typed arguments
-  // per the SSOT `arguments[]`; the body ships as the single user message verbatim, followed
-  // by resource_link content blocks for the verify surface (ledger / node / anchor URLs).
-  // Registered through the same regPrompt dedupe; a name collision with a flagship or recipe
-  // prompt can never 500 the /mcp handshake.
+  // per the SSOT `arguments[]`. PROMPTS-GET-SPEC-FIX-1: the body ships as the single user
+  // message's ONE `{ type: "text" }` content block — MCP 2025-06-18 defines
+  // PromptMessage.content as exactly one content block, and the previous shape (content as an
+  // ARRAY of [text, resource_link × N]) failed the official SDK's GetPromptResultSchema, making
+  // every showcase prompt carrying verify_surface links unfetchable by SDK clients. The verify
+  // surface rides in the same block as a "\n\nVerify at:\n" + "- <url>" appendix, one line per
+  // URL. Registered through the same regPrompt dedupe; a name collision with a flagship or
+  // recipe prompt can never 500 the /mcp handshake.
   for (const sp of (showcasePrompts?.prompts ?? [])) {
     const argsSchema = {};
     for (const a of (sp.arguments ?? [])) {
@@ -5788,16 +5792,16 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       title: sp.title,
       description: sp.one_line,
       argsSchema,
-    }, () => ({
-      description: sp.one_line,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'text', text: sp.body },
-          ...(sp.verify_surface ?? []).map((u) => ({ type: 'resource_link', uri: u, name: u })),
-        ],
-      }],
-    }));
+    }, () => {
+      const verify = sp.verify_surface ?? [];
+      const text = verify.length
+        ? sp.body + '\n\nVerify at:\n' + verify.map((u) => '- ' + u).join('\n')
+        : sp.body;
+      return {
+        description: sp.one_line,
+        messages: [{ role: 'user', content: { type: 'text', text } }],
+      };
+    });
   }
 
   return server;

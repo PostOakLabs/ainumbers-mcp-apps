@@ -44,6 +44,7 @@ const gates = [
   { name: 'WASM deterministic self-test (§CW-1.b)',args: ['scripts/check-wasm-deterministic.selftest.mjs'] },
   { name: 'WASM deterministic profile (§CW-1.b)', args: ['scripts/check-wasm-deterministic.mjs'] },
   { name: 'surface-parity (counts/discovery)',    args: ['scripts/surface-parity.mjs'] },
+  { name: 'prompts/get spec-conformance (all prompts, SDK schema)', args: ['tests/showcase-prompts.test.mjs'] },
   { name: 'worker hot-path invariants',           args: ['scripts/check-worker-invariants.mjs'] },
   { name: 'malformed-body fast-fail (audit F1)',  args: ['scripts/test-malformed-body-fastfail.mjs'] },
   { name: '/mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1)', args: ['scripts/test-mcp-accept-negotiation.mjs'] },
