@@ -1,0 +1,102 @@
+name: AE Baseline Measure (workflow_dispatch)
+
+# WEBMCP-FEEDBACK-PREMISE-1 (2026-09-24) — the WEBMCP-FEEDBACK-LOOP program's
+# P2 premise proof: one SQL query against the live `mcp_tool_calls` Analytics
+# Engine dataset, capturing the pre-collector 28-day infrastructure-failure
+# baseline (spec: WEBMCP-FEEDBACK-LOOP-BUILD-SPEC-2026-09-23.md, §S row A +
+# §P P1/P2; ruling R4 = the read-scope token).
+#
+# CREDENTIAL (R4): secret `AE_SQL_TOKEN` — a Cloudflare API token scoped
+# `Account | Account Analytics | Read`, account-scoped to the one ainumbers
+# account, ~1-year TTL. Read-only on purpose: CI holds the deploy-scoped
+# CLOUDFLARE_API_TOKEN too, and that token must NOT be reused for AE SQL
+# reads (privilege excess — spec §P P2 [AF-2]). This job never writes.
+#
+# TRIGGER — workflow_dispatch ONLY (input `days`, default 28). No push, no
+# schedule, no release: SO #40(a)'s schedule discipline is not engaged, and a
+# baseline is a ONE measurement, not a recurring job (row E's
+# feedback-usage-digest is the recurring one, staged separately). The file
+# must sit on the DEFAULT BRANCH for workflow_dispatch to resolve (the AF-7
+# lesson) — dispatch happens after this PR merges, never from the branch.
+#
+# BLINDNESS [BF-1] — read before trusting the numbers: the ok|error bit
+# (blob3) is `response.status < 500` (worker.mjs 6877 @ 7c6a826), so this
+# stream sees INFRASTRUCTURE failures only. MCP-level failures are NOT
+# visible: the SDK converts tool-callback throws into HTTP 200 `isError`
+# results (recorded `ok`), and the unknown-tool / removed-tool paths return
+# early writing NO datapoint at all. Row B's R5 telemetry extension fixes
+# that class; this baseline quantifies what exists today so the pre/post
+# comparison is honest.
+#
+# DATAPOINT LAYOUT being queried (worker.mjs 6886-6888 @ 7c6a826; spec §P P1):
+#   blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp']
+#   doubles: [latencyMs, chainDepth ?? 0]
+#   indexes: [toolName]
+# The initialize handler also writes to this dataset (blob1='initialize',
+# doubles=[1] — NOT latency), so it is excluded from the tool baseline below.
+#
+# The job prints the query and the RAW API response; a non-200 fails the step
+# with the status + body quoted (a first-dispatch auth/scope failure is the
+# credential's RED proof — WEBMCP-FEEDBACK-PREMISE-1 fence, do NOT
+# fix-forward the credential). No irreversible step: read-only HTTP POST.
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: Trailing window in days for the baseline query (default 28)
+        required: false
+        default: '28'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    name: Query mcp_tool_calls — per-tool counts, ok/error (5xx-only), latency quantiles
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: POST the baseline SQL query to the Analytics Engine SQL API
+        env:
+          AE_SQL_TOKEN: ${{ secrets.AE_SQL_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DAYS: ${{ inputs.days }}
+        run: |
+          set -eu
+          if [ -z "${AE_SQL_TOKEN:-}" ]; then
+            echo "RED: secret AE_SQL_TOKEN is ABSENT on $GITHUB_REPOSITORY — the R4 read-scope token is not installed; the AE SQL read cannot run (WEBMCP-FEEDBACK-PREMISE-1 / spec R4)." >&2
+            exit 1
+          fi
+          if [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "RED: secret CLOUDFLARE_ACCOUNT_ID is ABSENT on $GITHUB_REPOSITORY — no account to query (WEBMCP-FEEDBACK-PREMISE-1)." >&2
+            exit 1
+          fi
+          # The only interpolation into the SQL is this window length: digits
+          # survive, everything else is stripped, empty falls back to 28 —
+          # a dispatch input can never inject SQL syntax.
+          DAYS=$(printf '%s' "${DAYS:-28}" | tr -cd '0-9')
+          [ -n "$DAYS" ] || DAYS=28
+
+          QUERY="SELECT blob1 AS tool_name, SUM(_sample_interval) AS calls, sumIf(_sample_interval, blob3 = 'ok') AS ok_calls, sumIf(_sample_interval, blob3 = 'error') AS error_calls_5xx_only, quantileExactWeighted(0.50)(double1, _sample_interval) AS p50_latency_ms, quantileExactWeighted(0.95)(double1, _sample_interval) AS p95_latency_ms, quantileExactWeighted(0.99)(double1, _sample_interval) AS p99_latency_ms, MAX(double1) AS max_latency_ms FROM mcp_tool_calls WHERE timestamp > NOW() - INTERVAL '${DAYS}' DAY AND blob4 = 'ainumbers-mcp' AND blob1 != 'initialize' GROUP BY blob1 ORDER BY calls DESC"
+
+          echo "Dataset: mcp_tool_calls (Cloudflare Analytics Engine SQL API) — trailing ${DAYS}-day window"
+          echo "Query:"
+          printf '%s\n' "$QUERY"
+          echo "--- raw API response ---"
+          HTTP_CODE=$(curl -sS --max-time 60 -o /tmp/ae-result.out -w '%{http_code}' \
+            -X POST "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/analytics_engine/sql" \
+            -H "Authorization: Bearer ${AE_SQL_TOKEN}" \
+            -H "Content-Type: text/plain" \
+            --data-binary "$QUERY") || { echo "RED: curl transport failure (status line above is empty); raw stderr is the diagnosis." >&2; exit 1; }
+          cat /tmp/ae-result.out
+          echo ""
+          echo "--- HTTP status: ${HTTP_CODE} ---"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "RED: AE SQL API returned HTTP ${HTTP_CODE} (full body above). Per the WEBMCP-FEEDBACK-PREMISE-1 fence: a first-dispatch auth/scope failure is the credential's RED proof — quote this status + body, do NOT fix-forward the credential." >&2
+            exit 1
+          fi
+          echo "GREEN: AE SQL read succeeded — the R4 credential's runtime scope proof (spec §P P2)."
