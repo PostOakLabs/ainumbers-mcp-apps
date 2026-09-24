@@ -77,6 +77,16 @@ jobs:
         # (4) counts.json mcp_tools_total = live nodes + pilot + 9 utility tools
         run: node scripts/surface-parity.mjs
 
+      - name: 🗨️ prompts/get spec-conformance (PROMPTS-GET-SPEC-FIX-1)
+        # For EVERY prompt prompts/list advertises (195: showcase + recipes + flagship), fetches
+        # prompts/get over InMemoryTransport and asserts the official SDK's
+        # GetPromptResultSchema.safeParse passes with EXACTLY ONE content block per message, and
+        # showcase message 0 carries the SSOT body verbatim (+ Verify-at appendix). The defect this
+        # pins: showcase prompts with verify_surface links shipped content as an ARRAY
+        # ([text, resource_link × N]) — spec-legal-looking, but PromptMessage.content is ONE block,
+        # so every official-SDK client failed to fetch them (live-measured 2026-09-24).
+        run: node tests/showcase-prompts.test.mjs
+
       - name: 🛡 Worker hot-path invariants (2026-06-26 /mcp outage guards)
         # Deterministic block on the EXACT patterns that caused the /mcp outages:
         # (1) caching+reusing the McpServer ("Already connected to a transport" => 500)

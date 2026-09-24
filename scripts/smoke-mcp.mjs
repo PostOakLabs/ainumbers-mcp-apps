@@ -39,6 +39,7 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { GetPromptResultSchema } from '@modelcontextprotocol/sdk/types.js';
 
 const ARGV = process.argv.slice(2);
 const SELF_TEST = ARGV.includes('--self-test');
@@ -584,6 +585,31 @@ async function describeToolUnknownName() {
   return { code: nope.error.code, nearest: nope.error.data.nearest_names };
 }
 
+// PROMPTS-GET-SPEC-FIX-1 — post-deploy proof of the prompts/get spec fix, on the LIVE endpoint.
+// same-law-three-doorways is the showcase prompt whose old answer (ONE message whose content was
+// the ARRAY [text, resource_link × 3]) failed the official SDK's GetPromptResultSchema and made
+// every SDK client unable to fetch it (live-measured 2026-09-24). The deployed worker must answer
+// with a result that parses under that SAME schema, every message carrying exactly one content
+// block, and message 0 keeping the "Verify at:" appendix that replaced the resource_link array.
+async function promptGetConformance() {
+  const { result, error } = await call('prompts/get', {
+    name: 'same-law-three-doorways',
+    arguments: { node_page: 'https://ainumbers.co/chaingraph/art-129-webbotauth-signature-verifier.html' },
+  }, 801);
+  if (error) throw new Error(`prompts/get error ${error.code}: ${error.message}`);
+  const parsed = GetPromptResultSchema.safeParse(result);
+  if (!parsed.success) {
+    const issues = (parsed.error?.issues ?? []).slice(0, 3)
+      .map((i) => (i.path ?? []).join('.') + ': ' + i.message).join(' | ');
+    throw new Error(`prompts/get same-law-three-doorways fails GetPromptResultSchema (PROMPTS-GET-SPEC-FIX-1 regression): ${issues}`);
+  }
+  const bad = (parsed.data.messages ?? []).filter((m) => Array.isArray(m.content) || !m.content).length;
+  if (bad) throw new Error(`prompts/get same-law-three-doorways: ${bad} message(s) without exactly one content block`);
+  const text = parsed.data.messages?.[0]?.content?.text ?? '';
+  if (!text.includes('Verify at:')) throw new Error('prompts/get same-law-three-doorways message 0 lost the "Verify at:" appendix');
+  return { messages: parsed.data.messages.length, chars: text.length };
+}
+
 async function exportRoundTrip(names) {
   // 1) Discovery — export_artifact must be registered. Reuses the names the ONE cursor walk in
   //    paginationConformance() already collected (MCP-SMOKE-CI-EXEMPTION-1: no second walk — the
@@ -752,6 +778,9 @@ async function selfTest() {
 
       const dn = await phase('describe-tool-unknown', describeToolUnknownName);
       console.log(`✓ describe_tool unknown-name OK — -32602 with error.data.nearest_names (${dn.nearest.length} nearest)`);
+
+      const pq = await phase('prompt-get', promptGetConformance);
+      console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is GetPromptResultSchema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
