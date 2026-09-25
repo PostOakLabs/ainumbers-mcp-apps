@@ -5266,72 +5266,46 @@
   "check_allocation_affirmation": {
     "type": "object",
     "properties": {
-      "status": {
-        "type": "string",
-        "enum": [
-          "evaluated",
-          "indeterminate"
-        ]
-      },
-      "on_time_rate": {
-        "type": [
-          "number",
-          "null"
-        ]
-      },
-      "rate_basis": {
+      "cutoff_applied": {
         "type": "string"
       },
-      "counts": {
-        "type": "object"
-      },
-      "events": {
-        "type": "array"
-      },
-      "unresolved": {
-        "type": "array"
-      },
-      "issues": {
-        "type": "array"
-      },
-      "regime": {
+      "cutoff_timezone": {
         "type": "string"
       },
-      "logical_date": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "applicability_wave": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "cutoff_timezone_reading": {
+      "dual_date_note": {
         "type": "string"
       },
-      "cutoff_disclosure": {
-        "type": "string"
-      },
-      "rule_version": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "source_digests": {
+      "events_flagged": {
         "type": "array"
       },
-      "disclosures": {
-        "type": "array"
-      },
-      "evidence_labels": {
-        "type": "object"
+      "format_nonconformance_count": {
+        "type": "integer"
       },
       "note": {
         "type": "string"
+      },
+      "on_time_events": {
+        "type": "integer"
+      },
+      "on_time_rate": {
+        "type": "integer"
+      },
+      "reference": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string"
+          },
+          "rts": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          }
+        }
+      },
+      "total_events": {
+        "type": "integer"
       }
     }
   },
