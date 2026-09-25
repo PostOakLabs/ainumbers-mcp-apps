@@ -5266,46 +5266,72 @@
   "check_allocation_affirmation": {
     "type": "object",
     "properties": {
-      "cutoff_applied": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "evaluated",
+          "indeterminate"
+        ]
+      },
+      "on_time_rate": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "rate_basis": {
         "type": "string"
       },
-      "cutoff_timezone": {
-        "type": "string"
+      "counts": {
+        "type": "object"
       },
-      "dual_date_note": {
-        "type": "string"
-      },
-      "events_flagged": {
+      "events": {
         "type": "array"
       },
-      "format_nonconformance_count": {
-        "type": "integer"
+      "unresolved": {
+        "type": "array"
+      },
+      "issues": {
+        "type": "array"
+      },
+      "regime": {
+        "type": "string"
+      },
+      "logical_date": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "applicability_wave": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "cutoff_timezone_reading": {
+        "type": "string"
+      },
+      "cutoff_disclosure": {
+        "type": "string"
+      },
+      "rule_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "source_digests": {
+        "type": "array"
+      },
+      "disclosures": {
+        "type": "array"
+      },
+      "evidence_labels": {
+        "type": "object"
       },
       "note": {
         "type": "string"
-      },
-      "on_time_events": {
-        "type": "integer"
-      },
-      "on_time_rate": {
-        "type": "integer"
-      },
-      "reference": {
-        "type": "object",
-        "properties": {
-          "note": {
-            "type": "string"
-          },
-          "rts": {
-            "type": "string"
-          },
-          "rule": {
-            "type": "string"
-          }
-        }
-      },
-      "total_events": {
-        "type": "integer"
       }
     }
   },

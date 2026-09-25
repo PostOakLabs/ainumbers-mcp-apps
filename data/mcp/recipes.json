@@ -1542,15 +1542,43 @@
       ]
     },
     {
-      "id": "canton-cash-leg",
-      "title": "canton-cash-leg",
-      "domain": null,
-      "use_when": "Use when you need the \"canton-cash-leg\" workflow: Counterparty exposure → reserve attestation → LCR/NSFR → cash-leg finality (Canton DvP atomic settlement)",
+      "id": "canton-cash-leg-assurance",
+      "title": "Canton Cash-Leg Assurance Chain",
+      "domain": "Digital-Asset Rails",
+      "use_when": "Use when the task is in \"Digital-Asset Rails\" and needs the \"Canton Cash-Leg Assurance Chain\" workflow",
       "what_it_runs": "Counterparty exposure → reserve attestation → LCR/NSFR → cash-leg finality (Canton DvP atomic settlement)",
-      "description": null,
-      "composer_url": "chaingraph/chains/canton-cash-leg-assurance.html",
-      "entry_mcp_name": null,
-      "steps": []
+      "description": "Stress-test the cash leg: LCR/NSFR liquidity scenario → MiCA reserve adequacy → on-chain finality verification. Assures Canton settlement payments against Basel III, MiCA Art. 36, and PFMI P9.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/canton-cash-leg-assurance.html",
+      "entry_mcp_name": "run_liquidity_stress_test",
+      "steps": [
+        {
+          "step": 1,
+          "tool_id": "sim-01-lcr-nsfr-liquidity-stress-test",
+          "mcp_name": "run_liquidity_stress_test",
+          "callable": true,
+          "display_name": "Liquidity Stress Test Simulator (LCR/NSFR)",
+          "tool_url": "https://ainumbers.co/chaingraph/sim-01-lcr-nsfr-liquidity-stress-test.html",
+          "handoff": "lcr_breach_probability,nsfr_ratio,time_to_breach feed Stage 2 reserve stress"
+        },
+        {
+          "step": 2,
+          "tool_id": "rca-02-mica-reserve-stress",
+          "mcp_name": "simulate_stablecoin_reserve",
+          "callable": true,
+          "display_name": "MiCA Stablecoin Reserve Stress Simulator",
+          "tool_url": "https://ainumbers.co/chaingraph/rca-02-mica-reserve-stress.html",
+          "handoff": "reserve_shortfall_pct,breach_probability feed Stage 3 cash-leg finality"
+        },
+        {
+          "step": 3,
+          "tool_id": "506-onchain-cash-leg-finality-checker",
+          "mcp_name": "check_cash_leg_finality",
+          "callable": true,
+          "display_name": "On-Chain Cash-Leg Finality Checker",
+          "tool_url": "https://ainumbers.co/tools/506-onchain-cash-leg-finality-checker.html",
+          "handoff": "finality_verdict,genius_status -- Exports cash-leg assurance mandate -- final stage"
+        }
+      ]
     },
     {
       "id": "canton-deposit-compliance",
