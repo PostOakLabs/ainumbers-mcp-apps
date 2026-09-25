@@ -42462,6 +42462,94 @@
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-22 (re-derived over all 22 golden fixture output_payloads, incl. the spec-oracle worked example; errors observed on the 12 fail-closed intake vectors only, absent on the 10 well-formed vectors)"
   },
+  "verify_close_posting_lineage": {
+    "type": "object",
+    "required": [
+      "linked_accruals",
+      "unlinked_accruals",
+      "dangling_trace_refs",
+      "orphan_coding",
+      "missing_source_refs",
+      "duplicate_lineage_keys",
+      "overall"
+    ],
+    "properties": {
+      "linked_accruals": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Accrual keys whose every declared reference resolves to a declared coding entry, in input order. An accrual that partly resolves is not here."
+      },
+      "unlinked_accruals": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Accrual keys declaring no reference at all, in input order. Gates the verdict."
+      },
+      "dangling_trace_refs": {
+        "type": "array",
+        "description": "One entry per reference naming a key no coding entry declares, reported with the accrual that declared it. Gates the verdict.",
+        "items": {
+          "type": "object",
+          "required": [
+            "accrual_key",
+            "trace_ref"
+          ],
+          "properties": {
+            "accrual_key": {
+              "type": "string",
+              "minLength": 1
+            },
+            "trace_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "orphan_coding": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Coding entry keys no accrual traces to. Advisory: recorded, never gating."
+      },
+      "missing_source_refs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Coding entry keys with no declared source_document_digest. Advisory: recorded, never gating."
+      },
+      "duplicate_lineage_keys": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Keys declared more than once across the coding and accrual entries together, once per colliding key in first-repeat order. Gates the verdict."
+      },
+      "overall": {
+        "type": "string",
+        "enum": [
+          "CLOSE_READY",
+          "GAPS_FOUND",
+          "INDETERMINATE"
+        ],
+        "description": "CLOSE_READY iff unlinked_accruals, dangling_trace_refs and duplicate_lineage_keys are all empty over a non-empty accrual set; INDETERMINATE on an empty or malformed register; GAPS_FOUND otherwise."
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Present only on the indeterminate path, carrying the reason no linkage assertion was possible; non-empty exactly when the conditional compliance flag CLOSE_LINEAGE_INDETERMINATE is present (flag-mirror doctrine)."
+      }
+    },
+    "x_schema_provenance": "derived-from-golden-fixtures 2026-09-24 (re-derived over all 20 golden fixture output_payloads, incl. the spec-oracle worked example; errors observed on the 12 indeterminate vectors only, absent on the 8 assertable vectors)"
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
