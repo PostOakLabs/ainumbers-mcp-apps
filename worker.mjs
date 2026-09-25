@@ -22,6 +22,11 @@ import { recordChainRunAsLinks } from './intoto.mjs';
 import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace } from './otelspan.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
+// ERROR-REGISTRY-REQUEST-ID-SPEC (row AICONTRACT-PART-B-1): the SINGLE CONSTRUCTION SITE for
+// JSON-RPC error responses — stable string names over the frozen wire codes, plus the additive
+// per-request `request_id` envelope member. scripts/gate-error-registry.mjs enforces that no
+// inline error construction appears outside errors.mjs (or the frozen dev-server baseline).
+import { mintRequestId, protocolErrorResponse, TOOL_ERRORS } from './errors.mjs';
 import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash } from './kernels/_hash.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
@@ -1713,7 +1718,7 @@ export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParam
     'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle }, { onlyTool = null, mrtr = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
   // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
   // spec_digest exists under fv-status/ (today exactly one, since every live
   // node shares one chaingraph/standard/SPEC.md) — an ambiguous or empty
@@ -2115,11 +2120,14 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // carries a machine-readable JSON-RPC error object — code -32602 Invalid params, plus a stable
   // `data.reason` an agent can branch on without parsing prose. No execution_hash is ever emitted
   // alongside it: a value that cannot round-trip has no canonical form to hash.
+  // ERROR-REGISTRY-REQUEST-ID-SPEC §2.2: code + message come from the errors.mjs TOOL_ERRORS
+  // registry (stable name `tool.ijson_violation`); the `reason` literal stays inline — both are
+  // frozen pins (gate-hash-ijson asserts the members, gate-hash-ssot pins this source literal).
   function ijsonErrorResult(detail, where) {
     const out = {
       error: {
-        code: ErrorCode.InvalidParams,   // -32602
-        message: 'Invalid params: input is not I-JSON, so it has no stable canonical form and cannot be hashed.',
+        code: TOOL_ERRORS['tool.ijson_violation'].code,   // -32602
+        message: TOOL_ERRORS['tool.ijson_violation'].message,
         data: {
           reason: 'ijson_violation',
           where,
@@ -2129,7 +2137,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         },
       },
     };
-    return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
+    // ERROR-REGISTRY-REQUEST-ID-SPEC §3: the additive envelope member exists ONLY in
+    // structuredContent — content[].text serializes the pre-envelope `out` and stays
+    // BYTE-IDENTICAL to the pre-envelope shape. ⛔ no content[].text rewrites.
+    const structuredContent = requestId != null ? { ...out, error: { ...out.error, request_id: requestId } } : out;
+    return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent };
   }
   // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
   // steps[] definition (the decision policy). Same canonicalizer as §4; no new
@@ -5998,23 +6010,21 @@ async function stampSdkResult(rawResponse, modernEra) {
   return new Response(newText, { status, headers });
 }
 
-function mcpJsonRpcErrorResponse(id, code, message, corsHeaders, status, data) {
-  return new Response(
-    JSON.stringify({ jsonrpc: '2.0', id: id ?? null, error: { code, message, ...(data ? { data } : {}) } }),
-    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  );
-}
-
-function mcpHeaderMismatchResponse(mismatch, body, corsHeaders) {
+// ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: the body is built by errors.mjs (`protocol.header_mismatch`,
+// -32020 frozen; the -32001 → -32020 renumber history is permanent). `requestId` is threaded from
+// the fetch handler for the additive envelope member.
+function mcpHeaderMismatchResponse(mismatch, body, corsHeaders, requestId = null) {
   const detail = mismatch.reason === 'missing'
     ? `${mismatch.header} header is missing (REQUIRED for ${MCP_MODERN_VERSION} requests)`
     : mismatch.bodyValue === null
       ? `${mismatch.header} header value '${mismatch.headerValue}' has an ${mismatch.reason}`
       : `${mismatch.header} header value '${mismatch.headerValue}' ${mismatch.reason} value '${mismatch.bodyValue}'`;
-  return new Response(
-    JSON.stringify({ jsonrpc: '2.0', id: body?.id ?? null, error: { code: -32020, message: `Header mismatch: ${detail}` } }),
-    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  );
+  return protocolErrorResponse('protocol.header_mismatch', {
+    id: body?.id ?? null,
+    vars: { detail },
+    requestId,
+    headers: corsHeaders,
+  });
 }
 
 // MCP728-T2B: the MODERN per-request version assertion (MCP-Protocol-Version header, or the
@@ -6025,7 +6035,7 @@ function mcpHeaderMismatchResponse(mismatch, body, corsHeaders) {
 // ignored the header outright — two regimes, one unvalidated (MCP728-Q3-CONFIRM-1). This does NOT
 // touch `initialize`'s legacy params.protocolVersion soft-negotiation (MCPVER-ECHO-FIX-1, still
 // correct for a legacy client with no header) — only an explicit MODERN header assertion errors.
-function unsupportedMcpVersionResponse(request, body, corsHeaders) {
+function unsupportedMcpVersionResponse(request, body, corsHeaders, requestId = null) {
   // ⚠ Only an EXPLICIT modern assertion (header or params._meta) can error here. `initialize`'s
   // legacy `params.protocolVersion` soft-negotiation is deliberately NOT folded in: the audit
   // recorded "an unknown legacy initialize version gets 200 instead of an error" as a separate
@@ -6033,14 +6043,14 @@ function unsupportedMcpVersionResponse(request, body, corsHeaders) {
   // a version outside our list — the exact stranding backwards compatibility forbids.
   const requested = assertedProtocolVersion(request, body);
   if (!requested || MCP_SUPPORTED_VERSIONS.includes(requested)) return null;
-  return new Response(
-    JSON.stringify({
-      jsonrpc: '2.0', id: body?.id ?? null,
-      error: { code: -32022, message: `Unsupported protocol version: ${requested}`,
-               data: { supported: MCP_SUPPORTED_VERSIONS, requested } },
-    }),
-    { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  );
+  // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.unsupported_protocol_version` — -32022 +
+  // data{supported, requested} frozen (never the SDK's generic -32000).
+  return protocolErrorResponse('protocol.unsupported_protocol_version', {
+    id: body?.id ?? null,
+    vars: { requested, supported: MCP_SUPPORTED_VERSIONS },
+    requestId,
+    headers: corsHeaders,
+  });
 }
 
 // C1 (WORKER-HARDENING-GENERATOR-1, 2026-08-22): the CPU-heavy routes below (AuthZEN JCS
@@ -6096,6 +6106,12 @@ export default {
       'Cache-Control': 'no-store',
       'X-Content-Type-Options': 'nosniff',
     };
+
+    // ERROR-REGISTRY-REQUEST-ID-SPEC §3: ONE correlation uuid per request, reused by every error
+    // this request produces (protocol-layer error bodies AND the structured tool error, and
+    // appended to the tools/call Analytics datum). The JSON-RPC `id` member keeps echoing
+    // body.id — `request_id` is CORRELATION, `id` is REPLY ADDRESSING; they are different things.
+    const requestId = mintRequestId();
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders });
@@ -6213,11 +6229,15 @@ export default {
       catch { body = undefined; }
       return { overCap: false, body };
     }
-    function accessV1BodyCapResponse(corsHeaders) {
-      return new Response(
-        JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
-        { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    function accessV1BodyCapResponse(corsHeaders, requestId) {
+      // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: one name (`protocol.invalid_request.body_too_large`),
+      // three call sites, each keeping its measured status.
+      return protocolErrorResponse('protocol.invalid_request.body_too_large', {
+        id: null,
+        vars: { limit: MAX_REQUEST_BODY_BYTES },
+        requestId,
+        headers: corsHeaders,
+      });
     }
 
     if (url.pathname === '/access/v1/evaluation' || url.pathname === '/access/v1/evaluations') {
@@ -6233,7 +6253,7 @@ export default {
       // An under-cap body that is not valid JSON still falls through to the route's own
       // malformed_request 400 below — the cap only polices SIZE, nothing else changes.
       const azRead = await readAccessV1BodyWithCap(request);
-      if (azRead.overCap) return accessV1BodyCapResponse(corsHeaders);
+      if (azRead.overCap) return accessV1BodyCapResponse(corsHeaders, requestId);
       const azBody = azRead.body;
       if (azBody === undefined) {
         return new Response(JSON.stringify({ decision: false, context: { error: 'malformed_request', detail: 'request body is not valid JSON' } }),
@@ -6267,7 +6287,7 @@ export default {
       // required here (fixture responses), so an under-cap body that is not valid JSON stays
       // accepted-and-ignored — only the SIZE is newly policed, via the shared helper above.
       const searchRead = await readAccessV1BodyWithCap(request);
-      if (searchRead.overCap) return accessV1BodyCapResponse(corsHeaders);
+      if (searchRead.overCap) return accessV1BodyCapResponse(corsHeaders, requestId);
       const kind = url.pathname.slice('/access/v1/search/'.length);
       return new Response(JSON.stringify(authzenSearch(kind)), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -6316,27 +6336,33 @@ export default {
             && (request.headers.get('Accept') ?? '').toLowerCase().includes('text/event-stream')) {
           return openSseKeepaliveStream(corsHeaders, request);
         }
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: use POST for JSON-RPC, or GET with Accept: text/event-stream and your Mcp-Session-Id (from initialize) for the server-to-client stream.' }, id: null }),
-          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS', 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.method_not_allowed.post_guidance', {
+          id: null,
+          requestId,
+          headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS' },
+        });
       }
       if (request.method === 'DELETE') {
         const sid = request.headers.get('mcp-session-id');
         if (sid) return new Response(null, { status: 204, headers: { ...corsHeaders, 'Mcp-Session-Id': sid, 'Allow': 'POST, GET, OPTIONS' } });
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: DELETE ends a session and requires the Mcp-Session-Id header issued at initialize. Use POST for JSON-RPC.' }, id: null }),
-          { status: 405, headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS', 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.method_not_allowed.delete_guidance', {
+          id: null,
+          requestId,
+          headers: { ...corsHeaders, 'Allow': 'POST, GET, OPTIONS' },
+        });
       }
 
       // C1: checked before any body parse -- see rateLimitExceeded() above for the two-binding
       // rationale (per-IP + small global ceiling).
       if (await rateLimitExceeded(request, env)) {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32029, message: 'Rate limit exceeded. Wait and retry.' }, id: null }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': '10' } }
-        );
+        // ERROR-REGISTRY-REQUEST-ID-SPEC §2.3 DOCTRINE: throttle is never conflated. -32029 is a
+        // TRANSPORT-AVAILABILITY condition (fires pre-parse, before any validation; remedy is
+        // time, not input correction) — this limiter short-circuit is its ONLY emission site.
+        return protocolErrorResponse('protocol.rate_limited', {
+          id: null,
+          requestId,
+          headers: { ...corsHeaders, 'Retry-After': '10' },
+        });
       }
 
       // P1-2 (WORKER-IDREPLACE-DOS-1): cap the request body BEFORE parsing it. An unbounded body on
@@ -6347,10 +6373,12 @@ export default {
       // code units, so anything it rejects is genuinely over the cap).
       const declaredLength = Number(request.headers.get('content-length'));
       if (Number.isFinite(declaredLength) && declaredLength > MAX_REQUEST_BODY_BYTES) {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
-          { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.invalid_request.body_too_large', {
+          id: null,
+          vars: { limit: MAX_REQUEST_BODY_BYTES },
+          requestId,
+          headers: corsHeaders,
+        });
       }
 
       // Parse body once -- needed for both the MCP handler and telemetry extraction.
@@ -6360,10 +6388,12 @@ export default {
       // so nothing downstream re-reads the stream. See the audit-F1 note just below.)
       const rawBody = await request.text().catch(() => undefined);
       if (rawBody !== undefined && rawBody.length > MAX_REQUEST_BODY_BYTES) {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: `Invalid Request: body exceeds the ${MAX_REQUEST_BODY_BYTES}-byte limit` }, id: null }),
-          { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.invalid_request.body_too_large', {
+          id: null,
+          vars: { limit: MAX_REQUEST_BODY_BYTES },
+          requestId,
+          headers: corsHeaders,
+        });
       }
       let body;
       try { body = rawBody === undefined || rawBody === '' ? undefined : JSON.parse(rawBody); }
@@ -6380,10 +6410,11 @@ export default {
       // — it still reaches transport.handleRequest with a real parsed `body` and gets the SDK's
       // fast 400/-32700 response. Only reject fast when the body could not be parsed at all.
       if (body === undefined && request.method === 'POST') {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32700, message: 'Parse error: request body is not valid JSON' }, id: null }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.parse_error', {
+          id: null,
+          requestId,
+          headers: corsHeaders,
+        });
       }
 
       // P1-1 (WORKER-IDREPLACE-DOS-1): refuse JSON-RPC BATCHES, structurally and early.
@@ -6395,10 +6426,11 @@ export default {
       // Spec-correct as well as safe: MCP REMOVED JSON-RPC batching in the 2025-06-18 revision, and
       // this worker has never advertised support for it.
       if (Array.isArray(body)) {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request: JSON-RPC batching is not supported (removed in MCP revision 2025-06-18). Send one request per POST.' }, id: null }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.invalid_request.batching', {
+          id: null,
+          requestId,
+          headers: corsHeaders,
+        });
       }
 
       // P0b (WORKER-IDREPLACE-DOS-1): a PRESENT id must be a JSON-RPC scalar (String|Number|Null).
@@ -6406,15 +6438,16 @@ export default {
       // (where JSON.stringify would have rendered it into the 1.7MB frame) nor the SDK transport.
       // An ABSENT id is untouched here — that is a notification, handled by its own 202 branch.
       if (body !== undefined && body !== null && typeof body === 'object' && 'id' in body && !isValidJsonRpcId(body.id)) {
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: 'Invalid Request: "id" must be a string, number, or null (JSON-RPC 2.0 §4)' }, id: null }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return protocolErrorResponse('protocol.invalid_request.id_type', {
+          id: null,
+          requestId,
+          headers: corsHeaders,
+        });
       }
 
       // MCP728-T2B: reject an unsupported MODERN protocol-version assertion before dispatch,
       // so the static fast path (initialize/list) and the SDK path get identical treatment.
-      const versionError = unsupportedMcpVersionResponse(request, body, corsHeaders);
+      const versionError = unsupportedMcpVersionResponse(request, body, corsHeaders, requestId);
       if (versionError) return versionError;
 
       // Era selection (MCP728-CONFORM-FIX-2). Runs AFTER the version gate so an unsupported
@@ -6426,7 +6459,7 @@ export default {
       // On a modern-era request the routing headers must also be PRESENT — same code.
       const headerMismatch = validateMcpHeaders(request, body, modernEra);
       if (headerMismatch) {
-        return mcpHeaderMismatchResponse(headerMismatch, body, corsHeaders);
+        return mcpHeaderMismatchResponse(headerMismatch, body, corsHeaders, requestId);
       }
 
       // Per-request protocol fields: required on every modern-era request, -32602 + 400 when one
@@ -6434,16 +6467,22 @@ export default {
       if (modernEra) {
         const missingMeta = missingRequiredMeta(body);
         if (missingMeta.length > 0) {
-          return mcpJsonRpcErrorResponse(body?.id, -32602,
-            'Invalid params: request _meta is missing required field(s): ' + missingMeta.join(', '),
-            corsHeaders, 400, { missingFields: missingMeta });
+          return protocolErrorResponse('protocol.invalid_params.protocol_fields', {
+            id: body?.id,
+            vars: { missing: missingMeta },
+            requestId,
+            headers: corsHeaders,
+          });
         }
         // -32021: wired, but REQUIRED_CLIENT_CAPABILITIES is empty, so unreachable today.
         const lacking = missingClientCapabilities(body, REQUIRED_CLIENT_CAPABILITIES);
         if (lacking.length > 0) {
-          return mcpJsonRpcErrorResponse(body?.id, -32021,
-            'Missing required client capability: ' + lacking.join(', '),
-            corsHeaders, 400, { requiredCapabilities: lacking });
+          return protocolErrorResponse('protocol.missing_client_capability', {
+            id: body?.id,
+            vars: { lacking },
+            requestId,
+            headers: corsHeaders,
+          });
         }
       }
 
@@ -6568,9 +6607,11 @@ export default {
           // as getStaticListTemplate) so a ?toolset= variant never reuses another's element index.
           const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor, toolset ? method + ':' + toolset : method);
           if (page === LIST_CURSOR_INVALID) {
-            return mcpJsonRpcErrorResponse(body.id, -32602,
-              'Invalid params: cursor is not a valid page token (echo the nextCursor this server issued)',
-              corsHeaders, 400);
+            return protocolErrorResponse('protocol.invalid_params.cursor', {
+              id: body.id,
+              requestId,
+              headers: corsHeaders,
+            });
           }
           const frameTpl = page === null ? tpl : page;
           // ⛔ THE REPLACEMENT MUST BE A FUNCTION (WORKER-IDREPLACE-DOS-1, 2026-08-29 — a live P0).
@@ -6612,10 +6653,16 @@ export default {
         // keep getting 200 — never a 404 (smoke-mcp §3b's legacy-stranding
         // control). The blanket 200 here regressed the modern leg and reddened
         // the deploy's own post-deploy smoke (run 33785132605).
-        return new Response(
-          JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32601, message: 'Method not found: ' + method } }),
-          { status: isModernEra(request, body) ? 404 : 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.method_not_found.unknown_method` — the
+        // registry status (200, the legacy-era reply) is OVERRIDDEN here exactly as measured:
+        // modern era → 404 (smoke-mcp §3), legacy → 200 (smoke-mcp §3b legacy-stranding control).
+        return protocolErrorResponse('protocol.method_not_found.unknown_method', {
+          id: body.id,
+          vars: { method },
+          requestId,
+          headers: corsHeaders,
+          status: isModernEra(request, body) ? 404 : 200,
+        });
       }
 
       try {
@@ -6657,9 +6704,11 @@ export default {
           if (isKnown && !isRemoved && toolName === 'describe_tool') {
             const name = body?.params?.arguments?.name;
             if (typeof name !== 'string' || name === '') {
-              return mcpJsonRpcErrorResponse(body.id, -32602,
-                'Invalid params: describe_tool requires { name: string } — the mcp_name to describe',
-                corsHeaders, 400);
+              return protocolErrorResponse('protocol.invalid_params.describe_tool_args', {
+                id: body.id,
+                requestId,
+                headers: corsHeaders,
+              });
             }
             let def = null;
             try { def = extractDescribeEntry(await getDescribeTemplate(env), name); } catch { /* map miss — degrade below */ }
@@ -6678,10 +6727,16 @@ export default {
                   .slice(0, 5)
                   .map(([n]) => n);
               }
-              return mcpJsonRpcErrorResponse(body.id, -32602,
-                'Tool not found: describe_tool("' + name + '") — no registered mcp_name by that name',
-                corsHeaders, 200,
-                { nearest_names: nearest, hint: nearest.length ? 'Nearest registered names above; call find_tool for ranked search.' : 'Call find_tool(query) for ranked search or list_ainumbers_tools for the catalog.' });
+              return protocolErrorResponse('protocol.tool_not_found.nearest', {
+                id: body.id,
+                vars: {
+                  name,
+                  nearest,
+                  hint: nearest.length ? 'Nearest registered names above; call find_tool for ranked search.' : 'Call find_tool(query) for ranked search or list_ainumbers_tools for the catalog.',
+                },
+                requestId,
+                headers: corsHeaders,
+              });
             }
             const payload = describeToolPayload(data, def);
             const result = { resultType: 'complete', content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }], structuredContent: payload };
@@ -6707,16 +6762,22 @@ export default {
             // (scripts/build-mcp-parity.mjs: 0 false-reject), so this never rejects a valid tool.
             // Plain JSON (not SSE), matching this worker's other JSON-RPC error responses
             // (-32700 parse error, -32020 header mismatch) and the anchor worker's shape.
-            return new Response(
-              JSON.stringify({ jsonrpc: '2.0', id: body.id, error: { code: -32602, message: 'Tool not found: ' + toolName } }),
-              { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
+            // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.tool_not_found.zero_tools` — the
+            // dispatch-layer unknown-tool refusal, HTTP 200, registry status.
+            return protocolErrorResponse('protocol.tool_not_found.zero_tools', {
+              id: body.id,
+              vars: { toolName },
+              requestId,
+              headers: corsHeaders,
+            });
           }
         }
         // SEP-2322 MRTR context. `requestState` and `inputResponses` ride the REQUEST PARAMS, not
         // the tool arguments, so the SDK's tool callback never sees them — hand them to buildServer.
         // `args` is the arguments object AS RECEIVED: the request-binding digest is taken over it,
         // and a conformant client echoes it byte-for-byte on retry.
+        // requestId threads the §3 correlation id into buildServer so the tool-layer structured
+        // error (ijsonErrorResult) can carry the SAME request_id as a protocol error would.
         const mrtrCtx = isToolCall ? {
           env,
           args: body?.params?.arguments ?? {},
@@ -6726,7 +6787,7 @@ export default {
             ?? body?.params?._meta?.['io.modelcontextprotocol/clientCapabilities'] ?? null,
           principal: await mrtrPrincipal(request),
         } : null;
-        const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}) });
+        const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}), requestId });
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         // ⛔ STRIP THE MODERN VERSION HEADER BEFORE THE SDK TRANSPORT (MCP728-CONFORM-FIX-2).
         // The SDK's validateProtocolVersion rejects ANY mcp-protocol-version outside its own
@@ -6802,9 +6863,13 @@ export default {
               if (Array.isArray(parsed?.result?.tools) && rawCursor !== undefined && rawCursor !== null && rawCursor !== '') {
                 const offset = parseToolsCursorOffset(rawCursor);
                 if (offset === null) {
-                  response = mcpJsonRpcErrorResponse(body?.id, -32602,
-                    'Invalid params: unknown cursor (this server issues decimal-offset cursors via nextCursor)',
-                    corsHeaders, 400);
+                  // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.invalid_params.sdk_cursor` —
+                  // the SDK fallback grammar's refusal (a different cursor text, same -32602).
+                  response = protocolErrorResponse('protocol.invalid_params.sdk_cursor', {
+                    id: body?.id,
+                    requestId,
+                    headers: corsHeaders,
+                  });
                   for (const [k, v] of Object.entries(mcpSessionEcho(request))) response.headers.set(k, v);
                   return response;
                 }
@@ -6883,7 +6948,10 @@ export default {
                 // 4th blob = worker identity, matching apexlogics-mcp/ocs-mcp's
                 // existing self-tag shape (MCPATTRIB-1) -- lets the shared
                 // Analytics Engine dataset be split back out per worker.
-                blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp'],
+                // 5th blob = the per-request correlation id (ERROR-REGISTRY-REQUEST-ID-SPEC §3:
+                // 4 blobs → 5; the Engine allows 20; doubles/indexes unchanged). The initialize
+                // datum is deliberately NOT extended (spec §3: initialize datum unchanged).
+                blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp', requestId],
                 doubles: [latencyMs, chainDepth ?? 0],
                 indexes: [toolName],
               });
@@ -6899,11 +6967,14 @@ export default {
         // String(e) -- any SDK/zod/kernel exception text, which can embed internals. Full detail
         // (String(e) + stack) still goes to console.error above for diagnosis; the response body
         // is now a constant. 'Server timeout' is not a leak (the watchdog's own known message)
-        // and stays as-is.
-        return Response.json(
-          { jsonrpc: '2.0', error: { code: timedOut ? -32001 : -32603, message: timedOut ? 'Server timeout' : 'Internal error' }, id: body?.id ?? null },
-          { status: timedOut ? 504 : 500, headers: corsHeaders }
-        );
+        // and stays as-is. ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: the registry owns both branches —
+        // `protocol.server_timeout` (-32001, 504; the ONLY thing -32001 means today) and
+        // `protocol.internal_error` (-32603, 500).
+        return protocolErrorResponse(timedOut ? 'protocol.server_timeout' : 'protocol.internal_error', {
+          id: body?.id ?? null,
+          requestId,
+          headers: corsHeaders,
+        });
       }
     }
 
@@ -6914,10 +6985,13 @@ export default {
     // these paths is deliberately NOT aliased — silently serving the legacy shape would mask a
     // client misconfiguration instead of correcting it.
     if (request.method === 'GET' && (url.pathname === '/sse' || url.pathname === '/sse/' || url.pathname === '/messages' || url.pathname === '/messages/')) {
-      return new Response(
-        JSON.stringify({ jsonrpc: '2.0', error: { code: -32601, message: 'Method Not Allowed: the MCP endpoint is POST /mcp (Streamable HTTP); there is no separate SSE path. GET /mcp with Accept: text/event-stream opens the server-to-client stream.' }, id: null }),
-        { status: 405, headers: { ...corsHeaders, 'Allow': 'POST', 'Content-Type': 'application/json' } }
-      );
+      // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.method_not_allowed.no_sse_path` — the
+      // single-endpoint rule's spec-clean 405 + Allow: POST.
+      return protocolErrorResponse('protocol.method_not_allowed.no_sse_path', {
+        id: null,
+        requestId,
+        headers: { ...corsHeaders, 'Allow': 'POST' },
+      });
     }
     return new Response('Not found', { status: 404, headers: corsHeaders });
   },

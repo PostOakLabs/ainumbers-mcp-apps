@@ -6,9 +6,10 @@
 // this row's PR body, per SO #34c):
 //   1. WORK-1: every /access/v1 JSON parse (/access/v1/evaluation, /access/v1/evaluations,
 //      /access/v1/search/{subject,resource,action}) is body-size capped at
-//      MAX_REQUEST_BODY_BYTES = 1048576, with the byte-identical 413 rejection the /mcp
-//      P1-2 branch returns — both via the declared Content-Length and via the post-read
-//      backstop (a request with no Content-Length header).
+//      MAX_REQUEST_BODY_BYTES = 1048576, with the same 413 rejection the /mcp
+//      P1-2 branch returns (identical modulo the per-request error.request_id envelope,
+//      ERROR-REGISTRY-REQUEST-ID-SPEC §3) — both via the declared Content-Length and via the
+//      post-read backstop (a request with no Content-Length header).
 //   2. WORK-2: authzenEvaluateBatch refuses evaluations[] over the stated engineering cap
 //      (MAX_BATCH_EVALUATIONS = 64 — the AuthZEN 1.0 spec is silent on batch capacity per
 //      its own §2, so this is a stated engineering cap, not spec guidance) with a
@@ -120,27 +121,35 @@ console.log(`▶ /access/v1 caps — body cap ${CAP}, batch cap ${BATCH_CAP}`);
 }
 
 // ── 1) WORK-1: body cap on every /access/v1 JSON parse, rejection identical to /mcp P1-2 ──────
-// The /mcp 413 is the parity anchor: byte-identical status + body on the /access/v1 routes.
+// The /mcp 413 is the parity anchor: identical status + body on the /access/v1 routes. Since
+// ERROR-REGISTRY-REQUEST-ID-SPEC §3 the error body carries a per-request `error.request_id`, so
+// two DIFFERENT requests can no longer be byte-identical by design; parity is asserted on the
+// parsed body minus request_id (which must be a fresh uuid on every mirrored response).
 const mcpOver = await post('/mcp', OVER_CAP_BODY, { 'Content-Length': String(OVER_CAP_BODY.length) });
 eq('/mcp oversized (declared Content-Length) → 413', mcpOver.status, 413);
 const MIRROR_BODY = mcpOver.text;
+const stripRequestId = (text) => { const o = JSON.parse(text); delete o.error.request_id; return JSON.stringify(o); };
+const mirror413 = (label, text) => {
+  eq(`${label} (shape parity vs /mcp P1-2, modulo request_id)`, stripRequestId(text), stripRequestId(MIRROR_BODY));
+  eq(`${label} carries a per-request request_id`, /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(JSON.parse(text).error?.request_id)), true);
+};
 
 for (const path of ['/access/v1/evaluation', '/access/v1/evaluations']) {
   // a. declared Content-Length (byte-accurate pre-read check)
   const declared = await post(path, OVER_CAP_BODY, { 'Content-Length': String(OVER_CAP_BODY.length) });
   eq(`${path} oversized (declared) → 413`, declared.status, 413);
-  eq(`${path} 413 body byte-identical to /mcp P1-2`, declared.text, MIRROR_BODY);
+  mirror413(`${path} 413 body identical to /mcp P1-2`, declared.text);
   // b. no Content-Length at all (post-read backstop; undici leaves the header null for a
   //    string body, which is exactly the chunked/absent-header case the backstop exists for)
   const backstop = await post(path, OVER_CAP_BODY);
   eq(`${path} oversized (no Content-Length) → 413`, backstop.status, 413);
-  eq(`${path} backstop 413 body byte-identical to /mcp P1-2`, backstop.text, MIRROR_BODY);
+  mirror413(`${path} backstop 413 body identical to /mcp P1-2`, backstop.text);
 }
 
 for (const path of ['/access/v1/search/subject', '/access/v1/search/resource', '/access/v1/search/action']) {
   const declared = await post(path, OVER_CAP_BODY, { 'Content-Length': String(OVER_CAP_BODY.length) });
   eq(`${path} oversized (declared) → 413`, declared.status, 413);
-  eq(`${path} 413 body byte-identical to /mcp P1-2`, declared.text, MIRROR_BODY);
+  mirror413(`${path} 413 body identical to /mcp P1-2`, declared.text);
   const backstop = await post(path, OVER_CAP_BODY);
   eq(`${path} oversized (no Content-Length) → 413`, backstop.status, 413);
 }

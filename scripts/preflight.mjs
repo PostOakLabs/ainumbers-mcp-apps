@@ -74,6 +74,9 @@ const gates = [
   { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
   { name: 'id-splice: no string-replacement splice in worker.mjs', args: ['scripts/gate-idreplace-dos.mjs'] },
   { name: 'id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)', args: ['scripts/test-idreplace-dos.mjs'] },
+  { name: 'error-registry gate self-test (AICONTRACT-PART-B-1)', args: ['scripts/gate-error-registry.selftest.mjs'] },
+  { name: 'error-registry: single JSON-RPC error construction site + request_id envelope', args: ['scripts/gate-error-registry.mjs', '--check'] },
+  { name: 'error envelope: request_id in protocol+tool error responses (AICONTRACT-PART-B-1)', args: ['scripts/test-error-envelope.mjs'] },
   { name: '/access/v1 body+batch caps (WORKER-CAPS-1)', args: ['scripts/test-access-caps.mjs'] },
   { name: 'delegation reason names the real cause (WORKER-DELEGATION-REASON-1)', args: ['scripts/check-delegation-reason.mjs'] },
   // COMPOSITE-FLAG-AGGREGATE-1. NOTE: scripts/linear-hash-freeze.mjs is deliberately NOT wired in
