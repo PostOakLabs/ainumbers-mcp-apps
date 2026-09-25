@@ -4296,7 +4296,7 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
       lifecycle_status: z.enum(['Active', 'Deprecated']),
       // MCP-REACH-DISPATCH-1 D1 steer line (describeToolPayload stamps it on both the SDK leg and
       // the worker's static describe branch, so the two answers stay byte-identical).
-      dispatch_hint: z.string().optional(),
+      dispatch_hint: z.string().optional().describe('How to RUN this tool if it is not in your own tool list: call call_tool with { name, arguments }.'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, ({ name }) => {
