@@ -18,7 +18,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { buildServer, widgetGlue, stripCspMeta, HOT_TOOLS } from '../worker.mjs';
+import { buildServer, widgetGlue, stripCspMeta, HOT_TOOLS, orderToolsHotFirst, CALL_TOOL_NAME } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -151,8 +151,41 @@ export async function precomputeDiscovery() {
     t.cacheHint = { ttlMs: TTL_MS, cacheKey: 'input_hash', note: 'cache by the JCS-canonical policy_parameters hash only; never by wall-clock or session' };
   }
 
-  // Inject defer_loading exactly as the Worker does at runtime (worker.mjs tools/list branch).
-  for (const t of toolsMsg.result.tools) if (!HOT_TOOLS.has(t.name)) t.defaultConfig = { defer_loading: true };
+  // ⛔ NO `defaultConfig:{defer_loading:true}` ON THE DEFAULT LIST (MCP-REACH-DISPATCH-1 D4).
+  // Measured 2026-09-24: 15,620 B per full walk for a field NO host reads — `defer_loading` is a
+  // CLIENT-side setting in both documented implementations (Anthropic `mcp_toolset.default_config`,
+  // OpenAI `defer_loading` + `tool_search`). The named-toolset profile files below still set it on
+  // their non-advertised entries; those five files are untouched by this row (spec §T rules on them).
+  //
+  // MCP-REACH-DISPATCH-1 D2 — hot tools to page-1 positions 1-13, via the ONE ordering function
+  // worker.mjs's runtime fallback path also calls. Applied BEFORE framing, so every artifact below
+  // (default list, profile lists, the paginated pages the worker slices out of these bytes) shares
+  // one order. Registration order had left the hot set at positions 17-34 (R-P6).
+  toolsMsg.result.tools = orderToolsHotFirst(toolsMsg.result.tools);
+
+  // MCP-REACH-DISPATCH-1 D1 — the GENERATED dispatch allowlist. Derived here, from the SAME tool
+  // definitions the list serves, so it can never drift from what is advertised: every tool whose
+  // annotations say readOnlyHint===true AND openWorldHint===false, minus call_tool itself.
+  // ⛔ FAIL CLOSED: a tool missing either annotation is EXCLUDED, because "unannotated" and
+  // "harmless" are different claims. Measured 2026-09-24: 722/722 tools carry both hints; 712 are
+  // eligible and 10 are not (8 not read-only + 2 open-world).
+  const allowTools = [];
+  const excludedTools = [];
+  for (const t of toolsMsg.result.tools) {
+    if (t.name === CALL_TOOL_NAME) continue;
+    const a = t.annotations ?? {};
+    if (a.readOnlyHint === true && a.openWorldHint === false) allowTools.push(t.name);
+    else excludedTools.push(t.name);
+  }
+
+  // MCP-REACH-DISPATCH-1 D1 — the non-node tool index for find_tool. search-index.json (vendored
+  // from the site repo) indexes ChainGraph NODES only, so before this file no discovery tool could
+  // name a utility or widget tool. Emitted for exactly those: every served tool that is not a node
+  // mcp_name. Descriptions are capped — find_tool returns at most 3 of these per call.
+  const nodeNames = new Set((data.chaingraph?.nodes ?? []).map((n) => n.mcp_name).filter(Boolean));
+  const utilityIndexTools = toolsMsg.result.tools
+    .filter((t) => !nodeNames.has(t.name))
+    .map((t) => ({ name: t.name, title: t.title ?? null, description: String(t.description ?? '').slice(0, 400) }));
 
   let resources = [], prompts = [];
   try { resources = (await rpc('resources/list', {}, 2)).result.resources ?? []; } catch { /* none */ }
@@ -168,7 +201,33 @@ export async function precomputeDiscovery() {
   mkdirSync(resolve(DATA, 'mcp', 'static'), { recursive: true });
   const w = (name, obj) => writeFileSync(resolve(DATA, 'mcp', 'static', name), JSON.stringify(obj) + '\n');
   // initialize stays a small parsed object (protocolVersion is echoed from the live request).
-  w('initialize.json', { protocolVersion: initResult.protocolVersion, capabilities: initResult.capabilities, serverInfo: initResult.serverInfo });
+  // MCP-REACH-DISPATCH-1 D2: `instructions` is captured from the REAL server result (McpServer was
+  // constructed with SERVER_INSTRUCTIONS), never re-typed here — worker.mjs serves these bytes on
+  // both `initialize` and `server/discover`, so all three surfaces carry one string by construction.
+  if (initResult.instructions && initResult.instructions.length > 600) {
+    throw new Error('precompute: initialize.instructions is ' + initResult.instructions.length
+      + ' chars — the MCP-REACH-DISPATCH-1 D2 bound is 600 (it is prepended to model context every session)');
+  }
+  w('initialize.json', { protocolVersion: initResult.protocolVersion, capabilities: initResult.capabilities, serverInfo: initResult.serverInfo,
+                         ...(initResult.instructions ? { instructions: initResult.instructions } : {}) });
+
+  // MCP-REACH-DISPATCH-1 D1 — the dispatch allowlist, one directory up from the static bytes
+  // (worker.mjs getDispatchAllowlist reads mcp/dispatch-allowlist.json). Sorted for a stable diff.
+  mkdirSync(resolve(DATA, 'mcp'), { recursive: true });
+  writeFileSync(resolve(DATA, 'mcp', 'dispatch-allowlist.json'), JSON.stringify({
+    generated_by: 'scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)',
+    rule: 'annotations.readOnlyHint === true && annotations.openWorldHint === false, minus ' + CALL_TOOL_NAME + '; a tool missing either annotation is excluded (fail closed)',
+    tool_count: allowTools.length,
+    excluded_count: excludedTools.length,
+    excluded: [...excludedTools].sort(),
+    tools: [...allowTools].sort(),
+  }, null, 2) + '\n');
+  writeFileSync(resolve(DATA, 'mcp', 'utility-tool-index.json'), JSON.stringify({
+    generated_by: 'scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)',
+    note: 'non-node (utility + PILOT widget) tools, so find_tool can name them; search-index.json covers nodes only',
+    tool_count: utilityIndexTools.length,
+    tools: utilityIndexTools,
+  }) + '\n');
 
   // LIST responses → PRE-FRAMED SSE text with an id placeholder, so the Worker serves them with a
   // single string replace (no JSON.parse / no re-stringify of the ~330KB tools/list on a cold
@@ -221,7 +280,11 @@ export async function precomputeDiscovery() {
     + 'B of pointer sentences in); describe map: ' + Object.keys(describeMapOut).length
     + ' entries -> data/mcp/static/tool-describe.json');
 
-  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length, toolsets: profileNames };
+  console.log('dispatch allowlist: ' + allowTools.length + ' eligible, ' + excludedTools.length
+    + ' excluded -> data/mcp/dispatch-allowlist.json; utility index: ' + utilityIndexTools.length
+    + ' non-node tools -> data/mcp/utility-tool-index.json');
+  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length, toolsets: profileNames,
+           dispatchAllowlist: allowTools.length, dispatchExcluded: excludedTools.length };
 }
 
 // Standalone invocation

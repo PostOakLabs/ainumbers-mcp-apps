@@ -62,8 +62,26 @@
   // C1 (WORKER-HARDENING-GENERATOR-1, 2026-08-22): rate limiting for /mcp and /access/v1/* --
   // same binding type + config shape as anchor-suite's RELAY_LIMITER (anchor-suite/wrangler.jsonc),
   // proven live on this account. namespace_id must be unique per account; anchor-suite already
-  // owns "2001", so this worker uses "3001"/"3002". Two bindings: a per-IP ceiling and a small
-  // global ceiling (see worker.mjs's rateLimitExceeded() for the full rationale).
+  // owns "2001", so this worker uses "3001"/"3002" (see worker.mjs's rateLimitExceeded()).
+  //
+  // MCP-REACH-DISPATCH-1 D3, PR 1 of 2 (2026-09-25): two NEW namespaces, provisioned here and
+  // called in ADDITION to 3001/3002 -- no behaviour change, because 3005 (60/60 s per IP) is looser
+  // than 3001 (30/60 s per IP) and is checked alongside it. PR 2 (held until this deploy proves 3005
+  // answers live) is what MOVES 3001/3002 behind the size-capped parse and routes the static
+  // discovery methods to 3006 instead.
+  //   * 3005 MCP_PREPARSE_LIMITER        per-IP  60/60 s -- pre-parse on every POST; bounds parse CPU
+  //                                                        per source, the job 3001 does today.
+  //   * 3006 MCP_DISCOVERY_GLOBAL_LIMITER global 1200/60 s -- static discovery only (initialize,
+  //                                                        tools/list, resources/list, prompts/list,
+  //                                                        resources/templates/list, server/discover,
+  //                                                        ping). WHY: tools/list is 13 pages, so ONE
+  //                                                        client's full walk is ~16 requests and
+  //                                                        ~18 walks/min exhausted the 300/60 s
+  //                                                        GLOBAL bucket for every other caller --
+  //                                                        discovery starving compute.
+  // Namespace registry (checked 2026-09-25 on each repo's default branch): 2001 = anchor-suite
+  // (anchor-suite/wrangler.jsonc:24); 3001/3002 = this worker; 3003/3004 RESERVED by
+  // WEBMCP-FEEDBACK-LOOP-BUILD-SPEC-2026-09-23 row B; helm has no wrangler.* at all.
   "unsafe": {
     "bindings": [
       {
@@ -77,6 +95,18 @@
         "type": "ratelimit",
         "namespace_id": "3002",
         "simple": { "limit": 300, "period": 60 }
+      },
+      {
+        "name": "MCP_PREPARSE_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "3005",
+        "simple": { "limit": 60, "period": 60 }
+      },
+      {
+        "name": "MCP_DISCOVERY_GLOBAL_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "3006",
+        "simple": { "limit": 1200, "period": 60 }
       }
     ]
   }

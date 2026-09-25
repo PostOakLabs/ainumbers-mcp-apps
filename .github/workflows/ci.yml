@@ -167,6 +167,26 @@ jobs:
         # changed key. Never wall-clock, never a session id.
         run: node scripts/test-ttl-cache-key.mjs
 
+      - name: 🚪 Hot tools at page-1 positions 1-13 + initialize.instructions (MCP-REACH-DISPATCH-1 D2)
+        # tools/list is 13 pages and six measured hosts read only page 1, so a hot tool that drifts
+        # off the head of page 1 is a tool those hosts cannot see — and call_tool drifting off takes
+        # every other page with it. Expected head is recomputed from worker.mjs's HOT_TOOLS, never
+        # read out of the served bytes under test (SO #34). Also asserts 0 defer_loading (D4).
+        run: node scripts/check-hot-tool-order.mjs
+
+      - name: 🔀 call_tool dispatcher — allowlist, refusals, schema parity (MCP-REACH-DISPATCH-1 D1)
+        # Offline legs: allowlist fails closed, all 10 non-read-only/open-world names refused,
+        # self-target and unknown name refused, schema-invalid args refused with the SAME code and
+        # message as a direct call. The 20-tool execution_hash parity runs post-deploy (smoke-mcp),
+        # because a local tools/call cannot reach the tool without the SDK Node transport shim.
+        run: node scripts/test-call-tool-dispatch.mjs
+
+      - name: 🚦 Limiter routing — ns 3005 pre-parse on every POST (MCP-REACH-DISPATCH-1 D3 PR 1)
+        # Mocked ratelimit bindings. Asserts the PR-1 state explicitly (a 16-request discovery walk
+        # still touches ns 3001/3002; ns 3006 provisioned but uncalled) so PR 2's routing move cannot
+        # half-land, plus the fail-open contract that makes the two-PR order necessary.
+        run: node scripts/test-mcp-limiter-routing.mjs
+
       - name: 📝 Description-quality dogfood gate (§M2.2.1 / MCP-500-2 §M2.1)
         # Runs the suite's OWN lint_mcp_tool_definition ruleset (ported logic — the live site tool
         # is execution_type:"browser-reference", no server-callable kernel to invoke directly) over

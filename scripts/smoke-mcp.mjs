@@ -610,6 +610,94 @@ async function promptGetConformance() {
   return { messages: parsed.data.messages.length, chars: text.length };
 }
 
+// MCP-REACH-DISPATCH-1 — the LIVE legs of D1/D2. Three claims, all of which need a deployed
+// endpoint: (a) the 13 hot tools occupy page-1 positions 1-13 and call_tool is among them, so a
+// page-1-only host sees the door; (b) initialize carries instructions naming call_tool; (c) a
+// dispatched call is byte-identical to a direct call, execution_hash included, for 20 allowlisted
+// tools with >=5 of them OFF page 1 — the offline harness cannot prove this leg, because a
+// tools/call driven through worker.fetch locally never reaches the tool (empty HTTP 400 from the
+// absent SDK Node transport shim; see scripts/test-call-tool-dispatch.mjs).
+// Budget: 2 + 2N requests (42 at N=20), paced like every other leg. MCP_SMOKE_PARITY_N shrinks N
+// for a manual run; CI uses the full 20 the row's gate asks for.
+async function callToolDispatchConformance() {
+  const DATA = join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
+  const allowlist = JSON.parse(readFileSync(join(DATA, 'mcp', 'dispatch-allowlist.json'), 'utf8'));
+  const allowed = new Set(allowlist.tools);
+  const hotOrder = JSON.parse(
+    readFileSync(join(DATA, 'mcp', 'static', 'tools-list.sse.txt'), 'utf8')
+      .split('\n').find((l) => l.startsWith('data: ')).slice(6).replace('__OCG_ID__', 'null'),
+  ).result.tools.slice(0, 13).map((t) => t.name);
+
+  const p1 = await call('tools/list', {}, 900);
+  if (p1.error) throw new Error(`call_tool page-one listing: tools/list error ${p1.error.code}: ${p1.error.message}`);
+  const p1Names = (p1.result?.tools ?? []).map((t) => t.name);
+  const liveHead = p1Names.slice(0, 13);
+  for (let i = 0; i < hotOrder.length; i++) {
+    if (liveHead[i] !== hotOrder[i]) {
+      throw new Error(`live page-1 position ${i + 1} is "${liveHead[i]}", expected the hot tool "${hotOrder[i]}" — D2 ordering did not reach the deploy`);
+    }
+  }
+  if (!liveHead.includes('call_tool')) throw new Error('live page 1 positions 1-13 do not include call_tool — pages 2+ are unreachable for a page-1-only host');
+
+  const init = await call('initialize', { protocolVersion: PROTO, capabilities: {}, clientInfo: { name: 'ainumbers-smoke', version: '1' } }, 901);
+  const instructions = init.result?.instructions ?? '';
+  if (!instructions) throw new Error('live initialize carries no instructions (MCP-REACH-DISPATCH-1 D2)');
+  if (instructions.length > 600) throw new Error(`live initialize.instructions is ${instructions.length} chars, over the 600-char bound`);
+  if (!instructions.includes('call_tool')) throw new Error('live initialize.instructions never names call_tool');
+
+  // Parity sample, fixture-backed so real kernels run: >=5 from pages >=2 (anything not on page 1).
+  const cg = JSON.parse(readFileSync(join(DATA, 'chaingraph', 'chaingraph.json'), 'utf8'));
+  const mcpNameByToolId = new Map((cg.nodes ?? []).filter((n) => n.mcp_name).map((n) => [n.tool_id, n.mcp_name]));
+  const fixtures = JSON.parse(readFileSync(join(DATA, 'chain-fixtures.json'), 'utf8'));
+  const seen = new Set();
+  const deep = [], shallow = [];
+  for (const byNode of Object.values(fixtures)) {
+    for (const [toolId, args] of Object.entries(byNode ?? {})) {
+      const name = mcpNameByToolId.get(toolId);
+      if (!name || seen.has(name) || !allowed.has(name) || !args || typeof args !== 'object') continue;
+      seen.add(name);
+      (p1Names.includes(name) ? shallow : deep).push({ name, args });
+    }
+  }
+  const N = Number(process.env.MCP_SMOKE_PARITY_N ?? 20);
+  const wantDeep = Math.min(deep.length, Math.max(5, N - Math.min(shallow.length, N - 5)));
+  const sample = [...deep.slice(0, wantDeep), ...shallow.slice(0, N - wantDeep)].slice(0, N);
+  const deepCount = sample.filter((s) => !p1Names.includes(s.name)).length;
+  if (sample.length < Math.min(N, 20) || deepCount < 5) {
+    throw new Error(`parity sample is ${sample.length} tools with ${deepCount} off page 1 — the row requires 20 with >=5 off page 1`);
+  }
+
+  let id = 910;
+  const hashes = [];
+  for (const { name, args } of sample) {
+    const direct = await call('tools/call', { name, arguments: args }, id++);
+    const via = await call('tools/call', { name: 'call_tool', arguments: { name, arguments: args } }, id++);
+    if (direct.error) throw new Error(`parity: direct ${name} error ${direct.error.code}: ${direct.error.message}`);
+    if (via.error) throw new Error(`parity: dispatched ${name} error ${via.error.code}: ${via.error.message}`);
+    if (direct.result?.isError) throw new Error(`parity: direct ${name} isError: ` + JSON.stringify(direct.result.content).slice(0, 200));
+    if (via.result?.isError) throw new Error(`parity: dispatched ${name} isError: ` + JSON.stringify(via.result.content).slice(0, 200));
+    const hD = direct.result?.structuredContent?.execution_hash ?? direct.result?.structuredContent?.artifact?.execution_hash;
+    const hV = via.result?.structuredContent?.execution_hash ?? via.result?.structuredContent?.artifact?.execution_hash;
+    if (!hD) throw new Error(`parity: ${name} direct result carries no execution_hash — cannot prove hash parity`);
+    if (hD !== hV) throw new Error(`parity: ${name} execution_hash ${hD} (direct) != ${hV} (via call_tool) — the dispatcher changed the hashed payload`);
+    const strip = (r) => JSON.stringify({ ...r, _meta: undefined });
+    if (strip(direct.result) !== strip(via.result)) throw new Error(`parity: ${name} result differs beyond _meta between direct and dispatched`);
+    if (via.result?._meta?.['ainumbers/dispatched_via'] !== 'call_tool') {
+      throw new Error(`parity: ${name} dispatched result carries no _meta["ainumbers/dispatched_via"]: ` + JSON.stringify(via.result?._meta));
+    }
+    if (direct.result?._meta?.['ainumbers/dispatched_via'] !== undefined) {
+      throw new Error(`parity: ${name} DIRECT result carries a dispatched_via stamp`);
+    }
+    hashes.push({ name, page1: p1Names.includes(name), execution_hash: hD });
+  }
+
+  // A refusal must still refuse on the live endpoint, not just offline.
+  const refused = await call('tools/call', { name: 'call_tool', arguments: { name: 'anchor_stamp', arguments: {} } }, id++);
+  if (!refused.result?.isError) throw new Error('live call_tool did not refuse the non-allowlisted anchor_stamp: ' + JSON.stringify(refused).slice(0, 200));
+
+  return { head: liveHead, instructionChars: instructions.length, parity: hashes, deep: deepCount };
+}
+
 async function exportRoundTrip(names) {
   // 1) Discovery — export_artifact must be registered. Reuses the names the ONE cursor walk in
   //    paginationConformance() already collected (MCP-SMOKE-CI-EXEMPTION-1: no second walk — the
@@ -781,6 +869,10 @@ async function selfTest() {
 
       const pq = await phase('prompt-get', promptGetConformance);
       console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is GetPromptResultSchema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
+
+      const ct = await phase('call-tool-dispatch', callToolDispatchConformance);
+      console.log(`✓ MCP-REACH-DISPATCH-1 OK — page-1 positions 1-13 are the hot set (${ct.head.join(', ')}); initialize.instructions ${ct.instructionChars}/600 chars naming call_tool; ${ct.parity.length} dispatched calls byte-identical to direct with ${ct.deep} of them OFF page 1, and the non-allowlisted anchor_stamp refused`);
+      for (const h of ct.parity) console.log(`  · ${h.name}${h.page1 ? '' : ' (page ≥2)'} execution_hash=${h.execution_hash}`);
 
       if (process.env.MCP_SMOKE_SKIP_EXPORT === '1') {
         console.log('  (export_artifact round-trip skipped via MCP_SMOKE_SKIP_EXPORT=1)');
