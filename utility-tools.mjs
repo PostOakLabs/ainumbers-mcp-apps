@@ -20,6 +20,8 @@ export const UTILITY_TOOL_NAMES = [
   'find_chain',
   'find_tool',
   'describe_tool',
+  // MCP-REACH-DISPATCH-1 D1: the read-only dispatcher (see worker.mjs CALL_TOOL_NAME).
+  'call_tool',
   'run_chain',
   'run_chain_batch',
   'validate_input_attestations',
