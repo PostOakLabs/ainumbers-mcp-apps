@@ -1,0 +1,10 @@
+{
+  "comment": "error-registry baseline (ERROR-REGISTRY-REQUEST-ID-SPEC.md §4.2). Absorbs JSON-RPC error construction sites NOT yet built by errors.mjs constructors. Line-anchored: gate-error-registry.mjs reds if an anchored line stops carrying the recorded wire code. SHRINK-ONLY: an entry disappears when its site migrates to errors.mjs; the file never grows. All 21 worker.mjs protocol-layer sites migrated in AICONTRACT-PART-B-1; what remains is the local Express DEV server (server.mjs), which is never deployed.",
+  "sites": [
+    { "file": "server.mjs", "line": 126, "code": -32601, "note": "dev server: DELETE without session guidance" },
+    { "file": "server.mjs", "line": 145, "code": -32601, "note": "dev server: GET/HEAD verb guidance" },
+    { "file": "server.mjs", "line": 157, "code": -32022, "note": "dev server: unsupported protocol version + data{supported,requested}" },
+    { "file": "server.mjs", "line": 177, "code": -32602, "note": "dev server: SDK-grammar list cursor" },
+    { "file": "server.mjs", "line": 239, "code": -32603, "note": "dev server: express error handler internal error" }
+  ]
+}

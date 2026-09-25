@@ -226,6 +226,30 @@ jobs:
         # an oversized body is capped (413) — while ordinary ids are byte-for-byte unaffected.
         run: node scripts/test-idreplace-dos.mjs
 
+      - name: 🧪 error-registry gate self-test (ERROR-REGISTRY-REQUEST-ID-SPEC §4) — proves the gate below can go RED
+        # SO #34c. Mutation-tests the NEXT step's own rule functions (auditSource /
+        # auditErrorsModule) against fixtures that each re-introduce an unregistered error
+        # construction, a second -32029 emitter, a dropped request_id blob, a stale baseline
+        # anchor, or a reworded frozen message — plus a clean control and a comment-only negative
+        # control. RED-then-GREEN history: the gate's first --check run on pre-migration b699960
+        # bytes exited 1 with 28 violations (row AICONTRACT-PART-B-1).
+        run: node scripts/gate-error-registry.selftest.mjs
+
+      - name: 🔒 error-registry gate — errors.mjs is the single JSON-RPC error construction site
+        # Every protocol-layer error body is built by errors.mjs constructors (stable string names
+        # over FROZEN wire codes; -32029/-32001/-32020 mintable only there; the additive
+        # error.request_id envelope present in the protocol builder, the tool-layer builder and the
+        # tool Analytics datum). The dev server (server.mjs) stays baseline-absorbed, line-anchored.
+        run: node scripts/gate-error-registry.mjs --check
+
+      - name: ✉️ error envelope smoke — request_id in protocol+tool error responses (AICONTRACT-PART-B-1)
+        # Runtime half (spec §3): drives the real worker.mjs over a local ASSETS stub — malformed
+        # JSON → 400/-32700 + error.request_id, unknown tool → 200/-32602 "Tool not found: …" +
+        # request_id (fresh per request), unsupported version → -32022 with data shape unchanged —
+        # and buildServer+InMemoryTransport for the tool layer: structuredContent.error.request_id
+        # present while content[].text stays byte-identical (no request_id in the text).
+        run: node scripts/test-error-envelope.mjs
+
       - name: 🧭 Delegation reason names the real cause (WORKER-DELEGATION-REASON-1)
         # A node tool's browser-delegation branch is reached for FOUR causes (no policy_parameters,
         # compute:"browser", gpu:true, no registered kernel) and used to emit ONE sentence for three
