@@ -656,7 +656,15 @@ async function callToolDispatchConformance() {
       const name = mcpNameByToolId.get(toolId);
       if (!name || seen.has(name) || !allowed.has(name) || !args || typeof args !== 'object') continue;
       seen.add(name);
-      (p1Names.includes(name) ? shallow : deep).push({ name, args });
+      // SMOKE-PARITY-NESTED-ARGS-1: a chain-fixtures.json value is ONE STEP's policy_parameters
+      // object (gen-chain-fixtures.mjs emits chainMap[tid] = result.pp, and worker run_chain
+      // consumes that same flat shape at L2962/L3140/L3562 — the data file cannot carry the wrap).
+      // The tools/call contract (worker.mjs DELEGATION_ARG_KEYS = policy_parameters/compute/
+      // parent_hashes/parent_tool_ids, enforced by the wrong-shaped-arguments guard) refuses any
+      // call whose top-level keys are the tool's own fields: isError, never a compute. So the
+      // reader wraps at send time — every parity call goes out as {"policy_parameters": args}.
+      // Safe uniformly: the generator never emits a top-level policy_parameters key (0 entries).
+      (p1Names.includes(name) ? shallow : deep).push({ name, args: { policy_parameters: args } });
     }
   }
   const N = Number(process.env.MCP_SMOKE_PARITY_N ?? 20);
@@ -680,8 +688,15 @@ async function callToolDispatchConformance() {
     const hV = via.result?.structuredContent?.execution_hash ?? via.result?.structuredContent?.artifact?.execution_hash;
     if (!hD) throw new Error(`parity: ${name} direct result carries no execution_hash — cannot prove hash parity`);
     if (hD !== hV) throw new Error(`parity: ${name} execution_hash ${hD} (direct) != ${hV} (via call_tool) — the dispatcher changed the hashed payload`);
-    const strip = (r) => JSON.stringify({ ...r, _meta: undefined });
-    if (strip(direct.result) !== strip(via.result)) throw new Error(`parity: ${name} result differs beyond _meta between direct and dispatched`);
+    // The artifact rendering embeds hash-EXCLUDED wall-clock metadata (generated_at): two paced
+    // calls legitimately differ there while execution_hash is identical (proved by the check above).
+    // Normalize that member — in both its compact (structuredContent) and pretty-printed escaped
+    // (content[0].text) encodings — before the byte compare, so any REAL payload diff still fails.
+    // SMOKE-PARITY-NESTED-ARGS-1: this layer was masked while the flat-args refusal ended the leg
+    // at isError; live-measured 2026-09-26 (equal execution_hash, only generated_at differing).
+    const WALL_CLOCK = /\\?"(?:generated_at|computed_at|as_of|issued_at|created_at)\\?":\s*\\?"[^"]*\\?"/g;
+    const strip = (r) => JSON.stringify({ ...r, _meta: undefined }).replace(WALL_CLOCK, '"<TS>"');
+    if (strip(direct.result) !== strip(via.result)) throw new Error(`parity: ${name} result differs beyond _meta (wall-clock normalized) between direct and dispatched`);
     if (via.result?._meta?.['ainumbers/dispatched_via'] !== 'call_tool') {
       throw new Error(`parity: ${name} dispatched result carries no _meta["ainumbers/dispatched_via"]: ` + JSON.stringify(via.result?._meta));
     }
