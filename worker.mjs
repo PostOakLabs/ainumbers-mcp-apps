@@ -2863,6 +2863,11 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // same engine, same registration, same schema — the callback now delegates. Declared after the
   // registration on purpose: the callback only executes after buildServer returns, so this const
   // is initialized by then (no temporal-dead-zone reach).
+  // MANDATE-RUNTIME-ENFORCE-1 helper: a §22.5 principal comparison is over the DID itself, not
+  // the verification-method URL — `did:key:z6Mk…#z6Mk…` and `did:key:z6Mk…` name the same
+  // principal. Strip the fragment (and nothing else) before comparing.
+  const didBase = (v) => (typeof v === 'string' ? v.split('#')[0] : null);
+
   const executeChainRun = async ({ chain, inputs, compute, mandate, escalation_transport }) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
@@ -2874,7 +2879,8 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     }
     const effectiveCompute = compute ?? 'auto';
 
-    // --- §22.5 mandate binding: verify §16 signature + validity window, derive mandate_hash ---
+    // --- §22.5 mandate binding: verify §16 signature (and that the signer IS the principal),
+    // validity, and scope — all three before any step runs — then derive mandate_hash ---
     const hasMandate = mandate != null && typeof mandate === 'object';
     let mandateHash = null;
     if (hasMandate) {
@@ -2889,18 +2895,62 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
         const errOut = { error: 'mandate_bad_signature', detail: 'Mandate §16 signature verification failed (eddsa-jcs-2022).' };
         return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
       }
-      const vw = mandate.validity_window;
-      if (vw) {
-        const now = Date.now();
-        if (vw.not_before && new Date(vw.not_before).getTime() > now) {
-          const errOut = { error: 'mandate_not_yet_valid', detail: 'Mandate not_before is in the future.', not_before: vw.not_before };
+      // §22.5(1), second half — WHO signed it. A cryptographically valid signature by some
+      // other DID is not authority: SPEC §22.1 says of `principal` "The mandate's §16 signature
+      // MUST be verifiable against this identity." verifyProofs above resolves each proof's OWN
+      // verificationMethod, so without this comparison a mandate naming principal A and signed
+      // by B verifies. Every proof in the set must be the principal's.
+      const principalId = mandate?.output_payload?.principal?.id ?? null;
+      const proofSet = Array.isArray(proof) ? proof : [proof];
+      const principalOk = didBase(principalId) !== null
+        && proofSet.length > 0
+        && proofSet.every((p) => didBase(p?.verificationMethod) === didBase(principalId));
+      if (!principalOk) {
+        const errOut = { error: 'mandate_bad_signature', detail: 'Mandate signer does not match output_payload.principal.id (§22.1: the §16 signature MUST be verifiable against the principal identity).' };
+        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+      }
+
+      // §22.5(2) validity. The SPEC field is `output_payload.validity` (§22.1: "`validity`
+      // (REQUIRED): `{ not_before, not_after }`, ISO 8601 instants. A run whose execution
+      // instant is outside `[not_before, not_after]` MUST be rejected (§22.5)."). The previous
+      // read of a top-level `mandate.validity_window` matched no SPEC field, so a spec-shaped
+      // mandate skipped both time checks; no committed fixture or doc carries a mandate
+      // `validity_window` (measured with git grep), so the legacy alias is dropped, not aliased.
+      const validity = mandate?.output_payload?.validity;
+      if (validity) {
+        const now = Date.now();   // the run's execution instant
+        const nb = validity.not_before ? new Date(validity.not_before).getTime() : null;
+        const na = validity.not_after ? new Date(validity.not_after).getTime() : null;
+        if (nb !== null && Number.isFinite(nb) && nb > now) {
+          const errOut = { error: 'mandate_not_yet_valid', detail: 'Mandate not_before is in the future.', not_before: validity.not_before };
           return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
         }
-        if (vw.not_after && new Date(vw.not_after).getTime() < now) {
-          const errOut = { error: 'mandate_expired', detail: 'Mandate has expired.', not_after: vw.not_after };
+        if (na !== null && Number.isFinite(na) && na < now) {
+          const errOut = { error: 'mandate_expired', detail: 'Mandate has expired.', not_after: validity.not_after };
           return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
         }
       }
+
+      // §22.5(3) scope: "verify the chain/nodes being run are within `scope`; outside →
+      // `{ error: "mandate_out_of_scope" }`". §22.1 requires `scope` with `{ tool_ids, chains }`
+      // and says "At least one of the two arrays MUST be non-empty" — so an ABSENT or EMPTY
+      // array is the unconstrained dimension (the other one carries the authorization), and a
+      // non-empty array is an allow-list.
+      const mScope = mandate?.output_payload?.scope;
+      const okChains = Array.isArray(mScope?.chains) ? mScope.chains : [];
+      const okToolIds = Array.isArray(mScope?.tool_ids) ? mScope.tool_ids : [];
+      if (okChains.length && !okChains.includes(chain)) {
+        const errOut = { error: 'mandate_out_of_scope', detail: 'Chain "' + chain + '" is not in the mandate scope.chains allow-list.', chain, scope_chains: okChains };
+        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+      }
+      if (okToolIds.length) {
+        const unauthorized = steps.filter((tid) => !okToolIds.includes(tid));
+        if (unauthorized.length) {
+          const errOut = { error: 'mandate_out_of_scope', detail: 'Chain steps outside the mandate scope.tool_ids allow-list: ' + unauthorized.join(', ') + '.', chain, unauthorized_tool_ids: unauthorized };
+          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        }
+      }
+
       mandateHash = mandate.execution_hash ?? null;
     }
 
