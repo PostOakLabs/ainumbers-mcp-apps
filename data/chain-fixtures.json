@@ -887,6 +887,100 @@
       "amount": "3239 USD"
     }
   },
+  "agentic-rail": {
+    "art-22-agentic-payments-protocol-comparator": {
+      "protocols": [
+        "ap2",
+        "acp"
+      ],
+      "scenario": "cross_merchant"
+    },
+    "art-16-google-ap2-mandate-builder": {
+      "mandate_type": "checkout",
+      "stage": "open",
+      "agent_id": "did:web:agent.example.com",
+      "subject": "urn:user:demo-001",
+      "merchant": "merchant.example.com",
+      "amount": "3239 USD"
+    },
+    "art-23-visa-trusted-agent-protocol-inspector": {
+      "signature_input": "sig1=(\"@method\" \"@target-uri\");created=1750000000;expires=1750003600;nonce=abc123;keyid=agent-key-1;alg=ed25519;tag=trusted-agent",
+      "signature": "sig1=:abc123base64=:"
+    },
+    "art-24-mastercard-agentic-token-builder": {
+      "token_scope": {
+        "agentId": "agent:test:v1",
+        "merchantScope": [
+          "merchant-001"
+        ],
+        "consentPolicy": {
+          "perTransactionLimit": 50,
+          "totalLimit": 500,
+          "expiresAt": 1780000000
+        }
+      }
+    },
+    "art-25-a2a-agent-card-validator": {
+      "agent_card": {
+        "name": "Test Agent",
+        "description": "A test payment agent",
+        "url": "https://agent.example.com",
+        "version": "1.0",
+        "protocolVersion": "1.0",
+        "capabilities": {
+          "streaming": false,
+          "pushNotifications": false,
+          "extensions": []
+        },
+        "defaultInputModes": [
+          "text/plain"
+        ],
+        "defaultOutputModes": [
+          "application/json"
+        ],
+        "skills": [
+          {
+            "id": "pay",
+            "name": "Payment",
+            "description": "Execute payments",
+            "tags": [
+              "payment"
+            ]
+          }
+        ]
+      }
+    },
+    "art-26-x402-payload-decoder-flow-simulator": {
+      "header_or_payload": "{\"scheme\":\"exact\",\"network\":\"base-sepolia\",\"payload\":{\"signature\":\"0xabc123\"}}"
+    },
+    "art-03-x402-settlement-modeler": {
+      "amount_usd": 0.05,
+      "monthly_volume": 10000,
+      "payment_type": "micropayment",
+      "finality_requirement": "instant",
+      "gas_tier": "low",
+      "chargeback_profile": "low"
+    },
+    "art-18-mcp-developer-readiness-scorecard": {
+      "answers": {
+        "tooldef_schema": "yes",
+        "tooldef_desc": "yes",
+        "tooldef_ann": "yes",
+        "serverjson_name": "yes",
+        "serverjson_meta": "yes",
+        "serverjson_pkg": "yes",
+        "oauth_prm": "yes",
+        "oauth_aud": "yes",
+        "oauth_pass": "yes",
+        "transport_origin": "yes",
+        "transport_bind": "yes",
+        "poison_clean": "yes",
+        "poison_trust": "yes",
+        "spec_rev": "yes",
+        "spec_stateless": "yes"
+      }
+    }
+  },
   "ai-content-disclosure-conformance": {
     "art-126-ai-act-art50-marking-checker": {
       "actions": [

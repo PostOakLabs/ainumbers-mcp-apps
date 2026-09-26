@@ -2272,25 +2272,126 @@
     },
     {
       "id": "agentic-rail",
-      "title": "agentic-rail",
-      "domain": null,
-      "use_when": "Use when you need the \"agentic-rail\" workflow: Protocol comparator → Branch A (AP2/card: Visa TAP → Mastercard Agent Pay) or Branch B (A2A/x402: agent card → x402 decode → settlement) → MCP readiness scorecard",
+      "title": "Agentic Rail Chain",
+      "domain": "AI & Agent Governance",
+      "use_when": "Use when the task is in \"AI & Agent Governance\" and needs the \"Agentic Rail Chain\" workflow",
       "what_it_runs": "Protocol comparator → Branch A (AP2/card: Visa TAP → Mastercard Agent Pay) or Branch B (A2A/x402: agent card → x402 decode → settlement) → MCP readiness scorecard",
-      "description": null,
-      "composer_url": "chaingraph/chains/agentic-rail.html",
-      "entry_mcp_name": null,
-      "steps": []
+      "description": "Agentic payments protocol comparison > AP2 mandate > Visa TAP signature inspection > Mastercard agentic token scope > A2A agent card validation > x402 payload decode > x402 settlement modelling > MCP developer readiness scorecard. The composer page routes the comparator into a card branch and an A2A branch that converge on the readiness scorecard; the chain records that run in the linear order the page renders, because a chain has no branch construct. The sibling chain agentic-rail-standards is the standards-only check over the card-network token specifications and shares no step with this one: this chain runs the protocol end to end, that one checks conformance with the published standards.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/agentic-rail.html",
+      "entry_mcp_name": "compare_agentic_rail_protocols",
+      "steps": [
+        {
+          "step": 1,
+          "tool_id": "art-22-agentic-payments-protocol-comparator",
+          "mcp_name": "compare_agentic_rail_protocols",
+          "callable": true,
+          "display_name": "Agentic Payments Protocol Comparator",
+          "tool_url": "https://ainumbers.co/chaingraph/art-22-agentic-payments-protocol-comparator.html",
+          "handoff": "Root — routes to Branch A (AP2/Card) or Branch B (A2A/x402); converges at ART-18"
+        },
+        {
+          "step": 2,
+          "tool_id": "art-16-google-ap2-mandate-builder",
+          "mcp_name": "draft_ap2_mandate_credential",
+          "callable": true,
+          "display_name": "Google AP2 Mandate Builder",
+          "tool_url": "https://ainumbers.co/chaingraph/art-16-google-ap2-mandate-builder.html",
+          "handoff": "Branch A A1 — AP2 payment mandate; feeds ART-23 Visa TAP"
+        },
+        {
+          "step": 3,
+          "tool_id": "art-23-visa-trusted-agent-protocol-inspector",
+          "mcp_name": "inspect_visa_trusted_agent_protocol",
+          "callable": true,
+          "display_name": "Visa Trusted Agent Protocol (TAP) Signature Inspector",
+          "tool_url": "https://ainumbers.co/chaingraph/art-23-visa-trusted-agent-protocol-inspector.html",
+          "handoff": "Branch A A2 — Visa TAP compliance control; feeds ART-24"
+        },
+        {
+          "step": 4,
+          "tool_id": "art-24-mastercard-agentic-token-builder",
+          "mcp_name": "build_mastercard_agentic_token",
+          "callable": true,
+          "display_name": "Mastercard Agentic Token Scope Builder",
+          "tool_url": "https://ainumbers.co/chaingraph/art-24-mastercard-agentic-token-builder.html",
+          "handoff": "Branch A A3 terminal — Mastercard agentic token scope; then ART-18"
+        },
+        {
+          "step": 5,
+          "tool_id": "art-25-a2a-agent-card-validator",
+          "mcp_name": "verify_a2a_agent_card",
+          "callable": true,
+          "display_name": "A2A Agent Card Validator & Extension Checker",
+          "tool_url": "https://ainumbers.co/chaingraph/art-25-a2a-agent-card-validator.html",
+          "handoff": "Branch B B1 — A2A agent card compliance; feeds ART-26"
+        },
+        {
+          "step": 6,
+          "tool_id": "art-26-x402-payload-decoder-flow-simulator",
+          "mcp_name": "simulate_x402_flow",
+          "callable": true,
+          "display_name": "x402 Header Decoder, Payload Linter & 402 Flow Simulator",
+          "tool_url": "https://ainumbers.co/chaingraph/art-26-x402-payload-decoder-flow-simulator.html",
+          "handoff": "Branch B B2 — x402 payload decode and lint; feeds ART-03"
+        },
+        {
+          "step": 7,
+          "tool_id": "art-03-x402-settlement-modeler",
+          "mcp_name": "model_x402_settlement",
+          "callable": true,
+          "display_name": "x402 Settlement Cost & Finality Modeler",
+          "tool_url": "https://ainumbers.co/chaingraph/art-03-x402-settlement-modeler.html",
+          "handoff": "Branch B B3 terminal — x402 settlement cost and finality; then ART-18"
+        },
+        {
+          "step": 8,
+          "tool_id": "art-18-mcp-developer-readiness-scorecard",
+          "mcp_name": "score_mcp_server_readiness",
+          "callable": true,
+          "display_name": "MCP Developer Readiness Scorecard",
+          "tool_url": "https://ainumbers.co/chaingraph/art-18-mcp-developer-readiness-scorecard.html",
+          "handoff": "Terminal — both branches converge; final agentic-rail compliance mandate"
+        }
+      ]
     },
     {
       "id": "aml-consolidation",
-      "title": "aml-consolidation",
-      "domain": null,
-      "use_when": "Use when you need the \"aml-consolidation\" workflow: AMLA typology scorer → Branch A (AML programme: customer risk → TM rules → CTR/SAR → mandate) or Branch B (AMLR rulebook: obliged entity scope → UBO mapping → CDD → ...",
+      "title": "AML & AMLR Consolidation Chain",
+      "domain": "Financial Crime & KYC",
+      "use_when": "Use when the task is in \"Financial Crime & KYC\" and needs the \"AML & AMLR Consolidation Chain\" workflow",
       "what_it_runs": "AMLA typology scorer → Branch A (AML programme: customer risk → TM rules → CTR/SAR → mandate) or Branch B (AMLR rulebook: obliged entity scope → UBO mapping → CDD → readiness)",
-      "description": null,
-      "composer_url": "chaingraph/chains/aml-consolidation.html",
-      "entry_mcp_name": null,
-      "steps": []
+      "description": "Typology risk scoring > two AML branch entry points. The AMLA transaction-typology scorer anchors both the AML Programme chain (customer risk rating onward) and the EU AMLR Single Rulebook chain (obliged-entity scope onward). Those two chains keep their own steps; this chain records the shared root and the handoff into each, so a run can start once and continue in whichever rulebook applies.",
+      "composer_url": "https://ainumbers.co/chaingraph/chains/aml-consolidation.html",
+      "entry_mcp_name": "score_aml_typologies",
+      "steps": [
+        {
+          "step": 1,
+          "tool_id": "art-10-amla-transaction-typology-risk-scorer",
+          "mcp_name": "score_aml_typologies",
+          "callable": true,
+          "display_name": "AMLA Transaction-Typology Risk Scorer",
+          "tool_url": "https://ainumbers.co/chaingraph/art-10-amla-transaction-typology-risk-scorer.html",
+          "handoff": "overall_risk and top_risk_accounts feed both branch entry points: the aml-programme chain and the amlr-single-rulebook chain"
+        },
+        {
+          "step": 2,
+          "tool_id": "110-customer-risk-rating",
+          "mcp_name": null,
+          "callable": false,
+          "display_name": "110-customer-risk-rating",
+          "tool_url": "https://ainumbers.co/tools/110-customer-risk-rating.html",
+          "handoff": "Branch A entry point: risk_tier and composite_score continue in the aml-programme chain (TM rule building, CTR/SAR thresholds, AML Policy Mandate); those steps stay in that chain and are not repeated here"
+        },
+        {
+          "step": 3,
+          "tool_id": "485-amlr-obliged-entity-scope-mapper",
+          "mcp_name": null,
+          "callable": false,
+          "display_name": "485-amlr-obliged-entity-scope-mapper",
+          "tool_url": "https://ainumbers.co/tools/485-amlr-obliged-entity-scope-mapper.html",
+          "handoff": "Branch B entry point: entity_type and obligations continue in the amlr-single-rulebook chain (UBO mapping, cash limit and EDD classification, CDD policy, AMLA readiness); those steps stay in that chain and are not repeated here"
+        }
+      ]
     },
     {
       "id": "tempo-fit",
