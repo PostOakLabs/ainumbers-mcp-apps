@@ -42550,6 +42550,130 @@
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-24 (re-derived over all 20 golden fixture output_payloads, incl. the spec-oracle worked example; errors observed on the 12 indeterminate vectors only, absent on the 8 assertable vectors)"
   },
+  "compute_isa530_audit_sampling_mus": {
+    "type": "object",
+    "required": [
+      "trace",
+      "overall"
+    ],
+    "properties": {
+      "sample_size": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "sampling_interval": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "tolerable_misstatement": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "confidence_factor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "item_count": {
+        "type": "integer"
+      },
+      "usable_item_count": {
+        "type": "integer"
+      },
+      "usable_count": {
+        "type": "integer"
+      },
+      "per_item": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "seq": {
+              "type": "integer"
+            },
+            "book_amount": {
+              "type": "number"
+            },
+            "audited_amount": {
+              "type": "number"
+            },
+            "taint_percent": {
+              "type": "number"
+            },
+            "projected_amount": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "projected_misstatement": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "basic_precision": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "basic_precision_note": {
+        "type": "string"
+      },
+      "first_digit_counts": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "additionalProperties": {
+          "type": "integer"
+        }
+      },
+      "chi_square_statistic": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "critical_value": {
+        "type": "number"
+      },
+      "deviation_flag": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "trace": {
+        "type": "string"
+      },
+      "overall": {
+        "type": "string",
+        "enum": [
+          "SAMPLE_COMPUTED",
+          "PROJECTED",
+          "SCREENED_CONSISTENT",
+          "SCREENED_DEVIATES",
+          "INPUT_REJECTED"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "x_schema_provenance": "derived-from-golden-fixtures 2026-09-03 (11 vectors, chaingraph/kernels/fixtures/art-693-isa530-audit-sampling-mus.fixtures.json)"
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

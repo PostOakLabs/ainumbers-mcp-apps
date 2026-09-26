@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 713,
+  "tool_count": 714,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -298,6 +298,7 @@
     "compute_intraday_liquidity_monitoring",
     "compute_ipfs_cid",
     "compute_irr",
+    "compute_isa530_audit_sampling_mus",
     "compute_large_exposures_limit",
     "compute_lcm_rate_derivation",
     "compute_lcr_nsfr_leverage",
