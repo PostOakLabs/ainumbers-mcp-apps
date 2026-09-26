@@ -82,9 +82,21 @@ const MODERN_H = { 'MCP-Protocol-Version': MODERN };
 
 {
   const r = await call({ ...MODERN_H, 'Mcp-Method': 'tools/list' }, { method: 'tools/list', params: { _meta: meta() } });
-  check('modern: fully conformant tools/list → 200 + resultType complete',
-    r.status === 200 && r.body.result?.resultType === 'complete' && r.body.result?.tools?.length > 0,
-    `status=${r.status} resultType=${r.body.result?.resultType}`);
+  check('modern: fully conformant tools/list → 200 + resultType complete + SEP-2549 ttlMs/cacheScope',
+    r.status === 200 && r.body.result?.resultType === 'complete' && r.body.result?.tools?.length > 0
+    && typeof r.body.result?.ttlMs === 'number' && r.body.result.ttlMs > 0 && r.body.result?.cacheScope === 'public',
+    `status=${r.status} resultType=${r.body.result?.resultType} ttlMs=${r.body.result?.ttlMs} cacheScope=${r.body.result?.cacheScope}`);
+}
+
+// SEP-2549 `CacheableResult` on the other two list results. Offline here (these two are served from
+// the committed static frames, so the gate reads exactly the bytes that ship) — the live SDK-path
+// twin is asserted by scripts/smoke-mcp.mjs.
+for (const m of ['prompts/list', 'resources/list']) {
+  const r = await call({ ...MODERN_H, 'Mcp-Method': m }, { method: m, params: { _meta: meta() } });
+  check(`modern: ${m} → 200 + resultType complete + SEP-2549 ttlMs/cacheScope`,
+    r.status === 200 && r.body.result?.resultType === 'complete'
+    && typeof r.body.result?.ttlMs === 'number' && r.body.result.ttlMs > 0 && r.body.result?.cacheScope === 'public',
+    `status=${r.status} resultType=${r.body.result?.resultType} ttlMs=${r.body.result?.ttlMs} cacheScope=${r.body.result?.cacheScope}`);
 }
 
 {

@@ -151,6 +151,20 @@ export async function precomputeDiscovery() {
     t.cacheHint = { ttlMs: TTL_MS, cacheKey: 'input_hash', note: 'cache by the JCS-canonical policy_parameters hash only; never by wall-clock or session' };
   }
 
+  // SEP-2549 `CacheableResult` (2026-07-28 changelog, minor change 5): the RESULT object of every
+  // list method carries `ttlMs` (freshness hint, ms) and `cacheScope` ("public" | "private"). These
+  // are RESULT-level fields — a different shape from the per-tool `cacheHint` above and from the
+  // per-item `_meta.ttlMs` worker.mjs puts on resource descriptors; all three coexist (additive).
+  // One number per list, defined once here and consumed by frame() below.
+  const RESULT_TTL_MS = {
+    'tools/list':     TTL_MS,   // 24h — the SAME constant the per-tool cacheHint advertises, not a second number
+    'prompts/list':   TTL_MS,   // 24h — prompts are generated from the same static definitions as the tools
+    'resources/list': 21600000, // 6h — matches worker.mjs's TOOL_TTL_MS on the tool:// descriptors this list serves
+  };
+  // "public" for all three: every list is byte-identical for every caller (no per-caller bytes), so a
+  // shared cache can hold one copy — the same reasoning the worker already records for resources/read.
+  const RESULT_CACHE_SCOPE = 'public';
+
   // ⛔ NO `defaultConfig:{defer_loading:true}` ON THE DEFAULT LIST (MCP-REACH-DISPATCH-1 D4).
   // Measured 2026-09-24: 15,620 B per full walk for a field NO host reads — `defer_loading` is a
   // CLIENT-side setting in both documented implementations (Anthropic `mcp_toolset.default_config`,
@@ -241,15 +255,18 @@ export async function precomputeDiscovery() {
   // stamped HERE, once, rather than on 548 tools — the FINAL text requires "The result MUST
   // include a resultType field", and "complete" is the defined value for a finished result
   // (MCP728-CONFORM-FIX-2). The worker's SDK fallback path stamps the same field the same way,
-  // so static bytes and SDK output stay in agreement.
-  const frame = (label, resultObj) => {
-    const txt = 'event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER + ',"result":' + JSON.stringify({ resultType: 'complete', ...resultObj }) + '}\n\n';
+  // so static bytes and SDK output stay in agreement. The SEP-2549 `ttlMs`/`cacheScope` pair rides
+  // the same single point, in this key order — `resultType`, `ttlMs`, `cacheScope`, then the list —
+  // which keeps the `"result":{"resultType":"complete",` prologue worker.mjs splices `total` into.
+  const frame = (label, resultObj, ttlMs) => {
+    if (typeof ttlMs !== 'number' || !(ttlMs > 0)) throw new Error('precompute: no SEP-2549 ttlMs for ' + label);
+    const txt = 'event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER + ',"result":' + JSON.stringify({ resultType: 'complete', ttlMs, cacheScope: RESULT_CACHE_SCOPE, ...resultObj }) + '}\n\n';
     if (txt.split(ID_PLACEHOLDER).length !== 2) throw new Error('precompute: id placeholder collision in ' + label + ' — choose a more unique ID_PLACEHOLDER');
     return txt;
   };
-  wtxt('tools-list.sse.txt',     frame('tools/list',     { tools: toolsMsg.result.tools }));
-  wtxt('resources-list.sse.txt', frame('resources/list', { resources }));
-  wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts }));
+  wtxt('tools-list.sse.txt',     frame('tools/list',     { tools: toolsMsg.result.tools }, RESULT_TTL_MS['tools/list']));
+  wtxt('resources-list.sse.txt', frame('resources/list', { resources },                   RESULT_TTL_MS['resources/list']));
+  wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts },                     RESULT_TTL_MS['prompts/list']));
 
   // Named toolsets (§M1.2) — one extra static tools-list per profile: lean §M1.1 core (9 names,
   // never deferred) UNION the profile's members (also never deferred — "expands the advertised
@@ -267,7 +284,7 @@ export async function precomputeDiscovery() {
       else clone.defaultConfig = { defer_loading: true };
       return clone;
     });
-    wtxt('tools-list.' + profile + '.sse.txt', frame('tools/list:' + profile, { tools: profileTools }));
+    wtxt('tools-list.' + profile + '.sse.txt', frame('tools/list:' + profile, { tools: profileTools }, RESULT_TTL_MS['tools/list']));
     profileNames.push(profile);
   }
 

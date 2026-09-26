@@ -6182,15 +6182,67 @@ function missingClientCapabilities(body, required) {
   return required.filter((c) => extensions[c] === undefined && declared[c] === undefined);
 }
 
+// ── SEP-2549 `CacheableResult` (2026-07-28 changelog, minor change 5) ────────────────────────────
+// The RESULT object of every cacheable method carries `ttlMs` (freshness hint, ms) and `cacheScope`
+// ("public" | "private"). RESULT-level fields: they do NOT replace the per-item `_meta.ttlMs` /
+// `cacheScope` the resource descriptors below already carry, nor the per-tool `cacheHint` the
+// precompute stamps — all three coexist, this addition is purely additive.
+//
+// The two static list frames (tools/list, prompts/list, resources/list) are stamped by frame() in
+// scripts/precompute-discovery.mjs from the SAME numbers; this table is the SDK-fallback twin, kept
+// as a duplicate-with-comment for the same reason the `resultType:'complete'` stamp is duplicated
+// (the precompute is a build script, the worker cannot import from it at request time).
+const CACHEABLE_RESULT_TTL_MS = {
+  'tools/list':               86400000, // 24h — the per-tool cacheHint's TTL_MS (precompute-discovery.mjs)
+  'prompts/list':             86400000, // 24h — same static definitions as the tools
+  'resources/list':           21600000, // 6h  — TOOL_TTL_MS, the tool:// descriptor hint this list serves
+  'resources/templates/list': 21600000, // 6h  — same descriptor family
+  'resources/read':           21600000, // 6h  — floor only; overridden per-URI from the item's own _meta below
+};
+// "public" for every one of them: the bytes are identical for every caller (no per-caller content),
+// so a shared cache may hold one copy. ⚠ The per-item `_meta.cacheScope` on the resource descriptors
+// says "shared", which is NOT one of SEP-2549's two values — the result-level field uses the spec
+// enum ("public") and the older `_meta` shape is left byte-unchanged (additive only).
+const CACHEABLE_RESULT_SCOPE = 'public';
+
+// The TTL to advertise for one concrete result. resources/read is per-URI (a receipt:// read is an
+// immutable content-addressed artifact — RECEIPT_TTL_MS 365d — while a tool:// descriptor is 6h), so
+// honour the hint the item already carries rather than flattening both to one number; the MINIMUM,
+// because the result is only as fresh as its shortest-lived member.
+function cacheableResultTtlMs(method, result) {
+  const base = CACHEABLE_RESULT_TTL_MS[method];
+  if (base === undefined) return undefined;
+  if (method === 'resources/read' && Array.isArray(result?.contents)) {
+    const hints = result.contents.map((c) => c?._meta?.ttlMs).filter((v) => typeof v === 'number' && v > 0);
+    if (hints.length) return Math.min(...hints);
+  }
+  return base;
+}
+
+// Return `result` with the SEP-2549 pair stamped, in the same key order the static frames use
+// (`resultType`, `ttlMs`, `cacheScope`, then the payload). Returns the SAME object reference when
+// nothing applies (unknown method) or when the fields are already present — callers use identity to
+// decide whether the body needs re-serialising.
+function withCacheableResult(method, result) {
+  if (!result || typeof result !== 'object') return result;
+  if (result.ttlMs !== undefined || result.cacheScope !== undefined) return result;
+  const ttlMs = cacheableResultTtlMs(method, result);
+  if (ttlMs === undefined) return result;
+  const { resultType, ...rest } = result;
+  return { ...(resultType === undefined ? {} : { resultType }), ttlMs, cacheScope: CACHEABLE_RESULT_SCOPE, ...rest };
+}
+
 // Post-process a response off the SDK transport (MCP728-CONFORM-FIX-2). Two jobs, one parse:
 //   • stamp `resultType: "complete"` when the SDK emitted a result without one — "The result
 //     MUST include a resultType field", and the SDK's CallToolResult shape cannot express it;
+//   • stamp the SEP-2549 `ttlMs`/`cacheScope` pair on the cacheable methods (resources/read and
+//     resources/templates/list reach the SDK path; tools/list has its own branch at the call site);
 //   • an unknown RPC method MUST be 404 + -32601. The SDK returns the right code with status 200.
 //     ⚠ MODERN-ERA ONLY: a legacy stack may read 404 as "endpoint gone" rather than "method
 //     unknown", so a legacy client keeps its 200.
 // Handles both SSE (`event: message\ndata: {...}`) and plain-JSON framings. Any parse failure
 // passes the original bytes through untouched — never a 500 for a shape we did not expect.
-async function stampSdkResult(rawResponse, modernEra) {
+async function stampSdkResult(rawResponse, modernEra, method) {
   const text = await rawResponse.text();
   const headers = {};
   for (const [k, v] of rawResponse.headers.entries()) headers[k] = v;
@@ -6205,9 +6257,14 @@ async function stampSdkResult(rawResponse, modernEra) {
       if (di >= 0) { prefix = lines.slice(0, di).join('\n') + '\ndata: '; suffix = '\n' + lines.slice(di + 1).join('\n'); jsonStr = lines[di].slice(6); }
     }
     const parsed = JSON.parse(jsonStr);
-    if (parsed?.result && parsed.result.resultType === undefined) {
-      parsed.result = { resultType: 'complete', ...parsed.result };
-      newText = prefix + JSON.stringify(parsed) + suffix;
+    if (parsed?.result) {
+      let result = parsed.result;
+      if (result.resultType === undefined) result = { resultType: 'complete', ...result };
+      result = withCacheableResult(method, result);
+      if (result !== parsed.result) {
+        parsed.result = result;
+        newText = prefix + JSON.stringify(parsed) + suffix;
+      }
     }
     if (modernEra && status === 200 && parsed?.error?.code === -32601) status = 404;
   } catch (_) { /* unrecognised shape — pass through */ }
@@ -7133,9 +7190,13 @@ export default {
             }
             // "The result MUST include a resultType field" — stamped here on the SDK fallback
             // path; the normal tools/list served from static bytes is stamped by frame() in
-            // scripts/precompute-discovery.mjs, so the two paths agree.
-            if (parsed?.result && parsed.result.resultType === undefined) {
-              parsed.result = { resultType: 'complete', ...parsed.result };
+            // scripts/precompute-discovery.mjs, so the two paths agree. The SEP-2549
+            // `ttlMs`/`cacheScope` pair rides the same stamp, from the same table, for the same
+            // reason: static bytes and SDK output must not be two different answers.
+            if (parsed?.result) {
+              let result = parsed.result;
+              if (result.resultType === undefined) result = { resultType: 'complete', ...result };
+              parsed.result = withCacheableResult('tools/list', result);
             }
             // MCP-STREAMABLE-HTTP-CONFORMANCE-1: honour params.cursor on this fallback path too,
             // so the SDK path and the static fast path paginate identically (this branch only
@@ -7218,7 +7279,7 @@ export default {
           // arrives here. Stamps resultType and applies the modern-era 404. tools/list and
           // tools/call are handled by the branches above and never reach this (so the 330KB
           // tools/list body is not re-parsed).
-          response = await stampSdkResult(rawResponse, modernEra);
+          response = await stampSdkResult(rawResponse, modernEra, body?.method);
         }
         for (const [k, v] of Object.entries(corsHeaders)) response.headers.set(k, v);
         // MCP-STREAMABLE-HTTP-CONFORMANCE-1: echo the session id presented on the request

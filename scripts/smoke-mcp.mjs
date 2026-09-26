@@ -447,6 +447,31 @@ async function era2026Conformance() {
   const toolCount = tlObj.result.tools?.length ?? 0;
   if (toolCount === 0) throw new Error('tools/list returned no tools');
 
+  // (2b) SEP-2549 `CacheableResult` — the RESULT of every list method carries a positive `ttlMs`
+  // freshness hint and a `cacheScope` of "public" (these lists are identical for every caller).
+  // Asserted LIVE on all three, because each is framed by a different write in the precompute and a
+  // missing one would otherwise only show up as a silently non-conformant reply.
+  const assertCacheable = (method, result) => {
+    if (!result) throw new Error(`${method} returned no result`);
+    if (typeof result.ttlMs !== 'number' || !(result.ttlMs > 0)) {
+      throw new Error(`${method} result.ttlMs is ${JSON.stringify(result.ttlMs)}, expected a positive number (SEP-2549 CacheableResult)`);
+    }
+    if (result.cacheScope !== 'public') {
+      throw new Error(`${method} result.cacheScope is ${JSON.stringify(result.cacheScope)}, expected "public" (SEP-2549 CacheableResult)`);
+    }
+  };
+  assertCacheable('tools/list', tlObj.result);
+  for (const [method, id] of [['prompts/list', 606], ['resources/list', 607]]) {
+    const res = await post(
+      { 'mcp-protocol-version': MODERN, 'mcp-method': method },
+      { jsonrpc: '2.0', id, method, params: { _meta: modernMeta } },
+    );
+    const obj = await readJson(res);
+    if (res.status !== 200) throw new Error(`${method} returned HTTP ${res.status}, expected 200`);
+    if (obj?.result?.resultType !== 'complete') throw new Error(`${method} resultType is "${obj?.result?.resultType}", expected "complete"`);
+    assertCacheable(method, obj.result);
+  }
+
   // (3) unknown RPC method → 404 + -32601 (modern era only).
   const unk = await post(
     { 'mcp-protocol-version': MODERN, 'mcp-method': 'no/such/method' },
