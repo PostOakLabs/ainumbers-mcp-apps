@@ -4,6 +4,11 @@
 // Test locally: node test-worker.mjs (simulates the Workers env in plain Node)
 
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
+// PROMPTS-WORKER-CONTEXT-1 P3: `completable` marks a prompt argument as having a completion
+// callback. Registering one is what makes the SDK advertise capabilities.completions and answer
+// completion/complete on the direct-transport path (tests, stdio-style hosts); the HTTP worker
+// answers the same method earlier from the precomputed index.
+import { completable } from '@modelcontextprotocol/sdk/server/completable.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { McpError, ErrorCode, SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/sdk/types.js';
 import { toReqRes, toFetchResponse } from 'fetch-to-node';
@@ -751,7 +756,20 @@ async function loadData(env) {
   // findable by no discovery tool at all. Same tolerant-load discipline as recipes above.
   let utilityIndex = null;
   try { utilityIndex = await (await get('mcp/utility-tool-index.json')).json(); } catch { utilityIndex = null; }
-  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex };
+  // PROMPTS-WORKER-CONTEXT-1: the per-prompt tool context (P1) and the completion domains (P3),
+  // both generate.mjs outputs — LOADED LAZILY, exactly like loadWidget above and for the same
+  // reason. prompt-context.json is ~560KB: parsing it eagerly here would put a half-megabyte
+  // JSON.parse on every cold isolate, tools/call included, which is the Free-plan CPU budget this
+  // file spends the rest of its length protecting. Only prompts/get and completion/complete pay,
+  // and only once per isolate. Tolerant like recipes above: a missing file degrades a showcase
+  // prompt to its body alone, and completion to an empty value list, never an asset-miss throw.
+  let _promptContextP = null;
+  const loadPromptContext = () => (_promptContextP ??= get('mcp/prompt-context.json')
+    .then((r) => r.json()).catch(() => null));
+  let _completionIndexP = null;
+  const loadCompletionIndex = () => (_completionIndexP ??= get('mcp/completion-index.json')
+    .then((r) => r.json()).catch(() => null));
+  dataCache = { manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex };
   return dataCache;
 }
 
@@ -910,15 +928,21 @@ const STATIC_DISCOVERY_METHODS = new Set(['initialize', 'tools/list', 'resources
 // probe/garbage methods hitting the public endpoint. Membership = the worker's own routes
 // (server/discover, tools/call) + STATIC_DISCOVERY_METHODS + every request method the SDK server
 // dispatches (sdk server/index.js 1.29.0 — derived empirically by the parity gate: the full build
-// answers -32601 to completion/complete, logging/setLevel, resources/subscribe, resources/unsubscribe
+// answers -32601 to logging/setLevel, resources/subscribe, resources/unsubscribe
 // and tasks/* because buildServer registers none of those capabilities, so those methods take the
 // cheap -32601 short-circuit too; if a future change registers them, the parity gate's 0
 // false-reject check fails and the allowlist must be re-widened).
+// PROMPTS-WORKER-CONTEXT-1 P3: completion/complete MOVED OUT of that -32601 list — buildServer now
+// registers completable prompt arguments and a tool:// completion callback, so the SDK genuinely
+// answers the method and short-circuiting it would false-reject a real answer (the parity gate's
+// method leg fails on exactly that). The worker answers it earlier still, from the precomputed
+// completion index, without any buildServer spin-up.
 // notifications/* (id-less) are already 202'd earlier and can never reach the guard.
 const KNOWN_REQUEST_METHODS = new Set([
   ...STATIC_DISCOVERY_METHODS,
   'server/discover', 'tools/call',
   'ping', 'prompts/get', 'resources/read', 'resources/templates/list',
+  'completion/complete',
 ]);
 // Exported for scripts/build-mcp-parity.mjs — the gate independently re-derives the SDK-handled
 // method set and asserts this allowlist matches it (SO #34: the gate never trusts the artifact).
@@ -1349,6 +1373,74 @@ function extractDescribeEntry(text, name) {
     at = text.indexOf(key, at + 1);
   }
   return null;
+}
+
+// ── PROMPTS-WORKER-CONTEXT-1 P3: completion/complete from a precomputed index ─────────────────
+// VS Code Copilot calls completion/complete; the estate answered -32601 to every such call, so a
+// host that offers argument completion had nothing to offer. The values are DERIVABLE (node page
+// URLs, chain ids, served tool names), so they are generated into data/mcp/completion-index.json
+// at build time and answered here, on the same O(1) discipline as the describe map: one ASSETS
+// subrequest, cached per isolate, never a buildServer spin-up (the full ~186-tool build is the
+// cold-isolate 1102 source this whole layer exists to avoid).
+const COMPLETION_MAX_VALUES = 100; // MCP 2025-06-18 completion/complete: at most 100 values per reply
+let _completionIndex = null;
+async function getCompletionIndex(env) {
+  if (_completionIndex) return _completionIndex;
+  const r = await env.ASSETS.fetch('https://assets.local/mcp/completion-index.json');
+  if (!r.ok) throw new Error('static completion-index asset miss: ' + r.status);
+  return (_completionIndex = await r.json());
+}
+
+// Which derivable domain (if any) an argument of this reference completes from. A reference with
+// no mapping — a free-text argument, an unknown prompt, a resource template we do not complete —
+// has NO domain, and the caller answers `{ values: [] }`. ⛔ Never guess a domain from the
+// argument's VALUE: the index is the only authority on what is completable.
+function completionDomainFor(index, params) {
+  const argName = params?.argument?.name;
+  if (typeof argName !== 'string') return null;
+  const ref = params?.ref;
+  if (ref?.type === 'ref/prompt' && typeof ref.name === 'string') {
+    return index?.prompt_args?.[ref.name]?.[argName] ?? null;
+  }
+  if (ref?.type === 'ref/resource' && typeof ref.uri === 'string') {
+    return index?.resource_args?.[ref.uri]?.[argName] ?? null;
+  }
+  return null;
+}
+
+// Prefix match over one domain, with the one context narrowing the index carries: an already-bound
+// `chain_id` restricts node_page to the pages of that chain's steps (indexes into the node_page
+// array). An unknown chain narrows to nothing rather than falling back to the full estate — the
+// caller asked about that chain.
+function completionValuesFor(index, params) {
+  const domain = completionDomainFor(index, params);
+  if (!domain) return null;
+  let pool;
+  if (domain === 'node_page') {
+    const pages = index?.domains?.node_page ?? [];
+    const chain = params?.context?.arguments?.chain_id;
+    if (typeof chain === 'string' && chain !== '') {
+      const idx = index?.node_page_by_chain?.[chain];
+      pool = Array.isArray(idx) ? idx.map((i) => pages[i]).filter((u) => typeof u === 'string') : [];
+    } else {
+      pool = pages;
+    }
+  } else {
+    pool = index?.domains?.[domain] ?? [];
+  }
+  const prefix = params?.argument?.value;
+  return typeof prefix === 'string' && prefix !== ''
+    ? pool.filter((v) => v.startsWith(prefix))
+    : pool.slice();
+}
+
+// CompleteResult (MCP 2025-06-18): values capped at 100, `total` the true match count and
+// `hasMore` true when the cap elided some. A null pool (no derivable domain) is an EMPTY
+// completion, never an error — the spec's answer for "nothing to suggest".
+function completionResultFor(index, params) {
+  const all = completionValuesFor(index, params) ?? [];
+  const values = all.slice(0, COMPLETION_MAX_VALUES);
+  return { completion: { values, total: all.length, hasMore: all.length > values.length } };
 }
 
 // Shared projection: map entry + request-time lifecycle stamp → the describe_tool structured
@@ -1824,7 +1916,13 @@ export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParam
     'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
 }
 
-function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+  // PROMPTS-WORKER-CONTEXT-1: the two generated indexes arrive EITHER already parsed (tests,
+  // precompute, any caller that reads data/ off disk) or as the worker's lazy loaders. One accessor
+  // each, so every call site below is identical in both contexts and neither pays for a file it
+  // does not use.
+  const getPromptContext = async () => promptContext ?? (loadPromptContext ? await loadPromptContext() : null);
+  const getCompletionIdx = async () => completionIndex ?? (loadCompletionIndex ? await loadCompletionIndex() : null);
   // FV-AGENTSURFACE-BUILD-1: the AI Act Art. 15 pointer. One entry per
   // spec_digest exists under fv-status/ (today exactly one, since every live
   // node shares one chaingraph/standard/SPEC.md) — an ambiguous or empty
@@ -1924,9 +2022,23 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
     // can gain a new chain membership as chains ship, so a moderate TTL; shared scope because the
     // response carries zero per-caller data (same read surface for every agent).
     const TOOL_TTL_MS = 21600000; // 6h
+    // PROMPTS-WORKER-CONTEXT-1 P3: `complete` on {mcp_name} is what makes `tool://` completable
+    // for a host that asks (ref/resource + argument "mcp_name"). It reads the SAME generated
+    // domain the worker's completion/complete fast path serves, so the two paths can never
+    // disagree, and answers nothing at all when the index is absent (degrade, never guess).
     server.registerResource(
       'tool',
-      new ResourceTemplate('tool://{mcp_name}', { list: undefined }),
+      new ResourceTemplate('tool://{mcp_name}', {
+        list: undefined,
+        complete: {
+          mcp_name: async (value) => {
+            const idx = await getCompletionIdx();
+            if (!idx) return [];
+            return (completionValuesFor(idx, { ref: { type: 'ref/resource', uri: 'tool://{mcp_name}' }, argument: { name: 'mcp_name', value } }) ?? [])
+              .slice(0, COMPLETION_MAX_VALUES);
+          },
+        },
+      }),
       { title: 'AINumbers tool/kernel descriptor', description: 'Resolves an MCP tool name to its ChainGraph tool/kernel descriptor plus typed links to the chains it composes.', mimeType: 'application/json', _meta: { ttlMs: TOOL_TTL_MS, cacheScope: 'shared' } },
       async (uri, { mcp_name }) => {
         const name = Array.isArray(mcp_name) ? mcp_name[0] : mcp_name;
@@ -5997,26 +6109,73 @@ function buildServer({ manifests, widgets, loadWidget, catalog, chaingraph, sear
   // surface rides in the same block as a "\n\nVerify at:\n" + "- <url>" appendix, one line per
   // URL. Registered through the same regPrompt dedupe; a name collision with a flagship or
   // recipe prompt can never 500 the /mcp handshake.
+  //
+  // PROMPTS-WORKER-CONTEXT-1 (P1/P2/P3) adds three things to this loop, all AFTER the contract
+  // above still holds (message 0 stays the SSOT body verbatim + the Verify at: appendix):
+  //  P1 tool context — one EXTRA user message per tool the prompt names, each carrying ONE
+  //     `resource` block whose text is that tool's descriptor + inputSchema (generated into
+  //     data/mcp/prompt-context.json). Without it a host that fetches a walkthrough still has to
+  //     guess the input shapes of tools it cannot even see in its trimmed tools/list. Overflow
+  //     past the generator's 40 KB budget arrives as `resource_link` instead of an inline body.
+  //     ⛔ No receipt:// URIs and no expected hashes: a prompt states what to run, never what the
+  //     answer will be — an expected hash in the prompt text is a value to match instead of a
+  //     computation to verify.
+  //  P2 argument echo — supplied values are appended to message 0 as a plain "Arguments supplied:"
+  //     list so the model sees what the host bound. ECHO ONLY: a value is never fetched, resolved
+  //     or executed here, and the body above it stays byte-verbatim.
+  //  P3 completable arguments — an argument with a derivable domain (node page URL, chain id,
+  //     tool name) gets a completion callback, which is also what makes the SDK advertise
+  //     capabilities.completions on this server.
   for (const sp of (showcasePrompts?.prompts ?? [])) {
     const argsSchema = {};
     for (const a of (sp.arguments ?? [])) {
-      argsSchema[a.name] = a.required
+      const base = a.required
         ? z.string().describe(a.description)
         : z.string().optional().describe(a.description);
+      // Every declared argument is wired to the completer UNCONDITIONALLY — what it answers is the
+      // index's business, not the registration's: an argument with a derivable domain gets its
+      // prefix-matched values, a free-text one (a dollar cap, the caller's own endpoint) gets the
+      // spec's empty list. Deliberately NOT gated on `completionIndex` being loaded: gating it
+      // would make the ADVERTISED capability set depend on a generated file that generate.mjs
+      // writes AFTER the precompute that captures initialize.json — i.e. a first run would bake a
+      // card without `completions` and a second run would change it. Registration is static;
+      // only the values are data.
+      argsSchema[a.name] = completable(base, async (value, context) => {
+        const idx = await getCompletionIdx();
+        if (!idx) return [];
+        return (completionValuesFor(idx, {
+          ref: { type: 'ref/prompt', name: sp.id },
+          argument: { name: a.name, value },
+          context,
+        }) ?? []).slice(0, COMPLETION_MAX_VALUES);
+      });
     }
     regPrompt(sp.id, {
       title: sp.title,
       description: sp.one_line,
       argsSchema,
-    }, () => {
+    }, async (args) => {
+      const contextEntries = (await getPromptContext())?.prompts?.[sp.id] ?? [];
       const verify = sp.verify_surface ?? [];
-      const text = verify.length
+      const base = verify.length
         ? sp.body + '\n\nVerify at:\n' + verify.map((u) => '- ' + u).join('\n')
         : sp.body;
-      return {
-        description: sp.one_line,
-        messages: [{ role: 'user', content: { type: 'text', text } }],
-      };
+      // Only arguments the SSOT declares, in SSOT order, and only those the host actually
+      // supplied — an undeclared key a client sends is not echoed back into the prompt.
+      const supplied = (sp.arguments ?? [])
+        .filter((a) => args?.[a.name] !== undefined && args[a.name] !== '')
+        .map((a) => '- ' + a.name + ': ' + String(args[a.name]));
+      const text = supplied.length ? base + '\n\nArguments supplied:\n' + supplied.join('\n') : base;
+      const messages = [{ role: 'user', content: { type: 'text', text } }];
+      for (const entry of contextEntries) {
+        messages.push({
+          role: 'user',
+          content: entry.text !== undefined
+            ? { type: 'resource', resource: { uri: entry.uri, mimeType: 'application/json', text: entry.text } }
+            : { type: 'resource_link', uri: entry.uri, name: entry.name },
+        });
+      }
+      return { description: sp.one_line, messages };
     });
   }
 
@@ -6407,6 +6566,13 @@ export default {
     // Well-known MCP server card (SEP-1649 / SEP-2127) — static discovery descriptor for agents
     // and MCP clients that fetch /.well-known/mcp/server-card.json before connecting.
     if (url.pathname === '/.well-known/mcp/server-card.json') {
+      // PROMPTS-WORKER-CONTEXT-1 P3: capabilities are READ from the build-time initialize capture,
+      // never hand-typed here. The literal that used to sit inline said `tools/resources/prompts`
+      // and knew nothing about `completions` — a card is a promise about the wire, and a
+      // hand-typed promise drifts the moment a capability is added (exactly this row). On an asset
+      // miss the field is OMITTED rather than guessed: no claim beats a stale claim.
+      let cardCapabilities = null;
+      try { cardCapabilities = (await getStaticInitialize(env)).capabilities; } catch { /* omit */ }
       return Response.json({
         schema_version: 'mcp-server-card-v1',
         name: 'ainumbers-mcp-apps',
@@ -6418,7 +6584,7 @@ export default {
         endpoints: [
           { url: 'https://mcp.ainumbers.co/mcp', transport: 'streamable-http', protocol_version: '2025-06-18', authentication: 'none' },
         ],
-        capabilities: { tools: {}, resources: {}, prompts: {}, extensions: { 'io.modelcontextprotocol/ui': { mimeTypes: ['text/html;profile=mcp-app'] } } },
+        ...(cardCapabilities ? { capabilities: cardCapabilities } : {}),
         registry: 'co.ainumbers/tools',
         documentation: 'https://ainumbers.co/mcp.html',
         standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
@@ -6913,6 +7079,21 @@ export default {
           assertSingleSplice(sse, frameTpl, idJson);
           return frameResponse(sse, request, corsHeaders);
         } catch (_) { /* fall through to the full buildServer path on any static-serve miss */ }
+      }
+
+      // completion/complete fast path (PROMPTS-WORKER-CONTEXT-1 P3) — same shape as the
+      // describe_tool static branch: one ASSETS read of the precomputed index, isolate-cached,
+      // and NO buildServer spin-up (a completion arrives on every keystroke a host offers
+      // completion for, which is the last request class that should build ~186 tools). The SDK's
+      // own registered completer stays live for direct-transport contexts and answers from the
+      // same index; a malformed/absent index falls through to it rather than answering wrongly.
+      if (body && body.id !== undefined && method === 'completion/complete') {
+        try {
+          const index = await getCompletionIndex(env);
+          const result = { resultType: 'complete', ...completionResultFor(index, body.params) };
+          const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
+          return frameResponse(sse, request, corsHeaders);
+        } catch (_) { /* index miss → fall through to the SDK path below */ }
       }
 
       // Unknown METHOD short-circuit (MW2-UNKNOWN-METHOD-GUARD-1) — the method-class mirror of the

@@ -635,6 +635,38 @@ async function promptGetConformance() {
   return { messages: parsed.data.messages.length, chars: text.length };
 }
 
+// PROMPTS-WORKER-CONTEXT-1 P3 — the LIVE proof that completion/complete stopped answering -32601.
+// The domain is recomputed from the VENDORED index (data/mcp/completion-index.json), never read
+// back from the endpoint, so a deployed index that diverged from the committed one fails here.
+// One measured latency is reported: this is the per-keystroke request class, so its cost is the
+// thing worth watching, and it must not be paying for a ~186-tool buildServer.
+async function completionConformance() {
+  const DATA = join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
+  const index = JSON.parse(readFileSync(join(DATA, 'mcp', 'completion-index.json'), 'utf8'));
+  const entry = Object.entries(index.prompt_args ?? {})
+    .flatMap(([promptId, args]) => Object.entries(args).map(([argName, domain]) => ({ promptId, argName, domain })))
+    .find((e) => e.domain === 'node_page');
+  if (!entry) throw new Error('vendored completion-index.json maps no prompt argument to the node_page domain');
+  const pages = index.domains?.node_page ?? [];
+  const prefix = (pages[0] ?? '').slice(0, 45);
+  const expected = pages.filter((u) => u.startsWith(prefix));
+  const t0 = Date.now();
+  const { result, error } = await call('completion/complete', {
+    ref: { type: 'ref/prompt', name: entry.promptId },
+    argument: { name: entry.argName, value: prefix },
+  }, 851);
+  const ms = Date.now() - t0;
+  if (error) throw new Error(`completion/complete error ${error.code}: ${error.message}` + (error.code === -32601 ? ' — the live endpoint still refuses the method (PROMPTS-WORKER-CONTEXT-1 not deployed)' : ''));
+  const values = result?.completion?.values;
+  if (!Array.isArray(values)) throw new Error('completion/complete returned no completion.values: ' + JSON.stringify(result).slice(0, 200));
+  if (result.completion.total !== expected.length) {
+    throw new Error(`completion/complete total ${result.completion.total} != vendored index ${expected.length} for prefix "${prefix}" — deployed completion index diverged`);
+  }
+  const offPrefix = values.filter((v) => !v.startsWith(prefix));
+  if (offPrefix.length) throw new Error(`completion/complete returned ${offPrefix.length} value(s) outside the requested prefix, e.g. ${offPrefix[0]}`);
+  return { prompt: entry.promptId, argument: entry.argName, values: values.length, total: result.completion.total, hasMore: Boolean(result.completion.hasMore), ms };
+}
+
 // MCP-REACH-DISPATCH-1 — the LIVE legs of D1/D2. Three claims, all of which need a deployed
 // endpoint: (a) the 13 hot tools occupy page-1 positions 1-13 and call_tool is among them, so a
 // page-1-only host sees the door; (b) initialize carries instructions naming call_tool; (c) a
@@ -909,6 +941,9 @@ async function selfTest() {
 
       const pq = await phase('prompt-get', promptGetConformance);
       console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is GetPromptResultSchema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
+
+      const cc = await phase('completion-complete', completionConformance);
+      console.log(`✓ PROMPTS-WORKER-CONTEXT-1 P3 OK — live completion/complete answers ${cc.values} value(s) of ${cc.total} (hasMore=${cc.hasMore}) for ${cc.prompt}.${cc.argument}, ${cc.ms} ms`);
 
       const ct = await phase('call-tool-dispatch', callToolDispatchConformance);
       console.log(`✓ MCP-REACH-DISPATCH-1 OK — page-1 positions 1-13 are the hot set (${ct.head.join(', ')}); initialize.instructions ${ct.instructionChars}/600 chars naming call_tool; ${ct.parity.length} dispatched calls byte-identical to direct with ${ct.deep} of them OFF page 1, and the non-allowlisted anchor_stamp refused`);
