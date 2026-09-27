@@ -25,6 +25,14 @@
 // window/(limit − headroom). On a 429 we sleep one full window + 1s and resume the SAME request —
 // the pass is never restarted for a limiter response. A hard wall-clock cap bounds the job.
 //
+// SMOKE-1102-COLD-ISOLATE-1: a Free-plan cold isolate can answer HTTP 503 Error 1102 ("Worker
+// exceeded resource limits") on a CPU-heavy call (tools/call dispatch parity, prompts/get) right
+// after a fresh deploy, while the worker is otherwise healthy. Treated the same shape as 429 —
+// paced retry, own constant, own backoff — but gated on the CLOUDFLARE 1102 BODY specifically, so
+// any OTHER 503 (a real outage) still fails the smoke. A cheap static tools/list call warms the
+// isolate immediately before each of the two heaviest phases (export_artifact xlsx round-trip;
+// prompts/get) so the CPU-heavy call is less likely to land on a cold isolate in the first place.
+//
 // Usage:  node scripts/smoke-mcp.mjs [url]
 //         node scripts/smoke-mcp.mjs --self-test   (offline: exercises the pacer, no network)
 //   url default: https://mcp.ainumbers.co/mcp (or env MCP_SMOKE_URL)
@@ -32,7 +40,7 @@
 //        MCP_SMOKE_SKIP_EXPORT, MCP_SMOKE_PACE (0 disables pacing — reproduces the 429),
 //        MCP_SMOKE_RL_LIMIT (30), MCP_SMOKE_RL_WINDOW_MS (60000), MCP_SMOKE_RL_HEADROOM (3),
 //        MCP_SMOKE_429_RETRIES (3), MCP_SMOKE_MAX_WALL_MS (600000),
-//        MCP_SMOKE_PROPAGATION_MS (90000).
+//        MCP_SMOKE_PROPAGATION_MS (90000), MCP_SMOKE_1102_RETRIES (3), MCP_SMOKE_1102_BACKOFF_MS (2000).
 // Exit 0 = healthy; exit 1 = broken (fails the deploy job → roll back in Cloudflare).
 
 import { readFileSync } from 'node:fs';
@@ -69,6 +77,14 @@ let RL_BACKOFF_MS = RL_WINDOW_MS + 1000;                            // 61s: one 
 const RL_429_RETRIES = Number(process.env.MCP_SMOKE_429_RETRIES ?? 3);
 let MAX_WALL_MS = Number(process.env.MCP_SMOKE_MAX_WALL_MS ?? 600000);  // 10 min hard cap
 const PROPAGATION_MS = Number(process.env.MCP_SMOKE_PROPAGATION_MS ?? 90000);
+// SMOKE-1102-COLD-ISOLATE-1: own retry count + own backoff, deliberately separate from the 429
+// budget above — a cold isolate is not a rate limit and must not share its counters or its window.
+const RL_1102_RETRIES = Number(process.env.MCP_SMOKE_1102_RETRIES ?? 3);
+const RL_1102_BACKOFF_MS = Number(process.env.MCP_SMOKE_1102_BACKOFF_MS ?? 2000);
+const COLD_ISOLATE_1102 = /error-1102|Error 1102: Worker exceeded resource limits/i;
+// Phase timings for THIS attempt, so a final failure can report the last few phases that actually
+// ran (not just the one that finally threw) — cleared at the top of every outer attempt.
+let PHASE_TIMINGS = [];
 function recomputePace() {
   RL_BUDGET = Math.max(1, RL_LIMIT - RL_HEADROOM);
   RL_SPACING_MS = Math.ceil(RL_WINDOW_MS / RL_BUDGET);
@@ -106,45 +122,94 @@ async function paceGate(label) {
 // Every network call in this file goes through here. `makeInit` is a THUNK because a retried
 // request needs a fresh AbortSignal (a reused expired signal aborts instantly).
 async function pacedFetch(url, makeInit, label) {
-  for (let attempt = 0; ; attempt++) {
+  let n429 = 0, n1102 = 0;
+  for (;;) {
     await paceGate(label);
     sent.push(Date.now());
     requestCount++;
     const res = await fetch(url, makeInit());
-    if (res.status !== 429) return res;
-    let body = ''; try { body = await res.text(); } catch { /* ignore */ }
-    if (LEGACY) {
-      const e = new Error(`HTTP 429 on ${label}: ${body.slice(0, 200)}`);
-      e.rateLimited = true;
-      throw e;
+    if (res.status === 429) {
+      let body = ''; try { body = await res.text(); } catch { /* ignore */ }
+      if (LEGACY) {
+        const e = new Error(`HTTP 429 on ${label}: ${body.slice(0, 200)}`);
+        e.rateLimited = true;
+        throw e;
+      }
+      if (n429 >= RL_429_RETRIES) {
+        const e = new Error(`HTTP 429 on ${label} after ${n429 + 1} paced attempts: ${body.slice(0, 200)}`);
+        e.rateLimited = true;
+        throw e;
+      }
+      if (RL_BACKOFF_MS >= wallLeftMs()) {
+        const e = new Error(`HTTP 429 on ${label} and the ${RL_BACKOFF_MS}ms backoff exceeds the remaining wall budget`);
+        e.rateLimited = true;
+        throw e;
+      }
+      console.error(`  · 429 on ${label} — draining the limiter for ${RL_BACKOFF_MS}ms (window ${RL_WINDOW_MS}ms), then resuming THIS request (no pass restart)`);
+      resetPace();
+      await sleep(RL_BACKOFF_MS);
+      n429++;
+      continue;
     }
-    if (attempt >= RL_429_RETRIES) {
-      const e = new Error(`HTTP 429 on ${label} after ${attempt + 1} paced attempts: ${body.slice(0, 200)}`);
-      e.rateLimited = true;
-      throw e;
+    if (res.status === 503) {
+      // SMOKE-1102-COLD-ISOLATE-1: a 503 is only transient when the BODY names Error 1102 (a cold
+      // isolate hitting the Free-plan CPU/memory ceiling). Any other 503 is a genuine outage and
+      // must still fail the smoke — so we read the body once here and gate strictly on that text,
+      // never on the bare status code.
+      let body = ''; try { body = await res.text(); } catch { /* ignore */ }
+      if (COLD_ISOLATE_1102.test(body)) {
+        if (n1102 >= RL_1102_RETRIES) {
+          const e = new Error(`HTTP 503 (Error 1102 cold isolate) on ${label} after ${n1102 + 1} attempts: ${body.slice(0, 200)}`);
+          e.coldIsolate = true;
+          throw e;
+        }
+        if (RL_1102_BACKOFF_MS >= wallLeftMs()) {
+          const e = new Error(`HTTP 503 (Error 1102 cold isolate) on ${label} and the ${RL_1102_BACKOFF_MS}ms backoff exceeds the remaining wall budget`);
+          e.coldIsolate = true;
+          throw e;
+        }
+        console.error(`  · 1102 (cold isolate) on ${label} — retrying attempt ${n1102 + 1}/${RL_1102_RETRIES} after ${RL_1102_BACKOFF_MS}ms`);
+        n1102++;
+        await sleep(RL_1102_BACKOFF_MS);
+        continue;
+      }
+      // Not a 1102 body: a genuine 503. Hand back a response-shaped object carrying the body text
+      // we already consumed, since callers only ever call .text() on a non-200 response.
+      return { status: 503, headers: res.headers, text: async () => body };
     }
-    if (RL_BACKOFF_MS >= wallLeftMs()) {
-      const e = new Error(`HTTP 429 on ${label} and the ${RL_BACKOFF_MS}ms backoff exceeds the remaining wall budget`);
-      e.rateLimited = true;
-      throw e;
-    }
-    console.error(`  · 429 on ${label} — draining the limiter for ${RL_BACKOFF_MS}ms (window ${RL_WINDOW_MS}ms), then resuming THIS request (no pass restart)`);
-    resetPace();
-    await sleep(RL_BACKOFF_MS);
+    return res;
   }
 }
 
-// Phase-level backstop: if a phase still surfaces a rate-limited error after the in-request
-// backoffs, drain once more and re-run THAT phase only. Non-429 errors propagate to the attempt loop.
+// Phase-level backstop: if a phase still surfaces a rate-limited OR cold-isolate (1102) error
+// after the in-request retries, drain/backoff once more and re-run THAT phase only. Any other
+// error propagates to the attempt loop. On success, record the phase's wall time so a final
+// failure can report which phases actually completed (SMOKE-1102-COLD-ISOLATE-1 item 2).
 async function phase(name, fn) {
+  const t0 = Date.now();
   for (let i = 0; ; i++) {
-    try { return await fn(); } catch (e) {
-      if (LEGACY || !e || !e.rateLimited || i >= 1) throw e;
-      console.error(`  · phase "${name}" still rate-limited — draining ${RL_BACKOFF_MS}ms and resuming this phase`);
+    try {
+      const out = await fn();
+      PHASE_TIMINGS.push({ name, ms: Date.now() - t0 });
+      return out;
+    } catch (e) {
+      if (LEGACY || !e || !(e.rateLimited || e.coldIsolate) || i >= 1) throw e;
+      const backoff = e.coldIsolate ? RL_1102_BACKOFF_MS : RL_BACKOFF_MS;
+      console.error(`  · phase "${name}" still ${e.coldIsolate ? 'cold-isolate (1102)' : 'rate-limited'} — draining ${backoff}ms and resuming this phase`);
       resetPace();
-      await sleep(RL_BACKOFF_MS);
+      await sleep(backoff);
     }
   }
+}
+
+// One cheap static call to warm a cold isolate right before a CPU-heavy phase. `tools/list` with
+// no cursor is the static fast path (no kernel execution), so this costs one paced request and
+// logs how long the isolate took to answer it.
+async function warmUp(id, label) {
+  const t0 = Date.now();
+  const { error } = await call('tools/list', {}, id);
+  if (error) throw new Error(`warm-up (${label}) tools/list error ${error.code}: ${error.message}`);
+  console.log(`  · warm-up: ${Date.now() - t0}ms (${label})`);
 }
 
 // SEP-2243 routing headers. Every smoke request SENDS them, so a green smoke actually
@@ -907,6 +972,7 @@ async function selfTest() {
       START_MS = Date.now();
       requestCount = 0;
       resetPace();
+      PHASE_TIMINGS = [];
       console.log(`· pacing: ${PACE_ON ? `${RL_BUDGET} req / ${RL_WINDOW_MS}ms (limiter ${RL_LIMIT}, headroom ${RL_HEADROOM}), ≥${RL_SPACING_MS}ms apart, 429 backoff ${RL_BACKOFF_MS}ms ×${RL_429_RETRIES}, wall cap ${MAX_WALL_MS}ms` : 'DISABLED (MCP_SMOKE_PACE=0)'}`);
 
       const info = await phase('initialize', initialize);
@@ -939,6 +1005,7 @@ async function selfTest() {
       const dn = await phase('describe-tool-unknown', describeToolUnknownName);
       console.log(`✓ describe_tool unknown-name OK — -32602 with error.data.nearest_names (${dn.nearest.length} nearest)`);
 
+      await phase('warm-up-prompt-get', () => warmUp(800, 'prompts/get'));
       const pq = await phase('prompt-get', promptGetConformance);
       console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is GetPromptResultSchema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
 
@@ -954,6 +1021,7 @@ async function selfTest() {
         budgetSummary();
         process.exitCode = 0; return;
       }
+      await phase('warm-up-export', () => warmUp(2, 'export_artifact'));
       const x = await phase('export-round-trip', () => exportRoundTrip(pg.names));
       console.log(`✓ export_artifact round-trip OK — xlsx blob ${x.bytes}B (PK zip), hash carried, ${x.tools} tools listed`);
 
@@ -973,6 +1041,10 @@ async function selfTest() {
     }
   }
   console.error(`\n✗ /mcp smoke test FAILED after ${RETRIES} attempts: ${lastErr && lastErr.message}`);
+  if (PHASE_TIMINGS.length) {
+    console.error('  last phases completed before the failing one:');
+    for (const t of PHASE_TIMINGS.slice(-3)) console.error(`    · ${t.name}: ${t.ms}ms`);
+  }
   console.error('  Either the MCP handshake is broken (tool-registration throw in buildServer()) or the');
   console.error('  export_artifact round-trip failed. Roll back in Cloudflare → ainumbers-mcp → Deployments.');
   process.exit(1);
