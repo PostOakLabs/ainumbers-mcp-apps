@@ -310,22 +310,31 @@ async function rcNoInitializePath() {
   return { tools: names.length };
 }
 
-// §M1.2 named toolsets: ?toolset=reserve must expand the advertised (non-deferred) set beyond the
-// 9-name lean core with reserve-domain tools, generator-emitted (data/mcp/toolsets.json).
-async function toolsetProfile() {
-  const profileUrl = URL + (URL.includes('?') ? '&' : '?') + 'toolset=reserve';
-  const res = await pacedFetch(profileUrl, () => ({
-    method: 'POST', headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 201, method: 'tools/list', params: {} }),
-  }), 'tools/list?toolset=reserve');
-  if (res.status !== 200) throw new Error(`?toolset=reserve tools/list HTTP ${res.status}`);
-  const text = await res.text();
-  const line = text.split('\n').find((l) => l.startsWith('data:'));
-  const obj = JSON.parse((line || text).replace(/^data:\s*/, ''));
-  const tools = obj.result?.tools ?? [];
-  const nonDeferred = tools.filter((t) => !t.defaultConfig?.defer_loading).length;
-  if (nonDeferred <= 9) throw new Error(`?toolset=reserve did not expand the advertised set (${nonDeferred} non-deferred, expected >9)`);
-  return { nonDeferred };
+// Named toolsets are retired (TOOLSETS-RETIRE-1): `?toolset=<name>` on /mcp is accepted-and-ignored
+// so every existing link still gets the default list. `?toolset=reserve` (a formerly-real profile)
+// and `?toolset=bogus` (never a profile) must both return a page-1 tools array byte-identical to
+// the default page 1 (id placeholder aside).
+async function toolsetIgnored() {
+  const fetchToolsList = async (qs) => {
+    const u = qs ? URL + (URL.includes('?') ? '&' : '?') + qs : URL;
+    const res = await pacedFetch(u, () => ({
+      method: 'POST', headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 201, method: 'tools/list', params: {} }),
+    }), 'tools/list?' + qs);
+    if (res.status !== 200) throw new Error(`?${qs} tools/list HTTP ${res.status}`);
+    const text = await res.text();
+    const line = text.split('\n').find((l) => l.startsWith('data:'));
+    const obj = JSON.parse((line || text).replace(/^data:\s*/, ''));
+    return JSON.stringify(obj.result?.tools ?? []);
+  };
+  const def = await fetchToolsList('');
+  const [reserve, bogus] = await Promise.all([
+    fetchToolsList('toolset=reserve'),
+    fetchToolsList('toolset=bogus'),
+  ]);
+  if (reserve !== def) throw new Error('?toolset=reserve page 1 diverged from default page 1 — toolset retirement not fully wired');
+  if (bogus !== def) throw new Error('?toolset=bogus page 1 diverged from default page 1 — toolset retirement not fully wired');
+  return { toolsBytes: def.length };
 }
 
 async function initialize() {
@@ -1028,8 +1037,8 @@ async function selfTest() {
       const rc = await phase('rc-no-initialize', rcNoInitializePath);
       console.log(`✓ §M1.6 RC path (no initialize) OK — tools/list + tools/call answered directly, ${rc.tools} tools listed`);
 
-      const ts = await phase('named-toolset', toolsetProfile);
-      console.log(`✓ §M1.2 named toolset OK — ?toolset=reserve advertises ${ts.nonDeferred} non-deferred tools (lean core + reserve profile)`);
+      const ts = await phase('toolset-retired', toolsetIgnored);
+      console.log(`✓ toolset retirement OK — ?toolset=reserve and ?toolset=bogus both match the default page 1 (${ts.toolsBytes}B)`);
 
       budgetSummary();
       process.exitCode = 0; return;

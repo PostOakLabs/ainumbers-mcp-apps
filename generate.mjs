@@ -287,7 +287,7 @@ const toolPageUrl = (toolId) =>
   TOOL_FILES.has(toolId) ? 'https://ainumbers.co/tools/' + toolId + '.html' : null;
 
 // Live-node filter for the chain projection (WORKER-CHAIN-LIVE-FILTER-1).
-// Node tools are projected `status === 'live'` ONLY — nodeDocs below, toolsetProfiles,
+// Node tools are projected `status === 'live'` ONLY — nodeDocs below,
 // outputSchemas, knownToolNames and the counts all carry that predicate. chains[] was the
 // one projection that did not, so find_chain advertised a recipe whose step is a departed
 // tool: `mica-transitional` was returned with entry_mcp_name "route_mica_transitional_deadline"
@@ -520,39 +520,6 @@ function cellText(s) {
   }, null, 2) + '\n');
   console.log('showcase-prompts: ' + items.length + ' prompt(s) -> data/mcp/showcase-prompts.json (' + items.map((p) => p.id).join(', ') + ')');
 }
-
-// ---------------------------------------------------------------------------
-// Named toolsets (MCP-500-1 §M1.2, GitHub-MCP server-card profile pattern) — a NAME LIST
-// projection of chaingraph.json onto a handful of domain profiles, generator-emitted only
-// (never hand-authored, §A5.3 surface-parity). Membership derives from the existing node
-// facet (mcp_name + display_name + description + tool_id text) via a fixed keyword rule
-// below — adding a profile or widening one is a generator-rule edit, zero worker logic.
-// worker.mjs expands the lean §M1.1 core with a profile's members when a client requests
-// ?toolset=<name> on /mcp (server stays stateless: the query param is read per-request,
-// no session state held).
-// ---------------------------------------------------------------------------
-const PROFILE_KEYWORDS = {
-  reserve:  ['reserve', 'proof of reserve', 'por ', 'stablecoin', 'merkle-sum'],
-  mortgage: ['mortgage', 'trid', 'hoepa', 'hmda', ' qm ', 'llpa', 'heloc', 'fha ', 'va funding', 'conforming loan', 'mismo', 'scra'],
-  emir:     ['emir', ' uti ', ' upi ', 'trade report', 'derivatives margin', 'csdr'],
-  anchors:  ['anchor', 'timestamp', 'rfc3161', 'sigstore', 'merkle batch', 'ots proof', 'witness'],
-  'ai-act': ['ai act', 'fria', 'gpai', 'annex iii', 'high-risk ai', 'conformity', 'nist ai rmf'],
-};
-const toolsetProfiles = {};
-for (const [profile, keywords] of Object.entries(PROFILE_KEYWORDS)) {
-  toolsetProfiles[profile] = cgNodes
-    .filter((n) => n.status === 'live' && n.mcp_name)
-    .filter((n) => {
-      const hay = ' ' + [n.mcp_name, n.display_name, n.description, n.tool_id].filter(Boolean).join(' ').toLowerCase() + ' ';
-      return keywords.some((kw) => hay.includes(kw));
-    })
-    .map((n) => n.mcp_name);
-}
-writeFileSync(resolve(DATA, 'mcp', 'toolsets.json'), JSON.stringify({
-  rule: 'substring keyword match of PROFILE_KEYWORDS against lowercased "mcp_name display_name description tool_id" — see generate.mjs',
-  profiles: toolsetProfiles,
-}, null, 2) + '\n');
-console.log('toolset profiles:', Object.fromEntries(Object.entries(toolsetProfiles).map(([k, v]) => [k, v.length])));
 
 // ---------------------------------------------------------------------------
 // outputSchema projection (MCP-500-1 §M1.4) — READ-ONLY from repo/manifests/*.manifest.json

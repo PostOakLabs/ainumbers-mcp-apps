@@ -999,19 +999,6 @@ async function getStaticInitialize(env) {
   if (!r.ok) throw new Error('static initialize asset miss: ' + r.status);
   return (_initStatic = await r.json());
 }
-// Named toolsets (§M1.2): known profile names, loaded lazily from the vendored manifest so a new
-// profile added by generate.mjs is picked up without a worker.mjs edit. `?toolset=<name>` on /mcp
-// selects the matching precomputed tools-list.<name>.sse.txt (generator-emitted, §M1.2); an unknown
-// or absent name falls back to the lean-core default file — never a 4xx for an unrecognized profile.
-let _toolsetNames = null;
-async function getToolsetNames(env) {
-  if (_toolsetNames) return _toolsetNames;
-  try {
-    const r = await env.ASSETS.fetch('https://assets.local/mcp/toolsets.json');
-    const j = r.ok ? await r.json() : { profiles: {} };
-    return (_toolsetNames = new Set(Object.keys(j.profiles ?? {})));
-  } catch { return (_toolsetNames = new Set()); }
-}
 // MCP-REACH-DISPATCH-1 D1: the dispatch allowlist, GENERATED (never typed) into
 // data/mcp/dispatch-allowlist.json by scripts/precompute-discovery.mjs = every served tool whose
 // annotations say `readOnlyHint === true && openWorldHint === false`, minus call_tool itself. A tool
@@ -1032,13 +1019,12 @@ async function getDispatchAllowlist(env) {
     return (_dispatchAllowlist = new Set(names));
   } catch { return (_dispatchAllowlist = new Set()); }
 }
-async function getStaticListTemplate(env, method, toolset) {
-  const key = toolset ? method + ':' + toolset : method;
-  if (_listStatic[key]) return _listStatic[key];
-  const file = toolset ? STATIC_LIST_FILE[method].replace('.sse.txt', '.' + toolset + '.sse.txt') : STATIC_LIST_FILE[method];
+async function getStaticListTemplate(env, method) {
+  if (_listStatic[method]) return _listStatic[method];
+  const file = STATIC_LIST_FILE[method];
   const r = await env.ASSETS.fetch('https://assets.local/' + file);
-  if (!r.ok) throw new Error('static list asset miss: ' + key + ' > ' + r.status);
-  return (_listStatic[key] = await r.text());   // TEXT — no JSON.parse of the large body
+  if (!r.ok) throw new Error('static list asset miss: ' + method + ' > ' + r.status);
+  return (_listStatic[method] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
 // ── MCP-TOOLSLIST-PAGINATION-2 (2026-09-17): spec cursor pagination on the list templates ────
@@ -7031,15 +7017,9 @@ export default {
             return frameResponse(sse, request, corsHeaders, { 'Mcp-Session-Id': crypto.randomUUID() });
           }
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
-          // no JSON.parse / no re-stringify of the (330KB) body. tools/list honors ?toolset=<name>
-          // (§M1.2 named toolsets) — a known profile serves its own precomputed file (lean core UNION
-          // the profile's members, non-deferred); an unrecognized/absent name falls back to default.
-          let toolset;
-          if (method === 'tools/list') {
-            const requested = url.searchParams.get('toolset');
-            if (requested && (await getToolsetNames(env)).has(requested)) toolset = requested;
-          }
-          const tpl = await getStaticListTemplate(env, method, toolset);
+          // no JSON.parse / no re-stringify of the (330KB) body. `?toolset=<name>` (retired,
+          // TOOLSETS-RETIRE-1) is accepted-and-ignored: tools/list always serves the default template.
+          const tpl = await getStaticListTemplate(env, method);
           // MCP-TOOLSLIST-PAGINATION-2 (re-applied from #294): serve ONE page when the template
           // carries a list array. A no-cursor request gets page one + nextCursor (per spec an
           // unpaginated reply IS page one); a request echoing our token gets that page; an
@@ -7051,8 +7031,8 @@ export default {
           // (~line 1153) speaks a different, decimal-array-index grammar; this branch returns
           // below and never falls into it, so the two never interpret the same token. Both refuse
           // the other's with -32602. The 4th arg is the per-template memo key (same construction
-          // as getStaticListTemplate) so a ?toolset= variant never reuses another's element index.
-          const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor, toolset ? method + ':' + toolset : method);
+          // as getStaticListTemplate).
+          const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor, method);
           if (page === LIST_CURSOR_INVALID) {
             return protocolErrorResponse('protocol.invalid_params.cursor', {
               id: body.id,

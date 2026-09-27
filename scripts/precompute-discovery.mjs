@@ -168,8 +168,8 @@ export async function precomputeDiscovery() {
   // ⛔ NO `defaultConfig:{defer_loading:true}` ON THE DEFAULT LIST (MCP-REACH-DISPATCH-1 D4).
   // Measured 2026-09-24: 15,620 B per full walk for a field NO host reads — `defer_loading` is a
   // CLIENT-side setting in both documented implementations (Anthropic `mcp_toolset.default_config`,
-  // OpenAI `defer_loading` + `tool_search`). The named-toolset profile files below still set it on
-  // their non-advertised entries; those five files are untouched by this row (spec §T rules on them).
+  // OpenAI `defer_loading` + `tool_search`); named toolsets (retired, TOOLSETS-RETIRE-1) used to
+  // set it on their own non-advertised entries.
   //
   // MCP-REACH-DISPATCH-1 D2 — hot tools to page-1 positions 1-13, via the ONE ordering function
   // worker.mjs's runtime fallback path also calls. Applied BEFORE framing, so every artifact below
@@ -251,7 +251,7 @@ export async function precomputeDiscovery() {
   // appears inside the payload itself).
   const ID_PLACEHOLDER = '__OCG_ID__';
   const wtxt = (name, str) => writeFileSync(resolve(DATA, 'mcp', 'static', name), str);
-  // ⭐ THE SINGLE FRAMING POINT for tools/list and every named-toolset profile. `resultType` is
+  // ⭐ THE SINGLE FRAMING POINT for tools/list, resources/list and prompts/list. `resultType` is
   // stamped HERE, once, rather than on 548 tools — the FINAL text requires "The result MUST
   // include a resultType field", and "complete" is the defined value for a finished result
   // (MCP728-CONFORM-FIX-2). The worker's SDK fallback path stamps the same field the same way,
@@ -268,26 +268,6 @@ export async function precomputeDiscovery() {
   wtxt('resources-list.sse.txt', frame('resources/list', { resources },                   RESULT_TTL_MS['resources/list']));
   wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts },                     RESULT_TTL_MS['prompts/list']));
 
-  // Named toolsets (§M1.2) — one extra static tools-list per profile: lean §M1.1 core (9 names,
-  // never deferred) UNION the profile's members (also never deferred — "expands the advertised
-  // set to that domain's tools on top of the lean core"), everything else stays defer_loading:true.
-  // Generator-emitted membership only (data/mcp/toolsets.json, written by generate.mjs) — no
-  // hand-typed list here. A client requests one via ?toolset=<name> on /mcp (worker.mjs).
-  let toolsetProfiles = {};
-  try { toolsetProfiles = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'toolsets.json'), 'utf8')).profiles ?? {}; } catch { /* none yet */ }
-  const profileNames = [];
-  for (const [profile, members] of Object.entries(toolsetProfiles)) {
-    const advertised = new Set([...HOT_TOOLS, ...members]);
-    const profileTools = toolsMsg.result.tools.map((t) => {
-      const clone = { ...t };
-      if (advertised.has(t.name)) delete clone.defaultConfig;
-      else clone.defaultConfig = { defer_loading: true };
-      return clone;
-    });
-    wtxt('tools-list.' + profile + '.sse.txt', frame('tools/list:' + profile, { tools: profileTools }, RESULT_TTL_MS['tools/list']));
-    profileNames.push(profile);
-  }
-
   // describe_tool map (MCP-TOOLSLIST-TRIM-DESCRIBE-1) — one entry per SERVED (non-Removed) tool,
   // keyed by mcp_name, single-line JSON so the worker's O(entry) extractor can slice it without a
   // full-map parse (worker.mjs getDescribeTemplate/extractDescribeEntry).
@@ -300,7 +280,7 @@ export async function precomputeDiscovery() {
   console.log('dispatch allowlist: ' + allowTools.length + ' eligible, ' + excludedTools.length
     + ' excluded -> data/mcp/dispatch-allowlist.json; utility index: ' + utilityIndexTools.length
     + ' non-node tools -> data/mcp/utility-tool-index.json');
-  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length, toolsets: profileNames,
+  return { tools: toolsMsg.result.tools.length, resources: resources.length, prompts: prompts.length,
            dispatchAllowlist: allowTools.length, dispatchExcluded: excludedTools.length };
 }
 
