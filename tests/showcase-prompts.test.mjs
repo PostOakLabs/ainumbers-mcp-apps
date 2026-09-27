@@ -37,9 +37,13 @@ function loadDataFromDisk() {
     manifests[slug] = JSON.parse(get('manifests/' + slug + '.manifest.json'));
     widgets[slug] = stripCspMeta(get('tools/' + slug + '.html')) + glue;
   }
-  let recipes = null, showcasePrompts = null;
+  let recipes = null, showcasePrompts = null, promptContext = null, completionIndex = null;
   try { recipes = JSON.parse(get('mcp/recipes.json')); } catch { /* degrade */ }
   try { showcasePrompts = JSON.parse(get('mcp/showcase-prompts.json')); } catch { /* degrade */ }
+  // PROMPTS-WORKER-CONTEXT-1: the generated tool-context + completion inputs, same tolerant load
+  // the worker does.
+  try { promptContext = JSON.parse(get('mcp/prompt-context.json')); } catch { /* degrade */ }
+  try { completionIndex = JSON.parse(get('mcp/completion-index.json')); } catch { /* degrade */ }
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
@@ -48,6 +52,8 @@ function loadDataFromDisk() {
     chainFixtures: JSON.parse(get('chain-fixtures.json')),
     recipes,
     showcasePrompts,
+    promptContext,
+    completionIndex,
   };
 }
 
@@ -111,7 +117,7 @@ async function main() {
 
     // Every advertised prompt (all of them, not only showcase) must be fetchable AND
     // GetPromptResultSchema-valid with exactly one content block per message.
-    let valid = 0;
+    let valid = 0, ctxTotal = 0;
     for (const entry of prompts) {
       const ssotPrompt = byId.get(entry.name);
       const declared = entry.arguments ?? ssotPrompt?.arguments ?? [];
@@ -142,20 +148,73 @@ async function main() {
       let promptOk = true;
       if (ssotPrompt) {
         const m0 = msgs[0];
-        const expected = expectedShowcaseText(ssotPrompt);
-        if (msgs.length !== 1 || m0?.role !== 'user') {
-          fail(`prompts/get "${entry.name}" returns one user message`, `msgs=${msgs.length}, role=${m0?.role}`);
+        // PROMPTS-WORKER-CONTEXT-1 P2: message 0 = body (+ Verify at: appendix) + the echo of the
+        // arguments THIS call supplied, in SSOT order. The body contract above is unchanged — the
+        // echo is strictly an appendix, so a divergence here still catches a mutated body.
+        const supplied = (ssotPrompt.arguments ?? [])
+          .filter((a) => args[a.name] !== undefined && args[a.name] !== '')
+          .map((a) => '- ' + a.name + ': ' + String(args[a.name]));
+        const expected = expectedShowcaseText(ssotPrompt)
+          + (supplied.length ? '\n\nArguments supplied:\n' + supplied.join('\n') : '');
+        // P1: message 0 is followed by EXACTLY the generated context entries for this prompt.
+        const ctxEntries = data.promptContext?.prompts?.[ssotPrompt.id] ?? [];
+        const expectedMsgs = 1 + ctxEntries.length;
+        if (msgs.length !== expectedMsgs || msgs.some((m) => m.role !== 'user')) {
+          fail(`prompts/get "${entry.name}" returns 1 body message + ${ctxEntries.length} context message(s), all role user`,
+            `msgs=${msgs.length} (expected ${expectedMsgs}), roles=${msgs.map((m) => m.role).join(',')}`);
           promptOk = false;
         } else if (m0.content?.type !== 'text' || m0.content?.text !== expected) {
-          fail(`prompts/get "${entry.name}" message 0 is the SSOT body verbatim (+ Verify at: appendix)`,
+          fail(`prompts/get "${entry.name}" message 0 is the SSOT body verbatim (+ Verify at: appendix + Arguments supplied)`,
             m0.content?.type !== 'text' ? 'message 0 is not a text block'
-              : `text diverges from body+appendix (len ${m0.content?.text} vs ${expected.length})`);
+              : `text diverges from body+appendix+echo (len ${m0.content?.text?.length} vs ${expected.length})`);
           promptOk = false;
+        } else {
+          // Context messages: `resource` (inline descriptor) or `resource_link` (overflow) ONLY,
+          // every URI a tool:// URI, every inline body parseable JSON that carries an inputSchema,
+          // and the per-prompt embedded total inside the generator's 40 KB cap.
+          let bytes = 0;
+          for (let i = 1; i < msgs.length; i++) {
+            const c = msgs[i].content;
+            const entryDef = ctxEntries[i - 1];
+            if (c?.type === 'resource') {
+              const uri = c.resource?.uri;
+              if (uri !== entryDef.uri || !String(uri).startsWith('tool://')) {
+                fail(`"${entry.name}" context message ${i} carries the generated tool:// URI`, String(uri));
+                promptOk = false;
+              }
+              if (c.resource?.mimeType !== 'application/json') {
+                fail(`"${entry.name}" context message ${i} is application/json`, String(c.resource?.mimeType));
+                promptOk = false;
+              }
+              let def = null;
+              try { def = JSON.parse(c.resource?.text ?? ''); } catch { /* reported below */ }
+              if (!def || !def.name || !def.inputSchema) {
+                fail(`"${entry.name}" context message ${i} is a tool descriptor with an inputSchema`,
+                  def ? 'missing name/inputSchema' : 'not parseable JSON');
+                promptOk = false;
+              }
+              bytes += Buffer.byteLength(c.resource?.text ?? '', 'utf8');
+            } else if (c?.type === 'resource_link') {
+              if (!String(c.uri).startsWith('tool://') || c.uri !== entryDef.uri || !c.name) {
+                fail(`"${entry.name}" context message ${i} is a tool:// resource_link with a name`, String(c.uri));
+                promptOk = false;
+              }
+            } else {
+              fail(`"${entry.name}" context message ${i} is a resource or resource_link block`, String(c?.type));
+              promptOk = false;
+            }
+          }
+          const cap = data.promptContext?.cap_bytes_per_prompt ?? 40960;
+          if (bytes > cap) {
+            fail(`"${entry.name}" embedded tool context is within the ${cap}-byte cap`, `${bytes} bytes`);
+            promptOk = false;
+          }
+          ctxTotal += msgs.length - 1;
         }
       }
       if (promptOk) valid++;
     }
-    console.log(`  · ${valid}/${prompts.length} prompts SDK-valid (schema + one content block per message)`);
+    console.log(`  · ${valid}/${prompts.length} prompts SDK-valid (schema + one content block per message); ${ctxTotal} tool-context message(s) across the showcase set`);
     if (valid !== prompts.length) fail('prompt validity tally', `${valid}/${prompts.length}`);
   });
 
