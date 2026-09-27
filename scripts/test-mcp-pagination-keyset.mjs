@@ -8,6 +8,10 @@
 //       page one carries no total and issues a v1 token, continuations issue v2 keyset tokens.
 //   (3) INVALID/STALE TOKENS — garbage, unknown v2 ids and non-boundary v1 offsets are refused
 //       -32602 (never served page one), matching the shipped invalid-token contract.
+//   (3b) V1 ONLY AT ELEMENT STARTS (MCP-LIST-CURSOR-V2-PAGE1) — the nested-boundary offsets the
+//       shipped two-character structural test still accepted (pages starting MID-TOOL) are refused
+//       -32602; a v1 offset at a true tool start still resolves (compat), the array head keeps its
+//       shipped refusal, and the full walk is unchanged.
 //   (4) CURSOR STABILITY ACROSS A SYNTHETIC REGEN/REORDER — the row's gate: a v2 token issued
 //       against one template still anchors the SAME element against a regenerated template with
 //       (a) a synthetic insertion at the front (all byte offsets shifted) and (b) a synthetic
@@ -197,6 +201,48 @@ for (const [label, cur] of [['garbage token', 'garbage'], ['unknown v2 id', 'v2.
   const p = await postMcp(worker, env, 'tools/list', { cursor: cur });
   check('cursor ' + label + ' → 400/-32602', p.status === 400 && p.json?.error?.code === -32602,
     'status=' + p.status + ' code=' + p.json?.error?.code);
+}
+
+console.log('(3b) MCP-LIST-CURSOR-V2-PAGE1: v1 offsets accepted only at element starts');
+// The shipped two-character structural test (tpl[off]==='{' && tpl[off-1]===',') also matched
+// positions NESTED inside element objects — schema anyOf/items objects that follow a comma — so a
+// stale v1 token landing on one was ACCEPTED and served a page starting MID-TOOL. The nested set
+// is derived independently (structural matches minus the depth-aware element starts — same source
+// discipline as walkTemplate above); every member must be refused -32602.
+{
+  const startSet = new Set(tmpl.starts);
+  const structural = [];
+  for (let i = tmpl.arrayStart + 1; i < TPL.length; i++) {
+    if (TPL[i] === '{' && TPL[i - 1] === ',') structural.push(i);
+  }
+  const nestedOffsets = structural.filter((o) => !startSet.has(o));
+  check('template still exposes nested boundary positions (case (b) not vacuous)',
+    nestedOffsets.length > 0, 'nested=' + nestedOffsets.length + ' structural=' + structural.length + ' starts=' + tmpl.starts.length);
+  let redPage = null;
+  for (const off of nestedOffsets) {
+    const p = await postMcp(worker, env, 'tools/list', { cursor: 'v1.' + off });
+    if (p.status === 200 && redPage === null) redPage = p.text.slice(0, 200);
+    check('case (b) nested-boundary v1 offset ' + off + ' → -32602 (never a mid-object page)',
+      p.status === 400 && p.json?.error?.code === -32602,
+      'status=' + p.status + ' code=' + p.json?.error?.code + ' page[0..200]=' + JSON.stringify(p.text.slice(0, 200)));
+  }
+  if (redPage) console.error('  RED evidence: a nested offset served a mid-object page; first bytes: ' + JSON.stringify(redPage));
+}
+// case (c) — compat: a v1 offset that IS a tool start still resolves, to exactly that tool. The
+// array head keeps its shipped refusal (a v1 token must FOLLOW an element separator — the byte
+// before the first element is '[' — which is also what keeps RUN-4-1 (4a)/(4b) stale-reorder
+// refusals intact now that acceptance goes through the index).
+{
+  const k = 3; // any non-head start
+  const off = tmpl.starts[k], name = tmpl.names[k];
+  const p = await postMcp(worker, env, 'tools/list', { cursor: 'v1.' + off });
+  check('case (c) v1 offset at a true tool start (' + off + ') still resolves to "' + name + '"',
+    p.status === 200 && p.json?.result?.tools?.[0]?.name === name,
+    'status=' + p.status + ' first=' + p.json?.result?.tools?.[0]?.name);
+  const head = await postMcp(worker, env, 'tools/list', { cursor: 'v1.' + tmpl.starts[0] });
+  check('case (c) v1 at the array head keeps its shipped refusal (token must follow a separator)',
+    head.status === 400 && head.json?.error?.code === -32602,
+    'status=' + head.status + ' code=' + head.json?.error?.code);
 }
 
 console.log('(4) cursor stability across a synthetic regen / reorder (the row gate)');

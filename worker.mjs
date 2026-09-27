@@ -1084,9 +1084,9 @@ const LIST_CURSOR_INVALID = Symbol('list-cursor-invalid');
 // across vendored regens (byte drift, reorder, insertions before the anchor). A removed anchor is
 // refused -32602 (the house restart-the-list contract for stale tokens), never re-anchored
 // silently. Token contracts on this path:
-//   v1.<byte offset> — shipped grammar; structurally validated against the current template
-//                      (UNCHANGED, kept for tokens already in flight — page one keeps issuing v1
-//                      so the no-cursor default reply stays byte-identical to the shipped one)
+//   v1.<byte offset> — shipped grammar; accepted only at an element start of the current template
+//                      (MCP-LIST-CURSOR-V2-PAGE1; kept for tokens already in flight — page one
+//                      keeps issuing v1 so the no-cursor default reply stays byte-identical)
 //   v2.<id>          — keyset start-anchor: the id of the FIRST element of the page it fetches;
 //                      issued on continuation pages only
 // The index is ONE O(template) depth/string-aware string walk — no JSON.parse (the class of cost
@@ -1228,8 +1228,9 @@ function scanListPageBounds(tpl, from, maxBytes) {
 
 // Compose ONE page of a list template as a fresh SSE frame (ID_PLACEHOLDER intact — the id splice
 // at the dispatch site is unchanged). cursor === undefined → page one (shipped bytes, v1 token);
-// a `v2.<id>` token is resolved by IDENTITY via the memoized index; a `v1.<offset>` token keeps
-// the exact shipped structural validation. Returns:
+// a `v2.<id>` token is resolved by IDENTITY via the memoized index; a `v1.<offset>` token is
+// accepted only at an element start of that index (MCP-LIST-CURSOR-V2-PAGE1 — never mid-object).
+// Returns:
 //   a string            — the composed page frame (template bytes, plus nextCursor when more
 //                         pages follow; cursor-carrying pages additionally echo "total")
 //   null                — the template does not match the expected generated shape → the caller
@@ -1252,14 +1253,19 @@ function buildListPage(tpl, key, cursor, indexKey) {
       if (at < 0) return LIST_CURSOR_INVALID;  // anchor removed by a regen → stale token, refuse
       from = idx.starts[at];
     } else {
-      // v1: shipped byte-offset token — parsed and validated exactly as MCP-TOOLSLIST-PAGINATION-2
-      // left it (tokens already in flight keep their contract).
+      // v1: shipped byte-offset token — parsed exactly as MCP-TOOLSLIST-PAGINATION-2 left it, but
+      // ACCEPTED only at an element start of this template per the index (MCP-LIST-CURSOR-V2-PAGE1):
+      // the retired two-character structural test (`tpl[off]==='{' && tpl[off-1]===','`) also
+      // matched positions NESTED inside element objects — schema anyOf/items objects that follow a
+      // comma — so a stale token landing on one was accepted and served a page starting MID-TOOL.
+      // The index lookup is O(1) and the only acceptance path (no second code path). The array head
+      // (starts[0], the byte after '[') keeps its shipped refusal: a v1 token has always had to
+      // FOLLOW a separator, and RUN-4-1's (4a)/(4b) stale-regen refusals depend on it. A degraded
+      // template (idx null) refuses every cursor, v1 and v2 alike — never a wrong answer.
       if (!cursor.startsWith(LIST_CURSOR_PREFIX)) return LIST_CURSOR_INVALID;
       const off = Number(cursor.slice(LIST_CURSOR_PREFIX.length));
       if (!Number.isInteger(off) || off < 0 || off >= tpl.length) return LIST_CURSOR_INVALID;
-      // Structural validation: the offset must land EXACTLY on an element boundary of this
-      // template — the byte itself opens an object and the byte before it is an element separator.
-      if (tpl[off] !== '{' || tpl[off - 1] !== ',') return LIST_CURSOR_INVALID;
+      if (!idx || off === arrayStart || !idx.byStart.has(off)) return LIST_CURSOR_INVALID;
       from = off;
     }
   }
