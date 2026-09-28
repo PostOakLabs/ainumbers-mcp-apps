@@ -47,7 +47,6 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { GetPromptResultSchema } from '@modelcontextprotocol/sdk/types.js';
 
 const ARGV = process.argv.slice(2);
 const SELF_TEST = ARGV.includes('--self-test');
@@ -686,21 +685,52 @@ async function describeToolUnknownName() {
 
 // PROMPTS-GET-SPEC-FIX-1 — post-deploy proof of the prompts/get spec fix, on the LIVE endpoint.
 // same-law-three-doorways is the showcase prompt whose old answer (ONE message whose content was
-// the ARRAY [text, resource_link × 3]) failed the official SDK's GetPromptResultSchema and made
+// the ARRAY [text, resource_link × 3]) failed the official SDK's prompt-result schema and made
 // every SDK client unable to fetch it (live-measured 2026-09-24). The deployed worker must answer
 // with a result that parses under that SAME schema, every message carrying exactly one content
 // block, and message 0 keeping the "Verify at:" appendix that replaced the resource_link array.
+//
+// Zero-dep stand-in for the official SDK's prompt-result schema — this smoke imports node:
+// builtins plus global fetch ONLY (the CI checkout has no npm install), so the same invariants
+// are enforced by hand: object result; non-empty messages; every message with role
+// 'user'|'assistant' and a content that is a string, a single content block, or a block array —
+// blocks carry a string `type`, and `type === 'text'` blocks a string `text`. Returns a
+// safeParse-shaped verdict so the checks below read unchanged.
+function validatePromptResult(result) {
+  const issues = [];
+  const add = (path, message) => issues.push({ path, message });
+  const isObj = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
+  if (!isObj(result)) return { success: false, error: { issues: [{ path: [], message: 'result is not an object' }] } };
+  if (!Array.isArray(result.messages) || result.messages.length === 0) {
+    add(['messages'], 'messages must be a non-empty array');
+    return { success: false, error: { issues } };
+  }
+  result.messages.forEach((m, i) => {
+    if (!isObj(m)) return add(['messages', i], 'message is not an object');
+    if (m.role !== 'user' && m.role !== 'assistant') add(['messages', i, 'role'], "role must be 'user' or 'assistant'");
+    const c = m.content;
+    if (typeof c === 'string') return;
+    if (!isObj(c) && !Array.isArray(c)) return add(['messages', i, 'content'], 'content must be a string, a content block, or a content-block array');
+    (Array.isArray(c) ? c : [c]).forEach((b, j) => {
+      if (!isObj(b)) return add(['messages', i, 'content', j], 'content block is not an object');
+      if (typeof b.type !== 'string') add(['messages', i, 'content', j, 'type'], 'content block type must be a string');
+      if (b.type === 'text' && typeof b.text !== 'string') add(['messages', i, 'content', j, 'text'], 'text block must carry a string text');
+    });
+  });
+  return issues.length ? { success: false, error: { issues } } : { success: true, data: result };
+}
+
 async function promptGetConformance() {
   const { result, error } = await call('prompts/get', {
     name: 'same-law-three-doorways',
     arguments: { node_page: 'https://ainumbers.co/chaingraph/art-129-webbotauth-signature-verifier.html' },
   }, 801);
   if (error) throw new Error(`prompts/get error ${error.code}: ${error.message}`);
-  const parsed = GetPromptResultSchema.safeParse(result);
+  const parsed = validatePromptResult(result);
   if (!parsed.success) {
     const issues = (parsed.error?.issues ?? []).slice(0, 3)
       .map((i) => (i.path ?? []).join('.') + ': ' + i.message).join(' | ');
-    throw new Error(`prompts/get same-law-three-doorways fails GetPromptResultSchema (PROMPTS-GET-SPEC-FIX-1 regression): ${issues}`);
+    throw new Error(`prompts/get same-law-three-doorways fails the prompt-result schema (PROMPTS-GET-SPEC-FIX-1 regression): ${issues}`);
   }
   const bad = (parsed.data.messages ?? []).filter((m) => Array.isArray(m.content) || !m.content).length;
   if (bad) throw new Error(`prompts/get same-law-three-doorways: ${bad} message(s) without exactly one content block`);
@@ -1016,7 +1046,7 @@ async function selfTest() {
 
       await phase('warm-up-prompt-get', () => warmUp(800, 'prompts/get'));
       const pq = await phase('prompt-get', promptGetConformance);
-      console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is GetPromptResultSchema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
+      console.log(`✓ PROMPTS-GET-SPEC-FIX-1 OK — live prompts/get same-law-three-doorways is prompt-result-schema-valid (${pq.messages} message(s), ${pq.chars}-char text block with the Verify-at appendix)`);
 
       const cc = await phase('completion-complete', completionConformance);
       console.log(`✓ PROMPTS-WORKER-CONTEXT-1 P3 OK — live completion/complete answers ${cc.values} value(s) of ${cc.total} (hasMore=${cc.hasMore}) for ${cc.prompt}.${cc.argument}, ${cc.ms} ms`);
