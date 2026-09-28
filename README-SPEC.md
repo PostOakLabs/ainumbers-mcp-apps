@@ -1,4 +1,7 @@
 # AINumbers MCP Apps Server — Spec & Scaffold (DRAFT)
+
+> **Historical snapshot, frozen 2026-06-06.** This scaffold documents the original build: Node on Render, an 8-tool pilot, SDK 1.29.0. Every deployment and scale fact below is superseded — the live server runs on Cloudflare Workers with the full suite. Current facts: [README.md](README.md). Kept unedited for architecture-and-history value; do not use it for setup.
+
 **Date:** 2026-06-06 · **Owner:** AINumbers (part of the AINumbers project; lives beside repo/ pending a decision on folding it into the repo)
 **Status:** LIVE at **https://mcp.ainumbers.co/mcp** (deployed 2026-06-06; Render free tier, auto-deploy from GitHub master; Cloudflare DNS, CNAME DNS-only). SDK 1.29.0 + ext-apps 1.7.4.
 **Verified:** initialize / tools/list (8 tools) / tools/call with structuredContent / resources/read serving tool HTML as `text/html;profile=mcp-app` with AIN Bridge + widget glue. Run `node server.mjs`, test at `http://localhost:3300/mcp`.
