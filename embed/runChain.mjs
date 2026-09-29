@@ -17,21 +17,14 @@
 // A firm that vendors kernels/ + data/ alongside this file gets an identical result;
 // see README.md "Packaging a standalone distributable".
 
-import { executionHash } from './lib/_hash.mjs';
+import { executionHash, jcsStringify } from './lib/_hash.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './lib/_gateval.mjs';
 
-// Canonicalizer used for the §18 compute_proof journal-match guard and the
-// §21.4 route_plan_digest below. Byte-identical to _hash.mjs::cgCanon
-// (re-declared locally to keep this file's import surface to the single public
-// executionHash entry point).
-const cgCanon = (v) => Array.isArray(v) ? v.map(cgCanon)
-  : (v && typeof v === 'object')
-    ? Object.keys(v).sort().reduce((o, k) => (o[k] = cgCanon(v[k]), o), {})
-    : v;
 // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
-// steps[] definition. Same canonicalizer as §4; mirrors worker.mjs cgSha256Hex.
+// steps[] definition. Same canonicalizer as §4 (jcsStringify, RFC 8785-exact for
+// array-index member names); mirrors worker.mjs cgSha256Hex.
 async function cgSha256Hex(obj) {
-  const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(cgCanon(obj))));
+  const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(jcsStringify((obj))));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
@@ -137,7 +130,7 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
           }
           // §18 compute_proof — attach iff the receipt is about THIS exact output (hash-excluded).
           if (node.compute_proof && node.compute_proof.journal
-              && JSON.stringify(cgCanon(node.compute_proof.journal.output)) === JSON.stringify(cgCanon(artifact.output_payload))) {
+              && jcsStringify((node.compute_proof.journal.output)) === jcsStringify((artifact.output_payload))) {
             artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
           }
           results[idx] = { order: idx + 1, tool_id: tid, status: 'ok', inputs_source, mandate_type: artifact.mandate_type, execution_hash: artifact.execution_hash, artifact };

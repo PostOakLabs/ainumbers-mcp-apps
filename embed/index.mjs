@@ -30,6 +30,9 @@ export {
   RECOMMENDED_RECEIPT_FORMAT,
   SEAL_VERIFICATION,
 } from './verify.mjs';
+// The exact RFC 8785 serializer behind every hash path above (JCS-CANON-WORKER-1),
+// exposed alongside cgCanon (the legacy object sorter kept for byte-stable parity).
+export { jcsStringify, canonicalPreimage } from './lib/_hash.mjs';
 
 // Lazy accessor for the deterministic kernel registry (kept out of the verifier surface
 // so verify.mjs stays dependency-free). Resolves against the vendored ../kernels/ tree.

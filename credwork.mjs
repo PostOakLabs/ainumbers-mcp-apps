@@ -12,7 +12,7 @@
 // nothing persists between calls, so a caller who wants a stable issuer identity must anchor the
 // returned did:key externally (this tool does not hold keys across requests).
 
-import { cgCanon, executionHash } from './kernels/_hash.mjs';
+import { jcsStringify, executionHash } from './kernels/_hash.mjs';
 import { rawPubkeyToDidKey, didKeyToPublicKey } from './kernels/_proof.mjs';
 
 const enc = (s) => new TextEncoder().encode(s);
@@ -21,7 +21,7 @@ const dec = (b) => new TextDecoder().decode(b);
 async function sha256(bytes) {
   return new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
 }
-function jcsBytes(obj) { return enc(JSON.stringify(cgCanon(obj))); }
+function jcsBytes(obj) { return enc(jcsStringify((obj))); }
 async function sha256HexOfCanon(v) {
   const b = await sha256(jcsBytes(v));
   return Array.from(b).map((x) => x.toString(16).padStart(2, '0')).join('');
