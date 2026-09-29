@@ -13,10 +13,10 @@
 // OTel span-receipt shape is a distinct, tool-556/566-defined wire format, not an OCG
 // execution artifact, and must stay pinned to what the site tool already ships.
 //
-// cgCanon/executionHash ARE reused from the shared kernel (one canonicalizer, never a
+// jcsStringify/executionHash ARE reused from the shared kernel (one canonicalizer, never a
 // second hand-rolled one); rawPubkeyToDidKey/didKeyToPublicKey are reused from _proof.mjs
 // for the same reason (one did:key <-> Ed25519 raw-key mapping).
-import { cgCanon, executionHash } from './kernels/_hash.mjs';
+import { jcsStringify, executionHash } from './kernels/_hash.mjs';
 import { rawPubkeyToDidKey, didKeyToPublicKey } from './kernels/_proof.mjs';
 
 /* ══════════════════════════════════════════════════════════════
@@ -192,7 +192,7 @@ async function sha256(bytes) {
   const d = await globalThis.crypto.subtle.digest('SHA-256', bytes);
   return new Uint8Array(d);
 }
-function jcsBytes(obj) { return new TextEncoder().encode(JSON.stringify(cgCanon(obj))); }
+function jcsBytes(obj) { return new TextEncoder().encode(jcsStringify((obj))); }
 async function sha256HexOfCanon(v) {
   const b = await sha256(jcsBytes(v));
   return Array.from(b).map((x) => x.toString(16).padStart(2, '0')).join('');

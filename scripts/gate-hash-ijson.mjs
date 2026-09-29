@@ -31,6 +31,11 @@
 //                   value is derived from the primary source, never read back from the tool under
 //                   test. This is what stops the gate from being satisfied by a worker that simply
 //                   refuses everything.
+//   6. RFC 8785   — the six OCG member-order probes (site chaingraph/standard/fixtures/
+//                   jcs-ocg-probes.json) through BOTH worker canonicalizer copies (vendored
+//                   kernels/_hash.mjs + embed/lib/_hash.mjs): jcsStringify must reproduce the
+//                   RFC 8785 §3.2.3 serialization exactly, array-index member names included
+//                   (JCS-CANON-WORKER-1).
 //
 // Run: node scripts/gate-hash-ijson.mjs
 
@@ -40,7 +45,8 @@ import { fileURLToPath } from 'node:url';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
-import { executionHash as ssotExecutionHash } from '../kernels/_hash.mjs';
+import { executionHash as ssotExecutionHash, jcsStringify as bundleJcsStringify } from '../kernels/_hash.mjs';
+import { jcsStringify as embedJcsStringify } from '../embed/lib/_hash.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = resolve(ROOT, 'data');
@@ -174,6 +180,33 @@ async function main() {
   record(goodResp?.isError !== true, 'in-range artifact is still accepted', goodResp?.isError ? 'refused — the guard is over-broad' : 'accepted');
   record(got === expected, 'worker hash == SSOT executionHash() recomputed here',
     got === expected ? `both ${String(expected).slice(0, 16)}…` : `worker=${got} ssot=${expected}`);
+
+  // ── case 6: RFC 8785 member-order vectors — the six OCG probes (JCS-CANON-WORKER-1) ─────────
+  // First-party probes from the site repo (chaingraph/standard/fixtures/jcs-ocg-probes.json,
+  // CC BY 4.0), inlined so the worker gate is standalone. Each input is JSON text parsed with
+  // JSON.parse (so a member named __proto__ is an ordinary own member); expected is the RFC 8785
+  // §3.2.3 serialization (member names sorted by UTF-16 code unit). The pre-fix hash path —
+  // JSON.stringify over the key-sorted object — re-ordered array-index member names numerically
+  // (P1–P4) and lost a __proto__ subtree outright, so these vectors fail on the old path and pass
+  // only on jcsStringify. Both worker canonicalizer copies must agree byte-for-byte: the vendored
+  // site helper (kernels/_hash.mjs) and the embed/ copy that backs the embedded runner.
+  const OCG_PROBES = [
+    { id: 'P1-int-keys-9-10', input: '{"10":1,"9":2}', expected: '{"10":1,"9":2}', why: 'array-index member names: JS enumerates them numerically, RFC 8785 sorts them as strings' },
+    { id: 'P2-int-and-string-keys', input: '{"b":1,"2":2,"a":3,"10":4}', expected: '{"10":4,"2":2,"a":3,"b":1}', why: 'mixed array-index and ordinary member names' },
+    { id: 'P3-year-keys', input: '{"2024":"x","999":"y"}', expected: '{"2024":"x","999":"y"}', why: 'year-style keys, the shape a fintech table would carry' },
+    { id: 'P4-leading-zero-key', input: '{"01":1,"1":2}', expected: '{"01":1,"1":2}', why: '"01" is an ordinary string key and "1" is an array index; RFC 8785 puts "01" first' },
+    { id: 'P5-astral-vs-high-bmp', input: '{"\\ufb33":1,"\\ud83d\\ude02":2}', expected: '{"\u{1F602}":2,"\uFB33":1}', why: 'UTF-16 order puts U+1F602 (surrogate D83D) before U+FB33; UTF-8 byte order reverses them' },
+    { id: 'P6-proto-member', input: '{"__proto__":1,"a":2}', expected: '{"__proto__":1,"a":2}', why: 'regression for the null-prototype fix: a member named __proto__ must survive canonicalization' },
+  ];
+  for (const probe of OCG_PROBES) {
+    const value = JSON.parse(probe.input);
+    for (const [label, jcs] of [['vendored kernels/_hash.mjs', bundleJcsStringify], ['embed/lib/_hash.mjs', embedJcsStringify]]) {
+      let out = null, err = null;
+      try { out = jcs(value); } catch (e) { err = String(e?.message ?? e); }
+      record(out === probe.expected, `${probe.id} → ${label} reproduces the RFC 8785 serialization`,
+        out === probe.expected ? `${probe.why}` : `got ${JSON.stringify(out)}${err ? ` (${err})` : ''}, expected ${JSON.stringify(probe.expected)}`);
+    }
+  }
 
   await clientT.close();
   await server.close();

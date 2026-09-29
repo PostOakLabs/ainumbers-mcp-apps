@@ -32,7 +32,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 // per-request `request_id` envelope member. scripts/gate-error-registry.mjs enforces that no
 // inline error construction appears outside errors.mjs (or the frozen dev-server baseline).
 import { mintRequestId, protocolErrorResponse, TOOL_ERRORS } from './errors.mjs';
-import { cgCanon as sharedCgCanon, assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash } from './kernels/_hash.mjs';
+import { assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash, jcsStringify } from './kernels/_hash.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
@@ -1737,7 +1737,7 @@ async function mrtrStateKey(env) {
 // parameters. A retry whose tool name or arguments differ produces a different digest and
 // is rejected, so state cannot be replayed onto a different call.
 async function mrtrSha256Hex(obj) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sharedCgCanon(obj))));
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jcsStringify((obj))));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 async function mrtrRequestBinding(toolName, args) {
@@ -2372,7 +2372,7 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
   // steps[] definition (the decision policy). Same canonicalizer as §4; no new
   // hash path. Mirrors embed/runChain.mjs cgSha256Hex byte-for-byte.
   async function cgSha256Hex(obj) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sharedCgCanon(obj))));
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jcsStringify((obj))));
     return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
@@ -2447,11 +2447,11 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
     }
     return { ok: true, value: cur };
   }
-  // SHA-256 hex of the §4 cgCanon encoding of a single value — same canonicalization primitive as
-  // execution_hash (imported from _hash.mjs), just hashing one resolved node instead of the
-  // {policy_parameters, output_payload} pair. Bare hex; strip an optional 'sha256:' prefix to compare.
+  // SHA-256 hex of the §4 JCS (jcsStringify) encoding of a single value — same canonicalization
+  // primitive as execution_hash (imported from _hash.mjs), just hashing one resolved node instead of
+  // the {policy_parameters, output_payload} pair. Bare hex; strip an optional 'sha256:' prefix to compare.
   async function attestDigestHex(value) {
-    const bytes = new TextEncoder().encode(JSON.stringify(sharedCgCanon(value)));
+    const bytes = new TextEncoder().encode(jcsStringify((value)));
     const buf = await crypto.subtle.digest('SHA-256', bytes);
     return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
@@ -2568,7 +2568,7 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
     if (typeof saltHex !== 'string' || saltHex.length < 64 || !/^[0-9a-f]+$/i.test(saltHex)) return null;
     const saltBytes = new Uint8Array(saltHex.length / 2);
     for (let i = 0; i < saltBytes.length; i++) saltBytes[i] = parseInt(saltHex.slice(i * 2, i * 2 + 2), 16);
-    const inputBytes = new TextEncoder().encode(JSON.stringify(sharedCgCanon(inputValue)));
+    const inputBytes = new TextEncoder().encode(jcsStringify((inputValue)));
     const combined = new Uint8Array(saltBytes.length + inputBytes.length);
     combined.set(saltBytes, 0); combined.set(inputBytes, saltBytes.length);
     const digest = await crypto.subtle.digest('SHA-256', combined);
@@ -3156,7 +3156,7 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
             // actually attach for a given input's output_payload. A node with no compute_proof at all keeps
             // whatever the kernel emitted (the genuinely-unprovable bucket; not this row's concern).
             if (node.compute_proof && node.compute_proof.journal) {
-              if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
+              if (jcsStringify((node.compute_proof.journal.output)) === jcsStringify((artifact.output_payload))) {
                 artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
                 artifact.compute_proof_ready = 'ready';
                 delete artifact.deferred_reason;
@@ -4073,7 +4073,7 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
           // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
           // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
           if (node.compute_proof && node.compute_proof.journal) {
-            if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
+            if (jcsStringify((node.compute_proof.journal.output)) === jcsStringify((artifact.output_payload))) {
               artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
               artifact.compute_proof_ready = 'ready';
               delete artifact.deferred_reason;
@@ -6001,7 +6001,7 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
             // compute_proof_ready/deferred_reason are DERIVED here, never trusted from the kernel's static
             // literal (PROOFREADY-WORKER-DERIVE-1). No compute_proof at all -> leave the kernel's own value.
             if (node.compute_proof && node.compute_proof.journal) {
-              if (JSON.stringify(sharedCgCanon(node.compute_proof.journal.output)) === JSON.stringify(sharedCgCanon(artifact.output_payload))) {
+              if (jcsStringify((node.compute_proof.journal.output)) === jcsStringify((artifact.output_payload))) {
                 artifact.audit_signature = { ...(artifact.audit_signature || {}), compute_proof: node.compute_proof };
                 artifact.compute_proof_ready = 'ready';
                 delete artifact.deferred_reason;

@@ -7,11 +7,12 @@
 // JCS key-sorting makes field ORDER irrelevant to the hash either way).
 //
 // Reuses the vendored kernels (./kernels/_hash.mjs, ./kernels/_proof.mjs) — no second
-// canonicalization or crypto path, same discipline as worker.mjs's own cgCanon/cgExecutionHash.
+// canonicalization or crypto path, same discipline as the worker entry point (which imports
+// the same vendored helper; WORKER-HASH-SSOT-1).
 //
 // Doctrine fence: these are RECEIPT-producing pure functions. No server state, no
 // storage, no accounts. A "run" is caller-held; this module never persists anything.
-import { cgCanon, executionHash } from './kernels/_hash.mjs';
+import { jcsStringify, executionHash } from './kernels/_hash.mjs';
 
 export const CHECKLIST_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld';
 export const CG_VERSION = '0.4.0';
@@ -52,7 +53,7 @@ export async function definitionDigest(def) {
   const stripped = { ...def };
   delete stripped.definition_digest;
   delete stripped.audit_signature;
-  const bytes = new TextEncoder().encode(JSON.stringify(cgCanon(stripped)));
+  const bytes = new TextEncoder().encode(jcsStringify((stripped)));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }

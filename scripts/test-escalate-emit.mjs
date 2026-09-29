@@ -22,7 +22,7 @@ import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
 import { runChain as embedRunChain } from '../embed/runChain.mjs';
 import { getKernel } from '../kernels/index.mjs';
-import { cgCanon } from '../embed/lib/_hash.mjs';
+import { jcsStringify } from '../embed/lib/_hash.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DATA = resolve(ROOT, 'data');
@@ -147,7 +147,7 @@ console.log('\n[3] Record-hash recompute (verifier reproduces record_hash from d
 if (wRec) {
   // Recompute exactly as §22.8.3: cgSha256Hex({ decision, halted_steps }) — no opened_at.
   const preimage = { decision: wRec.decision, halted_steps: wRec.halted_steps };
-  const canonStr = JSON.stringify(cgCanon(preimage));
+  const canonStr = jcsStringify((preimage));
   const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(canonStr));
   const recomputed = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
   if (recomputed !== wRec.record_hash)
