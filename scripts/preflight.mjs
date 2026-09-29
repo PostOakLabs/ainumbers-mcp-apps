@@ -50,6 +50,7 @@ const gates = [
   { name: '/mcp Accept content negotiation (MCP-CONTENT-NEGOTIATION-FIX-1)', args: ['scripts/test-mcp-accept-negotiation.mjs'] },
   { name: '2026-07-28 era-gated request rules',   args: ['scripts/gate-mcp-era.mjs'] },
   { name: 'build parity + pre-deploy count guard',args: ['scripts/build-mcp-parity.mjs'] },
+  { name: 'registry-parity (server.json vs counts SSOT) (REGISTRY-PARITY-1)', args: ['scripts/sync-registry.mjs', '--check'] },
   { name: 'tools/list trim + describe_tool (MCP-TOOLSLIST-TRIM-DESCRIBE-1)', args: ['scripts/test-describe-tool.mjs'] },
   { name: 'hot tools at page-1 positions 1-13 + initialize.instructions (MCP-REACH-DISPATCH-1 D2)', args: ['scripts/check-hot-tool-order.mjs'] },
   { name: 'call_tool dispatcher: allowlist, refusals, schema parity (MCP-REACH-DISPATCH-1 D1)', args: ['scripts/test-call-tool-dispatch.mjs'] },

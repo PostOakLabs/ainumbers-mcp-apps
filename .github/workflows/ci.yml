@@ -130,6 +130,13 @@ jobs:
         # (early-skip non-onlyTool node-schema construction) against regression.
         run: node scripts/build-mcp-parity.mjs
 
+      - name: ⚖️ Registry parity (server.json vs counts SSOT) (REGISTRY-PARITY-1)
+        # Fails if the committed server.json description has drifted from what
+        # scripts/sync-registry.mjs derives from data/counts.json (the vendored
+        # SSOT). Hermetic: no network, no writes. Fix: node scripts/sync-registry.mjs --write
+        # (bumps patch version per the documented bump→publish flow).
+        run: node scripts/sync-registry.mjs --check
+
       - name: 🧩 Kernel coverage check (CONTRACT §A4)
         # Fails if any chaingraph node with compute_capability:"server" (gpu:false)
         # lacks a matching *.kernel.mjs in vendored kernels/. Enforces full agent-native

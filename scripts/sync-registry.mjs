@@ -5,6 +5,11 @@
  * Usage:
  *   node scripts/sync-registry.mjs               # dry-run (prints what would change)
  *   node scripts/sync-registry.mjs --write        # writes server.json in-place
+ *   node scripts/sync-registry.mjs --check        # REGISTRY-PARITY-1: exit 1 if the COMMITTED
+ *                                                  # description has drifted from data/counts.json.
+ *                                                  # Hermetic (no network, no writes) — wired into
+ *                                                  # preflight.mjs + ci.yml validate. Description only:
+ *                                                  # version drift is --check-drift's job.
  *   node scripts/sync-registry.mjs --check-drift  # dry-run + exit 1 if local is ahead of the
  *                                                  # live registry (committed but never published).
  *                                                  # Scheduled use only — see registry-drift-schedule.yml.
@@ -34,6 +39,7 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const root  = join(__dir, '..');
 const write = process.argv.includes('--write');
 const checkDrift = process.argv.includes('--check-drift');
+const check = process.argv.includes('--check');
 
 // ── 1. Read current server.json ───────────────────────────────────────────
 const serverJsonPath = join(root, 'server.json');
@@ -48,6 +54,28 @@ const catalogTools = counts.catalog_tools;
 const desc = `${mcpToolsTotal} MCP tools across ${catalogTools} fintech tools: ChainGraph AP2 decisions, execution_hash. Zero PII.`;
 if (desc.length > 100) {
   console.error(`❌  Description too long (${desc.length} chars, max 100): "${desc}"`);
+  console.error(`    Fix the description template above in THIS script, then re-run.`);
+  process.exit(1);
+}
+
+// ── 3b. REGISTRY-PARITY-1: --check (hermetic, read-only) ──────────────────
+// Fails when the committed server.json description has drifted from what this
+// script derives from data/counts.json. Description ONLY — version drift is
+// the scheduled registry-drift-schedule.yml's job (--check-drift). Exits
+// BEFORE the live-registry fetch so CI runs are hermetic and deterministic.
+if (check) {
+  if (write || checkDrift) {
+    console.error('❌  --check cannot be combined with --write or --check-drift.');
+    process.exit(1);
+  }
+  if (serverJson.description === desc) {
+    console.log(`✅  registry-parity (REGISTRY-PARITY-1): server.json description matches the counts SSOT (${mcpToolsTotal} MCP tools / ${catalogTools} catalog tools).`);
+    process.exit(0);
+  }
+  console.error(`✗  registry-parity (REGISTRY-PARITY-1): server.json description has drifted from the counts SSOT.`);
+  console.error(`      committed: "${serverJson.description}"`);
+  console.error(`      derived  : "${desc}"`);
+  console.error(`    Fix: node scripts/sync-registry.mjs --write && git add server.json && git commit -m "chore: registry sync pre-publish"`);
   process.exit(1);
 }
 
