@@ -2652,16 +2652,16 @@
       "mcp_name": "compute_federal_withholding",
       "display_name": "Federal Withholding Calculator (Percentage Method)",
       "uri": "ui://ainumbers/node/art-338-compute-federal-withholding",
-      "bytes": 43584,
-      "sha256": "a9ed769dfc6dbed4578ea5d2c62f6c6730cd26d0656e65f8aa65744dbbdda6e2"
+      "bytes": 44066,
+      "sha256": "7a878d38bde31fd518ae6ed7df1c4e071703202d309344f44dcf598030a1250b"
     },
     {
       "tool_id": "art-339-compute-gross-to-net",
       "mcp_name": "compute_gross_to_net",
       "display_name": "Gross-to-Net Payroll Calculator (FICA)",
       "uri": "ui://ainumbers/node/art-339-compute-gross-to-net",
-      "bytes": 38878,
-      "sha256": "e3142f9a64a090c1485664ac4cf89d2fc2bfd86b3f5fa7bc53dcef075139c043"
+      "bytes": 39370,
+      "sha256": "bac62397e1f42aeb63a5a3cf9ff8f70906b6a81beb56680042372f60761019b6"
     },
     {
       "tool_id": "art-340-compute-flsa-regular-rate",
@@ -3212,16 +3212,16 @@
       "mcp_name": "compute_discount_window_capacity",
       "display_name": "Discount Window Borrowing-Capacity Calculator",
       "uri": "ui://ainumbers/node/art-427-discount-window-capacity",
-      "bytes": 37623,
-      "sha256": "2deccc7af124675cbf73852f230548832ab1b3389867bc03f021638a956b0f08"
+      "bytes": 38197,
+      "sha256": "29b0a6a232110dd938ebe47a92d5fcb5118e55ccc40419d6a2a6fc2402b04cba"
     },
     {
       "tool_id": "art-428-cyber-incident-clock",
       "mcp_name": "compute_cyber_incident_notification_clock",
       "display_name": "Cyber Incident Notification Clock",
       "uri": "ui://ainumbers/node/art-428-cyber-incident-clock",
-      "bytes": 86909,
-      "sha256": "676bd8aa249b176ae7ce8ef677d75f6219198b63aad9b48f2feb193c4f972325"
+      "bytes": 87495,
+      "sha256": "81c1c6b11dfa1178686bcacf1197b4d38f624d1f5780bebf19dbfc5f778c300b"
     },
     {
       "tool_id": "art-429-var-backtest-traffic-light",
@@ -4572,8 +4572,8 @@
       "mcp_name": "verify_erc2612_permit_binding",
       "display_name": "ERC-2612 Permit Binding Verifier",
       "uri": "ui://ainumbers/node/art-612-erc2612-permit-binding-verifier",
-      "bytes": 263951,
-      "sha256": "d41c65c538c4b6847af5857b49566ff3f6c131b908bca419eeccbcdbbec7d866"
+      "bytes": 264245,
+      "sha256": "a5c8fa5708c1117c43ed160a247715194b16cc88ca7e53b9ea9ca752d1a39d92"
     },
     {
       "tool_id": "art-613-erc4337-userop-math",
@@ -4588,8 +4588,8 @@
       "mcp_name": "decode_eip7702_authorization_tuple",
       "display_name": "EIP-7702 Authorization-Tuple Decoder",
       "uri": "ui://ainumbers/node/art-614-eip7702-authorization-tuple-decoder",
-      "bytes": 291937,
-      "sha256": "7a4dc52c70b33bfc70d96e9fecc9f95f19702c0c1843655b131790a55abc5109"
+      "bytes": 292977,
+      "sha256": "92e32d8021de7111e097e4ff70705bd732410bbbf95cadf3a56acf05559e4aa6"
     },
     {
       "tool_id": "art-615-mla-charge-inclusion-classifier",
