@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>MT103 to pacs.008 Translation Fidelity Scorer &middot; ART-245 &middot; OpenChainGraph &middot; AINumbers.co</title>
+<meta name="description" content="Scores ISO 15022 MT103 to ISO 20022 pacs.008 translation fidelity for CBPR+ November 2026 migration. Checks field presence mapping, truncation risks, and charge bearer code mapping (OUR=DEBT, SHA=SHAR, BEN=CRED).">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-245-mt-mx-translation-fidelity-scorer.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-245-mt-mx-translation-fidelity-scorer.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
+.sub{color:var(--body);max-width:660px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
+.flag.warn{background:rgba(245,158,11,.08);color:var(--warn);border-color:rgba(245,158,11,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.2rem}.q:last-child{margin-bottom:0}
+.q-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.4rem;display:block}
+.q-help{font-size:.72rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6}
+input[type="text"],select{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--teal)}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.results-panel{display:none}.results-panel.show{display:block}
+.exec-hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--teal-lt);word-break:break-all;margin:6px 0}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.fail{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.2)}
+.badge.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.25)}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
+.stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;min-width:90px}
+.stat-val{font-size:1.1rem;color:var(--bright);font-weight:600;display:block}
+.stat-key{font-size:.58rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.mapping-row{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.7rem}
+.mapping-row:last-child{border-bottom:none}
+.mapping-field{font-family:'JetBrains Mono',monospace;color:var(--body)}
+.mapping-mx{font-family:'JetBrains Mono',monospace;color:var(--teal-lt)}
+.kv{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:.74rem;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--body);flex-shrink:0;min-width:160px}.kv-v{color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;word-break:break-all}
+.verdict-box{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;border-radius:var(--radius-lg);padding:14px 18px;margin:12px 0;text-align:center}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:center}
+.verify-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer}
+.verify-result{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-left:8px}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+#mfstBody{display:none;margin-top:10px}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-245-mt-mx-translation-fidelity-scorer.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:df068aac811711ab2100e95147d96ce76694c32836ca079e405fbd586fbe351a">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-245 · MT103 to MX Translation Fidelity Scorer</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">OpenChainGraph Suite &middot; ART-245 &middot; ISO 20022</div>
+  <h1>MT103 to pacs.008 Translation Fidelity Scorer</h1>
+  <p class="sub">Scores MT103 to pacs.008 translation fidelity for CBPR+ November 2026 migration. Checks field presence mapping (:50K/A Dbtr, :59/:59A Cdtr, :52A/:57A agent BICs, :70: remittance info, :71A charge bearer), charge bearer code mapping (OUR=DEBT, SHA=SHAR, BEN=CRED), and truncation risks. Fidelity score = matched fields / present MT fields x 100.</p>
+  <div style="margin-bottom:6px">
+    <span class="flag info">CBPR+ Nov 2026</span>
+    <span class="flag info">MT103 Migration</span>
+    <span class="flag">Charge Bearer Mapping</span>
+    <span class="flag warn">Proofs Deferred</span>
+  </div>
+  <div class="pii-notice">&#128274; All inputs are processed locally in your browser. No data is transmitted. MT and pacs.008 field values are processed structurally (presence, length, code mapping). No real party PII processed. Use synthetic message fields for testing.</div>
+
+  <div class="card">
+    <div class="section-head">MT103 Source Fields</div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mtF50">:50K/A Ordering Customer (Dbtr)</label>
+        <div class="q-help">MT ordering customer name/account. Synthetic only.</div>
+        <input type="text" id="mtF50" value="Acme Corp" placeholder="synthetic name">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mtF59">:59/:59A Beneficiary (Cdtr)</label>
+        <div class="q-help">MT beneficiary name. Synthetic only.</div>
+        <input type="text" id="mtF59" value="Global Trade AG" placeholder="synthetic name">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mtF52a">:52A Ordering Institution BIC (DbtrAgt)</label>
+        <input type="text" id="mtF52a" value="DEUTDEFFXXX" placeholder="e.g. DEUTDEFFXXX">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mtF57a">:57A Account with Institution BIC (CdtrAgt)</label>
+        <input type="text" id="mtF57a" value="BARCGB22XXX" placeholder="e.g. BARCGB22XXX">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mtF70">:70: Remittance Info (RmtInf/Ustrd)</label>
+        <div class="q-help">Max 4 x 35 = 140 chars in MT; same in MX RmtInf/Ustrd.</div>
+        <input type="text" id="mtF70" value="/INV/2026/001 trade payment" placeholder="remittance reference">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mtF71a">:71A Details of Charges (ChrgBr)</label>
+        <div class="q-help">OUR&#8594;DEBT, SHA&#8594;SHAR, BEN&#8594;CRED.</div>
+        <select id="mtF71a">
+          <option value="">(not present)</option>
+          <option value="SHA" selected>SHA (maps to SHAR)</option>
+          <option value="OUR">OUR (maps to DEBT)</option>
+          <option value="BEN">BEN (maps to CRED)</option>
+        </select>
+      </div>
+    </div>
+    <div class="section-head">pacs.008 Target Fields</div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mxUetr">UETR (UUIDv4)</label>
+        <div class="q-help">Must be a new UUIDv4, not a carry-over of :20:.</div>
+        <input type="text" id="mxUetr" value="550e8400-e29b-41d4-a716-446655440000" placeholder="UUIDv4">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mxChrgBr">ChrgBr (charge bearer code)</label>
+        <select id="mxChrgBr">
+          <option value="">(not present)</option>
+          <option value="DEBT">DEBT (from OUR)</option>
+          <option value="SHAR" selected>SHAR (from SHA)</option>
+          <option value="CRED">CRED (from BEN)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mxDbtrNm">Dbtr/Nm (debtor name)</label>
+        <input type="text" id="mxDbtrNm" value="Acme Corp" placeholder="synthetic name">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mxCdtrNm">Cdtr/Nm (creditor name)</label>
+        <input type="text" id="mxCdtrNm" value="Global Trade AG" placeholder="synthetic name">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="mxDbtrAgt">DbtrAgt/BICFI</label>
+        <input type="text" id="mxDbtrAgt" value="DEUTDEFFXXX" placeholder="e.g. DEUTDEFFXXX">
+      </div>
+      <div class="q">
+        <label class="q-label" for="mxCdtrAgt">CdtrAgt/BICFI</label>
+        <input type="text" id="mxCdtrAgt" value="BARCGB22XXX" placeholder="e.g. BARCGB22XXX">
+      </div>
+    </div>
+    <div class="q">
+      <label class="q-label" for="mxRmtUstrd">RmtInf/Ustrd (remittance info)</label>
+      <input type="text" id="mxRmtUstrd" value="/INV/2026/001 trade payment" placeholder="remittance info">
+    </div>
+    <div style="margin-top:20px">
+      <button onclick="runScore()">&#9654; Score Translation</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+    <div class="card">
+      <div id="verdictBox" class="verdict-box"></div>
+      <div class="stat-row" id="statRow"></div>
+      <div id="flagRow" style="margin:8px 0"></div>
+      <div class="section-head" style="margin-top:14px">Field Mapping Results</div>
+      <div id="mappingDiv"></div>
+      <div id="issuesDiv"></div>
+      <div class="section-head" style="margin-top:14px">Execution Hash (SHA-256)</div>
+      <div class="exec-hash" id="execHashBox"></div>
+      <div class="results-export-row">
+        <button id="ap2ExportBtn" onclick="exportArtifact()">Export &#167;4 Artifact</button>
+        <button class="verify-btn" onclick="verifyHash()">&#10003; Verify Hash</button>
+        <span class="verify-result" id="verifyResult"></span>
+      </div>
+      <pre id="artifactPre" style="display:none"></pre>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">[ manifest ]</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-245-mt-mx-translation-fidelity-scorer.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `score_mt_mx_translation_fidelity`. Task: Score ISO 15022 MT103 to ISO 20022 pacs.008 translation fidelity for CBPR+ migration.
+Call it with arguments: {"policy_parameters":{"mt_f20":"PAYMENT20260705","mt_f23b":"CRED","mt_f32a":"260705EUR10000,","mt_f50":"Acme Corp","mt_f52a":"DEUTDEFFXXX","mt_f57a":"BARCGB22XXX","mt_f59":"Global Trade AG","mt_f70":"/INV/2026/001 trade payment","mt_f71a":"SHA","mx_uetr":"550e8400-e29b-41d4-a716-446655440000","mx_dbtr_nm":"Acme Corp","mx_cdtr_nm":"Global Trade AG","mx_cdtr_agt":"BARCGB22XXX","mx_dbtr_agt":"DEUTDEFFXXX","mx_rmt_ustrd":"/INV/2026/001 trade payment","mx_chrg_br":"SHAR"}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-245-mt-mx-translation-fidelity-scorer.html#p=v1.H4sIAAAAAAAA_wHCAT3-eyJtdF9mMjAiOiJQQVlNRU5UMjAyNjA3MDUiLCJtdF9mMjNiIjoiQ1JFRCIsIm10X2YzMmEiOiIyNjA3MDVFVVIxMDAwMCwiLCJtdF9mNTAiOiJBY21lIENvcnAiLCJtdF9mNTJhIjoiREVVVERFRkZYWFgiLCJtdF9mNTdhIjoiQkFSQ0dCMjJYWFgiLCJtdF9mNTkiOiJHbG9iYWwgVHJhZGUgQUciLCJtdF9mNzAiOiIvSU5WLzIwMjYvMDAxIHRyYWRlIHBheW1lbnQiLCJtdF9mNzFhIjoiU0hBIiwibXhfdWV0ciI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsIm14X2RidHJfbm0iOiJBY21lIENvcnAiLCJteF9jZHRyX25tIjoiR2xvYmFsIFRyYWRlIEFHIiwibXhfY2R0cl9hZ3QiOiJCQVJDR0IyMlhYWCIsIm14X2RidHJfYWd0IjoiREVVVERFRkZYWFgiLCJteF9ybXRfdXN0cmQiOiIvSU5WLzIwMjYvMDAxIHRyYWRlIHBheW1lbnQiLCJteF9jaHJnX2JyIjoiU0hBUiJ91vs63sIBAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var MANIFEST = {
+  tool_id: 'art-245-mt-mx-translation-fidelity-scorer',
+  version: '1.0.0',
+  mcp_name: 'score_mt_mx_translation_fidelity',
+  title: 'MT103 to pacs.008 Translation Fidelity Scorer',
+  description: 'Scores MT103-to-pacs.008 translation fidelity for CBPR+ Nov 2026 migration. Checks field mapping, charge bearer code (OUR=DEBT/SHA=SHAR/BEN=CRED), and truncation risks.',
+  spec_version: '0.8.0',
+  chaingraph_version: '0.4.0',
+  regulation: 'SWIFT CBPR+ mandatory migration deadline 14 Nov 2026; SWIFT MT103 Standards Release Guide; ISO 20022 pacs.008.001.10',
+  mcp_tool_definition: {
+    name: 'score_mt_mx_translation_fidelity',
+    description: 'Score MT103 to pacs.008 translation fidelity. Returns fidelity_score, mapping_results[], charge_bearer_map, and issues[].',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        mt_f50: {type:'string'}, mt_f52a: {type:'string'}, mt_f57a: {type:'string'},
+        mt_f59: {type:'string'}, mt_f70: {type:'string'}, mt_f71a: {type:'string',enum:['OUR','SHA','BEN']},
+        mx_uetr: {type:'string'}, mx_dbtr_nm: {type:'string'}, mx_cdtr_nm: {type:'string'},
+        mx_dbtr_agt: {type:'string'}, mx_cdtr_agt: {type:'string'}, mx_rmt_ustrd: {type:'string'},
+        mx_chrg_br: {type:'string',enum:['DEBT','SHAR','CRED']}
+      }
+    }
+  }
+};
+
+var CHARGE_BEARER_MAP = {OUR:'DEBT', SHA:'SHAR', BEN:'CRED'};
+var FIELD_NOTES = {
+  ':20: TRN':':20: is the MT reference; pacs.008 requires a new UUIDv4 UETR (not a direct carry-over of :20:).',
+  ':50K/A OrderingCustomer':':50K: 4 lines x 35 chars; Dbtr/Nm allows 140 chars. Name truncation risk if MT line contained both name and account on same line.',
+  ':59/A Beneficiary':':59: 4 lines x 35 chars; Cdtr/Nm max 140 chars. Beneficiary name + address must be split into Nm and PostalAddress24 in pacs.008.',
+  ':52A OrderingInstitution':':52A BIC carries directly to DbtrAgt/BICFI. Direct 1-to-1 mapping.',
+  ':57A AccountWithInstitution':':57A BIC carries directly to CdtrAgt/BICFI. Direct 1-to-1 mapping.',
+  ':70: RemittanceInfo':':70: allows 4 lines x 35 chars = 140 chars. RmtInf/Ustrd max 140 chars. Near-identical capacity but line concatenation must not lose data.',
+  ':71A DetailsOfCharges':'OUR->DEBT, SHA->SHAR, BEN->CRED. Direct table mapping.'
+};
+
+var _lastResult = null;
+function safeStr(v){ return typeof v === 'string' ? v.trim() : ''; }
+function cgCanon(v){
+  return Array.isArray(v) ? v.map(cgCanon) :
+    (v && typeof v === 'object') ? Object.keys(v).sort().reduce(function(o,k){o[k]=cgCanon(v[k]);return o;},{}) : v;
+}
+async function computeExecHash(pp, op){
+  var payload = JSON.stringify(cgCanon({policy_parameters: pp, output_payload: op}));
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+  return 'sha256:' + Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+function runScore(){
+  var mt_f50 = safeStr(document.getElementById('mtF50').value);
+  var mt_f52a = safeStr(document.getElementById('mtF52a').value).toUpperCase();
+  var mt_f57a = safeStr(document.getElementById('mtF57a').value).toUpperCase();
+  var mt_f59 = safeStr(document.getElementById('mtF59').value);
+  var mt_f70 = safeStr(document.getElementById('mtF70').value);
+  var mt_f71a = safeStr(document.getElementById('mtF71a').value);
+  var mx_uetr = safeStr(document.getElementById('mxUetr').value);
+  var mx_dbtr_nm = safeStr(document.getElementById('mxDbtrNm').value);
+  var mx_cdtr_nm = safeStr(document.getElementById('mxCdtrNm').value);
+  var mx_dbtr_agt = safeStr(document.getElementById('mxDbtrAgt').value).toUpperCase();
+  var mx_cdtr_agt = safeStr(document.getElementById('mxCdtrAgt').value).toUpperCase();
+  var mx_rmt_ustrd = safeStr(document.getElementById('mxRmtUstrd').value);
+  var mx_chrg_br = safeStr(document.getElementById('mxChrgBr').value).toUpperCase();
+
+  var pp = {};
+  if(mt_f50) pp.mt_f50 = mt_f50;
+  if(mt_f52a) pp.mt_f52a = mt_f52a;
+  if(mt_f57a) pp.mt_f57a = mt_f57a;
+  if(mt_f59) pp.mt_f59 = mt_f59;
+  if(mt_f70) pp.mt_f70 = mt_f70;
+  if(mt_f71a) pp.mt_f71a = mt_f71a;
+  if(mx_uetr) pp.mx_uetr = mx_uetr;
+  if(mx_dbtr_nm) pp.mx_dbtr_nm = mx_dbtr_nm;
+  if(mx_cdtr_nm) pp.mx_cdtr_nm = mx_cdtr_nm;
+  if(mx_dbtr_agt) pp.mx_dbtr_agt = mx_dbtr_agt;
+  if(mx_cdtr_agt) pp.mx_cdtr_agt = mx_cdtr_agt;
+  if(mx_rmt_ustrd) pp.mx_rmt_ustrd = mx_rmt_ustrd;
+  if(mx_chrg_br) pp.mx_chrg_br = mx_chrg_br;
+
+  var issues = [];
+  var mapping_results = [];
+  var truncation_risks = [];
+
+  // UETR: :20: always a new UUIDv4; MX needs UETR present
+  var f20_present = false; // MT :20: is always generated -- we don't capture it as input
+  var mx_uetr_present = mx_uetr.length > 0;
+  if(!mx_uetr_present) issues.push({code:'UETR_ABSENT',severity:'ERROR',field:'mx_uetr',message:'UETR absent in pacs.008 output. A new UUIDv4 UETR must be generated for each pacs.008 instruction (GPI mandatory).'});
+  mapping_results.push({mt_field:':20: TRN',mx_field:'UETR',mt_present:f20_present,mx_present:mx_uetr_present,note:FIELD_NOTES[':20: TRN']});
+
+  // :50K -> Dbtr/Nm
+  var f50_present = mt_f50.length > 0;
+  var mx_dbtr_present = mx_dbtr_nm.length > 0;
+  mapping_results.push({mt_field:':50K/A OrderingCustomer',mx_field:'Dbtr/Nm',mt_present:f50_present,mx_present:mx_dbtr_present,note:FIELD_NOTES[':50K/A OrderingCustomer']});
+
+  // :59 -> Cdtr/Nm
+  var f59_present = mt_f59.length > 0;
+  var mx_cdtr_present = mx_cdtr_nm.length > 0;
+  mapping_results.push({mt_field:':59/A Beneficiary',mx_field:'Cdtr/Nm',mt_present:f59_present,mx_present:mx_cdtr_present,note:FIELD_NOTES[':59/A Beneficiary']});
+
+  // :52A -> DbtrAgt/BICFI
+  var f52a_present = mt_f52a.length > 0;
+  var mx_dbtragt_present = mx_dbtr_agt.length > 0;
+  mapping_results.push({mt_field:':52A OrderingInstitution',mx_field:'DbtrAgt/BICFI',mt_present:f52a_present,mx_present:mx_dbtragt_present,note:FIELD_NOTES[':52A OrderingInstitution']});
+
+  // :57A -> CdtrAgt/BICFI
+  var f57a_present = mt_f57a.length > 0;
+  var mx_cdtragt_present = mx_cdtr_agt.length > 0;
+  mapping_results.push({mt_field:':57A AccountWithInstitution',mx_field:'CdtrAgt/BICFI',mt_present:f57a_present,mx_present:mx_cdtragt_present,note:FIELD_NOTES[':57A AccountWithInstitution']});
+
+  // :70: -> RmtInf/Ustrd
+  var f70_present = mt_f70.length > 0;
+  var mx_rmt_present = mx_rmt_ustrd.length > 0;
+  if(f70_present && mt_f70.length > 140) truncation_risks.push({field:':70: RemittanceInfo',mt_length:mt_f70.length,mx_max:140,message:'MT :70: value exceeds 140 chars -- truncation risk when mapping to RmtInf/Ustrd.'});
+  mapping_results.push({mt_field:':70: RemittanceInfo',mx_field:'RmtInf/Ustrd',mt_present:f70_present,mx_present:mx_rmt_present,note:FIELD_NOTES[':70: RemittanceInfo']});
+
+  // :71A -> ChrgBr
+  var f71a_present = mt_f71a.length > 0;
+  var mx_chrgbr_present = mx_chrg_br.length > 0;
+  var expected_chrg_br = f71a_present ? CHARGE_BEARER_MAP[mt_f71a] : null;
+  if(f71a_present && mx_chrgbr_present && expected_chrg_br && mx_chrg_br !== expected_chrg_br){
+    issues.push({code:'CHARGE_BEARER_MISMATCH',severity:'ERROR',field:'mx_chrg_br',message:'MT :71A "'+mt_f71a+'" should map to ChrgBr "'+expected_chrg_br+'" but found "'+mx_chrg_br+'".'});
+  }
+  mapping_results.push({mt_field:':71A DetailsOfCharges',mx_field:'ChrgBr',mt_present:f71a_present,mx_present:mx_chrgbr_present,note:FIELD_NOTES[':71A DetailsOfCharges']});
+
+  // Fidelity score: matched pairs where both MT and MX present / total MT-present fields
+  var mt_present_count = mapping_results.filter(function(r){return r.mt_present;}).length;
+  var matched = mapping_results.filter(function(r){return r.mt_present && r.mx_present;}).length;
+  var fidelity_score = mt_present_count > 0 ? Math.round((matched / mt_present_count) * 100) : 0;
+  var fidelity_tier = fidelity_score >= 80 ? 'HIGH' : (fidelity_score >= 50 ? 'MEDIUM' : 'LOW');
+  var error_count = issues.length;
+  var compliant = error_count === 0;
+
+  var op = {
+    fidelity_score: fidelity_score,
+    fidelity_tier: fidelity_tier,
+    compliant: compliant,
+    error_count: error_count,
+    mapping_results: mapping_results,
+    truncation_risks: truncation_risks,
+    issues: issues,
+    charge_bearer_map: {OUR:'DEBT', SHA:'SHAR', BEN:'CRED'},
+    cbpr_plus_deadline: '2026-11-14',
+    pii_note: 'MT and pacs.008 field values are processed structurally (presence, length, code mapping). No real party PII processed. Use synthetic message fields for testing.',
+    table_version: 'MT103-PACS008-FIELD-MAP-CBPR-V1',
+    table_source: 'SWIFT Standards Release Guide MT103 (swift.com/standards); ISO 20022 pacs.008.001.10 message definition (iso20022.org); SWIFT CBPR+ Translation Rules for MT103 to pacs.008 migration',
+    regulatory_basis: 'SWIFT CBPR+ mandatory migration deadline 14 Nov 2026; SWIFT MT103 Standards Release Guide; ISO 20022 pacs.008.001.10'
+  };
+
+  _lastResult = {pp: pp, output_payload: op};
+
+  var ok = compliant && fidelity_score >= 80;
+  var vColor = ok ? 'var(--green)' : (error_count > 0 ? 'var(--red)' : 'var(--warn)');
+  var vBg = ok ? 'rgba(34,197,94,.08)' : (error_count > 0 ? 'rgba(239,68,68,.08)' : 'rgba(245,158,11,.08)');
+  var vBox = document.getElementById('verdictBox');
+  vBox.style.color = vColor; vBox.style.background = vBg; vBox.style.border = '1px solid ' + vColor;
+  vBox.textContent = 'FIDELITY ' + fidelity_score + '% (' + fidelity_tier + ')' + (compliant ? ' -- COMPLIANT' : ' -- ' + error_count + ' ERROR' + (error_count !== 1 ? 'S' : ''));
+
+  document.getElementById('statRow').innerHTML =
+    '<div class="stat"><span class="stat-val" style="color:' + (fidelity_score >= 80 ? 'var(--green)' : fidelity_score >= 50 ? 'var(--warn)' : 'var(--red)') + '">' + fidelity_score + '%</span><span class="stat-key">Fidelity</span></div>' +
+    '<div class="stat"><span class="stat-val">' + fidelity_tier + '</span><span class="stat-key">Tier</span></div>' +
+    '<div class="stat"><span class="stat-val" style="color:' + (error_count === 0 ? 'var(--green)' : 'var(--red)') + '">' + error_count + '</span><span class="stat-key">Errors</span></div>' +
+    '<div class="stat"><span class="stat-val">' + truncation_risks.length + '</span><span class="stat-key">Trunc Risks</span></div>';
+
+  document.getElementById('flagRow').innerHTML =
+    (compliant ? '<span class="badge ok">COMPLIANT</span>' : '<span class="badge fail">NON-COMPLIANT</span>') +
+    issues.map(function(i){return '<span class="badge fail">'+i.code+'</span>';}).join('') +
+    (truncation_risks.length > 0 ? '<span class="badge warn">TRUNCATION RISK</span>' : '');
+
+  document.getElementById('mappingDiv').innerHTML = '<div style="display:grid;grid-template-columns:1.2fr 1fr auto auto;gap:8px;font-family:JetBrains Mono,monospace;font-size:.62rem;padding:4px 0;border-bottom:1px solid var(--border);color:var(--muted)"><span>MT Field</span><span>pacs.008 Field</span><span>MT</span><span>MX</span></div>' +
+    mapping_results.map(function(r){
+      var mtCls = r.mt_present ? 'ok' : 'info';
+      var mxCls = r.mx_present ? 'ok' : (r.mt_present ? 'fail' : 'info');
+      return '<div style="display:grid;grid-template-columns:1.2fr 1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)"><span style="font-family:JetBrains Mono,monospace;font-size:.65rem;color:var(--body)">'+r.mt_field+'</span><span style="font-family:JetBrains Mono,monospace;font-size:.65rem;color:var(--teal-lt)">'+r.mx_field+'</span><span class="badge '+mtCls+'">'+(r.mt_present?'YES':'no')+'</span><span class="badge '+mxCls+'">'+(r.mx_present?'YES':'no')+'</span></div>';
+    }).join('');
+
+  var issDiv = document.getElementById('issuesDiv');
+  if(issues.length > 0){
+    issDiv.innerHTML = '<div class="section-head" style="margin-top:14px">Issues</div>' +
+      issues.map(function(i){return '<div class="kv" style="flex-direction:column;align-items:flex-start;gap:4px"><span class="badge fail">'+i.code+'</span><span style="font-size:.72rem;color:var(--text)">'+i.message+'</span></div>';}).join('');
+  } else {
+    issDiv.innerHTML = '';
+  }
+
+  document.getElementById('resultsPanel').classList.add('show');
+  document.getElementById('execHashBox').textContent = 'computing...';
+  document.getElementById('verifyResult').textContent = '';
+  computeExecHash(pp, op).then(function(h){ document.getElementById('execHashBox').textContent = h; });
+}
+
+function verifyHash(){
+  if(!_lastResult) return;
+  computeExecHash(_lastResult.pp, _lastResult.output_payload).then(function(h){
+    var cur = document.getElementById('execHashBox').textContent;
+    document.getElementById('verifyResult').innerHTML = h === cur ? '<span style="color:var(--green)">&#10003; Hash verified</span>' : '<span style="color:var(--red)">&#10007; Mismatch</span>';
+  });
+}
+
+function exportArtifact(){
+  if(!_lastResult) return;
+  var hash = document.getElementById('execHashBox').textContent || 'pending';
+  const generatedAt = new Date().toISOString();
+  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
+  var artifact = {'@context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'compliance_mandate',tool_id:'art-245-mt-mx-translation-fidelity-scorer',tool_version:'1.0.0',generated_at:generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:_lastResult.pp,output_payload:_lastResult.output_payload,compliance_flags:[],compute_mode:'browser',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[],client_side_executed:true,zero_pii_verified:true,deterministic_run:true}};
+  var json = JSON.stringify(artifact, null, 2);
+  document.getElementById('artifactPre').textContent = json;
+  document.getElementById('artifactPre').style.display = 'block';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+  a.download = 'art-245-mt-mx-translation-fidelity-scorer.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function toggleMfst(){
+  var b = document.getElementById('mfstBody');
+  if(b.style.display === 'none' || !b.style.display){b.style.display = 'block'; document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2);}
+  else{b.style.display = 'none';}
+}
+</script>
+</body>
+</html>

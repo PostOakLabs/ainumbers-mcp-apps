@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Arc Multi-Currency Corridor Compliance Routing · ART-111 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Route a multi-currency Arc corridor to its per-currency home regimes and validate cross-currency settlement and Travel Rule. Supported: EURC (MiCA), JPYC (JP FSA), BRLA (BCB), MXNB (CNBV), AUDF (ASIC), PHPC (BSP), QCAD (FINTRAC), ZARU (SARB). Zero PII.">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-111-arc-corridor-jurisdiction-router.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-111-arc-corridor-jurisdiction-router.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Arc Multi-Currency Corridor Compliance Routing",
+  "applicationCategory": "FinanceApplication",
+  "description": "Routes each Arc corridor leg to its home regulatory regime and validates cross-currency settlement and Travel Rule compliance. Supports EURC (MiCA EMT), JPYC (JP FSA), BRLA (BCB), MXNB (CNBV), AUDF (ASIC), PHPC (BSP), QCAD (FINTRAC), ZARU (SARB). No FX economics.",
+  "url": "https://ainumbers.co/chaingraph/art-111-arc-corridor-jurisdiction-router.html",
+  "publisher": { "@type": "Organization", "name": "Post Oak Labs", "url": "https://postoaklabs.com" },
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "keywords": "Arc corridor, stablecoin compliance, multi-currency routing, MiCA EMT, EURC, JPYC, BRLA, MXNB, AUDF, PHPC, QCAD, ZARU, Travel Rule, PvP settlement"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--green-dim:rgba(34,197,94,.12);--red:#EF4444;--warn:#F59E0B;--purple:#9B72F5;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
+nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
+nav .in{max-width:920px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
+.sub{color:var(--body);max-width:660px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.warn{background:rgba(212,168,71,.1);color:var(--gold);border-color:rgba(212,168,71,.3)}
+.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
+.flag.purple{background:rgba(155,114,245,.08);color:var(--purple);border-color:rgba(155,114,245,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.q{margin-bottom:14px}
+.q label{display:block;font-size:.82rem;color:var(--bright);margin-bottom:5px}
+.q .dim{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+select{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:inherit;font-size:.82rem}
+input[type=text],input[type=number]{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.82rem}
+textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+button:disabled{opacity:.45;cursor:not-allowed}
+.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.preset-btn{background:var(--bg-3);color:var(--body);border:1px solid var(--border-2);font-size:.62rem;padding:.3rem .7rem;text-transform:none;letter-spacing:0;font-weight:400}
+.preset-btn:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+.results-panel{display:none}
+.results-panel.show{display:block}
+.hero-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:110px;flex:1}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:600}
+.hero-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
+.verdict{border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
+.verdict.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.verdict.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:var(--warn)}
+.verdict.fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.verdict.info{background:rgba(20,184,166,.06);border:1px solid rgba(20,184,166,.2);color:var(--teal-lt)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge.warn-b{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.2)}
+.badge.purple{background:rgba(155,114,245,.1);color:var(--purple);border:1px solid rgba(155,114,245,.25)}
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.78rem}
+.tbl th{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border)}
+.tbl td{padding:7px 8px;border-bottom:1px solid rgba(30,47,74,.5);color:var(--text);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+.hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--green);word-break:break-all;margin:6px 0}
+.muted-txt{color:var(--muted);font-size:.72rem}
+.handoff-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--purple);border-radius:4px;padding:.75rem 1rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);line-height:1.7}
+.handoff-box .hb-title{color:var(--purple);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.regime-row{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(30,47,74,.4)}
+.regime-row:last-child{border-bottom:none}
+.regime-ccy{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;color:var(--teal-lt);min-width:52px}
+.regime-detail{flex:1}
+.regime-name{font-size:.75rem;color:var(--bright);margin-bottom:2px}
+.regime-reg{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted)}
+.disclosure-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.54rem;background:var(--bg-4);color:var(--body);border:1px solid var(--border);border-radius:3px;padding:.1rem .35rem;margin:2px 2px}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+.mfst-btn:hover{color:var(--text);border-color:var(--border-2)}
+#mfstBody{display:none;margin-top:10px}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.run-btn{margin-top:6px}
+.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
+.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.leg-editor-row{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;position:relative}
+.leg-num{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.leg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.leg-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:600px){.leg-grid{grid-template-columns:1fr}.leg-grid3{grid-template-columns:1fr}}
+.leg-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.leg-editor-row input,.leg-editor-row select{font-size:.75rem;padding:.35rem .5rem}
+.remove-leg-btn{background:none;color:var(--muted);border:1px solid var(--border);font-size:.58rem;padding:.2rem .5rem;border-radius:3px;position:absolute;top:8px;right:8px;letter-spacing:0;text-transform:none}
+.remove-leg-btn:hover{color:var(--red);border-color:rgba(239,68,68,.4);opacity:1}
+.add-leg-btn{background:var(--bg-3);color:var(--teal-lt);border:1px solid rgba(20,184,166,.3);font-size:.62rem;padding:.35rem .8rem;letter-spacing:0;text-transform:none;border-radius:var(--radius)}
+.add-leg-btn:hover{background:var(--teal-dim);opacity:1}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-111-arc-corridor-jurisdiction-router.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:71061d2cb76db82787091a1621aabb6fdba5b88d31db5d6b378f9ea1b5826f72">
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-111 · Arc Multi-Currency Corridor Jurisdiction Router</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">OpenChainGraph Suite · ART-111 · wave 21</div>
+  <h1>Arc Multi-Currency Corridor Compliance Routing</h1>
+  <p class="sub">Route a multi-currency Arc corridor to its per-currency home regimes and validate cross-currency settlement and Travel Rule — compliance layer only, no FX economics. Supported: EURC (MiCA), JPYC (JP FSA), BRLA (BCB), MXNB (CNBV), AUDF (ASIC), PHPC (BSP), QCAD (FINTRAC), ZARU (SARB).</p>
+  <div style="margin-bottom:6px">
+    <span class="flag info">Arc Corridor</span>
+    <span class="flag info">Multi-Currency</span>
+    <span class="flag">Zero PII</span>
+    <span class="flag">Client-side only</span>
+    <span class="flag warn">MiCA · JP FSA · BCB · CNBV · ASIC · BSP · FINTRAC · SARB</span>
+    <span class="flag purple">iso20022:pacs.008-subset</span>
+  </div>
+
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div class="info-box">
+    <div class="ib-title">Scope</div>
+    Compliance routing only — validates home regime mapping, disclousure gap detection, and emits PvP (511) + Travel-Rule (art-104) handoffs. No FX pricing, no liquidity economics. Use <a href="art-106-tempo-subscription-reconciler.html" style="color:var(--teal-lt)">ART-106</a> for economics; <a href="art-107-tempo-gas-economics.html" style="color:var(--teal-lt)">ART-107</a> for paymaster modelling.
+  </div>
+
+  <!-- Input Panel -->
+  <div class="card">
+    <div class="section-head">Presets</div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="loadPreset('eurc_jpyc')">EURC + JPYC Corridor</button>
+      <button class="preset-btn" onclick="loadPreset('brla_mxnb')">BRLA + MXNB Corridor</button>
+      <button class="preset-btn" onclick="loadPreset('full_arc')">Full 8-Currency Arc</button>
+      <button class="preset-btn" onclick="loadPreset('gaps')">Disclosure Gaps Scenario</button>
+    </div>
+
+    <div class="section-head">Corridor Legs</div>
+    <p style="font-size:.78rem;color:var(--body);margin-bottom:10px">Add one row per corridor leg. Each leg specifies the partner stablecoin, notional amount, and any disclosures already provided. The router maps each to its home regulatory regime.</p>
+
+    <div id="legsContainer"></div>
+    <button class="add-leg-btn" onclick="addLeg()">+ Add Leg</button>
+
+    <button class="run-btn" style="margin-top:14px" onclick="run()">Route Corridor</button>
+  </div>
+
+  <!-- Results Panel -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+
+    <div class="card">
+      <div class="section-head">Routing Summary</div>
+      <div class="hero-row" id="heroRow"></div>
+      <div id="verdictBadge" style="margin-bottom:10px"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Leg Regime Map</div>
+      <div id="legRegimeMap"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Disclosure Gaps</div>
+      <div id="disclosureGaps"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Downstream Handoffs</div>
+      <div id="handoffs"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Execution Hash &amp; §4 Artifact</div>
+      <div style="margin-bottom:4px"><span class="muted-txt">SHA-256 execution hash (JCS canonical — RFC 8785):</span></div>
+      <div class="hash" id="execHash"></div>
+      <pre id="artifactPre"></pre>
+      <div class="results-export-row">
+        <button id="ap2ExportBtn" onclick="exportAP2()" disabled>Export Policy Mandate JSON</button>
+    <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:not-allowed;opacity:.55;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
+    <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
+        <button onclick="exportCSV()">Export CSV</button>
+        <button onclick="exportArtifact()">Export §4 Artifact</button>
+      </div>
+    </div>
+
+  </div><!-- /results-panel -->
+
+  <button class="mfst-btn" onclick="toggleMfst()">Show Tool Manifest</button>
+  <div id="mfstBody" class="card" style="margin-top:10px">
+    <pre id="mfstCode"></pre>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-111-arc-corridor-jurisdiction-router.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `route_partner_stablecoin_jurisdiction`. Task: Route each Arc corridor leg to its home regulatory regime (EURC→MiCA EMT, JPYC→JP FSA, BRLA→BCB, MXNB→CNBV, AUDF→ASIC, PHPC→BSP, QCAD→FINTRAC, ZARU→SARB).
+Call it with arguments: {"policy_parameters":{"corridor_legs":[{"ccy_pair":"USD/EUR","partner_stablecoin":"EURC","notional":500000,"disclosures_provided":["reserve_attestation_monthly","MiCA_Art21","AML_program"]},{"ccy_pair":"USD/JPY","partner_stablecoin":"JPYC","notional":300000,"disclosures_provided":["PSA_registration","reserve_attestation","AML_program"]}]}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-111-arc-corridor-jurisdiction-router.html#p=v1.H4sIAAAAAAAA_wE_AcD-eyJjb3JyaWRvcl9sZWdzIjpbeyJjY3lfcGFpciI6IlVTRC9FVVIiLCJwYXJ0bmVyX3N0YWJsZWNvaW4iOiJFVVJDIiwibm90aW9uYWwiOjUwMDAwMCwiZGlzY2xvc3VyZXNfcHJvdmlkZWQiOlsicmVzZXJ2ZV9hdHRlc3RhdGlvbl9tb250aGx5IiwiTWlDQV9BcnQyMSIsIkFNTF9wcm9ncmFtIl19LHsiY2N5X3BhaXIiOiJVU0QvSlBZIiwicGFydG5lcl9zdGFibGVjb2luIjoiSlBZQyIsIm5vdGlvbmFsIjozMDAwMDAsImRpc2Nsb3N1cmVzX3Byb3ZpZGVkIjpbIlBTQV9yZWdpc3RyYXRpb24iLCJyZXNlcnZlX2F0dGVzdGF0aW9uIiwiQU1MX3Byb2dyYW0iXX1dfSuVPNc_AQAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─── MANIFEST ───────────────────────────────────────────────────────────────
+const MANIFEST = {
+  tool_id: 'art-111-arc-corridor-jurisdiction-router',
+  version: '1.0.0',
+  title: 'Arc Multi-Currency Corridor Compliance Routing',
+  mcp_tool_definition: {
+    name: 'route_partner_stablecoin_jurisdiction',
+    description: 'Routes each Arc corridor leg to its home regulatory regime (EURC→MiCA EMT, JPYC→JP FSA, BRLA→BCB, MXNB→CNBV, AUDF→ASIC, PHPC→BSP, QCAD→FINTRAC, ZARU→SARB). Flags disclosure gaps and emits PvP (511) + Travel-Rule (art-104) handoffs. No FX economics.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        corridor_legs: { type: 'array', description: 'Array of corridor legs: [{ccy_pair, partner_stablecoin, notional, disclosures_provided[]}]', items:{type:'object',properties:{ccy_pair:{type:'string'},partner_stablecoin:{type:'string'},notional:{type:'number'},disclosures_provided:{type:'array',items:{type:'string'}}}} }
+      },
+      required: ['corridor_legs']
+    }
+  },
+  ap2_export: true,
+  chaingraph: true
+};
+
+// ─── REGIME TABLE ────────────────────────────────────────────────────────────
+const REGIME_TABLE = {
+  EURC:{regime:'MiCA-EMT',regulator:'EBA/NCAs',disclosure:['EMT_whitepaper','reserve_attestation_monthly','MiCA_Art21']},
+  JPYC:{regime:'JP-PSA-FSA',regulator:'Japan FSA',disclosure:['PSA_registration','fund_segregation','JP_crypto_reporting']},
+  BRLA:{regime:'BR-CMN-BCB',regulator:'Banco Central BR',disclosure:['BCB_registration','reserve_report_monthly','AML_COAF']},
+  MXNB:{regime:'MX-CNBV-FINTEC',regulator:'CNBV',disclosure:['Fintech_Law_ITF','CNBV_registration','SAT_reporting']},
+  AUDF:{regime:'AU-ASIC',regulator:'ASIC',disclosure:['ASIC_digital_asset','ePayments_Code']},
+  PHPC:{regime:'PH-BSP',regulator:'Bangko Sentral ng Pilipinas',disclosure:['BSP_VirtualAsset','AMLC_registration']},
+  QCAD:{regime:'CA-FINTRAC',regulator:'FINTRAC',disclosure:['MSB_registration','PCMLTFA_compliance']},
+  ZARU:{regime:'ZA-SARB-FSCA',regulator:'SARB/FSCA',disclosure:['SARB_registration','FSCA_CASP','FICA_AML']},
+  USDC:{regime:'US-NY-DFS',regulator:'NY DFS / OCC',disclosure:['GENIUS_Act','monthly_attestation','FedWire_eligibility']},
+  USDT:{regime:'US-USVI-registered',regulator:'USVI',disclosure:['monthly_attestation']},
+};
+const REQ_DISC = ['reserve_attestation','AML_program'];
+
+// ─── COMPUTE (inline — byte-for-byte kernel parity) ──────────────────────────
+function computeCorridorRouter(corridor_legs) {
+  const legs = Array.isArray(corridor_legs)?corridor_legs:[];
+  const leg_regimes=[]; const disclosure_gaps=[];
+  for(const leg of legs){
+    const ccy=(leg.partner_stablecoin||leg.ccy||'').toUpperCase();
+    const entry=REGIME_TABLE[ccy];
+    const notional=Number(leg.notional)||0;
+    if(!entry){
+      leg_regimes.push({ccy_pair:leg.ccy_pair||ccy,ccy,regime:'UNKNOWN',regulator:'unknown',disclosures_required:[],note:'No home regime registered for '+ccy});
+      disclosure_gaps.push({ccy,gap:'NO_REGIME_MAPPED',severity:'HIGH'});
+    } else {
+      leg_regimes.push({ccy_pair:leg.ccy_pair||ccy,ccy,regime:entry.regime,regulator:entry.regulator,disclosures_required:entry.disclosure,notional});
+      const provided=Array.isArray(leg.disclosures_provided)?leg.disclosures_provided:[];
+      for(const req of REQ_DISC){if(!provided.some(p=>p.toLowerCase().includes(req.toLowerCase())))disclosure_gaps.push({ccy,gap:'MISSING_'+req.toUpperCase(),severity:'MEDIUM'});}
+    }
+  }
+  const pvp_handoff={tool:'511-multi-currency-pvp-validator',leg_count:legs.length,regimes:leg_regimes.map(l=>l.regime)};
+  const travel_rule_handoff={tool:'art-104-tfr-travel-rule-batch-validator',leg_count:legs.length,currencies:leg_regimes.map(l=>l.ccy)};
+  const all_mapped=!leg_regimes.some(l=>l.regime==='UNKNOWN');
+  const high_gaps=disclosure_gaps.filter(g=>g.severity==='HIGH');
+  const verdict=all_mapped&&high_gaps.length===0?'ROUTING_COMPLETE':'ROUTING_GAPS';
+  return {
+    output_payload:{leg_regimes,disclosure_gaps,pvp_handoff,travel_rule_handoff,verdict},
+    compliance_flags:[all_mapped?'ALL_REGIMES_MAPPED':'UNMAPPED_REGIMES',...(disclosure_gaps.length===0?['DISCLOSURES_COMPLETE']:['DISCLOSURE_GAPS_FOUND'])]
+  };
+}
+
+// ─── HASH (cgCanon — RFC 8785 JCS) ───────────────────────────────────────────
+function cgCanon(v) {
+  if (v === null || typeof v !== 'object') return v;
+  if (Array.isArray(v)) return v.map(cgCanon);
+  const out = {};
+  for (const k of Object.keys(v).sort()) out[k] = cgCanon(v[k]);
+  return out;
+}
+
+async function executionHashLocal(pp, outputPayload) {
+  const obj = cgCanon({ policy_parameters: pp, output_payload: outputPayload });
+  const s = JSON.stringify(obj);
+  const buf = new TextEncoder().encode(s);
+  const dig = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(dig)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ─── PRESETS ──────────────────────────────────────────────────────────────────
+const PRESETS = {
+  eurc_jpyc: [
+    {ccy_pair:'EUR/JPY',partner_stablecoin:'EURC',notional:250000,disclosures_provided:['EMT_whitepaper','reserve_attestation_monthly','AML_program']},
+    {ccy_pair:'JPY/EUR',partner_stablecoin:'JPYC',notional:37500000,disclosures_provided:['PSA_registration','AML_program','fund_segregation']}
+  ],
+  brla_mxnb: [
+    {ccy_pair:'BRL/MXN',partner_stablecoin:'BRLA',notional:1200000,disclosures_provided:['BCB_registration','AML_COAF']},
+    {ccy_pair:'MXN/BRL',partner_stablecoin:'MXNB',notional:7200000,disclosures_provided:['Fintech_Law_ITF','CNBV_registration']}
+  ],
+  full_arc: [
+    {ccy_pair:'EUR/USD',partner_stablecoin:'EURC',notional:500000,disclosures_provided:['EMT_whitepaper','reserve_attestation_monthly','MiCA_Art21','AML_program']},
+    {ccy_pair:'JPY/USD',partner_stablecoin:'JPYC',notional:75000000,disclosures_provided:['PSA_registration','fund_segregation','JP_crypto_reporting','AML_program']},
+    {ccy_pair:'BRL/USD',partner_stablecoin:'BRLA',notional:2500000,disclosures_provided:['BCB_registration','reserve_attestation_monthly','AML_program']},
+    {ccy_pair:'MXN/USD',partner_stablecoin:'MXNB',notional:10000000,disclosures_provided:['Fintech_Law_ITF','CNBV_registration','SAT_reporting','AML_program']},
+    {ccy_pair:'AUD/USD',partner_stablecoin:'AUDF',notional:780000,disclosures_provided:['ASIC_digital_asset','ePayments_Code','reserve_attestation','AML_program']},
+    {ccy_pair:'PHP/USD',partner_stablecoin:'PHPC',notional:28000000,disclosures_provided:['BSP_VirtualAsset','AMLC_registration','reserve_attestation','AML_program']},
+    {ccy_pair:'CAD/USD',partner_stablecoin:'QCAD',notional:680000,disclosures_provided:['MSB_registration','PCMLTFA_compliance','reserve_attestation','AML_program']},
+    {ccy_pair:'ZAR/USD',partner_stablecoin:'ZARU',notional:9200000,disclosures_provided:['SARB_registration','FSCA_CASP','FICA_AML','reserve_attestation','AML_program']}
+  ],
+  gaps: [
+    {ccy_pair:'EUR/GBP',partner_stablecoin:'EURC',notional:300000,disclosures_provided:['EMT_whitepaper']},
+    {ccy_pair:'BRL/GBP',partner_stablecoin:'BRLA',notional:1500000,disclosures_provided:[]},
+    {ccy_pair:'XYZ/GBP',partner_stablecoin:'XYZC',notional:50000,disclosures_provided:[]}
+  ]
+};
+
+// ─── LEG EDITOR ───────────────────────────────────────────────────────────────
+const CCY_OPTIONS = ['EURC','JPYC','BRLA','MXNB','AUDF','PHPC','QCAD','ZARU','USDC','USDT'];
+const DISC_OPTIONS = ['reserve_attestation_monthly','AML_program','EMT_whitepaper','MiCA_Art21','PSA_registration','fund_segregation','JP_crypto_reporting','BCB_registration','AML_COAF','Fintech_Law_ITF','CNBV_registration','SAT_reporting','ASIC_digital_asset','ePayments_Code','BSP_VirtualAsset','AMLC_registration','MSB_registration','PCMLTFA_compliance','SARB_registration','FSCA_CASP','FICA_AML','GENIUS_Act','monthly_attestation','FedWire_eligibility'];
+let legCount = 0;
+
+function addLeg(data) {
+  legCount++;
+  const id = 'leg_' + legCount;
+  const d = data || {};
+  const ccyOptions = CCY_OPTIONS.map(c => `<option value="${c}"${(d.partner_stablecoin||'EURC')===c?' selected':''}>${c}</option>`).join('');
+  const discOptions = DISC_OPTIONS.map(o => {
+    const sel = Array.isArray(d.disclosures_provided) && d.disclosures_provided.includes(o) ? ' selected' : '';
+    return `<option value="${o}"${sel}>${o}</option>`;
+  }).join('');
+  const html = `<div class="leg-editor-row" id="${id}">
+    <div class="leg-num">Leg ${legCount}</div>
+    <button class="remove-leg-btn" onclick="removeLeg('${id}')">✕ Remove</button>
+    <div class="leg-grid3">
+      <div>
+        <span class="leg-label">Partner Stablecoin</span>
+        <select class="leg-ccy">${ccyOptions}</select>
+      </div>
+      <div>
+        <span class="leg-label">CCY Pair (e.g. EUR/JPY)</span>
+        <input type="text" class="leg-pair" placeholder="EUR/USD" value="${d.ccy_pair||''}">
+      </div>
+      <div>
+        <span class="leg-label">Notional</span>
+        <input type="number" class="leg-notional" placeholder="100000" value="${d.notional||''}">
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <span class="leg-label">Disclosures Provided (hold Ctrl/Cmd to multi-select)</span>
+      <select class="leg-disclosures" multiple size="4" style="font-size:.7rem">${discOptions}</select>
+    </div>
+  </div>`;
+  document.getElementById('legsContainer').insertAdjacentHTML('beforeend', html);
+}
+
+function removeLeg(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+function getLegs() {
+  const rows = document.querySelectorAll('.leg-editor-row');
+  return Array.from(rows).map(row => {
+    const ccy = row.querySelector('.leg-ccy').value;
+    const pair = row.querySelector('.leg-pair').value.trim();
+    const notional = parseFloat(row.querySelector('.leg-notional').value) || 0;
+    const sel = row.querySelector('.leg-disclosures');
+    const disclosures_provided = Array.from(sel.selectedOptions).map(o => o.value);
+    return { ccy_pair: pair || ccy, partner_stablecoin: ccy, notional, disclosures_provided };
+  });
+}
+
+function loadPreset(name) {
+  document.getElementById('legsContainer').innerHTML = '';
+  legCount = 0;
+  (PRESETS[name] || []).forEach(d => addLeg(d));
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let _lastArtifact = null, _lastPP = null, _lastOP = null, _lastHash = null, _lastFlags = null;
+
+// ─── MAIN RUN ─────────────────────────────────────────────────────────────────
+async function run() {
+  const legs = getLegs();
+  if (!legs.length) { alert('Add at least one corridor leg.'); return; }
+  const pp = { corridor_legs: legs };
+  const { output_payload, compliance_flags } = computeCorridorRouter(legs);
+  const rawHash = await executionHashLocal(pp, output_payload);
+  const execHash = 'sha256:' + rawHash;
+
+  const __generatedAtCapture = new Date().toISOString();
+  const artifact = {
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.4/context.jsonld',
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    compute_mode: 'browser',
+    mandate_type: 'compliance_mandate',
+    semantic_profile: 'iso20022:pacs.008-subset',
+    tool_id: MANIFEST.tool_id,
+    tool_version: MANIFEST.version,
+    generated_at: __generatedAtCapture,
+    execution_hash: execHash,
+    chain: { parent_hashes: [], parent_tool_ids: ['art-106-tempo-subscription-reconciler','art-107-tempo-gas-economics'], chain_depth: 1 },
+    policy_parameters: pp,
+    output_payload,
+    compliance_flags,
+    audit_signature: { payloadType: 'application/vnd.openchain.graph+json;version=0.4', payload: '', signatures: [] }
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+
+  _lastArtifact = artifact; _lastPP = pp; _lastOP = output_payload;
+  _lastHash = execHash; _lastFlags = compliance_flags;
+
+  renderResults(output_payload, compliance_flags, execHash, artifact);
+  enableAP2Btn();
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderResults(op, flags, execHash, artifact) {
+  const leg_regimes = op.leg_regimes || [];
+  const gaps = op.disclosure_gaps || [];
+  const verdict = op.verdict || 'UNKNOWN';
+  const high_gaps = gaps.filter(g => g.severity === 'HIGH');
+  const med_gaps = gaps.filter(g => g.severity === 'MEDIUM');
+
+  // Hero row
+  const vColor = verdict === 'ROUTING_COMPLETE' ? 'var(--green)' : 'var(--warn)';
+  document.getElementById('heroRow').innerHTML = `
+    <div class="hero-stat"><div class="hero-val" style="color:var(--teal-lt)">${leg_regimes.length}</div><div class="hero-lbl">Legs Routed</div></div>
+    <div class="hero-stat"><div class="hero-val" style="color:${leg_regimes.filter(l=>l.regime!=='UNKNOWN').length===leg_regimes.length?'var(--green)':'var(--red)'}">${leg_regimes.filter(l=>l.regime!=='UNKNOWN').length}</div><div class="hero-lbl">Regimes Mapped</div></div>
+    <div class="hero-stat"><div class="hero-val" style="color:${high_gaps.length===0?'var(--green)':'var(--red)'}">${high_gaps.length}</div><div class="hero-lbl">High Gaps</div></div>
+    <div class="hero-stat"><div class="hero-val" style="color:${med_gaps.length===0?'var(--green)':'var(--warn)'}">${med_gaps.length}</div><div class="hero-lbl">Medium Gaps</div></div>
+    <div class="hero-stat"><div class="hero-val" style="color:${vColor};font-size:1rem;padding-top:6px">${verdict==='ROUTING_COMPLETE'?'✓ COMPLETE':'⚠ GAPS'}</div><div class="hero-lbl">Verdict</div></div>`;
+
+  // Verdict badge
+  const vClass = verdict === 'ROUTING_COMPLETE' ? 'pass' : 'warn';
+  const vMsg = verdict === 'ROUTING_COMPLETE'
+    ? '✓ ROUTING_COMPLETE — All corridor legs mapped to home regulatory regimes with no HIGH-severity disclosure gaps.'
+    : '⚠ ROUTING_GAPS — One or more legs have unmapped regimes or HIGH-severity disclosure gaps. Resolve before settlement.';
+  document.getElementById('verdictBadge').innerHTML = `<div class="verdict ${vClass}">${vMsg}</div>
+    <div style="margin-top:6px">${flags.map(f => {
+      const cls = f.includes('UNMAPPED')||f.includes('GAPS') ? 'warn-b' : 'ok';
+      return `<span class="badge ${cls}">${f}</span>`;
+    }).join('')}</div>`;
+
+  // Leg regime map
+  document.getElementById('legRegimeMap').innerHTML = leg_regimes.length === 0
+    ? '<p class="muted-txt">No legs routed.</p>'
+    : leg_regimes.map(lr => {
+        const isUnknown = lr.regime === 'UNKNOWN';
+        const discs = (lr.disclosures_required||[]).map(d => `<span class="disclosure-tag">${d}</span>`).join('');
+        return `<div class="regime-row">
+          <div class="regime-ccy" style="color:${isUnknown?'var(--red)':'var(--teal-lt)'}">${lr.ccy}</div>
+          <div class="regime-detail">
+            <div class="regime-name">${lr.ccy_pair} → <strong style="color:${isUnknown?'var(--red)':'var(--bright)'}">${lr.regime}</strong>${lr.notional?` <span style="color:var(--muted);font-size:.68rem">(${Number(lr.notional).toLocaleString()})</span>`:''}</div>
+            <div class="regime-reg">${lr.regulator}</div>
+            ${lr.note?`<div style="color:var(--red);font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-top:2px">${lr.note}</div>`:''}
+            ${discs?`<div style="margin-top:4px">${discs}</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+  // Disclosure gaps
+  if (gaps.length === 0) {
+    document.getElementById('disclosureGaps').innerHTML = '<div class="verdict pass">✓ No disclosure gaps detected across all corridor legs.</div>';
+  } else {
+    let html = '<table class="tbl"><thead><tr><th>CCY</th><th>Gap</th><th>Severity</th></tr></thead><tbody>';
+    for (const g of gaps) {
+      const sColor = g.severity === 'HIGH' ? 'err' : 'warn-b';
+      html += `<tr><td><span style="font-family:'JetBrains Mono',monospace;color:var(--teal-lt)">${g.ccy}</span></td><td>${g.gap}</td><td><span class="badge ${sColor}">${g.severity}</span></td></tr>`;
+    }
+    html += '</tbody></table>';
+    document.getElementById('disclosureGaps').innerHTML = html;
+  }
+
+  // Handoffs
+  const pvp = op.pvp_handoff || {};
+  const tr = op.travel_rule_handoff || {};
+  document.getElementById('handoffs').innerHTML = `
+    <div class="handoff-box">
+      <div class="hb-title">PvP Settlement Handoff → ${pvp.tool||''}</div>
+      Leg count: <strong>${pvp.leg_count||0}</strong> · Regimes: ${(pvp.regimes||[]).map(r=>`<span class="badge info">${r}</span>`).join('')}
+    </div>
+    <div class="handoff-box">
+      <div class="hb-title">Travel Rule Handoff → ${tr.tool||''}</div>
+      Leg count: <strong>${tr.leg_count||0}</strong> · Currencies: ${(tr.currencies||[]).map(c=>`<span class="badge purple">${c}</span>`).join('')}
+    </div>
+    <div class="verdict info" style="margin-top:10px">⚠ DECISION-SUPPORT DRAFT. Not a filing or legal advice. Verify all regulatory mappings against current official sources for each jurisdiction.</div>`;
+
+  // Hash + artifact
+  document.getElementById('execHash').textContent = execHash;
+  document.getElementById('artifactPre').textContent = JSON.stringify(artifact, null, 2);
+
+  document.getElementById('resultsPanel').classList.add('show');
+}
+
+// ─── EXPORTS ─────────────────────────────────────────────────────────────────
+function enableAP2Btn() {
+  document.getElementById('ap2ExportBtn').disabled = false;
+}
+
+function exportAP2() {
+  if (!_lastArtifact) return;
+  const ap2 = {
+    schema: 'ainumbers-policy-mandate-v1.0',
+    tool_id: MANIFEST.tool_id,
+    version: MANIFEST.version,
+    mandate_type: 'compliance_mandate',
+    generated_at: _lastArtifact.generated_at,
+    execution_hash: _lastHash,
+    policy_parameters: _lastPP,
+    output_payload: _lastOP,
+    compliance_flags: _lastFlags
+  };
+  dl(JSON.stringify(ap2, null, 2), 'art-111-policy-mandate.json', 'application/json');
+}
+
+function exportArtifact() {
+  if (!_lastArtifact) return;
+  dl(JSON.stringify(_lastArtifact, null, 2), 'art-111-artifact.json', 'application/json');
+}
+
+function exportCSV() {
+  if (!_lastOP) return;
+  const legs = _lastOP.leg_regimes || [];
+  const gaps = _lastOP.disclosure_gaps || [];
+  let csv = 'CCY_Pair,CCY,Regime,Regulator,Notional\n';
+  for (const l of legs) csv += `"${l.ccy_pair}","${l.ccy}","${l.regime}","${l.regulator}",${l.notional||0}\n`;
+  csv += '\nCCY,Gap,Severity\n';
+  for (const g of gaps) csv += `"${g.ccy}","${g.gap}","${g.severity}"\n`;
+  dl(csv, 'art-111-corridor-routing.csv', 'text/csv');
+}
+
+function dl(content, filename, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type: mime}));
+  a.download = filename;
+  a.click();
+}
+
+// ─── MANIFEST TOGGLE ─────────────────────────────────────────────────────────
+function toggleMfst() {
+  const body = document.getElementById('mfstBody');
+  const code = document.getElementById('mfstCode');
+  if (body.style.display === 'none' || !body.style.display) {
+    if (!code.textContent) code.textContent = JSON.stringify(MANIFEST, null, 2);
+    body.style.display = 'block';
+  } else {
+    body.style.display = 'none';
+  }
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Load default preset on page load
+loadPreset('eurc_jpyc');
+</script>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. Byte-identical to kernels/_hash.mjs. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (univ-ap2) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_universal.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput')||document.getElementById('artifact');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('\u2717 not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('\u2717 no \u00a716 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'\u2713 \u00a716 signature valid':'\u2717 signature invalid / tampered');}
+  catch(e){alert('\u2717 '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var el=document.getElementById('ap2ExportBtn');
+  if(!el)return;
+  var obs=new MutationObserver(function(){
+    var sab=document.getElementById('signArtifactBtn');
+    if(sab){sab.disabled=false;}
+    obs.disconnect();
+  });
+  obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+})();
+</script>
+</body>
+</html>

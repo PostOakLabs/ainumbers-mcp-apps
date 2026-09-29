@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Agent Spend-Policy Simulator · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Simulate thousands of synthetic AP2 v0.2 agent transactions against a user-authored spend policy. Detects scope creep, daily/monthly limit violations, policy-bypass paths, and unauthorized HNP autonomous flows. GPU-parallel chunk batching. Chains into ART-01.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.md">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Spend-Policy Simulator","url":"https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html","applicationCategory":"FinanceApplication","operatingSystem":"Any","author":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"}}</script>
+<!-- manifest.json
+{
+  "tool_id": "art-02-agent-spend-policy-simulator",
+  "version": "1.0.0",
+  "title": "Agent Spend-Policy Simulator",
+  "description": "Simulates synthetic AP2 v0.2 agent transactions against a user-authored spend policy. Detects: per-transaction over-limit, daily/monthly cumulative violations, scope creep (unauthorized merchant/category), policy-bypass path detection (drip patterns that evade per-tx limits), unauthorized HNP autonomous flows. GPU-parallel chunk batching in browser. Exports AP2 payment_policy artifact and full transaction log.",
+  "category": "chaingraph",
+  "tags": ["AP2","spend policy","agent transactions","scope creep","policy bypass","HNP","autonomous agent","payment policy","simulation","GPU"],
+  "mcp_tool_definition": {"name":"simulate_spend_policy","description":"Simulates N synthetic agent transactions against a spend policy definition. Returns violation counts, scope-creep ratio, bypass-path detection results, HNP authorization gaps, and a full transaction-level log.","inputSchema":{"type":"object","properties":{"policy":{"type":"object","description":"Spend policy definition — allowed_merchants, allowed_category_codes, max_per_transaction, max_daily, max_monthly, allowed_payment_methods, hnp_allowed, hnp_auto_approve_below"},"sim_count":{"type":"integer","description":"Number of synthetic transactions to simulate (10–5000, default 500)"},"hnp_ratio":{"type":"number","description":"Fraction of transactions marked human_not_present (0–1, default 0.3)"},"chaos_level":{"type":"number","description":"Fraction of transactions that attempt policy violations (0–1, default 0.2)"},"parent_artifact":{"type":"object","description":"ART-01 OpenChainGraph artifact — copies parent_hash into chain block"}},"required":["policy"]}},
+  "execution": {"type":"browser-javascript","entry":"chaingraph/art-02-agent-spend-policy-simulator.html","function_name":"runSimulation","timeout_ms":10000},
+  "ap2_export": true,
+  "chaingraph": true,
+  "prefill": true,
+  "bridge_version": "1.0",
+  "chain_partners": ["art-01-ap2-mandate-chain-validator","art-04-agent-identity-attestation-checker","ptg-01-ap2-prompt-template-generator"],
+  "mandate_type": "payment_policy",
+  "conformance_fixtures": false
+}
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;
+  --border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;
+  --text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;
+  --teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;
+  --gold:#D4A847;--gold-dim:rgba(212,168,71,.12);
+  --green:#22C55E;--green-dim:rgba(34,197,94,.12);
+  --red:#EF4444;--red-dim:rgba(239,68,68,.12);
+  --warn:#F59E0B;--warn-dim:rgba(245,158,11,.12);
+  --purple:#9B72F5;--purple-dim:rgba(155,114,245,.12);
+  --radius:6px;--radius-lg:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:300;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400;line-height:1.2}
+a{color:inherit;text-decoration:none}button{cursor:pointer;font-family:inherit}
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(20,184,166,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.01) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+nav{padding:0 1.5rem;height:52px;border-bottom:1px solid var(--border);background:rgba(8,14,26,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(8px)}
+.nav-inner{max-width:1100px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-text{display:flex;flex-direction:column;gap:.08rem}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--bright);line-height:1}
+.logo-ai{color:var(--teal)}.logo-co{color:var(--muted);font-size:.75rem}
+.nav-bc{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);display:flex;align-items:center;gap:.5rem;justify-content:center}
+.nav-bc a{color:var(--body)}.nav-bc a:hover{color:var(--teal)}
+.nav-bc-sep{color:var(--border-2)}.nav-bc-current{color:var(--text)}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--teal);padding:.28rem .75rem;border-radius:4px}
+.nav-cta:hover{background:var(--teal-lt)}
+.hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);position:relative;z-index:1}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--teal)}
+.hero h1{font-size:clamp(1.5rem,3vw,2.2rem);color:var(--white);margin-bottom:.6rem}
+.hero h1 em{font-style:italic;color:var(--teal-lt)}
+.hero-desc{font-size:.82rem;color:var(--body);max-width:720px;line-height:1.8;margin-bottom:1rem}
+.hero-meta{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .6rem;border:1px solid;border-radius:3px}
+.badge-teal{color:var(--teal);border-color:rgba(20,184,166,.3)}
+.badge-gold{color:var(--gold);border-color:rgba(212,168,71,.3)}
+.badge-green{color:var(--green);border-color:rgba(34,197,94,.3)}
+.badge-muted{color:var(--muted);border-color:var(--border)}
+.badge-purple{color:var(--purple);border-color:rgba(155,114,245,.3)}
+.badge-warn{color:var(--warn);border-color:rgba(245,158,11,.3)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin-bottom:1rem}
+.tool-body{position:relative;z-index:1;padding:2rem 0 4rem}
+.panel{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.panel-label::before{content:'';display:block;width:12px;height:1px;background:var(--teal)}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.3rem}
+.field-hint{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--border-2);margin-top:.15rem;display:block}
+/* POLICY FORM */
+.policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem 2rem}
+@media(max-width:750px){.policy-grid{grid-template-columns:1fr}}
+.policy-section{display:flex;flex-direction:column;gap:.7rem}
+.policy-section-title{font-family:'DM Serif Display',serif;font-size:.9rem;color:var(--bright);border-bottom:1px solid var(--border);padding-bottom:.35rem;margin-bottom:.15rem}
+input[type="number"],input[type="text"],select,textarea{background:var(--bg-3);border:1px solid var(--border);color:var(--bright);font-family:'Sora',sans-serif;font-size:.75rem;padding:.38rem .55rem;border-radius:var(--radius);outline:none;transition:border-color .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+.tag-input-wrap{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);min-height:36px;display:flex;flex-wrap:wrap;gap:.3rem;padding:.3rem .4rem;cursor:text;transition:border-color .2s}
+.tag-input-wrap:focus-within{border-color:var(--teal)}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.48rem;background:var(--bg-4);color:var(--teal);border:1px solid rgba(20,184,166,.3);padding:.15rem .5rem;border-radius:3px;display:flex;align-items:center;gap:.35rem}
+.tag-x{cursor:pointer;color:var(--muted);font-size:.6rem;line-height:1}
+.tag-x:hover{color:var(--red)}
+.tag-input{background:transparent;border:none;outline:none;color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.54rem;min-width:80px;flex:1}
+/* PRESET BUTTONS */
+.preset-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.preset-btn{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;background:var(--bg-3);border:1px solid var(--border);color:var(--muted);padding:.28rem .7rem;border-radius:3px;cursor:pointer;transition:all .2s}
+.preset-btn:hover{border-color:var(--teal);color:var(--teal)}
+/* SIM PARAMS */
+.sim-params{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem}
+@media(max-width:800px){.sim-params{grid-template-columns:1fr 1fr}}
+.slider-wrap{display:flex;flex-direction:column;gap:.3rem}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;width:100%;padding:0}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--teal);border-radius:50%;cursor:pointer}
+input[type="range"]::-moz-range-thumb{width:14px;height:14px;background:var(--teal);border-radius:50%;cursor:pointer;border:none}
+.slider-val{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--teal);text-align:right}
+/* CHAIN PARENT INPUT */
+.chain-input-wrap{display:flex;align-items:flex-start;gap:1rem}
+.chain-textarea{flex:1;font-family:'JetBrains Mono',monospace;font-size:.52rem;min-height:80px;resize:vertical}
+.chain-status{font-family:'JetBrains Mono',monospace;font-size:.44rem;margin-top:.4rem}
+/* RUN BUTTON */
+.run-btn{background:var(--teal);color:var(--bg);border:none;padding:.65rem 2rem;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:background .2s}
+.run-btn:hover:not(:disabled){background:var(--teal-lt)}
+.run-btn:disabled{opacity:.4;cursor:not-allowed}
+/* PROGRESS */
+.progress-wrap{display:none;align-items:center;gap:.85rem;margin-left:1rem}
+.progress-wrap.visible{display:flex}
+.progress-bar-outer{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;width:180px}
+.progress-bar-inner{height:100%;background:var(--teal);width:0%;border-radius:3px;transition:width .08s}
+.progress-text{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);flex-shrink:0}
+/* RESULTS */
+.results-panel{display:none;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.results-panel.visible{display:flex}
+/* SCORECARD */
+.scorecard{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+@media(max-width:700px){.scorecard{grid-template-columns:1fr 1fr}}
+.score-card{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.85rem 1rem;text-align:center}
+.score-val{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1;margin-bottom:.2rem}
+.score-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.score-sub{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--body);margin-top:.15rem}
+/* BREAKDOWN BARS */
+.breakdown-bars{display:flex;flex-direction:column;gap:.5rem}
+.bbar-row{display:flex;align-items:center;gap:.75rem}
+.bbar-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--text);min-width:160px;flex-shrink:0}
+.bbar-outer{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.bbar-inner{height:100%;border-radius:4px}
+.bbar-count{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--body);min-width:40px;text-align:right}
+/* BYPASS PATHS */
+.bypass-list{display:flex;flex-direction:column;gap:.5rem}
+.bypass-item{background:var(--bg-3);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:.65rem .9rem}
+.bypass-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
+.bypass-item-id{font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--red)}
+.bypass-item-type{font-family:'JetBrains Mono',monospace;font-size:.44rem;color:var(--muted)}
+.bypass-item-desc{font-size:.68rem;color:var(--body);line-height:1.5}
+/* TX TABLE */
+.tx-table-wrap{overflow-x:auto;max-height:360px;overflow-y:auto}
+.tx-table{width:100%;border-collapse:collapse}
+.tx-table th{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.45rem .65rem;border-bottom:1px solid var(--border);background:var(--bg-3);position:sticky;top:0;white-space:nowrap;text-align:left}
+.tx-table td{font-family:'JetBrains Mono',monospace;font-size:.52rem;padding:.38rem .65rem;border-bottom:1px solid rgba(30,47,74,.5);white-space:nowrap}
+.tx-table tr:hover td{background:var(--bg-4)}
+.tx-pass{color:var(--green)}.tx-fail{color:var(--red)}.tx-warn{color:var(--warn)}
+/* FILTER ROW */
+.filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;align-items:center}
+.filter-btn{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;background:var(--bg-3);border:1px solid var(--border);color:var(--muted);padding:.25rem .65rem;border-radius:3px;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{border-color:var(--teal);color:var(--teal)}
+/* OUT SECTIONS */
+.out-section{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.out-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg-3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.out-title{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.out-body{padding:1.25rem}
+/* VERDICT */
+.verdict-card{border-radius:var(--radius-lg);padding:1.1rem 1.3rem;margin-bottom:.85rem;display:flex;align-items:flex-start;gap:1rem}
+.verdict-card.clean{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.3)}
+.verdict-card.warn{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.3)}
+.verdict-card.risk{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.35)}
+.verdict-icon{font-size:1.5rem;line-height:1;flex-shrink:0;margin-top:.1rem}
+.verdict-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.2rem}
+.verdict-label.clean{color:var(--green)}.verdict-label.warn{color:var(--warn)}.verdict-label.risk{color:var(--red)}
+.verdict-title{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:.25rem}
+.verdict-sub{font-size:.7rem;color:var(--body);line-height:1.6}
+/* EXPORT */
+.results-export-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;border-radius:var(--radius);border:1px solid;transition:all .2s;cursor:pointer;background:transparent}
+.btn-ghost{border-color:var(--border);color:var(--muted)}
+.btn-ghost.ready{border-color:var(--teal);color:var(--bright)}
+.btn-ghost.ready:hover{background:var(--bg-4)}
+.btn-ghost:disabled{opacity:.28;cursor:not-allowed}
+.btn-subtitle{display:block;font-size:.4rem;color:var(--muted);margin-top:.1rem}
+/* MANIFEST */
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius);transition:background .15s;margin-bottom:1px;cursor:pointer}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.6;white-space:pre}
+/* CHECKBOX TOGGLE */
+.toggle-row{display:flex;align-items:center;gap:.75rem}
+.toggle-label{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--text)}
+input[type="checkbox"]{width:15px;height:15px;accent-color:var(--teal);cursor:pointer}
+footer{border-top:1px solid var(--border);padding:1.75rem 1.5rem;margin-top:1.5rem}
+.footer-inner-ai{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:space-between}
+.footer-links-ai{display:flex;gap:1.25rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)}
+.footer-links-ai a{color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links-ai a:hover{color:var(--teal-lt)}
+.footer-badge-ai{display:flex;flex-direction:column;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg-3);border:1px solid var(--teal);color:var(--teal-lt);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.5rem 1rem;border-radius:var(--radius);z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-02 · Agent Spend-Policy Simulator</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero"><div class="container">
+  <div class="hero-eyebrow">OpenChainGraph Suite · ART-02 · Agent Spend-Policy Simulator</div>
+  <span class="badge badge-muted" style="display:inline-flex;margin-bottom:.6rem"><span>v1.0.0</span></span>
+  <h1>Agent Spend-Policy Simulator</h1>
+  <p class="hero-desc">Author a spend policy — merchant allowlists, per-transaction and rolling limits, HNP autonomous-flow rules — then simulate up to <strong>5,000 synthetic agent transactions</strong> against it in seconds. Detects <strong>scope creep</strong> (unauthorized merchants/categories), <strong>drip-pattern policy bypass</strong> (sequences of sub-limit transactions that cumulatively exceed daily or monthly caps), and <strong>unauthorized HNP flows</strong>. Paste an <strong>ART-01 artifact</strong> to anchor into the chain. Exports a full transaction log as CSV.</p>
+  <div class="hero-meta">
+    <span class="badge badge-teal">AP2 Export</span>
+    <span class="badge badge-teal">Chains: ART-01 → ART-02</span>
+    <span class="badge badge-gold">GPU Parallel</span>
+    <span class="badge badge-warn">Bypass Detection</span>
+    <span class="badge badge-green">Zero PII · Synthetic Only</span>
+  </div>
+</div></div>
+
+<div class="tool-body"><div class="container">
+
+  <div class="pii-notice">🔒 All simulation runs locally. All transactions are fully synthetic. No data leaves your browser. Paste ART-01 artifact JSON only — no real payment data.</div>
+
+  <!-- PRESET -->
+  <div class="panel">
+    <div class="panel-label">Policy presets</div>
+    <div class="preset-row">
+      <button class="preset-btn" onclick="loadPreset('saas')">SaaS / Cloud spend</button>
+      <button class="preset-btn" onclick="loadPreset('travel')">Travel &amp; expenses</button>
+      <button class="preset-btn" onclick="loadPreset('ecommerce')">E-commerce marketplace</button>
+      <button class="preset-btn" onclick="loadPreset('tight_hnp')">Tight HNP (autonomous agent)</button>
+    </div>
+  </div>
+
+  <!-- POLICY EDITOR -->
+  <div class="panel">
+    <div class="panel-label">Spend policy definition</div>
+    <div class="policy-grid">
+      <div class="policy-section">
+        <div class="policy-section-title">Merchant allowlist</div>
+        <div>
+          <label class="field-label">Allowed merchant IDs (press Enter to add)</label>
+          <div class="tag-input-wrap" id="merchantTagWrap" onclick="document.getElementById('merchantTagInput').focus()">
+            <input class="tag-input" id="merchantTagInput" placeholder="merchant-id, Enter to add" onkeydown="handleTagKey(event,'merchants')">
+          </div>
+          <span class="field-hint">Leave empty = any merchant. At least one tag → allowlist enforced.</span>
+        </div>
+        <div>
+          <label class="field-label">Allowed category codes (MCC / AP2 codes)</label>
+          <div class="tag-input-wrap" id="categoryTagWrap" onclick="document.getElementById('categoryTagInput').focus()">
+            <input class="tag-input" id="categoryTagInput" placeholder="5411, 7372 — Enter to add" onkeydown="handleTagKey(event,'categories')">
+          </div>
+          <span class="field-hint">Leave empty = any category.</span>
+        </div>
+        <div>
+          <label class="field-label">Allowed payment methods</label>
+          <div class="tag-input-wrap" id="methodTagWrap" onclick="document.getElementById('methodTagInput').focus()">
+            <input class="tag-input" id="methodTagInput" placeholder="card_on_file, bank_transfer…" onkeydown="handleTagKey(event,'methods')">
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Currency</label>
+          <input type="text" id="policyCurrency" value="USD" style="width:100px">
+        </div>
+      </div>
+      <div class="policy-section">
+        <div class="policy-section-title">Spend limits</div>
+        <div>
+          <label class="field-label">Max per transaction ($)</label>
+          <input type="number" id="maxPerTx" value="500" min="1" step="1" style="width:160px">
+        </div>
+        <div>
+          <label class="field-label">Daily cumulative limit ($)</label>
+          <input type="number" id="maxDaily" value="2000" min="0" step="100" style="width:160px">
+          <span class="field-hint">0 = no daily limit</span>
+        </div>
+        <div>
+          <label class="field-label">Monthly cumulative limit ($)</label>
+          <input type="number" id="maxMonthly" value="15000" min="0" step="500" style="width:160px">
+          <span class="field-hint">0 = no monthly limit</span>
+        </div>
+        <div class="policy-section-title" style="margin-top:.5rem">HNP (Human-Not-Present) rules</div>
+        <div class="toggle-row">
+          <input type="checkbox" id="hnpAllowed" checked>
+          <label class="toggle-label" for="hnpAllowed">HNP flows permitted</label>
+        </div>
+        <div>
+          <label class="field-label">HNP auto-approve below ($)</label>
+          <input type="number" id="hnpAutoApprove" value="100" min="0" step="10" style="width:160px">
+          <span class="field-hint">Transactions above this in HNP mode require human review.</span>
+        </div>
+        <div>
+          <label class="field-label">HNP max per transaction ($)</label>
+          <input type="number" id="hnpMaxPerTx" value="200" min="0" step="10" style="width:160px">
+          <span class="field-hint">Hard ceiling on any single HNP transaction.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMULATION PARAMS -->
+  <div class="panel">
+    <div class="panel-label">Simulation parameters</div>
+    <div class="sim-params">
+      <div class="slider-wrap">
+        <label class="field-label">Transactions</label>
+        <input type="range" id="simCount" min="10" max="5000" step="10" value="500" oninput="syncSlider('simCount','simCountVal')">
+        <div class="slider-val" id="simCountVal">500</div>
+      </div>
+      <div class="slider-wrap">
+        <label class="field-label">HNP ratio</label>
+        <input type="range" id="hnpRatio" min="0" max="1" step="0.05" value="0.30" oninput="syncSlider('hnpRatio','hnpRatioVal',v=>Math.round(v*100)+'%')">
+        <div class="slider-val" id="hnpRatioVal">30%</div>
+      </div>
+      <div class="slider-wrap">
+        <label class="field-label">Chaos level (violations)</label>
+        <input type="range" id="chaosLevel" min="0" max="1" step="0.05" value="0.20" oninput="syncSlider('chaosLevel','chaosLevelVal',v=>Math.round(v*100)+'%')">
+        <div class="slider-val" id="chaosLevelVal">20%</div>
+      </div>
+      <div class="slider-wrap">
+        <label class="field-label">Drip pattern frequency</label>
+        <input type="range" id="dripFreq" min="0" max="0.5" step="0.05" value="0.10" oninput="syncSlider('dripFreq','dripFreqVal',v=>Math.round(v*100)+'%')">
+        <div class="slider-val" id="dripFreqVal">10%</div>
+      </div>
+    </div>
+    <p style="font-size:.68rem;color:var(--body);line-height:1.7">Chaos level injects random violations (scope creep, over-limit, bad payment method, unauthorized HNP). Drip frequency inserts coordinated sub-limit transactions designed to evade the daily cap.</p>
+  </div>
+
+  <!-- CHAIN PARENT (ART-01) -->
+  <div class="panel">
+    <div class="panel-label">Chain — paste ART-01 artifact (optional)</div>
+    <div class="chain-input-wrap">
+      <div style="flex:1">
+        <label class="field-label">ART-01 OpenChainGraph artifact JSON</label>
+        <textarea class="chain-textarea" id="parentArtifact" rows="4" placeholder='{ "ap2_version": "1.0.0", "tool_id": "art-01-ap2-mandate-chain-validator", "execution_hash": "...", ... }' oninput="onParentChange()"></textarea>
+        <div class="chain-status" id="parentStatus" style="color:var(--muted)">No parent artifact — chain_depth will be 0. Paste ART-01 output to link chains.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem">
+    <button class="run-btn" id="runBtn" onclick="runSimulation()">▶ Run Simulation</button>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+      <span class="progress-text" id="progressText">0 / 0</span>
+    </div>
+    <span id="runStatus" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)"></span>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+
+    <!-- VERDICT -->
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Policy assessment</span></div>
+      <div class="out-body">
+        <div id="verdictCard"></div>
+        <div class="scorecard" id="scorecard"></div>
+        <div id="breakdownSection"></div>
+      </div>
+    </div>
+
+    <!-- BYPASS PATHS -->
+    <div class="out-section" id="bypassSection">
+      <div class="out-header"><span class="out-title">Policy-bypass paths detected</span></div>
+      <div class="out-body">
+        <p style="font-size:.7rem;color:var(--body);margin-bottom:.75rem;line-height:1.7">Drip patterns: sequences of individually-compliant transactions that cumulatively violate the daily limit within the same calendar day. Each path entry shows the sequence length, total cumulative spend, and the transaction IDs involved.</p>
+        <div class="bypass-list" id="bypassList"></div>
+      </div>
+    </div>
+
+    <!-- TX TABLE -->
+    <div class="out-section">
+      <div class="out-header">
+        <span class="out-title">Transaction log (<span id="txCountLabel">0</span>)</span>
+        <div class="filter-row" style="margin-bottom:0">
+          <button class="filter-btn active" onclick="filterTx('all',this)">All</button>
+          <button class="filter-btn" onclick="filterTx('PASS',this)">Pass</button>
+          <button class="filter-btn" onclick="filterTx('SCOPE_CREEP',this)">Scope creep</button>
+          <button class="filter-btn" onclick="filterTx('LIMIT',this)">Limit violations</button>
+          <button class="filter-btn" onclick="filterTx('HNP',this)">HNP flags</button>
+          <button class="filter-btn" onclick="filterTx('BYPASS',this)">Bypass</button>
+        </div>
+      </div>
+      <div class="out-body" style="padding:0">
+        <div class="tx-table-wrap">
+          <table class="tx-table" id="txTable">
+            <thead><tr>
+              <th>#</th><th>Status</th><th>Amount</th><th>Merchant</th><th>Category</th><th>Method</th><th>HNP</th><th>Day</th><th>Violation</th>
+            </tr></thead>
+            <tbody id="txTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="results-export-row">
+      <button class="btn btn-ghost" id="ap2ExportBtn" disabled onclick="exportAP2()">
+        {} Export OpenChainGraph Artifact
+        <span class="btn-subtitle">AP2 · payment_policy · chain-anchored</span>
+      </button>
+      <button class="btn btn-ghost" id="signArtifactBtn" onclick="signArtifact()" disabled>⬇ Sign artifact (Ed25519 · §16)</button>
+      <button class="btn btn-ghost" id="verifySigBtn" onclick="verifySignature()">🔏 Verify signature (§16)</button>
+      <button class="btn btn-ghost" id="csvExportBtn" disabled onclick="exportCSV()">
+        &#x21E9; Export Transaction Log
+        <span class="btn-subtitle">Full simulation log as CSV</span>
+      </button>
+    </div>
+
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()" style="margin-top:2rem" aria-expanded="false" aria-controls="mfstBody">
+    <span>&#x7B;&#x7D; MCP Manifest — ART-02</span>
+    <span id="mfstArrow">&#x25BC;</span>
+  </button>
+  <div class="mfst-body" id="mfstBody" aria-hidden="true">
+    <pre class="mfst-code" id="mfstCode"></pre>
+  </div>
+
+</div></div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-02-agent-spend-policy-simulator.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `simulate_spend_policy`. Task: Simulate N synthetic agent transactions against a spend policy definition.
+Call it with arguments: {"policy_parameters":{}}
+Verify before trusting: this node computes in your browser, so the MCP endpoint returns no execution_hash. Run the tool in the page, export the Policy Mandate artifact it produces, and call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with that artifact.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-02-agent-spend-policy-simulator.html#p=v1.H4sIAAAAAAAA_wECAP3_e31Dv6ajAgAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────────
+   MANIFEST
+   ───────────────────────────────────────────────────────────────── */
+const MANIFEST = {
+  tool_id: 'art-02-agent-spend-policy-simulator',
+  version: '1.0.0',
+  title: 'Agent Spend-Policy Simulator',
+  description: 'Simulates synthetic AP2 v0.2 agent transactions against a spend policy. Detects scope creep, per-tx/daily/monthly violations, drip-pattern bypass, unauthorized HNP flows.',
+  category: 'chaingraph',
+  mcp_tool_definition: {
+    name: 'simulate_spend_policy',
+    description: 'Simulates N synthetic agent transactions against a spend policy definition. Returns violation counts, scope-creep ratio, bypass-path detection, HNP authorization gaps, and full transaction-level log.',
+    inputSchema: { type:'object', required:['policy'] }
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   TAG INPUT STATE
+   ───────────────────────────────────────────────────────────────── */
+const _tags = { merchants:[], categories:[], methods:[] };
+
+function handleTagKey(e, key) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,$/, '');
+    if (val) addTag(key, val);
+    e.target.value = '';
+  } else if (e.key === 'Backspace' && !e.target.value && _tags[key].length) {
+    removeTag(key, _tags[key].length - 1);
+  }
+}
+
+function addTag(key, val) {
+  if (_tags[key].includes(val)) return;
+  _tags[key].push(val);
+  renderTags(key);
+}
+
+function removeTag(key, idx) {
+  _tags[key].splice(idx, 1);
+  renderTags(key);
+}
+
+function renderTags(key) {
+  const wrapId = { merchants:'merchantTagWrap', categories:'categoryTagWrap', methods:'methodTagWrap' }[key];
+  const inputId = { merchants:'merchantTagInput', categories:'categoryTagInput', methods:'methodTagInput' }[key];
+  const wrap = document.getElementById(wrapId);
+  const existing = wrap.querySelectorAll('.tag');
+  existing.forEach(t => t.remove());
+  const input = document.getElementById(inputId);
+  _tags[key].forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'tag';
+    div.innerHTML = `${esc(t)}<span class="tag-x" onclick="removeTag('${key}',${i})" title="Remove">×</span>`;
+    wrap.insertBefore(div, input);
+  });
+}
+
+function setTags(key, arr) {
+  _tags[key] = [...arr];
+  renderTags(key);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   PRESETS
+   ───────────────────────────────────────────────────────────────── */
+const PRESETS = {
+  saas: {
+    merchants: ['aws','gcp','azure','github','datadog','pagerduty','slack','notion','figma','vercel'],
+    categories: ['7372','7374','7371'],
+    methods: ['card_on_file'],
+    maxPerTx: 2000, maxDaily: 8000, maxMonthly: 40000,
+    currency: 'USD', hnpAllowed: true, hnpAutoApprove: 500, hnpMaxPerTx: 1000
+  },
+  travel: {
+    merchants: ['airlines-corp','hotel-chain','rental-co','uber','lyft','expensify'],
+    categories: ['4511','7011','7512','4121','5812'],
+    methods: ['card_on_file','bank_transfer'],
+    maxPerTx: 3000, maxDaily: 6000, maxMonthly: 25000,
+    currency: 'USD', hnpAllowed: false, hnpAutoApprove: 0, hnpMaxPerTx: 0
+  },
+  ecommerce: {
+    merchants: ['amazon','shopify-store','merchant-acme','wholesale-direct'],
+    categories: ['5411','5912','5942','5999'],
+    methods: ['card_on_file','paypal','bank_transfer'],
+    maxPerTx: 500, maxDaily: 2000, maxMonthly: 10000,
+    currency: 'USD', hnpAllowed: true, hnpAutoApprove: 100, hnpMaxPerTx: 250
+  },
+  tight_hnp: {
+    merchants: ['cloud-provider','saas-tool'],
+    categories: ['7372'],
+    methods: ['card_on_file'],
+    maxPerTx: 200, maxDaily: 500, maxMonthly: 3000,
+    currency: 'USD', hnpAllowed: true, hnpAutoApprove: 50, hnpMaxPerTx: 150
+  }
+};
+
+function loadPreset(key) {
+  const p = PRESETS[key];
+  setTags('merchants', p.merchants);
+  setTags('categories', p.categories);
+  setTags('methods', p.methods);
+  document.getElementById('maxPerTx').value     = p.maxPerTx;
+  document.getElementById('maxDaily').value     = p.maxDaily;
+  document.getElementById('maxMonthly').value   = p.maxMonthly;
+  document.getElementById('policyCurrency').value= p.currency;
+  document.getElementById('hnpAllowed').checked = p.hnpAllowed;
+  document.getElementById('hnpAutoApprove').value= p.hnpAutoApprove;
+  document.getElementById('hnpMaxPerTx').value  = p.hnpMaxPerTx;
+  showToast(`Preset "${key}" loaded`);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   SLIDER SYNC
+   ───────────────────────────────────────────────────────────────── */
+function syncSlider(inputId, valId, fmt) {
+  const v = parseFloat(document.getElementById(inputId).value);
+  document.getElementById(valId).textContent = fmt ? fmt(v) : v;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   CHAIN PARENT
+   ───────────────────────────────────────────────────────────────── */
+let _parentArtifact = null;
+
+function onParentChange() {
+  const raw = document.getElementById('parentArtifact').value.trim();
+  const el  = document.getElementById('parentStatus');
+  if (!raw) { _parentArtifact = null; el.style.color='var(--muted)'; el.textContent='No parent artifact — chain_depth will be 0.'; return; }
+  try {
+    const obj = JSON.parse(raw);
+    if (obj.tool_id && obj.execution_hash) {
+      _parentArtifact = obj;
+      el.style.color = 'var(--teal)';
+      el.textContent = `✓ ART-01 artifact accepted — depth ${(obj.chain?.chain_depth||0)+1}, hash ${obj.execution_hash.slice(0,12)}…`;
+    } else {
+      throw new Error('Missing tool_id or execution_hash');
+    }
+  } catch(e) {
+    _parentArtifact = null;
+    el.style.color = 'var(--red)';
+    el.textContent = `✗ ${e.message.slice(0,80)}`;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   SIMULATION ENGINE
+   ───────────────────────────────────────────────────────────────── */
+const MERCHANT_POOL   = ['amazon','aws','gcp','azure','github','datadog','pagerduty','slack','notion','figma','vercel','uber','lyft','shopify-store','merchant-acme','hotel-chain','airlines-corp','rental-co','evil-vendor','unknown-merchant'];
+const CATEGORY_POOL   = ['7372','7374','7371','5411','5812','4511','7011','5999','9999','0001'];
+const METHOD_POOL     = ['card_on_file','bank_transfer','paypal','wire_transfer','crypto'];
+
+// Simple deterministic PRNG (mulberry32)
+function makePRNG(seed) {
+  let s = seed >>> 0;
+  return () => { s += 0x6D2B79F5; let t = Math.imul(s ^ s>>>15, 1|s); t ^= t + Math.imul(t ^ t>>>7, 61|t); return ((t ^ t>>>14) >>> 0) / 4294967296; };
+}
+
+let _allTxns = [];
+let _filteredTxns = [];
+let _simResult = null;
+let _artifact  = null;
+
+async function runSimulation() {
+  const policy = buildPolicy();
+  const simCount  = parseInt(document.getElementById('simCount').value, 10);
+  const hnpRatio  = parseFloat(document.getElementById('hnpRatio').value);
+  const chaos     = parseFloat(document.getElementById('chaosLevel').value);
+  const dripFreq  = parseFloat(document.getElementById('dripFreq').value);
+
+  document.getElementById('runBtn').disabled = true;
+  const progressWrap = document.getElementById('progressWrap');
+  const progressBar  = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  progressWrap.classList.add('visible');
+  progressBar.style.width = '0%';
+  progressText.textContent = `0 / ${simCount}`;
+
+  const CHUNK = 200;
+  const prng  = makePRNG(Date.now() & 0xFFFFFFFF);
+  const txns  = [];
+
+  // Simulate with chunk-yielding for large runs
+  let i = 0;
+  while (i < simCount) {
+    const end = Math.min(i + CHUNK, simCount);
+    for (let j = i; j < end; j++) {
+      txns.push(generateTx(j, prng, policy, hnpRatio, chaos, dripFreq, simCount));
+    }
+    i = end;
+    const pct = Math.round((i / simCount) * 100);
+    progressBar.style.width = pct + '%';
+    progressText.textContent = `${i} / ${simCount}`;
+    if (i < simCount) await yieldTick();
+  }
+
+  // Validate all transactions
+  const dailySpend   = {};  // key: 'agentId:dayNum'
+  const monthlySpend = {};  // key: 'agentId:month'
+  const validated    = [];
+
+  for (const tx of txns) {
+    const dayKey   = `${tx.agent_id}:${tx.day}`;
+    const monthKey = `${tx.agent_id}:${tx.month}`;
+    dailySpend[dayKey]   = (dailySpend[dayKey]   || 0) + tx.amount;
+    monthlySpend[monthKey]= (monthlySpend[monthKey]|| 0) + tx.amount;
+
+    const violations = [];
+    const checks = validateTx(tx, policy, dailySpend[dayKey], monthlySpend[monthKey]);
+    if (checks.length) violations.push(...checks);
+    validated.push({ ...tx, violations, status: violations.length ? 'FAIL' : 'PASS' });
+  }
+
+  // Detect drip/bypass paths
+  const bypassPaths = detectBypassPaths(validated, policy);
+
+  // Mark bypass participants
+  const bypassTxIds = new Set(bypassPaths.flatMap(p => p.tx_ids));
+  validated.forEach(tx => {
+    if (bypassTxIds.has(tx.id) && tx.status === 'PASS') {
+      tx.violations.push('BYPASS_PATTERN');
+      tx.status = 'BYPASS';
+    }
+  });
+
+  // Counts
+  const passCount  = validated.filter(t => t.status === 'PASS').length;
+  const failCount  = validated.filter(t => t.status === 'FAIL').length;
+  const bypassCount= validated.filter(t => t.status === 'BYPASS').length;
+  const scopeCreepCount   = validated.filter(t => t.violations.includes('SCOPE_CREEP_MERCHANT') || t.violations.includes('SCOPE_CREEP_CATEGORY')).length;
+  const limitViolCount    = validated.filter(t => t.violations.some(v => v.startsWith('LIMIT_'))).length;
+  const hnpViolCount      = validated.filter(t => t.violations.some(v => v.startsWith('HNP_'))).length;
+  const methodViolCount   = validated.filter(t => t.violations.includes('BAD_PAYMENT_METHOD')).length;
+
+  _allTxns = validated;
+  _filteredTxns = [...validated];
+  _simResult = { simCount, passCount, failCount, bypassCount, scopeCreepCount, limitViolCount, hnpViolCount, methodViolCount, bypassPaths, policy };
+
+  // Build AP2 artifact
+  const policyParams = { policy_version:'1.0', sim_count:simCount, hnp_ratio:hnpRatio, chaos_level:chaos, drip_frequency:dripFreq };
+  const outputPayload = {
+    simulation_summary: {
+      total_transactions: simCount,
+      pass: passCount,
+      fail: failCount,
+      bypass: bypassCount,
+      pass_rate_pct: +(passCount/simCount*100).toFixed(2),
+      violation_breakdown: { scope_creep:scopeCreepCount, limit:limitViolCount, hnp:hnpViolCount, method:methodViolCount }
+    },
+    bypass_paths_detected: bypassPaths.length,
+    policy_risk_assessment: policyRiskVerdict(_simResult),
+    compliance_flags: buildComplianceFlags(_simResult)
+  };
+  const hash = await sha256({ policy_parameters:policyParams, output_payload:outputPayload });
+
+  const parentHash  = _parentArtifact?.execution_hash || null;
+  const parentDepth = _parentArtifact?.chain?.chain_depth ?? -1;
+
+  const __generatedAtCapture = new Date().toISOString();
+  _artifact = {
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+    mandate_type: 'payment_policy',
+    tool_id: 'art-02-agent-spend-policy-simulator',
+    tool_version: '1.0.0',
+    generated_at: __generatedAtCapture,
+    execution_hash: hash,
+    chain: {
+      parent_hashes:  parentHash ? [parentHash] : [],
+      parent_tool_ids: parentHash ? ['art-01-ap2-mandate-chain-validator'] : [],
+      chain_depth: parentDepth + 1
+    },
+    policy_parameters: policyParams,
+    output_payload: outputPayload,
+    compliance_flags: outputPayload.compliance_flags,
+    audit_signature: {
+      payloadType: 'application/vnd.openchain.graph+json;version=0.2',
+      payload: '',
+      signatures: []
+    }
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+
+  progressWrap.classList.remove('visible');
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('ap2ExportBtn').disabled = false;
+  document.getElementById('ap2ExportBtn').classList.add('ready');
+  document.getElementById('csvExportBtn').disabled = false;
+  document.getElementById('csvExportBtn').classList.add('ready');
+
+  renderResults(_simResult);
+  renderTxTable(_filteredTxns);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   POLICY BUILDER
+   ───────────────────────────────────────────────────────────────── */
+function buildPolicy() {
+  return {
+    allowed_merchants:   [..._tags.merchants],
+    allowed_categories:  [..._tags.categories],
+    allowed_methods:     [..._tags.methods],
+    currency:            document.getElementById('policyCurrency').value.trim().toUpperCase() || 'USD',
+    max_per_tx:          parseFloat(document.getElementById('maxPerTx').value) || 500,
+    max_daily:           parseFloat(document.getElementById('maxDaily').value) || 0,
+    max_monthly:         parseFloat(document.getElementById('maxMonthly').value) || 0,
+    hnp_allowed:         document.getElementById('hnpAllowed').checked,
+    hnp_auto_approve_below: parseFloat(document.getElementById('hnpAutoApprove').value) || 0,
+    hnp_max_per_tx:      parseFloat(document.getElementById('hnpMaxPerTx').value) || 0
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TX GENERATOR
+   ───────────────────────────────────────────────────────────────── */
+function generateTx(idx, rng, policy, hnpRatio, chaos, dripFreq, total) {
+  const isHnp    = rng() < hnpRatio;
+  const isChaos  = rng() < chaos;
+  const isDrip   = rng() < dripFreq;
+  const day      = Math.floor(idx / Math.max(1, total/30)) + 1;  // spread over 30 days
+  const month    = Math.ceil(day / 30);
+  const agentId  = `agent-${String(Math.floor(rng()*5+1)).padStart(2,'0')}`;
+
+  let merchant, category, method, amount;
+
+  if (isDrip && policy.max_daily > 0) {
+    /* Drip: individually within per-tx limit but builds to exceed daily */
+    amount   = +(policy.max_per_tx * (0.3 + rng()*0.3)).toFixed(2);
+    merchant = policy.allowed_merchants.length
+      ? policy.allowed_merchants[Math.floor(rng()*policy.allowed_merchants.length)]
+      : MERCHANT_POOL[Math.floor(rng()*6)];
+    category = policy.allowed_categories.length
+      ? policy.allowed_categories[Math.floor(rng()*policy.allowed_categories.length)]
+      : CATEGORY_POOL[Math.floor(rng()*6)];
+    method   = policy.allowed_methods.length
+      ? policy.allowed_methods[Math.floor(rng()*policy.allowed_methods.length)]
+      : METHOD_POOL[0];
+  } else if (isChaos) {
+    /* Chaos: might be out-of-scope merchant, wrong category, bad method, over-limit */
+    const violType = Math.floor(rng()*5);
+    amount   = violType === 3
+      ? +(policy.max_per_tx * (1.1 + rng()*0.9)).toFixed(2)
+      : +(policy.max_per_tx * rng() * 0.9).toFixed(2);
+    merchant = violType === 0
+      ? MERCHANT_POOL[15 + Math.floor(rng()*5)]  /* unauthorized merchants at end of pool */
+      : (policy.allowed_merchants.length ? policy.allowed_merchants[Math.floor(rng()*policy.allowed_merchants.length)] : MERCHANT_POOL[Math.floor(rng()*6)]);
+    category = violType === 1
+      ? CATEGORY_POOL[7 + Math.floor(rng()*3)]   /* unauthorized categories */
+      : (policy.allowed_categories.length ? policy.allowed_categories[Math.floor(rng()*policy.allowed_categories.length)] : CATEGORY_POOL[Math.floor(rng()*6)]);
+    method   = violType === 4
+      ? METHOD_POOL[3 + Math.floor(rng()*2)]     /* wire/crypto */
+      : (policy.allowed_methods.length ? policy.allowed_methods[Math.floor(rng()*policy.allowed_methods.length)] : METHOD_POOL[0]);
+  } else {
+    /* Normal: compliant transaction */
+    amount   = +(policy.max_per_tx * rng() * 0.85 + 5).toFixed(2);
+    merchant = policy.allowed_merchants.length
+      ? policy.allowed_merchants[Math.floor(rng()*policy.allowed_merchants.length)]
+      : MERCHANT_POOL[Math.floor(rng()*6)];
+    category = policy.allowed_categories.length
+      ? policy.allowed_categories[Math.floor(rng()*policy.allowed_categories.length)]
+      : CATEGORY_POOL[Math.floor(rng()*6)];
+    method   = policy.allowed_methods.length
+      ? policy.allowed_methods[Math.floor(rng()*policy.allowed_methods.length)]
+      : METHOD_POOL[0];
+  }
+
+  return { id:`tx-${String(idx+1).padStart(5,'0')}`, agent_id:agentId, day, month, amount, merchant, category, payment_method:method, human_not_present:isHnp, is_drip:isDrip };
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TX VALIDATOR
+   ───────────────────────────────────────────────────────────────── */
+function validateTx(tx, policy, dailyCumulative, monthlyCumulative) {
+  const v = [];
+  if (policy.allowed_merchants.length && !policy.allowed_merchants.includes(tx.merchant))
+    v.push('SCOPE_CREEP_MERCHANT');
+  if (policy.allowed_categories.length && !policy.allowed_categories.includes(tx.category))
+    v.push('SCOPE_CREEP_CATEGORY');
+  if (policy.allowed_methods.length && !policy.allowed_methods.includes(tx.payment_method))
+    v.push('BAD_PAYMENT_METHOD');
+  if (tx.amount > policy.max_per_tx)
+    v.push('LIMIT_PER_TX');
+  if (policy.max_daily > 0 && dailyCumulative > policy.max_daily)
+    v.push('LIMIT_DAILY');
+  if (policy.max_monthly > 0 && monthlyCumulative > policy.max_monthly)
+    v.push('LIMIT_MONTHLY');
+  if (tx.human_not_present && !policy.hnp_allowed)
+    v.push('HNP_NOT_AUTHORIZED');
+  if (tx.human_not_present && policy.hnp_allowed && policy.hnp_max_per_tx > 0 && tx.amount > policy.hnp_max_per_tx)
+    v.push('HNP_OVER_MAX_PER_TX');
+  return v;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   BYPASS PATH DETECTION
+   ───────────────────────────────────────────────────────────────── */
+function detectBypassPaths(txns, policy) {
+  if (!policy.max_daily || policy.max_daily <= 0) return [];
+  const paths = [];
+  const byDay  = {};
+  txns.forEach(tx => {
+    if (tx.status !== 'FAIL') {  // only "passing" txns are interesting for bypass
+      const k = `${tx.agent_id}:${tx.day}`;
+      (byDay[k] = byDay[k] || []).push(tx);
+    }
+  });
+  Object.entries(byDay).forEach(([key, group]) => {
+    const cum = group.reduce((s,t) => s+t.amount, 0);
+    if (cum > policy.max_daily && group.length >= 2) {
+      const [agentId, day] = key.split(':');
+      paths.push({
+        path_id: `BYP-${agentId}-D${day}`,
+        agent_id: agentId,
+        day: parseInt(day,10),
+        tx_count: group.length,
+        cumulative_spend: +cum.toFixed(2),
+        daily_limit: policy.max_daily,
+        overage: +(cum - policy.max_daily).toFixed(2),
+        tx_ids: group.map(t=>t.id)
+      });
+    }
+  });
+  return paths;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   VERDICT HELPERS
+   ───────────────────────────────────────────────────────────────── */
+function policyRiskVerdict(r) {
+  const vRate = (r.failCount + r.bypassCount) / r.simCount;
+  if (vRate > 0.25 || r.bypassPaths.length > 5) return 'HIGH_RISK';
+  if (vRate > 0.10 || r.bypassPaths.length > 0) return 'MEDIUM_RISK';
+  return 'LOW_RISK';
+}
+
+function buildComplianceFlags(r) {
+  const f = [];
+  const v = policyRiskVerdict(r);
+  f.push(`SPEND_POLICY_${v}`);
+  if (r.scopeCreepCount > 0)  f.push('SCOPE_CREEP_DETECTED');
+  if (r.bypassPaths.length > 0) f.push('BYPASS_PATTERN_DETECTED');
+  if (r.hnpViolCount > 0)     f.push('HNP_VIOLATION_DETECTED');
+  return f;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RENDER
+   ───────────────────────────────────────────────────────────────── */
+function renderResults(r) {
+  document.getElementById('resultsPanel').classList.add('visible');
+  const verdict = policyRiskVerdict(r);
+  const vMeta = {
+    LOW_RISK:    {cls:'clean',icon:'✅',label:'Policy Holding',    title:'Spend policy is well-enforced',        sub:`${(r.passCount/r.simCount*100).toFixed(1)}% of simulated transactions pass cleanly. No significant violation patterns detected.`},
+    MEDIUM_RISK: {cls:'warn', icon:'⚠️', label:'Policy Gaps Detected', title:'Spend policy requires review',     sub:`${r.bypassPaths.length} bypass path(s) and ${r.scopeCreepCount} scope-creep transaction(s) detected. Review daily limits and merchant allowlist.`},
+    HIGH_RISK:   {cls:'risk', icon:'🚫',label:'Policy At Risk',    title:'Significant spend-policy vulnerabilities', sub:`High violation rate (${((r.failCount+r.bypassCount)/r.simCount*100).toFixed(1)}%) and/or widespread bypass patterns detected. Immediate policy tightening recommended.`}
+  }[verdict];
+
+  document.getElementById('verdictCard').innerHTML = `<div class="verdict-card ${vMeta.cls}">
+    <div class="verdict-icon">${vMeta.icon}</div>
+    <div>
+      <div class="verdict-label ${vMeta.cls}">${vMeta.label}</div>
+      <div class="verdict-title">${vMeta.title}</div>
+      <div class="verdict-sub">${vMeta.sub}</div>
+    </div>
+  </div>`;
+
+  const passRate = (r.passCount/r.simCount*100).toFixed(1);
+  document.getElementById('scorecard').innerHTML = [
+    {val:`${passRate}%`,label:'Pass rate',sub:`${r.passCount} clean`,color:'var(--green)'},
+    {val:r.failCount,label:'Violations',sub:`${r.scopeCreepCount} scope creep`,color:'var(--red)'},
+    {val:r.bypassCount,label:'Bypass txns',sub:`${r.bypassPaths.length} paths`,color:'var(--warn)'},
+    {val:r.hnpViolCount,label:'HNP flags',sub:`unauthorized/overlimit`,color:'var(--purple)'}
+  ].map(c=>`<div class="score-card">
+    <div class="score-val" style="color:${c.color}">${c.val}</div>
+    <div class="score-label">${c.label}</div>
+    <div class="score-sub">${c.sub}</div>
+  </div>`).join('');
+
+  const total = r.simCount;
+  const bars = [
+    {label:'Scope creep — merchant',count:_allTxns.filter(t=>t.violations.includes('SCOPE_CREEP_MERCHANT')).length,color:'var(--red)'},
+    {label:'Scope creep — category',count:_allTxns.filter(t=>t.violations.includes('SCOPE_CREEP_CATEGORY')).length,color:'var(--red)'},
+    {label:'Per-tx over-limit',     count:_allTxns.filter(t=>t.violations.includes('LIMIT_PER_TX')).length,color:'var(--warn)'},
+    {label:'Daily limit exceeded',  count:_allTxns.filter(t=>t.violations.includes('LIMIT_DAILY')).length,color:'var(--warn)'},
+    {label:'Monthly limit exceeded',count:_allTxns.filter(t=>t.violations.includes('LIMIT_MONTHLY')).length,color:'var(--gold)'},
+    {label:'Bad payment method',    count:r.methodViolCount,color:'var(--body)'},
+    {label:'HNP not authorized',    count:_allTxns.filter(t=>t.violations.includes('HNP_NOT_AUTHORIZED')).length,color:'var(--purple)'},
+    {label:'HNP over per-tx cap',   count:_allTxns.filter(t=>t.violations.includes('HNP_OVER_MAX_PER_TX')).length,color:'var(--purple)'},
+    {label:'Drip bypass pattern',   count:r.bypassCount,color:'var(--teal)'}
+  ];
+  document.getElementById('breakdownSection').innerHTML = `
+    <div class="panel-label" style="margin-top:1rem">Violation breakdown</div>
+    <div class="breakdown-bars">${bars.map(b=>`<div class="bbar-row">
+      <div class="bbar-label">${b.label}</div>
+      <div class="bbar-outer"><div class="bbar-inner" style="width:${(b.count/total*100).toFixed(1)}%;background:${b.color}"></div></div>
+      <div class="bbar-count">${b.count}</div>
+    </div>`).join('')}</div>`;
+
+  /* Bypass paths */
+  const bypassSection = document.getElementById('bypassSection');
+  if (r.bypassPaths.length === 0) {
+    bypassSection.querySelector('.out-body').innerHTML = `<p style="font-size:.72rem;color:var(--body)">No drip-pattern bypass paths detected in this simulation run. Try increasing the drip-pattern frequency slider and re-running.</p>`;
+  } else {
+    document.getElementById('bypassList').innerHTML = `${r.bypassPaths.slice(0,20).map(p=>`<div class="bypass-item">
+      <div class="bypass-item-header">
+        <span class="bypass-item-id">${esc(p.path_id)}</span>
+        <span class="bypass-item-type">drip pattern · day ${p.day}</span>
+      </div>
+      <div class="bypass-item-desc">Agent <strong>${esc(p.agent_id)}</strong> — ${p.tx_count} individually-compliant transactions totalling $${p.cumulative_spend.toFixed(2)} (daily limit: $${p.daily_limit.toFixed(2)}, overage: $${p.overage.toFixed(2)}). Transaction IDs: ${p.tx_ids.slice(0,5).join(', ')}${p.tx_ids.length>5?` + ${p.tx_ids.length-5} more`:''}</div>
+    </div>`).join('')}
+    ${r.bypassPaths.length > 20 ? `<p style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted);margin-top:.5rem">… ${r.bypassPaths.length-20} more bypass paths — export CSV for full list.</p>` : ''}`;
+  }
+
+  document.getElementById('txCountLabel').textContent = _allTxns.length.toLocaleString();
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   TX TABLE
+   ───────────────────────────────────────────────────────────────── */
+function renderTxTable(txns) {
+  const MAX_ROWS = 500;
+  const body = document.getElementById('txTbody');
+  const rows = txns.slice(0, MAX_ROWS);
+  const statusColor = {PASS:'var(--green)',FAIL:'var(--red)',BYPASS:'var(--warn)'};
+  body.innerHTML = rows.map(t=>`<tr>
+    <td style="color:var(--muted)">${t.id}</td>
+    <td style="color:${statusColor[t.status]||'var(--body)'};font-weight:500">${t.status}</td>
+    <td style="color:var(--bright)">$${t.amount.toFixed(2)}</td>
+    <td>${esc(t.merchant)}</td>
+    <td>${esc(t.category)}</td>
+    <td>${esc(t.payment_method)}</td>
+    <td style="color:${t.human_not_present?'var(--purple)':'var(--muted)'}">${t.human_not_present?'HNP':'–'}</td>
+    <td>D${t.day}</td>
+    <td style="font-size:.46rem;color:${t.violations.length?'var(--red)':'var(--muted)'}">${t.violations.join(' ')||'–'}</td>
+  </tr>`).join('');
+  if (txns.length > MAX_ROWS) {
+    body.innerHTML += `<tr><td colspan="9" style="font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted);padding:.75rem 1rem">Showing first ${MAX_ROWS} of ${txns.length.toLocaleString()} — export CSV for full log.</td></tr>`;
+  }
+}
+
+function filterTx(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if (type === 'all') {
+    _filteredTxns = [..._allTxns];
+  } else if (type === 'PASS') {
+    _filteredTxns = _allTxns.filter(t=>t.status==='PASS');
+  } else if (type === 'SCOPE_CREEP') {
+    _filteredTxns = _allTxns.filter(t=>t.violations.some(v=>v.startsWith('SCOPE_CREEP')));
+  } else if (type === 'LIMIT') {
+    _filteredTxns = _allTxns.filter(t=>t.violations.some(v=>v.startsWith('LIMIT_')));
+  } else if (type === 'HNP') {
+    _filteredTxns = _allTxns.filter(t=>t.violations.some(v=>v.startsWith('HNP_')));
+  } else if (type === 'BYPASS') {
+    _filteredTxns = _allTxns.filter(t=>t.status==='BYPASS');
+  }
+  document.getElementById('txCountLabel').textContent = _filteredTxns.length.toLocaleString();
+  renderTxTable(_filteredTxns);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   EXPORTS
+   ───────────────────────────────────────────────────────────────── */
+function exportAP2() {
+  if (!_artifact) return;
+  const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+  dl(JSON.stringify(_artifact,null,2), `art-02_${ts}.policy.json`, 'application/json');
+  showToast('OpenChainGraph artifact exported');
+}
+
+function exportCSV() {
+  if (!_allTxns.length) return;
+  const hdr = 'id,agent_id,day,month,amount,merchant,category,payment_method,human_not_present,is_drip,status,violations\n';
+  const rows = _allTxns.map(t=>[
+    t.id, t.agent_id, t.day, t.month, t.amount,
+    `"${t.merchant}"`, `"${t.category}"`, `"${t.payment_method}"`,
+    t.human_not_present, t.is_drip, t.status,
+    `"${t.violations.join('|')}"`
+  ].join(','));
+  const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+  dl(hdr + rows.join('\n'), `art-02_txlog_${ts}.csv`, 'text/csv');
+  showToast('Transaction log exported');
+}
+
+function dl(content, filename, type) {
+  const blob = new Blob([content],{type});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:filename});
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   UTILS
+   ───────────────────────────────────────────────────────────────── */
+function yieldTick() { return new Promise(r => setTimeout(r, 0)); }
+
+async function sha256(obj) {
+  const canonical = __ocgCanonStr(obj);
+  const buf = new TextEncoder().encode(canonical);
+  const hb  = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hb)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function toggleMfst(){
+  const body=document.getElementById('mfstBody'),arrow=document.getElementById('mfstArrow'),btn=document.querySelector('.mfst-btn');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';arrow.textContent=open?'▼':'▲';
+  btn.setAttribute('aria-expanded',String(!open));body.setAttribute('aria-hidden',String(open));
+  if(!open&&!document.getElementById('mfstCode').textContent)
+    document.getElementById('mfstCode').textContent=JSON.stringify(MANIFEST,null,2);
+}
+
+/* Init sliders */
+['simCount','hnpRatio','chaosLevel','dripFreq'].forEach(id => {
+  const el = document.getElementById(id);
+  el.dispatchEvent(new Event('input'));
+});
+</script>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (nodes) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_nodes.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('✗ no §16 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}
+  catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var ids=['ap2ExportBtn','ap2Btn','exportBtn'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(!el)continue;
+    var obs=new MutationObserver(function(){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    });
+    obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+    break;
+  }
+})();
+</script>
+<script>window.AIN_BRIDGE_CFG={runFn:'runSimulation',intake:false,intakeTarget:null,intakeAnchor:null};</script>
+<script>
+(function(){
+'use strict';
+var CFG=window.AIN_BRIDGE_CFG||{};
+var L={
+ en:{pf:'Inputs prefilled from link — review, then Run',ran:'Inputs prefilled from link and executed',fields:'fields',it:'Import Policy Mandate (.policy.json)',drop:'Drop a .policy.json here, or',choose:'Choose file',paste:'Paste JSON',apply:'Apply',ok:'Policy Mandate imported from',bad:'Not a valid AINumbers Policy Mandate JSON'},
+ es:{pf:'Campos precargados desde el enlace — revise y ejecute',ran:'Campos precargados desde el enlace y ejecutados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Suelte un .policy.json aquí, o',choose:'Elegir archivo',paste:'Pegar JSON',apply:'Aplicar',ok:'Policy Mandate importado desde',bad:'JSON de Policy Mandate no válido'},
+ fr:{pf:'Champs préremplis depuis le lien — vérifiez puis exécutez',ran:'Champs préremplis depuis le lien et exécutés',fields:'champs',it:'Importer un Policy Mandate (.policy.json)',drop:'Déposez un .policy.json ici, ou',choose:'Choisir un fichier',paste:'Coller le JSON',apply:'Appliquer',ok:'Policy Mandate importé depuis',bad:'JSON Policy Mandate non valide'},
+ ar:{pf:'تم ملء الحقول مسبقًا من الرابط — راجع ثم شغّل',ran:'تم ملء الحقول من الرابط وتنفيذها',fields:'حقول',it:'استيراد Policy Mandate (.policy.json)',drop:'أسقط ملف ‎.policy.json هنا، أو',choose:'اختر ملفًا',paste:'لصق JSON',apply:'تطبيق',ok:'تم استيراد Policy Mandate من',bad:'JSON غير صالح لـ Policy Mandate'},
+ pt:{pf:'Campos pré-preenchidos a partir do link — revise e execute',ran:'Campos pré-preenchidos a partir do link e executados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Solte um .policy.json aqui, ou',choose:'Escolher arquivo',paste:'Colar JSON',apply:'Aplicar',ok:'Policy Mandate importado de',bad:'JSON de Policy Mandate inválido'},
+ zh:{pf:'已从链接预填输入 — 请检查后运行',ran:'已从链接预填并自动执行',fields:'个字段',it:'导入 Policy Mandate (.policy.json)',drop:'将 .policy.json 拖放到此处，或',choose:'选择文件',paste:'粘贴 JSON',apply:'应用',ok:'已导入 Policy Mandate，来源：',bad:'无效的 AINumbers Policy Mandate JSON'}
+};
+function t(k){return (L.en&&L.en[k])||k;}
+function b64uDec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(Array.prototype.map.call(atob(s),function(c){return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2);}).join(''));}
+function b64uEnc(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function applyFields(fields){
+  var n=0;if(!fields||typeof fields!=='object')return 0;
+  Object.keys(fields).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var tag=el.tagName;if(tag!=='INPUT'&&tag!=='SELECT'&&tag!=='TEXTAREA')return;
+    var v=fields[id];
+    if(el.type==='checkbox'||el.type==='radio'){el.checked=!!v;}
+    else{el.value=(v!==null&&typeof v==='object')?JSON.stringify(v,null,2):String(v);}
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+    n++;
+  });
+  return n;
+}
+function runTool(){if(!CFG.runFn)return false;var f=window[CFG.runFn];if(typeof f==='function'){try{f();return true;}catch(e){return false;}}return false;}
+function anchorEl(){return (CFG.intakeAnchor&&document.querySelector(CFG.intakeAnchor))||document.querySelector('.pii-notice')||document.querySelector('.panel')||document.body.firstElementChild;}
+function notice(msg,kind){
+  var d=document.getElementById('ainBridgeNotice');
+  if(!d){d=document.createElement('div');d.id='ainBridgeNotice';
+    var a=document.getElementById('ainIntakeZone')||anchorEl();
+    if(a&&a.parentNode)a.parentNode.insertBefore(d,a);else document.body.insertBefore(d,document.body.firstChild);}
+  d.setAttribute('style','font-family:\'JetBrains Mono\',monospace;font-size:.68rem;letter-spacing:.04em;margin:0 0 1rem;padding:.55rem .8rem;border-radius:6px;border:1px solid '+(kind==='warn'?'#F59E0B':'#14B8A6')+';color:'+(kind==='warn'?'#F59E0B':'#2DD4BF')+';background:'+(kind==='warn'?'rgba(245,158,11,.08)':'rgba(20,184,166,.08)'));
+  d.textContent=msg;
+}
+function looksLikeMandate(o){return !!(o&&typeof o==='object'&&o.mandate_id&&o.tool_id&&('payload' in o));}
+function intakeApply(text){
+  var o;try{o=JSON.parse(text);}catch(e){notice('⚠ '+t('bad'),'warn');return 0;}
+  if(!looksLikeMandate(o)){notice('⚠ '+t('bad'),'warn');return 0;}
+  var n=0;
+  if(CFG.intakeTarget){var ta=document.getElementById(CFG.intakeTarget);
+    if(ta){ta.value=JSON.stringify(o,null,2);try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}n++;}}
+  if(o.payload&&typeof o.payload==='object')n+=applyFields(o.payload);
+  if(o.source_tool_inputs&&typeof o.source_tool_inputs==='object')n+=applyFields(o.source_tool_inputs);
+  notice((n>0?'📥 ':'⚠ ')+t('ok')+' '+(o.tool_id||'?')+' · '+n+' '+t('fields'),n>0?'ok':'warn');
+  return n;
+}
+function buildIntakeUI(){
+  if(!CFG.intake)return;
+  var a=anchorEl();if(!a||!a.parentNode)return;
+  var z=document.createElement('div');z.id='ainIntakeZone';
+  z.setAttribute('style','border:1px dashed #263855;border-radius:6px;padding:.7rem .9rem;margin:0 0 1.25rem;font-family:\'JetBrains Mono\',monospace;font-size:.66rem;color:#6888A8;letter-spacing:.04em');
+  var lbl=document.createElement('div');lbl.textContent='📥 '+t('it');lbl.setAttribute('style','color:#A8C4DE;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;font-size:.6rem');
+  var row=document.createElement('div');row.setAttribute('style','display:flex;gap:.6rem;align-items:center;flex-wrap:wrap');
+  var txt=document.createElement('span');txt.textContent=t('drop');
+  function mkBtn(label){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('style','background:transparent;border:1px solid #263855;color:#A8C4DE;border-radius:6px;padding:.3rem .7rem;font-family:inherit;font-size:.62rem;cursor:pointer');return b;}
+  var bFile=mkBtn(t('choose')),bPaste=mkBtn(t('paste'));
+  var fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.style.display='none';
+  fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);fi.value='';});
+  bFile.addEventListener('click',function(){fi.click();});
+  var pasteRow=document.createElement('div');pasteRow.style.display='none';pasteRow.setAttribute('style','display:none;margin-top:.6rem');
+  var ta=document.createElement('textarea');ta.rows=5;ta.spellcheck=false;ta.setAttribute('style','width:100%;background:#0D1627;border:1px solid #263855;border-radius:6px;color:#A8C4DE;font-family:inherit;font-size:.64rem;padding:.5rem');
+  var bApply=mkBtn(t('apply'));bApply.style.marginTop='.4rem';
+  bApply.addEventListener('click',function(){if(ta.value.trim()){intakeApply(ta.value);ta.value='';pasteRow.style.display='none';}});
+  pasteRow.appendChild(ta);pasteRow.appendChild(bApply);
+  bPaste.addEventListener('click',function(){pasteRow.style.display=(pasteRow.style.display==='none')?'block':'none';if(pasteRow.style.display==='block')ta.focus();});
+  z.addEventListener('dragover',function(e){e.preventDefault();z.style.borderColor='#14B8A6';});
+  z.addEventListener('dragleave',function(){z.style.borderColor='#263855';});
+  z.addEventListener('drop',function(e){e.preventDefault();z.style.borderColor='#263855';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f){var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);}});
+  row.appendChild(txt);row.appendChild(bFile);row.appendChild(bPaste);row.appendChild(fi);
+  z.appendChild(lbl);z.appendChild(row);z.appendChild(pasteRow);
+  a.parentNode.insertBefore(z,a);
+}
+function initPrefill(){
+  var h=location.hash||'';var m=h.match(/[#&]in=([A-Za-z0-9_\-]+)/);if(!m)return;
+  var obj;try{obj=JSON.parse(b64uDec(m[1]));}catch(e){return;}
+  var fields=(obj&&obj.fields&&typeof obj.fields==='object')?obj.fields:obj;
+  var n=applyFields(fields);
+  if(n>0){
+    if(/[#&]run=1/.test(h)&&runTool())notice('⚡ '+t('ran')+' ('+n+' '+t('fields')+')','ok');
+    else notice('🔗 '+t('pf')+' ('+n+' '+t('fields')+')','ok');
+  }
+}
+var HANDOFF_MAX_CHARS=2000000;
+function apSendToVerify(){
+  var m;try{m=window.AINBridge.getMandate();}catch(e){m=null;}
+  if(!m){notice('⚠ No Policy Mandate to send — run the tool first.','warn');return;}
+  var json;try{json=JSON.stringify(m);}catch(e){notice('⚠ Could not serialize the mandate: '+e.message,'warn');return;}
+  if(json.length>HANDOFF_MAX_CHARS){notice('⚠ Too large to hand off ('+json.length+' chars).','warn');return;}
+  var target=new URL('../chaingraph/verify.html',window.location.href).href;
+  var win=window.open(target,'_blank');
+  if(!win){notice('⚠ The verifier window was blocked. Allow pop-ups for this site.','warn');return;}
+  var sent=false,timer=null;
+  function onReady(ev){
+    if(ev.origin!==window.location.origin)return;
+    if(ev.source!==win)return;
+    var d=ev.data;
+    if(!d||typeof d!=='object'||d.type!=='ain-handoff-ready/v1')return;
+    if(sent)return;sent=true;
+    window.removeEventListener('message',onReady);
+    if(timer)clearTimeout(timer);
+    win.postMessage({type:'ain-handoff/v1',kind:'policy-mandate',mandate:json},window.location.origin);
+    notice('➡ Sent to the Artifact Verifier in the new tab.','ok');
+  }
+  window.addEventListener('message',onReady);
+  notice('Opening the Artifact Verifier…','ok');
+  timer=setTimeout(function(){
+    if(sent)return;
+    window.removeEventListener('message',onReady);
+    notice('⚠ The verifier did not answer. Export the mandate and paste it in.','warn');
+  },10000);
+}
+window.apSendToVerify=apSendToVerify;
+/* sessionRoot — COMPOSER-PLAN-AND-ROOT-WEBMCP-1. ONE ROUTINE LAW: the core below
+   is byte-identical to SESSION_ROOT_SOURCE in scripts/gen-webmcp-registrations.mjs
+   (emitted onto every chain composer page) and a port of the worker's
+   build_session_receipt (worker.mjs buildSessionReceiptCore). Asserted by
+   scripts/session-root-parity.test.mjs. Never re-derive the Merkle rule. */
+async function ainSessionRoot(executionHashes) {
+  if (!Array.isArray(executionHashes) || executionHashes.length === 0) throw new Error('execution_hashes must be a non-empty array.');
+  var normalize = function (h) { return String(h).replace(/^sha256:/, '').toLowerCase(); };
+  var level = executionHashes.map(normalize).map(function (h) { return 'sha256:' + h; });
+  var hashPair = async function (a, b) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalize(a) + normalize(b)));
+    return 'sha256:' + Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  };
+  while (level.length > 1) {
+    var next = [];
+    for (var i = 0; i < level.length; i += 2) {
+      var right = level[i + 1] !== undefined ? level[i + 1] : level[i]; // duplicate last leaf when odd
+      next.push(await hashPair(level[i], right));
+    }
+    level = next;
+  }
+  return level[0];
+}
+window.AINBridge={
+  version:'1.2',
+  apply:applyFields,
+  run:runTool,
+  intake:intakeApply,
+  sendToVerify:apSendToVerify,
+  sessionRoot:ainSessionRoot,
+  getMandate:function(){if(window._lastMandate)return window._lastMandate;if(typeof window.AIN_BUILD_MANDATE==='function'){try{var m=window.AIN_BUILD_MANDATE();if(m)return m;}catch(e){}}return window._currentMandate||null;},
+  makeLink:function(fields,run){return location.origin+location.pathname+'#in='+b64uEnc(JSON.stringify(fields))+(run?'&run=1':'');}
+};
+window.addEventListener('message',function(e){
+  if(window.parent===window||e.source!==window.parent)return;
+  if(e.origin&&e.origin!=='null'&&location.origin&&location.origin!=='null'&&e.origin!==location.origin)return;
+  var ro=(e.origin&&e.origin!=='null')?e.origin:'*';
+  var d=e.data||{};
+  if(d.type==='ain:prefill'){var n=applyFields(d.fields||{});e.source.postMessage({type:'ain:prefilled',applied:n,tool:location.pathname},ro);}
+  else if(d.type==='ain:run'){var ok=runTool();e.source.postMessage({type:'ain:ran',ok:ok,tool:location.pathname},ro);}
+  else if(d.type==='ain:getMandate'){e.source.postMessage({type:'ain:mandate',mandate:window.AINBridge.getMandate(),tool:location.pathname},ro);}
+});
+function boot(){buildIntakeUI();initPrefill();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</body>
+</html>

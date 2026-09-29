@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>TLS / X.509 PKI Migration Planner · ART-86 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Sequences TLS and PKI migration from RSA/ECDSA to post-quantum algorithms. Builds a phased plan (root CAs → intermediates → leaf certificates), models payload impact per NIST FIPS 203/204, and flags interoperability risks. OpenChainGraph v0.4.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Post Oak Labs">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.md">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TLS / X.509 PKI Migration Planner · ART-86 · OpenChainGraph · AINumbers.co">
+<meta property="og:description" content="PQC TLS/PKI migration planner. Phased plan root CAs → intermediates → leaves. NIST FIPS 203/204 payload model. Interop risk flags. OpenChainGraph v0.4.">
+<meta property="og:url" content="https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- ART-86 · Wave 18 · PQC. In-browser compute() stays byte-identical to kernels/art-86-tls-pki-migration-planner.kernel.mjs. -->
+<style>h1,h2{font-family:'DM Serif Display',serif;font-weight:400}</style>
+<style>
+:root{--bg:#080E1A;--bg2:#0D1627;--bg3:#111E35;--border:#1E2F4A;--border2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--teal-dim:rgba(20,184,166,.12);--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--orange:#F97316;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:24px 20px 80px}
+nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
+nav .in{max-width:900px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.5rem;color:var(--white);margin-bottom:8px;font-weight:600}
+.sub{color:var(--body);max-width:640px;margin-bottom:6px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.warn{background:rgba(212,168,71,.1);color:var(--gold);border-color:rgba(212,168,71,.3)}
+.flag.red{background:rgba(239,68,68,.08);color:var(--red);border-color:rgba(239,68,68,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:10px 0}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.q{margin-bottom:14px}
+.q label{display:block;font-size:.82rem;color:var(--bright);margin-bottom:5px}
+.q .dim{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+select{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:inherit;font-size:.82rem}
+input[type=number],input[type=text]{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.82rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.preset-btn{background:var(--bg3);color:var(--body);border:1px solid var(--border2);font-size:.62rem;padding:.3rem .7rem;text-transform:none;letter-spacing:0;font-weight:400}
+.preset-btn:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+.cb-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.cb-item{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);cursor:pointer}
+.cb-item input[type=checkbox]{accent-color:var(--teal);width:13px;height:13px;cursor:pointer}
+.results{display:none}.results.show{display:block}
+.hero-row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.hero-stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;text-align:center;min-width:130px}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600}
+.hero-val.big{font-size:2rem}
+.hero-lbl{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
+.verdict{border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
+.verdict.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.verdict.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:var(--warn)}
+.verdict.fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.verdict.info{background:rgba(20,184,166,.06);border:1px solid rgba(20,184,166,.2);color:var(--teal-lt)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge.warn-b{background:rgba(245,158,11,.1);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.2)}
+.phase-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.78rem}
+.phase-table th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:5px 10px;border-bottom:1px solid var(--border)}
+.phase-table td{padding:8px 10px;border-bottom:1px solid rgba(30,47,74,.5);vertical-align:top}
+.phase-table tr:last-child td{border-bottom:none}
+.phase-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--teal-lt);font-weight:600}
+.phase-wk{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--bright);font-weight:600}
+.algo-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+@media(max-width:540px){.algo-row{grid-template-columns:1fr}}
+.algo-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px}
+.algo-key{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.algo-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:600;color:var(--teal-lt)}
+.algo-unit{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-left:3px}
+.list-block{margin:8px 0}
+.list-block li{margin:4px 0 4px 14px;font-size:.8rem;color:var(--body)}
+.list-block li::marker{color:var(--teal)}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);margin-top:10px;max-height:340px}
+.hash{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--green);word-break:break-all}
+.muted{color:var(--muted);font-size:.72rem}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+.mfst-btn:hover{color:var(--text);border-color:var(--border2)}
+#mfstBody{display:none;margin-top:10px}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-86-tls-pki-migration-planner.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:e85d6bf7a77f232f5abd1634ba2c1b56fdf0bb46db01403dc6bf55e317bfe718">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-86 · TLS / X.509 PKI Migration Planner</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+
+  <div class="eyebrow">ART-86 · Wave 18 · Post-Quantum Cryptography · TLS/PKI Migration</div>
+  <h1>TLS / X.509 PKI Migration Planner</h1>
+  <p class="sub">Sequences TLS and PKI migration from RSA/ECDSA to post-quantum algorithms. Builds a phased plan (root CAs → intermediates → leaf certificates), models payload impact per NIST FIPS 203/204, and flags interoperability risks. Reuses CBOM inventory from tool 499. Part of the <code>pqc-tls-pki</code> and <code>pqc-hndl-protocol-plan</code> chains.</p>
+  <div>
+    <span class="flag">NIST FIPS 203 · FIPS 204</span>
+    <span class="flag warn">ML-KEM-768 · ML-DSA-65</span>
+    <span class="flag red">Hybrid / Composite / Replace</span>
+  </div>
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div class="preset-row">
+    <button class="preset-btn" onclick="loadPreset('A')">Preset A — Small org: 2 roots, 5 intermediates, 5 000 leaves, TLS 1.3, hybrid → low risk</button>
+    <button class="preset-btn" onclick="loadPreset('B')">Preset B — Large bank: 4 roots, 25 intermediates, 200 000 leaves, TLS 1.2+1.3, replace → LARGE_LEAF</button>
+    <button class="preset-btn" onclick="loadPreset('C')">Preset C — Legacy: 2 roots, 8 intermediates, 30 000 leaves, TLS 1.0/1.1, composite, size_limited → LEGACY_TLS</button>
+  </div>
+
+  <div class="card">
+    <div class="section-head">PKI configuration</div>
+    <div class="grid3">
+      <div class="q"><label><span class="dim">PKI</span>Root CA count</label>
+        <input type="number" id="root_cas" placeholder="e.g. 3" min="1" value=""></div>
+      <div class="q"><label><span class="dim">PKI</span>Intermediate CA count</label>
+        <input type="number" id="intermediate_count" placeholder="e.g. 12" min="0" value=""></div>
+      <div class="q"><label><span class="dim">PKI</span>Leaf certificate population</label>
+        <input type="number" id="leaf_population" placeholder="e.g. 50000" min="0" value=""></div>
+    </div>
+
+    <div class="q"><label><span class="dim">PKI</span>TLS versions in estate (select all that apply)</label>
+      <div class="cb-group">
+        <label class="cb-item"><input type="checkbox" name="tls_versions" value="tls13"> TLS 1.3</label>
+        <label class="cb-item"><input type="checkbox" name="tls_versions" value="tls12"> TLS 1.2 (legacy)</label>
+        <label class="cb-item"><input type="checkbox" name="tls_versions" value="tls10"> TLS 1.0/1.1 (legacy)</label>
+      </div>
+    </div>
+
+    <div class="section-head">Migration strategy</div>
+    <div class="grid">
+      <div class="q"><label><span class="dim">Strategy</span>Migration approach</label>
+        <select id="migration_strategy">
+          <option value="hybrid">Hybrid — parallel PQC + RSA</option>
+          <option value="composite">Composite — combined certificate</option>
+          <option value="replace">Replace — full PQC replacement</option>
+        </select></div>
+      <div class="q"><label><span class="dim">Optional</span>CBOM inventory reference (from tool 499)</label>
+        <input type="text" id="inventory_ref" placeholder="e.g. cbom-ref-001 (optional)"></div>
+    </div>
+
+    <div class="q"><label><span class="dim">Constraints</span>Interoperability constraints (select all that apply)</label>
+      <div class="cb-group">
+        <label class="cb-item"><input type="checkbox" name="interop_constraints" value="legacy_tls12"> legacy_tls12</label>
+        <label class="cb-item"><input type="checkbox" name="interop_constraints" value="no_dual_stack"> no_dual_stack</label>
+        <label class="cb-item"><input type="checkbox" name="interop_constraints" value="size_limited"> size_limited</label>
+      </div>
+    </div>
+
+    <button onclick="run()">Build Migration Plan →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="generated-at" id="generatedAt"></div>
+    <div class="hero-row">
+      <div class="hero-stat">
+        <div class="hero-val big" id="strategyVal" style="font-size:1.2rem;padding-top:.4rem;color:var(--teal-lt)">–</div>
+        <div class="hero-lbl">Strategy</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-val big" id="totalWeeksVal" style="color:var(--bright)">–</div>
+        <div class="hero-lbl">Est. Total Weeks</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-val big" id="phasesVal" style="color:var(--body)">3</div>
+        <div class="hero-lbl">Phases</div>
+      </div>
+    </div>
+
+    <div style="margin:14px 0 6px;font-size:.78rem;color:var(--bright)">Migration phases</div>
+    <table class="phase-table">
+      <thead><tr>
+        <th>Phase</th><th>Target</th><th>Est. Weeks</th><th>Notes</th>
+      </tr></thead>
+      <tbody id="phaseRows"></tbody>
+    </table>
+
+    <div style="margin:14px 0 6px;font-size:.78rem;color:var(--bright)">Payload impact</div>
+    <div class="algo-row">
+      <div class="algo-card">
+        <div class="algo-key">New sig size (per cert)</div>
+        <div class="algo-val" id="payloadBytes">–<span class="algo-unit">bytes</span></div>
+      </div>
+      <div class="algo-card">
+        <div class="algo-key">Algorithm refs (NIST FIPS 203/204)</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);line-height:1.8;margin-top:4px">
+          ML-KEM-768 PK: <span style="color:var(--teal-lt)">1 184 bytes</span><br>
+          ML-DSA-65 sig: <span style="color:var(--teal-lt)">3 309 bytes</span><br>
+          RSA-2048 sig: <span style="color:var(--body)">256 bytes</span><br>
+          Hybrid overhead: <span style="color:var(--warn)">~2.1×</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:14px 0 4px;font-size:.78rem;color:var(--bright)">Interoperability risks</div>
+    <ul class="list-block" id="interopList"></ul>
+
+    <div style="margin:14px 0 4px;font-size:.78rem;color:var(--bright)">Rollback points</div>
+    <ul class="list-block" id="rollbackList"></ul>
+
+    <div style="margin:14px 0 4px;font-size:.78rem;color:var(--bright)">Compliance flags</div>
+    <div id="flagsRow" style="margin-bottom:8px"></div>
+
+    <div class="verdict info" style="margin-top:12px;font-size:.74rem">
+      <b>Algorithm sizes:</b> NIST FIPS 203 (Aug 2024) — ML-KEM-768 public key 1 184 bytes · NIST FIPS 204 (Aug 2024) — ML-DSA-65 signature 3 309 bytes · Hybrid overhead multiplier ~2.1× (verify current primary source). Effort estimates are indicative — adjust for organisational capacity. DECISION-SUPPORT DRAFT.
+    </div>
+
+    <div class="muted" style="margin-top:14px">OpenChainGraph v0.4 artifact · execution_hash:</div>
+    <div class="hash" id="hash">–</div>
+    <pre id="artifact"></pre>
+
+    <div class="results-export-row">
+      <button id="ap2ExportBtn" disabled onclick="exportAP2()" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border2)">↓ AP2 Policy Mandate</button>
+    <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:not-allowed;opacity:.55;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
+    <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">{ } MCP manifest</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<script type="application/json" id="manifest">
+{
+  "tool_id": "art-86-tls-pki-migration-planner",
+  "mcp_name": "plan_tls_pki_migration",
+  "mandate_type": "compliance_mandate",
+  "chaingraph_version": "0.4.0",
+  "spec_version":"0.5.0",
+  "compute_capability": "server",
+  "export_capability": ["pdf","xlsx"],
+  "wave": 18,
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pki": {
+        "type": "object",
+        "properties": {
+          "root_cas": {"type": "number"},
+          "intermediate_count": {"type": "number"},
+          "leaf_population": {"type": "number"},
+          "tls_versions": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "migration_strategy": {"enum": ["hybrid","composite","replace"]},
+      "interop_constraints": {"type": "array", "items": {"type": "string"}},
+      "inventory_ref": {"type": "string"}
+    }
+  }
+}
+</script>
+
+<script>
+const TOOL_META = {
+  tool_id:      'art-86-tls-pki-migration-planner',
+  tool_version: '1.0.0',
+  mandate_type: 'compliance_mandate',
+};
+
+// Constants — mirror kernel exactly (NIST FIPS 203/204)
+const ML_KEM_768_PK_BYTES        = 1184;
+const ML_DSA_65_SIG_BYTES        = 3309;
+const RSA2048_SIG_BYTES          = 256;
+const HYBRID_OVERHEAD_MULTIPLIER = 2.1;
+
+// compute() — byte-identical logic to art-86-tls-pki-migration-planner.kernel.mjs
+// Deterministic en-US number format — exact pure-JS replica of (n).toLocaleString('en-US') default options
+// (group-3 integer digits, 0..3 fraction digits, halfExpand rounding). Used instead of toLocaleString so the
+// OCG runner-guest (QuickJS-ng, no ICU) produces output byte-identical to V8. Verified vs V8 over 105k+ values.
+function fmtEnUS(n) {
+  n = Number(n);
+  if (Number.isNaN(n)) return 'NaN';
+  if (!Number.isFinite(n)) return n > 0 ? '∞' : '-∞';
+  const sign = (n < 0) ? '-' : '';
+  let s = Math.abs(n).toString();
+  if (s.includes('e') || s.includes('E')) return sign + s;
+  let [intPart, fracPart = ''] = s.split('.');
+  if (fracPart.length > 3) {
+    const keep = fracPart.slice(0, 3);
+    const nextDigit = fracPart.charCodeAt(3) - 48;
+    const digits = (intPart + keep).split('').map((c) => c.charCodeAt(0) - 48);
+    if (nextDigit >= 5) {
+      let i = digits.length - 1;
+      for (; i >= 0; i--) { if (digits[i] === 9) { digits[i] = 0; } else { digits[i]++; break; } }
+      if (i < 0) digits.unshift(1);
+    }
+    const all = digits.join('');
+    intPart = all.slice(0, all.length - keep.length) || '0';
+    fracPart = all.slice(all.length - keep.length);
+  }
+  fracPart = fracPart.replace(/0+$/, '');
+  intPart = intPart.replace(/^0+(?=\d)/, '');
+  const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return sign + grouped + (fracPart ? '.' + fracPart : '');
+}
+
+function compute(pp) {
+  const {
+    pki = { root_cas: 1, intermediate_count: 2, leaf_population: 1000, tls_versions: [] },
+    migration_strategy  = 'hybrid',
+    interop_constraints = [],
+    inventory_ref       = '',
+  } = pp;
+
+  const {
+    root_cas           = 1,
+    intermediate_count = 2,
+    leaf_population    = 1000,
+    tls_versions       = [],
+  } = pki;
+
+  // Payload impact per signature
+  let payload_impact_bytes;
+  if (migration_strategy === 'hybrid') {
+    payload_impact_bytes = ML_DSA_65_SIG_BYTES + RSA2048_SIG_BYTES;
+  } else if (migration_strategy === 'replace') {
+    payload_impact_bytes = ML_DSA_65_SIG_BYTES;
+  } else {
+    // composite
+    payload_impact_bytes = Math.round(ML_DSA_65_SIG_BYTES * 1.15);
+  }
+
+  // Migration phases
+  const phase1_weeks = root_cas <= 2 ? 6 : 12;
+  const phase2_weeks = intermediate_count <= 5 ? 8 : 16;
+  const phase3_weeks =
+    leaf_population > 100000 ? 26 :
+    leaf_population > 10000  ? 16 :
+    leaf_population > 1000   ? 10 : 6;
+
+  const migration_plan = [
+    {
+      phase:        1,
+      target:       'Root CA migration',
+      effort_weeks: phase1_weeks,
+      notes:        root_cas + ' root CA(s) — high effort; test in offline environment first',
+    },
+    {
+      phase:        2,
+      target:       'Intermediate CA migration',
+      effort_weeks: phase2_weeks,
+      notes:        intermediate_count + ' intermediate CA(s) — schedule CRL/OCSP updates',
+    },
+    {
+      phase:        3,
+      target:       'Leaf certificate / TLS endpoint rollout',
+      effort_weeks: phase3_weeks,
+      notes:        fmtEnUS(leaf_population) + ' leaf certs — automate via ACME or SCEP where possible',
+    },
+  ];
+
+  const estimated_total_weeks = phase1_weeks + phase2_weeks + phase3_weeks;
+
+  // Interop risks
+  const interop_risks = [];
+  if (interop_constraints.includes('legacy_tls12') || tls_versions.includes('tls12')) {
+    interop_risks.push('TLS 1.2 endpoints may not support PQC cipher suites — plan downgrade guards');
+  }
+  if (interop_constraints.includes('no_dual_stack')) {
+    interop_risks.push('no_dual_stack constraint limits hybrid strategy fallback path');
+  }
+  if (interop_constraints.includes('size_limited') && payload_impact_bytes > 4096) {
+    interop_risks.push('LARGE_LEAF_POPULATION: payload exceeds 4096 bytes — MTU/handshake fragmentation risk');
+  }
+  if (migration_strategy === 'hybrid') {
+    interop_risks.push('Hybrid mode doubles certificate chain size (~' + HYBRID_OVERHEAD_MULTIPLIER + '× overhead) — verify path length constraints');
+  }
+
+  // Rollback points
+  const rollback_points = [
+    'After root CA switch',
+    'After intermediate rollout',
+  ];
+
+  // Flags
+  const compliance_flags = [];
+  if (
+    interop_constraints.includes('legacy_tls12') ||
+    tls_versions.includes('tls12') ||
+    tls_versions.includes('1.2')
+  ) {
+    compliance_flags.push('LEGACY_TLS_PRESENT');
+  }
+  if (leaf_population > 50000) {
+    compliance_flags.push('LARGE_LEAF_POPULATION');
+  }
+
+  const output_payload = {
+    migration_plan,
+    strategy:             migration_strategy,
+    payload_impact_bytes,
+    interop_risks,
+    rollback_points,
+    estimated_total_weeks,
+    pki_summary: {
+      root_cas,
+      intermediate_count,
+      leaf_population,
+      tls_versions,
+    },
+    algorithm_refs: {
+      ml_kem_768_pk_bytes:  ML_KEM_768_PK_BYTES,
+      ml_dsa_65_sig_bytes:  ML_DSA_65_SIG_BYTES,
+      rsa2048_sig_bytes:    RSA2048_SIG_BYTES,
+      hybrid_overhead_mult: HYBRID_OVERHEAD_MULTIPLIER,
+    },
+    inventory_ref:     inventory_ref || null,
+    reference_version: '2026-06',
+    note: 'DECISION-SUPPORT DRAFT. Algorithm sizes from NIST FIPS 203/204 (Aug 2024). Hybrid overhead multiplier is approximate — verify against current PQC overhead benchmarks. Effort estimates are indicative; adjust for organisational capacity and toolchain maturity.',
+  };
+
+  return { output_payload, compliance_flags };
+}
+
+// JCS-style canonical JSON + SHA-256 — identical approach to art-82
+const canon = v => Array.isArray(v) ? v.map(canon) : (v && typeof v === 'object' ? Object.keys(v).sort().reduce((o, k) => (o[k] = canon(v[k]), o), {}) : v);
+async function execHash(pp, op) {
+  const s = JSON.stringify(canon({ policy_parameters: pp, output_payload: op }));
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return 'sha256:' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const MANIFEST = JSON.parse(document.getElementById('manifest').textContent);
+function toggleMfst() {
+  const b = document.getElementById('mfstBody');
+  const show = b.style.display === 'block';
+  b.style.display = show ? 'none' : 'block';
+  if (!show) document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2);
+}
+
+function getChecked(name) {
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(el => el.value);
+}
+function setChecked(name, values) {
+  document.querySelectorAll(`input[name="${name}"]`).forEach(el => { el.checked = values.includes(el.value); });
+}
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+
+function loadPreset(p) {
+  setChecked('tls_versions', []);
+  setChecked('interop_constraints', []);
+  setVal('inventory_ref', '');
+  if (p === 'A') {
+    // Small org: 2 roots, 5 intermediates, 5000 leaves, TLS 1.3 only, hybrid
+    setVal('root_cas', 2);
+    setVal('intermediate_count', 5);
+    setVal('leaf_population', 5000);
+    setChecked('tls_versions', ['tls13']);
+    setVal('migration_strategy', 'hybrid');
+    setChecked('interop_constraints', []);
+  } else if (p === 'B') {
+    // Large bank: 4 roots, 25 intermediates, 200000 leaves, TLS 1.2+1.3, replace
+    setVal('root_cas', 4);
+    setVal('intermediate_count', 25);
+    setVal('leaf_population', 200000);
+    setChecked('tls_versions', ['tls13','tls12']);
+    setVal('migration_strategy', 'replace');
+    setChecked('interop_constraints', ['legacy_tls12']);
+  } else if (p === 'C') {
+    // Legacy: 2 roots, 8 intermediates, 30000 leaves, TLS 1.0/1.1, composite, size_limited
+    setVal('root_cas', 2);
+    setVal('intermediate_count', 8);
+    setVal('leaf_population', 30000);
+    setChecked('tls_versions', ['tls10']);
+    setVal('migration_strategy', 'composite');
+    setChecked('interop_constraints', ['size_limited']);
+  }
+}
+
+function getPP() {
+  const root_cas           = parseFloat(document.getElementById('root_cas').value) || 1;
+  const intermediate_count = parseFloat(document.getElementById('intermediate_count').value) || 0;
+  const leaf_population    = parseFloat(document.getElementById('leaf_population').value) || 0;
+  const tls_versions       = getChecked('tls_versions');
+  const migration_strategy = document.getElementById('migration_strategy').value;
+  const interop_constraints = getChecked('interop_constraints');
+  const inventory_ref      = document.getElementById('inventory_ref').value.trim();
+  return {
+    pki: { root_cas, intermediate_count, leaf_population, tls_versions },
+    migration_strategy,
+    interop_constraints,
+    inventory_ref,
+  };
+}
+
+let _lastArtifact = null;
+Object.defineProperty(window,'_lastArtifact',{get:function(){return _lastArtifact;},configurable:true});
+
+const STRATEGY_LABELS = { hybrid: 'Hybrid', composite: 'Composite', replace: 'Replace' };
+const FLAG_CLS = { LEGACY_TLS_PRESENT: 'warn-b', LARGE_LEAF_POPULATION: 'err' };
+
+async function run() {
+  const pp = getPP();
+  if (!pp.pki.root_cas || pp.pki.root_cas < 1) { alert('Root CA count must be at least 1.'); return; }
+
+  const { output_payload, compliance_flags } = compute(pp);
+  const hash = await execHash(pp, output_payload);
+  const __generatedAtCapture = new Date().toISOString();
+  const artifact = {
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+    chaingraph_version: '0.4.0', compute_mode: 'browser',
+    mandate_type: TOOL_META.mandate_type, tool_id: TOOL_META.tool_id, tool_version: TOOL_META.tool_version,
+    generated_at: __generatedAtCapture, execution_hash: hash,
+    chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 0 },
+    policy_parameters: pp, output_payload, compliance_flags,
+    audit_signature: { payloadType: 'application/vnd.openchain.graph+json;version=0.4', payload: '', signatures: [] },
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+  _lastArtifact = artifact;
+
+  document.getElementById('results').classList.add('show');
+
+  document.getElementById('strategyVal').textContent = STRATEGY_LABELS[output_payload.strategy] || output_payload.strategy;
+  document.getElementById('totalWeeksVal').textContent = output_payload.estimated_total_weeks;
+  document.getElementById('phasesVal').textContent = output_payload.migration_plan.length;
+
+  // Phases table
+  const phaseHtml = output_payload.migration_plan.map(ph =>
+    `<tr>
+      <td><span class="phase-num">Phase ${ph.phase}</span></td>
+      <td style="color:var(--bright)">${ph.target}</td>
+      <td><span class="phase-wk">${ph.effort_weeks}w</span></td>
+      <td style="color:var(--body)">${ph.notes}</td>
+    </tr>`
+  ).join('');
+  document.getElementById('phaseRows').innerHTML = phaseHtml;
+
+  // Payload
+  document.getElementById('payloadBytes').innerHTML =
+    output_payload.payload_impact_bytes.toLocaleString() + '<span class="algo-unit">bytes</span>';
+
+  // Interop risks
+  const interopEl = document.getElementById('interopList');
+  interopEl.innerHTML = output_payload.interop_risks.length
+    ? output_payload.interop_risks.map(r => `<li>${r}</li>`).join('')
+    : '<li style="color:var(--green)">No interoperability risks flagged.</li>';
+
+  // Rollback
+  document.getElementById('rollbackList').innerHTML =
+    output_payload.rollback_points.map(r => `<li>${r}</li>`).join('');
+
+  // Flags
+  const flagsHtml = compliance_flags.length
+    ? compliance_flags.map(f => `<span class="badge ${FLAG_CLS[f] || 'warn-b'}">${f}</span>`).join('')
+    : '<span class="badge ok">NO_FLAGS</span>';
+  document.getElementById('flagsRow').innerHTML = flagsHtml;
+
+  document.getElementById('hash').textContent = hash;
+  document.getElementById('artifact').textContent = JSON.stringify(artifact, null, 2);
+
+  const ap2Btn = document.getElementById('ap2ExportBtn');
+  ap2Btn.disabled = false;
+  ap2Btn.style.background = 'var(--teal)';
+  ap2Btn.style.color = '#06121f';
+  ap2Btn.style.border = 'none';
+}
+
+function exportAP2() {
+  if (!_lastArtifact) return;
+  const blob = new Blob([JSON.stringify(_lastArtifact, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'art-86-tls-pki-migration-mandate.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+</script>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-86-tls-pki-migration-planner.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `plan_tls_pki_migration`. Task: Sequence TLS and X.509 PKI migration from RSA/ECDSA to post-quantum algorithms (ML-KEM/ML-DSA per NIST FIPS 203/204 Aug 2024).
+Call it with arguments: {"policy_parameters":{}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-86-tls-pki-migration-planner.html#p=v1.H4sIAAAAAAAA_wECAP3_e31Dv6ajAgAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. Byte-identical to kernels/_hash.mjs. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (univ-ap2) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_universal.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput')||document.getElementById('artifact');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('\u2717 not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('\u2717 no \u00a716 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'\u2713 \u00a716 signature valid':'\u2717 signature invalid / tampered');}
+  catch(e){alert('\u2717 '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var el=document.getElementById('ap2ExportBtn');
+  if(!el)return;
+  var obs=new MutationObserver(function(){
+    var sab=document.getElementById('signArtifactBtn');
+    if(sab){sab.disabled=false;}
+    obs.disconnect();
+  });
+  obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+})();
+</script>
+</body></html>

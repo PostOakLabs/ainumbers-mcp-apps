@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- WEBMCP:OT-META-BEGIN generator=scripts/gen-webmcp-registrations.mjs -->
+<meta http-equiv="origin-trial" content="AtfhcNgnsb5DxtwMWKWi8FXLoj2Azs6s1PYbJLwq8mkFdDrye53MZgdCC4zCFgmku6VcGwmyShjk2xSnU+7sgAwAAABfeyJvcmlnaW4iOiJodHRwczovL2FpbnVtYmVycy5jbzo0NDMiLCJmZWF0dXJlIjoiV2ViTUNQIiwiZXhwaXJ5IjoxNzk0ODczNjAwLCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+<!-- WEBMCP:OT-META-END -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Wholesale Tokenized Settlement Fit Diagnostic · ART-56 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="12-question A–F readiness diagnostic for wholesale tokenized settlement (tokenized deposits, central bank money, regulated stablecoins as settlement assets). Grades settlement-asset choice, finality regime, cross-network atomicity, asset-leg type, cash-leg issuer, intraday liquidity, and reconciliation controls; routes to the right Wave-13 wts-* chain.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Post Oak Labs">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.md">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wholesale Tokenized Settlement Fit Diagnostic · ART-56 · OpenChainGraph · AINumbers.co">
+<meta property="og:description" content="12 questions, graded A–F across 6 dimensions for wholesale tokenized settlement (cash/money layer). Routes to the right wts-* chain. OpenChainGraph v0.4 artifact. Client-side. Zero PII.">
+<meta property="og:url" content="https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Wholesale Tokenized Settlement Fit Diagnostic · ART-56 · OpenChainGraph","url":"https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.html","applicationCategory":"FinanceApplication","operatingSystem":"Web browser","description":"12-question A–F diagnostic for wholesale tokenized settlement across settlement-asset, finality regime, cross-network atomicity, asset-leg type, cash-leg issuer, intraday liquidity, and controls. Routes to the right Wave-13 chain. Cash/settlement layer distinct from Wave 8 Canton asset layer.","author":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- ART-56 · Wave 13. In-browser compute() stays byte-identical to kernels/art-56-tokenized-settlement-fit-diagnostic.kernel.mjs. -->
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+<style>h1,h2{font-family:'DM Serif Display',serif;font-weight:400}</style>
+<style>
+:root{--bg:#080E1A;--bg2:#0D1627;--bg3:#111E35;--border:#1E2F4A;--border2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--teal-dim:rgba(20,184,166,.12);--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:24px 20px 80px}
+nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
+nav .in{max-width:900px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+nav .brand b{color:var(--teal)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.5rem;color:var(--white);margin-bottom:8px;font-weight:600}
+.sub{color:var(--body);max-width:640px;margin-bottom:6px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(245,158,11,.12);color:var(--warn);border:1px solid rgba(245,158,11,.3);padding:.2rem .55rem;border-radius:20px;margin:8px 0}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:10px 0}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.q{margin-bottom:14px}
+.q label{display:block;font-size:.82rem;color:var(--bright);margin-bottom:5px}
+.q .dim{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+select,input[type=number]{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:inherit;font-size:.82rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.preset-btn{background:var(--bg3);color:var(--body);border:1px solid var(--border2);font-size:.62rem;padding:.3rem .7rem;text-transform:none;letter-spacing:0;font-weight:400}
+.preset-btn:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+.results{display:none}
+.results.show{display:block}
+.grade-hero{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.grade-badge{font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:600;width:72px;height:72px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:2px solid}
+.dims{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+@media(max-width:620px){.dims{grid-template-columns:1fr 1fr}}
+.dim-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px}
+.dim-card .n{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dim-card .s{font-size:1.1rem;color:var(--bright);font-weight:600}
+.route{background:var(--teal-dim);border:1px solid rgba(20,184,166,.3);border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
+.route b{color:var(--teal-lt)}
+.chk{font-size:.8rem;color:var(--body);margin:4px 0;padding-left:14px;border-left:2px solid var(--warn)}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);margin-top:10px;max-height:340px}
+.hash{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--green);word-break:break-all}
+.muted{color:var(--muted);font-size:.72rem}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+.mfst-btn:hover{color:var(--text);border-color:var(--border2)}
+#mfstBody{display:none;margin-top:10px}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<meta name="ai-tool" content="run_tokenized_settlement_fit">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-56 · Wholesale Tokenized Settlement Fit Diagnostic</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap" role="main" aria-description="12-question A-F readiness diagnostic for wholesale tokenized settlement (tokenized deposits, central bank money, regulated stablecoins as settlement assets). Grades settlement-asset choice, finality regime, cross-network atomicity, asset-leg type, cash-leg issuer, intraday liquidity, and reconciliation controls; routes to the right wholesale-settlement chain and emits a remediation checklist.">
+  <div class="eyebrow">ART-56 · Wave 13 · Wholesale Tokenized Settlement · D0 diagnostic</div>
+  <h1>Wholesale Tokenized Settlement Fit Diagnostic</h1>
+  <p class="sub">Grade your firm or desk A–F across six dimensions for wholesale tokenized settlement — the <strong>cash/money layer</strong>, distinct from Wave 8 Canton's asset layer. Covers settlement-asset type, finality regime, cross-network atomicity, asset-leg readiness, deposit-token issuer, intraday liquidity, and reconciliation controls. Routes to the right Wave-13 chain. Client-side, zero-egress; every run emits a hash-anchored OpenChainGraph v0.4 artifact.</p>
+  <div class="flag">Educational diagnostic — not settlement, legal, or financial advice · Hard deadlines: DTCC full production Oct 2026 · ECB Pontes end-Q3 2026</div>
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div class="preset-row">
+    <button class="preset-btn" onclick="loadPreset('A')">Preset A — G-SIB desk, JPMD on Canton, 24/7</button>
+    <button class="preset-btn" onclick="loadPreset('B')">Preset B — Custodian, tokenized collateral, RTGS only</button>
+    <button class="preset-btn" onclick="loadPreset('C')">Preset C — Asset manager, multi-network, unclear finality</button>
+  </div>
+
+  <div class="card">
+    <div class="grid" id="form">
+      <div class="q"><label><span class="dim">Settlement asset</span>Cash-leg settlement asset</label>
+        <select id="cash_leg_asset" aria-label="cash_leg_asset" aria-description="type not evidenced by kernel source">
+          <option value="central-bank-money">Central bank money (CBM token — Agorá/Pontes)</option>
+          <option value="tokenized-deposit">Tokenized commercial bank deposit (JPMD/RLN)</option>
+          <option value="regulated-stablecoin">Regulated stablecoin (GENIUS/MiCA)</option>
+          <option value="e-money">E-money token</option>
+          <option value="off-chain-RTGS" selected>Off-chain RTGS / no tokenized cash</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Settlement asset</span>Finality regime</label>
+        <select id="finality_regime" aria-label="finality_regime" aria-description="type not evidenced by kernel source">
+          <option value="SFD-designated">SFD-designated system (EU Dir. 98/26/EC)</option>
+          <option value="PFMI-aligned">PFMI-compliant FMI (CPMI-IOSCO Principle 8)</option>
+          <option value="UCC-Art12">UCC Article 12 control (US)</option>
+          <option value="unclear" selected>Unclear / contractual only</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Network</span>Network topology</label>
+        <select id="network_model" aria-label="network_model" aria-description="type not evidenced by kernel source">
+          <option value="single-ledger">Single shared ledger</option>
+          <option value="two-network-bridged" selected>Two networks bridged (cash + asset)</option>
+          <option value="multi-network">Multi-network (3+)</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Network</span>Atomicity mechanism</label>
+        <select id="atomicity_mechanism" aria-label="atomicity_mechanism" aria-description="type not evidenced by kernel source">
+          <option value="shared-ledger">Shared-ledger lock (strongest)</option>
+          <option value="HTLC">HTLC (hash time-locked contract)</option>
+          <option value="notary">Notary signature</option>
+          <option value="unsynchronised" selected>Unsynchronised (sequential legs)</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Asset leg</span>Asset-leg type</label>
+        <select id="asset_leg_type" aria-label="asset_leg_type" aria-description="type not evidenced by kernel source">
+          <option value="tokenized-security">Tokenized security</option>
+          <option value="tokenized-collateral">Tokenized collateral (DTCC AppChain)</option>
+          <option value="tokenized-repo">Tokenized repo</option>
+          <option value="tokenized-MMF">Tokenized MMF share</option>
+          <option value="none" selected>None / not applicable</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Asset leg</span>Participant eligibility model</label>
+        <select id="participant_eligibility" aria-label="participant_eligibility" aria-description="type not evidenced by kernel source">
+          <option value="allowlisted-LEI">Allowlisted LEI (closed)</option>
+          <option value="KYC-tiered" selected>KYC-tiered</option>
+          <option value="open">Open</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Issuer</span>Deposit-token issuer type</label>
+        <select id="deposit_token_issuer" aria-label="deposit_token_issuer" aria-description="type not evidenced by kernel source">
+          <option value="G-SIB-deposit-token">G-SIB deposit token (e.g. JPMD/Kinexys)</option>
+          <option value="CBM-account">Central bank money account (Agorá/Pontes)</option>
+          <option value="RLN-member">RLN member (UK Regulated Liability Network)</option>
+          <option value="stablecoin-issuer">Reserve-backed stablecoin issuer</option>
+          <option value="none" selected>None</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Issuer</span>Settlement operating hours</label>
+        <select id="operating_hours" aria-label="operating_hours" aria-description="type not evidenced by kernel source">
+          <option value="24x7">24/7 (tokenized rails)</option>
+          <option value="extended">Extended hours</option>
+          <option value="RTGS-window-only" selected>RTGS window only</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Liquidity</span>Intraday liquidity model</label>
+        <select id="intraday_liquidity" aria-label="intraday_liquidity" aria-description="type not evidenced by kernel source">
+          <option value="prefunded">Pre-funded (reserve in settlement system)</option>
+          <option value="intraday-credit">Intraday credit facility</option>
+          <option value="netting">Net settlement / netting</option>
+          <option value="none" selected>None / unclear</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Controls</span>Reconciliation model</label>
+        <select id="reconciliation_model" aria-label="reconciliation_model" aria-description="type not evidenced by kernel source">
+          <option value="hash-anchored">Hash-anchored (OpenChainGraph)</option>
+          <option value="dual-ledger-recon">Dual-ledger reconciliation</option>
+          <option value="manual" selected>Manual / bilateral</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Info</span>Participant type</label>
+        <select id="participant_type" aria-label="participant_type" aria-description="type not evidenced by kernel source">
+          <option value="bank" selected>Settlement / transaction bank</option>
+          <option value="custodian">Custodian / CSD</option>
+          <option value="CCP-CSD">CCP / CSD</option>
+          <option value="asset-manager">Asset manager</option>
+          <option value="platform">Tokenization platform</option>
+        </select></div>
+
+      <div class="q"><label><span class="dim">Info</span>Annual settlement value (USD approx.)</label>
+        <input type="number" id="annual_settlement_value_usd" value="1000000000" min="0" aria-label="annual_settlement_value_usd" aria-description="Amount in US dollars; type not evidenced by kernel source"></div>
+    </div>
+    <button onclick="run()">Run diagnostic →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="generated-at" id="generatedAt"></div>
+    <div class="grade-hero">
+      <div class="grade-badge" id="gradeBadge">–</div>
+      <div><div class="muted">Overall readiness (cash/settlement layer)</div><div style="font-size:1.1rem;color:var(--bright)"><span id="overallScore">–</span> / 100</div></div>
+    </div>
+    <div class="dims" id="dims"></div>
+    <div class="route" id="route"></div>
+    <div id="checklist"></div>
+    <div class="muted" style="margin-top:14px">OpenChainGraph v0.4 artifact · execution_hash:</div>
+    <div class="hash" id="hash">–</div>
+    <pre id="artifact"></pre>
+    <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:not-allowed;opacity:.55;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
+    <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">{ } MCP manifest</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<script type="application/json" id="manifest">
+{
+  "tool_id": "art-56-tokenized-settlement-fit-diagnostic",
+  "mcp_name": "run_tokenized_settlement_fit",
+  "mandate_type": "agent_guardrail_mandate",
+  "chaingraph_version": "0.4.0",
+  "spec_version":"0.5.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "cash_leg_asset":          {"enum":["central-bank-money","tokenized-deposit","regulated-stablecoin","e-money","off-chain-RTGS"]},
+      "finality_regime":         {"enum":["SFD-designated","PFMI-aligned","UCC-Art12","unclear"]},
+      "network_model":           {"enum":["single-ledger","two-network-bridged","multi-network"]},
+      "atomicity_mechanism":     {"enum":["shared-ledger","HTLC","notary","unsynchronised"]},
+      "asset_leg_type":          {"enum":["tokenized-security","tokenized-collateral","tokenized-repo","tokenized-MMF","none"]},
+      "participant_eligibility": {"enum":["allowlisted-LEI","KYC-tiered","open"]},
+      "deposit_token_issuer":    {"enum":["G-SIB-deposit-token","CBM-account","RLN-member","stablecoin-issuer","none"]},
+      "operating_hours":         {"enum":["24x7","extended","RTGS-window-only"]},
+      "intraday_liquidity":      {"enum":["prefunded","intraday-credit","netting","none"]},
+      "reconciliation_model":    {"enum":["hash-anchored","dual-ledger-recon","manual"]},
+      "participant_type":        {"enum":["bank","custodian","CCP-CSD","asset-manager","platform"]},
+      "annual_settlement_value_usd": {"type":"number","minimum":0}
+    }
+  }
+}
+</script>
+
+<script>
+// compute() — MUST mirror kernels/art-56-tokenized-settlement-fit-diagnostic.kernel.mjs
+const S={cash_leg_asset:{'central-bank-money':4,'tokenized-deposit':3,'regulated-stablecoin':2,'e-money':1,'off-chain-RTGS':1},finality_regime:{'SFD-designated':4,'PFMI-aligned':3,'UCC-Art12':2,'unclear':0},network_model:{'single-ledger':4,'two-network-bridged':2,'multi-network':3},atomicity_mechanism:{'shared-ledger':4,'HTLC':3,'notary':2,'unsynchronised':0},asset_leg_type:{'tokenized-security':4,'tokenized-collateral':4,'tokenized-repo':3,'tokenized-MMF':2,'none':0},participant_eligibility:{'allowlisted-LEI':4,'KYC-tiered':2,'open':0},deposit_token_issuer:{'G-SIB-deposit-token':4,'CBM-account':4,'RLN-member':3,'stablecoin-issuer':2,'none':0},operating_hours:{'24x7':4,'extended':2,'RTGS-window-only':1},intraday_liquidity:{prefunded:4,'intraday-credit':3,netting:2,none:0},reconciliation_model:{'hash-anchored':4,'dual-ledger-recon':2,'manual':0}};
+const pick=(t,v,d=0)=>v in t?t[v]:d;
+const letter=s=>s>=85?'A':s>=70?'B':s>=55?'C':s>=40?'D':'F';
+const WEIGHTS={settlement_asset:.25,network:.20,asset_leg:.15,issuer:.15,liquidity:.15,controls:.10};
+const ROUTE={settlement_asset:'wholesale-settlement-settlement-asset',network:'wholesale-settlement-cross-network-dvp',asset_leg:'wholesale-settlement-collateral-mobility',issuer:'wholesale-settlement-deposit-token',liquidity:'wholesale-settlement-intraday-liquidity',controls:'wholesale-settlement-participant-onboarding'};
+const REMED={settlement_asset:'Clarify settlement-asset type and verify its finality regime (SFD designation / PFMI alignment / UCC Art.12 control). Run wholesale-settlement-settlement-asset.',network:'Assess cross-network atomicity mechanism. HTLC or shared-ledger locking preferred. Run wholesale-settlement-cross-network-dvp.',asset_leg:'Confirm tokenized-asset eligibility and DTCC Collateral AppChain readiness. Run wholesale-settlement-collateral-mobility.',issuer:'Validate deposit-token issuer type (G-SIB liability vs stablecoin). Run wholesale-settlement-deposit-token.',liquidity:'Model intraday liquidity under 24/7 settlement windows. Run wholesale-settlement-intraday-liquidity.',controls:'Upgrade reconciliation to hash-anchored audit trail. Run wholesale-settlement-participant-onboarding.'};
+
+function compute(pp){
+  const sub={settlement_asset:[pick(S.cash_leg_asset,pp.cash_leg_asset),pick(S.finality_regime,pp.finality_regime)],network:[pick(S.network_model,pp.network_model),pick(S.atomicity_mechanism,pp.atomicity_mechanism)],asset_leg:[pick(S.asset_leg_type,pp.asset_leg_type),pick(S.participant_eligibility,pp.participant_eligibility)],issuer:[pick(S.deposit_token_issuer,pp.deposit_token_issuer),pick(S.operating_hours,pp.operating_hours)],liquidity:[pick(S.intraday_liquidity,pp.intraday_liquidity)],controls:[pick(S.reconciliation_model,pp.reconciliation_model)]};
+  const dim_scores={};
+  for(const k in sub){const avg=sub[k].reduce((a,b)=>a+b,0)/sub[k].length;dim_scores[k]={score:+(avg/4*100).toFixed(1),grade:letter(avg/4*100)};}
+  const overall=+Object.keys(WEIGHTS).reduce((a,k)=>a+dim_scores[k].score*WEIGHTS[k],0).toFixed(1);
+  const overall_grade=letter(overall);
+  const ranked=Object.keys(dim_scores).sort((a,b)=>dim_scores[a].score-dim_scores[b].score);
+  const primary_recommendation=ROUTE[ranked[0]];
+  const secondary_recommendations=[];
+  if(pp.deposit_token_issuer!=='none'&&ROUTE.issuer!==primary_recommendation)secondary_recommendations.push('wholesale-settlement-deposit-token');
+  if((pp.atomicity_mechanism==='unsynchronised'||pp.network_model!=='single-ledger')&&ROUTE.network!==primary_recommendation&&!secondary_recommendations.includes('wholesale-settlement-cross-network-dvp'))secondary_recommendations.push('wholesale-settlement-cross-network-dvp');
+  if(pp.asset_leg_type!=='none'&&ROUTE.asset_leg!==primary_recommendation&&!secondary_recommendations.includes('wholesale-settlement-collateral-mobility'))secondary_recommendations.push('wholesale-settlement-collateral-mobility');
+  if(!secondary_recommendations.includes(ROUTE[ranked[1]])&&ROUTE[ranked[1]]!==primary_recommendation)secondary_recommendations.push(ROUTE[ranked[1]]);
+  if(!secondary_recommendations.includes('wholesale-settlement-audit-pack'))secondary_recommendations.push('wholesale-settlement-audit-pack');
+  const remediation_checklist=[];
+  for(const k in dim_scores)if(dim_scores[k].grade==='D'||dim_scores[k].grade==='F')remediation_checklist.push({dimension:k,grade:dim_scores[k].grade,action:REMED[k]});
+  const compliance_flags=[];
+  if(pp.finality_regime==='unclear')compliance_flags.push('FINALITY_REGIME_UNCLEAR');
+  if(pp.atomicity_mechanism==='unsynchronised')compliance_flags.push('UNSYNCHRONISED_ATOMICITY');
+  if(pp.cash_leg_asset==='off-chain-RTGS'||pp.cash_leg_asset==='e-money')compliance_flags.push('SETTLEMENT_ASSET_NOT_CLASSIFIED');
+  if(overall_grade==='D'||overall_grade==='F')compliance_flags.push('LOW_READINESS');
+  const finality_flag=pp.finality_regime==='unclear'?'FINALITY_REGIME_UNCLEAR':null;
+  return {output_payload:{dim_scores,overall_score:overall,overall_grade,primary_recommendation,secondary_recommendations,remediation_checklist,finality_flag,note:'Educational readiness diagnostic for Wholesale Tokenized Settlement — cash/settlement layer. Distinct from Wave 8 Canton asset layer. Routes to the relevant wts-* chain; not settlement or legal advice. Verify DTCC/ECB Pontes/RLN/Agorá status against current primary sources.'},compliance_flags};
+}
+
+const canon=v=>Array.isArray(v)?v.map(canon):(v&&typeof v==='object'?Object.keys(v).sort().reduce((o,k)=>(o[k]=canon(v[k]),o),{}):v);
+async function execHash(pp,op){const s=JSON.stringify(canon({policy_parameters:pp,output_payload:op}));const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+
+const GRADE_COLOR={A:'#22C55E',B:'#2DD4BF',C:'#D4A847',D:'#F59E0B',F:'#EF4444'};
+const FIELDS=['cash_leg_asset','finality_regime','network_model','atomicity_mechanism','asset_leg_type','participant_eligibility','deposit_token_issuer','operating_hours','intraday_liquidity','reconciliation_model','participant_type'];
+const NUM_FIELDS=['annual_settlement_value_usd'];
+
+function getpp(){const pp={};for(const id of FIELDS){const el=document.getElementById(id);if(el)pp[id]=el.value;}for(const id of NUM_FIELDS){const el=document.getElementById(id);if(el)pp[id]=Number(el.value);}return pp;}
+function setField(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+
+function loadPreset(p){
+  if(p==='A'){
+    setField('cash_leg_asset','tokenized-deposit');setField('finality_regime','PFMI-aligned');
+    setField('network_model','single-ledger');setField('atomicity_mechanism','shared-ledger');
+    setField('asset_leg_type','tokenized-security');setField('participant_eligibility','allowlisted-LEI');
+    setField('deposit_token_issuer','G-SIB-deposit-token');setField('operating_hours','24x7');
+    setField('intraday_liquidity','prefunded');setField('reconciliation_model','hash-anchored');
+    setField('participant_type','bank');setField('annual_settlement_value_usd',5e12);
+  } else if(p==='B'){
+    setField('cash_leg_asset','off-chain-RTGS');setField('finality_regime','SFD-designated');
+    setField('network_model','two-network-bridged');setField('atomicity_mechanism','HTLC');
+    setField('asset_leg_type','tokenized-collateral');setField('participant_eligibility','allowlisted-LEI');
+    setField('deposit_token_issuer','none');setField('operating_hours','RTGS-window-only');
+    setField('intraday_liquidity','intraday-credit');setField('reconciliation_model','dual-ledger-recon');
+    setField('participant_type','custodian');setField('annual_settlement_value_usd',2e11);
+  } else if(p==='C'){
+    setField('cash_leg_asset','regulated-stablecoin');setField('finality_regime','unclear');
+    setField('network_model','multi-network');setField('atomicity_mechanism','unsynchronised');
+    setField('asset_leg_type','tokenized-security');setField('participant_eligibility','KYC-tiered');
+    setField('deposit_token_issuer','stablecoin-issuer');setField('operating_hours','24x7');
+    setField('intraday_liquidity','none');setField('reconciliation_model','manual');
+    setField('participant_type','asset-manager');setField('annual_settlement_value_usd',1e10);
+  }
+}
+
+const MANIFEST=JSON.parse(document.getElementById('manifest').textContent);
+function toggleMfst(){const b=document.getElementById('mfstBody');const show=b.style.display==='block';b.style.display=show?'none':'block';if(!show)document.getElementById('mfstCode').textContent=JSON.stringify(MANIFEST,null,2);}
+
+async function run(){
+  const pp=getpp();
+  const {output_payload:op,compliance_flags}=compute(pp);
+  const hash=await execHash(pp,op);
+  const generatedAt = new Date().toISOString();
+  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
+  const artifact={'@context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'agent_guardrail_mandate',tool_id:'art-56-tokenized-settlement-fit-diagnostic',tool_version:'1.0.0',generated_at:generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:op,compliance_flags,compute_mode:'browser',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[]}};
+
+  document.getElementById('results').classList.add('show');
+  const gb=document.getElementById('gradeBadge');gb.textContent=op.overall_grade;gb.style.color=GRADE_COLOR[op.overall_grade];gb.style.borderColor=GRADE_COLOR[op.overall_grade];
+  document.getElementById('overallScore').textContent=op.overall_score;
+  document.getElementById('dims').innerHTML=Object.entries(op.dim_scores).map(([k,v])=>`<div class="dim-card"><div class="n">${k}</div><div class="s" style="color:${GRADE_COLOR[v.grade]}">${v.grade} <span style="font-size:.8rem;color:var(--muted)">${v.score}</span></div></div>`).join('');
+  document.getElementById('route').innerHTML=`Start here: <b>${op.primary_recommendation}</b>`+(op.secondary_recommendations.length?` · then ${op.secondary_recommendations.map(r=>'<b>'+r+'</b>').join(', ')}`:'');
+  document.getElementById('checklist').innerHTML=op.remediation_checklist.length?'<div class="muted" style="margin:10px 0 4px">Remediation:</div>'+op.remediation_checklist.map(c=>`<div class="chk"><b style="color:${GRADE_COLOR[c.grade]}">${c.grade}</b> ${c.dimension} — ${c.action}</div>`).join(''):'';
+  document.getElementById('hash').textContent='sha256:'+hash;
+  document.getElementById('artifact').textContent=JSON.stringify(artifact,null,2);
+  _lastArtifact=artifact;
+}
+</script>
+
+
+
+
+
+
+
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-56-tokenized-settlement-fit-diagnostic.manifest.json -->
+<script>
+/* OCG-A11Y-TREE v1 */
+/* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
+   by scripts/check-a11y-tree.mjs from chaingraph/_page-chrome.mjs (row
+   TOOLPAGE-A11Y-1). Form-control labels are emitted statically from the
+   manifest (aria-label = property name); this script owns the single
+   aria-live status region and the post-compute announcement. */
+(function () {
+  'use strict';
+  var RUN_TARGET = "run";
+  var TABLE = {"annual_settlement_value_usd":["annual_settlement_value_usd","Amount in US dollars; type not evidenced by kernel source"],"asset_leg_type":["asset_leg_type","type not evidenced by kernel source"],"atomicity_mechanism":["atomicity_mechanism","type not evidenced by kernel source"],"cash_leg_asset":["cash_leg_asset","type not evidenced by kernel source"],"deposit_token_issuer":["deposit_token_issuer","type not evidenced by kernel source"],"finality_regime":["finality_regime","type not evidenced by kernel source"],"intraday_liquidity":["intraday_liquidity","type not evidenced by kernel source"],"network_model":["network_model","type not evidenced by kernel source"],"operating_hours":["operating_hours","type not evidenced by kernel source"],"participant_eligibility":["participant_eligibility","type not evidenced by kernel source"],"participant_type":["participant_type","type not evidenced by kernel source"],"reconciliation_model":["reconciliation_model","type not evidenced by kernel source"]};
+  var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
+  var st = null;
+  function ensureRegion() {
+    if (st && document.body && typeof document.body.contains === 'function' && document.body.contains(st)) return st;
+    st = document.createElement('div');
+    st.id = 'ocg-a11y-status';
+    st.setAttribute('role', 'status');
+    st.setAttribute('aria-live', 'polite');
+    st.style.cssText = 'position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important';
+    (document.body || document.documentElement).appendChild(st);
+    return st;
+  }
+  function artifact() {
+    var cands = ['_lastResult', '_lastArtifact'];
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        var v = window[cands[i]];
+        if (v && typeof v === 'object' && typeof v.execution_hash === 'string' && v.execution_hash) return v;
+      } catch (e) { /* pages without either global simply expose nothing */ }
+    }
+    return null;
+  }
+  function verdictOf(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    for (var i = 0; i < VERDICT_KEYS.length; i++) {
+      var v = payload[VERDICT_KEYS[i]];
+      if (typeof v === 'string' && v) return v;
+      if (typeof v === 'boolean' || typeof v === 'number') return VERDICT_KEYS[i] + ': ' + v;
+    }
+    for (var k in payload) {
+      var v2 = payload[k];
+      if (typeof v2 === 'boolean') return k + ': ' + v2;
+    }
+    return null;
+  }
+  function announce() {
+    var region = ensureRegion();
+    var a = artifact();
+    if (!a) { region.textContent = 'Run complete. See the result panel for the full verdict.'; return; }
+    var msg = 'Run complete. execution_hash ' + a.execution_hash;
+    var v = verdictOf(a.output_payload);
+    if (v) msg += '. Verdict: ' + v;
+    region.textContent = msg;
+  }
+  function wrap() {
+    try {
+      var orig = window[RUN_TARGET];
+      if (typeof orig !== 'function' || orig.__ocgA11yWrapped) return;
+      var wrapped = function () {
+        var r = orig.apply(this, arguments);
+        Promise.resolve(r).then(announce, function () { /* the page's own error surface reports failures */ });
+        return r;
+      };
+      wrapped.__ocgA11yWrapped = true;
+      window[RUN_TARGET] = wrapped;
+    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wrap);
+  else wrap();
+})();
+</script>
+<!-- A11Y-TREE:END -->
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-56-tokenized-settlement-fit-diagnostic.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `run_tokenized_settlement_fit`. Task: 12-question A-F readiness diagnostic for wholesale tokenized settlement (tokenized deposits, central bank money, regulated stablecoins as settlement assets).
+Call it with arguments: {"policy_parameters":{}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `run_tokenized_settlement_fit`.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-56-tokenized-settlement-fit-diagnostic.html#p=v1.H4sIAAAAAAAA_wECAP3_e31Dv6ajAgAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. Byte-identical to kernels/_hash.mjs. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (univ-artifact) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_universal.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput')||document.getElementById('artifact');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('\u2717 not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('\u2717 no \u00a716 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'\u2713 \u00a716 signature valid':'\u2717 signature invalid / tampered');}
+  catch(e){alert('\u2717 '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var el=document.getElementById('artifact');
+  if(!el)return;
+  var obs=new MutationObserver(function(){
+    try{var v=JSON.parse(el.textContent);if(v&&v.chaingraph_version){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    }}catch(e){}
+  });
+  obs.observe(el,{childList:true});
+})();
+</script>
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-56-tokenized-settlement-fit-diagnostic.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
+<script>
+// WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
+// manifests/art-56-tokenized-settlement-fit-diagnostic.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// nothing and restates no computed value). Feature-detected: absent API
+// registers nothing, so this page is byte-identical without the API.
+// Answer-class delegate to this page's existing compute; zero network I/O.
+// Trust annotations, truthful-hint posture: deterministic local compute, no
+// untrusted content, so untrustedContentHint is not applicable per tool (n/a);
+// exposedTo intentionally omitted: no cross-origin exposure. A browser agent
+// is untrusted input like any form submission; the never-trust-client rule is
+// honored by construction because the tool is zero-server and only returns
+// computed JSON derived from declared inputs.
+// Browser support (dated observation): WebMCP origin trial from Chrome 149
+// (May 2026) per developer.chrome.com/docs/ai/webmcp (retrieved 2026-09-01).
+const mc = document.modelContext ?? (('modelContext' in navigator) ? navigator.modelContext : null);
+if (mc) {
+  mc.registerTool({
+    name: 'run_tokenized_settlement_fit',
+    description: '12-question A-F readiness diagnostic for wholesale tokenized settlement (tokenized deposits, central bank money, regulated stablecoins as settlement assets). Grades settlement-asset choice, finality regime, cross-network atomicity, asset-leg type, cash-leg issuer, intraday liquidity, and reconciliation controls; routes to the right wholesale-settlement chain and emits a remediation checklist.',
+    inputSchema: {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "annual_settlement_value_usd": {
+          "default": 0,
+          "description": "Amount in US dollars; type not evidenced by kernel source"
+        },
+        "asset_leg_type": {
+          "default": "none",
+          "description": "type not evidenced by kernel source"
+        },
+        "atomicity_mechanism": {
+          "default": "unsynchronised",
+          "description": "type not evidenced by kernel source"
+        },
+        "cash_leg_asset": {
+          "default": "              ",
+          "description": "type not evidenced by kernel source"
+        },
+        "deposit_token_issuer": {
+          "default": "none",
+          "description": "type not evidenced by kernel source"
+        },
+        "finality_regime": {
+          "default": "unclear",
+          "description": "type not evidenced by kernel source"
+        },
+        "intraday_liquidity": {
+          "default": "none",
+          "description": "type not evidenced by kernel source"
+        },
+        "network_model": {
+          "default": "                   ",
+          "description": "type not evidenced by kernel source"
+        },
+        "operating_hours": {
+          "default": "                ",
+          "description": "type not evidenced by kernel source"
+        },
+        "participant_eligibility": {
+          "default": "          ",
+          "description": "type not evidenced by kernel source"
+        },
+        "participant_type": {
+          "default": "bank",
+          "description": "type not evidenced by kernel source"
+        },
+        "reconciliation_model": {
+          "default": "manual",
+          "description": "type not evidenced by kernel source"
+        }
+      }
+    },
+    annotations: { readOnlyHint: true },
+    execute: async function(params) {
+      try {
+      if (params.annual_settlement_value_usd !== undefined && params.annual_settlement_value_usd !== null) document.getElementById('annual_settlement_value_usd').value = (params.annual_settlement_value_usd !== null && typeof params.annual_settlement_value_usd === 'object') ? JSON.stringify(params.annual_settlement_value_usd) : String(params.annual_settlement_value_usd);
+      if (params.asset_leg_type !== undefined && params.asset_leg_type !== null) document.getElementById('asset_leg_type').value = (params.asset_leg_type !== null && typeof params.asset_leg_type === 'object') ? JSON.stringify(params.asset_leg_type) : String(params.asset_leg_type);
+      if (params.atomicity_mechanism !== undefined && params.atomicity_mechanism !== null) document.getElementById('atomicity_mechanism').value = (params.atomicity_mechanism !== null && typeof params.atomicity_mechanism === 'object') ? JSON.stringify(params.atomicity_mechanism) : String(params.atomicity_mechanism);
+      if (params.cash_leg_asset !== undefined && params.cash_leg_asset !== null) document.getElementById('cash_leg_asset').value = (params.cash_leg_asset !== null && typeof params.cash_leg_asset === 'object') ? JSON.stringify(params.cash_leg_asset) : String(params.cash_leg_asset);
+      if (params.deposit_token_issuer !== undefined && params.deposit_token_issuer !== null) document.getElementById('deposit_token_issuer').value = (params.deposit_token_issuer !== null && typeof params.deposit_token_issuer === 'object') ? JSON.stringify(params.deposit_token_issuer) : String(params.deposit_token_issuer);
+      if (params.finality_regime !== undefined && params.finality_regime !== null) document.getElementById('finality_regime').value = (params.finality_regime !== null && typeof params.finality_regime === 'object') ? JSON.stringify(params.finality_regime) : String(params.finality_regime);
+      if (params.intraday_liquidity !== undefined && params.intraday_liquidity !== null) document.getElementById('intraday_liquidity').value = (params.intraday_liquidity !== null && typeof params.intraday_liquidity === 'object') ? JSON.stringify(params.intraday_liquidity) : String(params.intraday_liquidity);
+      if (params.network_model !== undefined && params.network_model !== null) document.getElementById('network_model').value = (params.network_model !== null && typeof params.network_model === 'object') ? JSON.stringify(params.network_model) : String(params.network_model);
+      if (params.operating_hours !== undefined && params.operating_hours !== null) document.getElementById('operating_hours').value = (params.operating_hours !== null && typeof params.operating_hours === 'object') ? JSON.stringify(params.operating_hours) : String(params.operating_hours);
+      if (params.participant_eligibility !== undefined && params.participant_eligibility !== null) document.getElementById('participant_eligibility').value = (params.participant_eligibility !== null && typeof params.participant_eligibility === 'object') ? JSON.stringify(params.participant_eligibility) : String(params.participant_eligibility);
+      if (params.participant_type !== undefined && params.participant_type !== null) document.getElementById('participant_type').value = (params.participant_type !== null && typeof params.participant_type === 'object') ? JSON.stringify(params.participant_type) : String(params.participant_type);
+      if (params.reconciliation_model !== undefined && params.reconciliation_model !== null) document.getElementById('reconciliation_model').value = (params.reconciliation_model !== null && typeof params.reconciliation_model === 'object') ? JSON.stringify(params.reconciliation_model) : String(params.reconciliation_model);
+      await run();
+      return _lastArtifact;
+      } catch (err) {
+        return { error: 'compute_failed', detail: String((err && err.message) || err) };
+      }
+    }
+  });
+}
+</script>
+
+<script>
+/* OCG-DEEPLINK v1 */
+/* Fragment-only prefill-and-run deep link: #p=v1.<b64url(gzip(JSON policy_parameters))>[&run=1]
+   Contract: AGENT-REACH-BUILD-SPEC.md section 3.1 (TOOLPAGE-DEEPLINK-1). Zero egress
+   by construction — a URL fragment is never sent to any server. Codec copied verbatim
+   from ledger/index.html lines 812-857 (gzip/gunzip/b64uEnc/b64uDec). DO NOT
+   hand-edit; emitted by scripts/gen-webmcp-registrations.mjs from chaingraph/_page-chrome.mjs. */
+(function () {
+  'use strict';
+  var BUDGET = 30000;
+  var RUN_TARGET = "run";
+  var PREFILL = {"annual_settlement_value_usd":["annual_settlement_value_usd","string"],"asset_leg_type":["asset_leg_type","string"],"atomicity_mechanism":["atomicity_mechanism","string"],"cash_leg_asset":["cash_leg_asset","string"],"deposit_token_issuer":["deposit_token_issuer","string"],"finality_regime":["finality_regime","string"],"intraday_liquidity":["intraday_liquidity","string"],"network_model":["network_model","string"],"operating_hours":["operating_hours","string"],"participant_eligibility":["participant_eligibility","string"],"participant_type":["participant_type","string"],"reconciliation_model":["reconciliation_model","string"]};
+  var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
+
+  function b64uDec(s) {
+    const p = s.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = (4 - p.length % 4) % 4;
+    const b64 = p + '='.repeat(pad);
+    const bin = atob(b64);
+    const out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+
+  async function gunzip(bytes) {
+    const cs = new DecompressionStream('gzip');
+    const w = cs.writable.getWriter();
+    w.write(bytes); w.close();
+    const chunks = [];
+    const reader = cs.readable.getReader();
+    while (true) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); }
+    const total = chunks.reduce((a, c) => a + c.length, 0);
+    const out = new Uint8Array(total); let off = 0;
+    for (const c of chunks) { out.set(c, off); off += c.length; }
+    return new TextDecoder().decode(out);
+  }
+
+  function fail(msg) {
+    try {
+      var el = document.createElement('div');
+      el.setAttribute('role', 'alert');
+      el.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;border:2px solid #b45309;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:.72rem;background:#1a1206;color:#f4e8d4;max-height:40vh;overflow:auto';
+      el.textContent = PII_BANNER + ' Deep link rejected: ' + msg + ' Nothing was truncated, prefilled, or executed.';
+      document.body.appendChild(el);
+      if (typeof console !== 'undefined' && console.warn) console.warn('[deeplink]', msg);
+    } catch (e) { /* never let the banner path throw */ }
+  }
+
+  function typeOk(v, t) {
+    switch (t) {
+      case 'string': return typeof v === 'string';
+      case 'number': return typeof v === 'number' && Number.isFinite(v);
+      case 'boolean': return typeof v === 'boolean';
+      case 'array': return Array.isArray(v);
+      case 'object': return v !== null && typeof v === 'object' && !Array.isArray(v);
+      default: return true; /* 'unknown' or undeclared — value-shape handled at prefill */
+    }
+  }
+
+  async function run() {
+    var done;
+    window.__ocgDeeplinkDone = new Promise(function (res) { done = res; });
+    try {
+      if (!location.hash || location.hash.indexOf('#p=v1.') !== 0) return;
+      var parts = location.hash.slice(1).split('&');
+      var payload = null, doRun = false;
+      for (var i = 0; i < parts.length; i++) {
+        if (parts[i].indexOf('p=v1.') === 0) payload = parts[i].slice(5);
+        else if (parts[i] === 'run=1') doRun = true;
+      }
+      if (!payload) return;
+      var compressed;
+      try { compressed = b64uDec(payload); }
+      catch (e) { fail('payload is not valid base64url'); return; }
+      if (compressed.length > BUDGET) { fail('payload too large (' + compressed.length + ' bytes compressed; cap is ' + BUDGET + ')'); return; }
+      var json;
+      try { json = await gunzip(compressed); }
+      catch (e) { fail('payload failed gzip decompression'); return; }
+      var params;
+      try { params = JSON.parse(json); }
+      catch (e) { fail('payload is not valid JSON'); return; }
+      if (!params || typeof params !== 'object' || Array.isArray(params)) { fail('payload must be a JSON object of policy_parameters'); return; }
+      var schema = (typeof MANIFEST !== 'undefined' && MANIFEST.mcp_tool_definition && MANIFEST.mcp_tool_definition.inputSchema) || null;
+      if (schema) {
+        var required = Array.isArray(schema.required) ? schema.required : [];
+        for (var r = 0; r < required.length; r++) {
+          if (!(required[r] in params)) { fail('missing required parameter "' + required[r] + '"'); return; }
+        }
+        var props = schema.properties || {};
+        for (var name in params) {
+          if (!(name in props)) { fail('unknown parameter "' + name + '" is not declared in the tool inputSchema'); return; }
+          var t = props[name] && props[name].type;
+          /* A declared 'string' carrying a JSON object/array is prefilled as JSON
+             text — several pages' controls are JSON-text areas whose kernels read
+             the parsed value, so serializing is the faithful binding. Hard type
+             mismatches that cannot be serialized faithfully still reject. */
+          if ((t === 'number' || t === 'boolean') && !typeOk(params[name], t)) { fail('parameter "' + name + '" does not match the declared type "' + t + '"'); return; }
+          if ((t === 'object' || t === 'array') && params[name] !== null && typeof params[name] !== 'object') { fail('parameter "' + name + '" must be a JSON ' + t); return; }
+        }
+      }
+      var prefilled = 0, paramCount = 0;
+      for (var prop in PREFILL) {
+        if (!(prop in params)) continue;
+        paramCount++;
+        var ent = PREFILL[prop];
+        var el = document.getElementById(ent[0]);
+        if (!el) continue;
+        var v = params[prop];
+        if (ent[1] === 'checked') el.checked = (v === true);
+        else if (ent[1] === 'boolstring') el.value = String(v === true);
+        else if (ent[1] === 'json' || (v !== null && typeof v === 'object')) el.value = JSON.stringify(v);
+        else el.value = String(v);
+        prefilled++;
+      }
+      /* A parameter-free tool (empty policy_parameters) is legitimate — prefill
+         is a no-op and run=1 still executes the declared compute. */
+      if (prefilled === 0 && paramCount > 0) { fail('no form control matched any parameter'); return; }
+      if (!doRun) return;
+      var fn = null;
+      try { fn = (typeof MANIFEST !== 'undefined' && MANIFEST.execution && MANIFEST.execution.function_name) || null; } catch (e) {}
+      var target = (fn && typeof window[fn] === 'function') ? fn : (typeof window[RUN_TARGET] === 'function' ? RUN_TARGET : null);
+      if (!target) { fail('execution function not found on page'); return; }
+      await window[target]();
+      /* Expose the produced artifact on window for programmatic consumers (the
+         deep-link contract gate). _lastArtifact/_lastResult are page globals —
+         top-level let/const bindings are visible here lexically but not as
+         window properties, so re-read them by name. */
+      try {
+        if (typeof _lastArtifact !== 'undefined') window.__ocgDeeplinkArtifact = _lastArtifact;
+        else if (typeof _lastResult !== 'undefined') window.__ocgDeeplinkArtifact = _lastResult;
+      } catch (e2) { /* pages without either global simply expose nothing */ }
+    } catch (e) {
+      fail('execution failed: ' + ((e && e.message) || e));
+    } finally {
+      done();
+    }
+  }
+
+  window.__ocgDeeplinkRun = run;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { run(); });
+  else run();
+})();
+</script>
+
+<script>
+/* OCG-FILE-IMPORT v1 */
+/* Drag-drop / file-picker import of policy inputs, zero upload: .json is
+   parsed as policy_parameters and validated against the manifest inputSchema;
+   .csv is accepted only when the schema declares exactly one array-of-objects
+   input. Bytes stay in memory — no storage, no network. Picker detection
+   order per GoogleChromeLabs/browser-fs-access (MIT) README as of main
+   commit 686165d55fc159dae80ef95dc2a70472923aeccd. DO NOT hand-edit; emitted
+   by scripts/gen-webmcp-registrations.mjs from chaingraph/_page-chrome.mjs. */
+(function () {
+  'use strict';
+  var MAX = 1000000;
+  var RUN_TARGET = "run";
+  var PREFILL = {"annual_settlement_value_usd":["annual_settlement_value_usd","string"],"asset_leg_type":["asset_leg_type","string"],"atomicity_mechanism":["atomicity_mechanism","string"],"cash_leg_asset":["cash_leg_asset","string"],"deposit_token_issuer":["deposit_token_issuer","string"],"finality_regime":["finality_regime","string"],"intraday_liquidity":["intraday_liquidity","string"],"network_model":["network_model","string"],"operating_hours":["operating_hours","string"],"participant_eligibility":["participant_eligibility","string"],"participant_type":["participant_type","string"],"reconciliation_model":["reconciliation_model","string"]};
+  var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
+
+  function fail(msg) {
+    try {
+      var el = document.createElement('div');
+      el.setAttribute('role', 'alert');
+      el.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;border:2px solid #b45309;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:.72rem;background:#1a1206;color:#f4e8d4;max-height:40vh;overflow:auto';
+      el.textContent = PII_BANNER + ' File import rejected: ' + msg + ' Nothing was truncated, prefilled, or executed.';
+      document.body.appendChild(el);
+      if (typeof console !== 'undefined' && console.warn) console.warn('[file-import]', msg);
+    } catch (e) { /* never let the banner path throw */ }
+  }
+
+  /* Minimal RFC 4180 CSV reader: quoted fields, escaped quotes, CRLF/CR/LF. */
+  function csvParse(text) {
+    var rows = [[]], field = '', inQ = false, i, c;
+    for (i = 0; i < text.length; i++) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+        else field += c;
+      } else if (c === '"') inQ = true;
+      else if (c === ',') { rows[rows.length - 1].push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        rows[rows.length - 1].push(field); field = '';
+        rows.push([]);
+      } else field += c;
+    }
+    rows[rows.length - 1].push(field);
+    while (rows.length && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === '') rows.pop();
+    return rows;
+  }
+
+  function typeOk(v, t) {
+    switch (t) {
+      case 'string': return typeof v === 'string';
+      case 'number': return typeof v === 'number' && Number.isFinite(v);
+      case 'boolean': return typeof v === 'boolean';
+      case 'array': return Array.isArray(v);
+      case 'object': return v !== null && typeof v === 'object' && !Array.isArray(v);
+      default: return true;
+    }
+  }
+
+  function schema() {
+    return (typeof MANIFEST !== 'undefined' && MANIFEST.mcp_tool_definition && MANIFEST.mcp_tool_definition.inputSchema) || null;
+  }
+
+  /* Same validation + binding semantics as the deep-link reader: required
+     members, faithful type checks, PREFILL-table mapping ('string'|'json'|
+     'checked'|'boolstring'; object values bound via 'string' are JSON-
+     stringified). Returns the number of controls actually prefilled. */
+  function validateAndPrefill(params) {
+    if (!params || typeof params !== 'object' || Array.isArray(params)) throw new Error('payload must be a JSON object of policy_parameters');
+    var s = schema();
+    if (s) {
+      var required = Array.isArray(s.required) ? s.required : [];
+      for (var r = 0; r < required.length; r++) {
+        if (!(required[r] in params)) throw new Error('missing required parameter "' + required[r] + '"');
+      }
+      var props = s.properties || {};
+      for (var name in params) {
+        if (!(name in props)) throw new Error('unknown parameter "' + name + '" is not declared in the tool inputSchema');
+        var t = props[name] && props[name].type;
+        if ((t === 'number' || t === 'boolean') && !typeOk(params[name], t)) throw new Error('parameter "' + name + '" does not match the declared type "' + t + '"');
+        if ((t === 'object' || t === 'array') && params[name] !== null && typeof params[name] !== 'object') throw new Error('parameter "' + name + '" must be a JSON ' + t);
+      }
+    }
+    var prefilled = 0, paramCount = 0;
+    for (var prop in PREFILL) {
+      if (!(prop in params)) continue;
+      paramCount++;
+      var ent = PREFILL[prop];
+      var el = document.getElementById(ent[0]);
+      if (!el) continue;
+      var v = params[prop];
+      if (ent[1] === 'checked') el.checked = (v === true);
+      else if (ent[1] === 'boolstring') el.value = String(v === true);
+      else if (ent[1] === 'json' || (v !== null && typeof v === 'object')) el.value = JSON.stringify(v);
+      else el.value = String(v);
+      prefilled++;
+    }
+    if (prefilled === 0 && paramCount > 0) throw new Error('no form control matched any parameter');
+    return prefilled;
+  }
+
+  /* The schema's single array-of-objects input, or null when the count is not exactly one. */
+  function singleArrayObjectProp() {
+    var s = schema();
+    if (!s || !s.properties) return null;
+    var hit = null, n = 0;
+    for (var name in s.properties) {
+      var p = s.properties[name];
+      if (p && p.type === 'array' && p.items && p.items.type === 'object') { hit = name; n++; }
+    }
+    return n === 1 ? hit : null;
+  }
+
+  function runCompute() {
+    var fn = null;
+    try { fn = (typeof MANIFEST !== 'undefined' && MANIFEST.execution && MANIFEST.execution.function_name) || null; } catch (e) {}
+    var target = (fn && typeof window[fn] === 'function') ? fn : (typeof window[RUN_TARGET] === 'function' ? RUN_TARGET : null);
+    if (!target) throw new Error('execution function not found on page');
+    return window.__ocgComputeGate = window.__ocgComputeGate.then(function () { return window[target](); });
+  }
+
+  function capture() {
+    try {
+      if (typeof _lastArtifact !== 'undefined') window.__ocgDeeplinkArtifact = _lastArtifact;
+      else if (typeof _lastResult !== 'undefined') window.__ocgDeeplinkArtifact = _lastResult;
+    } catch (e2) { /* pages without either global simply expose nothing */ }
+  }
+
+  /* files: [{ name, text }] — the harness and both UI paths (picker, drop) feed the same entry point. */
+  async function importFiles(files) {
+    try {
+      if (!files || !files.length || !files[0] || typeof files[0].name !== 'string') return { ok: false, error: 'no file handed to the page' };
+      var f = files[0];
+      var text = typeof f.text === 'string' ? f.text : await f.text();
+      if (text.length > MAX) { fail('file too large (' + text.length + ' characters; cap is ' + MAX + ')'); return { ok: false, error: 'file too large' }; }
+      var lower = f.name.toLowerCase(), params, prop, rows, header, r, row, c;
+      if (lower.endsWith('.json')) {
+        try { params = JSON.parse(text); }
+        catch (e) { fail('file is not valid JSON'); return { ok: false, error: 'invalid JSON' }; }
+        if (params && typeof params === 'object' && !Array.isArray(params)
+          && Object.keys(params).length === 1 && params.policy_parameters
+          && typeof params.policy_parameters === 'object' && !Array.isArray(params.policy_parameters)) {
+          params = params.policy_parameters; /* accept the {policy_parameters:{…}} wrapper too */
+        }
+      } else if (lower.endsWith('.csv')) {
+        prop = singleArrayObjectProp();
+        if (!prop) { fail('.csv is accepted only when the tool declares exactly one array-of-objects input'); return { ok: false, error: 'no single array-of-objects input' }; }
+        rows = csvParse(text);
+        if (rows.length < 2) { fail('.csv needs a header row and at least one data row'); return { ok: false, error: 'csv missing data rows' }; }
+        header = rows[0];
+        params = {};
+        params[prop] = [];
+        for (r = 1; r < rows.length; r++) {
+          row = {};
+          for (c = 0; c < header.length; c++) row[header[c]] = rows[r][c] === undefined ? '' : rows[r][c];
+          params[prop].push(row);
+        }
+      } else {
+        fail('unsupported file type — named .json or .csv files are accepted');
+        return { ok: false, error: 'unsupported extension' };
+      }
+      var prefilled;
+      try { prefilled = validateAndPrefill(params); }
+      catch (e) { fail(e.message); return { ok: false, error: e.message }; }
+      try { await runCompute(); capture(); } catch (e3) { fail('execution failed: ' + ((e3 && e3.message) || e3)); return { ok: false, error: 'execution failed' }; }
+      return { ok: true, prefilled: prefilled, artifact: window.__ocgDeeplinkArtifact || null };
+    } catch (e) {
+      fail('import failed: ' + ((e && e.message) || e));
+      return { ok: false, error: 'import failed' };
+    }
+  }
+
+  window.__ocgFileImport = importFiles;
+  /* Serialize computes so a second drop cannot interleave with a running one. */
+  window.__ocgComputeGate = (typeof window.__ocgComputeGate !== 'undefined') ? window.__ocgComputeGate : Promise.resolve();
+
+  /* ── UI: a "Load file" control + a whole-page drop zone ─────────────────── */
+  function handleFiles(fileList) {
+    var files = [];
+    var pending = 0, left = fileList.length;
+    if (!left) return;
+    var step = function (f) {
+      if (f && typeof f.text === 'function') return f.text().then(function (t) { return { name: f.name, text: t }; });
+      return Promise.resolve({ name: f.name, text: String(f.text || '') });
+    };
+    for (var i = 0; i < fileList.length; i++) {
+      (function (f) {
+        pending++;
+        step(f).then(function (rec) { files.push(rec); })
+          .catch(function () { /* unreadable file: skip it */ })
+          .then(function () { if (--pending === 0) importFiles(files); });
+      })(fileList[i]);
+    }
+  }
+
+  /* Detection order (browser-fs-access README, commit 686165d5): the File
+     System Access picker when the browser has it, else <input type=file>. */
+  function pickAndImport() {
+    if (typeof window.showOpenFilePicker === 'function') {
+      window.showOpenFilePicker({ multiple: false, types: [{ description: 'Policy inputs', accept: { 'application/json': ['.json'], 'text/csv': ['.csv'] } }] })
+        .then(function (handles) { return handles[0].getFile(); })
+        .then(function (file) { handleFiles([file]); })
+        .catch(function (e) { if (e && e.name !== 'AbortError') fail('picker failed: ' + e.message); });
+    } else {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,.csv';
+      input.style.display = 'none';
+      input.addEventListener('change', function () {
+        var list = input.files || [];
+        var arr = []; for (var i = 0; i < list.length; i++) arr.push(list[i]);
+        handleFiles(arr);
+      });
+      document.body.appendChild(input);
+      input.click();
+    }
+  }
+
+  function wire() {
+    try {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = 'Load file (.json / .csv — stays in this tab)';
+      btn.setAttribute('aria-label', 'Load policy inputs from a local JSON or CSV file; the file never leaves your browser');
+      btn.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:9998;border:1px solid var(--border-2,#3b4a66);border-radius:8px;padding:8px 12px;font-family:monospace;font-size:.68rem;background:var(--bg-2,#101a2e);color:var(--body,#c7d3e8);cursor:pointer';
+      btn.addEventListener('click', pickAndImport);
+      document.body.appendChild(btn);
+
+      /* Drop zone over the whole page: the overlay lights up on dragover so a
+         drop anywhere lands on the import path, never on browser defaults. */
+      var zone = document.createElement('div');
+      zone.setAttribute('aria-hidden', 'true');
+      zone.textContent = 'Drop a .json or .csv file to prefill this tool — processed locally, nothing is uploaded';
+      zone.style.cssText = 'position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;border:3px dashed rgba(20,184,166,.6);background:rgba(8,14,26,.72);color:#e6eefc;font-family:monospace;font-size:.85rem;text-align:center;padding:24px';
+      var depth = 0;
+      var show = function () { depth++; zone.style.display = 'flex'; };
+      var hide = function () { depth = Math.max(0, depth - 1); if (!depth) zone.style.display = 'none'; };
+      document.addEventListener('dragenter', function (e) { e.preventDefault(); show(); });
+      document.addEventListener('dragover', function (e) { e.preventDefault(); });
+      document.addEventListener('dragleave', function (e) { e.preventDefault(); hide(); });
+      document.addEventListener('drop', function (e) {
+        e.preventDefault(); depth = 0; zone.style.display = 'none';
+        var items = (e.dataTransfer && e.dataTransfer.items) || null;
+        var files = [];
+        if (items && items.length) {
+          var pending = 0, left = items.length, collected = [];
+          for (var i = 0; i < items.length; i++) {
+            (function (item) {
+              if (item.kind !== 'file') { left--; return; }
+              if (typeof item.getAsFileSystemHandle === 'function') {
+                pending++;
+                item.getAsFileSystemHandle().then(function (h) { return h.getFile(); })
+                  .then(function (f) { collected.push(f); })
+                  .catch(function () { /* undrop-able entry: skip */ })
+                  .then(function () { if (--pending === 0) handleFiles(collected); });
+              } else {
+                var f = typeof item.getAsFile === 'function' ? item.getAsFile() : null;
+                if (f) files.push(f);
+              }
+            })(items[i]);
+          }
+          if (files.length && pending === 0) handleFiles(files);
+        } else if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+          var arr = []; for (var j = 0; j < e.dataTransfer.files.length; j++) arr.push(e.dataTransfer.files[j]);
+          handleFiles(arr);
+        }
+      });
+      document.body.appendChild(zone);
+    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+})();
+</script>
+<!-- WEBMCP:GEN-END -->
+
+</body>
+</html>

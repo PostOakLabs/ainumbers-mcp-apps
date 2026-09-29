@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Default Risk Scorer — AINumbers | OpenChainGraph</title>
+<meta name="description" content="Logistic regression credit default risk scoring on synthetic loan portfolios. PD distribution, AUC/KS/Gini, IRB vs SA capital comparison, expected loss. Chains from ART-05 (EU AI Act conformity), feeds SIM-03 (Basel RWA). AP2-exporting, MCP-exposed. Post Oak Labs.">
+<meta property="og:title" content="Credit Default Risk Scorer — AINumbers OpenChainGraph">
+<meta property="og:description" content="Zero-egress logistic regression credit default probability scoring. AP2 artifact export. Post Oak Labs.">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Post Oak Labs">
+<!-- Page-to-kernel build sentinel (PAGE-KERNEL-DIGEST-SENTINEL-1 convention): sha256 of the
+     kernel source this page's inline compute mirrors. scripts/check-page-kernel-digest.mjs
+     recomputes that digest from the kernel source and fails on a mismatch. Re-stamp when the
+     kernel moves; do not hand-edit to an arbitrary value.
+     ML02-SIGMOID-NORMALCDF-1 stamped 2026-09-12: the IRB inner term is N(.) per BCBS d424
+     CRE31.5 (was the logistic sigmoid); the PD-calibration sigmoid link is unchanged. -->
+<meta name="kernel-digest" content="sha256:ad5e65c90d06ca772a56e65a332990b9fdec2d8966a2eec552aece2dadf7d3a1">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/ml-02-credit-default-risk-scorer.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/ml-02-credit-default-risk-scorer.md">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080E1A; --bg-2:#0D1627; --bg-3:#111E35; --bg-4:#162340;
+  --border:#1E2F4A; --border-2:#263855; --muted:#3A5270; --body:#6888A8;
+  --text:#A8C4DE; --bright:#D4E8F8; --white:#EEF6FD;
+  --teal:#14B8A6; --teal-dim:rgba(20,184,166,.12);
+  --gold:#D4A847; --gold-dim:rgba(212,168,71,.12);
+  --purple:#9B72F5; --purple-dim:rgba(155,114,245,.12);
+  --green:#22C55E; --green-dim:rgba(34,197,94,.12);
+  --red:#EF4444; --red-dim:rgba(239,68,68,.12);
+  --warn:#F59E0B; --warn-dim:rgba(245,158,11,.12);
+  --radius:6px; --radius-lg:10px; --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-size:.85rem;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+.page-inner{max-width:1100px;margin:0 auto;padding:28px 24px 80px}
+.tool-header{background:linear-gradient(135deg,var(--bg-3) 0%,var(--bg-2) 100%);border:1px solid var(--border-2);border-top:3px solid var(--gold);border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:20px}
+.tool-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.tool-h1{font-family:'DM Serif Display',serif;font-size:1.45rem;color:var(--white);line-height:1.2;margin-bottom:6px}
+.tool-sub{font-size:.78rem;color:var(--body);line-height:1.7;max-width:640px;margin-bottom:12px}
+.tag-row{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.04em;padding:.18rem .48rem;border-radius:3px}
+.tag-gold{background:var(--gold-dim);color:var(--gold)}.tag-teal{background:var(--teal-dim);color:var(--teal)}
+.tag-purple{background:var(--purple-dim);color:var(--purple)}.tag-body{background:var(--bg-3);color:var(--body);border:1px solid var(--border)}
+.presets-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.preset-btn{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;flex:1;min-width:180px}
+.preset-btn:hover,.preset-btn.active{border-color:var(--gold);background:var(--bg-3)}
+.preset-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.preset-name{font-size:.78rem;font-weight:600;color:var(--bright)}
+.preset-desc{font-size:.67rem;color:var(--body);margin-top:2px}
+.chain-block{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:16px}
+.chain-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.chain-input{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.5rem .7rem;width:100%;height:56px;resize:vertical;transition:border-color .15s}
+.chain-input:focus{outline:none;border-color:var(--teal);color:var(--text)}
+.controls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.ctrl-group{display:flex;flex-direction:column;gap:4px}
+.ctrl-label{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ctrl-input{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:.4rem .6rem;width:100%;transition:border-color .15s}
+.ctrl-input:focus{outline:none;border-color:var(--gold)}
+select.ctrl-input option{background:var(--bg-3)}
+.run-btn{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:.08em;padding:.6rem 1.6rem;cursor:pointer;transition:opacity .15s}
+.run-btn:hover{opacity:.85}.run-btn:disabled{opacity:.4;cursor:not-allowed}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .1s;width:0}
+.results-section{margin-top:24px}
+.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:18px}
+.metric-card{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px}
+.metric-n{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--white)}
+.metric-l{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.metric-sub{font-size:.65rem;color:var(--body);margin-top:2px}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.chart-wrap{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px}
+.chart-title{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+svg.chart{width:100%;overflow:visible}
+/* Score table */
+.score-table-wrap{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:18px}
+.score-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.62rem}
+.score-table th{color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-size:.5rem;padding:0 8px 6px;text-align:left;border-bottom:1px solid var(--border)}
+.score-table td{padding:5px 8px;border-bottom:1px solid var(--border);color:var(--text)}
+.score-table tr:last-child td{border-bottom:none}
+.pd-high{color:var(--red)}.pd-med{color:var(--warn)}.pd-low{color:var(--green)}
+.verdict-block{border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:18px;border:1px solid}
+.verdict-block.high{background:var(--red-dim);border-color:rgba(239,68,68,.3)}
+.verdict-block.moderate{background:var(--warn-dim);border-color:rgba(245,158,11,.3)}
+.verdict-block.low{background:var(--green-dim);border-color:rgba(34,197,94,.3)}
+.verdict-label{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.verdict-text{font-size:.78rem;line-height:1.6}
+.export-block{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:var(--radius-lg);padding:16px 18px;margin-top:20px}
+.export-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.export-pre{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--body);line-height:1.7;overflow-x:auto;max-height:280px;overflow-y:auto;white-space:pre}
+.copy-btn{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.55rem;padding:.3rem .75rem;cursor:pointer;transition:border-color .15s,color .15s;margin-top:8px}
+.copy-btn:hover{border-color:var(--teal);color:var(--teal)}
+.edu-note{background:var(--gold-dim);border:1px solid rgba(212,168,71,.2);border-radius:var(--radius);padding:10px 14px;font-size:.7rem;color:var(--body);margin-bottom:16px}
+.edu-note strong{color:var(--gold)}
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:20px 0;margin-top:40px}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:500;color:var(--bright)}
+.footer-cc{font-size:.62rem;color:var(--muted);margin-top:2px}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-links a{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--body);transition:color .15s}
+.footer-links a:hover{color:var(--teal)}
+@media(max-width:768px){.charts-grid{grid-template-columns:1fr}.page-inner{padding:16px 14px 60px}.nav-pill{display:none}}
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius,4px);transition:background .15s;margin-bottom:1px;cursor:pointer;margin-top:2rem}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius,4px) var(--radius,4px);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.6;white-space:pre}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">Credit Default Risk Scorer</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-inner">
+  <div class="tool-header">
+    <div class="tool-eyebrow">ML-02 · Capital &amp; Quantitative Risk · Credit Risk · IRB Pre-Validation</div>
+    <h1 class="tool-h1">Credit Default Risk Scorer</h1>
+    <p class="tool-sub">Logistic regression credit default probability (PD) scoring on a synthetic loan portfolio. Computes AUC, KS statistic, and Gini coefficient as model performance metrics; produces a PD distribution; compares IRB (F-IRB and A-IRB) versus Standardised Approach (SA) capital requirements. Chains from ART-05 (EU AI Act Credit-Scoring Conformity) — the conformity check validates the model governance before scoring. Feeds SIM-03 (Basel RWA Scenario Modeler) with PD/LGD inputs for IRB capital computation. All computation client-side — no loan data transmitted.</p>
+    <div class="tag-row">
+      <span class="tag tag-gold">score_credit_default_risk</span>
+      <span class="tag tag-teal">credit_assessment</span>
+      <span class="tag tag-body">Basel III F-IRB / A-IRB</span>
+      <span class="tag tag-body">EU AI Act Art. 11</span>
+      <span class="tag tag-body">BCBS d424</span>
+      <span class="tag tag-body">EBA GL/2017/16</span>
+    </div>
+  </div>
+
+  <div class="edu-note"><strong>Educational / Pre-validation only.</strong> Synthetic loan portfolio generated client-side using a seeded PRNG — no real borrower data processed. Logistic regression weights are illustrative, not calibrated to any real loan book. IRB capital figures are for scenario analysis ahead of Basel 3.1 (UK PRA PS1/26 January 2027). Chains from ART-05 to confirm EU AI Act model-governance compliance before scoring.</div>
+
+  <!-- PRESETS -->
+  <div class="presets-row">
+    <div class="preset-btn active" onclick="selectPreset('retail_mortgage')">
+      <div class="preset-label">Preset 1</div>
+      <div class="preset-name">Retail Mortgage</div>
+      <div class="preset-desc">500 loans · LTV-heavy · 2.5% default rate</div>
+    </div>
+    <div class="preset-btn" onclick="selectPreset('sme_lending')">
+      <div class="preset-label">Preset 2</div>
+      <div class="preset-name">SME Lending</div>
+      <div class="preset-desc">300 loans · sector mix · 6% default rate</div>
+    </div>
+    <div class="preset-btn" onclick="selectPreset('corp_book')">
+      <div class="preset-label">Preset 3</div>
+      <div class="preset-name">Corporate Book</div>
+      <div class="preset-desc">200 loans · large exposures · 1.5% default rate</div>
+    </div>
+  </div>
+
+  <!-- CHAIN INTAKE -->
+  <div class="chain-block">
+    <div class="chain-eyebrow">Chain Intake — paste AP2 JSON from ART-05 (EU AI Act Credit-Scoring Conformity)</div>
+    <textarea class="chain-input" id="chainIntake" placeholder='{"ap2_version":"1.0.0","tool_id":"art-05-eu-ai-act-credit-scoring-conformity","execution_hash":"sha256:...","output_payload":{"conformity_determination":...}} — or bare sha256:...'></textarea>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-grid">
+    <div class="ctrl-group">
+      <label class="ctrl-label">Portfolio Size</label>
+      <input type="number" id="nLoans" class="ctrl-input" value="500" min="50" max="2000">
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">Asset Class</label>
+      <select id="assetClass" class="ctrl-input">
+        <option value="retail_mortgage" selected>Retail Mortgage</option>
+        <option value="sme">SME / Corporate</option>
+        <option value="consumer">Consumer Credit</option>
+        <option value="large_corp">Large Corporate</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">True Default Rate</label>
+      <select id="defaultRate" class="ctrl-input">
+        <option value="0.01">1% (Prime)</option>
+        <option value="0.025" selected>2.5% (Near-prime)</option>
+        <option value="0.06">6% (Sub-prime)</option>
+        <option value="0.12">12% (High-risk)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">LGD Assumption</label>
+      <select id="lgd" class="ctrl-input">
+        <option value="0.25">25% (Secured, senior)</option>
+        <option value="0.45" selected>45% (Basel F-IRB floor)</option>
+        <option value="0.60">60% (Unsecured)</option>
+        <option value="0.75">75% (Subordinated)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">Avg Maturity (yrs)</label>
+      <input type="number" id="maturity" class="ctrl-input" value="2.5" min="0.5" max="5" step="0.5">
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">PD Threshold</label>
+      <select id="pdThreshold" class="ctrl-input">
+        <option value="0.05">5% (Watchlist)</option>
+        <option value="0.10" selected>10% (Sub-standard)</option>
+        <option value="0.20">20% (Doubtful)</option>
+      </select>
+    </div>
+    <div class="ctrl-group">
+      <label class="ctrl-label">Seed</label>
+      <input type="number" id="seed" class="ctrl-input" value="42">
+    </div>
+  </div>
+
+  <button class="run-btn" id="runBtn" onclick="startScoring()">▶ Score Credit Portfolio</button>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- RESULTS -->
+  <div class="results-section" id="results" style="display:none">
+    <div class="section-eyebrow">Credit Scoring Results</div>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-n" id="mAUC">—</div>
+        <div class="metric-l">AUC-ROC</div>
+        <div class="metric-sub">Model discrimination</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-n" id="mKS">—</div>
+        <div class="metric-l">KS Statistic</div>
+        <div class="metric-sub">Max default/non-default separation</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-n" id="mGini">—</div>
+        <div class="metric-l">Gini Coefficient</div>
+        <div class="metric-sub">2×AUC − 1</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-n" id="mPortPD">—</div>
+        <div class="metric-l">Portfolio PD</div>
+        <div class="metric-sub">Weighted avg PD</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-n" id="mEL">—</div>
+        <div class="metric-l">Expected Loss</div>
+        <div class="metric-sub">PD × LGD × EAD</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-n" id="mIRBRWA">—</div>
+        <div class="metric-l">IRB RWA</div>
+        <div class="metric-sub">vs SA RWA</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">PD Distribution (log-score histogram)</div>
+        <svg id="pdHistChart" class="chart" viewBox="0 0 340 180"></svg>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">ROC Curve (AUC)</div>
+        <svg id="rocChart" class="chart" viewBox="0 0 340 180"></svg>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">KS Plot — Cumulative Default vs Non-Default</div>
+        <svg id="ksChart" class="chart" viewBox="0 0 340 180"></svg>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">RWA Comparison: IRB vs Standardised Approach</div>
+        <svg id="rwaChart" class="chart" viewBox="0 0 340 180"></svg>
+      </div>
+    </div>
+
+    <!-- TOP RISK TABLE -->
+    <div class="score-table-wrap">
+      <div class="section-eyebrow" style="margin-bottom:8px">Top 10 Highest-PD Loans (Synthetic)</div>
+      <table class="score-table">
+        <thead><tr><th>#</th><th>PD Score</th><th>LTV / DTI</th><th>Credit Score</th><th>Sector</th><th>EL</th><th>IRB RWA</th></tr></thead>
+        <tbody id="loanBody"></tbody>
+      </table>
+    </div>
+
+    <!-- VERDICT -->
+    <div class="verdict-block" id="verdictBlock">
+      <div class="verdict-label" id="verdictLabel">—</div>
+      <div class="verdict-text" id="verdictText">—</div>
+    </div>
+
+    <!-- AP2 EXPORT -->
+    <div class="export-block">
+      <div class="export-eyebrow">AP2 Artifact Export — execution_hash anchors this computation</div>
+      <pre class="export-pre" id="exportPre">—</pre>
+      <button class="copy-btn" onclick="copyExport()">Copy JSON</button>
+    <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:not-allowed;opacity:.55;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
+    <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:960px;margin:0 auto;padding:0 1.5rem">
+  <button class="mfst-btn" onclick="toggleMfst()" aria-expanded="false" aria-controls="mfstBody">
+    <span>&#x7B;&#x7D; MCP Manifest &#x2014; ML-02</span>
+    <span id="mfstArrow">&#x25BC;</span>
+  </button>
+  <div class="mfst-body" id="mfstBody" aria-hidden="true">
+    <pre class="mfst-code" id="mfstCode"></pre>
+  </div>
+</div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/ml-02-credit-default-risk-scorer.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `score_credit_default_risk`. Task: Score credit default probability using logistic regression with Basel III risk-weight mapping.
+Call it with arguments: {"policy_parameters":{"n_loans":10,"asset_class":"retail_mortgage","target_default_rate":0.05,"lgd":0.45,"maturity_yrs":2.5,"pd_threshold":0.5,"seed":11}}
+Verify before trusting: this node computes in your browser, so the MCP endpoint returns no execution_hash. Run the tool in the page, export the Policy Mandate artifact it produces, and call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with that artifact.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/ml-02-credit-default-risk-scorer.html#p=v1.H4sIAAAAAAAA_wGEAHv_eyJuX2xvYW5zIjoxMCwiYXNzZXRfY2xhc3MiOiJyZXRhaWxfbW9ydGdhZ2UiLCJ0YXJnZXRfZGVmYXVsdF9yYXRlIjowLjA1LCJsZ2QiOjAuNDUsIm1hdHVyaXR5X3lycyI6Mi41LCJwZF90aHJlc2hvbGQiOjAuNSwic2VlZCI6MTF9W96Xf4QAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── LCG ────────────────────────────────────────────────────────
+function makeLCG(seed){let s=seed>>>0;return()=>{s=(Math.imul(1664525,s)+1013904223)>>>0;return s/4294967296;};}
+function randn(rng){const u1=rng(),u2=rng();return Math.sqrt(-2*Math.log(u1+1e-15))*Math.cos(2*Math.PI*u2);}
+function sigmoid(x){return 1/(1+Math.exp(-x));}
+
+// ── Sector labels ──────────────────────────────────────────────
+const SECTORS=['Retail','Real Estate','Manufacturing','Tech','Healthcare','Financial','Energy','Transport'];
+
+// ── Standard normal CDF N(x) = Φ(x) — BCBS d424 CRE31.5 ──────────────────────
+// erf/erfc ported VERBATIM from SunPro fdlibm s_erf.c (identical coefficients to
+// the kernel's helper; max |Φ err| 1.1e-16 vs Python math.erf on a 40,024-point
+// grid; round-trip Φ(normInv(p))=p max err 1.669e-4, dominated by normInv's
+// documented 4.5e-4 bound). ML02-SIGMOID-NORMALCDF-1: the IRB inner term uses
+// N(.) per CRE31.5; the logistic sigmoid above remains ONLY for the PD
+// calibration link, which is a genuine logistic model.
+/*
+ * ====================================================
+ * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ *
+ * Developed at SunSoft, a Sun Microsystems, Inc. business.
+ * Permission to use, copy, modify, and distribute this
+ * software is freely granted, provided that this notice
+ * is preserved.
+ * ====================================================
+ */
+function normalCdf(x){
+  const f64=new Float64Array(1), u32=new Uint32Array(f64.buffer);
+  function hi(v){f64[0]=v;return u32[1]|0;}
+  function lo0(v){f64[0]=v;u32[0]=0;return f64[0];}
+  const tiny=1e-300, half=0.5, one=1.0, two=2.0, erx=8.45062911510467529297e-01;
+  const pp0=1.28379167095512558561e-01,pp1=-3.25042107247001499370e-01,pp2=-2.84817495755985104766e-02,pp3=-5.77027029648944159157e-03,pp4=-2.37630166566501626084e-05;
+  const qq1=3.97917223959155352819e-01,qq2=6.50222499887672944485e-02,qq3=5.08130628187576562776e-03,qq4=1.32494738004321644526e-04,qq5=-3.96022827877536812320e-06;
+  const pa0=-2.36211856075265944077e-03,pa1=4.14856118683748331666e-01,pa2=-3.72207876035701323847e-01,pa3=3.18346619901161753674e-01,pa4=-1.10894694282396677476e-01,pa5=3.54783043256182359371e-02,pa6=-2.16637559486879084300e-03;
+  const qa1=1.06420880400844228286e-01,qa2=5.40397917702171048937e-01,qa3=7.18286544141962662868e-02,qa4=1.26171219808761642112e-01,qa5=1.36370839120290507362e-02,qa6=1.19844998467991074170e-02;
+  const ra0=-9.86494403484714822705e-03,ra1=-6.93858572707181764372e-01,ra2=-1.05586262253232909814e+01,ra3=-6.23753324503260060396e+01,ra4=-1.62396669462573470355e+02,ra5=-1.84605092906711035994e+02,ra6=-8.12874355063065934246e+01,ra7=-9.81432934416914548592e+00;
+  const sa1=1.96512716674392571292e+01,sa2=1.37657754143519042600e+02,sa3=4.34565877475229228821e+02,sa4=6.45387271733267880336e+02,sa5=4.29008140027567833386e+02,sa6=1.08635005541779435134e+02,sa7=6.57024977031928170135e+00,sa8=-6.04244152148580987438e-02;
+  const rb0=-9.86494292470009928597e-03,rb1=-7.99283237680523006574e-01,rb2=-1.77579549177547519889e+01,rb3=-1.60636384855821916062e+02,rb4=-6.37566443368389627722e+02,rb5=-1.02509513161107724954e+03,rb6=-4.83519191608651397019e+02;
+  const sb1=3.03380607434824582924e+01,sb2=3.25792512996573918826e+02,sb3=1.53672958608443695994e+03,sb4=3.19985821950859553908e+03,sb5=2.55305040643316442583e+03,sb6=4.74528541206955367215e+02,sb7=-2.24409524465858183362e+01;
+  function erfc(x){
+    const hx=hi(x), ix=hx&0x7fffffff;
+    if(ix>=0x7ff00000) return ((hx>>31)<<1)+one/x;
+    if(ix<0x3feb0000){ /* |x|<0.84375 */
+      if(ix<0x3c700000) return one-x;
+      const z=x*x;
+      const r=pp0+z*(pp1+z*(pp2+z*(pp3+z*pp4)));
+      const s=one+z*(qq1+z*(qq2+z*(qq3+z*(qq4+z*qq5))));
+      const y=r/s;
+      if(hx<0x3fd00000){ return one-(x+x*y); } /* x<1/4 */
+      let r2=x*y; r2+=(x-half);
+      return half-r2;
+    }
+    if(ix<0x3ff40000){ /* 0.84375<=|x|<1.25 */
+      const s=Math.abs(x)-one;
+      const P=pa0+s*(pa1+s*(pa2+s*(pa3+s*(pa4+s*(pa5+s*pa6)))));
+      const Q=one+s*(qa1+s*(qa2+s*(qa3+s*(qa4+s*(qa5+s*qa6)))));
+      if(hx>=0){ const z2=one-erx; return z2-P/Q; }
+      const z2=erx+P/Q; return one+z2;
+    }
+    if(ix<0x403c0000){ /* |x|<28 */
+      x=Math.abs(x);
+      const s=one/(x*x);
+      let R,S;
+      if(ix<0x4006DB6D){ /* |x|<1/0.35 */
+        R=ra0+s*(ra1+s*(ra2+s*(ra3+s*(ra4+s*(ra5+s*(ra6+s*ra7))))));
+        S=one+s*(sa1+s*(sa2+s*(sa3+s*(sa4+s*(sa5+s*(sa6+s*(sa7+s*sa8)))))));
+      } else {
+        if(hx<0&&ix>=0x40180000) return two-tiny; /* x<-6 */
+        R=rb0+s*(rb1+s*(rb2+s*(rb3+s*(rb4+s*(rb5+s*rb6)))));
+        S=one+s*(sb1+s*(sb2+s*(sb3+s*(sb4+s*(sb5+s*(sb6+s*sb7))))));
+      }
+      const z=lo0(x);
+      const r=Math.exp(-z*z-0.5625)*Math.exp((z-x)*(z+x)+R/S);
+      return hx>0 ? r/x : two-r/x;
+    }
+    return hx>0 ? tiny*tiny : two-tiny;
+  }
+  return 0.5*erfc(-x/Math.SQRT2); /* Φ(-x)=1-Φ(x) by erfc symmetry: tail-accurate both sides */
+}
+
+// ── IRB RWA formula (Basel BCBS d424 CRE31.5) ─────────────────
+// Correlation R for corporate/SME/retail
+function irbRWA(pd, lgd, maturity, assetClass){
+  const pd_c=Math.max(pd, 0.0003);
+  let R;
+  if(assetClass==='retail_mortgage'){R=0.15;}
+  else if(assetClass==='consumer'){R=0.04;}
+  else{
+    // Corporate / SME
+    R=0.12*(1-Math.exp(-50*pd_c))/(1-Math.exp(-50))
+     +0.24*(1-(1-Math.exp(-50*pd_c))/(1-Math.exp(-50)));
+  }
+  // Maturity adjustment b(PD)
+  const b=(0.11852-0.05478*Math.log(pd_c))**2;
+  const M_adj=(1+(maturity-2.5)*b)/(1-1.5*b);
+  // Normal quantile approx (rational Horner; x = t - ratio per A&S 26.2.23, mirroring
+  // the sealed kernel — ML02-NORMINV-SIGN-1 fixed the kernel but this inline copy had
+  // kept the sign-inverted ratio - t form, displaying zero IRB capital)
+  function normInv(p){
+    const a=[2.515517,0.802853,0.010328];const b2=[1.432788,0.189269,0.001308];
+    const t=Math.sqrt(-2*Math.log(p<0.5?p:1-p));
+    const x=t-(a[0]+t*(a[1]+t*a[2]))/(1+t*(b2[0]+t*(b2[1]+t*b2[2])));
+    return p<0.5?-x:x;
+  }
+  const z=normInv(0.999);
+  const inner=(normInv(pd_c)/Math.sqrt(1-R)+Math.sqrt(R/(1-R))*z);
+  const K=Math.max(lgd*normalCdf(inner)*M_adj - pd_c*lgd, 0);
+  return K*12.5; // convert capital % to RWA density
+}
+
+// ── SA RWA by asset class ──────────────────────────────────────
+const SA_WEIGHTS={retail_mortgage:0.35, sme:0.75, consumer:0.75, large_corp:1.0};
+
+// ── Presets ────────────────────────────────────────────────────
+const PRESETS={
+  retail_mortgage:{nLoans:500,assetClass:'retail_mortgage',defaultRate:0.025,lgd:0.25,maturity:2.5,pdThreshold:0.10,seed:42},
+  sme_lending:    {nLoans:300,assetClass:'sme',           defaultRate:0.06, lgd:0.45,maturity:2.5,pdThreshold:0.10,seed:137},
+  corp_book:      {nLoans:200,assetClass:'large_corp',    defaultRate:0.015,lgd:0.45,maturity:3.0,pdThreshold:0.10,seed:999}
+};
+function selectPreset(name){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const p=PRESETS[name];
+  document.getElementById('nLoans').value=p.nLoans;
+  document.getElementById('assetClass').value=p.assetClass;
+  document.getElementById('defaultRate').value=p.defaultRate;
+  document.getElementById('lgd').value=p.lgd;
+  document.getElementById('maturity').value=p.maturity;
+  document.getElementById('pdThreshold').value=p.pdThreshold;
+  document.getElementById('seed').value=p.seed;
+}
+
+let creditResult=null, creditParams=null;
+
+async function startScoring(){
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true;
+  document.getElementById('results').style.display='none';
+
+  const nLoans     =parseInt(document.getElementById('nLoans').value)||500;
+  const assetClass =document.getElementById('assetClass').value;
+  const defaultRate=parseFloat(document.getElementById('defaultRate').value)||0.025;
+  const lgd        =parseFloat(document.getElementById('lgd').value)||0.45;
+  const maturity   =parseFloat(document.getElementById('maturity').value)||2.5;
+  const pdThreshold=parseFloat(document.getElementById('pdThreshold').value)||0.10;
+  const seed       =parseInt(document.getElementById('seed').value)||42;
+  const chainRaw   =document.getElementById('chainIntake').value.trim();
+
+  creditParams={nLoans, assetClass, defaultRate, lgd, maturity, pdThreshold, seed};
+
+  const rng=makeLCG(seed);
+  // ── Logistic regression weights (illustrative) ──────────────
+  // features: ltv_dti (0-1), credit_score_norm (0-1 inverted), employment (0/1), sector_risk (0-1), recency (0-1)
+  const W_INTERCEPT=-2.5;
+  const W=[2.5, 3.0, -1.2, 1.5, 0.8]; // ltv, cs_inv, empl, sector, recency
+
+  // ── Generate synthetic loans ─────────────────────────────────
+  const loans=[];
+  const CHUNK=50;
+  for(let i=0;i<nLoans;i+=CHUNK){
+    const end=Math.min(i+CHUNK,nLoans);
+    for(let j=i;j<end;j++){
+      const ltv=Math.min(rng()*0.9+0.1,1.0);
+      const dti=rng()*0.6+0.1;
+      const ltv_dti=(ltv+dti)/2;
+      const csRaw=Math.round(rng()*400+400); // 400-800
+      const cs_norm=1-(csRaw-400)/400;
+      const employed=(rng()>0.15)?1:0;
+      const sector=Math.floor(rng()*SECTORS.length);
+      const sectorRisk=[0.2,0.5,0.35,0.25,0.15,0.45,0.55,0.4][sector];
+      const recency=rng();
+      const logit=W_INTERCEPT+W[0]*ltv_dti+W[1]*cs_norm+W[2]*employed+W[3]*sectorRisk+W[4]*recency;
+      const pd=Math.min(Math.max(sigmoid(logit),0.001),0.999);
+      // Actual default (Bernoulli, calibrated towards defaultRate)
+      const pdAdj=pd*(defaultRate/0.07); // rescale to target default rate
+      const defaulted=(rng()<Math.min(pdAdj,0.99));
+      const ead=rng()*900000+50000; // £50k–£950k
+      loans.push({pd, ltv, dti, csRaw, employed, sector:SECTORS[sector], sectorRisk, ead, defaulted, lgd});
+    }
+    await new Promise(r=>setTimeout(r,0));
+    document.getElementById('progressFill').style.width=(Math.min(end/nLoans*60,60))+'%';
+  }
+
+  // ── Model performance metrics ────────────────────────────────
+  // Sort by PD desc for ROC / KS
+  const sorted=[...loans].sort((a,b)=>b.pd-a.pd);
+  const nDefault=loans.filter(l=>l.defaulted).length;
+  const nNonDefault=nLoans-nDefault;
+  if(nDefault===0){btn.disabled=false;return;}
+
+  // ROC
+  const rocPoints=[{fpr:0,tpr:0}];
+  let cumD=0,cumN=0;
+  sorted.forEach(l=>{
+    if(l.defaulted)cumD++;else cumN++;
+    rocPoints.push({fpr:cumN/Math.max(nNonDefault,1),tpr:cumD/Math.max(nDefault,1)});
+  });
+  rocPoints.push({fpr:1,tpr:1});
+  // AUC via trapezoid
+  let auc=0;
+  for(let i=1;i<rocPoints.length;i++){
+    auc+=(rocPoints[i].fpr-rocPoints[i-1].fpr)*(rocPoints[i].tpr+rocPoints[i-1].tpr)/2;
+  }
+
+  // KS: cumulative dist
+  const ksPoints=[];
+  let cumDk=0,cumNk=0;
+  let maxKS=0;
+  sorted.forEach(l=>{
+    if(l.defaulted)cumDk++;else cumNk++;
+    const ks=Math.abs(cumDk/Math.max(nDefault,1)-cumNk/Math.max(nNonDefault,1));
+    if(ks>maxKS)maxKS=ks;
+    ksPoints.push({cdfD:cumDk/Math.max(nDefault,1),cdfN:cumNk/Math.max(nNonDefault,1)});
+  });
+
+  // Portfolio PD, EL, RWA
+  const portPD=loans.reduce((s,l)=>s+l.pd,0)/nLoans;
+  const totalEAD=loans.reduce((s,l)=>s+l.ead,0);
+  const totalEL=loans.reduce((s,l)=>s+l.pd*l.lgd*l.ead,0);
+  const irbRwaDensity=irbRWA(portPD, lgd, maturity, assetClass);
+  const totalIRBRWA=totalEAD*irbRwaDensity;
+  const totalSARWA=totalEAD*(SA_WEIGHTS[assetClass]||0.75);
+  const irbCapital=totalIRBRWA*0.08; // 8% Pillar 1
+  const saCapital=totalSARWA*0.08;
+
+  document.getElementById('progressFill').style.width='100%';
+
+  creditResult={loans, sorted, rocPoints, ksPoints, auc, maxKS, portPD, totalEL, totalEAD, totalIRBRWA, totalSARWA, irbCapital, saCapital, nDefault, nNonDefault};
+
+  let parentHash='',parentToolId='';
+  if(chainRaw){try{const parsed=chainRaw.startsWith('{')?JSON.parse(chainRaw):null;parentHash=parsed?(parsed.execution_hash||''):(chainRaw.startsWith('sha256:')?chainRaw:'');parentToolId=parsed?(parsed.tool_id||''):'';}catch(e){parentHash=chainRaw.startsWith('sha256:')?chainRaw:'';}}
+
+  await renderResults(parentHash, parentToolId);
+  btn.disabled=false;
+}
+
+function pct(v,d=2){return(v*100).toFixed(d)+'%';}
+function fmt$M(v){return'£'+(v/1e6).toFixed(2)+'M';}
+
+async function renderResults(parentHash, parentToolId){
+  const r=creditResult;
+  const p=creditParams;
+  document.getElementById('mAUC').textContent=r.auc.toFixed(3);
+  document.getElementById('mKS').textContent=pct(r.maxKS);
+  document.getElementById('mGini').textContent=(2*r.auc-1).toFixed(3);
+  document.getElementById('mPortPD').textContent=pct(r.portPD);
+  document.getElementById('mEL').textContent=fmt$M(r.totalEL);
+  const irbAdv=(1-r.totalIRBRWA/r.totalSARWA);
+  document.getElementById('mIRBRWA').textContent=fmt$M(r.totalIRBRWA)+' ('+(irbAdv>=0?'-':'+')+(Math.abs(irbAdv)*100).toFixed(0)+'% vs SA)';
+
+  drawPDHist();
+  drawROC();
+  drawKS();
+  drawRWAChart();
+  renderLoanTable();
+
+  const vb=document.getElementById('verdictBlock');
+  const vl=document.getElementById('verdictLabel');
+  const vt=document.getElementById('verdictText');
+  const gini=2*r.auc-1;
+  const irbSaving=(r.totalSARWA-r.totalIRBRWA)/r.totalSARWA;
+  if(gini<0.4||r.portPD>0.10){
+    vb.className='verdict-block high';vl.textContent='Weak Model / Elevated Portfolio Risk';vl.style.color='var(--red)';
+    vt.textContent=`Gini of ${gini.toFixed(3)} is below the 0.40 minimum threshold recommended by EBA GL/2017/16 for IRB model approval. Portfolio PD of ${pct(r.portPD)} also exceeds typical watchlist thresholds. Under BCBS d424, a model with Gini <0.40 would require material remediation before receiving IMA/IRB model approval. Recommend re-feature engineering and recalibration. EU AI Act Art. 11 documentation obligation is engaged for this high-risk AI system.`;
+  } else if(gini<0.6){
+    vb.className='verdict-block moderate';vl.textContent='Acceptable Model — Monitoring Required';vl.style.color='var(--warn)';
+    vt.textContent=`Gini of ${gini.toFixed(3)} meets the EBA GL/2017/16 minimum (0.40) but falls below the 0.60 preferred threshold for IRB model approval. AUC of ${r.auc.toFixed(3)}, KS of ${pct(r.maxKS)}. IRB capital saving of ${pct(irbSaving)} vs SA (${fmt$M(r.irbCapital)} vs ${fmt$M(r.saCapital)}). Basel 3.1 output floor (72.5%) will constrain IRB capital benefit — ensure Pillar 3 disclosures are current for Basel 3.1 UK go-live January 2027.`;
+  } else {
+    vb.className='verdict-block low';vl.textContent='Strong Model — IRB Capital Benefit Evidenced';vl.style.color='var(--green)';
+    vt.textContent=`Gini of ${gini.toFixed(3)} exceeds the EBA GL/2017/16 0.60 preferred threshold. AUC: ${r.auc.toFixed(3)}, KS: ${pct(r.maxKS)}. IRB capital saving of ${pct(irbSaving)} vs SA (${fmt$M(r.irbCapital)} vs ${fmt$M(r.saCapital)}). Portfolio PD of ${pct(r.portPD)}, expected loss ${fmt$M(r.totalEL)}. Pass this artifact to SIM-03 (Basel RWA Scenario Modeler) to propagate PD/LGD inputs into full IRB capital scenarios.`;
+  }
+
+  await buildExport(parentHash, parentToolId);
+  document.getElementById('results').style.display='block';
+}
+
+function drawPDHist(){
+  const svg=document.getElementById('pdHistChart');svg.innerHTML='';
+  const W=340,H=180,PL=42,PR=12,PT=10,PB=28,cW=W-PL-PR,cH=H-PT-PB;
+  const BINS=20;
+  const pds=creditResult.loans.map(l=>l.pd);
+  const counts=new Array(BINS).fill(0);
+  const defCounts=new Array(BINS).fill(0);
+  pds.forEach((pd,i)=>{
+    const b=Math.min(BINS-1,Math.floor(pd*BINS));
+    counts[b]++;if(creditResult.loans[i].defaulted)defCounts[b]++;
+  });
+  const maxC=Math.max(...counts);
+  const th=creditParams.pdThreshold;
+  const thX=PL+th*cW;
+  for(let i=0;i<BINS;i++){
+    const x=PL+i*(cW/BINS);const bH=counts[i]/maxC*cH;const dH=defCounts[i]/maxC*cH;
+    const inHigh=(i/BINS>=th);
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',x.toFixed(1));rect.setAttribute('y',(PT+cH-bH).toFixed(1));
+    rect.setAttribute('width',(cW/BINS-1).toFixed(1));rect.setAttribute('height',bH.toFixed(1));
+    rect.setAttribute('fill',inHigh?'rgba(212,168,71,.55)':'rgba(20,184,166,.5)');svg.appendChild(rect);
+    if(dH>0){const dr=document.createElementNS('http://www.w3.org/2000/svg','rect');
+      dr.setAttribute('x',x.toFixed(1));dr.setAttribute('y',(PT+cH-dH).toFixed(1));
+      dr.setAttribute('width',(cW/BINS-1).toFixed(1));dr.setAttribute('height',dH.toFixed(1));
+      dr.setAttribute('fill','rgba(239,68,68,.7)');svg.appendChild(dr);}
+  }
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',thX.toFixed(1));line.setAttribute('y1',PT);line.setAttribute('x2',thX.toFixed(1));line.setAttribute('y2',PT+cH);
+  line.setAttribute('stroke','var(--warn)');line.setAttribute('stroke-width','1.5');line.setAttribute('stroke-dasharray','4,3');svg.appendChild(line);
+  const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+  lbl.setAttribute('x',(thX+3).toFixed(1));lbl.setAttribute('y',(PT+10).toFixed(1));
+  lbl.setAttribute('fill','var(--warn)');lbl.setAttribute('font-size','6.5');lbl.textContent='Threshold';svg.appendChild(lbl);
+  const ax=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ax.setAttribute('x1',PL);ax.setAttribute('y1',PT+cH);ax.setAttribute('x2',W-PR);ax.setAttribute('y2',PT+cH);
+  ax.setAttribute('stroke','var(--border-2)');ax.setAttribute('stroke-width','1');svg.appendChild(ax);
+  for(let i=0;i<=5;i++){const v=i/5;const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',(PL+i*cW/5).toFixed(1));t.setAttribute('y',PT+cH+10);
+    t.setAttribute('fill','var(--muted)');t.setAttribute('font-size','6');t.setAttribute('text-anchor','middle');
+    t.textContent=(v*100).toFixed(0)+'%';svg.appendChild(t);}
+}
+
+function drawROC(){
+  const svg=document.getElementById('rocChart');svg.innerHTML='';
+  const W=340,H=180,PL=32,PR=12,PT=10,PB=28,cW=W-PL-PR,cH=H-PT-PB;
+  const pts=creditResult.rocPoints;
+  // diagonal
+  const d=document.createElementNS('http://www.w3.org/2000/svg','line');
+  d.setAttribute('x1',PL);d.setAttribute('y1',PT+cH);d.setAttribute('x2',W-PR);d.setAttribute('y2',PT);
+  d.setAttribute('stroke','var(--border-2)');d.setAttribute('stroke-width','1');d.setAttribute('stroke-dasharray','3,3');svg.appendChild(d);
+  // ROC line
+  const polyline=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  const points=pts.map(p=>`${(PL+p.fpr*cW).toFixed(1)},${(PT+cH-p.tpr*cH).toFixed(1)}`).join(' ');
+  polyline.setAttribute('points',points);polyline.setAttribute('fill','none');
+  polyline.setAttribute('stroke','var(--gold)');polyline.setAttribute('stroke-width','1.5');svg.appendChild(polyline);
+  // AUC label
+  const aLbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+  aLbl.setAttribute('x',PL+cW*0.55);aLbl.setAttribute('y',PT+cH*0.4);
+  aLbl.setAttribute('fill','var(--gold)');aLbl.setAttribute('font-size','9');aLbl.setAttribute('font-weight','600');
+  aLbl.textContent='AUC='+creditResult.auc.toFixed(3);svg.appendChild(aLbl);
+  // axes
+  const ax=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ax.setAttribute('x1',PL);ax.setAttribute('y1',PT+cH);ax.setAttribute('x2',W-PR);ax.setAttribute('y2',PT+cH);
+  ax.setAttribute('stroke','var(--border-2)');ax.setAttribute('stroke-width','1');svg.appendChild(ax);
+  const ay=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ay.setAttribute('x1',PL);ay.setAttribute('y1',PT);ay.setAttribute('x2',PL);ay.setAttribute('y2',PT+cH);
+  ay.setAttribute('stroke','var(--border-2)');ay.setAttribute('stroke-width','1');svg.appendChild(ay);
+  for(let i=0;i<=4;i++){
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',(PL+i*cW/4).toFixed(1));t.setAttribute('y',PT+cH+10);
+    t.setAttribute('fill','var(--muted)');t.setAttribute('font-size','6');t.setAttribute('text-anchor','middle');
+    t.textContent=(i*25)+'%';svg.appendChild(t);}
+}
+
+function drawKS(){
+  const svg=document.getElementById('ksChart');svg.innerHTML='';
+  const W=340,H=180,PL=32,PR=12,PT=10,PB=28,cW=W-PL-PR,cH=H-PT-PB;
+  const pts=creditResult.ksPoints;
+  // CDF lines
+  ['cdfD','cdfN'].forEach((key,ki)=>{
+    const polyline=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    const points=pts.map((p,i)=>`${(PL+i/pts.length*cW).toFixed(1)},${(PT+cH-p[key]*cH).toFixed(1)}`).join(' ');
+    polyline.setAttribute('points',points);polyline.setAttribute('fill','none');
+    polyline.setAttribute('stroke',ki===0?'var(--red)':'var(--teal)');polyline.setAttribute('stroke-width','1.5');
+    svg.appendChild(polyline);
+  });
+  const ax=document.createElementNS('http://www.w3.org/2000/svg','line');
+  ax.setAttribute('x1',PL);ax.setAttribute('y1',PT+cH);ax.setAttribute('x2',W-PR);ax.setAttribute('y2',PT+cH);
+  ax.setAttribute('stroke','var(--border-2)');ax.setAttribute('stroke-width','1');svg.appendChild(ax);
+  // KS label
+  const kl=document.createElementNS('http://www.w3.org/2000/svg','text');
+  kl.setAttribute('x',PL+cW*0.05);kl.setAttribute('y',PT+12);
+  kl.setAttribute('fill','var(--warn)');kl.setAttribute('font-size','8');kl.setAttribute('font-weight','600');
+  kl.textContent='KS='+pct(creditResult.maxKS);svg.appendChild(kl);
+  // legend
+  ['Defaults','Non-defaults'].forEach((lbl,i)=>{
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',PL+i*75);r.setAttribute('y',PT+cH+12);r.setAttribute('width',8);r.setAttribute('height',6);
+    r.setAttribute('fill',i===0?'var(--red)':'var(--teal)');svg.appendChild(r);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',PL+i*75+11);t.setAttribute('y',PT+cH+18);
+    t.setAttribute('fill','var(--muted)');t.setAttribute('font-size','6.5');t.textContent=lbl;svg.appendChild(t);
+  });
+}
+
+function drawRWAChart(){
+  const svg=document.getElementById('rwaChart');svg.innerHTML='';
+  const W=340,H=180,PL=80,PR=20,PT=16,PB=28,cW=W-PL-PR,cH=H-PT-PB;
+  const r=creditResult;
+  const items=[
+    {label:'IRB RWA',val:r.totalIRBRWA,color:'rgba(212,168,71,.7)'},
+    {label:'SA RWA', val:r.totalSARWA, color:'rgba(155,114,245,.55)'},
+    {label:'IRB Capital (8%)',val:r.irbCapital,color:'rgba(239,68,68,.65)'},
+    {label:'SA Capital (8%)', val:r.saCapital, color:'rgba(245,158,11,.55)'}
+  ];
+  const maxV=Math.max(...items.map(i=>i.val),1);
+  const barH=cH/items.length*0.5; const gap=cH/items.length;
+  items.forEach((it,i)=>{
+    const y=PT+i*gap+(gap-barH)/2;const bW=it.val/maxV*cW;
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',PL-4);lbl.setAttribute('y',y+barH/2+3);
+    lbl.setAttribute('fill','var(--text)');lbl.setAttribute('font-size','7');lbl.setAttribute('text-anchor','end');
+    lbl.textContent=it.label;svg.appendChild(lbl);
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',PL);rect.setAttribute('y',y.toFixed(1));
+    rect.setAttribute('width',bW.toFixed(1));rect.setAttribute('height',barH.toFixed(1));
+    rect.setAttribute('fill',it.color);svg.appendChild(rect);
+    const val=document.createElementNS('http://www.w3.org/2000/svg','text');
+    val.setAttribute('x',(PL+bW+4).toFixed(1));val.setAttribute('y',y+barH/2+3);
+    val.setAttribute('fill','var(--bright)');val.setAttribute('font-size','7');
+    val.textContent=fmt$M(it.val);svg.appendChild(val);
+  });
+}
+
+function renderLoanTable(){
+  const tbody=document.getElementById('loanBody');tbody.innerHTML='';
+  const top10=creditResult.sorted.slice(0,10);
+  top10.forEach((l,i)=>{
+    const cls=l.pd>=0.2?'pd-high':l.pd>=0.1?'pd-med':'pd-low';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--muted)">${i+1}</td>
+      <td class="${cls}">${(l.pd*100).toFixed(2)}%</td>
+      <td>${(l.ltv*100).toFixed(0)}% / ${(l.dti*100).toFixed(0)}%</td>
+      <td>${l.csRaw}</td>
+      <td>${l.sector}</td>
+      <td>${(l.pd*l.lgd*l.ead/1000).toFixed(1)}k</td>
+      <td>${(irbRWA(l.pd,l.lgd,creditParams.maturity,creditParams.assetClass)*l.ead/1e6*100).toFixed(1)}%</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function buildExport(parentHash, parentToolId){
+  const r=creditResult;const p=creditParams;
+  const chainDepth=parentHash?1:0;
+  const payload={
+    auc_roc:+r.auc.toFixed(6),
+    warnings:r.auc<0.7?['MODEL_PERFORMANCE_BELOW_0_70_AUC']:[],
+    ks_statistic:+r.maxKS.toFixed(6),
+    gini_coefficient:+(2*r.auc-1).toFixed(6),
+    portfolio_pd:+r.portPD.toFixed(6),
+    total_ead_gbp:+r.totalEAD.toFixed(0),
+    expected_loss_gbp:+r.totalEL.toFixed(0),
+    irb_rwa_gbp:+r.totalIRBRWA.toFixed(0),
+    sa_rwa_gbp:+r.totalSARWA.toFixed(0),
+    irb_capital_gbp:+r.irbCapital.toFixed(0),
+    sa_capital_gbp:+r.saCapital.toFixed(0),
+    irb_vs_sa_saving:+((r.totalSARWA-r.totalIRBRWA)/r.totalSARWA).toFixed(6),
+    n_loans_scored:p.nLoans,
+    n_defaults_observed:r.nDefault,
+    high_pd_loans:r.loans.filter(l=>l.pd>=p.pdThreshold).length
+  };
+  const params={
+    execution_backend:'js',
+    input_parameters:{
+      n_loans:p.nLoans,asset_class:p.assetClass,target_default_rate:p.defaultRate,
+      lgd:p.lgd,maturity_yrs:p.maturity,pd_threshold:p.pdThreshold,
+      seed:p.seed,
+      model:'logistic_regression_5_features_illustrative_weights'
+    }
+  };
+  const execHash=await __ocgHash(params, payload);
+  const artifact={
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+    mandate_type:'credit_assessment',
+    tool_id:'ml-02-credit-default-risk-scorer',tool_version:'1.0.0',
+    generated_at:new Date().toISOString(),execution_hash:execHash,
+    chain:{parent_hashes:parentHash?[parentHash]:[],parent_tool_ids:parentToolId?[parentToolId]:[],chain_depth:chainDepth},
+    policy_parameters:params,output_payload:payload,
+    compliance_flags:[
+      'CREDIT_SCORING_COMPLETED','BASEL3_IRB_CAPITAL_COMPUTED',
+      'EU_AI_ACT_ANNEX3_PART5B_HIGH_RISK_SYSTEM',
+      'EBA_GL_2017_16_MODEL_PERFORMANCE_ASSESSED',
+      r.auc<0.7?'MODEL_PERFORMANCE_BELOW_0_70_AUC':'MODEL_PERFORMANCE_ACCEPTABLE',
+      'BCBS_D424_IRB_FORMULA_APPLIED'
+    ],
+    audit_signature: {
+      payloadType: 'application/vnd.openchain.graph+json;version=0.2',
+      payload: '',
+      signatures: []
+    }
+  };
+  document.getElementById('exportPre').textContent=JSON.stringify(artifact,null,2);
+}
+
+function copyExport(){
+  navigator.clipboard.writeText(document.getElementById('exportPre').textContent);
+  const btn=event.currentTarget;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent='Copy JSON',1500);
+}
+
+const MANIFEST = {
+  tool_id: 'ml-02-credit-default-risk-scorer',
+  version: '1.0.0',
+  title: 'Credit Default Risk Scorer',
+  category: 'chaingraph',
+  ap2_export: true,
+  chaingraph: true,
+  mcp_tool_definition: {
+    name: 'score_credit_default_risk',
+    description: 'Scores credit default probability using logistic regression with Basel III risk-weight mapping. Returns a credit_assessment mandate chainable into downstream capital tools.'
+  }
+};
+
+function toggleMfst(){
+  const body=document.getElementById('mfstBody'),arrow=document.getElementById('mfstArrow'),btn=document.querySelector('.mfst-btn');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';arrow.textContent=open?'▼':'▲';
+  btn.setAttribute('aria-expanded',String(!open));body.setAttribute('aria-hidden',String(open));
+  if(!open&&!document.getElementById('mfstCode').textContent)
+    document.getElementById('mfstCode').textContent=JSON.stringify(MANIFEST,null,2);
+}
+</script>
+
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+async function __ocgHash(policy_parameters,output_payload){const b=new TextEncoder().encode(__ocgCanonStr({policy_parameters,output_payload}));const h=await crypto.subtle.digest('SHA-256',b);return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (phase2b-exportPre) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_phase2b.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('✗ no §16 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}
+  catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var el=document.getElementById('exportPre');
+  if(!el)return;
+  var obs=new MutationObserver(function(){
+    try{var v=JSON.parse(el.textContent);if(v&&v.chaingraph_version){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    }}catch(e){}
+  });
+  obs.observe(el,{childList:true});
+})();
+</script>
+</body>
+</html>

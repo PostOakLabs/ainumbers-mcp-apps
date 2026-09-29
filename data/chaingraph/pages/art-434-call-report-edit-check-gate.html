@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Call Report Published Edit-Check Gate &middot; ART-434 &middot; OpenChainGraph &middot; AINumbers.co</title>
+<meta name="description" content="Run a curated FFIEC-style Call Report edit-check battery against Schedule RC and RC-R output payloads and emit an auto_pass/review_required gate verdict. ZERO PII.">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-434-call-report-edit-check-gate.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-434-call-report-edit-check-gate.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
+.sub{color:var(--body);max-width:700px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
+.flag.warn{background:rgba(245,158,11,.08);color:var(--warn);border-color:rgba(245,158,11,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.2rem}.q:last-child{margin-bottom:0}
+.q-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.4rem;display:block}
+.q-help{font-size:.72rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6}
+input[type="text"],input[type="number"],textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.68rem;padding:.5rem .7rem;outline:none;transition:border-color .2s}
+textarea{min-height:160px;resize:vertical}
+input:focus,textarea:focus{border-color:var(--teal)}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.results-panel{display:none}.results-panel.show{display:block}
+.exec-hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--teal-lt);word-break:break-all;margin:6px 0}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.fail{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.2)}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
+.stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;min-width:100px}
+.stat-val{font-size:1.1rem;color:var(--bright);font-weight:600;display:block}
+.stat-key{font-size:.58rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.verdict-box{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;border-radius:var(--radius-lg);padding:14px 18px;margin:12px 0;text-align:center}
+.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:center}
+.verify-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer}
+.verify-result{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-left:8px}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+#mfstBody{display:none;margin-top:10px}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+table{width:100%;border-collapse:collapse;font-size:.68rem;margin-top:8px}
+th{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:.4rem .55rem;border-bottom:1px solid var(--border);text-align:left}
+td{padding:.4rem .55rem;border-bottom:1px solid rgba(30,47,74,.5);color:var(--text);vertical-align:top}
+tr:hover td{background:var(--bg-3)}
+.demo-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:none;border:1px solid var(--border-2);color:var(--body);padding:.4rem .8rem;border-radius:var(--radius);cursor:pointer;margin-right:.5rem}
+.demo-btn:hover{border-color:var(--teal);color:var(--teal)}
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-434-call-report-edit-check-gate.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:fc730e1410814863f534802d3bcd7d948ac232f8f1fb5ddcf9078e4c97dd075d">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-434 · Call Report Published Edit-Check Gate</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">OpenChainGraph Suite &middot; ART-434 &middot; FFIEC Call Report &middot; Decision Gate</div>
+  <h1>Call Report Published Edit-Check Gate</h1>
+  <p class="sub">Runs a curated battery of FFIEC-style published Call Report edit checks &mdash; balance-sheet identity, capital-stack ordering, ratio-vs-component consistency, cross-schedule entity/period match &mdash; against <a href="art-432-call-report-rc-balance-sheet.html">ART-432 Schedule RC</a> and <a href="art-433-call-report-rcr-capital.html">ART-433 Schedule RC-R</a> output payloads. Emits an <code>auto_pass</code> / <code>review_required</code> gate verdict using the &sect;27 Human Accountability gate-policy vocabulary. Curated representative battery, not the FFIEC's full published edit-check catalog.</p>
+  <div style="margin-bottom:6px">
+    <span class="flag info">FFIEC 031</span>
+    <span class="flag">Decision Gate</span>
+    <span class="flag warn">Not A Filer &mdash; Evidence Only</span>
+  </div>
+  <div class="pii-notice">&#128274; All computation runs locally in your browser. No data is transmitted. Do not enter real personal data &mdash; use synthetic or anonymised inputs only.</div>
+
+  <div class="card">
+    <div class="q">
+      <label class="q-label">Schedule RC output payload (JSON &mdash; from ART-432)</label>
+      <div class="q-help">Paste the <code>output_payload</code> from the Schedule RC mapper, or load the demo.</div>
+      <textarea id="rcInput"></textarea>
+    </div>
+    <div class="q">
+      <label class="q-label">Schedule RC-R output payload (JSON &mdash; from ART-433)</label>
+      <div class="q-help">Paste the <code>output_payload</code> from the Schedule RC-R mapper, or load the demo.</div>
+      <textarea id="rcrInput"></textarea>
+    </div>
+    <div class="q">
+      <label class="q-label" for="tolInput">Rounding tolerance (USD)</label>
+      <input type="number" id="tolInput" value="1" min="0" step="1">
+    </div>
+    <div style="margin-top:20px">
+      <button class="demo-btn" onclick="loadPassDemo()">Load auto_pass demo</button>
+      <button class="demo-btn" onclick="loadFailDemo()">Load review_required demo</button>
+      <button onclick="runGate()">&#9654; Run Edit Checks</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="card">
+      <div id="verdictBox" class="verdict-box"></div>
+      <div class="generated-at" id="generatedAt"></div>
+      <div class="stat-row" id="statRow"></div>
+
+      <div class="section-head" style="margin-top:14px">Check results</div>
+      <table>
+        <thead><tr><th>ID</th><th>Severity</th><th>Description</th><th>Result</th></tr></thead>
+        <tbody id="checksBody"></tbody>
+      </table>
+
+      <div class="section-head" style="margin-top:14px">Execution Hash (SHA-256)</div>
+      <div class="exec-hash" id="execHashBox"></div>
+      <div class="results-export-row">
+        <button id="ap2ExportBtn" onclick="exportArtifact()">Export &#167;4 Artifact</button>
+        <button class="verify-btn" onclick="verifyHash()">&#10003; Verify Hash</button>
+        <span class="verify-result" id="verifyResult"></span>
+      </div>
+      <pre id="artifactPre" style="display:none"></pre>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">[ manifest ]</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-434-call-report-edit-check-gate.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `run_call_report_edit_checks`. Task: Run a curated battery of FFIEC-style published Call Report edit checks -- balance-sheet identity, capital-stack ordering (CET1 &lt;= Tier 1 &lt;= Total capital), ratio-vs-component consistency, cross-schedule entity/period match -- against art-432 (Schedule RC) and art-433 (Schedule RC-R) output payloads, the same class of check FFIEC's own edit-check system runs against filed data before CDR publication.
+Call it with arguments: {"policy_parameters":{"rounding_tolerance_usd":1,"rc_output_payload":{"entity_id":"FDIC-CERT-3510","reporting_period":"2026-03-31","report_form":"FFIEC 031","schedule":"RC","assets":[{"key":"cash_and_due_from_usd","mdrm":"RCON0071","label":"Cash and balances due from depository institutions","value_usd":226409000},{"key":"securities_htm_usd","mdrm":"RCON1754","label":"Held-to-maturity securities","value_usd":0},{"key":"securities_afs_usd","mdrm":"RCON1773","label":"Available-for-sale securities","value_usd":864213000},{"key":"loans_and_leases_net_usd","mdrm":"RCON2122","label":"Total loans and leases, net of unearned income and allowance","value_usd":1191560000},{"key":"bank_premises_usd","mdrm":"RCON2145","label":"Bank premises and fixed assets","value_usd":21670000},{"key":"other_assets_usd","mdrm":"RCON2160","label":"Other assets","value_usd":368340000}],"total_assets_usd":2672192000,"total_assets_mdrm":"RCON2170","liabilities":[{"key":"total_deposits_usd","mdrm":"RCON2200","label":"Total deposits","value_usd":2128004000},{"key":"borrowings_usd","mdrm":"RCON2800","label":"Total borrowings","value_usd":250000000},{"key":"other_liabilities_usd","mdrm":"RCON2930","label":"Other liabilities","value_usd":52478000}],"total_liabilities_usd":2430482000,"total_liabilities_mdrm":"RCON2948","equity":[{"key":"common_stock_usd","mdrm":"RCON3230","label":"Common stock","value_usd":3020000},{"key":"surplus_usd","mdrm":"RCON3839","label":"Surplus","value_usd":177631000},{"key":"retained_earnings_usd","mdrm":"RCON3632","label":"Retained earnings","value_usd":61059000},{"key":"aoci_usd","mdrm":"RCON3216","label":"Accumulated other comprehensive income","value_usd":0}],"total_equity_capital_usd":241710000,"total_equity_capital_mdrm":"RCON3210","total_liabilities_and_equity_usd":2672192000,"identity_delta_usd":0,"identity_balanced":true,"rounding_tolerance_usd":1,"boundary_note":"Line-item values are caller-declared from the institution's own books; this kernel performs only the arithmetic aggregation into Schedule RC totals and the Total assets == Total liabilities + Total equity capital identity check. It does not derive, estimate, or audit any individual line item.","xbrl_json_annex1_note":"MDRM concept codes above (RCON2170/RCON2948/RCON3210) align with the §13.13 xBRL-JSON export profile's Annex 1 FFIEC Call Report mapping; rendering to that profile is a separate exporter work unit, not performed by this kernel."},"rcr_output_payload":{"entity_id":"FDIC-CERT-3510","reporting_period":"2026-03-31","report_form":"FFIEC 031","schedule":"RC-R","constants_version":"2026-07-23.basel3-standardized-v1","is_gsib":false,"cet1_capital_usd":186870000,"additional_tier1_capital_usd":0,"tier1_capital_usd":186870000,"tier2_capital_usd":15731000,"total_capital_usd":202601000,"total_rwa_usd":1535559000,"total_leverage_exposure_usd":2672192000,"ratios":{"cet1_ratio_pct":0.121695,"cet1_min_pct":0.045,"cet1_pass":true,"tier1_ratio_pct":0.121695,"tier1_min_pct":0.06,"tier1_pass":true,"total_capital_ratio_pct":0.13194,"total_capital_min_pct":0.08,"total_capital_pass":true,"supplementary_leverage_ratio_pct":0.069931,"slr_min_pct":0.03,"slr_pass":true},"eslr":{"applicable":false,"buffer_pct":0,"required_slr_pct":null,"pass":true,"final_rule_citation":"eSLR final rule, published 2025-12-01, effective 2026-04-01 (§0.2)"},"boundary_note":"Capital component and RWA values are caller-declared; this kernel performs only ratio arithmetic and threshold comparison against caller-declared, version-pinned minimums. It does not calculate risk weights, classify exposures, or derive GSIB status.","mdrm_note":"Schedule RC-R MDRM item prefixes vary by advanced vs. standardized approach and reporting vintage; capital-component field names here mirror the FDIC BankFind Suite mnemonics (RBCT1J tier1, RBCT2 tier2, RWAJT total RWA), which the FDIC itself derives from filed Call Report Schedule RC-R submissions."}}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-434-call-report-edit-check-gate.html#p=v1.H4sIAAAAAAAA_wFFD7rweyJyb3VuZGluZ190b2xlcmFuY2VfdXNkIjoxLCJyY19vdXRwdXRfcGF5bG9hZCI6eyJlbnRpdHlfaWQiOiJGRElDLUNFUlQtMzUxMCIsInJlcG9ydGluZ19wZXJpb2QiOiIyMDI2LTAzLTMxIiwicmVwb3J0X2Zvcm0iOiJGRklFQyAwMzEiLCJzY2hlZHVsZSI6IlJDIiwiYXNzZXRzIjpbeyJrZXkiOiJjYXNoX2FuZF9kdWVfZnJvbV91c2QiLCJtZHJtIjoiUkNPTjAwNzEiLCJsYWJlbCI6IkNhc2ggYW5kIGJhbGFuY2VzIGR1ZSBmcm9tIGRlcG9zaXRvcnkgaW5zdGl0dXRpb25zIiwidmFsdWVfdXNkIjoyMjY0MDkwMDB9LHsia2V5Ijoic2VjdXJpdGllc19odG1fdXNkIiwibWRybSI6IlJDT04xNzU0IiwibGFiZWwiOiJIZWxkLXRvLW1hdHVyaXR5IHNlY3VyaXRpZXMiLCJ2YWx1ZV91c2QiOjB9LHsia2V5Ijoic2VjdXJpdGllc19hZnNfdXNkIiwibWRybSI6IlJDT04xNzczIiwibGFiZWwiOiJBdmFpbGFibGUtZm9yLXNhbGUgc2VjdXJpdGllcyIsInZhbHVlX3VzZCI6ODY0MjEzMDAwfSx7ImtleSI6ImxvYW5zX2FuZF9sZWFzZXNfbmV0X3VzZCIsIm1kcm0iOiJSQ09OMjEyMiIsImxhYmVsIjoiVG90YWwgbG9hbnMgYW5kIGxlYXNlcywgbmV0IG9mIHVuZWFybmVkIGluY29tZSBhbmQgYWxsb3dhbmNlIiwidmFsdWVfdXNkIjoxMTkxNTYwMDAwfSx7ImtleSI6ImJhbmtfcHJlbWlzZXNfdXNkIiwibWRybSI6IlJDT04yMTQ1IiwibGFiZWwiOiJCYW5rIHByZW1pc2VzIGFuZCBmaXhlZCBhc3NldHMiLCJ2YWx1ZV91c2QiOjIxNjcwMDAwfSx7ImtleSI6Im90aGVyX2Fzc2V0c191c2QiLCJtZHJtIjoiUkNPTjIxNjAiLCJsYWJlbCI6Ik90aGVyIGFzc2V0cyIsInZhbHVlX3VzZCI6MzY4MzQwMDAwfV0sInRvdGFsX2Fzc2V0c191c2QiOjI2NzIxOTIwMDAsInRvdGFsX2Fzc2V0c19tZHJtIjoiUkNPTjIxNzAiLCJsaWFiaWxpdGllcyI6W3sia2V5IjoidG90YWxfZGVwb3NpdHNfdXNkIiwibWRybSI6IlJDT04yMjAwIiwibGFiZWwiOiJUb3RhbCBkZXBvc2l0cyIsInZhbHVlX3VzZCI6MjEyODAwNDAwMH0seyJrZXkiOiJib3Jyb3dpbmdzX3VzZCIsIm1kcm0iOiJSQ09OMjgwMCIsImxhYmVsIjoiVG90YWwgYm9ycm93aW5ncyIsInZhbHVlX3VzZCI6MjUwMDAwMDAwfSx7ImtleSI6Im90aGVyX2xpYWJpbGl0aWVzX3VzZCIsIm1kcm0iOiJSQ09OMjkzMCIsImxhYmVsIjoiT3RoZXIgbGlhYmlsaXRpZXMiLCJ2YWx1ZV91c2QiOjUyNDc4MDAwfV0sInRvdGFsX2xpYWJpbGl0aWVzX3VzZCI6MjQzMDQ4MjAwMCwidG90YWxfbGlhYmlsaXRpZXNfbWRybSI6IlJDT04yOTQ4IiwiZXF1aXR5IjpbeyJrZXkiOiJjb21tb25fc3RvY2tfdXNkIiwibWRybSI6IlJDT04zMjMwIiwibGFiZWwiOiJDb21tb24gc3RvY2siLCJ2YWx1ZV91c2QiOjMwMjAwMDB9LHsia2V5Ijoic3VycGx1c191c2QiLCJtZHJtIjoiUkNPTjM4MzkiLCJsYWJlbCI6IlN1cnBsdXMiLCJ2YWx1ZV91c2QiOjE3NzYzMTAwMH0seyJrZXkiOiJyZXRhaW5lZF9lYXJuaW5nc191c2QiLCJtZHJtIjoiUkNPTjM2MzIiLCJsYWJlbCI6IlJldGFpbmVkIGVhcm5pbmdzIiwidmFsdWVfdXNkIjo2MTA1OTAwMH0seyJrZXkiOiJhb2NpX3VzZCIsIm1kcm0iOiJSQ09OMzIxNiIsImxhYmVsIjoiQWNjdW11bGF0ZWQgb3RoZXIgY29tcHJlaGVuc2l2ZSBpbmNvbWUiLCJ2YWx1ZV91c2QiOjB9XSwidG90YWxfZXF1aXR5X2NhcGl0YWxfdXNkIjoyNDE3MTAwMDAsInRvdGFsX2VxdWl0eV9jYXBpdGFsX21kcm0iOiJSQ09OMzIxMCIsInRvdGFsX2xpYWJpbGl0aWVzX2FuZF9lcXVpdHlfdXNkIjoyNjcyMTkyMDAwLCJpZGVudGl0eV9kZWx0YV91c2QiOjAsImlkZW50aXR5X2JhbGFuY2VkIjp0cnVlLCJyb3VuZGluZ190b2xlcmFuY2VfdXNkIjoxLCJib3VuZGFyeV9ub3RlIjoiTGluZS1pdGVtIHZhbHVlcyBhcmUgY2FsbGVyLWRlY2xhcmVkIGZyb20gdGhlIGluc3RpdHV0aW9uJ3Mgb3duIGJvb2tzOyB0aGlzIGtlcm5lbCBwZXJmb3JtcyBvbmx5IHRoZSBhcml0aG1ldGljIGFnZ3JlZ2F0aW9uIGludG8gU2NoZWR1bGUgUkMgdG90YWxzIGFuZCB0aGUgVG90YWwgYXNzZXRzID09IFRvdGFsIGxpYWJpbGl0aWVzICsgVG90YWwgZXF1aXR5IGNhcGl0YWwgaWRlbnRpdHkgY2hlY2suIEl0IGRvZXMgbm90IGRlcml2ZSwgZXN0aW1hdGUsIG9yIGF1ZGl0IGFueSBpbmRpdmlkdWFsIGxpbmUgaXRlbS4iLCJ4YnJsX2pzb25fYW5uZXgxX25vdGUiOiJNRFJNIGNvbmNlcHQgY29kZXMgYWJvdmUgKFJDT04yMTcwL1JDT04yOTQ4L1JDT04zMjEwKSBhbGlnbiB3aXRoIHRoZSDCpzEzLjEzIHhCUkwtSlNPTiBleHBvcnQgcHJvZmlsZSdzIEFubmV4IDEgRkZJRUMgQ2FsbCBSZXBvcnQgbWFwcGluZzsgcmVuZGVyaW5nIHRvIHRoYXQgcHJvZmlsZSBpcyBhIHNlcGFyYXRlIGV4cG9ydGVyIHdvcmsgdW5pdCwgbm90IHBlcmZvcm1lZCBieSB0aGlzIGtlcm5lbC4ifSwicmNyX291dHB1dF9wYXlsb2FkIjp7ImVudGl0eV9pZCI6IkZESUMtQ0VSVC0zNTEwIiwicmVwb3J0aW5nX3BlcmlvZCI6IjIwMjYtMDMtMzEiLCJyZXBvcnRfZm9ybSI6IkZGSUVDIDAzMSIsInNjaGVkdWxlIjoiUkMtUiIsImNvbnN0YW50c192ZXJzaW9uIjoiMjAyNi0wNy0yMy5iYXNlbDMtc3RhbmRhcmRpemVkLXYxIiwiaXNfZ3NpYiI6ZmFsc2UsImNldDFfY2FwaXRhbF91c2QiOjE4Njg3MDAwMCwiYWRkaXRpb25hbF90aWVyMV9jYXBpdGFsX3VzZCI6MCwidGllcjFfY2FwaXRhbF91c2QiOjE4Njg3MDAwMCwidGllcjJfY2FwaXRhbF91c2QiOjE1NzMxMDAwLCJ0b3RhbF9jYXBpdGFsX3VzZCI6MjAyNjAxMDAwLCJ0b3RhbF9yd2FfdXNkIjoxNTM1NTU5MDAwLCJ0b3RhbF9sZXZlcmFnZV9leHBvc3VyZV91c2QiOjI2NzIxOTIwMDAsInJhdGlvcyI6eyJjZXQxX3JhdGlvX3BjdCI6MC4xMjE2OTUsImNldDFfbWluX3BjdCI6MC4wNDUsImNldDFfcGFzcyI6dHJ1ZSwidGllcjFfcmF0aW9fcGN0IjowLjEyMTY5NSwidGllcjFfbWluX3BjdCI6MC4wNiwidGllcjFfcGFzcyI6dHJ1ZSwidG90YWxfY2FwaXRhbF9yYXRpb19wY3QiOjAuMTMxOTQsInRvdGFsX2NhcGl0YWxfbWluX3BjdCI6MC4wOCwidG90YWxfY2FwaXRhbF9wYXNzIjp0cnVlLCJzdXBwbGVtZW50YXJ5X2xldmVyYWdlX3JhdGlvX3BjdCI6MC4wNjk5MzEsInNscl9taW5fcGN0IjowLjAzLCJzbHJfcGFzcyI6dHJ1ZX0sImVzbHIiOnsiYXBwbGljYWJsZSI6ZmFsc2UsImJ1ZmZlcl9wY3QiOjAsInJlcXVpcmVkX3Nscl9wY3QiOm51bGwsInBhc3MiOnRydWUsImZpbmFsX3J1bGVfY2l0YXRpb24iOiJlU0xSIGZpbmFsIHJ1bGUsIHB1Ymxpc2hlZCAyMDI1LTEyLTAxLCBlZmZlY3RpdmUgMjAyNi0wNC0wMSAowqcwLjIpIn0sImJvdW5kYXJ5X25vdGUiOiJDYXBpdGFsIGNvbXBvbmVudCBhbmQgUldBIHZhbHVlcyBhcmUgY2FsbGVyLWRlY2xhcmVkOyB0aGlzIGtlcm5lbCBwZXJmb3JtcyBvbmx5IHJhdGlvIGFyaXRobWV0aWMgYW5kIHRocmVzaG9sZCBjb21wYXJpc29uIGFnYWluc3QgY2FsbGVyLWRlY2xhcmVkLCB2ZXJzaW9uLXBpbm5lZCBtaW5pbXVtcy4gSXQgZG9lcyBub3QgY2FsY3VsYXRlIHJpc2sgd2VpZ2h0cywgY2xhc3NpZnkgZXhwb3N1cmVzLCBvciBkZXJpdmUgR1NJQiBzdGF0dXMuIiwibWRybV9ub3RlIjoiU2NoZWR1bGUgUkMtUiBNRFJNIGl0ZW0gcHJlZml4ZXMgdmFyeSBieSBhZHZhbmNlZCB2cy4gc3RhbmRhcmRpemVkIGFwcHJvYWNoIGFuZCByZXBvcnRpbmcgdmludGFnZTsgY2FwaXRhbC1jb21wb25lbnQgZmllbGQgbmFtZXMgaGVyZSBtaXJyb3IgdGhlIEZESUMgQmFua0ZpbmQgU3VpdGUgbW5lbW9uaWNzIChSQkNUMUogdGllcjEsIFJCQ1QyIHRpZXIyLCBSV0FKVCB0b3RhbCBSV0EpLCB3aGljaCB0aGUgRkRJQyBpdHNlbGYgZGVyaXZlcyBmcm9tIGZpbGVkIENhbGwgUmVwb3J0IFNjaGVkdWxlIFJDLVIgc3VibWlzc2lvbnMuIn199zIt4kUPAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var MANIFEST = {
+  tool_id: 'art-434-call-report-edit-check-gate',
+  version: '1.0.0',
+  mcp_name: 'run_call_report_edit_checks',
+  title: 'Call Report Published Edit-Check Gate',
+  description: 'Runs a curated battery of FFIEC-style Call Report edit checks against Schedule RC and RC-R output payloads and emits an auto_pass / review_required gate verdict (§27 Human Accountability gate-policy vocabulary).',
+  spec_version: '0.8.0',
+  chaingraph_version: '0.4.0',
+  regulation: 'FFIEC Call Report published edit-check catalog (representative battery)',
+  mcp_tool_definition: {
+    name: 'run_call_report_edit_checks',
+    description: 'Cross-validates Schedule RC and RC-R output payloads via a curated FFIEC-style edit-check battery; returns per-check pass/fail and an overall gate_status.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        rc_output_payload: { type: 'object' }, rcr_output_payload: { type: 'object' }, rounding_tolerance_usd: { type: 'number' },
+      },
+      required: ['rc_output_payload', 'rcr_output_payload'],
+    },
+  },
+};
+
+var _lastResult = null;
+
+function safeNum(v, def){ var n = Number(v); return Number.isFinite(n) ? n : def; }
+function r2(v){ return Number.isFinite(v) ? Math.round(v*100)/100 : 0; }
+function check(id, severity, description, passed){ return { id: id, severity: severity, description: description, passed: !!passed }; }
+
+var PASS_RC = {"entity_id":"FDIC-CERT-3510","reporting_period":"2026-03-31","total_assets_usd":2672192000,"total_liabilities_usd":2430482000,"total_equity_capital_usd":241710000};
+var PASS_RCR = {"entity_id":"FDIC-CERT-3510","reporting_period":"2026-03-31","cet1_capital_usd":220000000,"tier1_capital_usd":230000000,"total_capital_usd":245000000,"total_rwa_usd":1650000000,"ratios":{"cet1_ratio_pct":0.133333,"total_capital_ratio_pct":0.148485}};
+var FAIL_RC = {"entity_id":"FDIC-CERT-3510","reporting_period":"2026-03-31","total_assets_usd":2672192000,"total_liabilities_usd":2430482000,"total_equity_capital_usd":241710000};
+var FAIL_RCR = {"entity_id":"FDIC-CERT-9999","reporting_period":"2026-06-30","cet1_capital_usd":250000000,"tier1_capital_usd":230000000,"total_capital_usd":245000000,"total_rwa_usd":1650000000,"ratios":{"cet1_ratio_pct":0.133333,"total_capital_ratio_pct":0.148485}};
+
+function loadPassDemo(){
+  document.getElementById('rcInput').value = JSON.stringify(PASS_RC, null, 2);
+  document.getElementById('rcrInput').value = JSON.stringify(PASS_RCR, null, 2);
+}
+function loadFailDemo(){
+  document.getElementById('rcInput').value = JSON.stringify(FAIL_RC, null, 2);
+  document.getElementById('rcrInput').value = JSON.stringify(FAIL_RCR, null, 2);
+}
+
+function parseJsonSafe(text){ try { return JSON.parse(text); } catch(e) { return null; } }
+
+function compute(pp){
+  pp = pp || {};
+  var rc = pp.rc_output_payload || {};
+  var rcr = pp.rcr_output_payload || {};
+  var roundingToleranceUsd = Math.max(0, safeNum(pp.rounding_tolerance_usd, 1));
+
+  var totalAssetsUsd = safeNum(rc.total_assets_usd, 0);
+  var totalLiabUsd = safeNum(rc.total_liabilities_usd, 0);
+  var totalEquityUsd = safeNum(rc.total_equity_capital_usd, 0);
+  var cet1Usd = safeNum(rcr.cet1_capital_usd, 0);
+  var tier1Usd = safeNum(rcr.tier1_capital_usd, 0);
+  var totalCapitalUsd = safeNum(rcr.total_capital_usd, 0);
+  var totalRwaUsd = safeNum(rcr.total_rwa_usd, 0);
+  var ratios = rcr.ratios || {};
+
+  var checks = [
+    check('EDIT-RC-01', 'fatal', 'Total assets (RCON2170) equals Total liabilities (RCON2948) plus Total equity capital (RCON3210), within rounding tolerance.',
+      Math.abs(r2(totalAssetsUsd - (totalLiabUsd + totalEquityUsd))) <= roundingToleranceUsd),
+    check('EDIT-RC-02', 'fatal', 'Total assets is non-negative.', totalAssetsUsd >= 0),
+    check('EDIT-RC-03', 'fatal', 'Total equity capital is non-negative.', totalEquityUsd >= 0),
+    check('EDIT-RCR-01', 'fatal', 'CET1 capital does not exceed Tier 1 capital.', cet1Usd <= tier1Usd + roundingToleranceUsd),
+    check('EDIT-RCR-02', 'fatal', 'Tier 1 capital does not exceed Total capital.', tier1Usd <= totalCapitalUsd + roundingToleranceUsd),
+    check('EDIT-RCR-03', 'fatal', 'Total risk-weighted assets is positive.', totalRwaUsd > 0),
+    check('EDIT-RCR-04', 'warning', 'Reported CET1 ratio is arithmetically consistent with CET1 capital / total RWA.',
+      totalRwaUsd > 0 ? Math.abs(safeNum(ratios.cet1_ratio_pct, 0) - (cet1Usd / totalRwaUsd)) < 0.0005 : true),
+    check('EDIT-RCR-05', 'warning', 'Reported total capital ratio is arithmetically consistent with Total capital / total RWA.',
+      totalRwaUsd > 0 ? Math.abs(safeNum(ratios.total_capital_ratio_pct, 0) - (totalCapitalUsd / totalRwaUsd)) < 0.0005 : true),
+    check('EDIT-META-01', 'fatal', 'Schedule RC and RC-R report the same entity_id.', String(rc.entity_id || '') === String(rcr.entity_id || '') && !!rc.entity_id),
+    check('EDIT-META-02', 'fatal', 'Schedule RC and RC-R report the same reporting_period.', String(rc.reporting_period || '') === String(rcr.reporting_period || '') && !!rc.reporting_period),
+  ];
+
+  var fatalFailures = checks.filter(function(c){ return c.severity === 'fatal' && !c.passed; });
+  var warningFailures = checks.filter(function(c){ return c.severity === 'warning' && !c.passed; });
+  var gateStatus = fatalFailures.length > 0 ? 'review_required' : 'auto_pass';
+
+  return {
+    entity_id: String(rc.entity_id || rcr.entity_id || ''), reporting_period: String(rc.reporting_period || rcr.reporting_period || ''),
+    report_form: 'FFIEC 031', rounding_tolerance_usd: roundingToleranceUsd, checks: checks, check_count: checks.length,
+    fatal_failure_count: fatalFailures.length, warning_failure_count: warningFailures.length, all_fatal_passed: fatalFailures.length === 0,
+    gate_status: gateStatus,
+    coverage_note: 'Curated representative edit-check battery (balance identity, capital-stack ordering, ratio-vs-component consistency, cross-schedule entity/period match) -- not the FFIEC published edit-check catalog\'s full check count.',
+  };
+}
+
+function cgCanon(v){
+  return Array.isArray(v) ? v.map(cgCanon) :
+    (v && typeof v === 'object') ? Object.keys(v).sort().reduce(function(o,k){o[k]=cgCanon(v[k]);return o;},{}) : v;
+}
+async function sha256Hex(v){
+  var bytes = new TextEncoder().encode(JSON.stringify(cgCanon(v)));
+  var buf = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+async function computeExecHash(pp, op){ return sha256Hex({policy_parameters: pp, output_payload: op}); }
+
+async function runGate(){
+  var rc = parseJsonSafe(document.getElementById('rcInput').value);
+  var rcr = parseJsonSafe(document.getElementById('rcrInput').value);
+  if (!rc || !rcr) { alert('Both Schedule RC and RC-R payloads must be valid JSON.'); return; }
+
+  var pp = { rc_output_payload: rc, rcr_output_payload: rcr, rounding_tolerance_usd: safeNum(document.getElementById('tolInput').value, 1) };
+  var op = compute(pp);
+  var generatedAt = new Date().toISOString();
+  _lastResult = { pp: pp, output_payload: op, generatedAt: generatedAt };
+
+  var pass = op.gate_status === 'auto_pass';
+  var color = pass ? 'var(--green)' : 'var(--red)';
+  var bg = pass ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)';
+  var vBox = document.getElementById('verdictBox');
+  vBox.style.color = color; vBox.style.background = bg; vBox.style.border = '1px solid ' + color;
+  vBox.textContent = op.gate_status.toUpperCase();
+  document.getElementById('generatedAt').textContent = 'generated_at ' + generatedAt;
+
+  document.getElementById('statRow').innerHTML =
+    '<div class="stat"><span class="stat-val">' + op.check_count + '</span><span class="stat-key">Checks Run</span></div>' +
+    '<div class="stat"><span class="stat-val" style="color:var(--red)">' + op.fatal_failure_count + '</span><span class="stat-key">Fatal Fails</span></div>' +
+    '<div class="stat"><span class="stat-val" style="color:var(--warn)">' + op.warning_failure_count + '</span><span class="stat-key">Warnings</span></div>';
+
+  document.getElementById('checksBody').innerHTML = op.checks.map(function(c){
+    var badgeClass = c.passed ? 'ok' : (c.severity === 'fatal' ? 'fail' : 'warn');
+    return '<tr><td>' + c.id + '</td><td>' + c.severity + '</td><td>' + c.description + '</td><td><span class="badge ' + badgeClass + '">' + (c.passed ? 'PASS' : 'FAIL') + '</span></td></tr>';
+  }).join('');
+
+  document.getElementById('resultsPanel').classList.add('show');
+  document.getElementById('execHashBox').textContent = 'computing...';
+  document.getElementById('verifyResult').textContent = '';
+  computeExecHash(pp, op).then(function(h){ document.getElementById('execHashBox').textContent = h; });
+}
+
+function verifyHash(){
+  if (!_lastResult) return;
+  computeExecHash(_lastResult.pp, _lastResult.output_payload).then(function(h){
+    var cur = document.getElementById('execHashBox').textContent;
+    document.getElementById('verifyResult').innerHTML = h===cur ? '<span style="color:var(--green)">&#10003; Hash verified</span>' : '<span style="color:var(--red)">&#10007; Mismatch</span>';
+  });
+}
+
+function exportArtifact(){
+  if (!_lastResult) return;
+  var hash = document.getElementById('execHashBox').textContent || 'pending';
+  var artifact = {'@context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'regulatory_reporting',tool_id:'art-434-call-report-edit-check-gate',tool_version:'1.0.0',generated_at:_lastResult.generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:_lastResult.pp,output_payload:_lastResult.output_payload,compliance_flags:[],compute_mode:'browser',compute_proof_ready:'deferred',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[],client_side_executed:true,zero_pii_verified:true,deterministic_run:true}};
+  var json = JSON.stringify(artifact, null, 2);
+  document.getElementById('artifactPre').textContent = json;
+  document.getElementById('artifactPre').style.display = 'block';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+  a.download = 'art-434-call-report-edit-check-gate.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function toggleMfst(){
+  var b = document.getElementById('mfstBody');
+  if (b.style.display==='none' || !b.style.display){ b.style.display='block'; document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2); }
+  else { b.style.display='none'; }
+}
+
+loadPassDemo();
+</script>
+</body>
+</html>

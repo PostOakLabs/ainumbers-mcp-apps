@@ -31,11 +31,19 @@ function loadDataFromDisk() {
     manifests[slug] = JSON.parse(get('manifests/' + slug + '.manifest.json'));
     widgets[slug] = stripCspMeta(get('tools/' + slug + '.html')) + glue;
   }
+  // Node Views (MCP-APPS-NODE-VIEWS-1): parity must run on the REAL build shape — node _meta.ui
+  // pointers + ui:// resources change the registered definitions, so both sides of the full-vs-
+  // single comparison need them. Tolerant like precompute-discovery.mjs.
+  let nodeViews = null;
+  try { nodeViews = JSON.parse(get('mcp/node-views.json')); } catch { /* pre-row — no views */ }
+  const loadNodeView = async (toolId) => readFileSync(resolve(DATA, 'chaingraph', 'pages', toolId + '.html'), 'utf8');
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
     chaingraph: JSON.parse(get('chaingraph/chaingraph.json')),
     searchIndex: JSON.parse(get('search-index.json')),
+    nodeViews,
+    loadNodeView,
   };
 }
 
