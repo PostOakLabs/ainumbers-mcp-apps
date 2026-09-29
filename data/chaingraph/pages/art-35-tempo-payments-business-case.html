@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Tempo Payments Business Case · ART-35 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Model the cost savings of migrating a payment flow to Tempo vs incumbent rails (card, SWIFT, ACH, SEPA). CFO cost-and-savings memo with basis points and annual savings. Payroll, remittance, and merchant-settlement profiles. Client-side. Zero PII.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Post Oak Labs">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.md">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tempo Payments Business Case · ART-35 · OpenChainGraph · AINumbers.co">
+<meta property="og:description" content="CFO savings model for migrating to Tempo payment rails. Per-transaction savings, basis points, annual savings, break-even. ISO 20022 pacs.008 output. Client-side. Zero PII.">
+<meta property="og:url" content="https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Tempo Payments Business Case · ART-35 · OpenChainGraph","url":"https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html","applicationCategory":"FinanceApplication","operatingSystem":"Web browser","description":"Models cost savings from migrating payment flows to Tempo vs card, SWIFT, ACH, and SEPA. Outputs a CFO memo with per-transaction savings, basis points, annual savings, and break-even. ISO 20022 pacs.008 semantic profile. Client-side, deterministic, zero PII.","author":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;
+  --border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;
+  --text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;
+  --teal:#14B8A6;--teal-lt:#2DD4BF;--teal-dim:rgba(20,184,166,.12);
+  --gold:#D4A847;--gold-dim:rgba(212,168,71,.12);
+  --green:#22C55E;--green-dim:rgba(34,197,94,.12);
+  --red:#EF4444;--red-dim:rgba(239,68,68,.12);
+  --warn:#F59E0B;--purple:#9B72F5;--purple-dim:rgba(155,114,245,.12);
+  --radius:6px;--radius-lg:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:300;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:'DM Serif Display',serif;font-weight:400;line-height:1.2}
+a{color:inherit;text-decoration:none}button{cursor:pointer;font-family:inherit}
+.container{max-width:1060px;margin:0 auto;padding:0 1.5rem}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(20,184,166,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.01) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+nav{padding:0 1.5rem;height:52px;border-bottom:1px solid var(--border);background:rgba(8,14,26,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(8px)}
+.nav-inner{max-width:1060px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--bright)}.logo-ai{color:var(--teal)}.logo-co{color:var(--muted);font-size:.75rem}
+.nav-bc{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.nav-bc a{color:var(--body)}.nav-bc a:hover{color:var(--teal)}.nav-bc-sep{color:var(--border-2)}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--teal);padding:.28rem .75rem;border-radius:4px}
+.hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);position:relative;z-index:1}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--teal)}
+.hero h1{font-size:clamp(1.6rem,3vw,2.3rem);color:var(--white);margin-bottom:.6rem}
+.hero h1 em{font-style:italic;color:var(--teal-lt)}
+.hero-desc{font-size:.82rem;color:var(--body);max-width:680px;line-height:1.8;margin-bottom:1rem}
+.hero-meta{display:flex;gap:.5rem;flex-wrap:wrap}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .6rem;border:1px solid;border-radius:3px}
+.badge-teal{color:var(--teal);border-color:rgba(20,184,166,.3)}.badge-warn{color:var(--warn);border-color:rgba(245,158,11,.3)}.badge-green{color:var(--green);border-color:rgba(34,197,94,.3)}.badge-gold{color:var(--gold);border-color:rgba(212,168,71,.3)}.badge-muted{color:var(--muted);border-color:var(--border)}.badge-purple{color:var(--purple);border-color:rgba(155,114,245,.3)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin-bottom:1rem}
+.tool-body{position:relative;z-index:1;padding:2rem 0 4rem}
+/* Form panels */
+.panel{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.panel-label::before{content:'';display:block;width:12px;height:1px;background:var(--teal)}
+.panel-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;margin-bottom:.85rem}
+.field-group{display:flex;flex-direction:column;gap:.3rem}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field-hint{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--border-2);margin-top:.1rem;line-height:1.4}
+input[type="number"],select{background:var(--bg-3);border:1px solid var(--border);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.38rem .55rem;border-radius:var(--radius);outline:none;transition:border-color .2s;width:100%}
+input[type="number"]:focus,select:focus{border-color:var(--teal)}
+.run-btn{background:var(--teal);color:var(--bg);border:none;padding:.65rem 2rem;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:background .2s}
+.run-btn:hover{background:var(--teal-lt)}
+/* Results */
+.results-panel{display:none;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.results-panel.visible{display:flex}
+.out-section{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.out-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg-3);display:flex;align-items:center;justify-content:space-between}
+.out-title{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.out-body{padding:1.25rem}
+/* KPI tiles */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.85rem}
+.kpi-tile{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--white);line-height:1}
+.kpi-value.green{color:var(--green)}
+.kpi-value.teal{color:var(--teal-lt)}
+.kpi-sub{font-family:'JetBrains Mono',monospace;font-size:.46rem;color:var(--body);margin-top:.3rem}
+/* Fee comparison table */
+.cmp-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.54rem}
+.cmp-table th{text-align:left;padding:.4rem .65rem;border-bottom:1px solid var(--border);color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.08em}
+.cmp-table td{padding:.4rem .65rem;border-bottom:1px solid var(--border);color:var(--body)}
+.cmp-table tr:last-child td{border-bottom:none}
+.cmp-table td.hl{color:var(--bright)}.cmp-table td.green{color:var(--green)}.cmp-table td.warn{color:var(--warn)}.cmp-table td.red{color:var(--red)}
+/* Verdict badge */
+.verdict-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;padding:.4rem 1rem;border-radius:var(--radius);border:1px solid;margin-bottom:.5rem}
+.verdict-migrate{color:var(--green);border-color:rgba(34,197,94,.4);background:var(--green-dim)}
+.verdict-evaluate{color:var(--warn);border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}
+.verdict-hold{color:var(--muted);border-color:var(--border)}
+/* CFO memo */
+.cfo-memo{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.8;background:var(--bg-4);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;white-space:pre-wrap;word-break:break-word}
+/* Export */
+.results-export-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;border-radius:var(--radius);border:1px solid;transition:all .2s;cursor:pointer;background:transparent}
+.btn-ghost{border-color:var(--border);color:var(--muted)}.btn-ghost.ready{border-color:var(--teal);color:var(--bright)}.btn-ghost.ready:hover{background:var(--bg-4)}.btn-ghost:disabled{opacity:.28;cursor:not-allowed}
+.btn-subtitle{display:block;font-size:.4rem;color:var(--muted);margin-top:.1rem}
+.hash-row{font-family:'JetBrains Mono',monospace;font-size:.56rem;color:var(--muted);word-break:break-all;padding:.5rem .7rem;background:var(--bg-4);border-radius:var(--radius);border:1px solid var(--border);margin-top:.75rem}
+.hash-label{color:var(--teal);margin-right:.5rem}
+/* Manifest */
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius);transition:background .15s;cursor:pointer;margin-top:2rem}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.6;white-space:pre}
+footer{border-top:1px solid var(--border);padding:1.75rem 1.5rem;margin-top:1.5rem}
+.footer-inner-ai{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:space-between}
+.footer-links-ai{display:flex;gap:1.25rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)}
+.footer-links-ai a{color:var(--muted);transition:color .2s}.footer-links-ai a:hover{color:var(--teal-lt)}
+.footer-badge-ai{display:flex;flex-direction:column;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg-3);border:1px solid var(--teal);color:var(--teal-lt);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.5rem 1rem;border-radius:var(--radius);z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-35-tempo-payments-business-case.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:983a22594a38514987c18253d6efe800adb9ffb96148357f3deb80975f46837c">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-35 · Tempo Payments Business Case</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero"><div class="container">
+  <div class="hero-eyebrow">OpenChainGraph Suite · ART-35 · Wave 9 · Tempo Payments Business Case</div>
+  <span class="badge badge-muted" style="display:inline-flex;margin-bottom:.6rem">v1.0.0</span>
+  <h1>Tempo Payments Business Case</h1>
+  <p class="hero-desc">Model the cost savings of migrating a payment flow to Tempo vs incumbent rails — card (Visa/Mastercard), SWIFT wire, ACH, or SEPA. Input your flow profile, monthly volume, and average transaction amount to receive a CFO-ready savings memo with per-transaction savings, basis points, annual savings, and break-even analysis. ISO 20022 pacs.008 artifact output. Client-side. Zero PII.</p>
+  <div class="hero-meta">
+    <span class="badge badge-teal">AP2 Export</span>
+    <span class="badge badge-teal">Wave 9</span>
+    <span class="badge badge-green">ISO 20022 pacs.008</span>
+    <span class="badge badge-gold">CFO Memo</span>
+    <span class="badge badge-purple">Tempo $0.0003/tx · 600ms</span>
+    <span class="badge badge-muted">treasury_mandate</span>
+  </div>
+</div></div>
+
+<div class="tool-body"><div class="container">
+  <div class="pii-notice">&#128274; All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div class="panel">
+    <div class="panel-label">Payment flow parameters</div>
+    <div class="panel-row">
+      <div class="field-group">
+        <label class="field-label" for="flowProfile">Flow profile</label>
+        <select id="flowProfile">
+          <option value="payroll">Payroll</option>
+          <option value="remittance" selected>Cross-border remittance</option>
+          <option value="merchant">Merchant settlement</option>
+        </select>
+        <span class="field-hint">Determines finality improvement narrative in CFO memo</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="txVolume">Monthly transaction volume</label>
+        <input type="number" id="txVolume" min="1" max="10000000" step="1" value="10000">
+        <span class="field-hint">Number of transactions per month</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="txAmount">Average transaction amount (USD)</label>
+        <input type="number" id="txAmount" min="0.01" max="1000000" step="0.01" value="500">
+        <span class="field-hint">Average value per transaction in USD</span>
+      </div>
+    </div>
+    <div class="panel-row">
+      <div class="field-group">
+        <label class="field-label" for="incumbentRail">Incumbent rail</label>
+        <select id="incumbentRail">
+          <option value="card">Card (Visa/Mastercard)</option>
+          <option value="swift" selected>Wire / SWIFT</option>
+          <option value="ach">ACH</option>
+          <option value="sepa">SEPA</option>
+        </select>
+        <span class="field-hint">Current payment rail being modelled against Tempo</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="corridor">Origin corridor</label>
+        <select id="corridor">
+          <option value="us" selected>US</option>
+          <option value="eu">EU</option>
+          <option value="latam">LatAm</option>
+          <option value="africa">Africa</option>
+          <option value="asia">Asia</option>
+        </select>
+        <span class="field-hint">Primary origin of payment flow</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="stablecoin">Stablecoin</label>
+        <select id="stablecoin">
+          <option value="usdc" selected>USDC</option>
+          <option value="usdt">USDT</option>
+          <option value="pathusd">pathUSD</option>
+        </select>
+        <span class="field-hint">USDC/USDT: 0% AMM conversion fee. pathUSD: +0.05%</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="implMonths">Implementation months (break-even)</label>
+        <input type="number" id="implMonths" min="1" max="36" step="1" value="3">
+        <span class="field-hint">Estimated months to complete Tempo migration</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem">
+    <button class="run-btn" onclick="modelBusinessCase()">&#9654; Model Tempo Business Case</button>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Key savings metrics</span></div>
+      <div class="out-body"><div class="kpi-grid" id="kpiGrid"></div></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Fee comparison — Tempo vs incumbent</span></div>
+      <div class="out-body" style="overflow-x:auto"><table class="cmp-table" id="cmpTable"></table></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">CFO memo</span></div>
+      <div class="out-body">
+        <div id="verdictBadge"></div>
+        <pre class="cfo-memo" id="cfoMemo"></pre>
+      </div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Chain to ART-34 (Tempo Fit Diagnostic)</span></div>
+      <div class="out-body" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <a href="art-34-tempo-fit-diagnostic.html" style="display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(20,184,166,.25);padding:.28rem .65rem;border-radius:3px">&#8592; ART-34 Tempo Fit Diagnostic</a>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)">Run the fit diagnostic first to confirm Tempo is the right chain for your firm, then use this tool to size the business case.</span>
+      </div>
+    </div>
+
+    <div class="results-export-row">
+      <button class="btn btn-ghost" id="ap2Btn" disabled onclick="exportAP2()">
+        {} Export OpenChainGraph Artifact<span class="btn-subtitle">chaingraph_version: 0.4.0 · execution_hash</span>
+      </button>
+      <button class="btn btn-ghost" id="signArtifactBtn" onclick="signArtifact()" disabled>⬇ Sign artifact (Ed25519 · §16)</button>
+      <button class="btn btn-ghost" id="verifySigBtn" onclick="verifySignature()">🔏 Verify signature (§16)</button>
+      <button class="btn btn-ghost" id="mdBtn" disabled onclick="exportMd()">
+        &#x21E9; Export Markdown<span class="btn-subtitle">Report</span>
+      </button>
+    </div>
+    <div class="hash-row" id="hashRow" style="display:none">
+      <span class="hash-label">sha256:</span><span id="hashVal"></span>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()" aria-expanded="false" aria-controls="mfstBody">
+    <span>{} MCP Manifest — ART-35</span><span id="mfstArrow">&#9660;</span>
+  </button>
+  <div class="mfst-body" id="mfstBody" aria-hidden="true"><pre class="mfst-code" id="mfstCode"></pre></div>
+</div></div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-35-tempo-payments-business-case.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `model_tempo_payment_economics`. Task: Model cost savings from migrating a payment flow to Tempo vs incumbent rails (card, SWIFT, ACH, SEPA).
+Call it with arguments: {"policy_parameters":{"rail":"swift","stablecoin":"usdc","tx_amount_usd":10000,"monthly_volume":500,"impl_months":3}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html#p=v1.H4sIAAAAAAAA_wFfAKD_eyJyYWlsIjoic3dpZnQiLCJzdGFibGVjb2luIjoidXNkYyIsInR4X2Ftb3VudF91c2QiOjEwMDAwLCJtb250aGx5X3ZvbHVtZSI6NTAwLCJpbXBsX21vbnRocyI6M31rj8M0XwAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════════════════════════
+   ART-35 · Tempo Payments Business Case — OpenChainGraph node
+   Single-node root (chain_depth: 0). treasury_mandate.
+   Semantic profile: iso20022:pacs.008-subset
+   Wave 9. Facts: Tempo fee spec, ISO 20022 pacs.008 crosswalk.
+   OpenChainGraph nodes do not write ain_lang to sessionStorage.
+═══════════════════════════════════════════════════════════════════════ */
+
+const MANIFEST = {
+  tool_id: 'art-35-tempo-payments-business-case',
+  version: '1.0.0',
+  title: 'Tempo Payments Business Case',
+  mcp_tool_definition: {
+    name: 'model_tempo_payment_economics',
+    description: 'Models cost savings from migrating a payment flow to Tempo vs incumbent rails (card, SWIFT, ACH, SEPA). Returns per-transaction savings, basis points, annual savings, break-even months, and a CFO memo. ISO 20022 pacs.008 semantic profile.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        flow_profile: { type: 'string', enum: ['payroll', 'remittance', 'merchant'], description: 'Payment flow type' },
+        monthly_volume: { type: 'number', description: 'Number of transactions per month' },
+        avg_amount_usd: { type: 'number', description: 'Average transaction amount in USD' },
+        incumbent_rail: { type: 'string', enum: ['card', 'swift', 'ach', 'sepa'], description: 'Current payment rail' },
+        corridor: { type: 'string', enum: ['us', 'eu', 'latam', 'africa', 'asia'], description: 'Origin corridor' },
+        stablecoin: { type: 'string', enum: ['usdc', 'usdt', 'pathusd'], description: 'Stablecoin on Tempo' },
+        impl_months: { type: 'number', description: 'Implementation months for break-even' }
+      },
+      required: ['flow_profile', 'monthly_volume', 'avg_amount_usd', 'incumbent_rail']
+    }
+  },
+  ap2_export: true,
+  chaingraph: true
+};
+
+/* ── Rail fee models ─────────────────────────────────────────────────
+   Sources:
+   · Tempo: docs.tempo.xyz/learn/tempo/fees — $0.0003/tx flat, sub-cent
+   · Card: Visa/MC CNP interchange 2025 — 1.5% + $0.10 (processing estimate)
+   · SWIFT: correspondent banking survey 2025 — $18 default + 0.1% FX spread
+   · ACH: Nacha 2025 guidance — $0.26/tx flat (Same-Day ACH)
+   · SEPA: SEPA credit transfer — €0.08/tx flat (≈ $0.087 USD at 1.09)
+   All indicative. Verify with provider before use.
+   ─────────────────────────────────────────────────────────────────── */
+
+const TEMPO_FEE_FLAT = 0.0003; // $0.0003/tx — Tempo payment lane
+const TEMPO_AMM_PCT = { usdc: 0, usdt: 0, pathusd: 0.0005 }; // 0.05% for pathusd
+
+const RAILS = {
+  card:  { label: 'Card (Visa/Mastercard)', fixed: 0.10, pct: 0.015, finality_label: 'Auth instant; settlement T+1/T+2', finality_days: 1.5 },
+  swift: { label: 'Wire / SWIFT',           fixed: 18,   pct: 0.001, finality_label: '~24h (SWIFT gpi)',                 finality_days: 1   },
+  ach:   { label: 'ACH (Same-Day)',          fixed: 0.26, pct: 0,     finality_label: '~7h same-day (standard: T+1)',     finality_days: 0.33},
+  sepa:  { label: 'SEPA Credit Transfer',   fixed: 0.087,pct: 0,     finality_label: 'T+1 business day',                 finality_days: 1   }
+};
+
+const FLOW_LABELS = { payroll: 'Payroll', remittance: 'Cross-border remittance', merchant: 'Merchant settlement' };
+const CORRIDOR_LABELS = { us: 'US', eu: 'EU', latam: 'LatAm', africa: 'Africa', asia: 'Asia' };
+const STABLECOIN_LABELS = { usdc: 'USDC', usdt: 'USDT', pathusd: 'pathUSD' };
+
+/* Estimated implementation cost by flow profile (months × FTE days rough heuristic for break-even only) */
+const IMPL_COST_PER_MONTH = 15000; // $15k/month rough migration opportunity cost
+
+let _result = null;
+let _artifact = null;
+
+function fmtUSD(n, decimals) {
+  if (decimals === undefined) decimals = 2;
+  if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(1) + 'k';
+  return '$' + n.toFixed(decimals);
+}
+
+function fmtBps(n) {
+  return (n * 10000).toFixed(1) + ' bps';
+}
+
+function verdict(annualSavingsUsd, implMonths) {
+  const totalImplCost = implMonths * IMPL_COST_PER_MONTH;
+  const breakEvenMonths = annualSavingsUsd > 0 ? totalImplCost / (annualSavingsUsd / 12) : Infinity;
+  if (annualSavingsUsd > 50000 && breakEvenMonths <= 12) return 'MIGRATE';
+  if (annualSavingsUsd > 5000 && breakEvenMonths <= 24) return 'EVALUATE';
+  return 'HOLD';
+}
+
+async function modelBusinessCase() {
+  const flowProfile  = document.getElementById('flowProfile').value;
+  const txVolume     = parseInt(document.getElementById('txVolume').value) || 10000;
+  const txAmount     = parseFloat(document.getElementById('txAmount').value) || 500;
+  const incumbentKey = document.getElementById('incumbentRail').value;
+  const corridor     = document.getElementById('corridor').value;
+  const stablecoin   = document.getElementById('stablecoin').value;
+  const implMonths   = parseInt(document.getElementById('implMonths').value) || 3;
+
+  const rail = RAILS[incumbentKey];
+  const ammPct = TEMPO_AMM_PCT[stablecoin];
+
+  /* Per-transaction fees */
+  const incumbentFee = rail.fixed + txAmount * rail.pct;
+  const tempoFee     = TEMPO_FEE_FLAT + txAmount * ammPct;
+  const perTxSaving  = incumbentFee - tempoFee;
+  const bpsSaving    = perTxSaving / txAmount; // fraction of tx amount saved
+
+  /* Monthly / annual */
+  const monthlySaving = perTxSaving * txVolume;
+  const annualSaving  = monthlySaving * 12;
+  const monthlyIncumbent = incumbentFee * txVolume;
+  const monthlyTempo     = tempoFee * txVolume;
+  const annualIncumbent  = monthlyIncumbent * 12;
+  const annualTempo      = monthlyTempo * 12;
+
+  /* Break-even */
+  const implCostTotal = implMonths * IMPL_COST_PER_MONTH;
+  const breakEvenMonths = annualSaving > 0 ? implCostTotal / (annualSaving / 12) : null;
+
+  /* Verdict */
+  const verd = verdict(annualSaving, implMonths);
+
+  /* Finality improvement */
+  const incumbentFinalityLabel = rail.finality_label;
+  const tempoFinalityLabel = '~600ms (~0.0007 days)';
+
+  _result = {
+    flowProfile, txVolume, txAmount, incumbentKey, corridor, stablecoin, implMonths,
+    incumbentFee, tempoFee, perTxSaving, bpsSaving,
+    monthlySaving, annualSaving, monthlyIncumbent, monthlyTempo,
+    annualIncumbent, annualTempo,
+    implCostTotal, breakEvenMonths, verd,
+    rail, incumbentFinalityLabel, tempoFinalityLabel
+  };
+
+  renderResults(_result);
+
+  /* Hash and artifact — hash covers EXACTLY the stored policy_parameters and output_payload */
+  const today = new Date().toISOString().slice(0, 10);
+
+  const policyParameters = {
+    execution_backend: 'js',
+    input_parameters: {
+      flow_profile: flowProfile,
+      monthly_volume: txVolume,
+      avg_amount_usd: txAmount,
+      incumbent_rail: incumbentKey,
+      corridor,
+      stablecoin,
+      impl_months: implMonths
+    }
+  };
+  const outputPayload = {
+    instructed_amount: { amount: txAmount * txVolume, currency: 'USD' },
+    debtor: { party_name: 'Payer (synthetic)', lei: null },
+    creditor: { party_name: 'Payee (synthetic)', lei: null },
+    settlement_date: today,
+    remittance_information: FLOW_LABELS[flowProfile] + ' · ' + CORRIDOR_LABELS[corridor] + ' corridor',
+    per_tx_incumbent_fee_usd: Math.round(incumbentFee * 10000) / 10000,
+    per_tx_tempo_fee_usd: Math.round(tempoFee * 10000) / 10000,
+    per_tx_saving_usd: Math.round(perTxSaving * 10000) / 10000,
+    saving_bps: Math.round(bpsSaving * 10000 * 10) / 10,
+    monthly_saving_usd: Math.round(monthlySaving * 100) / 100,
+    annual_saving_usd: Math.round(annualSaving * 100) / 100,
+    break_even_months: breakEvenMonths !== null ? Math.round(breakEvenMonths * 10) / 10 : null,
+    verdict: verd,
+    finality_incumbent: incumbentFinalityLabel,
+    finality_tempo: tempoFinalityLabel,
+    stablecoin,
+    corridor,
+    rail: incumbentKey,
+    per_tx_incumbent_usd: +incumbentFee.toFixed(6),
+    per_tx_tempo_usd: +tempoFee.toFixed(6),
+    impl_cost_usd: +implCostTotal.toFixed(2)
+  };
+  const hashInput = {
+    policy_parameters: policyParameters,
+    output_payload: outputPayload
+  };
+  const hash = await sha256(hashInput);
+
+  document.getElementById('hashRow').style.display = 'block';
+  document.getElementById('hashVal').textContent = hash;
+
+  const __generatedAtCapture = new Date().toISOString();
+  _artifact = {
+    '@context': [
+      'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+      'https://ainumbers.co/chaingraph/context/v0.3/iso20022-context.jsonld'
+    ],
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+    mandate_type: 'treasury_mandate',
+    tool_id: 'art-35-tempo-payments-business-case',
+    tool_version: '1.0.0',
+    generated_at: __generatedAtCapture,
+    execution_hash: hash,
+    'dct:conformsTo': ['https://ainumbers.co/chaingraph/profiles/iso20022/pacs008-subset.jsonld'],
+    semantic_profile: 'iso20022:pacs.008-subset',
+    chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 0 },
+    policy_parameters: policyParameters,
+    output_payload: outputPayload,
+    compliance_flags: ['TREASURY_BUSINESS_CASE_COMPLETE', 'ISO20022_PACS008_CROSSWALK'],
+    audit_signature: { client_side_executed: true, zero_pii_verified: true, deterministic_run: true }
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+
+  ['ap2Btn', 'mdBtn'].forEach(function(id) {
+    const b = document.getElementById(id);
+    b.disabled = false;
+    b.classList.add('ready');
+  });
+}
+
+function renderResults(r) {
+  /* KPI tiles */
+  document.getElementById('kpiGrid').innerHTML = [
+    { label: 'Per-tx saving', value: fmtUSD(r.perTxSaving, 4), sub: fmtBps(r.bpsSaving) + ' per tx', cls: r.perTxSaving > 0 ? 'green' : '' },
+    { label: 'Monthly saving', value: fmtUSD(r.monthlySaving), sub: r.txVolume.toLocaleString() + ' tx/month', cls: r.monthlySaving > 0 ? 'green' : '' },
+    { label: 'Annual saving', value: fmtUSD(r.annualSaving), sub: '12-month projection', cls: r.annualSaving > 0 ? 'green' : '' },
+    { label: 'Break-even', value: r.breakEvenMonths !== null ? (r.breakEvenMonths < 1 ? '<1 mo' : Math.round(r.breakEvenMonths * 10) / 10 + ' mo') : 'N/A', sub: 'Incl. est. $' + (r.implMonths * 15) + 'k migration cost', cls: 'teal' },
+    { label: 'Finality improvement', value: '~600ms', sub: 'vs ' + r.incumbentFinalityLabel, cls: 'teal' },
+    { label: 'Incumbent rail fee', value: fmtUSD(r.incumbentFee, 4) + '/tx', sub: r.rail.label, cls: '' }
+  ].map(function(kpi) {
+    return '<div class="kpi-tile"><div class="kpi-label">' + kpi.label + '</div><div class="kpi-value ' + kpi.cls + '">' + kpi.value + '</div><div class="kpi-sub">' + kpi.sub + '</div></div>';
+  }).join('');
+
+  /* Fee comparison table */
+  const totalVolUsd = r.txAmount * r.txVolume;
+  document.getElementById('cmpTable').innerHTML =
+    '<thead><tr><th>Rail</th><th>Per-tx fee</th><th>Fee %</th><th>Monthly cost (' + r.txVolume.toLocaleString() + ' tx)</th><th>Annual cost</th><th>Finality</th></tr></thead>' +
+    '<tbody>' +
+    '<tr><td class="hl">Tempo (' + STABLECOIN_LABELS[r.stablecoin] + ')</td><td class="green">' + fmtUSD(r.tempoFee, 4) + '</td><td class="green">' + (r.tempoFee / r.txAmount * 100).toFixed(4) + '%</td><td class="green">' + fmtUSD(r.monthlyTempo) + '</td><td class="green">' + fmtUSD(r.annualTempo) + '</td><td>~600ms</td></tr>' +
+    '<tr><td class="hl">' + r.rail.label + '</td><td class="warn">' + fmtUSD(r.incumbentFee, 4) + '</td><td class="warn">' + (r.incumbentFee / r.txAmount * 100).toFixed(4) + '%</td><td class="warn">' + fmtUSD(r.monthlyIncumbent) + '</td><td class="warn">' + fmtUSD(r.annualIncumbent) + '</td><td>' + r.incumbentFinalityLabel + '</td></tr>' +
+    '<tr style="font-weight:600"><td class="hl">Saving</td><td class="green">' + fmtUSD(r.perTxSaving, 4) + '</td><td class="green">' + fmtBps(r.bpsSaving) + '</td><td class="green">' + fmtUSD(r.monthlySaving) + '</td><td class="green">' + fmtUSD(r.annualSaving) + '</td><td></td></tr>' +
+    '</tbody>';
+
+  /* Verdict badge */
+  const verdClass = { MIGRATE: 'verdict-migrate', EVALUATE: 'verdict-evaluate', HOLD: 'verdict-hold' };
+  document.getElementById('verdictBadge').innerHTML = '<div class="verdict-badge ' + verdClass[r.verd] + '">Recommendation: ' + r.verd + '</div>';
+
+  /* CFO memo */
+  const today = new Date().toISOString().slice(0, 10);
+  const breakEvenStr = r.breakEvenMonths !== null ? (r.breakEvenMonths < 1 ? '<1 month' : Math.round(r.breakEvenMonths * 10) / 10 + ' months') : 'N/A (no saving)';
+  const memo = [
+    'TEMPO PAYMENT RAIL BUSINESS CASE',
+    '================================',
+    FLOW_LABELS[r.flowProfile] + ' · ' + r.txVolume.toLocaleString() + ' tx/month · ' + fmtUSD(r.txAmount) + ' avg · ' + CORRIDOR_LABELS[r.corridor] + ' corridor',
+    'Stablecoin: ' + STABLECOIN_LABELS[r.stablecoin] + '   Date: ' + today,
+    '',
+    'COST COMPARISON',
+    '---------------',
+    'Incumbent (' + r.rail.label + '): ' + fmtUSD(r.incumbentFee, 4) + '/tx',
+    '  Fixed: ' + fmtUSD(r.rail.fixed, 4) + ' + ' + (r.rail.pct * 100).toFixed(2) + '% of amount',
+    'Tempo (' + STABLECOIN_LABELS[r.stablecoin] + '):  ' + fmtUSD(r.tempoFee, 6) + '/tx',
+    '  Flat fee: $0.0003 + ' + (TEMPO_AMM_PCT[r.stablecoin] * 100).toFixed(2) + '% AMM conversion',
+    '',
+    'Per-transaction saving: ' + fmtUSD(r.perTxSaving, 4) + ' (' + fmtBps(r.bpsSaving) + ')',
+    'Monthly saving:         ' + fmtUSD(r.monthlySaving) + ' (' + r.txVolume.toLocaleString() + ' tx × ' + fmtUSD(r.perTxSaving, 4) + ')',
+    'Annual saving:          ' + fmtUSD(r.annualSaving),
+    '',
+    'FINALITY IMPROVEMENT',
+    '--------------------',
+    'Incumbent: ' + r.incumbentFinalityLabel,
+    'Tempo:     ~600ms (~0.007 seconds)',
+    '',
+    'BREAK-EVEN ANALYSIS',
+    '-------------------',
+    'Implementation est.:    ' + r.implMonths + ' months (~$' + (r.implMonths * 15) + 'k)',
+    'Break-even at savings:  ' + breakEvenStr,
+    '',
+    'RECOMMENDATION: ' + r.verd,
+    '',
+    'Cite: Tempo fee spec (docs.tempo.xyz/learn/tempo/fees)',
+    '      ISO 20022 pacs.008 crosswalk (ainumbers.co/chaingraph/art-35-...)',
+    '      Rail fees: Visa/MC interchange 2025; Nacha ACH; SWIFT gpi survey; SEPA CT',
+    '      Tempo mainnet live March 18, 2026 · Design partners: Visa, Mastercard,',
+    '      Deutsche Bank, Standard Chartered, Revolut, Nubank, Shopify, Ramp, DoorDash',
+    '',
+    '> Indicative model only. Verify actual fees with your payment provider.',
+    '> ART-35 · OpenChainGraph Suite · Post Oak Labs · CC BY 4.0'
+  ].join('\n');
+
+  document.getElementById('cfoMemo').textContent = memo;
+  document.getElementById('resultsPanel').classList.add('visible');
+}
+
+/* ── Export helpers ─────────────────────────────────────────────────── */
+async function sha256(obj) {
+  const c = __ocgCanonStr(obj);
+  const b = new TextEncoder().encode(c);
+  const h = await crypto.subtle.digest('SHA-256', b);
+  return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function ts14() { return new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14); }
+
+function showToast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+function exportAP2() {
+  if (!_artifact) return;
+  const ts = ts14();
+  const b = new Blob([JSON.stringify(_artifact, null, 2)], { type: 'application/json' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: 'art-35-tempo-payments-business-case_' + ts + '.policy.json' });
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Artifact exported');
+}
+
+function exportMd() {
+  if (!_result || !_artifact) return;
+  const r = _result;
+  const ts = ts14();
+  const breakEvenStr = r.breakEvenMonths !== null ? (r.breakEvenMonths < 1 ? '<1 month' : Math.round(r.breakEvenMonths * 10) / 10 + ' months') : 'N/A';
+  const lines = [
+    '# Tempo Payments Business Case — ' + r.verd,
+    '',
+    '_' + new Date().toISOString() + ' · ainumbers.co/chaingraph/art-35-tempo-payments-business-case.html · client-side, zero PII_',
+    '',
+    '**ART-35 · OpenChainGraph · Wave 9 · treasury_mandate**',
+    '**execution_hash:** ' + _artifact.execution_hash,
+    '',
+    '## Parameters',
+    '',
+    '| Field | Value |',
+    '|---|---|',
+    '| Flow profile | ' + FLOW_LABELS[r.flowProfile] + ' |',
+    '| Monthly volume | ' + r.txVolume.toLocaleString() + ' tx |',
+    '| Average amount | ' + fmtUSD(r.txAmount) + ' |',
+    '| Incumbent rail | ' + r.rail.label + ' |',
+    '| Corridor | ' + CORRIDOR_LABELS[r.corridor] + ' |',
+    '| Stablecoin | ' + STABLECOIN_LABELS[r.stablecoin] + ' |',
+    '',
+    '## Key Metrics',
+    '',
+    '| Metric | Value |',
+    '|---|---|',
+    '| Per-tx saving | ' + fmtUSD(r.perTxSaving, 4) + ' (' + fmtBps(r.bpsSaving) + ') |',
+    '| Monthly saving | ' + fmtUSD(r.monthlySaving) + ' |',
+    '| Annual saving | ' + fmtUSD(r.annualSaving) + ' |',
+    '| Break-even | ' + breakEvenStr + ' |',
+    '| Finality improvement | ' + r.incumbentFinalityLabel + ' → ~600ms |',
+    '',
+    '## CFO Memo',
+    '',
+    '```',
+    document.getElementById('cfoMemo').textContent,
+    '```',
+    '',
+    '---',
+    '> Fee sources: Tempo fee spec (docs.tempo.xyz/learn/tempo/fees) · Visa/MC interchange 2025 · Nacha ACH · SWIFT gpi · SEPA CT',
+    '> ISO 20022 pacs.008 semantic profile. Indicative only — verify fees with your provider.',
+    '> *ART-35 · OpenChainGraph Suite · Post Oak Labs · CC BY 4.0*'
+  ];
+  const b = new Blob([lines.join('\n')], { type: 'text/markdown' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: 'art-35-tempo-payments-business-case_' + ts + '.md' });
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Markdown exported');
+}
+
+function toggleMfst() {
+  const body = document.getElementById('mfstBody'), arrow = document.getElementById('mfstArrow'), btn = document.querySelector('.mfst-btn');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▼' : '▲';
+  btn.setAttribute('aria-expanded', String(!open));
+  body.setAttribute('aria-hidden', String(open));
+  if (!open && !document.getElementById('mfstCode').textContent) document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2);
+}
+</script>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (nodes) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_nodes.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('✗ no §16 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}
+  catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var ids=['ap2ExportBtn','ap2Btn','exportBtn'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(!el)continue;
+    var obs=new MutationObserver(function(){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    });
+    obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+    break;
+  }
+})();
+</script>
+</body>
+</html>

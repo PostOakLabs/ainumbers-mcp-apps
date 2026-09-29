@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>AP2 Mandate-Chain Validator · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Reference implementation validator for AP2 v0.2 Intent→Cart→Payment mandate chains. Validates signature-chain integrity, scope/limit consistency, TTL/expiry, over-spend detection, and Human-Not-Present flows. Exports conformance test-vector fixtures.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.md">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"AP2 Mandate-Chain Validator","url":"https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html","applicationCategory":"FinanceApplication","operatingSystem":"Any","author":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"}}</script>
+<!-- manifest.json
+{
+  "tool_id": "art-01-ap2-mandate-chain-validator",
+  "version": "1.0.0",
+  "title": "AP2 Mandate-Chain Validator",
+  "description": "Reference implementation for AP2 v0.2 mandate-chain validation. Validates Intent→Cart→Payment mandate trios: signature-chain integrity (parent_hash linkage), scope and spend-limit consistency, TTL/expiry, over-spend detection, Human-Not-Present autonomous flow flags. Exports conformance test-vector fixtures (PASS/FAIL scenario pairs) for CI integration.",
+  "category": "chaingraph",
+  "tags": ["AP2","mandate chain","payment mandate","Intent","Cart","Payment","HNP","autonomous agent","spend policy","conformance","test vectors"],
+  "mcp_tool_definition": {"name":"validate_ap2_mandate_chain","description":"Validates AP2 v0.2 Intent→Cart→Payment mandate trios. Checks signature-chain integrity, scope consistency, TTL/expiry, over-spend, and HNP flow flags. Returns validation verdict with per-check results and conformance fixture export.","inputSchema":{"type":"object","properties":{"intent":{"type":"object","description":"AP2 Intent mandate JSON"},"cart":{"type":"object","description":"AP2 Cart mandate JSON"},"payment":{"type":"object","description":"AP2 Payment mandate JSON"},"validate_at":{"type":"string","format":"date-time","description":"ISO timestamp to use as validation clock (default: now)"}},"required":["intent","payment"]}},
+  "execution": {"type":"browser-javascript","entry":"chaingraph/art-01-ap2-mandate-chain-validator.html","function_name":"validateChain","timeout_ms":2000},
+  "ap2_export": true,
+  "chaingraph": true,
+  "prefill": true,
+  "bridge_version": "1.0",
+  "chain_partners": ["art-02-agent-spend-policy-simulator","ptg-01-ap2-prompt-template-generator"],
+  "mandate_type": "payment_mandate",
+  "conformance_fixtures": true
+}
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;
+  --border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;
+  --text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;
+  --teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;
+  --gold:#D4A847;--gold-dim:rgba(212,168,71,.12);
+  --green:#22C55E;--green-dim:rgba(34,197,94,.12);
+  --red:#EF4444;--red-dim:rgba(239,68,68,.12);
+  --warn:#F59E0B;--warn-dim:rgba(245,158,11,.12);
+  --purple:#9B72F5;--purple-dim:rgba(155,114,245,.12);
+  --radius:6px;--radius-lg:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:300;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400;line-height:1.2}
+a{color:inherit;text-decoration:none}button{cursor:pointer;font-family:inherit}
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(20,184,166,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.01) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+nav{padding:0 1.5rem;height:52px;border-bottom:1px solid var(--border);background:rgba(8,14,26,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(8px)}
+.nav-inner{max-width:1100px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-text{display:flex;flex-direction:column;gap:.08rem}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--bright);line-height:1}
+.logo-ai{color:var(--teal)}.logo-co{color:var(--muted);font-size:.75rem}
+.nav-bc{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);display:flex;align-items:center;gap:.5rem;justify-content:center}
+.nav-bc a{color:var(--body)}.nav-bc a:hover{color:var(--teal)}
+.nav-bc-sep{color:var(--border-2)}.nav-bc-current{color:var(--text)}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--teal);padding:.28rem .75rem;border-radius:4px}
+.nav-cta:hover{background:var(--teal-lt)}
+.hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);position:relative;z-index:1}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--teal)}
+.hero h1{font-size:clamp(1.5rem,3vw,2.2rem);color:var(--white);margin-bottom:.6rem}
+.hero h1 em{font-style:italic;color:var(--teal-lt)}
+.hero-desc{font-size:.82rem;color:var(--body);max-width:720px;line-height:1.8;margin-bottom:1rem}
+.hero-meta{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .6rem;border:1px solid;border-radius:3px}
+.badge-teal{color:var(--teal);border-color:rgba(20,184,166,.3)}
+.badge-gold{color:var(--gold);border-color:rgba(212,168,71,.3)}
+.badge-green{color:var(--green);border-color:rgba(34,197,94,.3)}
+.badge-muted{color:var(--muted);border-color:var(--border)}
+.badge-purple{color:var(--purple);border-color:rgba(155,114,245,.3)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin-bottom:1rem}
+.tool-body{position:relative;z-index:1;padding:2rem 0 4rem}
+/* CHAIN DIAGRAM */
+.chain-diagram{display:flex;align-items:center;gap:0;margin-bottom:1.5rem;overflow-x:auto;padding-bottom:.5rem}
+.chain-node{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:.65rem 1rem;min-width:120px;text-align:center;flex-shrink:0;position:relative;transition:border-color .2s}
+.chain-node.active{border-color:var(--teal)}
+.chain-node.valid{border-color:var(--green)}
+.chain-node.invalid{border-color:var(--red)}
+.chain-node-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.chain-node-name{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--bright)}
+.chain-node-status{font-family:'JetBrains Mono',monospace;font-size:.46rem;margin-top:.2rem}
+.chain-arrow{font-size:1.4rem;color:var(--border-2);flex-shrink:0;padding:0 .4rem;line-height:1}
+.chain-arrow.valid{color:var(--teal)}
+.chain-arrow.invalid{color:var(--red)}
+/* PANELS */
+.panel{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.panel-label::before{content:'';display:block;width:12px;height:1px;background:var(--teal)}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.3rem}
+.field-hint{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--border-2);margin-top:.15rem;display:block}
+/* MANDATE EDITORS */
+.mandate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1rem}
+@media(max-width:900px){.mandate-grid{grid-template-columns:1fr}}
+.mandate-card{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column}
+.mandate-card-header{padding:.65rem 1rem;border-bottom:1px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:space-between}
+.mandate-card-title{font-family:'JetBrains Mono',monospace;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase}
+.mandate-card-title.intent{color:var(--teal)}
+.mandate-card-title.cart{color:var(--gold)}
+.mandate-card-title.payment{color:var(--purple)}
+.mandate-card-required{font-family:'JetBrains Mono',monospace;font-size:.4rem;color:var(--muted)}
+.mandate-textarea{flex:1;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.58rem;line-height:1.6;padding:.85rem 1rem;resize:vertical;min-height:280px;outline:none;width:100%}
+.mandate-textarea:focus{background:rgba(20,184,166,.02)}
+.mandate-json-status{font-family:'JetBrains Mono',monospace;font-size:.44rem;padding:.35rem 1rem;border-top:1px solid var(--border);background:var(--bg-2)}
+/* SCENARIO BUTTONS */
+.scenario-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.scenario-btn{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.08em;text-transform:uppercase;background:var(--bg-3);border:1px solid var(--border);color:var(--muted);padding:.28rem .7rem;border-radius:3px;transition:all .2s;cursor:pointer}
+.scenario-btn:hover{border-color:var(--teal);color:var(--teal)}
+.scenario-btn.pass{border-color:rgba(34,197,94,.3);color:var(--green)}
+.scenario-btn.fail{border-color:rgba(239,68,68,.3);color:var(--red)}
+/* SETTINGS */
+.settings-inline{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1rem}
+input[type="datetime-local"],input[type="number"],input[type="text"],select{background:var(--bg-3);border:1px solid var(--border);color:var(--bright);font-family:'Sora',sans-serif;font-size:.75rem;padding:.38rem .55rem;border-radius:var(--radius);outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--teal)}
+/* RUN */
+.run-btn{background:var(--teal);color:var(--bg);border:none;padding:.65rem 2rem;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:background .2s}
+.run-btn:hover{background:var(--teal-lt)}
+/* RESULTS */
+.results-panel{display:none;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.results-panel.visible{display:flex}
+.out-section{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.out-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg-3);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.out-title{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.out-body{padding:1.25rem}
+/* VERDICT */
+.verdict-card{border-radius:var(--radius-lg);padding:1.2rem 1.4rem;margin-bottom:.85rem;display:flex;align-items:flex-start;gap:1rem}
+.verdict-card.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.3)}
+.verdict-card.fail{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.35)}
+.verdict-icon{font-size:1.5rem;line-height:1;flex-shrink:0;margin-top:.1rem}
+.verdict-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.2rem}
+.verdict-label.pass{color:var(--green)}.verdict-label.fail{color:var(--red)}
+.verdict-title{font-family:'DM Serif Display',serif;font-size:1.25rem;color:var(--white);margin-bottom:.25rem}
+.verdict-sub{font-size:.7rem;color:var(--body);line-height:1.6}
+/* CHECK RESULTS */
+.check-results{display:flex;flex-direction:column;gap:.4rem}
+.check-result-item{display:flex;align-items:flex-start;gap:.75rem;padding:.55rem .85rem;background:var(--bg-3);border-radius:var(--radius);border-left:3px solid}
+.check-result-item.pass{border-color:var(--green)}
+.check-result-item.fail{border-color:var(--red)}
+.check-result-item.warn{border-color:var(--warn)}
+.check-result-item.skip{border-color:var(--muted)}
+.check-icon{font-family:'JetBrains Mono',monospace;font-size:.62rem;flex-shrink:0;margin-top:.05rem;width:18px}
+.check-name{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--bright);margin-bottom:.15rem}
+.check-detail{font-size:.68rem;color:var(--body);line-height:1.5}
+.check-spec{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--muted);margin-top:.1rem}
+/* FIXTURE PANEL */
+.fixture-code{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text);line-height:1.6;white-space:pre;overflow-x:auto;max-height:400px}
+.copy-btn{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.25rem .65rem;border-radius:3px;transition:all .2s;cursor:pointer}
+.copy-btn:hover{border-color:var(--teal);color:var(--teal)}
+/* EXPORT */
+.results-export-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;border-radius:var(--radius);border:1px solid;transition:all .2s;cursor:pointer;background:transparent}
+.btn-ghost{border-color:var(--border);color:var(--muted)}
+.btn-ghost.ready{border-color:var(--teal);color:var(--bright)}
+.btn-ghost.ready:hover{background:var(--bg-4)}
+.btn-ghost:disabled{opacity:.28;cursor:not-allowed}
+.btn-subtitle{display:block;font-size:.4rem;color:var(--muted);margin-top:.1rem}
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius);transition:background .15s;margin-bottom:1px;cursor:pointer}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.6;white-space:pre}
+footer{border-top:1px solid var(--border);padding:1.75rem 1.5rem;margin-top:1.5rem}
+.footer-inner-ai{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:space-between}
+.footer-links-ai{display:flex;gap:1.25rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)}
+.footer-links-ai a{color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links-ai a:hover{color:var(--teal-lt)}
+.footer-badge-ai{display:flex;flex-direction:column;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg-3);border:1px solid var(--teal);color:var(--teal-lt);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.5rem 1rem;border-radius:var(--radius);z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-01 · AP2 Mandate-Chain Validator</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero"><div class="container">
+  <div class="hero-eyebrow">OpenChainGraph Suite · ART-01 · AP2 Mandate-Chain Validator</div>
+  <span class="badge badge-muted" style="display:inline-flex;margin-bottom:.6rem"><span>v1.0.0</span></span>
+  <h1>AP2 Mandate-Chain Validator</h1>
+  <p class="hero-desc">Reference implementation for <strong>AP2 v0.2</strong> mandate-chain validation. Paste your Intent → Cart → Payment mandate JSON trio and validate: signature-chain integrity (parent hash linkage), scope and spend-limit consistency, TTL/expiry at validation time, over-spend detection, and Human-Not-Present (HNP) autonomous-flow flags. Load a built-in PASS or FAIL scenario to explore the validation model, then export <strong>conformance test-vector fixtures</strong> for CI integration. See also: <a href="agentic-payments-map.html">how AP2 mandates map to x402, ACP, ERC-8004, and MPP</a>.</p>
+  <div class="hero-meta">
+    <span class="badge badge-teal">AP2 Export</span>
+    <span class="badge badge-teal">Chains: ART-02 · PTG-01</span>
+    <span class="badge badge-purple">Conformance Fixtures</span>
+    <span class="badge badge-gold">AP2 v0.2</span>
+    <span class="badge badge-green">Zero PII · Reference Impl</span>
+  </div>
+</div></div>
+
+<div class="tool-body"><div class="container">
+
+  <div class="pii-notice">🔒 All validation runs locally. No data leaves your browser. Use synthetic mandate JSON only.</div>
+
+  <!-- CHAIN DIAGRAM -->
+  <div class="chain-diagram" id="chainDiagram">
+    <div class="chain-node" id="nodeIntent">
+      <div class="chain-node-label">Mandate 1</div>
+      <div class="chain-node-name">Intent</div>
+      <div class="chain-node-status" id="nodeIntentStatus" style="color:var(--muted)">pending</div>
+    </div>
+    <div class="chain-arrow" id="arrowIC">&#x2192;</div>
+    <div class="chain-node" id="nodeCart">
+      <div class="chain-node-label">Mandate 2 (optional)</div>
+      <div class="chain-node-name">Cart</div>
+      <div class="chain-node-status" id="nodeCartStatus" style="color:var(--muted)">–</div>
+    </div>
+    <div class="chain-arrow" id="arrowCP">&#x2192;</div>
+    <div class="chain-node" id="nodePayment">
+      <div class="chain-node-label">Mandate 3</div>
+      <div class="chain-node-name">Payment</div>
+      <div class="chain-node-status" id="nodePaymentStatus" style="color:var(--muted)">pending</div>
+    </div>
+  </div>
+
+  <!-- SCENARIO LOADER -->
+  <div class="panel">
+    <div class="panel-label">Scenarios — built-in test vectors</div>
+    <p style="font-size:.7rem;color:var(--body);margin-bottom:.75rem;line-height:1.7">Load a pre-built scenario to see how each validation check fires, or paste your own mandate JSON in the editors below.</p>
+    <div class="scenario-row">
+      <button class="scenario-btn pass" onclick="loadScenario('valid_trio')">✓ Valid intent→cart→payment trio</button>
+      <button class="scenario-btn pass" onclick="loadScenario('valid_hnp')">✓ Valid HNP autonomous flow</button>
+      <button class="scenario-btn pass" onclick="loadScenario('valid_no_cart')">✓ Valid intent→payment (no cart)</button>
+      <button class="scenario-btn fail" onclick="loadScenario('broken_hash')">✗ Broken parent-hash chain</button>
+      <button class="scenario-btn fail" onclick="loadScenario('expired_intent')">✗ Expired intent TTL</button>
+      <button class="scenario-btn fail" onclick="loadScenario('overspend')">✗ Payment exceeds cart limit</button>
+      <button class="scenario-btn fail" onclick="loadScenario('scope_mismatch')">✗ Scope / merchant mismatch</button>
+      <button class="scenario-btn fail" onclick="loadScenario('hnp_missing_flag')">✗ HNP flow missing flag</button>
+    </div>
+  </div>
+
+  <!-- MANDATE EDITORS -->
+  <div class="panel">
+    <div class="panel-label">Mandate JSON editors</div>
+    <div class="mandate-grid">
+      <div class="mandate-card">
+        <div class="mandate-card-header">
+          <span class="mandate-card-title intent">Intent</span>
+          <span class="mandate-card-required">Required</span>
+        </div>
+        <textarea class="mandate-textarea" id="intentJson" placeholder='{ "mandate_type": "intent", ... }' oninput="onJsonChange('intent')"></textarea>
+        <div class="mandate-json-status" id="intentJsonStatus" style="color:var(--muted)">paste or load scenario</div>
+      </div>
+      <div class="mandate-card">
+        <div class="mandate-card-header">
+          <span class="mandate-card-title cart">Cart</span>
+          <span class="mandate-card-required">Optional</span>
+        </div>
+        <textarea class="mandate-textarea" id="cartJson" placeholder='{ "mandate_type": "cart", ... }' oninput="onJsonChange('cart')"></textarea>
+        <div class="mandate-json-status" id="cartJsonStatus" style="color:var(--muted)">leave blank to validate intent→payment directly</div>
+      </div>
+      <div class="mandate-card">
+        <div class="mandate-card-header">
+          <span class="mandate-card-title payment">Payment</span>
+          <span class="mandate-card-required">Required</span>
+        </div>
+        <textarea class="mandate-textarea" id="paymentJson" placeholder='{ "mandate_type": "payment", ... }' oninput="onJsonChange('payment')"></textarea>
+        <div class="mandate-json-status" id="paymentJsonStatus" style="color:var(--muted)">paste or load scenario</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="panel">
+    <div class="panel-label">Validation settings</div>
+    <div class="settings-inline">
+      <div>
+        <label class="field-label" for="validateAt">Validate-at timestamp</label>
+        <input type="datetime-local" id="validateAt" style="width:220px">
+        <span class="field-hint">Leave blank to use current time · Controls TTL/expiry checks</span>
+      </div>
+      <div>
+        <label class="field-label" for="hashAlgo">Hash algorithm</label>
+        <select id="hashAlgo" style="width:140px">
+          <option value="SHA-256" selected>SHA-256</option>
+          <option value="SHA-384">SHA-384</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="hnpMode">HNP enforcement</label>
+        <select id="hnpMode" style="width:200px">
+          <option value="strict" selected>Strict — flag missing HNP flag</option>
+          <option value="lenient">Lenient — warn only</option>
+          <option value="off">Off — skip HNP checks</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem">
+    <button class="run-btn" onclick="validateChain()">▶ Validate Chain</button>
+    <span id="runStatus" style="font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)"></span>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel" id="resultsPanel">
+  <div class="generated-at" id="generatedAt"></div>
+
+    <!-- VERDICT -->
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Validation verdict</span></div>
+      <div class="out-body">
+        <div id="verdictCard"></div>
+        <div id="checkResults" class="check-results"></div>
+      </div>
+    </div>
+
+    <!-- FIXTURE PANEL -->
+    <div class="out-section" id="fixtureSection">
+      <div class="out-header">
+        <span class="out-title">Conformance test-vector fixture</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="copy-btn" onclick="copyFixture()">Copy JSON</button>
+        </div>
+      </div>
+      <div class="out-body">
+        <p style="font-size:.7rem;color:var(--body);margin-bottom:.75rem;line-height:1.7">This fixture captures the full input/output pair for this validation run. Use it in your CI pipeline to regression-test your AP2 mandate-chain implementation. Import into any test framework that accepts JSON assertion fixtures.</p>
+        <div class="fixture-code" id="fixtureCode"></div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="results-export-row">
+      <button class="btn btn-ghost" id="ap2ExportBtn" disabled onclick="exportAP2()">
+        {} Export OpenChainGraph Artifact
+        <span class="btn-subtitle">AP2 · payment_mandate · chain-anchored</span>
+      </button>
+      <button class="btn btn-ghost" id="signArtifactBtn" onclick="signArtifact()" disabled>⬇ Sign artifact (Ed25519 · §16)</button>
+      <button class="btn btn-ghost" id="verifySigBtn" onclick="verifySignature()">🔏 Verify signature (§16)</button>
+      <button class="btn btn-ghost" id="fixtureExportBtn" disabled onclick="exportFixture()">
+        &#x21E9; Export Fixture JSON
+        <span class="btn-subtitle">Conformance test vector for CI</span>
+      </button>
+    </div>
+
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()" style="margin-top:2rem" aria-expanded="false" aria-controls="mfstBody">
+    <span>&#x7B;&#x7D; MCP Manifest — ART-01</span>
+    <span id="mfstArrow">&#x25BC;</span>
+  </button>
+  <div class="mfst-body" id="mfstBody" aria-hidden="true">
+    <pre class="mfst-code" id="mfstCode"></pre>
+  </div>
+
+</div></div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-01-ap2-mandate-chain-validator.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `validate_ap2_mandate_chain`. Task: Validate AP2 v0.2 Intent→Cart→Payment mandate chains: signature-chain integrity, scope consistency, TTL/expiry, over-spend, HNP flow flags.
+Call it with arguments: {"policy_parameters":{"validate_at":"2026-06-18T12:00:00.000Z","hnp_mode":"strict","intent":{"mandate_type":"intent","mandate_id":"int-001","version":"2.0","issued_at":"2026-06-18T10:00:00.000Z","expires_at":"2026-06-19T10:00:00.000Z","issuer_id":"agent-alpha","scope":{"merchant_ids":["merchant-acme"],"category_codes":["5411","5912"],"currency":"USD","max_amount":500},"human_not_present":false},"cart":{"mandate_type":"cart","mandate_id":"crt-001","version":"2.0","issued_at":"2026-06-18T11:00:00.000Z","expires_at":"2026-06-19T11:00:00.000Z","parent_mandate_id":"int-001","parent_hash":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2","cart_total":38.97,"currency":"USD","merchant_id":"merchant-acme"},"payment":{"mandate_type":"payment","mandate_id":"pay-001","version":"2.0","issued_at":"2026-06-18T11:54:00.000Z","expires_at":"2026-06-18T12:30:00.000Z","parent_mandate_id":"crt-001","parent_hash":"b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3","amount":38.97,"currency":"USD","merchant_id":"merchant-acme","payment_method":"card_on_file","human_not_present":false}}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-01-ap2-mandate-chain-validator.html#p=v1.H4sIAAAAAAAA_wFBBL77eyJ2YWxpZGF0ZV9hdCI6IjIwMjYtMDYtMThUMTI6MDA6MDAuMDAwWiIsImhucF9tb2RlIjoic3RyaWN0IiwiaW50ZW50Ijp7Im1hbmRhdGVfdHlwZSI6ImludGVudCIsIm1hbmRhdGVfaWQiOiJpbnQtMDAxIiwidmVyc2lvbiI6IjIuMCIsImlzc3VlZF9hdCI6IjIwMjYtMDYtMThUMTA6MDA6MDAuMDAwWiIsImV4cGlyZXNfYXQiOiIyMDI2LTA2LTE5VDEwOjAwOjAwLjAwMFoiLCJpc3N1ZXJfaWQiOiJhZ2VudC1hbHBoYSIsInNjb3BlIjp7Im1lcmNoYW50X2lkcyI6WyJtZXJjaGFudC1hY21lIl0sImNhdGVnb3J5X2NvZGVzIjpbIjU0MTEiLCI1OTEyIl0sImN1cnJlbmN5IjoiVVNEIiwibWF4X2Ftb3VudCI6NTAwfSwiaHVtYW5fbm90X3ByZXNlbnQiOmZhbHNlfSwiY2FydCI6eyJtYW5kYXRlX3R5cGUiOiJjYXJ0IiwibWFuZGF0ZV9pZCI6ImNydC0wMDEiLCJ2ZXJzaW9uIjoiMi4wIiwiaXNzdWVkX2F0IjoiMjAyNi0wNi0xOFQxMTowMDowMC4wMDBaIiwiZXhwaXJlc19hdCI6IjIwMjYtMDYtMTlUMTE6MDA6MDAuMDAwWiIsInBhcmVudF9tYW5kYXRlX2lkIjoiaW50LTAwMSIsInBhcmVudF9oYXNoIjoiYTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMiIsImNhcnRfdG90YWwiOjM4Ljk3LCJjdXJyZW5jeSI6IlVTRCIsIm1lcmNoYW50X2lkIjoibWVyY2hhbnQtYWNtZSJ9LCJwYXltZW50Ijp7Im1hbmRhdGVfdHlwZSI6InBheW1lbnQiLCJtYW5kYXRlX2lkIjoicGF5LTAwMSIsInZlcnNpb24iOiIyLjAiLCJpc3N1ZWRfYXQiOiIyMDI2LTA2LTE4VDExOjU0OjAwLjAwMFoiLCJleHBpcmVzX2F0IjoiMjAyNi0wNi0xOFQxMjozMDowMC4wMDBaIiwicGFyZW50X21hbmRhdGVfaWQiOiJjcnQtMDAxIiwicGFyZW50X2hhc2giOiJiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzZDRlNWY2YTFiMmMzIiwiYW1vdW50IjozOC45NywiY3VycmVuY3kiOiJVU0QiLCJtZXJjaGFudF9pZCI6Im1lcmNoYW50LWFjbWUiLCJwYXltZW50X21ldGhvZCI6ImNhcmRfb25fZmlsZSIsImh1bWFuX25vdF9wcmVzZW50IjpmYWxzZX19ASBs40EEAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ─────────────────────────────────────────────────────────────────
+   MANIFEST
+   ───────────────────────────────────────────────────────────────── */
+const MANIFEST = {
+  tool_id: 'art-01-ap2-mandate-chain-validator',
+  version: '1.0.0',
+  title: 'AP2 Mandate-Chain Validator',
+  description: 'Reference implementation for AP2 v0.2 mandate-chain validation. Intent→Cart→Payment trio: hash chain, scope, TTL, over-spend, HNP. Exports conformance test-vector fixtures.',
+  category: 'chaingraph',
+  mcp_tool_definition: {
+    name: 'validate_ap2_mandate_chain',
+    description: 'Validates AP2 v0.2 Intent→Cart→Payment mandate chains: signature-chain integrity, scope consistency, TTL/expiry, over-spend, HNP flow flags.',
+    inputSchema: { type:'object', required:['intent','payment'] }
+  },
+  execution: { type:'browser-javascript', entry:'chaingraph/art-01-ap2-mandate-chain-validator.html', function_name:'validateChain', timeout_ms:2000 },
+  ap2_export: true, chaingraph: true, conformance_fixtures: true
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   BUILT-IN SCENARIOS
+   All hashes are synthetic placeholder strings (not real SHA-256)
+   ───────────────────────────────────────────────────────────────── */
+const NOW_ISO = () => new Date().toISOString();
+const FUTURE   = (h) => new Date(Date.now() + h*3600_000).toISOString();
+const PAST     = (h) => new Date(Date.now() - h*3600_000).toISOString();
+
+function buildScenarios() {
+  return {
+    valid_trio: {
+      intent: { mandate_type:'intent', mandate_id:'int-001', version:'2.0', issued_at: PAST(2), expires_at: FUTURE(22), issuer_id:'agent-alpha', scope:{ merchant_ids:['merchant-acme'], category_codes:['5411','5912'], currency:'USD', max_amount:500.00 }, human_not_present:false },
+      cart:    { mandate_type:'cart',    mandate_id:'crt-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), parent_mandate_id:'int-001', parent_hash:'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', items:[{sku:'SKU-001',description:'Organic Coffee 500g',unit_price:12.99,quantity:3,merchant_id:'merchant-acme',category_code:'5411'}], cart_total:38.97, currency:'USD', merchant_id:'merchant-acme' },
+      payment: { mandate_type:'payment', mandate_id:'pay-001', version:'2.0', issued_at: PAST(0.1), expires_at: FUTURE(0.5), parent_mandate_id:'crt-001', parent_hash:'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3', amount:38.97, currency:'USD', merchant_id:'merchant-acme', payment_method:'card_on_file', human_not_present:false }
+    },
+    valid_hnp: {
+      intent: { mandate_type:'intent', mandate_id:'int-hnp-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), issuer_id:'agent-beta', scope:{ merchant_ids:['merchant-aws'], category_codes:['7372'], currency:'USD', max_amount:200.00 }, human_not_present:true, hnp_policy:{ auto_approve_below:50.00, require_human_review_above:150.00, allowed_payment_methods:['card_on_file'] } },
+      cart:   null,
+      payment:{ mandate_type:'payment', mandate_id:'pay-hnp-001', version:'2.0', issued_at: PAST(0.05), expires_at: FUTURE(0.5), parent_mandate_id:'int-hnp-001', parent_hash:'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', amount:45.00, currency:'USD', merchant_id:'merchant-aws', payment_method:'card_on_file', human_not_present:true }
+    },
+    valid_no_cart: {
+      intent: { mandate_type:'intent', mandate_id:'int-nc-001', version:'2.0', issued_at: PAST(0.5), expires_at: FUTURE(23.5), issuer_id:'agent-gamma', scope:{ merchant_ids:['merchant-uber'], category_codes:['4121'], currency:'USD', max_amount:80.00 }, human_not_present:false },
+      cart:   null,
+      payment:{ mandate_type:'payment', mandate_id:'pay-nc-001', version:'2.0', issued_at: PAST(0.02), expires_at: FUTURE(0.25), parent_mandate_id:'int-nc-001', parent_hash:'d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5', amount:22.50, currency:'USD', merchant_id:'merchant-uber', payment_method:'card_on_file', human_not_present:false }
+    },
+    broken_hash: {
+      intent: { mandate_type:'intent', mandate_id:'int-bh-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), issuer_id:'agent-delta', scope:{ merchant_ids:['merchant-acme'], category_codes:['5411'], currency:'USD', max_amount:300.00 }, human_not_present:false },
+      cart:   { mandate_type:'cart', mandate_id:'crt-bh-001', version:'2.0', issued_at: PAST(0.5), expires_at: FUTURE(23.5), parent_mandate_id:'int-bh-001', parent_hash:'DEADBEEF00000000DEADBEEF00000000DEADBEEF00000000DEADBEEF00000000', items:[{sku:'SKU-X',description:'Widget',unit_price:99.00,quantity:1,merchant_id:'merchant-acme',category_code:'5411'}], cart_total:99.00, currency:'USD', merchant_id:'merchant-acme' },
+      payment:{ mandate_type:'payment', mandate_id:'pay-bh-001', version:'2.0', issued_at: PAST(0.1), expires_at: FUTURE(0.5), parent_mandate_id:'crt-bh-001', parent_hash:'BADCAFE000000000BADCAFE000000000BADCAFE000000000BADCAFE000000000A', amount:99.00, currency:'USD', merchant_id:'merchant-acme', payment_method:'card_on_file', human_not_present:false }
+    },
+    expired_intent: {
+      intent: { mandate_type:'intent', mandate_id:'int-exp-001', version:'2.0', issued_at: PAST(25), expires_at: PAST(1), issuer_id:'agent-epsilon', scope:{ merchant_ids:['merchant-acme'], category_codes:['5411'], currency:'USD', max_amount:100.00 }, human_not_present:false },
+      cart:   null,
+      payment:{ mandate_type:'payment', mandate_id:'pay-exp-001', version:'2.0', issued_at: PAST(0.02), expires_at: FUTURE(0.25), parent_mandate_id:'int-exp-001', parent_hash:'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6', amount:50.00, currency:'USD', merchant_id:'merchant-acme', payment_method:'card_on_file', human_not_present:false }
+    },
+    overspend: {
+      intent: { mandate_type:'intent', mandate_id:'int-os-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), issuer_id:'agent-zeta', scope:{ merchant_ids:['merchant-acme'], category_codes:['5411'], currency:'USD', max_amount:50.00 }, human_not_present:false },
+      cart:   { mandate_type:'cart', mandate_id:'crt-os-001', version:'2.0', issued_at: PAST(0.5), expires_at: FUTURE(23.5), parent_mandate_id:'int-os-001', parent_hash:'f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1', items:[{sku:'SKU-Y',description:'Premium Widget',unit_price:120.00,quantity:1,merchant_id:'merchant-acme',category_code:'5411'}], cart_total:120.00, currency:'USD', merchant_id:'merchant-acme' },
+      payment:{ mandate_type:'payment', mandate_id:'pay-os-001', version:'2.0', issued_at: PAST(0.1), expires_at: FUTURE(0.5), parent_mandate_id:'crt-os-001', parent_hash:'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', amount:120.00, currency:'USD', merchant_id:'merchant-acme', payment_method:'card_on_file', human_not_present:false }
+    },
+    scope_mismatch: {
+      intent: { mandate_type:'intent', mandate_id:'int-sm-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), issuer_id:'agent-eta', scope:{ merchant_ids:['merchant-acme'], category_codes:['5411'], currency:'USD', max_amount:200.00 }, human_not_present:false },
+      cart:   null,
+      payment:{ mandate_type:'payment', mandate_id:'pay-sm-001', version:'2.0', issued_at: PAST(0.1), expires_at: FUTURE(0.5), parent_mandate_id:'int-sm-001', parent_hash:'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3', amount:75.00, currency:'USD', merchant_id:'merchant-evil-corp', payment_method:'card_on_file', human_not_present:false }
+    },
+    hnp_missing_flag: {
+      intent: { mandate_type:'intent', mandate_id:'int-hnpf-001', version:'2.0', issued_at: PAST(1), expires_at: FUTURE(23), issuer_id:'agent-theta', scope:{ merchant_ids:['merchant-aws'], category_codes:['7372'], currency:'USD', max_amount:300.00 }, human_not_present:true, hnp_policy:{ auto_approve_below:100.00, require_human_review_above:200.00, allowed_payment_methods:['card_on_file'] } },
+      cart:   null,
+      payment:{ mandate_type:'payment', mandate_id:'pay-hnpf-001', version:'2.0', issued_at: PAST(0.05), expires_at: FUTURE(0.5), parent_mandate_id:'int-hnpf-001', parent_hash:'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', amount:90.00, currency:'USD', merchant_id:'merchant-aws', payment_method:'wire_transfer', human_not_present:false /* ← missing true */ }
+    }
+  };
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   STATE
+   ───────────────────────────────────────────────────────────────── */
+let _parsed = { intent:null, cart:null, payment:null };
+let _result = null;
+let _artifact = null;
+let _fixtureJson = null;
+
+/* ─────────────────────────────────────────────────────────────────
+   SCENARIO LOADER
+   ───────────────────────────────────────────────────────────────── */
+function loadScenario(key) {
+  const scenarios = buildScenarios();
+  const s = scenarios[key];
+  if (!s) return;
+  setEditor('intent',  s.intent);
+  setEditor('cart',    s.cart);
+  setEditor('payment', s.payment);
+  showToast('Scenario loaded — click Validate Chain');
+}
+
+function setEditor(field, obj) {
+  const el = document.getElementById(field + 'Json');
+  el.value = obj ? JSON.stringify(obj, null, 2) : '';
+  onJsonChange(field);
+}
+
+function onJsonChange(field) {
+  const el = document.getElementById(field + 'Json');
+  const statusEl = document.getElementById(field + 'JsonStatus');
+  const raw = el.value.trim();
+  if (!raw) { _parsed[field] = null; statusEl.style.color='var(--muted)'; statusEl.textContent = field==='cart'?'blank (optional)':'empty'; return; }
+  try {
+    _parsed[field] = JSON.parse(raw);
+    const mt = _parsed[field].mandate_type || '?';
+    statusEl.style.color='var(--teal)';
+    statusEl.textContent = `✓ valid JSON · mandate_type: ${mt}`;
+  } catch(e) {
+    _parsed[field] = null;
+    statusEl.style.color='var(--red)';
+    statusEl.textContent = `✗ JSON parse error: ${e.message.slice(0,60)}`;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   VALIDATION ENGINE
+   ───────────────────────────────────────────────────────────────── */
+async function validateChain() {
+  const generatedAt = new Date().toISOString();
+  const statusEl = document.getElementById('runStatus');
+  statusEl.style.color='var(--muted)'; statusEl.textContent='';
+
+  if (!_parsed.intent)   { statusEl.style.color='var(--red)'; statusEl.textContent='Intent JSON required.'; return; }
+  if (!_parsed.payment)  { statusEl.style.color='var(--red)'; statusEl.textContent='Payment JSON required.'; return; }
+
+  const validateAtStr = document.getElementById('validateAt').value;
+  const validateAt = validateAtStr ? new Date(validateAtStr) : new Date();
+  const hnpMode    = document.getElementById('hnpMode').value;
+  const hashAlgo   = document.getElementById('hashAlgo').value;
+
+  const intent  = _parsed.intent;
+  const cart    = _parsed.cart || null;
+  const payment = _parsed.payment;
+
+  const checks = [];
+
+  /* ── 1. STRUCTURAL TYPE CHECKS ── */
+  const intentTypeOk  = intent.mandate_type  === 'intent';
+  const paymentTypeOk = payment.mandate_type === 'payment';
+  const cartTypeOk    = !cart || cart.mandate_type === 'cart';
+  checks.push({ id:'struct', name:'Mandate type declarations', spec:'AP2 v0.2 §2.1',
+    status: (intentTypeOk && paymentTypeOk && cartTypeOk) ? 'pass' : 'fail',
+    detail: intentTypeOk && paymentTypeOk && cartTypeOk
+      ? 'All mandate_type fields correctly declared (intent / cart / payment).'
+      : `Type errors: intent="${intent.mandate_type}" cart="${cart?.mandate_type||'–'}" payment="${payment.mandate_type}". Expected: intent/cart/payment.`
+  });
+
+  /* ── 2. PARENT MANDATE ID LINKAGE ── */
+  let parentLinkOk = true;
+  let parentLinkDetail = '';
+  if (cart) {
+    if (cart.parent_mandate_id !== intent.mandate_id) {
+      parentLinkOk = false;
+      parentLinkDetail += `Cart.parent_mandate_id "${cart.parent_mandate_id}" ≠ Intent.mandate_id "${intent.mandate_id}". `;
+    }
+    if (payment.parent_mandate_id !== cart.mandate_id) {
+      parentLinkOk = false;
+      parentLinkDetail += `Payment.parent_mandate_id "${payment.parent_mandate_id}" ≠ Cart.mandate_id "${cart.mandate_id}". `;
+    }
+  } else {
+    if (payment.parent_mandate_id !== intent.mandate_id) {
+      parentLinkOk = false;
+      parentLinkDetail = `Payment.parent_mandate_id "${payment.parent_mandate_id}" ≠ Intent.mandate_id "${intent.mandate_id}".`;
+    }
+  }
+  checks.push({ id:'parent_id', name:'Parent mandate ID linkage', spec:'AP2 v0.2 §3.2',
+    status: parentLinkOk ? 'pass' : 'fail',
+    detail: parentLinkOk ? 'parent_mandate_id chain correctly links Intent → ' + (cart?'Cart → ':'') + 'Payment.' : parentLinkDetail
+  });
+
+  /* ── 3. PARENT HASH PLAUSIBILITY ── */
+  /* We cannot re-compute the hash of the issuing system's mandate,
+     so we validate format (64 hex chars for SHA-256) and flag all-zero hashes */
+  const hexRe = /^[0-9a-fA-F]{64}$/;
+  const hashChecks = [];
+  if (cart && cart.parent_hash !== undefined) hashChecks.push(['cart.parent_hash', cart.parent_hash]);
+  if (payment.parent_hash !== undefined) hashChecks.push(['payment.parent_hash', payment.parent_hash]);
+
+  let hashFormatOk = true; let hashFormatDetail = '';
+  hashChecks.forEach(([field, h]) => {
+    if (!hexRe.test(h)) { hashFormatOk=false; hashFormatDetail+=`${field} is not a valid 64-hex SHA-256 hash (got "${String(h).slice(0,20)}…"). `; }
+    else if (/^0+$/.test(h) || /^dead/i.test(h) || /^cafe/i.test(h)) { hashFormatOk=false; hashFormatDetail+=`${field} appears to be a placeholder/sentinel value. `; }
+  });
+  if (hashChecks.length === 0) { hashFormatOk=false; hashFormatDetail='No parent_hash fields found in payment (or cart). Parent hashes are required per AP2 v0.2 §3.3.'; }
+  checks.push({ id:'parent_hash', name:'Parent hash format & integrity', spec:'AP2 v0.2 §3.3',
+    status: hashFormatOk ? 'pass' : 'fail',
+    detail: hashFormatOk ? `All parent_hash fields pass format validation (64-hex SHA-256 plausible).` : hashFormatDetail
+  });
+
+  /* ── 4. TTL / EXPIRY ── */
+  const ttlChecks = [['intent', intent], ...(cart?[['cart', cart]]:[]), ['payment', payment]];
+  let ttlOk = true; const ttlDetails = [];
+  ttlChecks.forEach(([name, m]) => {
+    if (!m.expires_at) { ttlOk=false; ttlDetails.push(`${name}: missing expires_at field.`); return; }
+    const exp = new Date(m.expires_at);
+    if (isNaN(exp.getTime())) { ttlOk=false; ttlDetails.push(`${name}: expires_at "${m.expires_at}" is not a valid ISO timestamp.`); return; }
+    if (exp <= validateAt) { ttlOk=false; ttlDetails.push(`${name}: EXPIRED — expires_at ${m.expires_at} ≤ validate-at ${validateAt.toISOString()}.`); }
+    else ttlDetails.push(`${name}: valid until ${m.expires_at} (${Math.round((exp-validateAt)/60000)} min remaining).`);
+  });
+  checks.push({ id:'ttl', name:'TTL / expiry validation', spec:'AP2 v0.2 §4.1',
+    status: ttlOk ? 'pass' : 'fail',
+    detail: ttlDetails.join(' ')
+  });
+
+  /* ── 5. SCOPE CONSISTENCY ── */
+  let scopeOk = true; const scopeDetails = [];
+  const intentScope = intent.scope || {};
+
+  /* Merchant check */
+  const intentMerchants = intentScope.merchant_ids || [];
+  const payMerchant     = payment.merchant_id;
+  const cartMerchant    = cart?.merchant_id;
+  if (intentMerchants.length > 0) {
+    if (payMerchant && !intentMerchants.includes(payMerchant)) {
+      scopeOk=false;
+      scopeDetails.push(`Payment merchant "${payMerchant}" not in intent scope merchant_ids [${intentMerchants.join(', ')}].`);
+    } else if (payMerchant) {
+      scopeDetails.push(`Payment merchant "${payMerchant}" ✓ in scope.`);
+    }
+    if (cartMerchant && !intentMerchants.includes(cartMerchant)) {
+      scopeOk=false;
+      scopeDetails.push(`Cart merchant "${cartMerchant}" not in intent scope merchant_ids.`);
+    }
+  }
+
+  /* Currency consistency */
+  const intentCurrency = intentScope.currency;
+  [['cart',cart], ['payment',payment]].forEach(([name,m]) => {
+    if (!m) return;
+    if (intentCurrency && m.currency && m.currency !== intentCurrency) {
+      scopeOk=false;
+      scopeDetails.push(`${name}.currency "${m.currency}" ≠ intent.scope.currency "${intentCurrency}".`);
+    }
+  });
+
+  if (scopeOk) scopeDetails.push('Merchant IDs and currency consistent across chain.');
+  checks.push({ id:'scope', name:'Scope & merchant consistency', spec:'AP2 v0.2 §3.4',
+    status: scopeOk ? 'pass' : 'fail',
+    detail: scopeDetails.join(' ')
+  });
+
+  /* ── 6. SPEND LIMIT ENFORCEMENT ── */
+  let spendOk = true; const spendDetails = [];
+  const maxAmount = intentScope.max_amount;
+  const payAmount = payment.amount;
+  const cartTotal = cart?.cart_total;
+
+  if (maxAmount != null && payAmount != null) {
+    if (payAmount > maxAmount) {
+      spendOk=false;
+      spendDetails.push(`Payment amount ${payAmount} ${payment.currency||''} exceeds intent max_amount ${maxAmount} — over-spend of ${(payAmount-maxAmount).toFixed(2)}.`);
+    } else {
+      spendDetails.push(`Payment ${payAmount} ≤ intent max_amount ${maxAmount} ✓.`);
+    }
+  }
+  if (cart && maxAmount != null && cartTotal != null) {
+    if (cartTotal > maxAmount) {
+      spendOk=false;
+      spendDetails.push(`Cart total ${cartTotal} exceeds intent max_amount ${maxAmount}.`);
+    }
+  }
+  if (cart && cartTotal != null && payAmount != null) {
+    const tolerance = 0.01; /* rounding tolerance */
+    if (payAmount > cartTotal + tolerance) {
+      spendOk=false;
+      spendDetails.push(`Payment amount ${payAmount} > cart_total ${cartTotal} (over-charge of ${(payAmount-cartTotal).toFixed(2)}).`);
+    }
+  }
+  if (maxAmount == null) spendDetails.push('Intent has no max_amount — no ceiling enforced (informational).');
+  checks.push({ id:'spend', name:'Spend limit enforcement', spec:'AP2 v0.2 §5.1',
+    status: spendOk ? 'pass' : 'fail',
+    detail: spendDetails.join(' ') || 'Spend limits consistent.'
+  });
+
+  /* ── 7. HNP (HUMAN-NOT-PRESENT) FLAG CONSISTENCY ── */
+  if (hnpMode !== 'off') {
+    const intentHnp  = intent.human_not_present;
+    const paymentHnp = payment.human_not_present;
+    let hnpOk = true; const hnpDetails = [];
+
+    if (intentHnp === true) {
+      /* HNP declared in intent — payment must also carry the flag */
+      if (paymentHnp !== true) {
+        hnpOk = false;
+        hnpDetails.push(`Intent declares human_not_present:true but payment.human_not_present is "${paymentHnp}". HNP flag must propagate to Payment per AP2 v0.2 §6.2.`);
+      } else {
+        hnpDetails.push('HNP flag correctly propagated from Intent to Payment.');
+      }
+      /* Check allowed_payment_methods if hnp_policy present */
+      const policy = intent.hnp_policy;
+      if (policy && policy.allowed_payment_methods && payment.payment_method) {
+        if (!policy.allowed_payment_methods.includes(payment.payment_method)) {
+          hnpOk=false;
+          hnpDetails.push(`Payment method "${payment.payment_method}" not in hnp_policy.allowed_payment_methods [${policy.allowed_payment_methods.join(', ')}].`);
+        }
+      }
+      /* Auto-approve threshold */
+      if (policy && policy.require_human_review_above != null && payAmount != null) {
+        if (payAmount > policy.require_human_review_above) {
+          hnpOk=false;
+          hnpDetails.push(`Payment amount ${payAmount} > hnp_policy.require_human_review_above ${policy.require_human_review_above} — human review required for this amount.`);
+        }
+      }
+    } else {
+      hnpDetails.push('Intent is human-present (human_not_present falsy) — HNP checks N/A.');
+    }
+    checks.push({ id:'hnp', name:'Human-Not-Present (HNP) flow flags', spec:'AP2 v0.2 §6.2',
+      status: hnpOk ? 'pass' : (hnpMode==='lenient'?'warn':'fail'),
+      detail: hnpDetails.join(' ')
+    });
+  } else {
+    checks.push({ id:'hnp', name:'Human-Not-Present (HNP) flow flags', spec:'AP2 v0.2 §6.2',
+      status:'skip', detail:'HNP checks disabled in settings.'
+    });
+  }
+
+  /* ── 8. ISSUED_AT SANITY ── */
+  let issuedOk = true; const issuedDetails = [];
+  const mandatesForIssuedCheck = [['intent',intent], ...(cart?[['cart',cart]]:[]), ['payment',payment]];
+  mandatesForIssuedCheck.forEach(([name,m]) => {
+    if (!m.issued_at) { issuedDetails.push(`${name}: missing issued_at.`); issuedOk=false; return; }
+    const iss = new Date(m.issued_at);
+    if (isNaN(iss.getTime())) { issuedDetails.push(`${name}: issued_at not a valid ISO timestamp.`); issuedOk=false; return; }
+    const exp = m.expires_at ? new Date(m.expires_at) : null;
+    if (exp && iss >= exp) { issuedDetails.push(`${name}: issued_at ${m.issued_at} ≥ expires_at — invalid window.`); issuedOk=false; }
+  });
+  if (issuedOk) issuedDetails.push('All issued_at timestamps valid and precede expires_at.');
+  checks.push({ id:'issued_at', name:'Issued-at / timestamp sanity', spec:'AP2 v0.2 §4.2',
+    status: issuedOk ? 'pass' : 'fail',
+    detail: issuedDetails.join(' ')
+  });
+
+  /* ── OVERALL ── */
+  const failing  = checks.filter(c=>c.status==='fail');
+  const warnings = checks.filter(c=>c.status==='warn');
+  const verdict  = failing.length > 0 ? 'FAIL' : warnings.length > 0 ? 'WARN' : 'PASS';
+
+  _result = { verdict, checks, failing, warnings, validateAt: validateAt.toISOString(), intent, cart, payment };
+
+  renderResults(_result);
+
+  /* Build fixture */
+  _fixtureJson = {
+    fixture_version: '1.0.0',
+    tool_id: 'art-01-ap2-mandate-chain-validator',
+    scenario: 'custom',
+    generated_at: generatedAt,
+    validate_at: validateAt.toISOString(),
+    settings: { hnp_mode: hnpMode, hash_algo: hashAlgo },
+    input: { intent, cart: cart||null, payment },
+    expected_verdict: verdict,
+    checks: checks.map(c=>({ id:c.id, expected_status:c.status })),
+    output: { verdict, failing_checks: failing.map(c=>c.id), warning_checks: warnings.map(c=>c.id) }
+  };
+  document.getElementById('fixtureCode').textContent = JSON.stringify(_fixtureJson, null, 2);
+
+  /* AP2 artifact */
+  const now = new Date().toISOString();
+  const policyParams = { execution_backend:'js', hnp_mode:hnpMode, hash_algo:hashAlgo, validate_at: validateAt.toISOString() };
+  const outputPayload = {
+    validation_verdict: verdict,
+    checks_run: checks.length,
+    failing_checks: failing.map(c=>({ id:c.id, detail:c.detail.slice(0,200) })),
+    warning_checks: warnings.map(c=>c.id),
+    mandate_ids: { intent:intent.mandate_id, cart:cart?.mandate_id||null, payment:payment.mandate_id },
+    has_cart: !!cart,
+    human_not_present: !!intent.human_not_present
+  };
+  const hash = await sha256({policy_parameters:policyParams, output_payload:outputPayload});
+
+  _artifact = {
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    'dct:conformsTo': ['https://github.com/google-agentic-commerce/AP2/tree/v0.2'],
+    buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+    mandate_type: 'payment_mandate',
+    tool_id: 'art-01-ap2-mandate-chain-validator',
+    tool_version: '1.0.0',
+    generated_at: now,
+    execution_hash: hash,
+    chain: { parent_hashes:[], parent_tool_ids:[], chain_depth:0 },
+    policy_parameters: policyParams,
+    output_payload: outputPayload,
+    compliance_flags: verdict==='PASS'
+      ? ['AP2_MANDATE_CHAIN_VALID']
+      : verdict==='WARN'
+      ? ['AP2_MANDATE_CHAIN_WARN']
+      : ['AP2_MANDATE_CHAIN_INVALID', ...failing.map(c=>`CHECK_FAIL_${c.id.toUpperCase()}`)],
+    audit_signature: {
+      payloadType: 'application/vnd.openchain.graph+json;version=0.2',
+      payload: '',
+      signatures: []
+    }
+  };
+
+  const ap2Btn = document.getElementById('ap2ExportBtn');
+  const fxBtn  = document.getElementById('fixtureExportBtn');
+  ap2Btn.disabled=false; ap2Btn.classList.add('ready');
+  fxBtn.disabled=false;  fxBtn.classList.add('ready');
+  document.getElementById('resultsPanel').classList.add('visible');
+  document.getElementById('generatedAt').textContent = 'generated_at ' + generatedAt;
+  statusEl.textContent = '';
+
+  updateChainDiagram(_result);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RENDER
+   ───────────────────────────────────────────────────────────────── */
+function renderResults(r) {
+  const {verdict, checks, failing} = r;
+
+  /* Verdict card */
+  const vMeta = {
+    PASS: {cls:'pass', icon:'✅', label:'Chain Valid', title:'AP2 mandate chain passes all validation checks', sub:`All ${checks.filter(c=>c.status!=='skip').length} validation checks pass. This mandate chain is compliant with AP2 v0.2 reference rules.`},
+    WARN: {cls:'pass', icon:'⚠️', label:'Chain Valid (with warnings)', title:'AP2 mandate chain passes with warnings', sub:`${r.warnings.length} warning(s) — chain is structurally valid but review flagged items.`},
+    FAIL: {cls:'fail', icon:'🚫', label:'Chain Invalid', title:`AP2 mandate chain fails — ${failing.length} check(s) failing`, sub:`This mandate chain must not proceed to payment execution. See failing checks below.`}
+  }[verdict];
+
+  document.getElementById('verdictCard').innerHTML = `<div class="verdict-card ${vMeta.cls}">
+    <div class="verdict-icon">${vMeta.icon}</div>
+    <div>
+      <div class="verdict-label ${vMeta.cls}">${vMeta.label}</div>
+      <div class="verdict-title">${vMeta.title}</div>
+      <div class="verdict-sub">${vMeta.sub}</div>
+    </div>
+  </div>`;
+
+  /* Check results */
+  const statusIcon = {pass:'✓',fail:'✗',warn:'⚠',skip:'–'};
+  const statusColor = {pass:'var(--green)',fail:'var(--red)',warn:'var(--warn)',skip:'var(--muted)'};
+  document.getElementById('checkResults').innerHTML = checks.map(c=>`
+    <div class="check-result-item ${c.status}">
+      <span class="check-icon" style="color:${statusColor[c.status]}">${statusIcon[c.status]}</span>
+      <div>
+        <div class="check-name">${c.name}</div>
+        <div class="check-detail">${esc(c.detail)}</div>
+        <div class="check-spec">${c.spec}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateChainDiagram(r) {
+  const intentFails  = r.checks.filter(c=>['struct','ttl','issued_at'].includes(c.id) && c.status==='fail').length > 0;
+  const paymentFails = r.checks.filter(c=>['parent_id','parent_hash','scope','spend','hnp'].includes(c.id) && c.status==='fail').length > 0;
+  const chainFails   = r.verdict==='FAIL';
+
+  const setNode = (id, ok) => {
+    const el = document.getElementById(id);
+    el.className = 'chain-node ' + (ok?'valid':'invalid');
+    const statusEl = el.querySelector('.chain-node-status');
+    statusEl.style.color = ok?'var(--green)':'var(--red)';
+    statusEl.textContent  = ok?'✓ valid':'✗ failing';
+  };
+
+  setNode('nodeIntent',  !intentFails);
+  setNode('nodePayment', !paymentFails);
+
+  if (r.cart) {
+    const el = document.getElementById('nodeCart');
+    el.className = 'chain-node ' + (!chainFails?'valid':'invalid');
+    el.querySelector('.chain-node-status').style.color = !chainFails?'var(--green)':'var(--red)';
+    el.querySelector('.chain-node-status').textContent  = !chainFails?'✓ valid':'✗ check';
+  }
+
+  ['arrowIC','arrowCP'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'chain-arrow ' + (!chainFails?'valid':'invalid');
+    el.style.color = !chainFails?'var(--teal)':'var(--red)';
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   EXPORTS
+   ───────────────────────────────────────────────────────────────── */
+function exportAP2() {
+  if (!_artifact) return;
+  const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+  const blob = new Blob([JSON.stringify(_artifact,null,2)],{type:'application/json'});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`art-01_${ts}.policy.json`});
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('OpenChainGraph artifact exported');
+}
+
+function exportFixture() {
+  if (!_fixtureJson) return;
+  const ts = new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+  const blob = new Blob([JSON.stringify(_fixtureJson,null,2)],{type:'application/json'});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:`art-01_fixture_${ts}.json`});
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Conformance fixture exported');
+}
+
+function copyFixture() {
+  const text = document.getElementById('fixtureCode').textContent;
+  navigator.clipboard?.writeText(text).then(()=>showToast('Fixture copied')).catch(()=>{
+    const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+    showToast('Fixture copied');
+  });
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   UTILS
+   ───────────────────────────────────────────────────────────────── */
+async function sha256(obj) {
+  const canonical = __ocgCanonStr(obj);
+  const buf = new TextEncoder().encode(canonical);
+  const hb = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hb)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function toggleMfst() {
+  const body=document.getElementById('mfstBody');
+  const arrow=document.getElementById('mfstArrow');
+  const btn=document.querySelector('.mfst-btn');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arrow.textContent=open?'▼':'▲';
+  btn.setAttribute('aria-expanded',String(!open));
+  body.setAttribute('aria-hidden',String(open));
+  if(!open&&!document.getElementById('mfstCode').textContent)
+    document.getElementById('mfstCode').textContent=JSON.stringify(MANIFEST,null,2);
+}
+</script>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (nodes) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_nodes.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('✗ no §16 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}
+  catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var ids=['ap2ExportBtn','ap2Btn','exportBtn'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(!el)continue;
+    var obs=new MutationObserver(function(){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    });
+    obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+    break;
+  }
+})();
+</script>
+<script>window.AIN_BRIDGE_CFG={runFn:'validateChain',intake:false,intakeTarget:null,intakeAnchor:null};</script>
+<script>
+(function(){
+'use strict';
+var CFG=window.AIN_BRIDGE_CFG||{};
+var L={
+ en:{pf:'Inputs prefilled from link — review, then Run',ran:'Inputs prefilled from link and executed',fields:'fields',it:'Import Policy Mandate (.policy.json)',drop:'Drop a .policy.json here, or',choose:'Choose file',paste:'Paste JSON',apply:'Apply',ok:'Policy Mandate imported from',bad:'Not a valid AINumbers Policy Mandate JSON'},
+ es:{pf:'Campos precargados desde el enlace — revise y ejecute',ran:'Campos precargados desde el enlace y ejecutados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Suelte un .policy.json aquí, o',choose:'Elegir archivo',paste:'Pegar JSON',apply:'Aplicar',ok:'Policy Mandate importado desde',bad:'JSON de Policy Mandate no válido'},
+ fr:{pf:'Champs préremplis depuis le lien — vérifiez puis exécutez',ran:'Champs préremplis depuis le lien et exécutés',fields:'champs',it:'Importer un Policy Mandate (.policy.json)',drop:'Déposez un .policy.json ici, ou',choose:'Choisir un fichier',paste:'Coller le JSON',apply:'Appliquer',ok:'Policy Mandate importé depuis',bad:'JSON Policy Mandate non valide'},
+ ar:{pf:'تم ملء الحقول مسبقًا من الرابط — راجع ثم شغّل',ran:'تم ملء الحقول من الرابط وتنفيذها',fields:'حقول',it:'استيراد Policy Mandate (.policy.json)',drop:'أسقط ملف ‎.policy.json هنا، أو',choose:'اختر ملفًا',paste:'لصق JSON',apply:'تطبيق',ok:'تم استيراد Policy Mandate من',bad:'JSON غير صالح لـ Policy Mandate'},
+ pt:{pf:'Campos pré-preenchidos a partir do link — revise e execute',ran:'Campos pré-preenchidos a partir do link e executados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Solte um .policy.json aqui, ou',choose:'Escolher arquivo',paste:'Colar JSON',apply:'Aplicar',ok:'Policy Mandate importado de',bad:'JSON de Policy Mandate inválido'},
+ zh:{pf:'已从链接预填输入 — 请检查后运行',ran:'已从链接预填并自动执行',fields:'个字段',it:'导入 Policy Mandate (.policy.json)',drop:'将 .policy.json 拖放到此处，或',choose:'选择文件',paste:'粘贴 JSON',apply:'应用',ok:'已导入 Policy Mandate，来源：',bad:'无效的 AINumbers Policy Mandate JSON'}
+};
+function t(k){return (L.en&&L.en[k])||k;}
+function b64uDec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(Array.prototype.map.call(atob(s),function(c){return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2);}).join(''));}
+function b64uEnc(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function applyFields(fields){
+  var n=0;if(!fields||typeof fields!=='object')return 0;
+  Object.keys(fields).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var tag=el.tagName;if(tag!=='INPUT'&&tag!=='SELECT'&&tag!=='TEXTAREA')return;
+    var v=fields[id];
+    if(el.type==='checkbox'||el.type==='radio'){el.checked=!!v;}
+    else{el.value=(v!==null&&typeof v==='object')?JSON.stringify(v,null,2):String(v);}
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+    n++;
+  });
+  return n;
+}
+function runTool(){if(!CFG.runFn)return false;var f=window[CFG.runFn];if(typeof f==='function'){try{f();return true;}catch(e){return false;}}return false;}
+function anchorEl(){return (CFG.intakeAnchor&&document.querySelector(CFG.intakeAnchor))||document.querySelector('.pii-notice')||document.querySelector('.panel')||document.body.firstElementChild;}
+function notice(msg,kind){
+  var d=document.getElementById('ainBridgeNotice');
+  if(!d){d=document.createElement('div');d.id='ainBridgeNotice';
+    var a=document.getElementById('ainIntakeZone')||anchorEl();
+    if(a&&a.parentNode)a.parentNode.insertBefore(d,a);else document.body.insertBefore(d,document.body.firstChild);}
+  d.setAttribute('style','font-family:\'JetBrains Mono\',monospace;font-size:.68rem;letter-spacing:.04em;margin:0 0 1rem;padding:.55rem .8rem;border-radius:6px;border:1px solid '+(kind==='warn'?'#F59E0B':'#14B8A6')+';color:'+(kind==='warn'?'#F59E0B':'#2DD4BF')+';background:'+(kind==='warn'?'rgba(245,158,11,.08)':'rgba(20,184,166,.08)'));
+  d.textContent=msg;
+}
+function looksLikeMandate(o){return !!(o&&typeof o==='object'&&o.mandate_id&&o.tool_id&&('payload' in o));}
+function intakeApply(text){
+  var o;try{o=JSON.parse(text);}catch(e){notice('⚠ '+t('bad'),'warn');return 0;}
+  if(!looksLikeMandate(o)){notice('⚠ '+t('bad'),'warn');return 0;}
+  var n=0;
+  if(CFG.intakeTarget){var ta=document.getElementById(CFG.intakeTarget);
+    if(ta){ta.value=JSON.stringify(o,null,2);try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}n++;}}
+  if(o.payload&&typeof o.payload==='object')n+=applyFields(o.payload);
+  if(o.source_tool_inputs&&typeof o.source_tool_inputs==='object')n+=applyFields(o.source_tool_inputs);
+  notice((n>0?'📥 ':'⚠ ')+t('ok')+' '+(o.tool_id||'?')+' · '+n+' '+t('fields'),n>0?'ok':'warn');
+  return n;
+}
+function buildIntakeUI(){
+  if(!CFG.intake)return;
+  var a=anchorEl();if(!a||!a.parentNode)return;
+  var z=document.createElement('div');z.id='ainIntakeZone';
+  z.setAttribute('style','border:1px dashed #263855;border-radius:6px;padding:.7rem .9rem;margin:0 0 1.25rem;font-family:\'JetBrains Mono\',monospace;font-size:.66rem;color:#6888A8;letter-spacing:.04em');
+  var lbl=document.createElement('div');lbl.textContent='📥 '+t('it');lbl.setAttribute('style','color:#A8C4DE;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;font-size:.6rem');
+  var row=document.createElement('div');row.setAttribute('style','display:flex;gap:.6rem;align-items:center;flex-wrap:wrap');
+  var txt=document.createElement('span');txt.textContent=t('drop');
+  function mkBtn(label){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('style','background:transparent;border:1px solid #263855;color:#A8C4DE;border-radius:6px;padding:.3rem .7rem;font-family:inherit;font-size:.62rem;cursor:pointer');return b;}
+  var bFile=mkBtn(t('choose')),bPaste=mkBtn(t('paste'));
+  var fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.style.display='none';
+  fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);fi.value='';});
+  bFile.addEventListener('click',function(){fi.click();});
+  var pasteRow=document.createElement('div');pasteRow.style.display='none';pasteRow.setAttribute('style','display:none;margin-top:.6rem');
+  var ta=document.createElement('textarea');ta.rows=5;ta.spellcheck=false;ta.setAttribute('style','width:100%;background:#0D1627;border:1px solid #263855;border-radius:6px;color:#A8C4DE;font-family:inherit;font-size:.64rem;padding:.5rem');
+  var bApply=mkBtn(t('apply'));bApply.style.marginTop='.4rem';
+  bApply.addEventListener('click',function(){if(ta.value.trim()){intakeApply(ta.value);ta.value='';pasteRow.style.display='none';}});
+  pasteRow.appendChild(ta);pasteRow.appendChild(bApply);
+  bPaste.addEventListener('click',function(){pasteRow.style.display=(pasteRow.style.display==='none')?'block':'none';if(pasteRow.style.display==='block')ta.focus();});
+  z.addEventListener('dragover',function(e){e.preventDefault();z.style.borderColor='#14B8A6';});
+  z.addEventListener('dragleave',function(){z.style.borderColor='#263855';});
+  z.addEventListener('drop',function(e){e.preventDefault();z.style.borderColor='#263855';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f){var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);}});
+  row.appendChild(txt);row.appendChild(bFile);row.appendChild(bPaste);row.appendChild(fi);
+  z.appendChild(lbl);z.appendChild(row);z.appendChild(pasteRow);
+  a.parentNode.insertBefore(z,a);
+}
+function initPrefill(){
+  var h=location.hash||'';var m=h.match(/[#&]in=([A-Za-z0-9_\-]+)/);if(!m)return;
+  var obj;try{obj=JSON.parse(b64uDec(m[1]));}catch(e){return;}
+  var fields=(obj&&obj.fields&&typeof obj.fields==='object')?obj.fields:obj;
+  var n=applyFields(fields);
+  if(n>0){
+    if(/[#&]run=1/.test(h)&&runTool())notice('⚡ '+t('ran')+' ('+n+' '+t('fields')+')','ok');
+    else notice('🔗 '+t('pf')+' ('+n+' '+t('fields')+')','ok');
+  }
+}
+var HANDOFF_MAX_CHARS=2000000;
+function apSendToVerify(){
+  var m;try{m=window.AINBridge.getMandate();}catch(e){m=null;}
+  if(!m){notice('⚠ No Policy Mandate to send — run the tool first.','warn');return;}
+  var json;try{json=JSON.stringify(m);}catch(e){notice('⚠ Could not serialize the mandate: '+e.message,'warn');return;}
+  if(json.length>HANDOFF_MAX_CHARS){notice('⚠ Too large to hand off ('+json.length+' chars).','warn');return;}
+  var target=new URL('../chaingraph/verify.html',window.location.href).href;
+  var win=window.open(target,'_blank');
+  if(!win){notice('⚠ The verifier window was blocked. Allow pop-ups for this site.','warn');return;}
+  var sent=false,timer=null;
+  function onReady(ev){
+    if(ev.origin!==window.location.origin)return;
+    if(ev.source!==win)return;
+    var d=ev.data;
+    if(!d||typeof d!=='object'||d.type!=='ain-handoff-ready/v1')return;
+    if(sent)return;sent=true;
+    window.removeEventListener('message',onReady);
+    if(timer)clearTimeout(timer);
+    win.postMessage({type:'ain-handoff/v1',kind:'policy-mandate',mandate:json},window.location.origin);
+    notice('➡ Sent to the Artifact Verifier in the new tab.','ok');
+  }
+  window.addEventListener('message',onReady);
+  notice('Opening the Artifact Verifier…','ok');
+  timer=setTimeout(function(){
+    if(sent)return;
+    window.removeEventListener('message',onReady);
+    notice('⚠ The verifier did not answer. Export the mandate and paste it in.','warn');
+  },10000);
+}
+window.apSendToVerify=apSendToVerify;
+/* sessionRoot — COMPOSER-PLAN-AND-ROOT-WEBMCP-1. ONE ROUTINE LAW: the core below
+   is byte-identical to SESSION_ROOT_SOURCE in scripts/gen-webmcp-registrations.mjs
+   (emitted onto every chain composer page) and a port of the worker's
+   build_session_receipt (worker.mjs buildSessionReceiptCore). Asserted by
+   scripts/session-root-parity.test.mjs. Never re-derive the Merkle rule. */
+async function ainSessionRoot(executionHashes) {
+  if (!Array.isArray(executionHashes) || executionHashes.length === 0) throw new Error('execution_hashes must be a non-empty array.');
+  var normalize = function (h) { return String(h).replace(/^sha256:/, '').toLowerCase(); };
+  var level = executionHashes.map(normalize).map(function (h) { return 'sha256:' + h; });
+  var hashPair = async function (a, b) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalize(a) + normalize(b)));
+    return 'sha256:' + Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  };
+  while (level.length > 1) {
+    var next = [];
+    for (var i = 0; i < level.length; i += 2) {
+      var right = level[i + 1] !== undefined ? level[i + 1] : level[i]; // duplicate last leaf when odd
+      next.push(await hashPair(level[i], right));
+    }
+    level = next;
+  }
+  return level[0];
+}
+window.AINBridge={
+  version:'1.2',
+  apply:applyFields,
+  run:runTool,
+  intake:intakeApply,
+  sendToVerify:apSendToVerify,
+  sessionRoot:ainSessionRoot,
+  getMandate:function(){if(window._lastMandate)return window._lastMandate;if(typeof window.AIN_BUILD_MANDATE==='function'){try{var m=window.AIN_BUILD_MANDATE();if(m)return m;}catch(e){}}return window._currentMandate||null;},
+  makeLink:function(fields,run){return location.origin+location.pathname+'#in='+b64uEnc(JSON.stringify(fields))+(run?'&run=1':'');}
+};
+window.addEventListener('message',function(e){
+  if(window.parent===window||e.source!==window.parent)return;
+  if(e.origin&&e.origin!=='null'&&location.origin&&location.origin!=='null'&&e.origin!==location.origin)return;
+  var ro=(e.origin&&e.origin!=='null')?e.origin:'*';
+  var d=e.data||{};
+  if(d.type==='ain:prefill'){var n=applyFields(d.fields||{});e.source.postMessage({type:'ain:prefilled',applied:n,tool:location.pathname},ro);}
+  else if(d.type==='ain:run'){var ok=runTool();e.source.postMessage({type:'ain:ran',ok:ok,tool:location.pathname},ro);}
+  else if(d.type==='ain:getMandate'){e.source.postMessage({type:'ain:mandate',mandate:window.AINBridge.getMandate(),tool:location.pathname},ro);}
+});
+function boot(){buildIntakeUI();initPrefill();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Digital Trade Rules Compliance Checker · ART-54 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Machine-checks a digital trade presentation (digital LC, collection, or open-account transaction) against ICC eUCP v2.1, eURC v1.1, or URDTT v1.0. Produces a discrepancy list with article citations and remediation.">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Post Oak Labs">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.md">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Digital Trade Rules Compliance Checker · ART-54 · OpenChainGraph · AINumbers.co">
+<meta property="og:description" content="eUCP v2.1 / eURC v1.1 / URDTT v1.0 discrepancy checker. Client-side. Zero PII. OpenChainGraph v0.4 artifact.">
+<meta property="og:url" content="https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Digital Trade Rules Compliance Checker · ART-54 · OpenChainGraph","url":"https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.html","applicationCategory":"FinanceApplication","operatingSystem":"Web browser","description":"Machine-checks a digital trade presentation against ICC eUCP v2.1, eURC v1.1, or URDTT v1.0 rules. Generates a discrepancy list with article citations and remediation actions. Client-side, zero PII.","author":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+<style>h1,h2{font-family:'DM Serif Display',serif;font-weight:400}</style>
+<style>
+:root{--bg:#080E1A;--bg2:#0D1627;--bg3:#111E35;--border:#1E2F4A;--border2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--teal-dim:rgba(20,184,166,.12);--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--crit:#EF4444;--major:#F59E0B;--minor:#6888A8;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
+nav .in{max-width:960px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.5rem;color:var(--white);margin-bottom:8px;font-weight:600}
+.sub{color:var(--body);max-width:680px;margin-bottom:6px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.card-title{font-size:.82rem;color:var(--bright);font-weight:600;margin-bottom:12px}
+.q{margin-bottom:12px}
+.q label{display:block;font-size:.82rem;color:var(--bright);margin-bottom:4px}
+.q .dim{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.options-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:700px){.options-grid,.options-grid-3{grid-template-columns:1fr}}
+input[type=text],input[type=number],input[type=datetime-local],select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--radius);padding:.35rem .45rem;font-family:inherit;font-size:.75rem;width:100%}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.btn-sm{font-size:.6rem;padding:.3rem .7rem;background:var(--bg3);color:var(--body);border:1px solid var(--border2);text-transform:none;letter-spacing:0;font-weight:400}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.results{display:none}
+.results.show{display:block}
+.verdict-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.75rem;padding:.3rem .9rem;border-radius:20px;margin:8px 0 12px}
+.compliant{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.discrepant{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.disc-card{border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.78rem}
+.disc-crit{border-left:3px solid var(--crit)}
+.disc-major{border-left:3px solid var(--major)}
+.disc-minor{border-left:3px solid var(--minor)}
+.sev-badge{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.06em;text-transform:uppercase;padding:.15rem .45rem;border-radius:3px;margin-right:6px}
+.sev-critical{background:rgba(239,68,68,.15);color:var(--crit)}
+.sev-major{background:rgba(245,158,11,.15);color:var(--major)}
+.sev-minor{background:rgba(104,136,168,.15);color:var(--body)}
+.check-item{display:flex;gap:8px;align-items:flex-start;margin:4px 0;font-size:.78rem}
+.check-item .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:6px;flex-shrink:0}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);margin-top:10px;max-height:300px}
+.hash{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--green);word-break:break-all}
+.muted{color:var(--muted);font-size:.72rem}
+.doc-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin:8px 0}
+.toggle-label{font-size:.82rem;color:var(--bright);cursor:pointer;display:flex;align-items:center;gap:8px}
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-54-digital-trade-rules-checker.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:a7e25b5ced7deecbe2bfaf3ff54f75fec09c0b0058aaa4f1308c175e4f477344">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-54 · Digital Trade Rules Compliance Checker</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+<div class="wrap">
+  <div class="eyebrow">ART-54 · Wave 12 · Digital Trade / eUCP / URDTT · W-B</div>
+  <h1>Digital Trade Rules Compliance Checker</h1>
+  <p class="sub">Machine-checks a digital trade presentation (digital LC, collection, or open-account transaction) against the ICC digital trade rulebooks — <b>eUCP v2.1</b>, <b>eURC v1.1</b>, or <b>URDTT v1.0</b>. Produces a discrepancy list with article citations, severity ratings, and remediation actions. Client-side, zero-egress; emits a hash-anchored OpenChainGraph v0.4 artifact.</p>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:10px 0">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div class="preset-row">
+    <button class="btn-sm" onclick="loadPreset('a')">Preset A: Compliant eUCP digital LC</button>
+    <button class="btn-sm" onclick="loadPreset('b')">Preset B: Discrepant — missing address + expired doc</button>
+    <button class="btn-sm" onclick="loadPreset('c')">Preset C: URDTT open-account — missing fields</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Rule set &amp; presentation</div>
+    <div class="options-grid" style="margin-bottom:14px">
+      <div class="q"><label><span class="dim">Rule</span>Rule set</label>
+        <select id="rule_set">
+          <option value="eUCP-2.1">eUCP v2.1 (documentary credit)</option>
+          <option value="eURC-1.1">eURC v1.1 (documentary collection)</option>
+          <option value="URDTT-1.0">URDTT v1.0 (open-account digital transaction)</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:18px;align-items:center;margin-top:22px">
+        <label style="font-size:.82rem;color:var(--bright);display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="electronic_address_provided"> Electronic address provided
+        </label>
+        <label style="font-size:.82rem;color:var(--bright);display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="format_specified"> Format specified in credit
+        </label>
+      </div>
+    </div>
+
+    <div id="docsSection"></div>
+    <div style="margin-bottom:14px;display:flex;gap:8px">
+      <button class="btn-sm" onclick="addDoc()">+ Add document</button>
+    </div>
+
+    <details id="lcTermsDetails" style="margin-bottom:12px">
+      <summary class="toggle-label">▸ LC / Terms (optional — for eUCP amount &amp; presentation period checks)</summary>
+      <div class="options-grid-3" style="margin-top:12px">
+        <div class="q"><label>LC Amount</label><input type="number" id="lc_amount" placeholder="e.g. 50000" min="0" step="0.01"></div>
+        <div class="q"><label>Invoice Amount</label><input type="number" id="lc_invoice_amount" placeholder="e.g. 50000" min="0" step="0.01"></div>
+        <div class="q"><label>Tolerance %</label><input type="number" id="lc_tolerance_pct" placeholder="5" min="0" max="100" step="0.5"></div>
+        <div class="q"><label>Currency</label><input type="text" id="lc_currency" placeholder="USD"></div>
+        <div class="q"><label>Latest shipment</label><input type="text" id="lc_latest_shipment" placeholder="YYYY-MM-DD"></div>
+        <div class="q"><label>Presentation period (days)</label><input type="number" id="lc_period" placeholder="21" min="1"></div>
+      </div>
+    </details>
+
+    <button onclick="run()">Check compliance →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="generated-at" id="generatedAt"></div>
+    <div id="verdictBadge"></div>
+    <div id="discrepancySection"></div>
+    <div id="checksSection"></div>
+    <div class="muted" style="margin-top:14px">OpenChainGraph v0.4 artifact · execution_hash:</div>
+    <div class="hash" id="hash">–</div>
+    <pre id="artifact"></pre>
+    <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:not-allowed;opacity:.55;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
+    <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
+  </div>
+</div>
+
+<script type="application/json" id="manifest">
+{
+  "tool_id": "art-54-digital-trade-rules-checker",
+  "mcp_name": "check_digital_trade_rules",
+  "mandate_type": "scheme_rule",
+  "chaingraph_version": "0.4.0",
+  "spec_version":"0.5.0",
+  "export_capability": ["xlsx","csv","pdf"],
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "rule_set": {"type": "string", "enum": ["eUCP-2.1","eURC-1.1","URDTT-1.0"]},
+      "presentation": {"type": "array", "items": {"type": "object"}},
+      "lc_terms": {"type": ["object","null"]},
+      "electronic_address_provided": {"type": "boolean"},
+      "format_specified": {"type": "boolean"}
+    }
+  }
+}
+</script>
+
+<script>
+// — compute — MUST mirror kernels/art-54-digital-trade-rules-checker.kernel.mjs —
+function checkEUCP(pp){
+  const discs=[];
+  const {presentation=[],lc_terms=null,electronic_address_provided:eap=false,format_specified:fs=false}=pp;
+  if(!fs)discs.push({rule_ref:'eUCP v2.1 Art. e6',severity:'major',detail:'Electronic record format has not been specified in the credit. eUCP e6 requires the format to be specified.',remediation:'Specify the acceptable electronic record format in the credit terms before presentation.'});
+  if(!eap)discs.push({rule_ref:'eUCP v2.1 Art. e7',severity:'major',detail:'No electronic address provided for delivery of electronic records. eUCP e7 requires an electronic address.',remediation:'Provide a valid electronic address for delivery of electronic records.'});
+  for(const doc of presentation){const label=doc.doc_type||'unknown';
+    if(doc.data_integrity_ok===false)discs.push({rule_ref:'eUCP v2.1 Art. e10',severity:'major',detail:`${label}: data integrity check failed. eUCP e10 requires re-transmission.`,remediation:`Re-transmit ${label} with intact data.`});
+    if(doc.presented_at&&doc.expiry){const pd=new Date(doc.presented_at),ed=new Date(doc.expiry);if(!isNaN(pd)&&!isNaN(ed)&&pd>ed)discs.push({rule_ref:'eUCP v2.1 Art. e14',severity:'critical',detail:`${label}: presented at ${doc.presented_at} after expiry ${doc.expiry}.`,remediation:'Present before the credit expiry date.'});}
+    if(doc.format&&!['electronic-record','data'].includes(doc.format))discs.push({rule_ref:'eUCP v2.1 Art. e3',severity:'minor',detail:`${label}: format "${doc.format}" is not a standard eUCP electronic-record category.`,remediation:'Confirm the record satisfies eUCP e3 definition.'});}
+  if(lc_terms){const tol=lc_terms.tolerance_pct!=null?Number(lc_terms.tolerance_pct)/100:0.10;if(lc_terms.invoice_amount!=null&&lc_terms.amount!=null){const inv=Number(lc_terms.invoice_amount),lca=Number(lc_terms.amount);if(inv>lca*(1+tol))discs.push({rule_ref:'eUCP v2.1 / UCP 600 Art. 18b',severity:'major',detail:`Invoice ${inv} exceeds LC ${lca} plus tolerance ${(tol*100).toFixed(0)}%.`,remediation:'Reduce invoice amount or obtain amendment.'});}
+    if(lc_terms.presentation_period_days!=null&&lc_terms.latest_shipment){const fd=presentation.find(d=>d.presented_at);if(fd?.presented_at){const ship=new Date(lc_terms.latest_shipment),pres=new Date(fd.presented_at),days=(pres-ship)/86400000;if(!isNaN(days)&&days>lc_terms.presentation_period_days)discs.push({rule_ref:'eUCP v2.1 / UCP 600 Art. 29',severity:'critical',detail:`Presented ${days.toFixed(0)} days after latest shipment, exceeds ${lc_terms.presentation_period_days}-day period.`,remediation:'Re-present within the presentation period or request amendment.'});}}}
+  return discs;
+}
+function checkEURC(pp){
+  const discs=[];const{presentation=[],electronic_address_provided:eap=false,format_specified:fs=false}=pp;
+  if(!eap)discs.push({rule_ref:'eURC v1.1 Art. e7',severity:'major',detail:'Electronic address for delivery of collection documents not provided.',remediation:'Provide an electronic address for delivery.'});
+  if(!fs)discs.push({rule_ref:'eURC v1.1 Art. e6',severity:'minor',detail:'Electronic record format is not specified.',remediation:'Specify the document format in the collection instruction.'});
+  for(const doc of presentation){const label=doc.doc_type||'unknown';
+    if(doc.data_integrity_ok===false)discs.push({rule_ref:'eURC v1.1 Art. e10',severity:'major',detail:`${label}: data integrity failure.`,remediation:`Re-transmit ${label} intact.`});
+    if(doc.presented_at&&doc.expiry){const pd=new Date(doc.presented_at),ed=new Date(doc.expiry);if(!isNaN(pd)&&!isNaN(ed)&&pd>ed)discs.push({rule_ref:'eURC v1.1 Art. e14',severity:'critical',detail:`${label}: presented after expiry.`,remediation:'Re-present within the collection period.'});}}
+  return discs;
+}
+function checkURDTT(pp){
+  const discs=[];const{presentation=[],lc_terms=null}=pp;
+  const RF=['doc_type','party_seller','party_buyer','goods_desc'];
+  for(const doc of presentation){const label=doc.doc_type||'unknown';
+    for(const f of RF)if(!doc[f])discs.push({rule_ref:'URDTT v1.0 Art. 8',severity:'major',detail:`${label}: required data element "${f}" is missing.`,remediation:`Add "${f}" to the ${label} dataset.`});
+    if(doc.data_integrity_ok===false)discs.push({rule_ref:'URDTT v1.0 Art. 14',severity:'major',detail:`${label}: data integrity check failed.`,remediation:`Re-transmit ${label} intact.`});
+    if(doc.presented_at&&doc.expiry){const pd=new Date(doc.presented_at),ed=new Date(doc.expiry);if(!isNaN(pd)&&!isNaN(ed)&&pd>ed)discs.push({rule_ref:'URDTT v1.0 Art. 12',severity:'critical',detail:`${label}: presented after expiry.`,remediation:'Re-present within the transaction period.'});}}
+  if(lc_terms==null&&!presentation.some(d=>d.total_amount||d.amount))discs.push({rule_ref:'URDTT v1.0 Art. 16',severity:'minor',detail:'No payment amount data found in the presentation.',remediation:'Include payment amount in data elements.'});
+  return discs;
+}
+function compute(pp){
+  const{rule_set='eUCP-2.1',presentation=[],lc_terms=null,electronic_address_provided:eap=false,format_specified:fs=false}=pp;
+  let discs;
+  if(rule_set==='eURC-1.1')discs=checkEURC(pp);
+  else if(rule_set==='URDTT-1.0')discs=checkURDTT(pp);
+  else discs=checkEUCP(pp);
+  const crit=discs.filter(d=>d.severity==='critical').length;
+  const major=discs.filter(d=>d.severity==='major').length;
+  const verdict=discs.length===0?'compliant':'discrepant';
+  const expiry_check=presentation.some(d=>{if(!d.presented_at||!d.expiry)return false;const pd=new Date(d.presented_at),ed=new Date(d.expiry);return!isNaN(pd)&&!isNaN(ed)&&pd>ed})?'expired':'within_period';
+  const amount_check=lc_terms?.invoice_amount!=null&&lc_terms?.amount!=null?(Number(lc_terms.invoice_amount)>Number(lc_terms.amount)?'exceeds':'within'):'no_lc_amount';
+  const output_payload={verdict,discrepancies:discs,presentation_summary:{rule_set,doc_count:presentation.length,discrepancy_count:discs.length,critical_count:crit,major_count:major},expiry_check,amount_check,note:`Digital trade rules check against ${rule_set}. Citations: ICC eUCP v2.1, eURC v1.1, URDTT v1.0. Educational rules-check tool, not a legal determination.`};
+  const compliance_flags=[];
+  if(verdict==='discrepant')compliance_flags.push('DISCREPANT_PRESENTATION');
+  if(expiry_check==='expired')compliance_flags.push('EXPIRED_PRESENTATION');
+  if(!fs)compliance_flags.push('FORMAT_NOT_SPECIFIED_eUCP_e7');
+  return{output_payload,compliance_flags};
+}
+const canon=v=>Array.isArray(v)?v.map(canon):(v&&typeof v==='object'?Object.keys(v).sort().reduce((o,k)=>(o[k]=canon(v[k]),o),{}):v);
+async function execHash(pp,op){const s=JSON.stringify(canon({policy_parameters:pp,output_payload:op}));const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');}
+
+// — Document management —
+let docCount=0;
+function addDoc(data={}){
+  docCount++;const id=docCount;
+  const wrap=document.getElementById('docsSection');
+  const div=document.createElement('div');div.id='doc-'+id;div.className='doc-block';
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:.75rem;color:var(--bright);font-weight:600">Document ${id}</div><button class="btn-sm" onclick="document.getElementById('doc-'+${id}).remove()" style="font-size:.55rem;padding:.2rem .5rem;color:var(--red);border-color:rgba(239,68,68,.3)">Remove</button></div>
+<div class="options-grid-3">
+<div class="q"><label>Type</label><select id="d${id}_doc_type"><option value="Bill of Lading">Bill of Lading</option><option value="Commercial Invoice">Commercial Invoice</option><option value="Packing List">Packing List</option><option value="Certificate of Origin">Certificate of Origin</option><option value="Insurance Certificate">Insurance Certificate</option><option value="Weight List">Weight List</option><option value="Inspection Certificate">Inspection Certificate</option><option value="other">Other</option></select></div>
+<div class="q"><label>Format</label><select id="d${id}_format"><option value="electronic-record">electronic-record</option><option value="data">data</option><option value="pdf">pdf (non-standard)</option><option value="paper">paper</option></select></div>
+<div class="q" style="display:flex;align-items:center;gap:8px;margin-top:22px"><label style="font-size:.82rem;color:var(--bright);display:flex;gap:8px;align-items:center"><input type="checkbox" id="d${id}_integrity" ${data.data_integrity_ok!==false?'checked':''}> Data integrity OK</label></div>
+<div class="q"><label>Presented at</label><input type="text" id="d${id}_presented_at" placeholder="YYYY-MM-DDTHH:MM" value="${data.presented_at||''}"></div>
+<div class="q"><label>Expiry</label><input type="text" id="d${id}_expiry" placeholder="YYYY-MM-DDTHH:MM" value="${data.expiry||''}"></div>
+<div class="q"><label>Seller</label><input type="text" id="d${id}_party_seller" placeholder="Seller name" value="${data.party_seller||''}"></div>
+<div class="q"><label>Buyer</label><input type="text" id="d${id}_party_buyer" placeholder="Buyer name" value="${data.party_buyer||''}"></div>
+<div class="q"><label>Goods description</label><input type="text" id="d${id}_goods_desc" placeholder="e.g. Electronic components" value="${data.goods_desc||''}"></div>
+<div class="q"><label>Total amount</label><input type="number" id="d${id}_amount" placeholder="e.g. 50000" value="${data.total_amount||''}"></div>
+</div>`;
+  if(data.doc_type){const sel=div.querySelector(`#d${id}_doc_type`);for(const o of sel.options)if(o.value===data.doc_type)o.selected=true;}
+  if(data.format){const sel=div.querySelector(`#d${id}_format`);for(const o of sel.options)if(o.value===data.format)o.selected=true;}
+  wrap.appendChild(div);
+}
+
+function getDocs(){
+  const docs=[];
+  for(let i=1;i<=docCount;i++){const el=document.getElementById('doc-'+i);if(!el||!document.body.contains(el))continue;
+    docs.push({doc_type:el.querySelector(`#d${i}_doc_type`)?.value,format:el.querySelector(`#d${i}_format`)?.value,data_integrity_ok:el.querySelector(`#d${i}_integrity`)?.checked??true,presented_at:el.querySelector(`#d${i}_presented_at`)?.value||undefined,expiry:el.querySelector(`#d${i}_expiry`)?.value||undefined,party_seller:el.querySelector(`#d${i}_party_seller`)?.value||undefined,party_buyer:el.querySelector(`#d${i}_party_buyer`)?.value||undefined,goods_desc:el.querySelector(`#d${i}_goods_desc`)?.value||undefined,total_amount:el.querySelector(`#d${i}_amount`)?.value?Number(el.querySelector(`#d${i}_amount`).value):undefined});}
+  return docs;
+}
+
+const PRESETS={
+  a:{rule:'eUCP-2.1',eap:true,fs:true,docs:[{doc_type:'Bill of Lading',format:'electronic-record',data_integrity_ok:true,presented_at:'2026-07-10T10:00',expiry:'2026-07-20T23:59',party_seller:'Acme Exports',party_buyer:'Global Imports',goods_desc:'Electronic components',total_amount:50000},{doc_type:'Commercial Invoice',format:'electronic-record',data_integrity_ok:true,presented_at:'2026-07-10T10:00',expiry:'2026-07-20T23:59',party_seller:'Acme Exports',party_buyer:'Global Imports',goods_desc:'Electronic components',total_amount:50000}],lc:{amount:52500,invoice_amount:50000,tolerance_pct:5,currency:'USD',latest_shipment:'2026-07-01',presentation_period_days:21}},
+  b:{rule:'eUCP-2.1',eap:false,fs:false,docs:[{doc_type:'Bill of Lading',format:'electronic-record',data_integrity_ok:false,presented_at:'2026-08-05T10:00',expiry:'2026-07-31T23:59',party_seller:'Trader X',party_buyer:'Buyer Y',goods_desc:'Textiles',total_amount:25000}],lc:null},
+  c:{rule:'URDTT-1.0',eap:true,fs:true,docs:[{doc_type:'Invoice',format:'data',data_integrity_ok:true,presented_at:'2026-07-15T12:00',expiry:'2026-07-25T23:59',party_seller:'',party_buyer:'',goods_desc:'',total_amount:15000}],lc:null},
+};
+
+function loadPreset(p){
+  document.getElementById('docsSection').innerHTML='';docCount=0;
+  const pr=PRESETS[p];if(!pr)return;
+  document.getElementById('rule_set').value=pr.rule;
+  document.getElementById('electronic_address_provided').checked=pr.eap;
+  document.getElementById('format_specified').checked=pr.fs;
+  pr.docs.forEach(d=>addDoc(d));
+  if(pr.lc){document.getElementById('lc_amount').value=pr.lc.amount||'';document.getElementById('lc_invoice_amount').value=pr.lc.invoice_amount||'';document.getElementById('lc_tolerance_pct').value=pr.lc.tolerance_pct||'';document.getElementById('lc_currency').value=pr.lc.currency||'';document.getElementById('lc_latest_shipment').value=pr.lc.latest_shipment||'';document.getElementById('lc_period').value=pr.lc.presentation_period_days||'';}
+  else{['lc_amount','lc_invoice_amount','lc_tolerance_pct','lc_currency','lc_latest_shipment','lc_period'].forEach(id=>{document.getElementById(id).value='';});}
+}
+
+async function run(){
+  const docs=getDocs();
+  const rule_set=document.getElementById('rule_set').value;
+  const eap=document.getElementById('electronic_address_provided').checked;
+  const fs=document.getElementById('format_specified').checked;
+  let lc_terms=null;
+  const lca=document.getElementById('lc_amount').value,lci=document.getElementById('lc_invoice_amount').value;
+  if(lca||lci){lc_terms={amount:lca?Number(lca):null,invoice_amount:lci?Number(lci):null,tolerance_pct:document.getElementById('lc_tolerance_pct').value?Number(document.getElementById('lc_tolerance_pct').value):null,currency:document.getElementById('lc_currency').value,latest_shipment:document.getElementById('lc_latest_shipment').value||null,presentation_period_days:document.getElementById('lc_period').value?Number(document.getElementById('lc_period').value):null};}
+  const pp={rule_set,presentation:docs,lc_terms,electronic_address_provided:eap,format_specified:fs};
+  const{output_payload:op,compliance_flags}=compute(pp);
+  const hash=await execHash(pp,op);
+  const generatedAt = new Date().toISOString();
+  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
+  const artifact={'@context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'scheme_rule',tool_id:'art-54-digital-trade-rules-checker',tool_version:'1.0.0',generated_at:generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:op,compliance_flags,compute_mode:'browser',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[]}};
+  document.getElementById('results').classList.add('show');
+  const v=op.verdict;
+  document.getElementById('verdictBadge').innerHTML=`<div class="verdict-badge ${v}">${v==='compliant'?'✓ Compliant presentation':'✗ Discrepant presentation'}</div><div class="muted">${op.presentation_summary.doc_count} document(s) · ${op.discrepancies.length} discrepancy(ies) · ${op.presentation_summary.critical_count} critical · ${op.presentation_summary.major_count} major</div>`;
+  document.getElementById('discrepancySection').innerHTML=op.discrepancies.length?`<div style="margin:12px 0">${op.discrepancies.map(d=>`<div class="disc-card disc-${d.severity}"><div><span class="sev-badge sev-${d.severity}">${d.severity}</span><span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--teal-lt)">${d.rule_ref}</span></div><div style="margin:4px 0;color:var(--text)">${d.detail}</div><div style="font-size:.7rem;color:var(--body)">→ ${d.remediation}</div></div>`).join('')}</div>`:'<div style="margin:12px 0;color:var(--green);font-size:.82rem">✓ No discrepancies found under '+op.presentation_summary.rule_set+'.</div>';
+  document.getElementById('checksSection').innerHTML=`<div class="muted">Expiry check: <b style="color:${op.expiry_check==='within_period'?'var(--green)':'var(--red)'}">${op.expiry_check}</b> · Amount check: <b>${op.amount_check}</b></div>`;
+  document.getElementById('hash').textContent='sha256:'+hash;
+  document.getElementById('artifact').textContent=JSON.stringify(artifact,null,2);
+}
+
+loadPreset('a');
+</script>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-54-digital-trade-rules-checker.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `check_digital_trade_rules`. Task: Machine-check a digital trade presentation (digital LC, collection, or open-account transaction) against the ICC digital rulebooks: eUCP v2.1, eURC v1.1, URDTT v1.0.
+Call it with arguments: {"policy_parameters":{}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-54-digital-trade-rules-checker.html#p=v1.H4sIAAAAAAAA_wECAP3_e31Dv6ajAgAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. Byte-identical to kernels/_hash.mjs. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (univ-artifact) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_universal.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput')||document.getElementById('artifact');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('\u2717 not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('\u2717 no \u00a716 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'\u2713 \u00a716 signature valid':'\u2717 signature invalid / tampered');}
+  catch(e){alert('\u2717 '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var el=document.getElementById('artifact');
+  if(!el)return;
+  var obs=new MutationObserver(function(){
+    try{var v=JSON.parse(el.textContent);if(v&&v.chaingraph_version){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    }}catch(e){}
+  });
+  obs.observe(el,{childList:true});
+})();
+</script>
+</body>
+</html>

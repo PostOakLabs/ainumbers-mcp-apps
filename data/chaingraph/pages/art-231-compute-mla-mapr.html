@@ -1,0 +1,930 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>MLA MAPR Calculator (closed-end) &middot; ART-231 &middot; OpenChainGraph &middot; AINumbers.co</title>
+<meta name="description" content="Compute the Military Annual Percentage Rate for CLOSED-END consumer credit by the Regulation Z actuarial method (Appendix J to 12 CFR part 1026) and test it against the 36 percent limit in 10 USC §987(b) and 32 CFR §232.4(b). Day-granular terms, the full §232.4(c)(1) charge set, and the three conjunctive application-fee predicates. Open-end credit is out of scope. Table: MLA-DOD-32CFR232-2015-10-01.">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-231-compute-mla-mapr.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-231-compute-mla-mapr.md">
+<!-- Page-to-kernel build sentinel (PAGE-KERNEL-DIGEST-SENTINEL-1). The inline engine below is a
+     transcription of chaingraph/kernels/art-231-compute-mla-mapr.kernel.mjs; this records the kernel
+     digest the page was built against. scripts/check-page-kernel-digest.mjs recomputes that digest
+     from the kernel source and fails on a mismatch. Do not hand-edit; re-stamp when the kernel moves. -->
+<meta name="kernel-digest" content="sha256:302410302655744df0ba87706c7aa12347ad96fd99d175c3ed1d497372abc0d0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
+.sub{color:var(--body);max-width:660px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.q{margin-bottom:1.2rem}.q:last-child{margin-bottom:0}
+.q-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.4rem;display:block}
+.q-help{font-size:.72rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6}
+input[type=number],input[type=text]{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;outline:none;transition:border-color .2s}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--teal)}
+select{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;outline:none;transition:border-color .2s}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+.results-panel{display:none}.results-panel.show{display:block}
+.exec-hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--teal-lt);word-break:break-all;margin:6px 0}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.74rem}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--body)}.kv-v{color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem}
+.result-card{background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:14px 16px;margin:8px 0}
+.rc-title{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--teal-lt);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.25rem .65rem;border-radius:20px;margin:2px}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.badge-red{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.badge-warn{background:rgba(245,158,11,.10);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.reg-disclaimer{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:rgba(212,168,71,.05);border:1px solid rgba(212,168,71,.2);border-radius:4px;padding:.5rem .85rem;color:var(--gold);margin:12px 0;line-height:1.6}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:center}
+.anchor-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--gold);border:1px solid rgba(212,168,71,.35);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer;text-decoration:none;display:inline-block}
+.verify-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer}
+.verify-result{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-left:8px}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+#mfstBody{display:none;margin-top:10px}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-231 · Compute MLA MAPR (closed-end)</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">OpenChainGraph Suite &middot; ART-231 &middot; Fair Lending &#38; Adverse Action &#20262;</div>
+  <h1>MLA MAPR Calculator (closed-end)</h1>
+  <p class="sub">Computes the Military Annual Percentage Rate for closed-end consumer credit only, and tests it against the 36 percent limit that 10 USC &sect;987(b) imposes and 32 CFR &sect;232.4(b) sets out. Because &sect;232.4(c)(2)(i) directs that a closed-end MAPR is calculated by Regulation Z's own annual-percentage-rate rules over the wider charge set in &sect;232.4(c)(1), this page solves the Appendix J actuarial equation from a cash-flow schedule rather than dividing charges by an original principal. The term is day-granular, so a 45-day loan is expressible instead of being quantised to whole months. Table: MLA-DOD-32CFR232-2015-10-01.</p>
+  <div style="margin-bottom:6px">
+    <span class="flag info">10 USC &sect;987(b)</span>
+    <span class="flag info">32 CFR &sect;232.4(b)</span>
+    <span class="flag info">Appendix J to 12 CFR part 1026</span>
+    <span class="flag">36% MAPR Cap</span>
+    <span class="flag">Closed-end only</span>
+    <span class="flag">Actuarial method</span>
+  </div>
+  <div class="reg-disclaimer" style="border-color:rgba(20,184,166,.25);background:rgba(20,184,166,.05);color:var(--teal-lt)">&#8644; Related node. This page derives the payment schedule from described loan terms. If you already hold the cash flows, use <a href="art-616-mla-mapr-actuarial-recompute.html">ART-616 &middot; MLA MAPR actuarial recompute</a>, which recomputes the same MAPR from caller-supplied cash flows instead of deriving them.</div>
+  <div class="pii-notice">&#128274; All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data &mdash; use synthetic or anonymised inputs only.</div>
+  <div class="reg-disclaimer">&#9432; Not legal or compliance advice. Covered-borrower status must be verified via the DoD MLA database (dmdc.osd.mil/mla) before extending credit. This tool computes the MAPR arithmetic; it does not query the DoD database.</div>
+
+  <div class="card">
+    <div class="section-head">Scope and schedule</div>
+    <div class="q-help" style="margin-bottom:10px">Open-end credit, including every credit card account, is priced on a billing-cycle balance by 32 CFR &sect;232.4(c)(2)(ii)(A) and (B). That method is not computed here, so declaring an open-end class returns no rate rather than a closed-end number.</div>
+    <div class="row3">
+      <div class="q">
+        <label class="q-label" for="creditClass">Credit class</label>
+        <select id="creditClass">
+          <option value="closed_end" selected>Closed-end (in scope)</option>
+          <option value="open_end">Open-end (out of scope)</option>
+          <option value="open_end_credit_card">Open-end credit card (out of scope)</option>
+        </select>
+      </div>
+      <div class="q">
+        <label class="q-label" for="paymentStructure">Payment structure</label>
+        <select id="paymentStructure">
+          <option value="single_payment" selected>Single advance, single payment</option>
+          <option value="installment">Installment series</option>
+        </select>
+      </div>
+      <div class="q">
+        <label class="q-label" for="loanAmount">Amount advanced ($)</label>
+        <div class="q-help">The sum handed to the borrower before any charge collected at consummation.</div>
+        <input type="number" id="loanAmount" value="500" min="0" step="1">
+      </div>
+    </div>
+    <div class="row3">
+      <div class="q">
+        <label class="q-label" for="termDays">Term (days)</label>
+        <div class="q-help">Single-payment path. Appendix J (b)(4)(ii) takes the term as the unit-period; (b)(5)(vi) and (vii) set 365 divided by the days in the term as the unit-periods per year.</div>
+        <input type="number" id="termDays" value="45" min="0" step="1">
+      </div>
+      <div class="q">
+        <label class="q-label" for="paymentCount">Number of payments</label>
+        <div class="q-help">Installment path. A schedule longer than 600 payments is out of scope and returns no rate.</div>
+        <input type="number" id="paymentCount" value="24" min="0" step="1">
+      </div>
+      <div class="q">
+        <label class="q-label" for="paymentsPerYear">Payments per year</label>
+        <div class="q-help">Installment path. 12 for a monthly unit-period per Appendix J (b)(5)(ii).</div>
+        <input type="number" id="paymentsPerYear" value="12" min="1" step="1">
+      </div>
+    </div>
+    <div class="q">
+      <label class="q-label" for="paymentAmount">Payment amount ($, optional)</label>
+      <div class="q-help">Leave at zero to derive each payment from the amount advanced plus the finance charge.</div>
+      <input type="number" id="paymentAmount" value="0" min="0" step="0.01">
+    </div>
+
+    <div class="section-head">Charges included by 32 CFR &sect;232.4(c)(1)</div>
+    <div class="q-help" style="margin-bottom:10px">Every charge below carries its own input and every one of them moves the reported rate. A charge collected at consummation is money the borrower never receives, so it reduces the amount financed; a finance charge is already expressed by the payment stream and is never deducted a second time.</div>
+    <div class="row3">
+      <div class="q">
+        <label class="q-label" for="financeChargeTotal">Finance charge ($)</label>
+        <div class="q-help">&sect;232.4(c)(1)(iii)(A). Carried by the payment schedule.</div>
+        <input type="number" id="financeChargeTotal" value="28.44" min="0" step="0.01">
+      </div>
+      <div class="q">
+        <label class="q-label" for="creditInsurancePremium">Credit insurance premium ($)</label>
+        <div class="q-help">&sect;232.4(c)(1)(i).</div>
+        <input type="number" id="creditInsurancePremium" value="0" min="0" step="0.01">
+      </div>
+      <div class="q">
+        <label class="q-label" for="debtCancellationFee">Debt cancellation fee ($)</label>
+        <div class="q-help">&sect;232.4(c)(1)(i).</div>
+        <input type="number" id="debtCancellationFee" value="0" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="row3">
+      <div class="q">
+        <label class="q-label" for="debtSuspensionFee">Debt suspension fee ($)</label>
+        <div class="q-help">&sect;232.4(c)(1)(i).</div>
+        <input type="number" id="debtSuspensionFee" value="0" min="0" step="0.01">
+      </div>
+      <div class="q">
+        <label class="q-label" for="ancillaryProductFee">Ancillary product fee ($)</label>
+        <div class="q-help">&sect;232.4(c)(1)(ii). Credit-related ancillary products.</div>
+        <input type="number" id="ancillaryProductFee" value="0" min="0" step="0.01">
+      </div>
+      <div class="q">
+        <label class="q-label" for="participationFeeAnnual">Participation fee ($/yr)</label>
+        <div class="q-help">&sect;232.4(c)(1)(iii)(C). Included on this path; the $100 figure in &sect;232.4(c)(2)(ii)(B) belongs to the open-end method.</div>
+        <input type="number" id="participationFeeAnnual" value="0" min="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="section-head">Application fee and its carve-out, 32 CFR &sect;232.4(c)(1)(iii)(B)</div>
+    <div class="q-help" style="margin-bottom:10px">An application fee is included by default. It drops out only when all three predicates below hold together. With anything less than all three, the fee stays in.</div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="applicationFee">Application fee ($)</label>
+        <input type="number" id="applicationFee" value="0" min="0" step="0.01">
+      </div>
+      <div class="q">
+        <label class="q-label" for="creditorIsFcuOrIdi">Creditor is a Federal credit union or insured depository institution</label>
+        <select id="creditorIsFcuOrIdi"><option value="false" selected>No</option><option value="true">Yes</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="q">
+        <label class="q-label" for="isShortTermSmallAmount">Short-term small amount loan</label>
+        <select id="isShortTermSmallAmount"><option value="false" selected>No</option><option value="true">Yes</option></select>
+      </div>
+      <div class="q">
+        <label class="q-label" for="applicationFeeOncePer12">Fee charged not more than once in any rolling 12 months</label>
+        <select id="applicationFeeOncePer12"><option value="false" selected>No</option><option value="true">Yes</option></select>
+      </div>
+    </div>
+
+    <div class="section-head">Bona fide fee claimed, 32 CFR &sect;232.4(d)(1)</div>
+    <div class="q-help" style="margin-bottom:10px">That exclusion reaches a credit card account under an open-end plan only. On closed-end credit there is no such exclusion, so an amount entered here is recorded, included anyway, and flagged.</div>
+    <div class="q">
+      <label class="q-label" for="bonaFideFeeClaimed">Bona fide fee claimed ($)</label>
+      <input type="number" id="bonaFideFeeClaimed" value="0" min="0" step="0.01">
+    </div>
+
+    <div style="margin-top:20px">
+      <button onclick="runCompute()">&#9654; Compute MLA MAPR</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+    <div class="card">
+      <div class="section-head">MAPR Result</div>
+      <div id="maprCard" class="result-card"></div>
+      <div class="section-head" style="margin-top:14px">Schedule solved</div>
+      <div id="scheduleCard" class="result-card"></div>
+      <div class="section-head" style="margin-top:14px">Charge Breakdown</div>
+      <div id="chargesCard" class="result-card"></div>
+      <div class="section-head" style="margin-top:14px">Compliance flags</div>
+      <div id="flagsCard" class="result-card"></div>
+      <div class="section-head" style="margin-top:14px">Execution Hash (SHA-256)</div>
+      <div class="exec-hash" id="execHashBox"></div>
+      <div class="results-export-row">
+        <button onclick="exportArtifact()">Export &sect;4 Artifact</button>
+        <button class="verify-btn" onclick="verifyHash()">&#10003; Verify Hash</button>
+        <span class="verify-result" id="verifyResult"></span>
+        <a id="anchorBtn" class="anchor-btn" style="display:none" target="_blank" rel="noopener">&#9875; Anchor &rarr;</a>
+      </div>
+      <pre id="artifactPre" style="display:none"></pre>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">[ manifest ]</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-231-compute-mla-mapr.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `compute_mla_mapr`. Task: Compute the Military Annual Percentage Rate for CLOSED-END consumer credit and tests it against the 36 percent limit that 10 USC 987(b) imposes and 32 CFR 232.4(b) sets out.
+Call it with arguments: {"policy_parameters":{"credit_class":"closed_end","payment_structure":"single_payment","loan_amount":500,"term_days":45,"finance_charge_total":28.44}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-231-compute-mla-mapr.html#p=v1.H4sIAAAAAAAA_wGAAH__eyJjcmVkaXRfY2xhc3MiOiJjbG9zZWRfZW5kIiwicGF5bWVudF9zdHJ1Y3R1cmUiOiJzaW5nbGVfcGF5bWVudCIsImxvYW5fYW1vdW50Ijo1MDAsInRlcm1fZGF5cyI6NDUsImZpbmFuY2VfY2hhcmdlX3RvdGFsIjoyOC40NH0v1RL7gAAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// This engine is a faithful in-browser transcription of the art-231 kernel
+// (chaingraph/kernels/art-231-compute-mla-mapr.kernel.mjs, tool_version 2.0.0).
+// Same solver, same charge classification, same declared constants, so the
+// number this page shows is the number the node computes.
+var MANIFEST = {
+  tool_id: 'art-231-compute-mla-mapr',
+  version: '2.0.0',
+  mcp_name: 'compute_mla_mapr',
+  title: 'MLA MAPR Calculator (closed-end)',
+  cluster: '&#20262;',
+  description: 'Compute the Military Annual Percentage Rate for CLOSED-END consumer credit by the Regulation Z actuarial method (Appendix J to 12 CFR part 1026) and test it against the 36 percent limit in 10 USC §987(b) and 32 CFR §232.4(b). Day-granular term, the full §232.4(c)(1) charge set, and the three conjunctive application-fee predicates of §232.4(c)(1)(iii)(B). Open-end credit is out of scope. Table: MLA-DOD-32CFR232-2015-10-01.',
+  spec_version: '0.8.0',
+  chaingraph_version: '0.4.0',
+  regulation: '10 USC §987(b) / 32 CFR §232.4(b), (c)(1), (c)(2)(i) / Appendix J to 12 CFR part 1026',
+  related_node: 'art-616-mla-mapr-actuarial-recompute recomputes the same MAPR from caller-supplied cash flows; this node derives the schedule from described loan terms.',
+  input_schema: {
+    credit_class: 'string, closed_end | open_end | open_end_credit_card',
+    payment_structure: 'string, single_payment | installment',
+    loan_amount: 'number, amount advanced',
+    term_days: 'number, single-payment path, day-granular',
+    payment_count: 'number, installment path',
+    payments_per_year: 'number, installment path, unit-periods per year',
+    payment_amount: 'number, optional explicit payment',
+    finance_charge_total: 'number, §232.4(c)(1)(iii)(A)',
+    credit_insurance_premium_total: 'number, §232.4(c)(1)(i)',
+    debt_cancellation_fee_total: 'number, §232.4(c)(1)(i)',
+    debt_suspension_fee_total: 'number, §232.4(c)(1)(i)',
+    ancillary_product_fee_total: 'number, §232.4(c)(1)(ii)',
+    application_fee: 'number, §232.4(c)(1)(iii)(B)',
+    participation_fee_annual: 'number, §232.4(c)(1)(iii)(C)',
+    bona_fide_fee_claimed_total: 'number, §232.4(d)(1), unavailable on the closed-end path',
+    creditor_is_fcu_or_idi: 'boolean, carve-out predicate 1 of 3',
+    is_short_term_small_amount_loan: 'boolean, carve-out predicate 2 of 3',
+    application_fee_once_in_rolling_12_months: 'boolean, carve-out predicate 3 of 3'
+  }
+};
+
+var ANCHOR_BASE = 'https://anchor.ainumbers.co';
+var _lastResult = null;
+
+// Declared constants. A caller cannot move any of them.
+var MAPR_CAP_PCT = 36;
+var APPROACHING_CAP_PCT = 30;   // house heuristic, declared as ours, no authority states it
+var MAX_PAYMENT_COUNT = 600;    // declared structural limit, not a rule of law
+var BISECT_STEPS = 300;
+var BRACKET_STEPS = 128;
+var RATE_WIDTH_TARGET_PP = 1e-6;
+var HI_CAP = 100;
+
+function safeNum(v, def) {
+  var t = typeof v;
+  if (t !== 'number' && t !== 'string' && t !== 'boolean') return def;
+  var n = Number(v);
+  return Number.isFinite(n) ? n : def;
+}
+function nonNeg(v) { return Math.max(0, safeNum(v, 0)); }
+
+// base^n for integer n >= 0, by exponentiation by squaring. No Math.pow, so no
+// base is ever raised to a fractional power.
+function powInt(base, n) {
+  if (!Number.isFinite(base) || !Number.isFinite(n)) return 0;
+  var e = Math.round(n);
+  if (e < 0) e = 0;
+  var r = 1, b = base;
+  while (e > 0) {
+    if (e % 2 === 1) r *= b;
+    b *= b;
+    e = Math.floor(e / 2);
+  }
+  return r;
+}
+function roundHalfUp(v, dp) {
+  if (!Number.isFinite(v)) return 0;
+  var f = powInt(10, dp);
+  var s = v < 0 ? -1 : 1;
+  var r = s * Math.round(Math.abs(v) * f) / f;
+  return Number.isFinite(r) ? r : v;
+}
+function r2(v) { return roundHalfUp(v, 2); }
+function r6(v) { return roundHalfUp(v, 6); }
+
+// --- cash-flow model ---------------------------------------------------------
+// A flow is an amount at `full` whole unit-periods plus `frac` of one. The
+// fraction is priced at simple interest per Appendix J (b)(6), so only the whole
+// count compounds.
+function pvFlow(flow, i) {
+  var den = (1 + flow.frac * i) * powInt(1 + i, flow.full);
+  if (!Number.isFinite(den) || den === 0) return NaN;
+  return flow.amount / den;
+}
+function pvPayments(payments, i) {
+  var s = 0;
+  for (var k = 0; k < payments.length; k++) s += pvFlow(payments[k], i);
+  return s;
+}
+function residual(amountFinanced, payments, i) { return pvPayments(payments, i) - amountFinanced; }
+
+var NO_RATE = { periodic_rate: 0, rate_pct: 0, iterations: 0, converged: false, bracketed: false };
+
+function solveActuarialRate(amountFinanced, payments, unitPeriodsPerYear) {
+  var w = unitPeriodsPerYear;
+  if (!(w > 0)) return NO_RATE;
+  if (!(amountFinanced > 0)) return NO_RATE;
+  var widthTarget = RATE_WIDTH_TARGET_PP / (w * 100);
+
+  var rateDependent = false;
+  for (var k = 0; k < payments.length; k++) {
+    var p = payments[k];
+    if (p.amount !== 0 && (p.full > 0 || p.frac > 0)) { rateDependent = true; break; }
+  }
+  if (!rateDependent) return NO_RATE;
+
+  var g0 = residual(amountFinanced, payments, 0);
+  if (!Number.isFinite(g0)) return NO_RATE;
+  if (g0 < 0) return NO_RATE;
+
+  var lo = 0, hi = 1e-9, found = false;
+  if (g0 === 0) { found = true; hi = 0; }
+  for (var g = 0; g < BRACKET_STEPS && !found && hi <= HI_CAP; g++) {
+    var ghi = residual(amountFinanced, payments, hi);
+    if (!Number.isFinite(ghi)) break;
+    if (ghi <= 0) { found = true; break; }
+    lo = hi;
+    hi *= 2;
+  }
+  if (!found) return NO_RATE;
+
+  var iters = 0;
+  while (iters < BISECT_STEPS && (hi - lo) > widthTarget) {
+    var mid = lo + (hi - lo) / 2;
+    if (mid <= lo || mid >= hi) break;
+    var gm = residual(amountFinanced, payments, mid);
+    if (!Number.isFinite(gm)) break;
+    if (gm >= 0) lo = mid; else hi = mid;
+    iters++;
+  }
+
+  var converged = (hi - lo) <= widthTarget;
+  if (!converged) return { periodic_rate: 0, rate_pct: 0, iterations: iters, converged: false, bracketed: true };
+  var i = lo + (hi - lo) / 2;
+  // Annualise by MULTIPLYING the unit-period rate by the unit-periods in a year
+  // per Appendix J (b)(1). Never by compounding it.
+  return { periodic_rate: r6(i), rate_pct: i * w * 100, iterations: iters, converged: true, bracketed: true };
+}
+
+// --- charge classification ---------------------------------------------------
+var CIT_I = '32 CFR 232.4(c)(1)(i)';
+var CIT_II = '32 CFR 232.4(c)(1)(ii)';
+var CIT_IIIA = '32 CFR 232.4(c)(1)(iii)(A)';
+var CIT_IIIB = '32 CFR 232.4(c)(1)(iii)(B)';
+var CIT_IIIC = '32 CFR 232.4(c)(1)(iii)(C)';
+var CIT_D1 = '32 CFR 232.4(d)(1)';
+
+function chargeRow(field, amount, included, treatment, citation) {
+  return { field: field, amount: r2(amount), included: included, treatment: treatment, citation: citation };
+}
+
+function computeMapr(pp) {
+  pp = pp || {};
+
+  var credit_class_raw = typeof pp.credit_class === 'string' ? pp.credit_class : '';
+  var legacy_card_flag = pp.is_credit_card === true;
+  var declared_out_of_scope = (credit_class_raw !== '' && credit_class_raw !== 'closed_end') || legacy_card_flag;
+  var credit_class = credit_class_raw !== ''
+    ? credit_class_raw
+    : (legacy_card_flag ? 'open_end_credit_card' : 'closed_end');
+
+  var amount_advanced = nonNeg(pp.loan_amount);
+  var finance_charge_total = nonNeg(pp.finance_charge_total);
+  var credit_insurance_premium_total = nonNeg(pp.credit_insurance_premium_total);
+  var debt_cancellation_fee_total = nonNeg(pp.debt_cancellation_fee_total);
+  var debt_suspension_fee_total = nonNeg(pp.debt_suspension_fee_total);
+  var ancillary_product_fee_total = nonNeg(pp.ancillary_product_fee_total);
+  var application_fee = nonNeg(pp.application_fee);
+  var participation_fee_annual = nonNeg(pp.participation_fee_annual);
+  var bona_fide_fee_claimed_total = nonNeg(pp.bona_fide_fee_claimed_total);
+
+  // The carve-out is three conjunctive predicates. All three, or the fee stays.
+  var creditor_is_fcu_or_idi = pp.creditor_is_fcu_or_idi === true;
+  var is_short_term_small_amount_loan = pp.is_short_term_small_amount_loan === true;
+  var application_fee_once_in_rolling_12_months = pp.application_fee_once_in_rolling_12_months === true;
+  var application_fee_carve_out_applied =
+    creditor_is_fcu_or_idi && is_short_term_small_amount_loan && application_fee_once_in_rolling_12_months;
+
+  var bona_fide_exclusion_available = false;
+  var bona_fide_fee_claimed_but_included = bona_fide_fee_claimed_total > 0;
+
+  var charge_breakdown = [
+    chargeRow('credit_insurance_premium_total', credit_insurance_premium_total, true, 'collected_at_consummation', CIT_I),
+    chargeRow('debt_cancellation_fee_total', debt_cancellation_fee_total, true, 'collected_at_consummation', CIT_I),
+    chargeRow('debt_suspension_fee_total', debt_suspension_fee_total, true, 'collected_at_consummation', CIT_I),
+    chargeRow('ancillary_product_fee_total', ancillary_product_fee_total, true, 'collected_at_consummation', CIT_II),
+    chargeRow('finance_charge_total', finance_charge_total, true, 'carried_by_payment_schedule', CIT_IIIA),
+    chargeRow('application_fee', application_fee, !application_fee_carve_out_applied,
+      application_fee_carve_out_applied ? 'excluded_carve_out' : 'collected_at_consummation', CIT_IIIB),
+    chargeRow('participation_fee_annual', participation_fee_annual, true, 'collected_at_consummation', CIT_IIIC),
+    chargeRow('bona_fide_fee_claimed_total', bona_fide_fee_claimed_total, true, 'collected_at_consummation', CIT_D1)
+  ];
+
+  var prepaid_includable_charges = 0;
+  for (var c = 0; c < charge_breakdown.length; c++) {
+    var row = charge_breakdown[c];
+    if (row.included && row.treatment === 'collected_at_consummation') prepaid_includable_charges += row.amount;
+  }
+  prepaid_includable_charges = r2(prepaid_includable_charges);
+  var total_includable_charges = r2(prepaid_includable_charges + finance_charge_total);
+  var total_excluded_charges = r2(application_fee_carve_out_applied ? application_fee : 0);
+
+  var charges_exceed_advance = prepaid_includable_charges > amount_advanced;
+  var amount_financed_mapr = r2(amount_advanced - prepaid_includable_charges);
+
+  var term_days = Math.max(0, Math.round(safeNum(pp.term_days, 0)));
+  var requested_structure = typeof pp.payment_structure === 'string' ? pp.payment_structure : '';
+  var raw_payment_count = Math.max(0, Math.round(safeNum(pp.payment_count, 0)));
+  var payment_structure = (requested_structure === 'single_payment' || requested_structure === 'installment')
+    ? requested_structure
+    : (raw_payment_count >= 2 ? 'installment' : 'single_payment');
+
+  var explicit_payment_amount = nonNeg(pp.payment_amount);
+
+  var payment_count = 1;
+  var unit_periods_per_year = 0;
+  var payment_amount = 0;
+  var payments = [];
+
+  if (payment_structure === 'single_payment') {
+    payment_count = 1;
+    payment_amount = explicit_payment_amount > 0
+      ? explicit_payment_amount
+      : r2(amount_advanced + finance_charge_total);
+    if (term_days > 0) {
+      if (term_days < 365) {
+        unit_periods_per_year = 365 / term_days;
+        payments.push({ amount: payment_amount, full: 1, frac: 0 });
+      } else {
+        unit_periods_per_year = 1;
+        var full = Math.floor(term_days / 365);
+        var frac = (term_days - full * 365) / 365;
+        payments.push({ amount: payment_amount, full: full, frac: frac });
+      }
+    }
+  } else {
+    payment_count = Math.max(1, raw_payment_count);
+    unit_periods_per_year = Math.max(1, safeNum(pp.payments_per_year, 12));
+    var scheduled_total = amount_advanced + finance_charge_total;
+    payment_amount = explicit_payment_amount > 0 ? explicit_payment_amount : scheduled_total / payment_count;
+    if (payment_count <= MAX_PAYMENT_COUNT) {
+      for (var k2 = 1; k2 <= payment_count; k2++) payments.push({ amount: payment_amount, full: k2, frac: 0 });
+    }
+  }
+
+  var payment_count_exceeds_limit = payment_structure === 'installment' && payment_count > MAX_PAYMENT_COUNT;
+  var payment_total = r2(payment_amount * payment_count);
+  var finance_charge_in_schedule = r2(payment_total - amount_advanced);
+
+  var solved = (declared_out_of_scope || charges_exceed_advance)
+    ? NO_RATE
+    : solveActuarialRate(amount_financed_mapr, payments, unit_periods_per_year);
+
+  var reportable = solved.bracketed && solved.converged && !declared_out_of_scope;
+  // The cap test runs on the reported 2-decimal figure, so the published number
+  // and the verdict can never disagree. Exactly 36.00 sits at the limit and does
+  // not breach it.
+  var mapr_pct = reportable ? r2(solved.rate_pct) : null;
+  var exceeds_cap = mapr_pct === null ? null : mapr_pct > MAPR_CAP_PCT;
+  var approaching_cap = mapr_pct === null
+    ? null
+    : (mapr_pct > APPROACHING_CAP_PCT && mapr_pct <= MAPR_CAP_PCT);
+
+  var compliance_flags = [];
+  if (declared_out_of_scope) compliance_flags.push('MLA_MAPR_OPEN_END_OUT_OF_SCOPE');
+  if (payment_count_exceeds_limit) compliance_flags.push('MLA_MAPR_PAYMENT_COUNT_EXCEEDS_LIMIT');
+  if (charges_exceed_advance) compliance_flags.push('MLA_MAPR_CHARGES_EXCEED_ADVANCE');
+  if (!declared_out_of_scope && !solved.bracketed) compliance_flags.push('MLA_MAPR_NOT_BRACKETED');
+  if (!declared_out_of_scope && solved.bracketed && !solved.converged) compliance_flags.push('MLA_MAPR_DID_NOT_CONVERGE');
+  if (mapr_pct === null) compliance_flags.push('MLA_MAPR_NOT_DETERMINED');
+  if (exceeds_cap === true) compliance_flags.push('MLA_MAPR_EXCEEDS_36PCT_CAP');
+  if (approaching_cap === true) compliance_flags.push('MLA_MAPR_APPROACHING_CAP');
+  if (application_fee_carve_out_applied) compliance_flags.push('MLA_APPLICATION_FEE_CARVE_OUT_APPLIED');
+  if (bona_fide_fee_claimed_but_included) compliance_flags.push('MLA_BONA_FIDE_EXCLUSION_UNAVAILABLE_CLOSED_END');
+
+  var output_payload = {
+    mapr_pct: mapr_pct,
+    mapr_cap_pct: MAPR_CAP_PCT,
+    exceeds_cap: exceeds_cap,
+    mapr_determined: mapr_pct !== null,
+    credit_class: credit_class,
+    in_scope: !declared_out_of_scope,
+    payment_structure: payment_structure,
+    payment_count: payment_count,
+    payment_amount: r2(payment_amount),
+    payment_total: payment_total,
+    unit_periods_per_year: r6(unit_periods_per_year),
+    term_days: term_days,
+    amount_advanced: r2(amount_advanced),
+    amount_financed_mapr: amount_financed_mapr,
+    prepaid_includable_charges: prepaid_includable_charges,
+    finance_charge_in_schedule: finance_charge_in_schedule,
+    total_includable_charges: total_includable_charges,
+    total_excluded_charges: total_excluded_charges,
+    charge_breakdown: charge_breakdown,
+    application_fee_carve_out_applied: application_fee_carve_out_applied,
+    application_fee_carve_out_predicates: {
+      creditor_is_fcu_or_idi: creditor_is_fcu_or_idi,
+      is_short_term_small_amount_loan: is_short_term_small_amount_loan,
+      application_fee_once_in_rolling_12_months: application_fee_once_in_rolling_12_months
+    },
+    bona_fide_fee_claimed_total: r2(bona_fide_fee_claimed_total),
+    bona_fide_exclusion_available: bona_fide_exclusion_available,
+    periodic_rate: reportable ? solved.periodic_rate : null,
+    iterations: solved.iterations,
+    bracketed: solved.bracketed,
+    converged: solved.converged,
+    max_payment_count: MAX_PAYMENT_COUNT,
+    payment_count_exceeds_limit: payment_count_exceeds_limit,
+    approaching_cap_threshold_pct: APPROACHING_CAP_PCT,
+    approaching_cap_threshold_basis: 'House heuristic, declared. No authority states a 30 percent warning line; it is named here so a reader can see it is ours and not the regulation.',
+    regulatory_basis: '10 USC 987(b) and 32 CFR 232.4(b) set the 36 percent MAPR limit. 32 CFR 232.4(c)(1) sets the charge set. 32 CFR 232.4(c)(2)(i) directs that a closed-end MAPR is calculated by Regulation Z rules for the annual percentage rate over that charge set, which are 12 CFR 1026.22(a)(1) and Appendix J to 12 CFR part 1026. DoD MLA rule 80 FR 43560 (22 Jul 2015): effective 1 Oct 2015, compliance required 3 Oct 2016, and 3 Oct 2017 for credit card accounts.',
+    method_basis: 'Appendix J to 12 CFR part 1026: (a)(2) actuarial recurrence on the unpaid balance; (b)(1) annualise by multiplying the unit-period rate by the unit-periods in a year; (b)(4)(ii) the unit-period of a single advance, single payment transaction is its term, capped at one year; (b)(5)(ii) a monthly unit-period has 12 unit-periods per year; (b)(5)(vi) and (b)(5)(vii) a sub-year single advance, single payment term has one unit-period and 365 divided by the days in the term unit-periods per year; (b)(5)(v)(B) a remaining interval that is not a whole number of months is the remaining days divided by 365; (b)(6) a fraction of a unit-period is priced at simple interest, so only whole unit-periods compound and no base is raised to a fractional power. Accuracy target: the one eighth of one percentage point tolerance in 12 CFR 1026.22(a)(2).',
+    scope_note: 'CLOSED-END consumer credit only. Open-end credit, including every credit card account, is OUT OF SCOPE: 32 CFR 232.4(c)(2)(ii)(A) prices it on the balance for a billing cycle under 12 CFR 1026.14(c) and (d), and 32 CFR 232.4(c)(2)(ii)(B) governs a billing cycle with no balance. Neither is computed here, and a call declaring an open-end class or a credit card account returns no rate rather than a closed-end number. The bona fide fee exclusion in 32 CFR 232.4(d)(1) reaches a credit card account under an open-end plan only, so it is unavailable on this path and a caller-declared bona fide amount is included anyway. Charges are modelled as collected at consummation and deducted from the amount financed, except a finance charge, which is carried by the payment schedule; a structure in which an includable charge is instead financed into the payments is out of scope. A schedule of more than 600 payments is also out of scope and returns no rate: that ceiling is a declared structural limit of this node, not a rule of law, and it exists so the work done inside compute() is bounded by a constant rather than by a caller-supplied payment count.',
+    table_version: 'MLA-DOD-32CFR232-2015-10-01',
+    table_source: '10 USC 987(b); 32 CFR 232.4(b) limit; 32 CFR 232.4(c)(1)(i) to (iii) charge set; 32 CFR 232.4(c)(1)(iii)(B) Federal credit union and insured depository institution application-fee carve-out; 32 CFR 232.4(c)(2)(i) closed-end computation method; 32 CFR 232.4(d)(1) and (d)(2) bona fide fee exclusion and its ineligible items; 12 CFR 1026.22(a) and Appendix J to 12 CFR part 1026 (eCFR versioner, retrieved 2026-08-14); worked examples 80 FR 43583 and 80 FR 43603 n.347 (retrieved 2026-08-22), republished at CFPB Supervision and Examination Manual, MLA (Sept 2016), pp. MLA 9 to 10.',
+    pii_note: 'All inputs are processed locally in your browser. No data is transmitted.'
+  };
+
+  return { output_payload: output_payload, compliance_flags: compliance_flags };
+}
+
+function cgCanon(v) {
+  return Array.isArray(v) ? v.map(cgCanon) : (v && typeof v === 'object') ? Object.keys(v).sort().reduce(function(o,k){o[k]=cgCanon(v[k]);return o;},{}) : v;
+}
+async function computeExecHash(pp, op) {
+  var payload = JSON.stringify(cgCanon({policy_parameters: pp, output_payload: op}));
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+  var hex = Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  return 'sha256:' + hex;
+}
+function fmt$(v) { return '$' + Number(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+function numOf(id) { var n = parseFloat(document.getElementById(id).value); return Number.isFinite(n) ? n : 0; }
+function boolOf(id) { return document.getElementById(id).value === 'true'; }
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+var CHARGE_LABELS = {
+  credit_insurance_premium_total: 'Credit insurance premium',
+  debt_cancellation_fee_total: 'Debt cancellation fee',
+  debt_suspension_fee_total: 'Debt suspension fee',
+  ancillary_product_fee_total: 'Ancillary product fee',
+  finance_charge_total: 'Finance charge',
+  application_fee: 'Application fee',
+  participation_fee_annual: 'Participation fee',
+  bona_fide_fee_claimed_total: 'Bona fide fee claimed'
+};
+var TREATMENT_LABELS = {
+  collected_at_consummation: 'reduces amount financed',
+  carried_by_payment_schedule: 'carried by the payments',
+  excluded_carve_out: 'excluded by the carve-out'
+};
+
+function runCompute() {
+  var pp = {
+    credit_class: document.getElementById('creditClass').value,
+    payment_structure: document.getElementById('paymentStructure').value,
+    loan_amount: numOf('loanAmount'),
+    term_days: numOf('termDays'),
+    payment_count: numOf('paymentCount'),
+    payments_per_year: numOf('paymentsPerYear'),
+    payment_amount: numOf('paymentAmount'),
+    finance_charge_total: numOf('financeChargeTotal'),
+    credit_insurance_premium_total: numOf('creditInsurancePremium'),
+    debt_cancellation_fee_total: numOf('debtCancellationFee'),
+    debt_suspension_fee_total: numOf('debtSuspensionFee'),
+    ancillary_product_fee_total: numOf('ancillaryProductFee'),
+    application_fee: numOf('applicationFee'),
+    participation_fee_annual: numOf('participationFeeAnnual'),
+    bona_fide_fee_claimed_total: numOf('bonaFideFeeClaimed'),
+    creditor_is_fcu_or_idi: boolOf('creditorIsFcuOrIdi'),
+    is_short_term_small_amount_loan: boolOf('isShortTermSmallAmount'),
+    application_fee_once_in_rolling_12_months: boolOf('applicationFeeOncePer12')
+  };
+  var result = computeMapr(pp);
+  var op = result.output_payload;
+  _lastResult = { pp: pp, output_payload: op, compliance_flags: result.compliance_flags };
+
+  var determined = op.mapr_pct !== null;
+  var capColor = !determined ? 'var(--muted)'
+    : (op.exceeds_cap ? 'var(--red)' : (op.approaching_cap ? 'var(--warn)' : 'var(--green)'));
+  var maprHtml = '<div class="rc-title">MAPR Result</div>';
+  maprHtml += '<div style="font-size:2rem;font-family:JetBrains Mono,monospace;color:' + capColor + ';margin:6px 0">'
+    + (determined ? op.mapr_pct.toFixed(2) + '%' : 'no rate') + '</div>';
+  if (!determined) {
+    maprHtml += '<span class="badge badge-warn">&#9888; No rate determined</span>';
+    maprHtml += '<div class="q-help" style="margin-top:8px">'
+      + (op.in_scope
+        ? 'A rate is reported only when a sign-change bracket was established and narrowed. The flags below say which condition stopped it.'
+        : 'The declared credit class is out of scope for this node. Open-end credit is priced on a billing-cycle balance under 32 CFR &sect;232.4(c)(2)(ii)(A) and (B), which is not computed here.')
+      + '</div>';
+  } else if (op.exceeds_cap) {
+    maprHtml += '<span class="badge badge-red">&#10007; EXCEEDS the 36% MLA limit</span>';
+  } else if (op.approaching_cap) {
+    maprHtml += '<span class="badge badge-warn">&#9888; Above ' + op.approaching_cap_threshold_pct + '%, at or below the 36% limit</span>';
+  } else {
+    maprHtml += '<span class="badge badge-green">&#10003; At or below the 36% MLA limit</span>';
+  }
+  maprHtml += '<div class="kv"><span class="kv-k">MAPR</span><span class="kv-v">' + (determined ? op.mapr_pct.toFixed(2) + '%' : 'null') + '</span></div>';
+  maprHtml += '<div class="kv"><span class="kv-k">MAPR limit, 32 CFR &sect;232.4(b)</span><span class="kv-v">' + op.mapr_cap_pct + '%</span></div>';
+  maprHtml += '<div class="kv"><span class="kv-k">Periodic rate</span><span class="kv-v">' + (op.periodic_rate === null ? 'null' : op.periodic_rate) + '</span></div>';
+  maprHtml += '<div class="kv"><span class="kv-k">Credit class</span><span class="kv-v">' + esc(op.credit_class) + (op.in_scope ? '' : ' (out of scope)') + '</span></div>';
+  maprHtml += '<div class="kv"><span class="kv-k">Table version</span><span class="kv-v">' + esc(op.table_version) + '</span></div>';
+  document.getElementById('maprCard').innerHTML = maprHtml;
+
+  var schHtml = '<div class="rc-title">Schedule solved</div>';
+  schHtml += '<div class="kv"><span class="kv-k">Payment structure</span><span class="kv-v">' + esc(op.payment_structure) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Amount advanced</span><span class="kv-v">' + fmt$(op.amount_advanced) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Charges collected at consummation</span><span class="kv-v">' + fmt$(op.prepaid_includable_charges) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Amount financed for the MAPR</span><span class="kv-v">' + fmt$(op.amount_financed_mapr) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Payments</span><span class="kv-v">' + op.payment_count + ' &times; ' + fmt$(op.payment_amount) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Sum of payments</span><span class="kv-v">' + fmt$(op.payment_total) + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Term (days)</span><span class="kv-v">' + op.term_days + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Unit-periods per year</span><span class="kv-v">' + op.unit_periods_per_year + '</span></div>';
+  schHtml += '<div class="kv"><span class="kv-k">Bracketed / converged</span><span class="kv-v">' + op.bracketed + ' / ' + op.converged + ' (' + op.iterations + ' iterations)</span></div>';
+  document.getElementById('scheduleCard').innerHTML = schHtml;
+
+  var chgHtml = '<div class="rc-title">Charge Breakdown, 32 CFR &sect;232.4(c)(1)</div>';
+  for (var i = 0; i < op.charge_breakdown.length; i++) {
+    var row = op.charge_breakdown[i];
+    var label = CHARGE_LABELS[row.field] || row.field;
+    var treat = TREATMENT_LABELS[row.treatment] || row.treatment;
+    var mark = row.included ? '<span style="color:var(--green)">included</span>' : '<span style="color:var(--muted)">excluded</span>';
+    chgHtml += '<div class="kv"><span class="kv-k">' + esc(label) + '<br><span style="font-size:.62rem;color:var(--muted)">' + esc(row.citation) + ' &middot; ' + esc(treat) + '</span></span>'
+      + '<span class="kv-v">' + fmt$(row.amount) + ' &middot; ' + mark + '</span></div>';
+  }
+  chgHtml += '<div class="kv"><span class="kv-k"><strong>Total includable charges</strong></span><span class="kv-v">' + fmt$(op.total_includable_charges) + '</span></div>';
+  chgHtml += '<div class="kv"><span class="kv-k">Total excluded charges</span><span class="kv-v">' + fmt$(op.total_excluded_charges) + '</span></div>';
+  chgHtml += '<div class="q-help" style="margin-top:8px">Application-fee carve-out, all three required: creditor is a Federal credit union or insured depository institution <strong>'
+    + op.application_fee_carve_out_predicates.creditor_is_fcu_or_idi + '</strong>, short-term small amount loan <strong>'
+    + op.application_fee_carve_out_predicates.is_short_term_small_amount_loan + '</strong>, once in any rolling 12 months <strong>'
+    + op.application_fee_carve_out_predicates.application_fee_once_in_rolling_12_months + '</strong>. Applied: <strong>'
+    + op.application_fee_carve_out_applied + '</strong>.</div>';
+  document.getElementById('chargesCard').innerHTML = chgHtml;
+
+  var flagHtml = '<div class="rc-title">Compliance flags</div>';
+  if (result.compliance_flags.length === 0) {
+    flagHtml += '<span class="badge badge-green">none raised</span>';
+  } else {
+    for (var f = 0; f < result.compliance_flags.length; f++) {
+      var fl = result.compliance_flags[f];
+      var cls = (fl.indexOf('EXCEEDS') !== -1) ? 'badge-red' : 'badge-warn';
+      flagHtml += '<span class="badge ' + cls + '">' + esc(fl) + '</span>';
+    }
+  }
+  flagHtml += '<div class="q-help" style="margin-top:10px">' + esc(op.scope_note) + '</div>';
+  flagHtml += '<div class="q-help" style="margin-top:8px">' + esc(op.approaching_cap_threshold_basis) + '</div>';
+  document.getElementById('flagsCard').innerHTML = flagHtml;
+
+  document.getElementById('resultsPanel').classList.add('show');
+  document.getElementById('execHashBox').textContent = 'computing...';
+  document.getElementById('verifyResult').textContent = '';
+  document.getElementById('anchorBtn').style.display = 'none';
+  computeExecHash(pp, op).then(function(h) {
+    document.getElementById('execHashBox').textContent = h;
+    var aBtn = document.getElementById('anchorBtn');
+    aBtn.href = ANCHOR_BASE + '/?hash=' + encodeURIComponent(h);
+    aBtn.style.display = 'inline-block';
+  });
+}
+
+function verifyHash() {
+  if (!_lastResult) return;
+  computeExecHash(_lastResult.pp, _lastResult.output_payload).then(function(h) {
+    var cur = document.getElementById('execHashBox').textContent;
+    document.getElementById('verifyResult').innerHTML = h === cur ? '<span style="color:var(--green)">&#10003; Hash verified</span>' : '<span style="color:var(--red)">&#10007; Mismatch</span>';
+  });
+}
+
+function exportArtifact() {
+  if (!_lastResult) return;
+  var hash = document.getElementById('execHashBox').textContent || 'pending';
+  const __generatedAtCapture = new Date().toISOString();
+  var artifact = {
+    '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+    chaingraph_version: '0.4.0',
+    mandate_type: 'compliance_mandate',
+    tool_id: 'art-231-compute-mla-mapr',
+    tool_version: '2.0.0',
+    generated_at: __generatedAtCapture,
+    execution_hash: hash,
+    chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 0 },
+    policy_parameters: _lastResult.pp,
+    output_payload: _lastResult.output_payload,
+    compliance_flags: _lastResult.compliance_flags || [],
+    compute_mode: 'browser',
+    audit_signature: { payloadType: 'application/vnd.openchain.graph+json;version=0.4', payload: '', signatures: [], client_side_executed: true, zero_pii_verified: true }
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+  var json = JSON.stringify(artifact, null, 2);
+  document.getElementById('artifactPre').textContent = json;
+  document.getElementById('artifactPre').style.display = 'block';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+  a.download = 'art-231-compute-mla-mapr.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function toggleMfst() {
+  var b = document.getElementById('mfstBody');
+  if (b.style.display === 'none' || !b.style.display) { b.style.display = 'block'; document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2); }
+  else { b.style.display = 'none'; }
+}
+</script>
+</body>
+</html>

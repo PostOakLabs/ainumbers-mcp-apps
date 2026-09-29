@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>UCP Checkout Payload Lint &middot; ART-564 &middot; OpenChainGraph &middot; AINumbers.co</title>
+<meta name="description" content="Lints a Universal Commerce Protocol (UCP) checkout resource against the schema pinned at tag v2026-04-08. Verdict CONFORMANT, NONCONFORMANT, or UNKNOWN_VERSION -- never contacts a UCP or ACP endpoint.">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-564-ucp-checkout-payload-lint.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-564-ucp-checkout-payload-lint.md">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--teal-lt);text-decoration:none}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
+h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
+.sub{color:var(--body);max-width:700px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
+.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
+.section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+label.fld{display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--body);margin:10px 0 4px}
+input[type=text],input[type=number],textarea,select{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem}
+textarea{min-height:220px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:620px){.grid2{grid-template-columns:1fr}}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+button:hover{opacity:.9}
+button.ghost{background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3)}
+.results-panel{display:none}.results-panel.show{display:block}
+.exec-hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--teal-lt);word-break:break-all;margin:6px 0}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
+.stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;min-width:120px}
+.stat-val{font-size:1.1rem;color:var(--bright);font-weight:600;display:block}
+.stat-key{font-size:.58rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.kv{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:.74rem;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv-k{color:var(--body);flex-shrink:0;min-width:220px}.kv-v{color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;word-break:break-all}
+.verdict-box{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;border-radius:var(--radius-lg);padding:14px 18px;margin:12px 0;text-align:center}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:center}
+.verify-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer}
+.verify-result{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-left:8px}
+.mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
+#mfstBody{display:none;margin-top:10px}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.2)}
+.badge.bad{background:rgba(239,68,68,.08);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.rat li{margin:6px 0 6px 18px;font-size:.72rem;color:var(--body)}
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-564 · UCP Checkout Payload Lint</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">OpenChainGraph Suite &middot; ART-564 &middot; Agentic Commerce</div>
+  <h1>UCP Checkout Payload Lint</h1>
+  <p class="sub">Lints a caller-supplied Universal Commerce Protocol (UCP, from Google and Shopify, announced NRF 2026-01-11, Apache-2.0 spec on GitHub) checkout resource against the schema pinned at tag <code>v2026-04-08</code> of the published UCP repository. Checks the resource-level required fields, the status enum, ISO 4217 currency form, integer minor-unit amounts, and the exactly-one-subtotal / exactly-one-total rule on the totals breakdown. A payload declaring a version outside the pinned allowlist is never upgraded to conformant; it is reported as version-unknown regardless of how clean the structure otherwise is.</p>
+  <div style="margin-bottom:6px">
+    <span class="flag info">Verify-only, never contacts a UCP or ACP endpoint</span>
+    <span class="flag info">Pinned to UCP v2026-04-08</span>
+    <span class="flag">UCP composes with AP2, not a competitor</span>
+  </div>
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+  <div class="pii-notice" style="border-left-color:var(--warn)">&#9888; This tool never contacts a UCP or ACP endpoint and never fetches a live spec version. You paste a checkout resource; it is checked once when you press the button, stores nothing, and retains nothing.</div>
+
+  <div class="card">
+    <div class="section-head">Checkout Payload</div>
+    <p class="sub" style="font-size:.72rem;margin-bottom:4px">The demo payload below is synthetic and already loaded, so you can press Run without entering anything of your own.</p>
+    <label class="fld">UCP checkout resource JSON</label>
+    <textarea id="payloadJson">{
+  "ucp": { "version": "2026-04-08" },
+  "id": "checkout_abc123",
+  "status": "ready_for_complete",
+  "currency": "USD",
+  "line_items": [
+    {
+      "id": "li_1",
+      "item": { "id": "sku_1", "name": "Widget" },
+      "quantity": 2,
+      "totals": [
+        { "type": "subtotal", "amount": 4000 },
+        { "type": "total", "amount": 4000 }
+      ]
+    }
+  ],
+  "totals": [
+    { "type": "subtotal", "amount": 4000 },
+    { "type": "tax", "amount": 320, "display_text": "Sales tax" },
+    { "type": "total", "amount": 4320 }
+  ],
+  "links": [ { "url": "https://merchant.example/tos", "type": "terms_of_service" } ]
+}</textarea>
+
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button onclick="runCheck()">&#9654; Run Lint</button>
+      <button class="ghost" onclick="loadNonconformantDemo()">Load missing-required-fields demo</button>
+      <button class="ghost" onclick="loadUnknownVersionDemo()">Load unknown-version demo</button>
+    </div>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+    <div class="card">
+      <div id="verdictBox" class="verdict-box"></div>
+      <div class="stat-row" id="statRow"></div>
+
+      <div class="section-head" style="margin-top:14px">Findings</div>
+      <div id="findDiv"></div>
+
+      <div class="section-head" style="margin-top:14px">Rationale</div>
+      <ul class="rat" id="ratDiv"></ul>
+
+      <div class="section-head" style="margin-top:14px">Execution Hash (SHA-256)</div>
+      <div class="exec-hash" id="execHashBox"></div>
+      <div class="results-export-row">
+        <button id="ap2ExportBtn" onclick="exportArtifact()">Export &#167;4 Artifact</button>
+        <button class="verify-btn" onclick="verifyHash()">&#10003; Verify Hash</button>
+        <span class="verify-result" id="verifyResult"></span>
+      </div>
+      <pre id="artifactPre" style="display:none"></pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow" style="margin-top:0">What this does not do</div>
+    <p class="sub" style="margin-bottom:0">It does not contact a UCP or ACP endpoint, does not create or complete a checkout session, and does not validate payment-instrument or merchant identity beyond the fields present in the pasted resource. A CONFORMANT verdict is a structural-shape result against the pinned schema, not a claim of UCP platform certification.</p>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow" style="margin-top:0">Related</div>
+    <p class="sub" style="margin-bottom:0"><a href="art-12-acp-checkout-conformance-validator.html">ART-12</a> checks ACP checkout-session conformance and <a href="art-01-ap2-mandate-chain-validator.html">ART-01</a> validates the AP2 payment mandate chain. Together with this node they form the <a href="chains/agentic-commerce-convergence.html">Agentic Commerce Convergence</a> chain, binding UCP discovery/cart, ACP checkout, and AP2 payment authorization into one composite receipt.</p>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()">[ manifest ]</button>
+  <div id="mfstBody"><pre id="mfstCode"></pre></div>
+</div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-564-ucp-checkout-payload-lint.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `lint_ucp_checkout_payload`. Task: Deterministic, verify-only structural lint of a caller-supplied Universal Commerce Protocol (UCP; Google + Shopify, announced NRF 2026-01-11, Apache-2.0 spec on GitHub) checkout resource against the schema pinned at tag v2026-04-08 of github.com/Universal-Commerce-Protocol/ucp.
+Call it with arguments: {"policy_parameters":{"payload":{"ucp":{"version":"2026-04-08"},"id":"checkout_abc123","status":"ready_for_complete","currency":"USD","line_items":[{"id":"li_1","item":{"id":"sku_1","name":"Widget"},"quantity":2,"totals":[{"type":"subtotal","amount":4000},{"type":"total","amount":4000}]}],"totals":[{"type":"subtotal","amount":4000},{"type":"tax","amount":320,"display_text":"Sales tax"},{"type":"total","amount":4320}],"links":[{"url":"https://merchant.example/tos","type":"terms_of_service"}]}}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-564-ucp-checkout-payload-lint.html#p=v1.H4sIAAAAAAAA_wHcASP-eyJwYXlsb2FkIjp7InVjcCI6eyJ2ZXJzaW9uIjoiMjAyNi0wNC0wOCJ9LCJpZCI6ImNoZWNrb3V0X2FiYzEyMyIsInN0YXR1cyI6InJlYWR5X2Zvcl9jb21wbGV0ZSIsImN1cnJlbmN5IjoiVVNEIiwibGluZV9pdGVtcyI6W3siaWQiOiJsaV8xIiwiaXRlbSI6eyJpZCI6InNrdV8xIiwibmFtZSI6IldpZGdldCJ9LCJxdWFudGl0eSI6MiwidG90YWxzIjpbeyJ0eXBlIjoic3VidG90YWwiLCJhbW91bnQiOjQwMDB9LHsidHlwZSI6InRvdGFsIiwiYW1vdW50Ijo0MDAwfV19XSwidG90YWxzIjpbeyJ0eXBlIjoic3VidG90YWwiLCJhbW91bnQiOjQwMDB9LHsidHlwZSI6InRheCIsImFtb3VudCI6MzIwLCJkaXNwbGF5X3RleHQiOiJTYWxlcyB0YXgifSx7InR5cGUiOiJ0b3RhbCIsImFtb3VudCI6NDMyMH1dLCJsaW5rcyI6W3sidXJsIjoiaHR0cHM6Ly9tZXJjaGFudC5leGFtcGxlL3RvcyIsInR5cGUiOiJ0ZXJtc19vZl9zZXJ2aWNlIn1dfX0PvP4b3AEAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var MANIFEST = {
+  tool_id: 'art-564-ucp-checkout-payload-lint',
+  version: '1.0.0',
+  mcp_name: 'lint_ucp_checkout_payload',
+  title: 'UCP Checkout Payload Lint',
+  description: 'Lints a caller-supplied UCP checkout resource against the schema pinned at tag v2026-04-08 of github.com/Universal-Commerce-Protocol/ucp. Verdict CONFORMANT | NONCONFORMANT | UNKNOWN_VERSION. Never contacts a UCP/ACP endpoint.',
+  spec_version: '0.8.8',
+  chaingraph_version: '0.4.0',
+  mcp_tool_definition: {
+    name: 'lint_ucp_checkout_payload',
+    description: 'Lints a UCP checkout resource against the pinned v2026-04-08 schema. Returns findings[] and a CONFORMANT | NONCONFORMANT | UNKNOWN_VERSION verdict.',
+    inputSchema: { type: 'object', properties: {
+      payload: {type:'object'},
+    } },
+  },
+};
+
+var _lastResult = null;
+
+function cgCanon(v){
+  return Array.isArray(v) ? v.map(cgCanon) :
+    (v && typeof v === 'object') ? Object.keys(v).sort().reduce(function(o,k){o[k]=cgCanon(v[k]);return o;},{}) : v;
+}
+async function sha256Hex(v){
+  var bytes = new TextEncoder().encode(JSON.stringify(cgCanon(v)));
+  var buf = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+async function computeExecHash(pp, op){ return sha256Hex({policy_parameters: pp, output_payload: op}); }
+
+/* --- Mirror of chaingraph/kernels/art-564-ucp-checkout-payload-lint.kernel.mjs --- */
+var UCP_SPEC_PINNED_TAG = 'v2026-04-08';
+var UCP_SPEC_SOURCE = 'https://github.com/Universal-Commerce-Protocol/ucp/tree/v2026-04-08/source/schemas/shopping/checkout.json';
+var KNOWN_UCP_VERSIONS = ['2026-01-11', '2026-01-23', '2026-04-08'];
+var CHECKOUT_REQUIRED = ['ucp', 'id', 'line_items', 'status', 'currency', 'totals', 'links'];
+var CHECKOUT_STATUS_ENUM = ['incomplete', 'requires_escalation', 'ready_for_complete', 'complete_in_progress', 'completed', 'canceled'];
+var TOTAL_TYPE_WELL_KNOWN = ['subtotal', 'items_discount', 'discount', 'fulfillment', 'tax', 'fee', 'total'];
+var LINE_ITEM_REQUIRED = ['id', 'item', 'quantity', 'totals'];
+var TOTAL_ENTRY_REQUIRED = ['type', 'amount'];
+var CURRENCY_RE = /^[A-Z]{3}$/;
+
+function isPlainObject(v){ return v !== null && typeof v === 'object' && !Array.isArray(v); }
+function isNonEmptyString(v){ return typeof v === 'string' && v.trim().length > 0; }
+function isSafeInt(v){ return typeof v === 'number' && Number.isFinite(v) && Number.isSafeInteger(v); }
+function finding(code, severity, path, message){ return { code: code, severity: severity, path: path, message: message }; }
+
+function lintTotalsArray(totalsArr, basePath, findings, requireSubtotalAndTotal){
+  if (!Array.isArray(totalsArr)) { findings.push(finding('TOTALS_NOT_ARRAY', 'error', basePath, 'totals must be an array of Total entries.')); return; }
+  var subtotalCount = 0, totalCount = 0;
+  totalsArr.forEach(function(entry, i){
+    var path = basePath + '[' + i + ']';
+    if (!isPlainObject(entry)) { findings.push(finding('TOTAL_ENTRY_NOT_OBJECT', 'error', path, 'each totals entry must be an object.')); return; }
+    TOTAL_ENTRY_REQUIRED.forEach(function(req){ if (!(req in entry)) findings.push(finding('TOTAL_ENTRY_MISSING_FIELD', 'error', path + '.' + req, 'required Total field "' + req + '" is absent.')); });
+    if ('type' in entry) {
+      if (!isNonEmptyString(entry.type)) {
+        findings.push(finding('TOTAL_ENTRY_TYPE_INVALID', 'error', path + '.type', 'Total.type must be a non-empty string.'));
+      } else {
+        if (entry.type === 'subtotal') subtotalCount++;
+        if (entry.type === 'total') totalCount++;
+        if (TOTAL_TYPE_WELL_KNOWN.indexOf(entry.type) === -1 && !('display_text' in entry)) {
+          findings.push(finding('TOTAL_ENTRY_NONSTANDARD_TYPE_MISSING_DISPLAY_TEXT', 'warning', path + '.display_text', 'Total.type "' + entry.type + '" is not one of the well-known categories and carries no display_text.'));
+        }
+      }
+    }
+    if ('amount' in entry && !isSafeInt(entry.amount)) findings.push(finding('TOTAL_ENTRY_AMOUNT_NOT_INTEGER', 'error', path + '.amount', 'Total.amount must be an integer number of the currency minor unit (signed_amount).'));
+  });
+  if (requireSubtotalAndTotal) {
+    if (subtotalCount !== 1) findings.push(finding('TOTALS_SUBTOTAL_CARDINALITY', 'error', basePath, 'totals must contain exactly one entry with type "subtotal" (found ' + subtotalCount + ').'));
+    if (totalCount !== 1) findings.push(finding('TOTALS_TOTAL_CARDINALITY', 'error', basePath, 'totals must contain exactly one entry with type "total" (found ' + totalCount + ').'));
+  }
+}
+
+function lintLineItems(lineItems, findings){
+  if (!Array.isArray(lineItems)) { findings.push(finding('LINE_ITEMS_NOT_ARRAY', 'error', 'line_items', 'line_items must be an array.')); return; }
+  if (lineItems.length === 0) findings.push(finding('LINE_ITEMS_EMPTY', 'warning', 'line_items', 'line_items is empty -- structurally valid but an unusual checkout resource to lint.'));
+  lineItems.forEach(function(li, i){
+    var path = 'line_items[' + i + ']';
+    if (!isPlainObject(li)) { findings.push(finding('LINE_ITEM_NOT_OBJECT', 'error', path, 'each line item must be an object.')); return; }
+    LINE_ITEM_REQUIRED.forEach(function(req){ if (!(req in li)) findings.push(finding('LINE_ITEM_MISSING_FIELD', 'error', path + '.' + req, 'required LineItem field "' + req + '" is absent.')); });
+    if ('item' in li && !isPlainObject(li.item)) findings.push(finding('LINE_ITEM_ITEM_NOT_OBJECT', 'error', path + '.item', 'LineItem.item must be an object.'));
+    if ('quantity' in li && (!isSafeInt(li.quantity) || li.quantity < 1)) findings.push(finding('LINE_ITEM_QUANTITY_INVALID', 'error', path + '.quantity', 'LineItem.quantity must be an integer >= 1.'));
+    if ('totals' in li) lintTotalsArray(li.totals, path + '.totals', findings, false);
+  });
+}
+
+function compute(pp){
+  pp = pp || {};
+  var findings = [];
+  var payload = isPlainObject(pp.payload) ? pp.payload : null;
+
+  if (!payload) {
+    return { output_payload: {
+      verdict: 'NONCONFORMANT', ucp_version_declared: null, ucp_spec_pinned_tag: UCP_SPEC_PINNED_TAG, ucp_spec_source: UCP_SPEC_SOURCE,
+      finding_count: 1, error_count: 1, warning_count: 0,
+      findings: [finding('MISSING_PAYLOAD', 'error', '', 'pp.payload is absent or is not a JSON object -- nothing to lint.')],
+      rationale: ['No usable checkout payload object was supplied; this is a structural failure, not a version question, so the verdict is NONCONFORMANT rather than UNKNOWN_VERSION.'],
+      note: 'Verify-only UCP checkout-resource lint against the pinned v2026-04-08 schema. Never contacts a UCP/ACP endpoint.',
+    }, compliance_flags: ['UCP_LINT_RUN', 'UCP_NONCONFORMANT', 'UCP_MISSING_PAYLOAD'] };
+  }
+
+  CHECKOUT_REQUIRED.forEach(function(req){ if (!(req in payload)) findings.push(finding('CHECKOUT_MISSING_REQUIRED_FIELD', 'error', req, 'required Checkout field "' + req + '" is absent (pinned schema required[]: ' + CHECKOUT_REQUIRED.join(', ') + ').')); });
+
+  var ucpVersionDeclared = (isPlainObject(payload.ucp) && isNonEmptyString(payload.ucp.version)) ? payload.ucp.version.trim() : null;
+  var versionKnown = ucpVersionDeclared !== null && KNOWN_UCP_VERSIONS.indexOf(ucpVersionDeclared) !== -1;
+  if (ucpVersionDeclared === null) {
+    findings.push(finding('UCP_VERSION_ABSENT', 'error', 'ucp.version', 'payload.ucp.version is absent or not a string; cannot confirm which UCP version this payload targets.'));
+  } else if (!versionKnown) {
+    findings.push(finding('UCP_VERSION_NOT_PINNED', 'warning', 'ucp.version', 'payload declares UCP version "' + ucpVersionDeclared + '", which is outside the pinned allowlist (' + KNOWN_UCP_VERSIONS.join(', ') + '). This lint cannot assert conformance to an unpinned version\'s requirements.'));
+  }
+
+  if ('status' in payload && CHECKOUT_STATUS_ENUM.indexOf(payload.status) === -1) findings.push(finding('CHECKOUT_STATUS_INVALID', 'error', 'status', 'status must be one of: ' + CHECKOUT_STATUS_ENUM.join(', ') + '.'));
+  if ('currency' in payload && !(isNonEmptyString(payload.currency) && CURRENCY_RE.test(payload.currency))) findings.push(finding('CHECKOUT_CURRENCY_INVALID', 'error', 'currency', 'currency must be a 3-letter uppercase ISO 4217 code.'));
+  if ('links' in payload && !Array.isArray(payload.links)) findings.push(finding('CHECKOUT_LINKS_NOT_ARRAY', 'error', 'links', 'links must be an array (mandatory for legal-compliance display per the pinned schema).'));
+  if ('id' in payload && !isNonEmptyString(payload.id)) findings.push(finding('CHECKOUT_ID_INVALID', 'error', 'id', 'id must be a non-empty string.'));
+
+  if ('line_items' in payload) lintLineItems(payload.line_items, findings);
+  if ('totals' in payload) lintTotalsArray(payload.totals, 'totals', findings, true);
+
+  var errorCount = findings.filter(function(f){ return f.severity === 'error'; }).length;
+  var warningCount = findings.filter(function(f){ return f.severity === 'warning'; }).length;
+
+  var verdict;
+  if (ucpVersionDeclared === null || !versionKnown) { verdict = 'UNKNOWN_VERSION'; }
+  else { verdict = errorCount > 0 ? 'NONCONFORMANT' : 'CONFORMANT'; }
+
+  var rationale = [];
+  rationale.push('Pinned schema: UCP ' + UCP_SPEC_PINNED_TAG + ' source/schemas/shopping/checkout.json (' + UCP_SPEC_SOURCE + ').');
+  rationale.push(ucpVersionDeclared === null ? 'payload.ucp.version was absent, so no version-specific conformance claim can be made.'
+    : versionKnown ? ('payload declares UCP version ' + ucpVersionDeclared + ', within the pinned allowlist.')
+    : ('payload declares UCP version ' + ucpVersionDeclared + ', outside the pinned allowlist -- verdict capped at UNKNOWN_VERSION regardless of structural findings.'));
+  rationale.push(errorCount + ' error-severity finding(s), ' + warningCount + ' warning-severity finding(s) against the pinned checkout resource shape.');
+  rationale.push('This lints a full checkout RESOURCE against the schema\'s resource-level required[] set, not a partial create/update/complete request body (the schema\'s narrower ucp_request per-verb profile is out of scope).');
+  rationale.push('Verify-only: never contacts a UCP or ACP endpoint; the caller supplies the payload.');
+
+  var flags = ['UCP_LINT_RUN', 'UCP_' + verdict];
+  if (errorCount > 0) flags.push('UCP_STRUCTURAL_ERRORS');
+  if (warningCount > 0) flags.push('UCP_STRUCTURAL_WARNINGS');
+
+  return {
+    output_payload: {
+      verdict: verdict, ucp_version_declared: ucpVersionDeclared, ucp_spec_pinned_tag: UCP_SPEC_PINNED_TAG, ucp_spec_source: UCP_SPEC_SOURCE,
+      finding_count: findings.length, error_count: errorCount, warning_count: warningCount, findings: findings, rationale: rationale,
+      note: 'Deterministic, verify-only structural lint of a caller-supplied UCP checkout resource against the schema pinned at tag v2026-04-08 of github.com/Universal-Commerce-Protocol/ucp. Never fetches a live spec version and never contacts a UCP/ACP endpoint. UCP composes with AP2 (Google developer blog) and is not presented here as a competitor to ACP or AP2.',
+    },
+    compliance_flags: flags,
+  };
+}
+/* --- end mirror --- */
+
+function loadNonconformantDemo(){
+  document.getElementById('payloadJson').value = JSON.stringify({
+    ucp: { version: '2026-01-23' }, id: 'checkout_missing1', currency: 'USD',
+    line_items: [ { id: 'li_1', item: { id: 'sku_1' }, quantity: 1 } ]
+  }, null, 2);
+  runCheck();
+}
+function loadUnknownVersionDemo(){
+  document.getElementById('payloadJson').value = JSON.stringify({
+    ucp: { version: '2025-11-01' }, id: 'checkout_future', status: 'incomplete', currency: 'EUR',
+    line_items: [ { id: 'li_1', item: { id: 'sku_9' }, quantity: 1, totals: [{type:'subtotal',amount:1000},{type:'total',amount:1000}] } ],
+    totals: [ { type: 'subtotal', amount: 1000 }, { type: 'total', amount: 1000 } ], links: []
+  }, null, 2);
+  runCheck();
+}
+
+function runCheck(){
+  var payload;
+  try { payload = JSON.parse(document.getElementById('payloadJson').value || '{}'); }
+  catch(e){ alert('Invalid JSON: ' + e.message); return; }
+
+  var pp = { payload: payload };
+  var res = compute(pp);
+  _lastResult = { pp: pp, output_payload: res.output_payload, compliance_flags: res.compliance_flags };
+  var op = res.output_payload;
+
+  var vBox = document.getElementById('verdictBox');
+  var color = op.verdict === 'CONFORMANT' ? 'var(--green)' : (op.verdict === 'UNKNOWN_VERSION' ? 'var(--warn)' : 'var(--red)');
+  var bg = op.verdict === 'CONFORMANT' ? 'rgba(34,197,94,.08)' : (op.verdict === 'UNKNOWN_VERSION' ? 'rgba(245,158,11,.08)' : 'rgba(239,68,68,.08)');
+  vBox.style.color = color; vBox.style.background = bg; vBox.style.border = '1px solid ' + color;
+  vBox.textContent = op.verdict + (op.ucp_version_declared ? ' · version ' + op.ucp_version_declared : ' · no version declared');
+
+  document.getElementById('statRow').innerHTML =
+    '<div class="stat"><span class="stat-val">' + op.finding_count + '</span><span class="stat-key">Findings</span></div>' +
+    '<div class="stat"><span class="stat-val">' + op.error_count + '</span><span class="stat-key">Errors</span></div>' +
+    '<div class="stat"><span class="stat-val">' + op.warning_count + '</span><span class="stat-key">Warnings</span></div>';
+
+  document.getElementById('findDiv').innerHTML = op.findings.length
+    ? op.findings.map(function(f){
+        return '<div class="kv"><span class="kv-k">' + f.path + ' <span class="badge ' + (f.severity === 'error' ? 'bad' : 'warn') + '">' + f.severity + '</span></span><span class="kv-v">' + f.code + ': ' + f.message + '</span></div>';
+      }).join('')
+    : '<div class="kv"><span class="kv-k">None</span><span class="kv-v">no findings against the pinned schema</span></div>';
+
+  document.getElementById('ratDiv').innerHTML = op.rationale.map(function(r){ return '<li>' + r + '</li>'; }).join('');
+
+  document.getElementById('resultsPanel').classList.add('show');
+  document.getElementById('execHashBox').textContent = 'computing...';
+  document.getElementById('verifyResult').textContent = '';
+  computeExecHash(pp, op).then(function(h){ document.getElementById('execHashBox').textContent = h; });
+}
+
+function verifyHash(){
+  if (!_lastResult) return;
+  computeExecHash(_lastResult.pp, _lastResult.output_payload).then(function(h){
+    var cur = document.getElementById('execHashBox').textContent;
+    document.getElementById('verifyResult').innerHTML = h === cur ? '<span style="color:var(--green)">&#10003; Hash verified</span>' : '<span style="color:var(--red)">&#10007; Mismatch</span>';
+  });
+}
+
+function exportArtifact(){
+  if (!_lastResult) return;
+  var hash = document.getElementById('execHashBox').textContent || 'pending';
+  const generatedAt = new Date().toISOString();
+  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
+  var artifact = {'@context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'compliance_mandate',tool_id:'art-564-ucp-checkout-payload-lint',tool_version:'1.0.0',generated_at:generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:_lastResult.pp,output_payload:_lastResult.output_payload,compliance_flags:_lastResult.compliance_flags,compute_mode:'browser',compute_proof_ready:'deferred',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[]}};
+  var json = JSON.stringify(artifact, null, 2);
+  document.getElementById('artifactPre').textContent = json;
+  document.getElementById('artifactPre').style.display = 'block';
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([json], {type:'application/json'}));
+  a.download = 'art-564-ucp-checkout-payload-lint.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+function toggleMfst(){
+  var b = document.getElementById('mfstBody');
+  if (b.style.display === 'none' || !b.style.display){ b.style.display = 'block'; document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2); }
+  else { b.style.display = 'none'; }
+}
+</script>
+<script>window.AIN_BRIDGE_CFG={runFn:'runCheck',intake:false,intakeTarget:null,intakeAnchor:null};</script>
+<script>
+(function(){
+'use strict';
+var CFG=window.AIN_BRIDGE_CFG||{};
+var L={
+ en:{pf:'Inputs prefilled from link — review, then Run',ran:'Inputs prefilled from link and executed',fields:'fields',it:'Import Policy Mandate (.policy.json)',drop:'Drop a .policy.json here, or',choose:'Choose file',paste:'Paste JSON',apply:'Apply',ok:'Policy Mandate imported from',bad:'Not a valid AINumbers Policy Mandate JSON'},
+ es:{pf:'Campos precargados desde el enlace — revise y ejecute',ran:'Campos precargados desde el enlace y ejecutados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Suelte un .policy.json aquí, o',choose:'Elegir archivo',paste:'Pegar JSON',apply:'Aplicar',ok:'Policy Mandate importado desde',bad:'JSON de Policy Mandate no válido'},
+ fr:{pf:'Champs préremplis depuis le lien — vérifiez puis exécutez',ran:'Champs préremplis depuis le lien et exécutés',fields:'champs',it:'Importer un Policy Mandate (.policy.json)',drop:'Déposez un .policy.json ici, ou',choose:'Choisir un fichier',paste:'Coller le JSON',apply:'Appliquer',ok:'Policy Mandate importé depuis',bad:'JSON Policy Mandate non valide'},
+ ar:{pf:'تم ملء الحقول مسبقًا من الرابط — راجع ثم شغّل',ran:'تم ملء الحقول من الرابط وتنفيذها',fields:'حقول',it:'استيراد Policy Mandate (.policy.json)',drop:'أسقط ملف ‎.policy.json هنا، أو',choose:'اختر ملفًا',paste:'لصق JSON',apply:'تطبيق',ok:'تم استيراد Policy Mandate من',bad:'JSON غير صالح لـ Policy Mandate'},
+ pt:{pf:'Campos pré-preenchidos a partir do link — revise e execute',ran:'Campos pré-preenchidos a partir do link e executados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Solte um .policy.json aqui, ou',choose:'Escolher arquivo',paste:'Colar JSON',apply:'Aplicar',ok:'Policy Mandate importado de',bad:'JSON de Policy Mandate inválido'},
+ zh:{pf:'已从链接预填输入 — 请检查后运行',ran:'已从链接预填并自动执行',fields:'个字段',it:'导入 Policy Mandate (.policy.json)',drop:'将 .policy.json 拖放到此处，或',choose:'选择文件',paste:'粘贴 JSON',apply:'应用',ok:'已导入 Policy Mandate，来源：',bad:'无效的 AINumbers Policy Mandate JSON'}
+};
+function t(k){return (L.en&&L.en[k])||k;}
+function b64uDec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(Array.prototype.map.call(atob(s),function(c){return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2);}).join(''));}
+function b64uEnc(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function applyFields(fields){
+  var n=0;if(!fields||typeof fields!=='object')return 0;
+  Object.keys(fields).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var tag=el.tagName;if(tag!=='INPUT'&&tag!=='SELECT'&&tag!=='TEXTAREA')return;
+    var v=fields[id];
+    if(el.type==='checkbox'||el.type==='radio'){el.checked=!!v;}
+    else{el.value=(v!==null&&typeof v==='object')?JSON.stringify(v,null,2):String(v);}
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+    n++;
+  });
+  return n;
+}
+function runTool(){if(!CFG.runFn)return false;var f=window[CFG.runFn];if(typeof f==='function'){try{f();return true;}catch(e){return false;}}return false;}
+function anchorEl(){return (CFG.intakeAnchor&&document.querySelector(CFG.intakeAnchor))||document.querySelector('.pii-notice')||document.querySelector('.panel')||document.body.firstElementChild;}
+function notice(msg,kind){
+  var d=document.getElementById('ainBridgeNotice');
+  if(!d){d=document.createElement('div');d.id='ainBridgeNotice';
+    var a=document.getElementById('ainIntakeZone')||anchorEl();
+    if(a&&a.parentNode)a.parentNode.insertBefore(d,a);else document.body.insertBefore(d,document.body.firstChild);}
+  d.setAttribute('style','font-family:\'JetBrains Mono\',monospace;font-size:.68rem;letter-spacing:.04em;margin:0 0 1rem;padding:.55rem .8rem;border-radius:6px;border:1px solid '+(kind==='warn'?'#F59E0B':'#14B8A6')+';color:'+(kind==='warn'?'#F59E0B':'#2DD4BF')+';background:'+(kind==='warn'?'rgba(245,158,11,.08)':'rgba(20,184,166,.08)'));
+  d.textContent=msg;
+}
+function looksLikeMandate(o){return !!(o&&typeof o==='object'&&o.mandate_id&&o.tool_id&&('payload' in o));}
+function intakeApply(text){
+  var o;try{o=JSON.parse(text);}catch(e){notice('⚠ '+t('bad'),'warn');return 0;}
+  if(!looksLikeMandate(o)){notice('⚠ '+t('bad'),'warn');return 0;}
+  var n=0;
+  if(CFG.intakeTarget){var ta=document.getElementById(CFG.intakeTarget);
+    if(ta){ta.value=JSON.stringify(o,null,2);try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}n++;}}
+  if(o.payload&&typeof o.payload==='object')n+=applyFields(o.payload);
+  if(o.source_tool_inputs&&typeof o.source_tool_inputs==='object')n+=applyFields(o.source_tool_inputs);
+  notice((n>0?'📥 ':'⚠ ')+t('ok')+' '+(o.tool_id||'?')+' · '+n+' '+t('fields'),n>0?'ok':'warn');
+  return n;
+}
+function buildIntakeUI(){
+  if(!CFG.intake)return;
+  var a=anchorEl();if(!a||!a.parentNode)return;
+  var z=document.createElement('div');z.id='ainIntakeZone';
+  z.setAttribute('style','border:1px dashed #263855;border-radius:6px;padding:.7rem .9rem;margin:0 0 1.25rem;font-family:\'JetBrains Mono\',monospace;font-size:.66rem;color:#6888A8;letter-spacing:.04em');
+  var lbl=document.createElement('div');lbl.textContent='📥 '+t('it');lbl.setAttribute('style','color:#A8C4DE;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;font-size:.6rem');
+  var row=document.createElement('div');row.setAttribute('style','display:flex;gap:.6rem;align-items:center;flex-wrap:wrap');
+  var txt=document.createElement('span');txt.textContent=t('drop');
+  function mkBtn(label){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('style','background:transparent;border:1px solid #263855;color:#A8C4DE;border-radius:6px;padding:.3rem .7rem;font-family:inherit;font-size:.62rem;cursor:pointer');return b;}
+  var bFile=mkBtn(t('choose')),bPaste=mkBtn(t('paste'));
+  var fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.style.display='none';
+  fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);fi.value='';});
+  bFile.addEventListener('click',function(){fi.click();});
+  var pasteRow=document.createElement('div');pasteRow.style.display='none';pasteRow.setAttribute('style','display:none;margin-top:.6rem');
+  var ta=document.createElement('textarea');ta.rows=5;ta.spellcheck=false;ta.setAttribute('style','width:100%;background:#0D1627;border:1px solid #263855;border-radius:6px;color:#A8C4DE;font-family:inherit;font-size:.64rem;padding:.5rem');
+  var bApply=mkBtn(t('apply'));bApply.style.marginTop='.4rem';
+  bApply.addEventListener('click',function(){if(ta.value.trim()){intakeApply(ta.value);ta.value='';pasteRow.style.display='none';}});
+  pasteRow.appendChild(ta);pasteRow.appendChild(bApply);
+  bPaste.addEventListener('click',function(){pasteRow.style.display=(pasteRow.style.display==='none')?'block':'none';if(pasteRow.style.display==='block')ta.focus();});
+  z.addEventListener('dragover',function(e){e.preventDefault();z.style.borderColor='#14B8A6';});
+  z.addEventListener('dragleave',function(){z.style.borderColor='#263855';});
+  z.addEventListener('drop',function(e){e.preventDefault();z.style.borderColor='#263855';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f){var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);}});
+  row.appendChild(txt);row.appendChild(bFile);row.appendChild(bPaste);row.appendChild(fi);
+  z.appendChild(lbl);z.appendChild(row);z.appendChild(pasteRow);
+  a.parentNode.insertBefore(z,a);
+}
+function initPrefill(){
+  var h=location.hash||'';var m=h.match(/[#&]in=([A-Za-z0-9_\-]+)/);if(!m)return;
+  var obj;try{obj=JSON.parse(b64uDec(m[1]));}catch(e){return;}
+  var fields=(obj&&obj.fields&&typeof obj.fields==='object')?obj.fields:obj;
+  var n=applyFields(fields);
+  if(n>0){
+    if(/[#&]run=1/.test(h)&&runTool())notice('⚡ '+t('ran')+' ('+n+' '+t('fields')+')','ok');
+    else notice('🔗 '+t('pf')+' ('+n+' '+t('fields')+')','ok');
+  }
+}
+var HANDOFF_MAX_CHARS=2000000;
+function apSendToVerify(){
+  var m;try{m=window.AINBridge.getMandate();}catch(e){m=null;}
+  if(!m){notice('⚠ No Policy Mandate to send — run the tool first.','warn');return;}
+  var json;try{json=JSON.stringify(m);}catch(e){notice('⚠ Could not serialize the mandate: '+e.message,'warn');return;}
+  if(json.length>HANDOFF_MAX_CHARS){notice('⚠ Too large to hand off ('+json.length+' chars).','warn');return;}
+  var target=new URL('../chaingraph/verify.html',window.location.href).href;
+  var win=window.open(target,'_blank');
+  if(!win){notice('⚠ The verifier window was blocked. Allow pop-ups for this site.','warn');return;}
+  var sent=false,timer=null;
+  function onReady(ev){
+    if(ev.origin!==window.location.origin)return;
+    if(ev.source!==win)return;
+    var d=ev.data;
+    if(!d||typeof d!=='object'||d.type!=='ain-handoff-ready/v1')return;
+    if(sent)return;sent=true;
+    window.removeEventListener('message',onReady);
+    if(timer)clearTimeout(timer);
+    win.postMessage({type:'ain-handoff/v1',kind:'policy-mandate',mandate:json},window.location.origin);
+    notice('➡ Sent to the Artifact Verifier in the new tab.','ok');
+  }
+  window.addEventListener('message',onReady);
+  notice('Opening the Artifact Verifier…','ok');
+  timer=setTimeout(function(){
+    if(sent)return;
+    window.removeEventListener('message',onReady);
+    notice('⚠ The verifier did not answer. Export the mandate and paste it in.','warn');
+  },10000);
+}
+window.apSendToVerify=apSendToVerify;
+/* sessionRoot — COMPOSER-PLAN-AND-ROOT-WEBMCP-1. ONE ROUTINE LAW: the core below
+   is byte-identical to SESSION_ROOT_SOURCE in scripts/gen-webmcp-registrations.mjs
+   (emitted onto every chain composer page) and a port of the worker's
+   build_session_receipt (worker.mjs buildSessionReceiptCore). Asserted by
+   scripts/session-root-parity.test.mjs. Never re-derive the Merkle rule. */
+async function ainSessionRoot(executionHashes) {
+  if (!Array.isArray(executionHashes) || executionHashes.length === 0) throw new Error('execution_hashes must be a non-empty array.');
+  var normalize = function (h) { return String(h).replace(/^sha256:/, '').toLowerCase(); };
+  var level = executionHashes.map(normalize).map(function (h) { return 'sha256:' + h; });
+  var hashPair = async function (a, b) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalize(a) + normalize(b)));
+    return 'sha256:' + Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  };
+  while (level.length > 1) {
+    var next = [];
+    for (var i = 0; i < level.length; i += 2) {
+      var right = level[i + 1] !== undefined ? level[i + 1] : level[i]; // duplicate last leaf when odd
+      next.push(await hashPair(level[i], right));
+    }
+    level = next;
+  }
+  return level[0];
+}
+window.AINBridge={
+  version:'1.2',
+  apply:applyFields,
+  run:runTool,
+  intake:intakeApply,
+  sendToVerify:apSendToVerify,
+  sessionRoot:ainSessionRoot,
+  getMandate:function(){if(window._lastMandate)return window._lastMandate;if(typeof window.AIN_BUILD_MANDATE==='function'){try{var m=window.AIN_BUILD_MANDATE();if(m)return m;}catch(e){}}return window._currentMandate||null;},
+  makeLink:function(fields,run){return location.origin+location.pathname+'#in='+b64uEnc(JSON.stringify(fields))+(run?'&run=1':'');}
+};
+window.addEventListener('message',function(e){
+  if(window.parent===window||e.source!==window.parent)return;
+  if(e.origin&&e.origin!=='null'&&location.origin&&location.origin!=='null'&&e.origin!==location.origin)return;
+  var ro=(e.origin&&e.origin!=='null')?e.origin:'*';
+  var d=e.data||{};
+  if(d.type==='ain:prefill'){var n=applyFields(d.fields||{});e.source.postMessage({type:'ain:prefilled',applied:n,tool:location.pathname},ro);}
+  else if(d.type==='ain:run'){var ok=runTool();e.source.postMessage({type:'ain:ran',ok:ok,tool:location.pathname},ro);}
+  else if(d.type==='ain:getMandate'){e.source.postMessage({type:'ain:mandate',mandate:window.AINBridge.getMandate(),tool:location.pathname},ro);}
+});
+function boot(){buildIntakeUI();initPrefill();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</body>
+</html>

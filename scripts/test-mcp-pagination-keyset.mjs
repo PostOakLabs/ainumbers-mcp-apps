@@ -19,7 +19,13 @@
 //       offset token — demonstrating the silent-page-shift class v2 closes.
 //   (5) SEARCH SURFACE — list_ainumbers_tools gains cursor pagination (keyset on tool name) +
 //       total echo, with the shipped default rows (count/tools) unchanged (additive keys only).
-//   (6) SINGLE-PAGE LISTS — resources/list and prompts/list keep byte-identical full frames.
+//   (6) LIST FRAMES — prompts/list keeps its byte-identical full frame (single page). resources/list
+//       carried 16 ui:// widget resources when this test shipped and stayed under the 150,000B page
+//       budget; since MCP-APPS-NODE-VIEWS-1 it also lists the 626 `ui://ainumbers/node/` node views
+//       (~189KB shipped frame), so the default reply is PAGE ONE + nextCursor under the worker's
+//       shipped pagination contract. The guarantee that survives is SET equality: walking the cursor
+//       exhausts to EXACTLY the template's ordered resource set — no skip, no dup. (Byte-identity
+//       resumes automatically the day the list fits one page again.)
 //
 // Runs the real worker.mjs default export against a lightweight local ASSETS stub backed by the
 // committed ./data directory (same harness as test-mcp-accept-negotiation.mjs). Mutated templates
@@ -403,21 +409,48 @@ const callSearch = (args) => callTool('list_ainumbers_tools', args);
     all.length === catTools.length && all.every((n, i) => n === catTools[i].name));
 }
 
-console.log('(6) single-page lists keep byte-identical full frames');
-for (const [method, key, file] of [['resources/list', 'resources', 'resources-list.sse.txt'], ['prompts/list', 'prompts', 'prompts-list.sse.txt']]) {
-  const t = readTemplate(file);
+console.log('(6) list frames: prompts/list byte-identical; resources/list pages (626 node views, MCP-APPS-NODE-VIEWS-1)');
+// prompts/list is still a single page: the default reply must stay BYTE-IDENTICAL to the shipped
+// frame (JSON framing: the data line only, SSE wrapper stripped by the negotiation; SSE control).
+{
+  const t = readTemplate('prompts-list.sse.txt');
   const prefix = t.indexOf('{"jsonrpc"');
-  const p = await postMcp(worker, env, method, {});
+  const p = await postMcp(worker, env, 'prompts/list', {});
   const expected = t.replace('__OCG_ID__', () => JSON.stringify(p.json.id ?? null));
-  // JSON framing: the data line only (SSE wrapper stripped by the negotiation)
-  check(method + ' full frame byte-identical (shipped guarantee, JSON framing)', p.text === expected.slice(prefix, -2),
+  check('prompts/list full frame byte-identical (shipped guarantee, JSON framing)', p.text === expected.slice(prefix, -2),
     'response ' + p.text.length + 'B vs expected ' + (expected.length - prefix - 2) + 'B');
-  const pSse = await postMcp(worker, env, method, {}, { Accept: 'text/event-stream' });
+  const pSse = await postMcp(worker, env, 'prompts/list', {}, { Accept: 'text/event-stream' });
   const expectedSse = t.replace('__OCG_ID__', () => JSON.stringify(pSse.json ? pSse.json.id : nextId - 1));
-  check(method + ' full frame byte-identical (SSE framing control)', pSse.text === expectedSse,
+  check('prompts/list full frame byte-identical (SSE framing control)', pSse.text === expectedSse,
     'response ' + pSse.text.length + 'B vs expected ' + expectedSse.length + 'B');
-  const inv = await postMcp(worker, env, method, { cursor: 'v2.no_such_' + key + '_zz' });
-  check(method + ' unknown v2 id refused -32602', inv.status === 400 && inv.json?.error?.code === -32602);
+}
+// resources/list: the 626 `ui://ainumbers/node/` node views push the shipped frame over the
+// 150,000B page budget, so the default reply is page one + nextCursor. Assert the pagination
+// contract instead of frame identity: page one is a well-formed page, and the full cursor walk
+// exhausts to EXACTLY the template's ordered resource set (no skip, no dup).
+{
+  const t = readTemplate('resources-list.sse.txt');
+  const shippedUris = walkTemplate(t, 'resources').names;
+  const p = await postMcp(worker, env, 'resources/list', {});
+  check('resources/list page one is a page (resultType + resources + nextCursor)',
+    p.json?.result?.resultType === 'complete'
+    && Array.isArray(p.json?.result?.resources) && p.json.result.resources.length > 0
+    && p.json.result.resources.length < shippedUris.length
+    && typeof p.json?.result?.nextCursor === 'string' && p.json.result.nextCursor.length > 0,
+    'keys=' + JSON.stringify(Object.keys(p.json?.result ?? {})) + ' pageLen=' + (p.json?.result?.resources ?? []).length);
+  const walked = [...(p.json?.result?.resources ?? []).map((r) => r.uri)];
+  let cur = p.json?.result?.nextCursor ?? null;
+  for (let page = 2; page <= 100 && cur; page++) {
+    const pa = await postMcp(worker, env, 'resources/list', { cursor: cur });
+    if (!pa.json?.result) { check('resources/list walk page ' + page + ' well-formed', false, 'raw=' + pa.text.slice(0, 120)); break; }
+    walked.push(...pa.json.result.resources.map((r) => r.uri));
+    cur = pa.json.result.nextCursor;
+  }
+  check('resources/list cursor walk exhausts to the shipped ordered set (' + shippedUris.length + ')',
+    walked.length === shippedUris.length && walked.every((u, i) => u === shippedUris[i]),
+    'walked ' + walked.length + ' vs shipped ' + shippedUris.length);
+  const inv = await postMcp(worker, env, 'resources/list', { cursor: 'v2.no_such_resources_zz' });
+  check('resources/list unknown v2 id refused -32602', inv.status === 400 && inv.json?.error?.code === -32602);
 }
 
 console.log('');

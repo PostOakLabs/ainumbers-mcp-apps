@@ -47,6 +47,13 @@ function loadDataFromDisk() {
   try { describeMap = JSON.parse(get('mcp/static/tool-describe.json')); } catch { /* first run — written below */ }
   let lifecycle = { default: 'Active', overrides: {} };
   try { lifecycle = JSON.parse(get('mcp/lifecycle.json')); } catch { /* none yet */ }
+  // Node Views (MCP-APPS-NODE-VIEWS-1): the generated ui:// resource set + the verbatim page
+  // reader, mirroring worker.mjs loadData(). Tolerant: a pre-row tree has no node-views.json —
+  // buildServer then registers zero views (tools/list carries no node _meta.ui, resources/list
+  // no ui://ainumbers/node/ entries) and this script's output is unchanged.
+  let nodeViews = null;
+  try { nodeViews = JSON.parse(get('mcp/node-views.json')); } catch { /* pre-row — no views */ }
+  const loadNodeView = async (toolId) => readFileSync(resolve(DATA, 'chaingraph', 'pages', toolId + '.html'), 'utf8');
   return {
     manifests, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
@@ -57,6 +64,8 @@ function loadDataFromDisk() {
     showcasePrompts,
     describeMap,
     lifecycle,
+    nodeViews,
+    loadNodeView,
   };
 }
 

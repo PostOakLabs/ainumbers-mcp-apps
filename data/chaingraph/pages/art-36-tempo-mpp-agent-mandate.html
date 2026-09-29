@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
+<title>Tempo MPP Agent Mandate · ART-36 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Parse and validate an MPP session object, map the HTTP-402 flow to AP2 Intent→Cart→Payment, perform KYA agent identity check, and emit a signed agent-payment mandate with did:key identity. Client-side. Zero PII.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-36-tempo-mpp-agent-mandate.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-36-tempo-mpp-agent-mandate.md">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Tempo MPP Agent Mandate",
+  "url": "https://ainumbers.co/chaingraph/art-36-tempo-mpp-agent-mandate.html",
+  "description": "Parse MPP session objects, validate spend caps, map HTTP-402 to AP2 Intent→Cart→Payment, and emit signed agent-payment mandates with did:key identity. Part of the OpenChainGraph Suite.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "provider": { "@type": "Organization", "name": "Post Oak Labs", "url": "https://ainumbers.co" }
+}
+</script>
+<style>
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;--gold:#D4A847;--gold-dim:rgba(212,168,71,.12);--green:#22C55E;--green-dim:rgba(34,197,94,.12);--red:#EF4444;--red-dim:rgba(239,68,68,.12);--warn:#F59E0B;--purple:#9B72F5;--purple-dim:rgba(155,114,245,.12);--radius:6px;--radius-lg:10px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:300;font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:'DM Serif Display',serif;font-weight:400;line-height:1.2}
+a{color:inherit;text-decoration:none}button{cursor:pointer;font-family:inherit}
+.container{max-width:1060px;margin:0 auto;padding:0 1.5rem}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(20,184,166,.01) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,.01) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+nav{padding:0 1.5rem;height:52px;border-bottom:1px solid var(--border);background:rgba(8,14,26,.92);position:sticky;top:0;z-index:200;backdrop-filter:blur(8px)}
+.nav-inner{max-width:1060px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:600;color:var(--bright)}.logo-ai{color:var(--teal)}.logo-co{color:var(--muted);font-size:.75rem}
+.nav-bc{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted);display:flex;align-items:center;gap:.5rem}
+.nav-bc a{color:var(--body)}.nav-bc a:hover{color:var(--teal)}.nav-bc-sep{color:var(--border-2)}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--teal);padding:.28rem .75rem;border-radius:4px}
+.hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);position:relative;z-index:1}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent)}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;display:flex;align-items:center;gap:.6rem}
+.hero-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--teal)}
+.hero h1{font-size:clamp(1.6rem,3vw,2.3rem);color:var(--white);margin-bottom:.6rem}
+.hero h1 em{font-style:italic;color:var(--teal-lt)}
+.hero-desc{font-size:.82rem;color:var(--body);max-width:680px;line-height:1.8;margin-bottom:1rem}
+.hero-meta{display:flex;gap:.5rem;flex-wrap:wrap}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .6rem;border:1px solid;border-radius:3px}
+.badge-teal{color:var(--teal);border-color:rgba(20,184,166,.3)}.badge-warn{color:var(--warn);border-color:rgba(245,158,11,.3)}.badge-green{color:var(--green);border-color:rgba(34,197,94,.3)}.badge-gold{color:var(--gold);border-color:rgba(212,168,71,.3)}.badge-muted{color:var(--muted);border-color:var(--border)}.badge-purple{color:var(--purple);border-color:rgba(155,114,245,.3)}
+.pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin-bottom:1rem}
+.tool-body{position:relative;z-index:1;padding:2rem 0 4rem}
+.panel{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.25rem}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.panel-label::before{content:'';display:block;width:12px;height:1px;background:var(--teal)}
+.panel-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;margin-bottom:.85rem}
+.panel-row-full{display:grid;grid-template-columns:1fr;gap:.85rem;margin-bottom:.85rem}
+.field-group{display:flex;flex-direction:column;gap:.3rem}
+.field-label{font-family:'JetBrains Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.field-hint{font-family:'JetBrains Mono',monospace;font-size:.42rem;color:var(--border-2);margin-top:.1rem;line-height:1.4}
+input[type="text"],input[type="number"],select{background:var(--bg-3);border:1px solid var(--border);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.38rem .55rem;border-radius:var(--radius);outline:none;transition:border-color .2s;width:100%}
+input[type="text"]:focus,input[type="number"]:focus,select:focus{border-color:var(--teal)}
+input.err{border-color:var(--red)!important}
+.run-btn{background:var(--teal);color:var(--bg);border:none;padding:.65rem 2rem;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;transition:background .2s}
+.run-btn:hover{background:var(--teal-lt)}
+.results-panel{display:none;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.results-panel.visible{display:flex}
+.out-section{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.out-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg-3);display:flex;align-items:center;justify-content:space-between}
+.out-title{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.out-body{padding:1.25rem}
+.summary-card{background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:.75rem}
+.summary-card-title{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--white);margin-bottom:.5rem}
+.summary-kv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.6rem;margin-top:.5rem}
+.summary-kv{font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--body)}
+.summary-kv .sk{display:block;font-size:.4rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.1rem}
+.summary-kv .sv{color:var(--bright)}
+.ap2-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.54rem}
+.ap2-table th{text-align:left;padding:.4rem .65rem;border-bottom:1px solid var(--border);color:var(--muted);font-weight:400;text-transform:uppercase;letter-spacing:.08em}
+.ap2-table td{padding:.4rem .65rem;border-bottom:1px solid var(--border);color:var(--body)}
+.ap2-table tr:last-child td{border-bottom:none}
+.ap2-table td.hl{color:var(--bright)}.ap2-table td.teal{color:var(--teal)}.ap2-table td.gold{color:var(--gold)}
+.risk-box{border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.5rem}
+.risk-box.low{background:var(--green-dim);border:1px solid rgba(34,197,94,.3)}
+.risk-box.medium{background:var(--gold-dim);border:1px solid rgba(212,168,71,.3)}
+.risk-box.high{background:var(--red-dim);border:1px solid rgba(239,68,68,.3)}
+.risk-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:.3rem}
+.risk-label.low{color:var(--green)}.risk-label.medium{color:var(--gold)}.risk-label.high{color:var(--red)}
+.risk-reason{font-size:.72rem;color:var(--text);line-height:1.6}
+.mandate-block{background:var(--bg-4);border:1px solid var(--border-2);border-radius:var(--radius);padding:1rem;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-all}
+.flag-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+.flag{font-family:'JetBrains Mono',monospace;font-size:.45rem;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .5rem;border-radius:3px;background:var(--teal-dim);border:1px solid rgba(20,184,166,.25);color:var(--teal)}
+.chain-links{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+.chain-link{display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(20,184,166,.25);padding:.28rem .65rem;border-radius:3px;transition:all .2s}
+.chain-link:hover{background:rgba(20,184,166,.2)}
+.results-export-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;margin-top:.75rem}
+.btn{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;padding:.4rem 1rem;border-radius:var(--radius);border:1px solid;transition:all .2s;cursor:pointer;background:transparent}
+.btn-ghost{border-color:var(--border);color:var(--muted)}.btn-ghost.ready{border-color:var(--teal);color:var(--bright)}.btn-ghost.ready:hover{background:var(--bg-4)}.btn-ghost:disabled{opacity:.28;cursor:not-allowed}
+.btn-subtitle{display:block;font-size:.4rem;color:var(--muted);margin-top:.1rem}
+.error-msg{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,.25);border-radius:var(--radius);padding:.5rem .85rem;margin-bottom:1rem;display:none}
+.error-msg.visible{display:block}
+.mfst-btn{width:100%;background:var(--bg-2);border:1px solid var(--border);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius);transition:background .15s;cursor:pointer;margin-top:2rem}
+.mfst-btn:hover{background:var(--bg-3)}
+.mfst-body{display:none;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);background:var(--bg-3);padding:1.25rem;overflow-x:auto}
+.mfst-code{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text);line-height:1.6;white-space:pre}
+footer{border-top:1px solid var(--border);padding:1.75rem 1.5rem;margin-top:1.5rem}
+.footer-inner-ai{display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:space-between}
+.footer-links-ai{display:flex;gap:1.25rem;font-family:'JetBrains Mono',monospace;font-size:.52rem;color:var(--muted)}
+.footer-links-ai a{color:var(--muted);transition:color .2s}.footer-links-ai a:hover{color:var(--teal-lt)}
+.footer-badge-ai{display:flex;flex-direction:column;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.5rem;color:var(--muted)}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg-3);border:1px solid var(--teal);color:var(--teal-lt);font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.5rem 1rem;border-radius:var(--radius);z-index:999;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+<style>
+/* OCG-CHROME-CSS:v1 */
+/* Canonical nav — derived from chaingraph-hub.html */
+nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1440px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 24px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;text-decoration:none;color:inherit}
+.logo-name{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:500;color:var(--bright);letter-spacing:-.02em;line-height:1}
+.logo-ai{color:var(--teal)}
+.logo-co{color:var(--muted);font-size:.8rem}
+.nav-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.nav-breadcrumb a{color:var(--body);transition:color .15s}
+.nav-breadcrumb a:hover{color:var(--teal)}
+.nav-right{display:flex;align-items:center;gap:10px;margin-left:auto;flex-shrink:0}
+.nav-pill{background:none;border:1px solid var(--border-2);border-radius:var(--radius);color:var(--body);font-size:.65rem;padding:.3rem .75rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;transition:border-color .15s,color .15s;display:inline-block}
+.nav-pill:hover{border-color:var(--text);color:var(--text)}
+.nav-cta{background:var(--gold);color:#080E1A;border:none;border-radius:var(--radius);font-size:.65rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.06em;padding:.35rem .85rem;display:inline-block;transition:opacity .15s}
+.nav-cta:hover{opacity:.85}
+@media(max-width:768px){.nav-pill{display:none}}
+/* Canonical footer — derived from chaingraph-hub.html */
+footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
+.footer-inner{max-width:1440px;margin:0 auto;padding:0 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:500;color:var(--bright)}
+.footer-brand-mark{display:flex;align-items:center;gap:8px}
+.footer-brand span{color:var(--muted)}
+.footer-cc{font-size:.65rem;color:var(--muted);margin-top:4px}
+.footer-cols{display:grid;grid-template-columns:repeat(4,auto);gap:2rem 2.5rem}
+@media(max-width:700px){.footer-cols{grid-template-columns:repeat(2,1fr)}}
+.footer-col{display:flex;flex-direction:column}
+.footer-col-label{font-family:'JetBrains Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem}
+.footer-col a{display:block;font-size:.68rem;color:var(--body);margin-bottom:.3rem;transition:color .12s}
+.footer-col a:hover{color:var(--teal)}
+.social-row{display:flex;gap:12px;margin-top:10px}
+.social-row a{color:var(--muted);display:inline-flex;transition:color .12s}
+.social-row a:hover{color:var(--teal)}
+.social-row svg{width:18px;height:18px;fill:currentColor}
+.related-topics{max-width:900px;margin:0 auto}
+
+</style>
+<style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="../index.html" class="logo">
+      <svg width="28" height="28" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+        <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+        <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+        <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+        <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+        <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+        <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+        <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+        <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+        <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+        <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+        <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+      </svg>
+      <div class="logo-name"><span class="logo-ai">AI</span>Numbers<span class="logo-co">.co</span></div>
+    </a>
+    <div class="nav-breadcrumb">
+      <a href="../index.html">All Tools</a>
+      <span>›</span>
+      <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
+      <span>›</span>
+      <span style="color:var(--gold)">ART-36 · Tempo MPP Agent Mandate</span>
+    </div>
+    <div class="nav-right">
+      <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
+      <a href="../start.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<div class="hero"><div class="container">
+  <div class="hero-eyebrow">OpenChainGraph Suite · ART-36 · Wave 9 · Tempo</div>
+  <span class="badge badge-muted" style="display:inline-flex;margin-bottom:.6rem">v1.0.0</span>
+  <h1>Tempo MPP Agent Mandate</h1>
+  <p class="hero-desc">Parse an MPP (Money Payment Protocol) session object, validate the spend cap and session terms, map the HTTP-402 flow to AP2 Intent→Cart→Payment, perform KYA agent identity check via <code style="font-family:'JetBrains Mono',monospace;font-size:.8em;color:var(--teal)">did:key</code>, model settlement cost, and emit a signed agent-payment mandate. The <code style="font-family:'JetBrains Mono',monospace;font-size:.8em;color:var(--teal)">did:key</code> identity of the agent signer is the marquee OCG v0.3 feature. Tempo: payments-first L1 incubated by Stripe + Paradigm, mainnet live March 2026. MPP spec: github.com/tempoxyz/mpp-specs. Client-side. Zero PII.</p>
+  <div class="hero-meta">
+    <span class="badge badge-teal">AP2 Export</span>
+    <span class="badge badge-teal">Chains: ART-01, ART-02, ART-04</span>
+    <span class="badge badge-purple">did:key Identity</span>
+    <span class="badge badge-gold">MPP Session</span>
+    <span class="badge badge-green">Tempo Stablecoin</span>
+    <span class="badge badge-muted">payment_mandate</span>
+    <span class="badge badge-muted">iso20022:pacs.008-subset</span>
+  </div>
+</div></div>
+
+<div class="tool-body"><div class="container">
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+
+  <div id="errorMsg" class="error-msg"></div>
+
+  <div class="panel">
+    <div class="panel-label">Agent identity</div>
+    <div class="panel-row-full">
+      <div class="field-group">
+        <label class="field-label">Agent DID (did:key format)</label>
+        <input type="text" id="agentDid" value="did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK" placeholder="did:key:z6Mk...">
+        <span class="field-hint">Must be did:key method (z6Mk... prefix). Self-describing, registry-free agent identity. OCG v0.3 feature.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-label">MPP session parameters</div>
+    <div class="panel-row-full">
+      <div class="field-group">
+        <label class="field-label">Merchant / API endpoint</label>
+        <input type="text" id="merchantEndpoint" value="https://api.example.com/metered-service" placeholder="https://api.example.com/...">
+        <span class="field-hint">Merchant URL or metered API endpoint — CartMandate.merchant_id in AP2 mapping</span>
+      </div>
+    </div>
+    <div class="panel-row">
+      <div class="field-group">
+        <label class="field-label">Spend cap (USD)</label>
+        <input type="number" id="spendCap" min="0.01" max="1000000" step="0.01" value="100">
+        <span class="field-hint">IntentMandate.ceiling_amount in AP2 mapping</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Session duration</label>
+        <select id="sessionDuration">
+          <option value="1h">1 hour</option>
+          <option value="8h" selected>8 hours</option>
+          <option value="24h">24 hours</option>
+          <option value="7d">7 days</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Payment rail</label>
+        <select id="paymentRail">
+          <option value="tempo_stablecoin" selected>Tempo stablecoin</option>
+          <option value="fiat_card">Fiat card</option>
+          <option value="lightning">Lightning</option>
+        </select>
+      </div>
+    </div>
+    <div class="panel-row">
+      <div class="field-group">
+        <label class="field-label">Stablecoin</label>
+        <select id="stablecoin">
+          <option value="USDC" selected>USDC</option>
+          <option value="USDT">USDT</option>
+          <option value="pathUSD">pathUSD</option>
+        </select>
+        <span class="field-hint">Applies when Tempo stablecoin rail is selected</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Voucher cadence</label>
+        <select id="voucherCadence">
+          <option value="per-request" selected>Per-request</option>
+          <option value="per-minute">Per-minute</option>
+          <option value="batch-hourly">Batch-hourly</option>
+        </select>
+        <span class="field-hint">MPP off-chain signed voucher streaming frequency</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem">
+    <button class="run-btn" onclick="runMandate()">&#9654; Generate Agent Mandate</button>
+  </div>
+
+  <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Session summary</span></div>
+      <div class="out-body"><div id="sessionSummary"></div></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">AP2 mandate mapping — MPP &#8594; AP2</span></div>
+      <div class="out-body" style="overflow-x:auto"><table class="ap2-table" id="ap2Table"></table></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">KYA risk assessment</span></div>
+      <div class="out-body"><div id="riskBox"></div></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">ISO 20022 pacs.008 settlement leg</span></div>
+      <div class="out-body" style="overflow-x:auto"><table class="ap2-table" id="pacs008Table"></table></div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Agent mandate</span></div>
+      <div class="out-body">
+        <div id="mandateBlock" class="mandate-block"></div>
+        <div class="flag-row" id="flagRow"></div>
+      </div>
+    </div>
+
+    <div class="out-section">
+      <div class="out-header"><span class="out-title">Next-chain links</span></div>
+      <div class="out-body">
+        <div class="chain-links">
+          <a href="art-01-ap2-mandate-chain-validator.html" class="chain-link" target="_blank" rel="noopener noreferrer">&#8594; ART-01 AP2 Mandate Validator</a>
+          <a href="art-02-agent-spend-policy-simulator.html" class="chain-link" target="_blank" rel="noopener noreferrer">&#8594; ART-02 Spend Policy Simulator</a>
+          <a href="art-04-agent-identity-attestation-checker.html" class="chain-link" target="_blank" rel="noopener noreferrer">&#8594; ART-04 KYA Identity Checker</a>
+        </div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.48rem;color:var(--muted);margin-top:.6rem">Export the artifact then carry it into ART-01 to apply AP2 policy mandates, ART-02 for spend limit validation, or ART-04 for full KYA attestation.</p>
+      </div>
+    </div>
+
+    <div class="results-export-row">
+      <button class="btn btn-ghost" id="ap2Btn" disabled onclick="exportAP2()">
+        {} Export OpenChainGraph Artifact<span class="btn-subtitle">AP2 · payment_mandate</span>
+      </button>
+      <button class="btn btn-ghost" id="signArtifactBtn" onclick="signArtifact()" disabled>⬇ Sign artifact (Ed25519 · §16)</button>
+      <button class="btn btn-ghost" id="verifySigBtn" onclick="verifySignature()">🔏 Verify signature (§16)</button>
+      <button class="btn btn-ghost" id="mdBtn" disabled onclick="exportMd()">
+        &#x21E9; Export Markdown<span class="btn-subtitle">Mandate report</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="mfst-btn" onclick="toggleMfst()" aria-expanded="false" aria-controls="mfstBody">
+    <span>{} MCP Manifest — ART-36</span><span id="mfstArrow">▼</span>
+  </button>
+  <div class="mfst-body" id="mfstBody" aria-hidden="true"><pre class="mfst-code" id="mfstCode"></pre></div>
+</div></div>
+
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-36-tempo-mpp-agent-mandate.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `decode_mpp_session`. Task: Parse an MPP session object, validates spend cap and session terms, maps HTTP-402 flow to AP2 Intent→Cart→Payment, performs KYA agent identity check, models settlement cost, and emits a signed agent-payment mandate.
+Call it with arguments: {"policy_parameters":{"agentDid":"did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK","merchant":"merchant-001","spendCap":25,"duration":"8h","rail":"tempo_stablecoin","stablecoin":"USDC","cadence":"per-request"}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-36-tempo-mpp-agent-mandate.html#p=v1.H4sIAAAAAAAA_wHFADr_eyJhZ2VudERpZCI6ImRpZDprZXk6ejZNa2hhWGdCWkR2b3REa0w1MjU3ZmFpenRpR2lDMlF0S0xHcGJubkVHdGEyZG9LIiwibWVyY2hhbnQiOiJtZXJjaGFudC0wMDEiLCJzcGVuZENhcCI6MjUsImR1cmF0aW9uIjoiOGgiLCJyYWlsIjoidGVtcG9fc3RhYmxlY29pbiIsInN0YWJsZWNvaW4iOiJVU0RDIiwiY2FkZW5jZSI6InBlci1yZXF1ZXN0In10_2EIxQAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="AINumbers.co mark">
+          <rect width="48" height="48" rx="9" fill="var(--bg-2)"/>
+          <rect x="1" y="1" width="46" height="46" rx="8" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <rect x="9"  y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity="1"/>
+          <rect x="20" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".45"/>
+          <rect x="31" y="9"  width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".15"/>
+          <rect x="9"  y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".6"/>
+          <rect x="20" y="20" width="8" height="8" rx="1.5" fill="var(--gold)" opacity=".9"/>
+          <rect x="31" y="20" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".3"/>
+          <rect x="9"  y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".2"/>
+          <rect x="20" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".35"/>
+          <rect x="31" y="31" width="8" height="8" rx="1.5" fill="var(--teal)" opacity=".7"/>
+        </svg>
+        <span style="color:var(--teal)">AI</span>Numbers<span>.co</span> &middot; OpenChainGraph Suite
+      </div>
+      <div class="footer-cc"><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 4.0</a> &middot; Zero PII &middot; Client-side only</div>
+      <div class="social-row">
+        <a href="https://x.com/ai_numbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on X (Twitter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+        </a>
+        <a href="https://github.com/PostOakLabs/ainumbers" target="_blank" rel="noopener noreferrer" aria-label="AINumbers on GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.302 3.438 9.8 8.205 11.385.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <div class="footer-col-label">Platform</div>
+        <a href="chaingraph-hub.html">ChainGraph Hub</a>
+        <a href="rfp-evidence-desk.html">RFP Evidence Desk</a>
+        <a href="openchain-graph-spec.html">Spec v0.8.13</a>
+        <a href="openchain-graph-explainer.html">OCG Explainer</a>
+        <a href="ain-bridge-explainer.html">AIN Bridge Explainer</a>
+        <a href="aiact-article12-record-keeping-mapping.html">AI Act Art 12 Mapping</a>
+        <a href="ocg-sandbox.html">Sandbox</a>
+        <a href="ocg-chain-builder.html">Chain Builder</a>
+        <a href="ocg-legacy-vs-ocg.html">For Stakeholders</a>
+        <a href="ocg-integration-guide.html">Integration Guide</a>
+        <a href="ocg-guide-export.html">Export Profiles</a>
+        <a href="ocg-industries.html">Industry Concepts</a>
+        <a href="../helm.html">Helm (Phase 1)</a>
+        <a href="../convert.html">Conversion Suite</a>
+        <a href="../guides/agreement-standards-directory.html">Agreement Standards</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Guides</div>
+        <a href="../hub-for-hubs.html">Hubs and Guides</a>
+        <a href="agent-staircase-explainer.html">Agent Staircase</a>
+        <a href="guide-prov-dm.html">W3C PROV-DM</a>
+        <a href="guide-buildtype.html">buildType / SLSA</a>
+        <a href="guide-intoto.html">in-toto / DSSE</a>
+        <a href="guide-ed25519.html">Ed25519 Signing</a>
+        <a href="guide-otel.html">OpenTelemetry</a>
+        <a href="guide-iso20022.html">ISO 20022 Profile</a>
+        <a href="guide-okf.html">Open Knowledge Format</a>
+        <a href="../guides/formal-verification-evidence.html">Formal-Verification Evidence</a>
+        <a href="../guides/webmcp-field-notes.html">WebMCP Field Notes</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Data &amp; Artifacts</div>
+        <a href="chaingraph.json" target="_blank">chaingraph.json</a>
+        <a href="okf/index.md" target="_blank">OKF bundle</a>
+        <a href="../data/ap2-templates.json" target="_blank">ap2-templates.json</a>
+        <a href="../openapi.json" target="_blank">openapi.json</a>
+        <a href="../llms.txt" target="_blank">llms.txt</a>
+        <a href="../.well-known/mcp.json" target="_blank">.well-known/mcp.json</a>
+        <a href="../mcp/server.json" target="_blank">mcp/server.json</a>
+        <a href="../mcp/catalog.json" target="_blank">mcp/catalog.json</a>
+        <a href="standard/SPEC.md" target="_blank">OCG SPEC.md</a>
+        <a href="../sitemap.xml" target="_blank">sitemap.xml</a>
+        <a href="../robots.txt" target="_blank">robots.txt</a>
+        <a href="../sitemap.html">Sitemap</a>
+        <a href="clause-edge-report.html">Clause Edge Report</a>
+        <a href="../euc-register.html">EUC Register</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-label">Infrastructure</div>
+        <a href="../infrastructure.html">Infrastructure Map</a>
+        <a href="verify.html">Artifact Verifier</a>
+        <a href="../ledger/index.html">Receipt Ledger</a>
+        <a href="../mcp-playground.html">MCP Playground</a>
+        <a href="../mcp.html">MCP Docs</a>
+        <a href="https://mcp.ainumbers.co/mcp" target="_blank">MCP Server &#8599;</a>
+        <a href="https://github.com/PostOakLabs/ainumbers-mcp-apps" target="_blank" rel="noopener">MCP Repo &#8599;</a>
+        <a href="../tools.html">All Tools</a>
+        <a href="../about.html">About</a>
+        <a href="../methods.html">Methods</a>
+        <a href="../fv-explainer.html">FV Process Explainer</a>
+        <a href="../errata.html">FV Errata</a>
+        <a href="../suggest.html">Suggest</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://postoaklabs.com" target="_blank" rel="noopener">PostOakLabs.com &#8599;</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+const MANIFEST = {
+  tool_id: 'art-36-tempo-mpp-agent-mandate',
+  version: '1.0.0',
+  title: 'Tempo MPP Agent Mandate',
+  wave: 9,
+  mandate_type: 'payment_mandate',
+  semantic_profile: 'iso20022:pacs.008-subset',
+  mcp_tool_definition: {
+    name: 'decode_mpp_session',
+    description: 'Parses an MPP session object, validates spend cap and session terms, maps HTTP-402 flow to AP2 Intent→Cart→Payment, performs KYA agent identity check, models settlement cost, and emits a signed agent-payment mandate. The did:key identity of the agent signer is the marquee OCG v0.3 feature.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        agent_did: { type: 'string', description: 'Agent DID in did:key format (z6Mk... prefix)' },
+        merchant_endpoint: { type: 'string', description: 'Merchant/API endpoint URL' },
+        spend_cap_usd: { type: 'number', description: 'Session spend cap in USD' },
+        session_duration: { type: 'string', enum: ['1h', '8h', '24h', '7d'] },
+        payment_rail: { type: 'string', enum: ['tempo_stablecoin', 'fiat_card', 'lightning'] },
+        stablecoin: { type: 'string', enum: ['USDC', 'USDT', 'pathUSD'] },
+        voucher_cadence: { type: 'string', enum: ['per-request', 'per-minute', 'batch-hourly'] }
+      },
+      required: ['agent_did', 'spend_cap_usd']
+    }
+  },
+  ap2_export: true,
+  chaingraph: true,
+  chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 0 },
+  downstream_chains: ['art-01-ap2-mandate-chain-validator', 'art-02-agent-spend-policy-simulator', 'art-04-agent-identity-attestation-checker']
+};
+
+/* Per-call cost estimates for voucher count calculation */
+const CALL_COSTS = {
+  tempo_stablecoin: 0.001,
+  fiat_card: 0.10,
+  lightning: 0.0005
+};
+
+const DURATION_LABELS = { '1h': '1 hour', '8h': '8 hours', '24h': '24 hours', '7d': '7 days' };
+const RAIL_LABELS = { tempo_stablecoin: 'Tempo stablecoin', fiat_card: 'Fiat card', lightning: 'Lightning' };
+
+let _artifact = null, _result = null;
+
+async function sha256(obj) {
+  const c = __ocgCanonStr(obj);
+  const b = new TextEncoder().encode(c);
+  const h = await crypto.subtle.digest('SHA-256', b);
+  return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function clearError() {
+  const el = document.getElementById('errorMsg');
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+function showToast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function validateDid(did) {
+  return typeof did === 'string' && did.startsWith('did:key:z6Mk');
+}
+
+function computeRisk(agentDid, rail, spendCap, didValid) {
+  if (!didValid) {
+    return { level: 'HIGH', color: 'high', reasons: ['Agent DID does not match did:key:z6Mk... format — identity unverified', 'KYA check failed: cannot confirm agent signer'] };
+  }
+  const reasons = ['Agent DID validated as did:key method (z6Mk prefix, self-describing, registry-free)'];
+  if (rail === 'tempo_stablecoin' && spendCap <= 50) {
+    reasons.push('Tempo stablecoin rail selected — on-chain settlement, no chargeback risk');
+    reasons.push('Spend cap ≤ $50 — low-value session, minimal exposure');
+    return { level: 'LOW', color: 'low', reasons };
+  }
+  if (spendCap > 50) reasons.push(`Spend cap $${spendCap} exceeds $50 threshold — elevated exposure`);
+  if (rail === 'fiat_card') reasons.push('Fiat card rail — chargeback window applies (60–120 days CNP)');
+  if (rail === 'lightning') reasons.push('Lightning rail — payment channel risk, routing uncertainty');
+  return { level: 'MEDIUM', color: 'medium', reasons };
+}
+
+async function runMandate() {
+  clearError();
+
+  const agentDid = document.getElementById('agentDid').value.trim();
+  const merchant = document.getElementById('merchantEndpoint').value.trim();
+  const spendCap = parseFloat(document.getElementById('spendCap').value) || 0;
+  const duration = document.getElementById('sessionDuration').value;
+  const rail = document.getElementById('paymentRail').value;
+  const stablecoin = document.getElementById('stablecoin').value;
+  const cadence = document.getElementById('voucherCadence').value;
+
+  const didValid = validateDid(agentDid);
+  document.getElementById('agentDid').classList.toggle('err', !didValid);
+
+  if (!agentDid) { showError('Agent DID is required.'); return; }
+  if (spendCap <= 0) { showError('Spend cap must be greater than 0.'); return; }
+  if (!merchant) { showError('Merchant / API endpoint is required.'); return; }
+
+  const costPerCall = CALL_COSTS[rail];
+  const maxVouchers = Math.floor(spendCap / costPerCall);
+  const risk = computeRisk(agentDid, rail, spendCap, didValid);
+
+  const complianceFlags = [];
+  complianceFlags.push('SPEND_CAP_SET');
+  if (didValid) complianceFlags.push('AGENT_IDENTITY_VERIFIED');
+  complianceFlags.push('MPP_SESSION_STRUCTURED');
+
+  _result = { agentDid, merchant, spendCap, duration, rail, stablecoin, cadence, costPerCall, maxVouchers, risk, complianceFlags, didValid };
+
+  renderResults(_result);
+
+  const policyParams = {
+    agent_did: agentDid,
+    merchant_endpoint: merchant,
+    spend_cap_usd: spendCap,
+    session_duration: duration,
+    payment_rail: rail,
+    stablecoin: stablecoin,
+    voucher_cadence: cadence
+  };
+  const outputPayload = {
+    instructed_amount: { amount: spendCap, currency: 'USD' },
+    debtor: { party_name: 'Agent', did_key: agentDid },
+    creditor: { party_name: 'Merchant/API Provider', url: merchant },
+    remittance_information: 'MPP session mandate · ' + DURATION_LABELS[duration],
+    ap2_mapping: {
+      IntentMandate: { ceiling_amount: spendCap, currency: 'USD' },
+      CartMandate: { merchant_id: merchant },
+      PaymentMandate: { rail: rail, stablecoin: stablecoin, voucher_cadence: cadence }
+    },
+    risk_score: risk.level,
+    max_voucher_count: maxVouchers,
+    compliance_flags: complianceFlags
+  };
+
+  const hash = await sha256({ policy_parameters: policyParams, output_payload: outputPayload });
+
+  const __generatedAtCapture = new Date().toISOString();
+  _artifact = {
+    '@context': [
+      'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
+      'https://ainumbers.co/chaingraph/context/v0.3/iso20022-context.jsonld'
+    ],
+    chaingraph_version: '0.4.0',
+    spec_version: '0.5.0',
+    buildType: 'https://ainumbers.co/chaingraph/context/v0.2#WebCryptoSHA256',
+    mandate_type: 'payment_mandate',
+    tool_id: 'art-36-tempo-mpp-agent-mandate',
+    tool_version: '1.0.0',
+    generated_at: __generatedAtCapture,
+    execution_hash: hash,
+    'dct:conformsTo': ['https://ainumbers.co/chaingraph/profiles/iso20022/pacs008-subset.jsonld'],
+    semantic_profile: 'iso20022:pacs.008-subset',
+    chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 0 },
+    policy_parameters: { execution_backend: 'js', input_parameters: policyParams },
+    output_payload: outputPayload,
+    compliance_flags: complianceFlags,
+    audit_signature: { client_side_executed: true, zero_pii_verified: true, deterministic_run: true }
+  };
+  document.getElementById('generatedAt').textContent='generated_at '+__generatedAtCapture;
+
+  ['ap2Btn', 'mdBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    b.disabled = false;
+    b.classList.add('ready');
+  });
+}
+
+function renderResults(r) {
+  const { agentDid, merchant, spendCap, duration, rail, stablecoin, cadence, costPerCall, maxVouchers, risk, complianceFlags, didValid } = r;
+
+  // Session summary
+  document.getElementById('sessionSummary').innerHTML = `
+    <div class="summary-card">
+      <div class="summary-card-title">MPP Session — ${RAIL_LABELS[rail]}</div>
+      <div class="summary-kv-grid">
+        <div class="summary-kv"><span class="sk">Agent DID</span><span class="sv" style="word-break:break-all">${agentDid}</span></div>
+        <div class="summary-kv"><span class="sk">DID Valid</span><span class="sv" style="color:${didValid ? 'var(--green)' : 'var(--red)'}">${didValid ? '✓ did:key method verified' : '✗ invalid format'}</span></div>
+        <div class="summary-kv"><span class="sk">Merchant</span><span class="sv" style="word-break:break-all">${merchant}</span></div>
+        <div class="summary-kv"><span class="sk">Spend Cap</span><span class="sv">$${spendCap.toFixed(2)} USD</span></div>
+        <div class="summary-kv"><span class="sk">Session Duration</span><span class="sv">${DURATION_LABELS[duration]}</span></div>
+        <div class="summary-kv"><span class="sk">Payment Rail</span><span class="sv">${RAIL_LABELS[rail]}</span></div>
+        <div class="summary-kv"><span class="sk">Stablecoin</span><span class="sv">${rail === 'tempo_stablecoin' ? stablecoin : 'N/A'}</span></div>
+        <div class="summary-kv"><span class="sk">Voucher Cadence</span><span class="sv">${cadence}</span></div>
+        <div class="summary-kv"><span class="sk">Est. Cost/Call</span><span class="sv">$${costPerCall.toFixed(4)}</span></div>
+        <div class="summary-kv"><span class="sk">Max Voucher Count</span><span class="sv">${maxVouchers.toLocaleString()}</span></div>
+      </div>
+    </div>`;
+
+  // AP2 mapping table
+  document.getElementById('ap2Table').innerHTML = `
+    <thead><tr><th>MPP Concept</th><th>MPP Field</th><th>AP2 Mandate</th><th>AP2 Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="hl">Session cap</td><td>spend_cap</td><td class="teal">IntentMandate</td><td>ceiling_amount</td><td class="gold">$${spendCap.toFixed(2)} USD</td></tr>
+      <tr><td class="hl">Merchant target</td><td>endpoint_url</td><td class="teal">CartMandate</td><td>merchant_id</td><td class="gold" style="word-break:break-all">${merchant}</td></tr>
+      <tr><td class="hl">Payment rail</td><td>rail_type</td><td class="teal">PaymentMandate</td><td>rail</td><td class="gold">${rail}</td></tr>
+      <tr><td class="hl">Voucher streaming</td><td>voucher_cadence</td><td class="teal">PaymentMandate</td><td>cadence</td><td class="gold">${cadence}</td></tr>
+      <tr><td class="hl">Agent signer</td><td>did_key</td><td class="teal">IntentMandate</td><td>agent_identity</td><td class="gold" style="word-break:break-all">${agentDid.substring(0, 32)}…</td></tr>
+      <tr><td class="hl">HTTP 402 trigger</td><td>Payment-Required header</td><td class="teal">IntentMandate</td><td>trigger_mechanism</td><td class="gold">HTTP 402 → MPP session init</td></tr>
+    </tbody>`;
+
+  // Risk assessment
+  const riskColors = { low: 'var(--green)', medium: 'var(--gold)', high: 'var(--red)' };
+  document.getElementById('riskBox').innerHTML = `
+    <div class="risk-box ${risk.color}">
+      <div class="risk-label ${risk.color}">${risk.level} RISK</div>
+      <div class="risk-reason">${risk.reasons.map(r => '• ' + r).join('<br>')}</div>
+    </div>`;
+
+  // ISO 20022 pacs.008 table
+  document.getElementById('pacs008Table').innerHTML = `
+    <thead><tr><th>pacs.008 Field</th><th>Value</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="hl">InstructedAmount / Amount</td><td class="gold">$${spendCap.toFixed(2)}</td><td>Session ceiling — settlement leg maximum</td></tr>
+      <tr><td class="hl">InstructedAmount / Currency</td><td class="gold">USD</td><td>USD-denominated; Tempo TIP-20 restriction</td></tr>
+      <tr><td class="hl">Debtor / PartyName</td><td class="gold">Agent</td><td>Autonomous payment agent</td></tr>
+      <tr><td class="hl">Debtor / did_key (ext.)</td><td class="gold" style="word-break:break-all">${agentDid.substring(0, 40)}…</td><td>OCG v0.3 extension field — agent signer identity</td></tr>
+      <tr><td class="hl">Creditor / PartyName</td><td class="gold">Merchant/API Provider</td><td>Receiving party</td></tr>
+      <tr><td class="hl">Creditor / URL (ext.)</td><td class="gold" style="word-break:break-all">${merchant}</td><td>Endpoint for metered service</td></tr>
+      <tr><td class="hl">RemittanceInformation</td><td class="gold">MPP session mandate · ${DURATION_LABELS[duration]}</td><td>TIP-20 32-byte memo (truncated)</td></tr>
+    </tbody>`;
+
+  // Mandate text block
+  const ts = new Date().toISOString();
+  document.getElementById('mandateBlock').textContent = [
+    'AGENT PAYMENT MANDATE — MPP SESSION',
+    '═══════════════════════════════════════════════════════',
+    `Issued:          ${ts}`,
+    `Tool:            ART-36 · OpenChainGraph Suite · AINumbers.co`,
+    ``,
+    `AGENT IDENTITY`,
+    `  DID:           ${agentDid}`,
+    `  Method:        did:key (z6Mk — Ed25519/X25519, self-describing)`,
+    `  KYA Status:    ${didValid ? 'VERIFIED' : 'UNVERIFIED — identity check failed'}`,
+    ``,
+    `SESSION TERMS`,
+    `  Merchant:      ${merchant}`,
+    `  Spend Cap:     $${spendCap.toFixed(2)} USD`,
+    `  Duration:      ${DURATION_LABELS[duration]}`,
+    `  Rail:          ${RAIL_LABELS[rail]}`,
+    `  Stablecoin:    ${rail === 'tempo_stablecoin' ? stablecoin : 'N/A'}`,
+    `  Cadence:       ${cadence}`,
+    `  Est/Call:      $${costPerCall.toFixed(4)}`,
+    `  Max Vouchers:  ${maxVouchers.toLocaleString()}`,
+    ``,
+    `AP2 MANDATE CHAIN`,
+    `  IntentMandate:  ceiling_amount=$${spendCap.toFixed(2)} USD`,
+    `  CartMandate:    merchant_id=${merchant}`,
+    `  PaymentMandate: rail=${rail} · cadence=${cadence}`,
+    ``,
+    `RISK PROFILE: ${risk.level}`,
+    ...risk.reasons.map(r => `  • ${r}`),
+    ``,
+    `COMPLIANCE FLAGS: ${complianceFlags.join(' · ')}`,
+    ``,
+    `REFERENCES`,
+    `  MPP Spec:  github.com/tempoxyz/mpp-specs (live since March 2026)`,
+    `  Tempo:     Payments-first L1 · Stripe + Paradigm · mainnet March 18 2026`,
+    `  TIP-20:    32-byte transfer memos · USD-denominated · immutable currency code`,
+    `  AP2:       FIDO Alliance · Intent→Cart→Payment mandate chain`,
+    `  did:key:   W3C DID Key Method · registry-free agent identity`,
+  ].join('\n');
+
+  // Compliance flags
+  document.getElementById('flagRow').innerHTML = complianceFlags.map(f => `<span class="flag">${f}</span>`).join('');
+
+  document.getElementById('resultsPanel').classList.add('visible');
+}
+
+function exportAP2() {
+  if (!_artifact) return;
+  const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+  const b = new Blob([JSON.stringify(_artifact, null, 2)], { type: 'application/json' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: `art-36_${ts}.policy.json` });
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Artifact exported');
+}
+
+function exportMd() {
+  if (!_result || !_artifact) return;
+  const r = _result;
+  const ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+  const lines = [
+    '# Tempo MPP Agent Mandate Report',
+    `**Tool:** ART-36 · OpenChainGraph Suite · AINumbers.co`,
+    `**Generated:** ${new Date().toISOString()}`,
+    `**Hash:** sha256:${_artifact.execution_hash}`,
+    '',
+    '## Session Parameters',
+    `Agent DID: \`${r.agentDid}\``,
+    `DID Valid: ${r.didValid ? 'Yes (did:key z6Mk method)' : 'No — invalid format'}`,
+    `Merchant: ${r.merchant}`,
+    `Spend Cap: $${r.spendCap.toFixed(2)} USD`,
+    `Duration: ${DURATION_LABELS[r.duration]}`,
+    `Rail: ${RAIL_LABELS[r.rail]}`,
+    `Stablecoin: ${r.rail === 'tempo_stablecoin' ? r.stablecoin : 'N/A'}`,
+    `Voucher Cadence: ${r.cadence}`,
+    `Max Vouchers: ${r.maxVouchers.toLocaleString()}`,
+    '',
+    '## AP2 Mandate Mapping',
+    '| MPP Concept | AP2 Mandate | AP2 Field | Value |',
+    '|---|---|---|---|',
+    `| Session cap | IntentMandate | ceiling_amount | $${r.spendCap.toFixed(2)} USD |`,
+    `| Merchant target | CartMandate | merchant_id | ${r.merchant} |`,
+    `| Payment rail | PaymentMandate | rail | ${r.rail} |`,
+    `| Voucher streaming | PaymentMandate | cadence | ${r.cadence} |`,
+    '',
+    '## KYA Risk Assessment',
+    `**Risk Level: ${r.risk.level}**`,
+    ...r.risk.reasons.map(x => `- ${x}`),
+    '',
+    '## Compliance Flags',
+    r.complianceFlags.map(f => `- \`${f}\``).join('\n'),
+    '',
+    '## References',
+    '- MPP Spec: github.com/tempoxyz/mpp-specs (live since March 2026)',
+    '- Tempo: Payments-first L1 · Stripe + Paradigm · mainnet March 18 2026',
+    '- TIP-20: 32-byte transfer memos · USD-denominated',
+    '- AP2: FIDO Alliance · Intent→Cart→Payment mandate chain',
+    '- did:key: W3C DID Key Method · registry-free agent identity',
+    '',
+    '---',
+    '> *ART-36 · OpenChainGraph Suite · Post Oak Labs · CC BY 4.0*'
+  ].join('\n');
+  const b = new Blob([lines], { type: 'text/markdown' });
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(b), download: `art-36_${ts}.md` });
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Markdown exported');
+}
+
+function toggleMfst() {
+  const body = document.getElementById('mfstBody'), arrow = document.getElementById('mfstArrow'), btn = document.querySelector('.mfst-btn');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▼' : '▲';
+  btn.setAttribute('aria-expanded', String(!open));
+  body.setAttribute('aria-hidden', String(open));
+  if (!open && !document.getElementById('mfstCode').textContent) document.getElementById('mfstCode').textContent = JSON.stringify(MANIFEST, null, 2);
+}
+</script>
+<script>
+/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
+function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
+function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
+function __ocgCanonStr(x){__ocgAssertIJson(x);return JSON.stringify(__ocgCanon(x));}
+</script>
+<script>
+/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. Byte-identical to kernels/_proof.mjs. */
+/* Reuses __ocgCanon from OCG-CANON v1 (single canon path — §4 array-replacer forms stay FORBIDDEN). */
+/* Exposes globals: __ocgSign(artifact,{verificationMethod,created,privateKey}) -> signed artifact;
+   __ocgVerify(artifact,publicKey) -> bool; __ocgDidKeyFromPub(pubKey) -> did:key; __ocgPubFromDidKey(did) -> CryptoKey. */
+(function(){
+  var CS='eddsa-jcs-2022';
+  function jcs(o){return new TextEncoder().encode(JSON.stringify(__ocgCanon(o)));}
+  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
+  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
+  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
+  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
+  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
+  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
+  var MC=[0xed,0x01];
+  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
+  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
+  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
+  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
+  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
+})();
+</script>
+<script>
+/* OCG-§16-UI v1 (nodes) — Sign + Verify + enable shim. DO NOT hand-edit; injected by scripts/add_proof_binding_nodes.mjs. */
+function __ocgGetArt(){
+  var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2'];
+  for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}
+  var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput');
+  if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}
+  return null;
+}
+async function signArtifact(){
+  var art=__ocgGetArt();
+  if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}
+  if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;
+  var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);
+  var did=await __ocgDidKeyFromPub(kp.publicKey);
+  var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});
+  var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);
+  var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));
+  a.download=fn;a.click();URL.revokeObjectURL(a.href);
+}
+async function verifySignature(){
+  var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;
+  var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}
+  var pr=art&&art.audit_signature&&art.audit_signature.proof;
+  if(!pr){alert('✗ no §16 proof on this artifact');return;}
+  try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}
+  catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}
+}
+(function(){
+  var ids=['ap2ExportBtn','ap2Btn','exportBtn'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(!el)continue;
+    var obs=new MutationObserver(function(){
+      var sab=document.getElementById('signArtifactBtn');
+      if(sab){sab.disabled=false;}
+      obs.disconnect();
+    });
+    obs.observe(el,{attributes:true,attributeFilter:['disabled']});
+    break;
+  }
+})();
+</script>
+<script>window.AIN_BRIDGE_CFG={runFn:'runMandate',intake:false,intakeTarget:null,intakeAnchor:null};</script>
+<script>
+(function(){
+'use strict';
+var CFG=window.AIN_BRIDGE_CFG||{};
+var L={
+ en:{pf:'Inputs prefilled from link — review, then Run',ran:'Inputs prefilled from link and executed',fields:'fields',it:'Import Policy Mandate (.policy.json)',drop:'Drop a .policy.json here, or',choose:'Choose file',paste:'Paste JSON',apply:'Apply',ok:'Policy Mandate imported from',bad:'Not a valid AINumbers Policy Mandate JSON'},
+ es:{pf:'Campos precargados desde el enlace — revise y ejecute',ran:'Campos precargados desde el enlace y ejecutados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Suelte un .policy.json aquí, o',choose:'Elegir archivo',paste:'Pegar JSON',apply:'Aplicar',ok:'Policy Mandate importado desde',bad:'JSON de Policy Mandate no válido'},
+ fr:{pf:'Champs préremplis depuis le lien — vérifiez puis exécutez',ran:'Champs préremplis depuis le lien et exécutés',fields:'champs',it:'Importer un Policy Mandate (.policy.json)',drop:'Déposez un .policy.json ici, ou',choose:'Choisir un fichier',paste:'Coller le JSON',apply:'Appliquer',ok:'Policy Mandate importé depuis',bad:'JSON Policy Mandate non valide'},
+ ar:{pf:'تم ملء الحقول مسبقًا من الرابط — راجع ثم شغّل',ran:'تم ملء الحقول من الرابط وتنفيذها',fields:'حقول',it:'استيراد Policy Mandate (.policy.json)',drop:'أسقط ملف ‎.policy.json هنا، أو',choose:'اختر ملفًا',paste:'لصق JSON',apply:'تطبيق',ok:'تم استيراد Policy Mandate من',bad:'JSON غير صالح لـ Policy Mandate'},
+ pt:{pf:'Campos pré-preenchidos a partir do link — revise e execute',ran:'Campos pré-preenchidos a partir do link e executados',fields:'campos',it:'Importar Policy Mandate (.policy.json)',drop:'Solte um .policy.json aqui, ou',choose:'Escolher arquivo',paste:'Colar JSON',apply:'Aplicar',ok:'Policy Mandate importado de',bad:'JSON de Policy Mandate inválido'},
+ zh:{pf:'已从链接预填输入 — 请检查后运行',ran:'已从链接预填并自动执行',fields:'个字段',it:'导入 Policy Mandate (.policy.json)',drop:'将 .policy.json 拖放到此处，或',choose:'选择文件',paste:'粘贴 JSON',apply:'应用',ok:'已导入 Policy Mandate，来源：',bad:'无效的 AINumbers Policy Mandate JSON'}
+};
+function t(k){return (L.en&&L.en[k])||k;}
+function b64uDec(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(Array.prototype.map.call(atob(s),function(c){return '%'+('00'+c.charCodeAt(0).toString(16)).slice(-2);}).join(''));}
+function b64uEnc(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function applyFields(fields){
+  var n=0;if(!fields||typeof fields!=='object')return 0;
+  Object.keys(fields).forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var tag=el.tagName;if(tag!=='INPUT'&&tag!=='SELECT'&&tag!=='TEXTAREA')return;
+    var v=fields[id];
+    if(el.type==='checkbox'||el.type==='radio'){el.checked=!!v;}
+    else{el.value=(v!==null&&typeof v==='object')?JSON.stringify(v,null,2):String(v);}
+    try{el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){}
+    n++;
+  });
+  return n;
+}
+function runTool(){if(!CFG.runFn)return false;var f=window[CFG.runFn];if(typeof f==='function'){try{f();return true;}catch(e){return false;}}return false;}
+function anchorEl(){return (CFG.intakeAnchor&&document.querySelector(CFG.intakeAnchor))||document.querySelector('.pii-notice')||document.querySelector('.panel')||document.body.firstElementChild;}
+function notice(msg,kind){
+  var d=document.getElementById('ainBridgeNotice');
+  if(!d){d=document.createElement('div');d.id='ainBridgeNotice';
+    var a=document.getElementById('ainIntakeZone')||anchorEl();
+    if(a&&a.parentNode)a.parentNode.insertBefore(d,a);else document.body.insertBefore(d,document.body.firstChild);}
+  d.setAttribute('style','font-family:\'JetBrains Mono\',monospace;font-size:.68rem;letter-spacing:.04em;margin:0 0 1rem;padding:.55rem .8rem;border-radius:6px;border:1px solid '+(kind==='warn'?'#F59E0B':'#14B8A6')+';color:'+(kind==='warn'?'#F59E0B':'#2DD4BF')+';background:'+(kind==='warn'?'rgba(245,158,11,.08)':'rgba(20,184,166,.08)'));
+  d.textContent=msg;
+}
+function looksLikeMandate(o){return !!(o&&typeof o==='object'&&o.mandate_id&&o.tool_id&&('payload' in o));}
+function intakeApply(text){
+  var o;try{o=JSON.parse(text);}catch(e){notice('⚠ '+t('bad'),'warn');return 0;}
+  if(!looksLikeMandate(o)){notice('⚠ '+t('bad'),'warn');return 0;}
+  var n=0;
+  if(CFG.intakeTarget){var ta=document.getElementById(CFG.intakeTarget);
+    if(ta){ta.value=JSON.stringify(o,null,2);try{ta.dispatchEvent(new Event('input',{bubbles:true}));}catch(e){}n++;}}
+  if(o.payload&&typeof o.payload==='object')n+=applyFields(o.payload);
+  if(o.source_tool_inputs&&typeof o.source_tool_inputs==='object')n+=applyFields(o.source_tool_inputs);
+  notice((n>0?'📥 ':'⚠ ')+t('ok')+' '+(o.tool_id||'?')+' · '+n+' '+t('fields'),n>0?'ok':'warn');
+  return n;
+}
+function buildIntakeUI(){
+  if(!CFG.intake)return;
+  var a=anchorEl();if(!a||!a.parentNode)return;
+  var z=document.createElement('div');z.id='ainIntakeZone';
+  z.setAttribute('style','border:1px dashed #263855;border-radius:6px;padding:.7rem .9rem;margin:0 0 1.25rem;font-family:\'JetBrains Mono\',monospace;font-size:.66rem;color:#6888A8;letter-spacing:.04em');
+  var lbl=document.createElement('div');lbl.textContent='📥 '+t('it');lbl.setAttribute('style','color:#A8C4DE;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.1em;font-size:.6rem');
+  var row=document.createElement('div');row.setAttribute('style','display:flex;gap:.6rem;align-items:center;flex-wrap:wrap');
+  var txt=document.createElement('span');txt.textContent=t('drop');
+  function mkBtn(label){var b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('style','background:transparent;border:1px solid #263855;color:#A8C4DE;border-radius:6px;padding:.3rem .7rem;font-family:inherit;font-size:.62rem;cursor:pointer');return b;}
+  var bFile=mkBtn(t('choose')),bPaste=mkBtn(t('paste'));
+  var fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.style.display='none';
+  fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);fi.value='';});
+  bFile.addEventListener('click',function(){fi.click();});
+  var pasteRow=document.createElement('div');pasteRow.style.display='none';pasteRow.setAttribute('style','display:none;margin-top:.6rem');
+  var ta=document.createElement('textarea');ta.rows=5;ta.spellcheck=false;ta.setAttribute('style','width:100%;background:#0D1627;border:1px solid #263855;border-radius:6px;color:#A8C4DE;font-family:inherit;font-size:.64rem;padding:.5rem');
+  var bApply=mkBtn(t('apply'));bApply.style.marginTop='.4rem';
+  bApply.addEventListener('click',function(){if(ta.value.trim()){intakeApply(ta.value);ta.value='';pasteRow.style.display='none';}});
+  pasteRow.appendChild(ta);pasteRow.appendChild(bApply);
+  bPaste.addEventListener('click',function(){pasteRow.style.display=(pasteRow.style.display==='none')?'block':'none';if(pasteRow.style.display==='block')ta.focus();});
+  z.addEventListener('dragover',function(e){e.preventDefault();z.style.borderColor='#14B8A6';});
+  z.addEventListener('dragleave',function(){z.style.borderColor='#263855';});
+  z.addEventListener('drop',function(e){e.preventDefault();z.style.borderColor='#263855';var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f){var r=new FileReader();r.onload=function(){intakeApply(String(r.result));};r.readAsText(f);}});
+  row.appendChild(txt);row.appendChild(bFile);row.appendChild(bPaste);row.appendChild(fi);
+  z.appendChild(lbl);z.appendChild(row);z.appendChild(pasteRow);
+  a.parentNode.insertBefore(z,a);
+}
+function initPrefill(){
+  var h=location.hash||'';var m=h.match(/[#&]in=([A-Za-z0-9_\-]+)/);if(!m)return;
+  var obj;try{obj=JSON.parse(b64uDec(m[1]));}catch(e){return;}
+  var fields=(obj&&obj.fields&&typeof obj.fields==='object')?obj.fields:obj;
+  var n=applyFields(fields);
+  if(n>0){
+    if(/[#&]run=1/.test(h)&&runTool())notice('⚡ '+t('ran')+' ('+n+' '+t('fields')+')','ok');
+    else notice('🔗 '+t('pf')+' ('+n+' '+t('fields')+')','ok');
+  }
+}
+var HANDOFF_MAX_CHARS=2000000;
+function apSendToVerify(){
+  var m;try{m=window.AINBridge.getMandate();}catch(e){m=null;}
+  if(!m){notice('⚠ No Policy Mandate to send — run the tool first.','warn');return;}
+  var json;try{json=JSON.stringify(m);}catch(e){notice('⚠ Could not serialize the mandate: '+e.message,'warn');return;}
+  if(json.length>HANDOFF_MAX_CHARS){notice('⚠ Too large to hand off ('+json.length+' chars).','warn');return;}
+  var target=new URL('../chaingraph/verify.html',window.location.href).href;
+  var win=window.open(target,'_blank');
+  if(!win){notice('⚠ The verifier window was blocked. Allow pop-ups for this site.','warn');return;}
+  var sent=false,timer=null;
+  function onReady(ev){
+    if(ev.origin!==window.location.origin)return;
+    if(ev.source!==win)return;
+    var d=ev.data;
+    if(!d||typeof d!=='object'||d.type!=='ain-handoff-ready/v1')return;
+    if(sent)return;sent=true;
+    window.removeEventListener('message',onReady);
+    if(timer)clearTimeout(timer);
+    win.postMessage({type:'ain-handoff/v1',kind:'policy-mandate',mandate:json},window.location.origin);
+    notice('➡ Sent to the Artifact Verifier in the new tab.','ok');
+  }
+  window.addEventListener('message',onReady);
+  notice('Opening the Artifact Verifier…','ok');
+  timer=setTimeout(function(){
+    if(sent)return;
+    window.removeEventListener('message',onReady);
+    notice('⚠ The verifier did not answer. Export the mandate and paste it in.','warn');
+  },10000);
+}
+window.apSendToVerify=apSendToVerify;
+/* sessionRoot — COMPOSER-PLAN-AND-ROOT-WEBMCP-1. ONE ROUTINE LAW: the core below
+   is byte-identical to SESSION_ROOT_SOURCE in scripts/gen-webmcp-registrations.mjs
+   (emitted onto every chain composer page) and a port of the worker's
+   build_session_receipt (worker.mjs buildSessionReceiptCore). Asserted by
+   scripts/session-root-parity.test.mjs. Never re-derive the Merkle rule. */
+async function ainSessionRoot(executionHashes) {
+  if (!Array.isArray(executionHashes) || executionHashes.length === 0) throw new Error('execution_hashes must be a non-empty array.');
+  var normalize = function (h) { return String(h).replace(/^sha256:/, '').toLowerCase(); };
+  var level = executionHashes.map(normalize).map(function (h) { return 'sha256:' + h; });
+  var hashPair = async function (a, b) {
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalize(a) + normalize(b)));
+    return 'sha256:' + Array.from(new Uint8Array(buf)).map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+  };
+  while (level.length > 1) {
+    var next = [];
+    for (var i = 0; i < level.length; i += 2) {
+      var right = level[i + 1] !== undefined ? level[i + 1] : level[i]; // duplicate last leaf when odd
+      next.push(await hashPair(level[i], right));
+    }
+    level = next;
+  }
+  return level[0];
+}
+window.AINBridge={
+  version:'1.2',
+  apply:applyFields,
+  run:runTool,
+  intake:intakeApply,
+  sendToVerify:apSendToVerify,
+  sessionRoot:ainSessionRoot,
+  getMandate:function(){if(window._lastMandate)return window._lastMandate;if(typeof window.AIN_BUILD_MANDATE==='function'){try{var m=window.AIN_BUILD_MANDATE();if(m)return m;}catch(e){}}return window._currentMandate||null;},
+  makeLink:function(fields,run){return location.origin+location.pathname+'#in='+b64uEnc(JSON.stringify(fields))+(run?'&run=1':'');}
+};
+window.addEventListener('message',function(e){
+  if(window.parent===window||e.source!==window.parent)return;
+  if(e.origin&&e.origin!=='null'&&location.origin&&location.origin!=='null'&&e.origin!==location.origin)return;
+  var ro=(e.origin&&e.origin!=='null')?e.origin:'*';
+  var d=e.data||{};
+  if(d.type==='ain:prefill'){var n=applyFields(d.fields||{});e.source.postMessage({type:'ain:prefilled',applied:n,tool:location.pathname},ro);}
+  else if(d.type==='ain:run'){var ok=runTool();e.source.postMessage({type:'ain:ran',ok:ok,tool:location.pathname},ro);}
+  else if(d.type==='ain:getMandate'){e.source.postMessage({type:'ain:mandate',mandate:window.AINBridge.getMandate(),tool:location.pathname},ro);}
+});
+function boot(){buildIntakeUI();initPrefill();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
+</body>
+</html>

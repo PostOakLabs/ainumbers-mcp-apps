@@ -3,6 +3,7 @@
 // Cloudflare Workers static assets both read ./data).
 // Re-run after any AINumbers deploy that touches the pilot tools:  node generate.mjs
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -113,6 +114,86 @@ writeFileSync(resolve(DATA, 'mcp', 'fv-status-index.json'), JSON.stringify({
   entries: fvStatusEntries,
 }, null, 2) + '\n');
 console.log('vendored', fvStatusEntries.length, 'fv-status artifact(s) into ./data/fv-status');
+
+// ---------------------------------------------------------------------------
+// Node Views (MCP-APPS-NODE-VIEWS-1) — vendor every REGISTERED ChainGraph node's
+// self-contained page (repo/chaingraph/<tool_id>.html) VERBATIM into
+// data/chaingraph/pages/ and emit data/mcp/node-views.json, the generated SSOT
+// worker.mjs reads to (a) attach `_meta: { ui: { resourceUri, visibility } }` to
+// each node tool and (b) register the `ui://ainumbers/node/<tool_id>` MCP Apps
+// resources (mimeType text/html;profile=mcp-app). The per-view sha256 is the
+// SENTINEL tying the served bytes to the site file at THIS vendored commit —
+// pages are copied as-is (never rewritten, never stripped), and
+// tests/node-views.test.mjs recomputes the sentinel against the committed bytes.
+//
+// Candidate set mirrors buildServer's node registration filter exactly: non-
+// deprecated chaingraph node with an mcp_name, minus the PILOT-widget and
+// utility-tool names (worker.mjs `_registeredMcpNames` seed — a node sharing a
+// name with a PILOT widget registers as the widget, never as its own tool). A
+// node whose page lives OUTSIDE chaingraph/ (tools/*.html, mcp.html) gets no
+// view — those surfaces are not chaingraph node pages.
+//
+// SIZE GUARD: hosts render ui:// resources in a sandboxed iframe; NODE_VIEW_MAX_BYTES
+// is the practical ceiling we vendor past. Measured at the vendored commit: the
+// LARGEST node page is quoted in the run log below; pages over the guard are
+// skipped (listed in `skipped[]` with bytes + reason, never vendored, never
+// pointed at). ⛔ `resource_domains` is the ONLY egress the pages need (Google
+// Fonts, CONTRACT §0); `connectDomains` is emitted EMPTY and this row must
+// never widen it.
+// ---------------------------------------------------------------------------
+const NODE_VIEW_MAX_BYTES = 1048576; // 1 MiB — measured max node page: 298,239 B (art-594) at the 2026-09-29 vendor; ~3.5x headroom.
+const NODE_VIEW_RESOURCE_DOMAINS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+// The name set a node's mcp_name must AVOID for the node itself to be registered as its own
+// tool (worker.mjs `_registeredMcpNames` seed: PILOT-widget tool names + the utility tools).
+// Shared by the vendor loop below AND the closure self-check after precomputeDiscovery().
+const NODE_VIEW_SEED_NAMES = new Set([
+  ...PILOT.map((s) => {
+    try { return JSON.parse(readFileSync(resolve(DATA, 'manifests', s + '.manifest.json'), 'utf8'))?.mcp_tool_definition?.name ?? s.replace(/-/g, '_'); }
+    catch { return s.replace(/-/g, '_'); }
+  }),
+  ...UTILITY_TOOL_NAMES,
+]);
+{
+  mkdirSync(resolve(DATA, 'chaingraph', 'pages'), { recursive: true });
+  // Read from the JUST-VENDORED copy (same bytes as the site file — the counts block below
+  // parses the same file; parsed here locally so this section stays order-independent).
+  const cgAllNodes = JSON.parse(readFileSync(resolve(DATA, 'chaingraph', 'chaingraph.json'), 'utf8')).nodes ?? [];
+  const views = [], skipped = [];
+  let largest = { bytes: 0, tool_id: null };
+  let vendoredBytes = 0;
+  for (const n of cgAllNodes) {
+    if (n.status === 'deprecated' || !n.mcp_name || !n.tool_id) continue;
+    if (NODE_VIEW_SEED_NAMES.has(n.mcp_name)) continue;
+    const pagePath = resolve(REPO, 'chaingraph', n.tool_id + '.html');
+    if (!existsSync(pagePath)) continue; // node page lives outside chaingraph/ (tools/*.html, mcp.html) — not a chaingraph node page
+    const bytes = readFileSync(pagePath);
+    if (bytes.length > largest.bytes) largest = { bytes: bytes.length, tool_id: n.tool_id };
+    if (bytes.length > NODE_VIEW_MAX_BYTES) {
+      skipped.push({ tool_id: n.tool_id, mcp_name: n.mcp_name, bytes: bytes.length, reason: 'page exceeds NODE_VIEW_MAX_BYTES (' + NODE_VIEW_MAX_BYTES + ' B) — not vendored, not pointed at' });
+      continue;
+    }
+    writeFileSync(resolve(DATA, 'chaingraph', 'pages', n.tool_id + '.html'), bytes);
+    vendoredBytes += bytes.length;
+    views.push({
+      tool_id: n.tool_id,
+      mcp_name: n.mcp_name,
+      display_name: n.display_name ?? n.tool_id,
+      uri: 'ui://ainumbers/node/' + n.tool_id,
+      bytes: bytes.length,
+      sha256: createHash('sha256').update(bytes).digest('hex'),
+    });
+  }
+  if (!views.length) { console.error('SELF-CHECK FAIL: node-views — zero views emitted (chaingraph node pages missing from the site repo?)'); process.exit(1); }
+  writeFileSync(resolve(DATA, 'mcp', 'node-views.json'), JSON.stringify({
+    note: 'Generated by generate.mjs (MCP-APPS-NODE-VIEWS-1). One entry per registered ChainGraph node tool whose chaingraph/<tool_id>.html page is vendored verbatim under data/chaingraph/pages/ at THIS vendor commit; sha256 is the sentinel tying the served ui:// bytes to those page bytes. Do not hand-edit — re-run node generate.mjs.',
+    connect_domains_note: 'always empty — the worker pages make zero network calls (CONTRACT); this row must never widen it',
+    max_page_bytes: NODE_VIEW_MAX_BYTES,
+    resource_domains: NODE_VIEW_RESOURCE_DOMAINS,
+    views,
+    skipped,
+  }, null, 2) + '\n');
+  console.log('node-views: ' + views.length + ' ui://ainumbers/node/ view(s) vendored (' + vendoredBytes + ' B total); largest page ' + largest.bytes + ' B (' + largest.tool_id + '); guard ' + NODE_VIEW_MAX_BYTES + ' B; skipped ' + skipped.length + (skipped.length ? ': ' + skipped.map((s) => s.tool_id + '(' + s.bytes + ' B)').join(', ') : ''));
+}
 
 // ---------------------------------------------------------------------------
 // Vendor OCG kernel modules in two places:
@@ -582,6 +663,58 @@ console.log('lifecycle:', lifecycleCounts);
 // scripts/precompute-discovery.mjs + the O(1) fast path in worker.mjs.
 const disc = await precomputeDiscovery();
 console.log('precomputed discovery static responses:', disc, '→ data/mcp/static/');
+
+// ---------------------------------------------------------------------------
+// Node-views closure self-check (MCP-APPS-NODE-VIEWS-1) — runs AFTER precomputeDiscovery()
+// because it reads the JUST-regenerated static discovery bytes. Proves the loop is closed in
+// BOTH directions against the REAL buildServer output (not generate.mjs's own seed math):
+//   (a) every view's node tool is served and carries the exact `_meta.ui` pointer;
+//   (b) every view is listed with the MCP Apps mime type and the generated CSP metadata;
+//   (c) every SERVED node tool whose page is vendored has a view — if worker.mjs's
+//       registration filter ever diverges from the seed set above, THIS is where it fails.
+// ---------------------------------------------------------------------------
+{
+  const nv = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'node-views.json'), 'utf8'));
+  const sseResult = (file) => {
+    const txt = readFileSync(resolve(DATA, 'mcp', 'static', file), 'utf8').replace('__OCG_ID__', '12345');
+    return JSON.parse(txt.split('\n').find((l) => l.startsWith('data:')).slice(5).trim()).result;
+  };
+  const toolsByName = new Map(sseResult('tools-list.sse.txt').tools.map((t) => [t.name, t]));
+  const resourcesByUri = new Map(sseResult('resources-list.sse.txt').resources.map((r) => [r.uri, r]));
+  const pageSet = new Set(readdirSync(resolve(DATA, 'chaingraph', 'pages')));
+  const skippedIds = new Set((nv.skipped ?? []).map((s) => s.tool_id));
+  let nf = 0;
+  for (const v of nv.views) {
+    const t = toolsByName.get(v.mcp_name);
+    if (!t) { console.error('SELF-CHECK FAIL: node-views — view ' + v.tool_id + ' mcp_name ' + v.mcp_name + ' is not a served tool'); nf++; continue; }
+    if (JSON.stringify(t._meta?.ui) !== JSON.stringify({ resourceUri: v.uri, visibility: ['model', 'app'] })) {
+      console.error('SELF-CHECK FAIL: node-views — tool ' + v.mcp_name + ' _meta.ui is ' + JSON.stringify(t._meta?.ui) + ' (expected resourceUri + visibility [model, app])'); nf++;
+    }
+    const r = resourcesByUri.get(v.uri);
+    if (!r) { console.error('SELF-CHECK FAIL: node-views — resources-list missing ' + v.uri); nf++; continue; }
+    if (r.mimeType !== 'text/html;profile=mcp-app' || JSON.stringify(r._meta?.ui) !== JSON.stringify({ resourceDomains: nv.resource_domains, connectDomains: [] })) {
+      console.error('SELF-CHECK FAIL: node-views — resource ' + v.uri + ' metadata drift: ' + JSON.stringify({ mimeType: r.mimeType, ui: r._meta?.ui })); nf++;
+    }
+    if (!pageSet.has(v.tool_id + '.html')) { console.error('SELF-CHECK FAIL: node-views — view ' + v.tool_id + ' has no vendored page'); nf++; }
+  }
+  for (const t of sseResult('tools-list.sse.txt').tools) {
+    const node = (cgNodes.find((n) => n.mcp_name === t.name)) ?? null;
+    if (!node || !node.tool_id) continue; // PILOT / utility tool
+    if (NODE_VIEW_SEED_NAMES.has(t.name)) continue; // registers as the PILOT/utility tool, never as its own node tool
+    const v = nv.views.find((x) => x.mcp_name === t.name);
+    if (v) continue;
+    // No view for a SERVED node tool is legal ONLY when the node has no chaingraph page at
+    // all, or the page was size-skipped. Anything else is seed drift vs worker.mjs's filter.
+    const pageOnSite = existsSync(resolve(REPO, 'chaingraph', node.tool_id + '.html'));
+    if (pageOnSite && !skippedIds.has(node.tool_id)) {
+      console.error('SELF-CHECK FAIL: node-views — served node tool ' + t.name + ' (' + node.tool_id + ') has a page but no view — seed drift vs worker.mjs registration filter'); nf++;
+    }
+  }
+  const extraNodeResources = [...resourcesByUri.keys()].filter((u) => u.startsWith('ui://ainumbers/node/') && !nv.views.some((v) => v.uri === u));
+  if (extraNodeResources.length) { console.error('SELF-CHECK FAIL: node-views — resources-list carries node uris outside the view set: ' + extraNodeResources.join(', ')); nf++; }
+  if (nf) { console.error(`generate.mjs SELF-CHECK FAILED (${nf} node-views mismatch(es)) — do NOT commit this output.`); process.exit(1); }
+  console.log('node-views closure: ' + nv.views.length + ' view(s) ↔ tools-list pointers ↔ resources-list entries all consistent ✓');
+}
 
 // ---------------------------------------------------------------------------
 // PROMPTS-WORKER-CONTEXT-1 P1/P3 — two generated indexes, both derived from files written
