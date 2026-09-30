@@ -336,6 +336,28 @@ async function toolsetIgnored() {
   return { toolsBytes: def.length };
 }
 
+// MCP-LITE-PROFILE-1: `?profile=lite` serves the GENERATED 4-tool discovery template
+// (find_tool, describe_tool, call_tool, list_ainumbers_tools) — one request, same paced budget.
+// This is the post-deploy proof that the ASSETS binding actually carries tools-list-lite.sse.txt
+// and the worker selects it; the build-time half lives in check-worker-invariants (f).
+async function liteProfile() {
+  const u = URL + (URL.includes('?') ? '&' : '?') + 'profile=lite';
+  const res = await pacedFetch(u, () => ({
+    method: 'POST', headers: { 'content-type': 'application/json', accept: ACCEPT, 'mcp-protocol-version': PROTO },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 911, method: 'tools/list', params: {} }),
+  }), 'tools/list?profile=lite');
+  if (res.status !== 200) throw new Error(`?profile=lite tools/list HTTP ${res.status}`);
+  const text = await res.text();
+  const line = text.split('\n').find((l) => l.startsWith('data:'));
+  const tools = JSON.parse((line || text).replace(/^data:\s*/, '')).result?.tools ?? [];
+  const names = tools.map((t) => t.name);
+  const expect = ['find_tool', 'describe_tool', 'call_tool', 'list_ainumbers_tools'];
+  if (JSON.stringify(names) !== JSON.stringify(expect))
+    throw new Error(`?profile=lite served ${JSON.stringify(names)} — expected exactly ${JSON.stringify(expect)}; tools-list-lite.sse.txt is missing, stale, or the selection branch is not wired`);
+  if (tools.some((t) => 'outputSchema' in t)) throw new Error('?profile=lite entries carry outputSchema — the trim discipline regressed on the lite template');
+  return { tools: names.length };
+}
+
 async function initialize() {
   const { result, error } = await call('initialize', {
     protocolVersion: PROTO, capabilities: {}, clientInfo: { name: 'ci-smoke', version: '1' },
@@ -1069,6 +1091,9 @@ async function selfTest() {
 
       const ts = await phase('toolset-retired', toolsetIgnored);
       console.log(`✓ toolset retirement OK — ?toolset=reserve and ?toolset=bogus both match the default page 1 (${ts.toolsBytes}B)`);
+
+      const lp = await phase('lite-profile', liteProfile);
+      console.log(`✓ lite profile OK — ?profile=lite serves the ${lp.tools}-tool discovery template`);
 
       budgetSummary();
       process.exitCode = 0; return;

@@ -274,6 +274,19 @@ export async function precomputeDiscovery() {
     return txt;
   };
   wtxt('tools-list.sse.txt',     frame('tools/list',     { tools: toolsMsg.result.tools }, RESULT_TTL_MS['tools/list']));
+  // MCP-LITE-PROFILE-1: the lite discovery template — the SAME trimmed, captured tools array
+  // filtered to the discovery set, framed by the SAME single framing point (identical envelope,
+  // ttlMs, cacheScope; same pagination-ready generated shape). Nothing hand-typed: names filter
+  // the registration order, descriptions keep their interpolated counts (A5.3). Served by
+  // worker.mjs only when the request URL carries ?profile=lite; the default template above is
+  // untouched, so every gate reading it (surface-parity, build-mcp-parity, invariants) is
+  // unaffected. A name missing from the served set fails the build LOUD here rather than serving
+  // a silently-shrunken lite profile.
+  const LITE_TOOL_NAMES = ['find_tool', 'describe_tool', 'call_tool', 'list_ainumbers_tools'];
+  const liteByName = new Map(toolsMsg.result.tools.map((t) => [t.name, t]));
+  const liteMissing = LITE_TOOL_NAMES.filter((n) => !liteByName.has(n));
+  if (liteMissing.length) throw new Error('precompute: lite profile tool(s) absent from the served set: ' + liteMissing.join(', ') + ' — update LITE_TOOL_NAMES or re-register the tool.');
+  wtxt('tools-list-lite.sse.txt', frame('tools/list', { tools: LITE_TOOL_NAMES.map((n) => liteByName.get(n)) }, RESULT_TTL_MS['tools/list']));
   wtxt('resources-list.sse.txt', frame('resources/list', { resources },                   RESULT_TTL_MS['resources/list']));
   wtxt('prompts-list.sse.txt',   frame('prompts/list',   { prompts },                     RESULT_TTL_MS['prompts/list']));
 

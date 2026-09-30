@@ -968,6 +968,19 @@ const STATIC_LIST_FILE = {
   'resources/list': 'mcp/static/resources-list.sse.txt',
   'prompts/list':   'mcp/static/prompts-list.sse.txt',
 };
+// MCP-LITE-PROFILE-1 (2026-09-30): `?profile=lite` on /mcp selects a GENERATED 4-tool discovery
+// template — find_tool, describe_tool, call_tool, list_ainumbers_tools, the SAME captured
+// registration objects as the full list (precompute-discovery.mjs filters the trimmed array;
+// nothing hand-typed, interpolated counts ride along per A5.3). Audience: agent fleets that
+// discover on demand — a ~2KB tools/list instead of the ~330KB catalog. Execution is NOT scoped:
+// tools/call is untouched (any registered name still runs), and call_tool already relays by name
+// behind its fail-closed read-only allowlist, so listing-lite loses no capability. Same endpoint
+// path and hostname as the default — no new registry surface, nothing to advertise; the param is
+// opt-in (precedent: the retired, accepted-and-ignored ?toolset= below). Fail-soft ON PURPOSE: a
+// missing/broken lite asset degrades to the FULL template (a bigger reply, never a broken one) —
+// this is an availability choice, not an approval boundary like the dispatch allowlist above.
+const STATIC_LIST_FILE_LITE = { 'tools/list': 'mcp/static/tools-list-lite.sse.txt' };
+const LITE_PROFILE = 'lite';
 const ID_PLACEHOLDER = '__OCG_ID__';
 
 // ── WORKER-IDREPLACE-DOS-1 (2026-08-29): id-splice hardening on the public endpoint ───────────
@@ -1034,12 +1047,19 @@ async function getDispatchAllowlist(env) {
     return (_dispatchAllowlist = new Set(names));
   } catch { return (_dispatchAllowlist = new Set()); }
 }
-async function getStaticListTemplate(env, method) {
-  if (_listStatic[method]) return _listStatic[method];
-  const file = STATIC_LIST_FILE[method];
+async function getStaticListTemplate(env, method, profile) {
+  // Memo key embeds the profile so lite and full templates never collide in one isolate
+  // (same construction is reused as the buildListPage per-template index key at the dispatch site).
+  const lite = profile === LITE_PROFILE && !!STATIC_LIST_FILE_LITE[method];
+  const memoKey = lite ? method + '\u0000' + LITE_PROFILE : method;
+  if (_listStatic[memoKey]) return _listStatic[memoKey];
+  const file = lite ? STATIC_LIST_FILE_LITE[method] : STATIC_LIST_FILE[method];
   const r = await env.ASSETS.fetch('https://assets.local/' + file);
-  if (!r.ok) throw new Error('static list asset miss: ' + method + ' > ' + r.status);
-  return (_listStatic[method] = await r.text());   // TEXT — no JSON.parse of the large body
+  if (!r.ok) {
+    if (lite) return getStaticListTemplate(env, method); // lite asset miss → full template (fail soft)
+    throw new Error('static list asset miss: ' + method + ' > ' + r.status);
+  }
+  return (_listStatic[memoKey] = await r.text());   // TEXT — no JSON.parse of the large body
 }
 
 // ── MCP-TOOLSLIST-PAGINATION-2 (2026-09-17): spec cursor pagination on the list templates ────
@@ -7067,7 +7087,12 @@ export default {
           // List responses: serve the pre-framed text and splice the id with ONE string replace —
           // no JSON.parse / no re-stringify of the (330KB) body. `?toolset=<name>` (retired,
           // TOOLSETS-RETIRE-1) is accepted-and-ignored: tools/list always serves the default template.
-          const tpl = await getStaticListTemplate(env, method);
+          // MCP-LITE-PROFILE-1: `?profile=lite` IS honored (unlike ?toolset=) — it selects the
+          // generated 4-tool discovery template; anything else serves the default. The memo key
+          // mirrors getStaticListTemplate's so lite/full pagination indexes never collide.
+          const liteSel = url.searchParams.get('profile') === LITE_PROFILE && !!STATIC_LIST_FILE_LITE[method];
+          const listMemoKey = liteSel ? method + '\u0000' + LITE_PROFILE : method;
+          const tpl = await getStaticListTemplate(env, method, url.searchParams.get('profile'));
           // MCP-TOOLSLIST-PAGINATION-2 (re-applied from #294): serve ONE page when the template
           // carries a list array. A no-cursor request gets page one + nextCursor (per spec an
           // unpaginated reply IS page one); a request echoing our token gets that page; an
@@ -7080,7 +7105,7 @@ export default {
           // below and never falls into it, so the two never interpret the same token. Both refuse
           // the other's with -32602. The 4th arg is the per-template memo key (same construction
           // as getStaticListTemplate).
-          const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor, method);
+          const page = buildListPage(tpl, LIST_ARRAY_KEY[method], body.params?.cursor, listMemoKey);
           if (page === LIST_CURSOR_INVALID) {
             return protocolErrorResponse('protocol.invalid_params.cursor', {
               id: body.id,
