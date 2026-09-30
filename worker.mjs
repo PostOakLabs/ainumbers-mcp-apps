@@ -972,7 +972,7 @@ const STATIC_LIST_FILE = {
 // template — find_tool, describe_tool, call_tool, list_ainumbers_tools, the SAME captured
 // registration objects as the full list (precompute-discovery.mjs filters the trimmed array;
 // nothing hand-typed, interpolated counts ride along per A5.3). Audience: agent fleets that
-// discover on demand — a ~2KB tools/list instead of the ~330KB catalog. Execution is NOT scoped:
+// discover on demand — a ~5.6KB tools/list instead of the ~1.83MB catalog. Execution is NOT scoped:
 // tools/call is untouched (any registered name still runs), and call_tool already relays by name
 // behind its fail-closed read-only allowlist, so listing-lite loses no capability. Same endpoint
 // path and hostname as the default — no new registry surface, nothing to advertise; the param is
