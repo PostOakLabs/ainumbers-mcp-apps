@@ -176,6 +176,30 @@ else ok.push('GET/HEAD -> 405 short-circuit present');
   else if (JSON.parse(readFileSync(initP2, 'utf8'))?.capabilities?.tools?.listChanged !== true) {
     fails.push('initialize.json capabilities.tools.listChanged is not true — the client must be told the tool list can change (row ADDITION A).');
   } else ok.push('initialize.json advertises capabilities.tools.listChanged: true');
+  // (f) MCP-LITE-PROFILE-1 — the ?profile=lite template: exactly the discovery set, and each
+  // entry BYTE-IDENTICAL to its full-list counterpart (the lite file must filter the same
+  // generated objects, never re-type them — a re-typed description drifts from describe_tool
+  // and from the interpolated counts the moment the catalog moves).
+  const litePath = resolve(STATIC, 'tools-list-lite.sse.txt');
+  if (!existsSync(litePath)) fails.push('missing data/mcp/static/tools-list-lite.sse.txt — the ?profile=lite surface has nothing to serve; run generate.mjs.');
+  else {
+    const LITE_EXPECT = ['find_tool', 'describe_tool', 'call_tool', 'list_ainumbers_tools'];
+    let liteBad = true, liteNames = [], diverged = [];
+    try {
+      const lite = sseTools('tools-list-lite.sse.txt');
+      liteNames = lite.map((t) => t.name);
+      const full = new Map(sseTools('tools-list.sse.txt').map((t) => [t.name, t]));
+      diverged = lite.filter((t) => !full.has(t.name) || JSON.stringify(t) !== JSON.stringify(full.get(t.name)));
+      liteBad = false;
+    } catch (e) { fails.push('tools-list-lite.sse.txt: not parseable as a tools/list frame — ' + e.message); }
+    if (!liteBad) {
+      if (JSON.stringify(liteNames) !== JSON.stringify(LITE_EXPECT))
+        fails.push('tools-list-lite.sse.txt serves ' + JSON.stringify(liteNames) + ' — expected exactly ' + JSON.stringify(LITE_EXPECT) + ' in registration order; re-run generate.mjs.');
+      if (diverged.length)
+        fails.push('lite entries diverge from tools-list.sse.txt for: ' + diverged.map((t) => t.name).join(', ') + ' — filter the generated objects, never re-type them; re-run generate.mjs.');
+      if (!fails.length) ok.push('lite profile template carries exactly ' + liteNames.length + ' discovery tools, byte-identical to their full-list entries');
+    }
+  }
 }
 
 if (fails.length) {
