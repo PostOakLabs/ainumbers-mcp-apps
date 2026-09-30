@@ -1059,7 +1059,16 @@ async function getStaticListTemplate(env, method, profile) {
     if (lite) return getStaticListTemplate(env, method); // lite asset miss → full template (fail soft)
     throw new Error('static list asset miss: ' + method + ' > ' + r.status);
   }
-  return (_listStatic[memoKey] = await r.text());   // TEXT — no JSON.parse of the large body
+  const body = await r.text();   // TEXT — no JSON.parse of the large body
+  // MCP-LITE-PROFILE-1 hardening: an asset misconfiguration can answer a missing key with a
+  // 200 (e.g. an SPA-fallback HTML page). Serving those bytes as a JSON-RPC frame hands a lite
+  // client garbage, so the lite branch verifies the generated-shape prefix and falls back to
+  // FULL on anything unexpected. The default path keeps serving verbatim — its bytes are the
+  // ones surface-parity and build-mcp-parity gate, and have no fallback to hide behind.
+  if (lite && !body.startsWith('event: message\ndata: {"jsonrpc":"2.0","id":' + ID_PLACEHOLDER)) {
+    return getStaticListTemplate(env, method);
+  }
+  return (_listStatic[memoKey] = body);
 }
 
 // ── MCP-TOOLSLIST-PAGINATION-2 (2026-09-17): spec cursor pagination on the list templates ────
