@@ -6574,6 +6574,105 @@ async function rateLimitExceeded(request, env) {
 }
 
 // ---------------------------------------------------------------------------
+// SPEC.md §13.11.2 — KYA-OS/Checkpoint response-proof rider (NORMATIVE, OPTIONAL, additive;
+// CHECKPOINT-WORKER-1). Default OFF, on-demand rider only. Emitted at
+// `result._meta["org.kya-os/response-proof"]` as `{jws, meta}` ONLY when BOTH hold:
+//   (1) the request opted in — `params._meta["org.kya-os/response-proof"] === true`, and
+//   (2) the serving worker holds a §16-anchored signing identity, configured by deploy:
+//       OCG_SIGNING_KEY (secret, an Ed25519 private JWK {"kty":"OKP","crv":"Ed25519","x","d"}),
+//       optional OCG_SIGNING_DID / OCG_SIGNING_KID for the §16.4 institutional did:web + KMS
+//       pattern (did defaults to the key's own did:key; kid to its self-fragment).
+// With no §16-anchored identity the rider is NOT emitted — absence is never worked around with a
+// self-minted identity (credwork.mjs's per-call ephemeral did:key pairs are NOT §16-anchored and
+// are deliberately NOT used here). The legacy keys `org.kya-os/proof` and bare `proof` are never
+// emitted; the signature-covered upstream `prf` envelope profile (their schema v1.1.0) is an
+// opt-in this profile does not claim. PARTIAL mapping — `nonce`, `audience`, `sessionId` (3 of 7
+// REQUIRED ProofMeta members) are structurally absent from an OCG serve path and MUST NOT be
+// invented, so the emitted object MUST NOT be presented to a KYA-OS verifier as a conformant
+// response-proof; the §13.12 limitation statement rides BESIDE the proof (a sibling `_meta` key —
+// the proof object itself is `additionalProperties:false` at both levels). A view, not a fact:
+// generated downstream of `execution_hash`, hash-excluded (upstream §7.6: `_meta` is never hashed
+// or trusted, and foreign `_meta` keys MUST NOT enter their computations, so the rider cannot
+// corrupt a co-resident full KYA-OS proof path), mints no new hash, MUST NOT bump
+// `chaingraph_version`, and never replaces `audit_signature`/§16 or the `vc`/§13.11 export.
+// ---------------------------------------------------------------------------
+const KYA_RESPONSE_PROOF_KEY = 'org.kya-os/response-proof';           // the ONLY proof key (never the legacy keys)
+const KYA_RESPONSE_PROOF_STATUS_KEY = 'ainumbers/response-proof-status'; // §13.12 limitation statement, beside the proof
+const KYA_PROOF_LIMITATION =
+  'PARTIAL mapping per SPEC.md §13.11.2: 3 of 7 REQUIRED KYA-OS ProofMeta members (nonce, audience, sessionId) ' +
+  'are structurally absent from this serve path — this object MUST NOT be presented to a KYA-OS verifier as a ' +
+  'valid org.kya-os/response-proof. Gating: default OFF, on-demand rider only.';
+
+function b64urlEncodeBytes(bytes) {
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlDecodeBytes(s) {
+  const b64 = s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4);
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+// Upstream §7.3 serve-time digests, "body" profile: SHA-256 over the RFC 8785/JCS form of the
+// value, `sha256:`-prefixed lowercase hex. Uses the SAME vendored canonicalizer as §4/§PPH-1.
+async function kyaSha256Jcs(value) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(jcsStringify(value)));
+  return 'sha256:' + [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+// The §16-anchored signing identity, or null when unconfigured/misconfigured (a malformed
+// identity is misconfiguration — never silently self-minted). Not exported; exercised through
+// buildResponseProof.
+async function responseProofIdentity(env) {
+  const raw = env?.OCG_SIGNING_KEY;
+  if (typeof raw !== 'string' || raw === '') return null;
+  let jwk;
+  try { jwk = JSON.parse(raw); } catch { return null; }
+  if (!jwk || jwk.kty !== 'OKP' || jwk.crv !== 'Ed25519' || typeof jwk.x !== 'string' || typeof jwk.d !== 'string') return null;
+  let key, pub;
+  try {
+    key = await crypto.subtle.importKey('jwk', { kty: jwk.kty, crv: jwk.crv, x: jwk.x, d: jwk.d }, { name: 'Ed25519' }, false, ['sign']);
+    pub = await crypto.subtle.importKey('raw', b64urlDecodeBytes(jwk.x), { name: 'Ed25519' }, true, []);
+  } catch { return null; }
+  const did = (typeof env?.OCG_SIGNING_DID === 'string' && env.OCG_SIGNING_DID !== '')
+    ? env.OCG_SIGNING_DID
+    : await rawPubkeyToDidKey(pub);
+  if (typeof did !== 'string' || !did.startsWith('did:')) return null; // a non-DID is misconfiguration, never stamped
+  // kid: explicit override, else the did:key self-fragment (`did:key:z6Mk…#z6Mk…`). A did:web has
+  // no derivable fragment — an explicit OCG_SIGNING_KID is required there, else no rider.
+  const kid = (typeof env?.OCG_SIGNING_KID === 'string' && env.OCG_SIGNING_KID !== '')
+    ? env.OCG_SIGNING_KID
+    : (did.startsWith('did:key:') ? did + '#' + did.slice('did:key:'.length) : null);
+  if (typeof kid !== 'string' || kid === '') return null;
+  return { key, did, kid };
+}
+// Build the `{jws, meta}` proof object, or null when the §13.11.2 preconditions are not met.
+// `meta` carries exactly the populatable members — did, kid, requestHash, responseHash, ts — and
+// the JWS claims payload IS that same object (JCS form), so payload members reconcile exactly
+// with the emitted meta members, including the gaps. `jws` is a compact JWS, alg "EdDSA" over
+// Ed25519, protected header {alg, kid}, per the landed §13.11.2 text.
+async function buildResponseProof({ method, params, result, env }) {
+  const identity = await responseProofIdentity(env);
+  if (!identity) return null; // no §16-anchored identity — the rider is NOT emitted
+  const hashableParams = { ...(params ?? {}) };
+  delete hashableParams._meta; // upstream §7.3 "body" profile: {method, params} minus params._meta
+  const meta = {
+    did: identity.did,
+    kid: identity.kid,
+    requestHash: await kyaSha256Jcs({ method, params: hashableParams }),
+    responseHash: await kyaSha256Jcs(result?.content ?? []), // over the response content only
+    ts: Math.floor(Date.now() / 1000), // emission time, Unix epoch seconds
+  };
+  const enc = new TextEncoder();
+  const signingInput = b64urlEncodeBytes(enc.encode(jcsStringify({ alg: 'EdDSA', kid: identity.kid })))
+    + '.' + b64urlEncodeBytes(enc.encode(jcsStringify(meta)));
+  const sig = await crypto.subtle.sign({ name: 'Ed25519' }, identity.key, enc.encode(signingInput));
+  return { proof: { jws: signingInput + '.' + b64urlEncodeBytes(new Uint8Array(sig)), meta } };
+}
+export { buildResponseProof, KYA_RESPONSE_PROOF_KEY, KYA_RESPONSE_PROOF_STATUS_KEY };
+
+// ---------------------------------------------------------------------------
 // Cloudflare Workers entry point
 // ---------------------------------------------------------------------------
 export default {
@@ -7214,6 +7313,11 @@ export default {
             ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
             ...(data.chaingraph?.nodes ?? []).filter((n) => n.mcp_name && n.status !== 'deprecated').map((n) => n.mcp_name),
           ]));
+          // SPEC.md §13.11.2 response-proof carriers: the SAME node leg the known set's third
+          // member and buildServer's registration filter serve — a rider only ever attaches to a
+          // result OCG itself computed, never to a utility/showcase/meta answer.
+          data.__nodeToolNames ||= new Set((data.chaingraph?.nodes ?? [])
+            .filter((n) => n.mcp_name && n.status !== 'deprecated').map((n) => n.mcp_name));
 
           // ── MCP-REACH-DISPATCH-1 D1: unwrap a call_tool dispatch ──────────────────────────────
           // Placed HERE, after `known` and BEFORE every other tools/call rule, so the target takes
@@ -7513,6 +7617,32 @@ export default {
             if (dispatchedVia && parsed?.result && typeof parsed.result === 'object') {
               parsed.result._meta = { ...(parsed.result._meta ?? {}), 'ainumbers/dispatched_via': dispatchedVia };
               rewritten = true;
+            }
+            // ── CHECKPOINT-WORKER-1: SPEC.md §13.11.2 KYA-OS/Checkpoint response-proof rider ────
+            // Default OFF, on-demand rider only: emitted at `result._meta["org.kya-os/response-proof"]`
+            // ONLY when the request opted in (params._meta flag === true) AND the worker holds a
+            // §16-anchored signing identity (see the helper block above). Success results of
+            // ChainGraph node tools only — the "OCG-computed result" carriers; error and
+            // input_required results never carry a proof. Additive: the merge below keeps any
+            // pre-existing `_meta` member (incl. the dispatched_via stamp) verbatim, and the
+            // rider is hash-excluded upstream (their §7.6), so it mints no new hash and replaces
+            // nothing. A rider failure NEVER breaks the response — log and ship unproven.
+            if (parsed?.result && typeof parsed.result === 'object'
+                && parsed.result.resultType !== 'input_required'
+                && parsed.result.isError !== true
+                && requestMeta(body)?.[KYA_RESPONSE_PROOF_KEY] === true
+                && data.__nodeToolNames?.has(toolName)) {
+              try {
+                const built = await buildResponseProof({ method: 'tools/call', params: body?.params, result: parsed.result, env });
+                if (built) {
+                  parsed.result._meta = { ...(parsed.result._meta ?? {}),
+                    [KYA_RESPONSE_PROOF_KEY]: built.proof,
+                    [KYA_RESPONSE_PROOF_STATUS_KEY]: KYA_PROOF_LIMITATION };
+                  rewritten = true;
+                }
+              } catch (e) {
+                console.error('[ainumbers-mcp] response-proof rider skipped:', String(e));
+              }
             }
             if (rewritten) newText = prefix + JSON.stringify(parsed) + suffix;
           } catch (_) { /* not JSON we recognise — pass the original bytes through untouched */ }
