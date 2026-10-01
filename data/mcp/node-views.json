@@ -76,8 +76,8 @@
       "mcp_name": "classify_dora_incident",
       "display_name": "DORA Major-Incident Reporting Threshold Classifier",
       "uri": "ui://ainumbers/node/art-09-dora-incident-classifier",
-      "bytes": 95972,
-      "sha256": "28f5a75c1aa837d344fb69bc385e22f664107be3c4ae4a8bc0533e182239870f"
+      "bytes": 96114,
+      "sha256": "db0755d2137e1441acfffacab89cbcb93eeb9d0bde46920dff5870afc0550ca7"
     },
     {
       "tool_id": "art-10-amla-transaction-typology-risk-scorer",
@@ -3508,8 +3508,8 @@
       "mcp_name": "classify_dora_ict_incident_and_clock_deadlines",
       "display_name": "DORA ICT Incident Classifier & Reporting Clock",
       "uri": "ui://ainumbers/node/art-467-dora-incident-classifier",
-      "bytes": 92617,
-      "sha256": "e5d2e5d4900e46d050cef1c9b20f398e6108cba5f80de574ed2c38fbfc38e4e7"
+      "bytes": 92677,
+      "sha256": "3a73ef89d9550003955d0059c0b21ffc2c12f4626414c5e4ed4d47d6c8b68402"
     },
     {
       "tool_id": "art-470-lookback-completeness-reconciler",
@@ -4862,6 +4862,22 @@
       "uri": "ui://ainumbers/node/art-693-isa530-audit-sampling-mus",
       "bytes": 49211,
       "sha256": "ae370dee98303ed7cbf38d8c1a052edbd5542f86abdaf1f2501ce4e32c7a9fe9"
+    },
+    {
+      "tool_id": "art-699-x402-permit2-evidence-recomputer",
+      "mcp_name": "recompute_x402_permit2_digest",
+      "display_name": "X402 Permit2 Evidence Recomputer",
+      "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
+      "bytes": 111304,
+      "sha256": "73400b1a494bc3354cbb8ec60994b761e4eaffc2a85a3b288b0f49bce9ed8dbf"
+    },
+    {
+      "tool_id": "art-700-authorization-payload-linter",
+      "mcp_name": "lint_authorization_payload",
+      "display_name": "Authorization Payload Linter",
+      "uri": "ui://ainumbers/node/art-700-authorization-payload-linter",
+      "bytes": 88503,
+      "sha256": "56a84ebf781aa3e09b659a64a4e7097ae9d38be0c08641021b433bff793845e4"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
