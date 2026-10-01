@@ -76,8 +76,8 @@
       "mcp_name": "classify_dora_incident",
       "display_name": "DORA Major-Incident Reporting Threshold Classifier",
       "uri": "ui://ainumbers/node/art-09-dora-incident-classifier",
-      "bytes": 83442,
-      "sha256": "ae4b52870f9985c78bda5f739faeed50a6e70fc8279f29f027c15d288e464ed9"
+      "bytes": 95972,
+      "sha256": "28f5a75c1aa837d344fb69bc385e22f664107be3c4ae4a8bc0533e182239870f"
     },
     {
       "tool_id": "art-10-amla-transaction-typology-risk-scorer",
@@ -420,8 +420,8 @@
       "mcp_name": "run_digital_trade_fit",
       "display_name": "Digital Trade Corridor Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-52-digital-trade-fit-diagnostic",
-      "bytes": 83502,
-      "sha256": "6dd2b5b2ae32dbdfc48558610f93c96b285d4d028b4f2ef5e86c82d8912c6c74"
+      "bytes": 83699,
+      "sha256": "241622e9c2114f259be4b493347fecaeadf9253ae46af2d3a2d0bcd2ca02f046"
     },
     {
       "tool_id": "art-53-mletr-ebl-conformance-validator",
@@ -3508,8 +3508,8 @@
       "mcp_name": "classify_dora_ict_incident_and_clock_deadlines",
       "display_name": "DORA ICT Incident Classifier & Reporting Clock",
       "uri": "ui://ainumbers/node/art-467-dora-incident-classifier",
-      "bytes": 82307,
-      "sha256": "5f3ff7e3827a5fdcf9a8d5e0be7081b26097279b76c9f13f7053a5d128886f4b"
+      "bytes": 92617,
+      "sha256": "e5d2e5d4900e46d050cef1c9b20f398e6108cba5f80de574ed2c38fbfc38e4e7"
     },
     {
       "tool_id": "art-470-lookback-completeness-reconciler",
