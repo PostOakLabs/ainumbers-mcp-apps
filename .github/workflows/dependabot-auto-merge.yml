@@ -89,11 +89,13 @@ jobs:
               # repo to infer the target from (same trap automerge-label.yml
               # documents, run 31980911540). || true forgives only "already
               # exists"; any other create failure still fails the edit below —
-              # fail-closed.
+              # fail-closed. Description must stay <= 100 chars: GitHub rejects
+              # longer ones with HTTP 422 "description is too long", the label is
+              # never created, and the edit below fails every run (PR #424).
               gh label create deps-human-review \
                 --repo "$GITHUB_REPOSITORY" \
                 --color 0E8A16 \
-                --description "Dependabot bump outside auto-merge scope (allowlisted runtime deps, patch-level only); human review required" \
+                --description "Dependabot bump outside auto-merge scope (patch-level allowlisted runtime deps only); human review" \
                 || true
               gh pr edit "$PR_URL" --add-label deps-human-review
               gh pr comment "$PR_URL" --body "Not auto-merged: ${VERDICT}. Auto-merge is limited to patch-level bumps of allowlisted runtime dependencies; this PR needs human review and a human merge."
