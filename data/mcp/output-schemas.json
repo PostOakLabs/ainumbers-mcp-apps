@@ -820,11 +820,35 @@
   "classify_dora_incident": {
     "type": "object",
     "properties": {
+      "determination_code": {
+        "type": "string",
+        "enum": [
+          "major",
+          "not_major",
+          "not_evaluable",
+          "malformed"
+        ]
+      },
       "major_incident": {
         "type": "boolean"
       },
-      "determination_code": {
-        "type": "string"
+      "determination_reason_codes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "gateway": {
+        "type": "object"
+      },
+      "malicious_access_single_condition": {
+        "type": "object"
+      },
+      "other_thresholds_met_count": {
+        "type": "integer"
+      },
+      "two_other_thresholds_branch_met": {
+        "type": "boolean"
       },
       "qualifying_criteria": {
         "type": "array",
@@ -832,43 +856,44 @@
           "type": "string"
         }
       },
-      "reporting_clock": {
-        "type": "object",
-        "properties": {
-          "detection_datetime": {
-            "type": "string"
-          },
-          "classification_datetime": {
-            "type": "string"
-          },
-          "initial_notification_deadline": {
-            "type": "string"
-          },
-          "intermediate_report_deadline": {
-            "type": "string"
-          },
-          "final_report_deadline": {
-            "type": "string"
-          }
+      "criteria_detail": {
+        "type": "array",
+        "items": {
+          "type": "object"
         }
       },
-      "entity_type": {
+      "recurring_incident_aggregation": {
+        "type": "object"
+      },
+      "reporting_clock": {
+        "type": "object"
+      },
+      "reporting_clock_notes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "malformed_inputs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "table_version": {
         "type": "string"
       },
-      "incident_type": {
+      "table_source": {
         "type": "string"
       },
-      "cross_border": {
-        "type": "boolean"
-      },
-      "third_party_ict": {
-        "type": "boolean"
-      },
-      "competent_authority_note": {
+      "note": {
         "type": "string"
       },
-      "regulatory_framework": {
-        "type": "string"
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
       }
     }
   },
@@ -24597,48 +24622,53 @@
   "classify_dora_ict_incident_and_clock_deadlines": {
     "type": "object",
     "properties": {
-      "criteria_detail": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "article": {
-              "type": "string"
-            },
-            "criterion_id": {
-              "type": "string"
-            },
-            "met": {
-              "type": "boolean"
-            },
-            "value": {
-              "type": "string"
-            }
+      "schedule_state": {
+        "type": "string",
+        "enum": [
+          "evaluable",
+          "not_evaluable",
+          "malformed"
+        ]
+      },
+      "entity_class": {
+        "type": "string"
+      },
+      "reporting_clock": {
+        "type": "object",
+        "properties": {
+          "entity_class": {
+            "type": "string"
+          },
+          "classification_at": {
+            "type": "string"
+          },
+          "awareness_at": {
+            "type": "string"
+          },
+          "logical_date": {
+            "type": "string"
+          },
+          "bank_holiday_calendar_ref": {
+            "type": "string"
+          },
+          "stages": {
+            "type": "object"
           }
         }
       },
-      "incident_id": {
-        "type": "string"
-      },
-      "major_incident": {
+      "tpp_aggregated_submission": {
         "type": "boolean"
       },
-      "note": {
-        "type": "string"
-      },
-      "qualifying_criteria": {
-        "type": "array"
-      },
-      "reporting_clock": {
-        "type": "string"
-      },
-      "table_source": {
+      "reporting_path_note": {
         "type": "string"
       },
       "table_version": {
         "type": "string"
       },
-      "verdict": {
+      "table_source": {
+        "type": "string"
+      },
+      "note": {
         "type": "string"
       }
     }
@@ -42673,6 +42703,141 @@
       }
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-03 (11 vectors, chaingraph/kernels/fixtures/art-693-isa530-audit-sampling-mus.fixtures.json)"
+  },
+  "lint_authorization_payload": {
+    "type": "object",
+    "required": [
+      "mode",
+      "classification",
+      "checks",
+      "not_evaluated",
+      "policy_conformance"
+    ],
+    "properties": {
+      "mode": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "classification": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "type": "string"
+          },
+          "primary_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "encode_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "witness_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "witness_is_named_payment_witness": {
+            "type": "boolean"
+          },
+          "lookalike": {
+            "type": "boolean"
+          },
+          "entry_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "payment_method": {
+            "type": "string"
+          }
+        }
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "status"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "FLAGGED",
+                "CLEAR",
+                "NOT_EVALUATED"
+              ]
+            },
+            "severity": {
+              "type": "string"
+            },
+            "field_path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "observed": {},
+            "policy": {}
+          }
+        }
+      },
+      "not_evaluated": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "evaluated_count": {
+        "type": "integer"
+      },
+      "flagged_count": {
+        "type": "integer"
+      },
+      "policy_conformance": {
+        "type": "string",
+        "enum": [
+          "CONFORMS",
+          "DEVIATES",
+          "INDETERMINATE"
+        ]
+      },
+      "display": {
+        "type": "array"
+      },
+      "handoffs": {
+        "type": "object"
+      },
+      "signature_form": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    },
+    "x_schema_provenance": "derived-from-golden-fixtures 2026-09-29 (28 vectors, chaingraph/kernels/fixtures/art-700-authorization-payload-linter.fixtures.json)"
   },
   "generate_zk_compliance_proof": {
     "type": "object",

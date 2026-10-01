@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 714,
+  "tool_count": 716,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -400,6 +400,7 @@
     "lint_ab2013_training_data_disclosure",
     "lint_aiuc1_control_evidence",
     "lint_arc_xreserve_config",
+    "lint_authorization_payload",
     "lint_besu_settlement_contract",
     "lint_cbom_structure",
     "lint_cbpr_structured_address",
@@ -495,6 +496,7 @@
     "recompute_tmpg_fails_charge",
     "recompute_trustee_report_waterfall",
     "recompute_x402_eip712_digest",
+    "recompute_x402_permit2_digest",
     "recon_match",
     "reconcile_aml_lookback_completeness",
     "reconcile_commission_statement",
