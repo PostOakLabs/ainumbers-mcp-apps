@@ -420,8 +420,8 @@
       "mcp_name": "run_digital_trade_fit",
       "display_name": "Digital Trade Corridor Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-52-digital-trade-fit-diagnostic",
-      "bytes": 83502,
-      "sha256": "6dd2b5b2ae32dbdfc48558610f93c96b285d4d028b4f2ef5e86c82d8912c6c74"
+      "bytes": 83699,
+      "sha256": "241622e9c2114f259be4b493347fecaeadf9253ae46af2d3a2d0bcd2ca02f046"
     },
     {
       "tool_id": "art-53-mletr-ebl-conformance-validator",
@@ -924,8 +924,8 @@
       "mcp_name": "build_product_lineage",
       "display_name": "Digital Product Passport Cradle-to-Gate Lineage Builder",
       "uri": "ui://ainumbers/node/art-116-product-lineage-builder",
-      "bytes": 75653,
-      "sha256": "65f03e8db2439c599cf2b49e9cb24f1f62fd5e5030ff35d90cf9c1c24c17574c"
+      "bytes": 75818,
+      "sha256": "f2ff4faa83abd6a90195fd4649f98ceea23fc9c0ad7e11d5e8dbcb4856a9adcf"
     },
     {
       "tool_id": "art-117-product-authenticity-verifier",
@@ -948,8 +948,8 @@
       "mcp_name": "link_traceability_lot_code",
       "display_name": "FSMA 204 Traceability Lot Code Chain Linker",
       "uri": "ui://ainumbers/node/art-119-traceability-lot-code-linker",
-      "bytes": 72250,
-      "sha256": "8911cd18d7b195ad70d676547216826e1ba0a23e00eec43b368693549cf9b753"
+      "bytes": 72410,
+      "sha256": "54bf6edf2344eeffa8f8821d9d20161c5ea7933f3262d69a14bf18e0f22fcdf1"
     },
     {
       "tool_id": "art-120-recall-trace-resolver",
@@ -4862,6 +4862,22 @@
       "uri": "ui://ainumbers/node/art-693-isa530-audit-sampling-mus",
       "bytes": 49211,
       "sha256": "ae370dee98303ed7cbf38d8c1a052edbd5542f86abdaf1f2501ce4e32c7a9fe9"
+    },
+    {
+      "tool_id": "art-699-x402-permit2-evidence-recomputer",
+      "mcp_name": "recompute_x402_permit2_digest",
+      "display_name": "X402 Permit2 Evidence Recomputer",
+      "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
+      "bytes": 111304,
+      "sha256": "73400b1a494bc3354cbb8ec60994b761e4eaffc2a85a3b288b0f49bce9ed8dbf"
+    },
+    {
+      "tool_id": "art-700-authorization-payload-linter",
+      "mcp_name": "lint_authorization_payload",
+      "display_name": "Authorization Payload Linter",
+      "uri": "ui://ainumbers/node/art-700-authorization-payload-linter",
+      "bytes": 93118,
+      "sha256": "690cd2db13ae3a57f776d5557c98fed2a5eca98206fee734888ff78815ebf44d"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
