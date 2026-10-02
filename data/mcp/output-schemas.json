@@ -42674,6 +42674,141 @@
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-03 (11 vectors, chaingraph/kernels/fixtures/art-693-isa530-audit-sampling-mus.fixtures.json)"
   },
+  "lint_authorization_payload": {
+    "type": "object",
+    "required": [
+      "mode",
+      "classification",
+      "checks",
+      "not_evaluated",
+      "policy_conformance"
+    ],
+    "properties": {
+      "mode": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "classification": {
+        "type": "object",
+        "properties": {
+          "standard": {
+            "type": "string"
+          },
+          "primary_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "encode_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "witness_type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "witness_is_named_payment_witness": {
+            "type": "boolean"
+          },
+          "lookalike": {
+            "type": "boolean"
+          },
+          "entry_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "payment_method": {
+            "type": "string"
+          }
+        }
+      },
+      "checks": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "status"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "FLAGGED",
+                "CLEAR",
+                "NOT_EVALUATED"
+              ]
+            },
+            "severity": {
+              "type": "string"
+            },
+            "field_path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "observed": {},
+            "policy": {}
+          }
+        }
+      },
+      "not_evaluated": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "evaluated_count": {
+        "type": "integer"
+      },
+      "flagged_count": {
+        "type": "integer"
+      },
+      "policy_conformance": {
+        "type": "string",
+        "enum": [
+          "CONFORMS",
+          "DEVIATES",
+          "INDETERMINATE"
+        ]
+      },
+      "display": {
+        "type": "array"
+      },
+      "handoffs": {
+        "type": "object"
+      },
+      "signature_form": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    },
+    "x_schema_provenance": "derived-from-golden-fixtures 2026-09-29 (28 vectors, chaingraph/kernels/fixtures/art-700-authorization-payload-linter.fixtures.json)"
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
