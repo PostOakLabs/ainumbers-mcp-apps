@@ -42674,6 +42674,286 @@
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-03 (11 vectors, chaingraph/kernels/fixtures/art-693-isa530-audit-sampling-mus.fixtures.json)"
   },
+  "recompute_x402_permit2_digest": {
+    "type": "object",
+    "properties": {
+      "allowance_expiry": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "domain": {
+        "type": "object",
+        "properties": {
+          "chain_id": {
+            "type": "string"
+          },
+          "field_count": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "verifying_contract": {
+            "type": "string"
+          },
+          "verifying_contract_is_canonical_permit2": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "chain_id",
+          "field_count",
+          "name",
+          "verifying_contract",
+          "verifying_contract_is_canonical_permit2"
+        ],
+        "additionalProperties": false
+      },
+      "domain_separator": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "domain_typehash": {
+        "type": "string"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "handoff_591": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "handoff_612": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "message": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "nonce_facts": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "signature_form": {
+        "type": "object",
+        "properties": {
+          "ecdsa_recovery_applicable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "erc6492_wrapped": {
+            "type": "boolean",
+            "enum": [
+              false,
+              true
+            ]
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "present": {
+            "type": "boolean",
+            "enum": [
+              false,
+              true
+            ]
+          },
+          "r": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "s_above_half_order": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "signature_byte_length": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "signature_length_class": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "v_form": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "compact_packed_y_parity",
+              "legacy_27_28",
+              null
+            ]
+          },
+          "v_onchain_compatible": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "y_parity": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "ecdsa_recovery_applicable",
+          "erc6492_wrapped",
+          "notes",
+          "present",
+          "r",
+          "s",
+          "s_above_half_order",
+          "signature_byte_length",
+          "signature_length_class",
+          "v_form",
+          "v_onchain_compatible",
+          "y_parity"
+        ],
+        "additionalProperties": false
+      },
+      "sponsored_approval": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "struct_hash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "type_string": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "typehash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "variant": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "permit_batch_transfer_from",
+          "permit_single",
+          "permit_transfer_from",
+          "permit_witness_batch_v9",
+          "x402_witness_transfer",
+          null
+        ]
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "DIGEST_RECOMPUTED",
+          "INDETERMINATE"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "window": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "x402_binding": {
+        "type": [
+          "object",
+          "null"
+        ]
+      }
+    },
+    "required": [
+      "allowance_expiry",
+      "digest",
+      "domain",
+      "domain_separator",
+      "domain_typehash",
+      "errors",
+      "handoff_591",
+      "handoff_612",
+      "message",
+      "nonce_facts",
+      "reasons",
+      "scope_note",
+      "signature_form",
+      "sponsored_approval",
+      "struct_hash",
+      "type_string",
+      "typehash",
+      "variant",
+      "verdict",
+      "warnings",
+      "window",
+      "x402_binding"
+    ],
+    "additionalProperties": false
+  },
   "lint_authorization_payload": {
     "type": "object",
     "required": [
@@ -42808,6 +43088,71 @@
       }
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-29 (28 vectors, chaingraph/kernels/fixtures/art-700-authorization-payload-linter.fixtures.json)"
+  },
+  "match_invoice_three_way": {
+    "type": "object",
+    "properties": {
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "match",
+          "mismatch",
+          "no_po",
+          "refused"
+        ]
+      },
+      "refusal_reason": {
+        "type": "string"
+      },
+      "po_number": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "receipt_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "lines": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "totals": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "mismatches": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "duplicates": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "hold_recommended": {
+        "type": "boolean"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
   },
   "generate_zk_compliance_proof": {
     "type": "object",
