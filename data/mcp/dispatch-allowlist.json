@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 716,
+  "tool_count": 717,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -438,6 +438,7 @@
     "map_robinhood_chain_regime",
     "map_tempo_settlement",
     "match_confirmations",
+    "match_invoice_three_way",
     "mobilize_margin_collateral",
     "model_agent_service_metering",
     "model_arc_cpn_economics",

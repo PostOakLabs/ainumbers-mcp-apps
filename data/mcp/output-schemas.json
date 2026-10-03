@@ -42809,6 +42809,71 @@
     },
     "x_schema_provenance": "derived-from-golden-fixtures 2026-09-29 (28 vectors, chaingraph/kernels/fixtures/art-700-authorization-payload-linter.fixtures.json)"
   },
+  "match_invoice_three_way": {
+    "type": "object",
+    "properties": {
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "match",
+          "mismatch",
+          "no_po",
+          "refused"
+        ]
+      },
+      "refusal_reason": {
+        "type": "string"
+      },
+      "po_number": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "receipt_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "lines": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "totals": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "mismatches": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "duplicates": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "hold_recommended": {
+        "type": "boolean"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
