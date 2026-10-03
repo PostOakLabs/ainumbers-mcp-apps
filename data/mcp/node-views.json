@@ -212,32 +212,32 @@
       "mcp_name": "simulate_x402_flow",
       "display_name": "x402 Header Decoder, Payload Linter & 402 Flow Simulator",
       "uri": "ui://ainumbers/node/art-26-x402-payload-decoder-flow-simulator",
-      "bytes": 95218,
-      "sha256": "f561e909bf6ef9fa164647ab82f6e177ac8dd2c1b5b9688d4a3f6ba6b1bacea1"
+      "bytes": 95230,
+      "sha256": "ccf8a0ecfed730138c62106883929a3a6d44a736337db9aae2582c75fc084c42"
     },
     {
       "tool_id": "art-27-agentic-readiness-diagnostic",
       "mcp_name": "run_agentic_readiness_diagnostic",
       "display_name": "Agentic Payments Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-27-agentic-readiness-diagnostic",
-      "bytes": 50154,
-      "sha256": "a55bb877eacf809a78aedf522501c64ebb20ffb6f286ddd4347b80e97d54dfeb"
+      "bytes": 51748,
+      "sha256": "5bd64cd633e2afcff820f50ae77b2c373973a37d247363f56a659f95d56484d2"
     },
     {
       "tool_id": "art-28-mcp-server-deployability-diagnostic",
       "mcp_name": "run_mcp_deployability_diagnostic",
       "display_name": "MCP Server Deployability Diagnostic",
       "uri": "ui://ainumbers/node/art-28-mcp-server-deployability-diagnostic",
-      "bytes": 52298,
-      "sha256": "8f46c9b2de3a7626ea758e5965781d6c0f2409437dc3df21b063227787d51df3"
+      "bytes": 53892,
+      "sha256": "ecdee876c7c9e743a7bf6ed8490fd7f90d8b030ce401c4f110ef51c09391334f"
     },
     {
       "tool_id": "art-29-dora-readiness-diagnostic",
       "mcp_name": "run_dora_readiness_diagnostic",
       "display_name": "DORA Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-29-dora-readiness-diagnostic",
-      "bytes": 50923,
-      "sha256": "85338d6b3e3d4022bd714aa72a6a338702d7c565c1ae9663d8622de00da85611"
+      "bytes": 52507,
+      "sha256": "04487689f66848debf6e389e1e5c4da2be5d1cf788ca659684cb46b9913bbed1"
     },
     {
       "tool_id": "art-30-agent-commerce-conformance-validator",
@@ -380,8 +380,8 @@
       "mcp_name": "validate_cctp_v2_transfer",
       "display_name": "Arc CCTP v2 Transfer Validator",
       "uri": "ui://ainumbers/node/art-47-arc-cctp-transfer",
-      "bytes": 61242,
-      "sha256": "66bb8b8dea2ecc01c5b6325de0528cc15d907bc4ff933dba26232d7e50b077db"
+      "bytes": 61815,
+      "sha256": "96b2bc28b296fe88b2e600d14332cf5587843e48b53b97658fed9debaf743d25"
     },
     {
       "tool_id": "art-48-treasury-clearing-fit-diagnostic",
@@ -428,8 +428,8 @@
       "mcp_name": "validate_mletr_record",
       "display_name": "MLETR / eBL Conformance & Enforceability Validator",
       "uri": "ui://ainumbers/node/art-53-mletr-ebl-conformance-validator",
-      "bytes": 81621,
-      "sha256": "a8b76786375b15b5268aaf92a3e0304dc50b497841ee2a0d6fa2bfde0595c421"
+      "bytes": 82136,
+      "sha256": "3e261c0a30eabc8bfb78a64a14a0acf620728d5b5354bdcce801aedc9cc812b6"
     },
     {
       "tool_id": "art-54-digital-trade-rules-checker",
@@ -4876,8 +4876,16 @@
       "mcp_name": "lint_authorization_payload",
       "display_name": "Authorization Payload Linter",
       "uri": "ui://ainumbers/node/art-700-authorization-payload-linter",
-      "bytes": 93118,
-      "sha256": "690cd2db13ae3a57f776d5557c98fed2a5eca98206fee734888ff78815ebf44d"
+      "bytes": 93012,
+      "sha256": "c7286c3e386f43e43d871258c1290a91d90a39c5f9ea92834a832780884c7a06"
+    },
+    {
+      "tool_id": "art-701-three-way-invoice-match",
+      "mcp_name": "match_invoice_three_way",
+      "display_name": "Three Way Invoice Match",
+      "uri": "ui://ainumbers/node/art-701-three-way-invoice-match",
+      "bytes": 86187,
+      "sha256": "9810fa86c80d932c93449b933d0ce5301f72237e1f661f3ad8d79428c620805d"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
