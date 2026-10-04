@@ -95,8 +95,8 @@ async function listToolNames(){
     // propagation check compares against the FULL registered set, not just page one.
     const names = [];
     let cursor;
-    for (let page = 1, id = id++; page <= 100; page++, id++) {
-      const res = await fetch(MCP_URL, { method:'POST', headers:{ 'content-type':'application/json', accept:'application/json, text/event-stream', 'mcp-protocol-version':PROTO }, body: JSON.stringify({ jsonrpc:'2.0', id:id, method:'tools/list', params: cursor ? { cursor } : {} }) });
+    for (let page = 1; page <= 100; page++) {
+      const res = await fetch(MCP_URL, { method:'POST', headers:{ 'content-type':'application/json', accept:'application/json, text/event-stream', 'mcp-protocol-version':PROTO }, body: JSON.stringify({ jsonrpc:'2.0', id:id++, method:'tools/list', params: cursor ? { cursor } : {} }) });
       const text = await res.text();
       const j = parseMaybeSSE(text, res.headers.get('content-type') || '');
       const tools = (j && j.result && j.result.tools) || [];
