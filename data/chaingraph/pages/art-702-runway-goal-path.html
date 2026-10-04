@@ -7,14 +7,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
-<title>E-Invoice Jurisdiction Mandate Router · ART-295 · OpenChainGraph · AINumbers.co</title>
-<meta name="description" content="Route a transaction to its applicable e-invoicing mandate regime, format, and transmission channel: France PDP (B2B receive obligation live 2026-09-01), Germany XRechnung, UAE PINT-AE pilot, Malaysia MyInvois, Belgium Peppol BIS 3.0 (mandatory since 2026-01-01), Poland KSeF FA(3) (mandatory-use phase-in from 2026-02-01). Zero network.">
-<link rel="canonical" href="https://ainumbers.co/chaingraph/art-295-einvoice-jurisdiction-mandate-router.html">
-<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-295-einvoice-jurisdiction-mandate-router.md">
+<title>Runway Goal Path · ART-702 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Goal-seek over a startup cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort. Client-side. Zero PII.">
+<meta name="ain:category" content="run">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-702-runway-goal-path.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-702-runway-goal-path.md">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"E-Invoice Jurisdiction Mandate Router","applicationCategory":"FinanceApplication","description":"Route a transaction to its applicable e-invoicing mandate regime, format, and transmission channel across France, Germany, UAE, and Malaysia. Zero network.","url":"https://ainumbers.co/chaingraph/art-295-einvoice-jurisdiction-mandate-router.html","publisher":{"@type":"Organization","name":"Post Oak Labs","url":"https://postoaklabs.com"},"license":"https://creativecommons.org/licenses/by/4.0/"}
-</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -23,57 +21,49 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--teal-lt);text-decoration:none}
-.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
-nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 80px}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
 h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
-.sub{color:var(--body);max-width:660px;margin-bottom:8px}
-.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
-.flag.warn{background:rgba(212,168,71,.1);color:var(--gold);border-color:rgba(212,168,71,.3)}
-.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
-.flag.gold{background:rgba(212,168,71,.1);color:var(--gold);border-color:rgba(212,168,71,.3)}
-.flag.purple{background:rgba(155,114,245,.08);color:var(--purple);border-color:rgba(155,114,245,.25)}
+.sub{color:var(--body);max-width:700px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
 .pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
 .card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
 .section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
+.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.76rem}
+.tbl th{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 6px;border-bottom:1px solid var(--border)}
+.tbl td{padding:5px 6px;border-bottom:1px solid rgba(30,47,74,.5);vertical-align:middle}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 16px;margin:10px 0}
+@media(max-width:640px){.field-grid{grid-template-columns:1fr}}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:3px;letter-spacing:.02em}
+.field select,.field input{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.field textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;min-height:84px;resize:vertical}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.55rem 1.1rem;cursor:pointer;font-weight:600}
 button:hover{opacity:.9}
-button:disabled{opacity:.45;cursor:not-allowed}
-.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.preset-btn{background:var(--bg-3);color:var(--body);border:1px solid var(--border-2);font-size:.62rem;padding:.3rem .7rem;text-transform:none;letter-spacing:0;font-weight:400}
-.preset-btn:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-2{background:transparent;color:var(--text);border:1px solid var(--border-2)}
 .results-panel{display:none}
 .results-panel.show{display:block}
 .hero-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:100px;flex:1}
-.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:600}
+.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:140px;flex:1}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--bright)}
 .hero-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
 .verdict{border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
 .verdict.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
-.verdict.warn{background:rgba(212,168,71,.06);border:1px solid rgba(212,168,71,.2);color:var(--gold)}
+.verdict.fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.verdict.warn{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);color:var(--warn)}
 .badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
 .badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.badge.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.2)}
-.gap-list{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
 pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
 .hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--green);word-break:break-all;margin:6px 0}
 .muted-txt{color:var(--muted);font-size:.72rem}
 .mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
-.mfst-btn:hover{color:var(--text);border-color:var(--border-2)}
 #mfstBody{display:none;margin-top:10px}
 .results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-.run-btn{margin-top:6px}
-.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
-.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
-.form-group{margin-bottom:14px}
-.form-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);display:block;margin-bottom:4px}
-.form-label span{color:var(--muted);margin-left:4px}
-input[type=text],input[type=number],select{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.78rem;padding:.45rem .7rem;outline:none;transition:border-color .2s}
-input[type=text]:focus,select:focus{border-color:var(--teal)}
-select option{background:var(--bg-3);color:var(--bright)}
 .generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}
-</style>
-<style>
 /* OCG-CHROME-CSS:v1 */
 /* Canonical nav — derived from chaingraph-hub.html */
 nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -111,10 +101,11 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
 .related-topics{max-width:900px;margin:0 auto}
 
 </style>
-<meta name="ai-tool" content="route_einvoice_jurisdiction_mandate">
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-702-runway-goal-path.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:a62ea8245d5f29e41c714ffbcfc8b2f52d5a68cefb22a29a500b9dfc61c33beb">
+<meta name="ai-tool" content="find_runway_goal_path">
 </head>
 <body>
-
 <nav>
   <div class="nav-inner">
     <a href="../index.html" class="logo">
@@ -138,7 +129,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
       <span>›</span>
       <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
       <span>›</span>
-      <span style="color:var(--gold)">ART-295 · E-Invoice Jurisdiction Mandate Router</span>
+      <span style="color:var(--gold)">ART-702 · Runway Goal Path</span>
     </div>
     <div class="nav-right">
       <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
@@ -146,61 +137,43 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
     </div>
   </div>
 </nav>
-
-<div class="wrap" role="main" aria-description="Route a transaction to its applicable e-invoicing mandate regime, format, phase status, and transmission channel via a version-pinned mandate table keyed on supplier/buyer country, transaction type, and transaction date. Covers France (PDP, live 2026-09-01), Germany (XRechnung), UAE (PINT-AE pilot), Malaysia (MyInvois), Belgium (Peppol BIS 3.0, mandatory since 2026-01-01), Poland (KSeF FA(3), mandatory-use phase-in from 2026-02-01). Zero network, zero PII.">
-  <div class="eyebrow">OpenChainGraph Suite · ART-295 · e-invoicing</div>
-  <h1>E-Invoice Jurisdiction Mandate Router</h1>
-  <p class="sub">Deterministic lookup over a version-pinned mandate table: given supplier/buyer country, transaction type, and transaction date, routes to the applicable e-invoicing regime, format, phase status, and transmission channel. France's B2B receive obligation is live from 2026-09-01 via the PDP channel; Germany's XRechnung B2G/B2B receive obligation is already live; Belgium's Peppol BIS 3.0 mandate has been live since 2026-01-01; Poland's KSeF FA(3) mandatory-use phase-in starts 2026-02-01; UAE PINT-AE and Malaysia MyInvois dates are DRAFT-PIN pending re-confirmation. Zero network.</p>
-  <div style="margin-bottom:6px"><span class="flag warn">E-Invoicing</span><span class="flag info">France PDP 2026-09-01</span><span class="flag gold">4 Regimes</span><span class="flag">Zero PII</span><span class="flag purple">W3C VC §13.11</span></div>
-
+<div class="wrap" role="main" aria-description="Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.">
+  <div class="eyebrow">OpenChainGraph Suite · ART-702</div>
+  <h1>Runway Goal Path</h1>
+  <p class="sub">The smallest change in price, in month-over-month growth, or in burn that reaches a declared goal: a runway of N months, solvency through the horizon, breakeven by a month, or a closing cash amount, ranked by least effort. A fixed monthly cash model walks every combination of your three lever grids; the all-zero scenario is always reported as the baseline.</p>
+  <div style="margin-bottom:6px"><span class="flag">Goal-Seek</span><span class="flag">Integer Minor Units</span><span class="flag">Zero PII</span><span class="flag">Client-side only</span></div>
   <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
-  <!-- FACT-STAMP:START -->
-<!-- Generated by scripts/gen-fact-stamps.mjs from data/bank-fact-freshness.json. Dated observations only, never promises about future updates (SO #0). Do not hand-edit; run the generator. -->
-<div class="fact-stamp" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin:10px 0">Verified 2026-07-24 against <a href="https://finances.wallonie.be/accueil-entreprises/actualites/actualites/facturation-electronique-une-obligation-des-le-1er-janvier-2026-etes-vous-prets.html" style="color:var(--teal)">finances.wallonie.be</a></div>
-<div class="fact-stamp" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin:10px 0">Verified 2026-07-24 against <a href="https://www.impots.gouv.fr/sites/default/files/media/1_metier/2_professionnel/EV/2_gestion/290_facturation_electronique/guide_pratique_facturation_electronique.pdf" style="color:var(--teal)">www.impots.gouv.fr</a></div>
-<div class="fact-stamp" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);margin:10px 0">Verified 2026-07-24 against <a href="https://www.gov.pl/web/finanse/obowiazkowy-ksef-odroczony-do-1-lutego-2026-r" style="color:var(--teal)">www.gov.pl</a></div>
-<!-- FACT-STAMP:END -->
-
-  <div class="info-box"><div class="ib-title">Scope</div>Third node of the einvoice-validation-pipeline chain (art-293→294→295→296). A deterministic lookup, not a live regulatory feed; refresh the mandate table at each rebuild. See <a href="chains/einvoice-validation-pipeline.html">einvoice-validation-pipeline chain</a>.</div>
-
+  <div class="info-box"><div class="ib-title">Scope &amp; reliance</div>Month 1 uses the declared revenue (optionally price-uplifted); growth applies from month 2 at a constant rate; burn is derived once and held constant. The first month where cash goes below zero is the cash-out month, interpolated in basis points of a month as (m−1)·10000 + floor(prev_cash·10000/(−net)); cash landing exactly on zero is not a cash-out. Effort is the half-up integer division by 100 of the sum of weight times lever; ties break by burn_cut, then price_uplift, then growth_add, all ascending. Scope limits: one revenue line, constant burn, no financing events, no churn model, and no tax. No formal correctness proof exists for this node yet (compute_proof_ready: deferred); see the proof-status note below the results.</div>
   <div class="card">
-    <div class="section-head">Presets</div>
-    <div class="preset-row">
-      <button class="preset-btn" onclick="loadPreset('fr_mandatory')">France B2B (mandatory)</button>
-      <button class="preset-btn" onclick="loadPreset('fr_pending')">France B2B (phase-in pending)</button>
-      <button class="preset-btn" onclick="loadPreset('ae_pilot')">UAE PINT-AE pilot</button>
-      <button class="preset-btn" onclick="loadPreset('b2c')">B2C (out of scope)</button>
-      <button class="preset-btn" onclick="loadPreset('be_mandatory')">Belgium Peppol BIS 3.0 (mandatory)</button>
-      <button class="preset-btn" onclick="loadPreset('pl_mandatory')">Poland KSeF FA(3) (mandatory)</button>
+    <div class="section-head">Cash model and goal</div>
+    <div class="muted-txt" style="margin-bottom:8px">Edit any field and run. The sample is fixture F1, the baseline-meets-goal seal vector from the conformance set.</div>
+    <div class="field-grid">
+      <div class="field"><label for="cash_minor">cash_minor</label><input id="cash_minor" value="100000000" aria-label="cash_minor"></div>
+      <div class="field"><label for="monthly_revenue_minor">monthly_revenue_minor</label><input id="monthly_revenue_minor" value="2000000" aria-label="monthly_revenue_minor"></div>
+      <div class="field"><label for="monthly_burn_minor">monthly_burn_minor</label><input id="monthly_burn_minor" value="6000000" aria-label="monthly_burn_minor"></div>
+      <div class="field"><label for="revenue_growth_bp">revenue_growth_bp</label><input id="revenue_growth_bp" value="800" aria-label="revenue_growth_bp"></div>
+      <div class="field"><label for="horizon_months">horizon_months</label><input id="horizon_months" value="36" aria-label="horizon_months"></div>
+      <div class="field"><label for="max_candidates">max_candidates</label><input id="max_candidates" value="4" aria-label="max_candidates"></div>
+      <div class="field" style="grid-column:1 / -1"><label for="goal">goal (JSON)</label><textarea id="goal" rows="2" aria-label="goal">{"type":"runway_months","value":18}</textarea></div>
+      <div class="field" style="grid-column:1 / -1"><label for="levers">levers (JSON)</label><textarea id="levers" rows="6" aria-label="levers"></textarea></div>
+      <div class="field" style="grid-column:1 / -1"><label for="effort_weights">effort_weights (JSON)</label><textarea id="effort_weights" rows="3" aria-label="effort_weights"></textarea></div>
     </div>
-
-    <div class="section-head">Transaction Facts</div>
-    <div class="form-group">
-      <label class="form-label" for="supplier_country">supplier_country <span>(ISO 3166-1 alpha-2)</span></label>
-      <input type="text" id="supplier_country" maxlength="2" aria-label="supplier_country">
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="run()">Run</button>
+      <button class="btn-2" onclick="loadSample()">Load sample (F1)</button>
+      <button class="btn-2" onclick="loadRefusalDemo()">Load refusal demo (F10)</button>
     </div>
-    <div class="form-group">
-      <label class="form-label" for="buyer_country">buyer_country <span>(ISO 3166-1 alpha-2)</span></label>
-      <input type="text" id="buyer_country" maxlength="2" aria-label="buyer_country">
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="transaction_type">transaction_type</label>
-      <select id="transaction_type" aria-label="transaction_type" aria-description="type not evidenced by kernel source"><option value="B2B">B2B</option><option value="B2C">B2C</option><option value="B2G">B2G</option></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="transaction_date">transaction_date <span>(YYYY-MM-DD)</span></label>
-      <input type="text" id="transaction_date" aria-label="transaction_date" aria-description="type not evidenced by kernel source">
-    </div>
-
-    <button class="run-btn" style="margin-top:16px" onclick="run()">Route Mandate</button>
   </div>
-
   <div class="results-panel" id="resultsPanel">
     <div class="generated-at" id="generatedAt"></div>
     <div class="card">
       <div class="section-head">Result</div>
       <div class="hero-row" id="heroRow"></div>
       <div id="verdictDiv"></div>
+      <div id="baselineDiv" style="margin-top:8px"></div>
+      <div id="noneDiv" style="margin-top:8px"></div>
+      <table class="tbl" id="candTbl"></table>
+      <div class="info-box" style="margin-top:12px"><div class="ib-title">Proof status</div>This node ships <code>compute_proof_ready: deferred</code>. No formal correctness proof has been produced for this kernel; the result above is a deterministic recompute, verified by a property-test floor, not a proven one.</div>
     </div>
     <div class="card">
       <div class="section-head">Execution Hash &amp; §4 Artifact</div>
@@ -208,115 +181,28 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
       <div class="hash" id="execHash"></div>
       <pre id="artifactPre"></pre>
       <div class="results-export-row">
-        <button id="ap2ExportBtn" onclick="exportAP2()" disabled>Export Policy Mandate JSON</button>
-        <button id="signArtifactBtn" onclick="signArtifact()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3,#111E35);color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:opacity .2s,border-color .2s;margin-top:.5rem;display:inline-block">⬇ Sign artifact (Ed25519 · §16)</button>
-        <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text,#D4E8F8);border:1px solid var(--border,#203050);border-radius:var(--radius,6px);cursor:pointer;transition:all .2s;margin-top:.5rem;display:inline-block">🔏 Verify signature (§16)</button>
-        <button onclick="exportArtifact()">Export §4 Artifact</button>
-        <button onclick="exportVC()">Export W3C VC (§13.11)</button>
+        <button id="ap2ExportBtn" onclick="exportAP2(_lastArtifact)" disabled>Export Policy Mandate JSON</button>
+        <button class="btn-2" onclick="exportArtifact(_lastArtifact)">Export §4 Artifact</button>
       </div>
     </div>
   </div>
-
   <button class="mfst-btn" onclick="toggleMfst()">Show Tool Manifest</button>
-  <div id="mfstBody" class="card" style="margin-top:10px">
-    <pre id="mfstCode"></pre>
-  </div>
+  <div id="mfstBody" class="card"><pre id="mfstCode"></pre></div>
 </div>
 
-
-
-
-
-
-
-<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-295-einvoice-jurisdiction-mandate-router.manifest.json -->
-<script>
-/* OCG-A11Y-TREE v1 */
-/* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
-   by scripts/check-a11y-tree.mjs from chaingraph/_page-chrome.mjs (row
-   TOOLPAGE-A11Y-1). Form-control labels are emitted statically from the
-   manifest (aria-label = property name); this script owns the single
-   aria-live status region and the post-compute announcement. */
-(function () {
-  'use strict';
-  var RUN_TARGET = "run";
-  var TABLE = {"buyer_country":["buyer_country",null],"supplier_country":["supplier_country",null],"transaction_date":["transaction_date","type not evidenced by kernel source"],"transaction_type":["transaction_type","type not evidenced by kernel source"]};
-  var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
-  var st = null;
-  function ensureRegion() {
-    if (st && document.body && typeof document.body.contains === 'function' && document.body.contains(st)) return st;
-    st = document.createElement('div');
-    st.id = 'ocg-a11y-status';
-    st.setAttribute('role', 'status');
-    st.setAttribute('aria-live', 'polite');
-    st.style.cssText = 'position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important';
-    (document.body || document.documentElement).appendChild(st);
-    return st;
-  }
-  function artifact() {
-    var cands = ['_lastResult', '_lastArtifact'];
-    for (var i = 0; i < cands.length; i++) {
-      try {
-        var v = window[cands[i]];
-        if (v && typeof v === 'object' && typeof v.execution_hash === 'string' && v.execution_hash) return v;
-      } catch (e) { /* pages without either global simply expose nothing */ }
-    }
-    return null;
-  }
-  function verdictOf(payload) {
-    if (!payload || typeof payload !== 'object') return null;
-    for (var i = 0; i < VERDICT_KEYS.length; i++) {
-      var v = payload[VERDICT_KEYS[i]];
-      if (typeof v === 'string' && v) return v;
-      if (typeof v === 'boolean' || typeof v === 'number') return VERDICT_KEYS[i] + ': ' + v;
-    }
-    for (var k in payload) {
-      var v2 = payload[k];
-      if (typeof v2 === 'boolean') return k + ': ' + v2;
-    }
-    return null;
-  }
-  function announce() {
-    var region = ensureRegion();
-    var a = artifact();
-    if (!a) { region.textContent = 'Run complete. See the result panel for the full verdict.'; return; }
-    var msg = 'Run complete. execution_hash ' + a.execution_hash;
-    var v = verdictOf(a.output_payload);
-    if (v) msg += '. Verdict: ' + v;
-    region.textContent = msg;
-  }
-  function wrap() {
-    try {
-      var orig = window[RUN_TARGET];
-      if (typeof orig !== 'function' || orig.__ocgA11yWrapped) return;
-      var wrapped = function () {
-        var r = orig.apply(this, arguments);
-        Promise.resolve(r).then(announce, function () { /* the page's own error surface reports failures */ });
-        return r;
-      };
-      wrapped.__ocgA11yWrapped = true;
-      window[RUN_TARGET] = wrapped;
-    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wrap);
-  else wrap();
-})();
-</script>
-<!-- A11Y-TREE:END -->
-
-<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-295-einvoice-jurisdiction-mandate-router.manifest.json -->
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-702-runway-goal-path.manifest.json -->
 <section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
     <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
     <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
   </div>
   <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
-  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `route_einvoice_jurisdiction_mandate`. Task: Route a transaction to its applicable e-invoicing mandate regime, format, phase status, and transmission channel via a version-pinned mandate table keyed on supplier/buyer country, transaction type, and transaction date.
-Call it with arguments: {"policy_parameters":{"supplier_country":"DE","buyer_country":"FR","transaction_type":"B2B","transaction_date":"2026-09-15"}}
-Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `route_einvoice_jurisdiction_mandate`.
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `find_runway_goal_path`. Task: Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth.
+Call it with arguments: {"policy_parameters":{"cash_minor":100000000,"monthly_revenue_minor":2000000,"monthly_burn_minor":6000000,"revenue_growth_bp":800,"horizon_months":36,"goal":{"type":"runway_months","value":18},"levers":{"price_uplift_bp":[0,500,1000,1500,2000,3000],"growth_add_bp":[0,100,200,300,500],"burn_cut_bp":[0,500,1000,1500,2000,3000]},"effort_weights":{"price_uplift_bp":1,"growth_add_bp":2,"burn_cut_bp":1},"max_candidates":4}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `find_runway_goal_path`.
 Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
 PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
-Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-295-einvoice-jurisdiction-mandate-router.html#p=v1.H4sIAAAAAAAA_wFnAJj_eyJzdXBwbGllcl9jb3VudHJ5IjoiREUiLCJidXllcl9jb3VudHJ5IjoiRlIiLCJ0cmFuc2FjdGlvbl90eXBlIjoiQjJCIiwidHJhbnNhY3Rpb25fZGF0ZSI6IjIwMjYtMDktMTUifbvB50BnAAAA</pre>
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-702-runway-goal-path.html#p=v1.H4sIAAAAAAAA_wGPAXD-eyJjYXNoX21pbm9yIjoxMDAwMDAwMDAsIm1vbnRobHlfcmV2ZW51ZV9taW5vciI6MjAwMDAwMCwibW9udGhseV9idXJuX21pbm9yIjo2MDAwMDAwLCJyZXZlbnVlX2dyb3d0aF9icCI6ODAwLCJob3Jpem9uX21vbnRocyI6MzYsImdvYWwiOnsidHlwZSI6InJ1bndheV9tb250aHMiLCJ2YWx1ZSI6MTh9LCJsZXZlcnMiOnsicHJpY2VfdXBsaWZ0X2JwIjpbMCw1MDAsMTAwMCwxNTAwLDIwMDAsMzAwMF0sImdyb3d0aF9hZGRfYnAiOlswLDEwMCwyMDAsMzAwLDUwMF0sImJ1cm5fY3V0X2JwIjpbMCw1MDAsMTAwMCwxNTAwLDIwMDAsMzAwMF19LCJlZmZvcnRfd2VpZ2h0cyI6eyJwcmljZV91cGxpZnRfYnAiOjEsImdyb3d0aF9hZGRfYnAiOjIsImJ1cm5fY3V0X2JwIjoxfSwibWF4X2NhbmRpZGF0ZXMiOjR9jkjCG48BAAA</pre>
 </section>
 <!-- ASK-AGENT:END -->
 
@@ -422,151 +308,219 @@ Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-295
 </footer>
 
 <script>
-const MANIFEST = {
-  "tool_id": "art-295-einvoice-jurisdiction-mandate-router",
-  "version": "1.1.0",
-  "title": "E-Invoice Jurisdiction Mandate Router",
-  "mcp_tool_definition": {
-    "name": "route_einvoice_jurisdiction_mandate",
-    "description": "Route a transaction to its applicable e-invoicing mandate regime, format, phase status, and transmission channel via a version-pinned mandate table keyed on supplier/buyer country, transaction type, and transaction date. Covers France (PDP, live 2026-09-01), Germany (XRechnung), UAE (PINT-AE pilot), Malaysia (MyInvois), Belgium (Peppol BIS 3.0, mandatory since 2026-01-01), Poland (KSeF FA(3), mandatory-use phase-in from 2026-02-01). Zero network, zero PII.",
-    "inputSchema": {
-      "type": "object",
-      "properties": {
-        "supplier_country": {"type": "string"}, "buyer_country": {"type": "string"},
-        "transaction_type": {"type": "string", "enum": ["B2B", "B2C", "B2G"]},
-        "transaction_date": {"type": "string", "description": "YYYY-MM-DD"}
+const MANIFEST={tool_id:"art-702-runway-goal-path",version:"1.0.0",title:"Runway Goal Path",mcp_tool_definition:{name:"find_runway_goal_path",description:"Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.",inputSchema:{type:"object",required:["cash_minor","monthly_revenue_minor","monthly_burn_minor","revenue_growth_bp","horizon_months","goal","levers","effort_weights","max_candidates"],properties:{cash_minor:{type:"integer"},monthly_revenue_minor:{type:"integer"},monthly_burn_minor:{type:"integer"},revenue_growth_bp:{type:"integer"},horizon_months:{type:"integer"},goal:{type:"object"},levers:{type:"object"},effort_weights:{type:"object"},max_candidates:{type:"integer"}}}},ap2_export:true,chaingraph:true};
+
+/* ── sample inputs: fixture F1 (baseline already meets the goal, the seal vector)
+   and F10 (refusal on a 13-value grid) from
+   chaingraph/kernels/fixtures/art-702-runway-goal-path.fixtures.json ── */
+const GRIDS={price_uplift_bp:[0,500,1000,1500,2000,3000],growth_add_bp:[0,100,200,300,500],burn_cut_bp:[0,500,1000,1500,2000,3000]};
+const WEIGHTS={price_uplift_bp:1,growth_add_bp:2,burn_cut_bp:1};
+const SAMPLE_F1={cash_minor:100000000,monthly_revenue_minor:2000000,monthly_burn_minor:6000000,revenue_growth_bp:800,horizon_months:36,goal:{type:"runway_months",value:18},levers:GRIDS,effort_weights:WEIGHTS,max_candidates:4};
+const SAMPLE_F10=(function(){const p=JSON.parse(JSON.stringify(SAMPLE_F1));p.levers={price_uplift_bp:[0,100,200,300,400,500,600,700,800,900,1000,1100,1200],growth_add_bp:GRIDS.growth_add_bp,burn_cut_bp:GRIDS.burn_cut_bp};return p;})();
+
+/* ── inline port of chaingraph/kernels/art-702-runway-goal-path.kernel.mjs compute():
+   same algorithm, same refusal reasons, same fixed orders. Pure function of pp. ── */
+const GOAL_TYPES=["runway_months","solvent_through_horizon","breakeven_by_month","ending_cash_at_least"];
+const LEVER_KEYS=["price_uplift_bp","growth_add_bp","burn_cut_bp"];
+const MAX_GRID_VALUES=12;
+const SCOPE_NOTE="One revenue line, constant burn, no financing events, no churn model, and no tax. Integer minor units and integer basis points only; rounding is half-up, applied once per month step.";
+const NO_CANDIDATE_REASON="No lever combination inside the declared grids reaches the declared goal.";
+function isMoney(v){return typeof v==="number"&&Number.isInteger(v)&&v>=0;}
+function isBp(v){return typeof v==="number"&&Number.isInteger(v)&&v>=0;}
+function isLeverGrid(grid){if(!Array.isArray(grid)||grid.length>MAX_GRID_VALUES)return false;for(let i=0;i<grid.length;i++){if(!isBp(grid[i]))return false;if(i>0&&grid[i]<grid[i-1])return false;}return true;}
+function roundHalfUpDiv(num,den){return Math.floor((num+Math.floor(den/2))/den);}
+function refusedPayload(reason,text){return{baseline:null,baseline_meets_goal:false,candidates:[],scenarios_evaluated:0,none_found_reason:null,refusal_reason:reason,domain_errors:[{code:reason,text:text}],scope_note:SCOPE_NOTE};}
+function validateAll(pp){
+  if(!isMoney(pp.cash_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","cash_minor must be a non-negative integer count of minor units");
+  if(!isMoney(pp.monthly_revenue_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","monthly_revenue_minor must be a non-negative integer count of minor units");
+  if(!isMoney(pp.monthly_burn_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","monthly_burn_minor must be a non-negative integer count of minor units");
+  if(typeof pp.revenue_growth_bp!=="number"||!Number.isInteger(pp.revenue_growth_bp))return refusedPayload("REFUSED_NON_INTEGER_RATE","revenue_growth_bp must be an integer basis-point rate");
+  if(pp.revenue_growth_bp<-10000)return refusedPayload("REFUSED_GROWTH_BELOW_MINUS_10000","revenue_growth_bp must not be below -10000");
+  if(typeof pp.horizon_months!=="number"||!Number.isInteger(pp.horizon_months)||pp.horizon_months<1||pp.horizon_months>60)return refusedPayload("REFUSED_HORIZON_OUT_OF_RANGE","horizon_months must be an integer between 1 and 60");
+  const goal=pp.goal;
+  if(!goal||typeof goal!=="object"||GOAL_TYPES.indexOf(goal.type)===-1)return refusedPayload("REFUSED_UNKNOWN_GOAL_TYPE","goal.type must be one of runway_months, solvent_through_horizon, breakeven_by_month, ending_cash_at_least");
+  if(goal.type!=="solvent_through_horizon"){
+    if(typeof goal.value!=="number"||!Number.isInteger(goal.value)||goal.value<(goal.type==="ending_cash_at_least"?0:1))return refusedPayload("REFUSED_NON_INTEGER_GOAL","goal.value must be an integer"+(goal.type==="ending_cash_at_least"?" of at least zero":" of at least one")+" for goal.type "+goal.type);
+  }
+  const levers=pp.levers;
+  if(!levers||typeof levers!=="object")return refusedPayload("REFUSED_BAD_LEVER_GRID","levers must be an object with price_uplift_bp, growth_add_bp and burn_cut_bp arrays");
+  for(const key of LEVER_KEYS){if(!isLeverGrid(levers[key]))return refusedPayload("REFUSED_BAD_LEVER_GRID","levers."+key+" must be a sorted array of non-negative integer basis points with at most "+MAX_GRID_VALUES+" values");}
+  const weights=pp.effort_weights;
+  if(!weights||typeof weights!=="object")return refusedPayload("REFUSED_BAD_EFFORT_WEIGHTS","effort_weights must be an object with price_uplift_bp, growth_add_bp and burn_cut_bp keys");
+  for(const key of LEVER_KEYS){if(!isBp(weights[key]))return refusedPayload("REFUSED_BAD_EFFORT_WEIGHTS","effort_weights."+key+" must be a non-negative integer");}
+  if(typeof pp.max_candidates!=="number"||!Number.isInteger(pp.max_candidates)||pp.max_candidates<1)return refusedPayload("REFUSED_BAD_MAX_CANDIDATES","max_candidates must be an integer of at least one");
+  return null;
+}
+function simulateScenario(base,price,growthAdd,burnCut){
+  let rev=roundHalfUpDiv(base.revenue*(10000+price),10000);
+  const g=base.growthBp+growthAdd;
+  const burn=roundHalfUpDiv(base.burn*(10000-burnCut),10000);
+  let cash=base.cash,runwayBp=null,breakevenMonth=null;
+  for(let m=1;m<=base.horizon;m++){
+    if(m>1)rev=roundHalfUpDiv(rev*(10000+g),10000);
+    if(breakevenMonth===null&&rev>=burn)breakevenMonth=m;
+    const prevCash=cash,net=rev-burn;
+    cash+=net;
+    if(runwayBp===null&&cash<0)runwayBp=(m-1)*10000+Math.floor((prevCash*10000)/(-net));
+  }
+  return{runway_bp_of_month:runwayBp,breakeven_month:breakevenMonth,ending_cash_minor:cash,solvent_through_horizon:runwayBp===null};
+}
+function meetsGoal(goal,s){
+  if(goal.type==="runway_months")return s.runway_bp_of_month===null||s.runway_bp_of_month>=goal.value*10000;
+  if(goal.type==="solvent_through_horizon")return s.runway_bp_of_month===null;
+  if(goal.type==="breakeven_by_month")return s.breakeven_month!==null&&s.breakeven_month<=goal.value;
+  return s.ending_cash_minor>=goal.value;
+}
+function compute(pp){
+  pp=pp||{};
+  const bad=validateAll(pp);
+  if(bad){const rflags=[];if(bad.domain_errors.length>0)rflags.push("ART702_INPUT_REFUSED");return{output_payload:bad,compliance_flags:rflags};}
+  const base={cash:pp.cash_minor,revenue:pp.monthly_revenue_minor,burn:pp.monthly_burn_minor,growthBp:pp.revenue_growth_bp,horizon:pp.horizon_months};
+  const goal=pp.goal,weights=pp.effort_weights;
+  const priceGrid=pp.levers.price_uplift_bp,growthGrid=pp.levers.growth_add_bp,burnGrid=pp.levers.burn_cut_bp;
+  const flags=[];
+  const baseline=simulateScenario(base,0,0,0);
+  const baselineMeets=meetsGoal(goal,baseline);
+  const qualifying=[];
+  let evaluated=0;
+  for(const price of priceGrid){
+    for(const growth of growthGrid){
+      for(const burnCut of burnGrid){
+        evaluated++;
+        const s=simulateScenario(base,price,growth,burnCut);
+        if(!meetsGoal(goal,s))continue;
+        qualifying.push({levers:{price_uplift_bp:price,growth_add_bp:growth,burn_cut_bp:burnCut},effort:roundHalfUpDiv(weights.price_uplift_bp*price+weights.growth_add_bp*growth+weights.burn_cut_bp*burnCut,100),runway_bp_of_month:s.runway_bp_of_month,breakeven_month:s.breakeven_month,ending_cash_minor:s.ending_cash_minor});
       }
     }
-  },
-  "ap2_export": true,
-  "chaingraph": true
-};
-
-function compute(pp) {
-  const TABLE_VERSION = 'einvoice-mandate-table-2026-07-24';
-  const MANDATE_TABLE = {
-    FR: { applicable_format: 'factur-x_or_ubl', mandatory_from: '2026-09-01', transmission_channel: 'PDP' },
-    DE: { applicable_format: 'xrechnung', mandatory_from: '2025-01-01', transmission_channel: 'direct' },
-    AE: { applicable_format: 'pint-ae', mandatory_from: 'DRAFT-PIN unconfirmed as of 2026-07-13', transmission_channel: 'direct' },
-    MY: { applicable_format: 'myinvois', mandatory_from: 'DRAFT-PIN unconfirmed as of 2026-07-13', transmission_channel: 'direct' },
-    BE: { applicable_format: 'peppol-bis3', mandatory_from: '2026-01-01', transmission_channel: 'Peppol network' },
-    PL: { applicable_format: 'ksef-fa3', mandatory_from: '2026-02-01', transmission_channel: 'KSeF' },
-  };
-  function dateAtOrPast(dateStr, mandatoryFrom) { if (!/^\d{4}-\d{2}-\d{2}$/.test(mandatoryFrom)) return null; if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return null; return dateStr >= mandatoryFrom; }
-  const supplier_country = typeof pp.supplier_country === 'string' ? pp.supplier_country.trim().toUpperCase() : '';
-  const buyer_country = typeof pp.buyer_country === 'string' ? pp.buyer_country.trim().toUpperCase() : '';
-  const transaction_type = pp.transaction_type;
-  const transaction_date = typeof pp.transaction_date === 'string' ? pp.transaction_date : '';
-
-  if (transaction_type === 'B2C' && buyer_country !== 'MY') {
-    return { output_payload: { regime_country: buyer_country || null, applicable_format: null, mandatory_from: null, phase_status: 'consumer_out_of_scope', transmission_channel: 'none', table_version: TABLE_VERSION }, compliance_flags: ['EINVOICE_MANDATE_ASSESSED', 'EINVOICE_MANDATE_OUT_OF_SCOPE'] };
   }
-  const regime = MANDATE_TABLE[buyer_country] || MANDATE_TABLE[supplier_country];
-  const regime_country = MANDATE_TABLE[buyer_country] ? buyer_country : (MANDATE_TABLE[supplier_country] ? supplier_country : null);
-  if (!regime) {
-    return { output_payload: { regime_country: null, applicable_format: null, mandatory_from: null, phase_status: 'not_yet_mandated', transmission_channel: 'none', table_version: TABLE_VERSION }, compliance_flags: ['EINVOICE_MANDATE_ASSESSED', 'EINVOICE_MANDATE_NO_REGIME'] };
+  qualifying.sort(function(a,b){return(a.effort-b.effort)||(a.levers.burn_cut_bp-b.levers.burn_cut_bp)||(a.levers.price_uplift_bp-b.levers.price_uplift_bp)||(a.levers.growth_add_bp-b.levers.growth_add_bp);});
+  const candidates=qualifying.slice(0,pp.max_candidates);
+  if(baselineMeets)flags.push("ART702_BASELINE_MEETS_GOAL");
+  if(candidates.length===0)flags.push("ART702_NO_CANDIDATE_FOUND");
+  return{output_payload:{baseline:{runway_bp_of_month:baseline.runway_bp_of_month,solvent_through_horizon:baseline.solvent_through_horizon,breakeven_month:baseline.breakeven_month,ending_cash_minor:baseline.ending_cash_minor},baseline_meets_goal:baselineMeets,candidates:candidates,scenarios_evaluated:evaluated,none_found_reason:candidates.length===0?NO_CANDIDATE_REASON:null,scope_note:SCOPE_NOTE},compliance_flags:flags};
+}
+
+/* ── execution hash: JCS-canonical preimage over {policy_parameters, output_payload},
+   same algorithm as chaingraph/kernels/_hash.mjs, browser leg ── */
+function cgCanon(v){if(v===null||typeof v!=="object")return v;if(Array.isArray(v))return v.map(cgCanon);const o={};for(const k of Object.keys(v).sort())o[k]=cgCanon(v[k]);return o;}
+async function sha256Hex(bytes){const dig=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(dig)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
+async function executionHashLocal(pp,op){const obj=cgCanon({policy_parameters:pp,output_payload:op});const s=JSON.stringify(obj);const buf=new TextEncoder().encode(s);return sha256Hex(buf);}
+
+/* ── form plumbing: assemble pp from the fields (the no-arg wrapper the WebMCP
+   registration delegates to), run, hash, paint ── */
+function fieldJson(id){
+  const el=document.getElementById(id);
+  const raw=(el&&el.value!==undefined&&el.value!==null)?el.value.trim():"";
+  if(raw==="")return undefined;
+  return JSON.parse(raw);
+}
+function fieldNum(id){
+  const el=document.getElementById(id);
+  const raw=(el&&el.value!==undefined&&el.value!==null)?el.value.trim():"";
+  if(raw==="")return undefined;
+  return Number(raw);
+}
+function assemblePP(){
+  const pp={};
+  const cash=fieldNum("cash_minor"),rev=fieldNum("monthly_revenue_minor"),burn=fieldNum("monthly_burn_minor"),growth=fieldNum("revenue_growth_bp"),horizon=fieldNum("horizon_months"),maxC=fieldNum("max_candidates");
+  if(cash!==undefined)pp.cash_minor=cash;
+  if(rev!==undefined)pp.monthly_revenue_minor=rev;
+  if(burn!==undefined)pp.monthly_burn_minor=burn;
+  if(growth!==undefined)pp.revenue_growth_bp=growth;
+  if(horizon!==undefined)pp.horizon_months=horizon;
+  if(maxC!==undefined)pp.max_candidates=maxC;
+  const goal=fieldJson("goal"),levers=fieldJson("levers"),weights=fieldJson("effort_weights");
+  if(goal!==undefined)pp.goal=goal;
+  if(levers!==undefined)pp.levers=levers;
+  if(weights!==undefined)pp.effort_weights=weights;
+  return pp;
+}
+function monthsFmt(bp){
+  if(bp===null||bp===undefined)return"SOLVENT";
+  const whole=Math.floor(bp/10000),frac=bp%10000;
+  return whole+(frac?("."+(frac/10000).toString().slice(2)):"")+" mo";
+}
+let _lastArtifact=null,_lastPP=null,_lastOP=null,_lastHash=null,_lastFlags=null;
+async function run(){
+  let pp,out,flags,malformed=null;
+  try{
+    pp=assemblePP();
+    const r=compute(pp);
+    out=r.output_payload;flags=r.compliance_flags;
+  }catch(e){
+    malformed=String((e&&e.message)||e);
+    pp=null;out=refusedPayload("PAGE_INPUT_MALFORMED",malformed);flags=["ART702_INPUT_REFUSED"];
   }
-  const isPast = dateAtOrPast(transaction_date, regime.mandatory_from);
-  const phase_status = isPast === true ? 'mandatory' : (isPast === false ? 'phase_in_pending' : 'phase_unconfirmed');
-  const compliance_flags = ['EINVOICE_MANDATE_ASSESSED', 'EINVOICE_MANDATE_ROUTED_' + phase_status.toUpperCase()];
-  return { output_payload: { regime_country, applicable_format: regime.applicable_format, mandatory_from: regime.mandatory_from, phase_status, transmission_channel: regime.transmission_channel, table_version: TABLE_VERSION }, compliance_flags };
+  const generatedAt=new Date().toISOString();
+  document.getElementById("generatedAt").textContent="generated_at "+generatedAt;
+  const artifact={"@context":"https://ainumbers.co/chaingraph/context/v0.3/context.jsonld",chaingraph_version:"0.4.0",compute_mode:"browser",mandate_type:"compliance_control",tool_id:MANIFEST.tool_id,tool_version:MANIFEST.version,generated_at:generatedAt,execution_hash:null,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:out,compliance_flags:flags,audit_signature:{payloadType:"application/vnd.openchain.graph+json;version=0.4",payload:"",signatures:[]}};
+  if(!malformed){
+    const rawHash=await executionHashLocal(pp,out);
+    artifact.execution_hash="sha256:"+rawHash;
+  }
+  _lastArtifact=artifact;_lastPP=pp;_lastOP=out;_lastHash=artifact.execution_hash;_lastFlags=flags;
+  paintResult();
 }
-
-function getParams() {
-  return { supplier_country: document.getElementById('supplier_country').value.trim().toUpperCase() || undefined, buyer_country: document.getElementById('buyer_country').value.trim().toUpperCase() || undefined, transaction_type: document.getElementById('transaction_type').value || undefined, transaction_date: document.getElementById('transaction_date').value.trim() || undefined };
+function paintResult(){
+  const a=_lastArtifact;if(!a)return;
+  renderResults(a.output_payload,a.execution_hash||"",a);
+  document.getElementById("ap2ExportBtn").disabled=false;
 }
-
-async function cgHash(pp, op) { const obj = cgCanon({ policy_parameters: pp, output_payload: op }); const buf = new TextEncoder().encode(JSON.stringify(obj)); const dig = await crypto.subtle.digest('SHA-256', buf); return Array.from(new Uint8Array(dig)).map(b => b.toString(16).padStart(2, '0')).join(''); }
-function cgCanon(v) { if (v === null || typeof v !== 'object') return v; if (Array.isArray(v)) return v.map(cgCanon); const o = {}; for (const k of Object.keys(v).sort()) o[k] = cgCanon(v[k]); return o; }
-
-let _lastArtifact = null, _lastPP = null, _lastOP = null, _lastHash = null, _lastFlags = null;
-
-async function run() {
-  const pp = getParams();
-  const { output_payload, compliance_flags } = compute(pp);
-  const rawHash = await cgHash(pp, output_payload);
-  const execHash = 'sha256:' + rawHash;
-  const generatedAt = new Date().toISOString();
-  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
-  const artifact = { '@context': 'https://ainumbers.co/chaingraph/context/v0.4/context.jsonld', chaingraph_version: '0.4.0', spec_version: '0.8.7', compute_mode: 'browser', mandate_type: 'compliance_mandate', tool_id: MANIFEST.tool_id, tool_version: MANIFEST.version, generated_at: generatedAt, execution_hash: execHash, chain: { parent_hashes: [], parent_tool_ids: [], chain_depth: 2 }, policy_parameters: pp, output_payload, compliance_flags, audit_signature: { payloadType: 'application/vnd.openchain.graph+json;version=0.4', payload: '', signatures: [] } };
-  _lastArtifact = artifact; _lastPP = pp; _lastOP = output_payload; _lastHash = execHash; _lastFlags = compliance_flags;
-  renderResults(output_payload, compliance_flags, execHash, artifact);
-  document.getElementById('ap2ExportBtn').disabled = false;
+function renderResults(op,execHash,artifact){
+  const b=op.baseline;
+  const met=op.candidates.length>0;
+  document.getElementById("heroRow").innerHTML=
+    "<div class=\"hero-stat\"><div class=\"hero-val\" style=\"color:"+(met?"var(--green)":"var(--red)")+"\">"+(met?"GOAL MET":"NO PATH")+"</div><div class=\"hero-lbl\">Goal path</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+(b?monthsFmt(b.runway_bp_of_month):"—")+"</div><div class=\"hero-lbl\">Baseline runway</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+op.scenarios_evaluated+"</div><div class=\"hero-lbl\">Scenarios evaluated</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+op.candidates.length+"</div><div class=\"hero-lbl\">Candidates returned</div></div>";
+  const vd=document.getElementById("verdictDiv");
+  if(op.refusal_reason){
+    vd.innerHTML="<div class=\"verdict fail\">REFUSED — "+op.refusal_reason+": "+op.domain_errors.map(function(d){return d.text;}).join(" ")+"</div>";
+  }else if(op.baseline_meets_goal){
+    vd.innerHTML="<div class=\"verdict pass\">The baseline already meets the goal"+(met?" — the zero-lever scenario ranks first at effort "+op.candidates[0].effort+".":".")+"</div>";
+  }else if(met){
+    vd.innerHTML="<div class=\"verdict pass\">Least-effort path found: "+JSON.stringify(op.candidates[0].levers)+" at effort "+op.candidates[0].effort+".</div>";
+  }else{
+    vd.innerHTML="<div class=\"verdict warn\">"+op.none_found_reason+"</div>";
+  }
+  document.getElementById("baselineDiv").innerHTML=b
+    ?"<span class=\"muted-txt\">Baseline (all-zero levers): runway "+monthsFmt(b.runway_bp_of_month)+(b.runway_bp_of_month===null?" (solvent through the horizon)":"")+", breakeven month "+(b.breakeven_month===null?"—":b.breakeven_month)+", ending cash "+b.ending_cash_minor+" minor, baseline_meets_goal "+op.baseline_meets_goal+".</span>"
+    :"";
+  document.getElementById("noneDiv").innerHTML=op.none_found_reason?"<span class=\"badge warn\">none_found_reason</span> <span class=\"muted-txt\">"+op.none_found_reason+"</span>":"";
+  const tbl=document.getElementById("candTbl");
+  if(op.candidates.length){
+    let rows="";
+    for(const c of op.candidates){
+      rows+="<tr><td>"+c.levers.price_uplift_bp+"</td><td>"+c.levers.growth_add_bp+"</td><td>"+c.levers.burn_cut_bp+"</td><td>"+c.effort+"</td><td>"+monthsFmt(c.runway_bp_of_month)+"</td><td>"+(c.breakeven_month===null?"—":c.breakeven_month)+"</td><td>"+c.ending_cash_minor+"</td></tr>";
+    }
+    tbl.innerHTML="<thead><tr><th>Price uplift bp</th><th>Growth add bp</th><th>Burn cut bp</th><th>Effort</th><th>Runway</th><th>Breakeven month</th><th>Ending cash minor</th></tr></thead><tbody>"+rows+"</tbody>";
+  }else tbl.innerHTML="";
+  document.getElementById("execHash").textContent=execHash;
+  document.getElementById("artifactPre").textContent=JSON.stringify(artifact,null,2);
+  document.getElementById("resultsPanel").classList.add("show");
 }
-
-function renderResults(op, flags, execHash, artifact) {
-  const color = op.phase_status === 'mandatory' ? 'var(--gold)' : 'var(--teal-lt)';
-  document.getElementById('heroRow').innerHTML =
-    '<div class="hero-stat"><div class="hero-val" style="color:' + color + ';font-size:.85rem;padding-top:6px">' + op.phase_status.toUpperCase() + '</div><div class="hero-lbl">Phase Status</div></div>' +
-    '<div class="hero-stat"><div class="hero-val" style="color:var(--teal-lt);font-size:.9rem;padding-top:6px">' + (op.applicable_format ?? 'N/A') + '</div><div class="hero-lbl">Applicable Format</div></div>' +
-    '<div class="hero-stat"><div class="hero-val" style="color:var(--teal-lt);font-size:.9rem;padding-top:6px">' + op.transmission_channel + '</div><div class="hero-lbl">Channel</div></div>';
-  document.getElementById('verdictDiv').innerHTML =
-    '<div class="verdict ' + (op.phase_status === 'mandatory' ? 'warn' : 'pass') + '">' +
-    (op.regime_country ? 'Routed to ' + op.regime_country + ' regime: ' + (op.applicable_format ?? 'n/a') + ' via ' + op.transmission_channel + ' (mandatory_from: ' + (op.mandatory_from ?? 'n/a') + ').' : 'No matching mandate regime for the supplied countries (table: ' + op.table_version + ').') +
-    '</div><div class="gap-list">' + flags.map(f => '<span class="badge ' + (f.includes('MANDATORY') ? 'info' : 'ok') + '">' + f + '</span>').join('') + '</div>';
-  document.getElementById('execHash').textContent = execHash;
-  document.getElementById('artifactPre').textContent = JSON.stringify(artifact, null, 2);
-  document.getElementById('resultsPanel').classList.add('show');
+function fillField(id,v){document.getElementById(id).value=(v===undefined)?"":JSON.stringify(v,null,1);}
+function fillNum(id,v){document.getElementById(id).value=String(v);}
+function loadSample(){
+  const s=SAMPLE_F1;
+  fillNum("cash_minor",s.cash_minor);fillNum("monthly_revenue_minor",s.monthly_revenue_minor);fillNum("monthly_burn_minor",s.monthly_burn_minor);fillNum("revenue_growth_bp",s.revenue_growth_bp);fillNum("horizon_months",s.horizon_months);fillNum("max_candidates",s.max_candidates);
+  fillField("goal",s.goal);fillField("levers",s.levers);fillField("effort_weights",s.effort_weights);
 }
-
-function exportAP2() { if (!_lastArtifact) return; const ap2 = { schema: 'ainumbers-policy-mandate-v1.0', tool_id: MANIFEST.tool_id, version: MANIFEST.version, mandate_type: 'compliance_mandate', generated_at: _lastArtifact.generated_at, execution_hash: _lastHash, policy_parameters: _lastPP, output_payload: _lastOP, compliance_flags: _lastFlags }; dl(JSON.stringify(ap2, null, 2), 'art-295-einvoice-jurisdiction-mandate-router-policy-mandate.json', 'application/json'); }
-function exportArtifact() { if (!_lastArtifact) return; dl(JSON.stringify(_lastArtifact, null, 2), 'art-295-einvoice-jurisdiction-mandate-router-artifact.json', 'application/json'); }
-function exportVC() { if (!_lastArtifact) return; const vc = { "@context": ["https://www.w3.org/ns/credentials/v2", "https://ainumbers.co/chaingraph/context/v0.4/context.jsonld"], type: ["VerifiableCredential", "OpenChainGraphArtifact"], issuer: "did:web:ainumbers.co", validFrom: _lastArtifact.generated_at, credentialSubject: { ...{ id: "urn:ocg:" + _lastHash }, ..._lastArtifact } }; dl(JSON.stringify(vc, null, 2), 'art-295-einvoice-jurisdiction-mandate-router-vc.json', 'application/json'); }
-function dl(c, f, m) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([c], { type: m })); a.download = f; a.click(); }
-function toggleMfst() { const b = document.getElementById('mfstBody'), c = document.getElementById('mfstCode'); if (b.style.display === 'none' || !b.style.display) { if (!c.textContent) c.textContent = JSON.stringify(MANIFEST, null, 2); b.style.display = 'block'; } else b.style.display = 'none'; }
-
-const PRESETS = {
-  fr_mandatory: { supplier_country: 'DE', buyer_country: 'FR', transaction_type: 'B2B', transaction_date: '2026-09-15' },
-  fr_pending: { supplier_country: 'DE', buyer_country: 'FR', transaction_type: 'B2B', transaction_date: '2026-01-15' },
-  ae_pilot: { supplier_country: 'AE', buyer_country: 'AE', transaction_type: 'B2B', transaction_date: '2026-07-13' },
-  b2c: { supplier_country: 'DE', buyer_country: 'FR', transaction_type: 'B2C', transaction_date: '2026-09-15' },
-  be_mandatory: { supplier_country: 'FR', buyer_country: 'BE', transaction_type: 'B2B', transaction_date: '2026-02-01' },
-  pl_mandatory: { supplier_country: 'FR', buyer_country: 'PL', transaction_type: 'B2B', transaction_date: '2026-03-01' },
-};
-function loadPreset(n) {
-  const d = PRESETS[n]; if (!d) return;
-  document.getElementById('supplier_country').value = d.supplier_country;
-  document.getElementById('buyer_country').value = d.buyer_country;
-  document.getElementById('transaction_type').value = d.transaction_type;
-  document.getElementById('transaction_date').value = d.transaction_date;
+function loadRefusalDemo(){
+  loadSample();
+  fillField("levers",SAMPLE_F10.levers);
 }
-loadPreset('fr_mandatory');
+function exportAP2(r){if(!r)return;const ap2={schema:"ainumbers-policy-mandate-v1.0",tool_id:MANIFEST.tool_id,version:MANIFEST.version,mandate_type:"compliance_control",generated_at:r.generated_at,execution_hash:r.execution_hash,policy_parameters:r.policy_parameters,output_payload:r.output_payload,compliance_flags:r.compliance_flags};dl(JSON.stringify(ap2,null,2),"art-702-policy-mandate.json","application/json");}
+function exportArtifact(r){if(!r)return;dl(JSON.stringify(r,null,2),"art-702-artifact.json","application/json");}
+function dl(c,f,m){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();}
+function toggleMfst(){const b=document.getElementById("mfstBody"),c=document.getElementById("mfstCode");if(b.style.display==="none"||!b.style.display){if(!c.textContent)c.textContent=JSON.stringify(MANIFEST,null,2);b.style.display="block";}else b.style.display="none";}
+loadSample();
 </script>
-<script>
-function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
-function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
-function __ocgCanonStr(x){__ocgAssertIJson(x);return __ocgJcs(x);}
-function __ocgJcs(v){if(v===null||typeof v!=='object')return JSON.stringify(v);if(Array.isArray(v)){var s='[';for(var i=0;i<v.length;i++){if(i)s+=',';var e=v[i];s+=(e===undefined||typeof e==='function'||typeof e==='symbol')?'null':__ocgJcs(e);}return s+']';}var ks=Object.keys(v).sort(),o='{',f=true;for(var i=0;i<ks.length;i++){var k=ks[i],w=v[k];if(w===undefined||typeof w==='function'||typeof w==='symbol')continue;if(!f)o+=',';f=false;o+=JSON.stringify(k)+':'+__ocgJcs(w);}return o+'}';}
-</script>
-<script>
-(function(){
-  var CS='eddsa-jcs-2022';
-  function jcs(o){return new TextEncoder().encode(__ocgJcs(o));}
-  function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}
-  function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}
-  function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}
-  function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}
-  var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}
-  function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}
-  var MC=[0xed,0x01];
-  function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return 'did:key:z'+b58e(p);});}
-  function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}
-  function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}
-  function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}
-  window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;
-})();
-</script>
-<script>
-function __ocgGetArt(){var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}var el=document.getElementById('exportPre')||document.getElementById('exportOutput')||document.getElementById('chainOutput')||document.getElementById('artifact');if(el){var t=el.value||el.textContent;try{var vv=JSON.parse(t);if(vv&&vv.chaingraph_version)return vv;}catch(e){}}return null;}
-async function signArtifact(){var art=__ocgGetArt();if(!art){alert('Run the tool first to generate an artifact (no §4 execution_hash found).');return;}if(!confirm('Signing binds this run to a one-time key and de-anonymizes it (OCG §16.2). Continue?'))return;var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);var did=await __ocgDidKeyFromPub(kp.publicKey);var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));a.download=fn;a.click();URL.revokeObjectURL(a.href);}
-async function verifySignature(){var t=window.prompt('Paste a signed OCG artifact JSON to verify its §16 signature:');if(!t)return;var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}var pr=art&&art.audit_signature&&art.audit_signature.proof;if(!pr){alert('✗ no §16 proof on this artifact');return;}try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}}
-(function(){var el=document.getElementById('ap2ExportBtn');if(!el)return;var obs=new MutationObserver(function(){var sab=document.getElementById('signArtifactBtn');if(sab){sab.disabled=false;}obs.disconnect();});obs.observe(el,{attributes:true,attributeFilter:['disabled']});})();
-</script>
-<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-295-einvoice-jurisdiction-mandate-router.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-702-runway-goal-path.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
 <script>
 // WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
-// manifests/art-295-einvoice-jurisdiction-mandate-router.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// manifests/art-702-runway-goal-path.manifest.json (mcp_tool_definition reused verbatim; the generator computes
 // nothing and restates no computed value). Feature-detected: absent API
 // registers nothing, so this page is byte-identical without the API.
 // Answer-class delegate to this page's existing compute; zero network I/O.
@@ -581,42 +535,72 @@ async function verifySignature(){var t=window.prompt('Paste a signed OCG artifac
 const mc = document.modelContext ?? (('modelContext' in navigator) ? navigator.modelContext : null);
 if (mc) {
   mc.registerTool({
-    name: 'route_einvoice_jurisdiction_mandate',
-    description: 'Route a transaction to its applicable e-invoicing mandate regime, format, phase status, and transmission channel via a version-pinned mandate table keyed on supplier/buyer country, transaction type, and transaction date. Covers France (PDP, live 2026-09-01), Germany (XRechnung), UAE (PINT-AE pilot), Malaysia (MyInvois), Belgium (Peppol BIS 3.0, mandatory since 2026-01-01), Poland (KSeF FA(3), mandatory-use phase-in from 2026-02-01). Zero network, zero PII.',
+    name: 'find_runway_goal_path',
+    description: 'Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.',
     inputSchema: {
       "type": "object",
       "required": [
-        "buyer_country",
-        "supplier_country",
-        "transaction_date",
-        "transaction_type"
+        "cash_minor",
+        "monthly_revenue_minor",
+        "monthly_burn_minor",
+        "revenue_growth_bp",
+        "horizon_months",
+        "goal",
+        "levers",
+        "effort_weights",
+        "max_candidates"
       ],
       "properties": {
-        "buyer_country": {
-          "type": "string"
+        "cash_minor": {
+          "type": "integer"
         },
-        "supplier_country": {
-          "type": "string"
+        "monthly_revenue_minor": {
+          "type": "integer"
         },
-        "transaction_date": {
-          "description": "type not evidenced by kernel source"
+        "monthly_burn_minor": {
+          "type": "integer"
         },
-        "transaction_type": {
-          "description": "type not evidenced by kernel source"
+        "revenue_growth_bp": {
+          "type": "integer"
+        },
+        "horizon_months": {
+          "type": "integer"
+        },
+        "goal": {
+          "type": "object"
+        },
+        "levers": {
+          "type": "object"
+        },
+        "effort_weights": {
+          "type": "object"
+        },
+        "max_candidates": {
+          "type": "integer"
         }
       }
     },
     annotations: { readOnlyHint: true },
     execute: async function(params) {
       try {
-      if (typeof params.buyer_country !== 'string') throw new Error('buyer_country must be a string; received ' + JSON.stringify(params.buyer_country) + '.');
-      if (typeof params.supplier_country !== 'string') throw new Error('supplier_country must be a string; received ' + JSON.stringify(params.supplier_country) + '.');
-      if (params.transaction_date === undefined) throw new Error('transaction_date is required; received ' + JSON.stringify(params.transaction_date) + '.');
-      if (params.transaction_type === undefined) throw new Error('transaction_type is required; received ' + JSON.stringify(params.transaction_type) + '.');
-      document.getElementById('buyer_country').value = String(params.buyer_country);
-      document.getElementById('supplier_country').value = String(params.supplier_country);
-      document.getElementById('transaction_date').value = (params.transaction_date !== null && typeof params.transaction_date === 'object') ? JSON.stringify(params.transaction_date) : String(params.transaction_date);
-      document.getElementById('transaction_type').value = (params.transaction_type !== null && typeof params.transaction_type === 'object') ? JSON.stringify(params.transaction_type) : String(params.transaction_type);
+      if (params.cash_minor === undefined) throw new Error('cash_minor is required; received ' + JSON.stringify(params.cash_minor) + '.');
+      if (params.monthly_revenue_minor === undefined) throw new Error('monthly_revenue_minor is required; received ' + JSON.stringify(params.monthly_revenue_minor) + '.');
+      if (params.monthly_burn_minor === undefined) throw new Error('monthly_burn_minor is required; received ' + JSON.stringify(params.monthly_burn_minor) + '.');
+      if (params.revenue_growth_bp === undefined) throw new Error('revenue_growth_bp is required; received ' + JSON.stringify(params.revenue_growth_bp) + '.');
+      if (params.horizon_months === undefined) throw new Error('horizon_months is required; received ' + JSON.stringify(params.horizon_months) + '.');
+      if (params.goal === null || typeof params.goal !== 'object' || Array.isArray(params.goal)) throw new Error('goal must be a JSON object; received ' + JSON.stringify(params.goal) + '.');
+      if (params.levers === null || typeof params.levers !== 'object' || Array.isArray(params.levers)) throw new Error('levers must be a JSON object; received ' + JSON.stringify(params.levers) + '.');
+      if (params.effort_weights === null || typeof params.effort_weights !== 'object' || Array.isArray(params.effort_weights)) throw new Error('effort_weights must be a JSON object; received ' + JSON.stringify(params.effort_weights) + '.');
+      if (params.max_candidates === undefined) throw new Error('max_candidates is required; received ' + JSON.stringify(params.max_candidates) + '.');
+      document.getElementById('cash_minor').value = String(params.cash_minor);
+      document.getElementById('monthly_revenue_minor').value = String(params.monthly_revenue_minor);
+      document.getElementById('monthly_burn_minor').value = String(params.monthly_burn_minor);
+      document.getElementById('revenue_growth_bp').value = String(params.revenue_growth_bp);
+      document.getElementById('horizon_months').value = String(params.horizon_months);
+      document.getElementById('goal').value = JSON.stringify(params.goal);
+      document.getElementById('levers').value = JSON.stringify(params.levers);
+      document.getElementById('effort_weights').value = JSON.stringify(params.effort_weights);
+      document.getElementById('max_candidates').value = String(params.max_candidates);
       await run();
       return _lastArtifact;
       } catch (err) {
@@ -638,7 +622,7 @@ if (mc) {
   'use strict';
   var BUDGET = 30000;
   var RUN_TARGET = "run";
-  var PREFILL = {"buyer_country":["buyer_country","string"],"supplier_country":["supplier_country","string"],"transaction_date":["transaction_date","string"],"transaction_type":["transaction_type","string"]};
+  var PREFILL = {"cash_minor":["cash_minor","string"],"monthly_revenue_minor":["monthly_revenue_minor","string"],"monthly_burn_minor":["monthly_burn_minor","string"],"revenue_growth_bp":["revenue_growth_bp","string"],"horizon_months":["horizon_months","string"],"goal":["goal","json"],"levers":["levers","json"],"effort_weights":["effort_weights","json"],"max_candidates":["max_candidates","string"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function b64uDec(s) {
@@ -784,7 +768,7 @@ if (mc) {
   'use strict';
   var MAX = 1000000;
   var RUN_TARGET = "run";
-  var PREFILL = {"buyer_country":["buyer_country","string"],"supplier_country":["supplier_country","string"],"transaction_date":["transaction_date","string"],"transaction_type":["transaction_type","string"]};
+  var PREFILL = {"cash_minor":["cash_minor","string"],"monthly_revenue_minor":["monthly_revenue_minor","string"],"monthly_burn_minor":["monthly_burn_minor","string"],"revenue_growth_bp":["revenue_growth_bp","string"],"horizon_months":["horizon_months","string"],"goal":["goal","json"],"levers":["levers","json"],"effort_weights":["effort_weights","json"],"max_candidates":["max_candidates","string"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function fail(msg) {

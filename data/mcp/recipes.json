@@ -2875,7 +2875,7 @@
       "title": "Arc CCTP v2 Transfer",
       "domain": "Digital-Asset Rails",
       "use_when": "Use when the task is in \"Digital-Asset Rails\" and needs the \"Arc CCTP v2 Transfer\" workflow",
-      "what_it_runs": "CCTP v2 transfer validation: 6-check linter covering domain eligibility (13 domains), Fast Transfer LP, Hook safety, v1 sunset migration (31 Jul 2026), notional flag. ISO 20022 pacs.009",
+      "what_it_runs": "CCTP v2 transfer validation: 6-check linter covering domain eligibility (13 domains), Fast Transfer LP, Hook safety, V1 (Legacy) deprecation (31 Oct 2026 to 1 Dec 2026), notional flag. ISO 20022 pacs.009",
       "description": "W-G chain. Validate CCTP v2 cross-chain USDC transfer: fires when ≥2 Arc fit dimensions score >0.",
       "composer_url": "https://ainumbers.co/chaingraph/chains/arc-cctp-transfer.html",
       "entry_mcp_name": "run_arc_fit_diagnostic",

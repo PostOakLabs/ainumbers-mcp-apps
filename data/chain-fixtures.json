@@ -4781,6 +4781,49 @@
       "operator_id": "bank-xyz"
     }
   },
+  "eudi-acceptance-vop-evidence": {
+    "art-13-eudi-wallet-credential-readiness-checker": {
+      "credential_type": "eaa",
+      "format": "sd_jwt_vc",
+      "issuer_country": "DE",
+      "sd": true,
+      "pop": true,
+      "rev": true
+    },
+    "art-548-vop-readiness-diagnostic": {
+      "iban_commitment": "sha256:d0261b5555a4df1d5fbed786c9a8977e8196c81c8859cfcf683fadfea157ea91",
+      "payee_name_commitment": "sha256:47048eda633d4509b69fc56390c9240f0e33d759b98493d3cc7385bd672b8815",
+      "match_threshold_exact": 0.9,
+      "match_threshold_close": 0.7,
+      "psp_vop_response_code": "MTCH",
+      "salt": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "iban": "DE89370400440532013000",
+      "iban_salt": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "payee_name": "Acme Trading GmbH",
+      "payee_name_salt": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "match_score": 0.97
+    },
+    "art-377-build-vop-session-receipt": {
+      "session_id": "vop-sess-0001",
+      "attempts": [
+        {
+          "attempt_id": "a1",
+          "match_result": {
+            "source": "score_payee_name_match",
+            "algorithm_version": "vop-namematch-1.0.0",
+            "score": 100,
+            "match_band": "MATCH"
+          },
+          "warning_shown": {
+            "text": "",
+            "severity": "none"
+          },
+          "consumer_action": "proceeded",
+          "asserted_at": "2026-07-18T09:00:00Z"
+        }
+      ]
+    }
+  },
   "eudr-due-diligence-statement-validation": {
     "art-165-eudr-dds-field-validator": {
       "dds": {
@@ -7542,6 +7585,62 @@
       ]
     }
   },
+  "psd3-readiness-consent-vop": {
+    "art-14-psd3-psr-readiness-checker": {
+      "instType": "payment_institution",
+      "jurisdiction": "eu_single",
+      "psd2Status": "mostly_compliant",
+      "openBankingLevel": "ob_testing",
+      "tppTypes": [
+        "tpp_pisp"
+      ],
+      "scaExemptions": [
+        "sca_low_value"
+      ],
+      "consentMaturity": "standard",
+      "openFinance": [
+        "of_none"
+      ],
+      "fraudLiability": "shared",
+      "baasScope": "none"
+    },
+    "sim-07-open-banking-consent-flow-stress": {
+      "nConsents": 500,
+      "seed": 42,
+      "regime": "psd2",
+      "pRedirectFail": 0.03,
+      "pAuthFail": 0.08,
+      "pTokenFail": 0.02,
+      "pExpiry": 0.05,
+      "pRevoke": 0.04
+    },
+    "art-11-vop-batch-match-rate-analyser": {
+      "payees": [
+        {
+          "account_name": "Acme Corporation",
+          "reference_name": "Acme Corp"
+        },
+        {
+          "account_name": "Globex International",
+          "reference_name": "Globex International"
+        },
+        {
+          "account_name": "Initech Solutions Ltd",
+          "reference_name": "Initech Solutions Limited"
+        },
+        {
+          "account_name": "Umbrella Financial",
+          "reference_name": "Umbrella Financial"
+        },
+        {
+          "account_name": "Hooli Technologies",
+          "reference_name": "Hooli Technologies Inc"
+        }
+      ],
+      "match_threshold": 0.9,
+      "close_match_threshold": 0.75
+    }
+  },
   "qfc-recordkeeping-cycle": {
     "art-537-qfc-recordkeeping-file-validator": {
       "as_of_date": "2026-06-30",
@@ -9879,6 +9978,90 @@
       "repo_pct": 5,
       "depeg_bps": 2,
       "redemption_window": "t0"
+    }
+  },
+  "x402-permit2-spend-evidence": {
+    "art-699-x402-permit2-evidence-recomputer": {
+      "variant": "x402_witness_transfer",
+      "chainId": 84532,
+      "verifyingContract": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      "permitted": {
+        "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "amount": "10000"
+      },
+      "spender": "0x402085c248EeA27D92E8b30b2C58ed07f9E20001",
+      "nonce": "1701411834604692317316873037158841057",
+      "deadline": "1790000600",
+      "witness": {
+        "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+        "validAfter": "1790000000"
+      },
+      "from": "0x2c7536e3605d9c16a7a3d7b1898e529396a65c23",
+      "requirement": {
+        "scheme": "exact",
+        "network": "eip155:84532",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+        "amount": "10000"
+      },
+      "now_unix": "1790000300",
+      "signature": "0x25756b2bf033967940a5fdc0735ab623fea0727447b70dbf4980a4e26a10a1e168a8a260ea84da98a5674371f183b87b966c972e320aac93d1e85916ca50aa841c"
+    },
+    "art-591-x402-signer-recovery-verifier": {
+      "digest": "0xb68e5d60d6169bad9739d30399af8f8c7378d464d25f4d971911ab65ef0b014b",
+      "r": "0x9b74dd5c8bb58124bcc04c7a561231fca3e1fddfac2e9b2e361bb494b6b9dbb6",
+      "s": "0x62b4d6e9bc1f5fb62742981efd25c46dcc979a8b37ca92705c690d8ce0b56712",
+      "yParity": 0,
+      "claimedFrom": "0x7e5f4552091a69125d5dfcb7b8c2659029395bdf"
+    }
+  },
+  "x402-permit2-sponsored-spend-evidence": {
+    "art-699-x402-permit2-evidence-recomputer": {
+      "variant": "x402_witness_transfer",
+      "chainId": 84532,
+      "verifyingContract": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      "permitted": {
+        "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "amount": "10000"
+      },
+      "spender": "0x402085c248EeA27D92E8b30b2C58ed07f9E20001",
+      "nonce": "1701411834604692317316873037158841057",
+      "deadline": "1790000600",
+      "witness": {
+        "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+        "validAfter": "1790000000"
+      },
+      "from": "0x2c7536e3605d9c16a7a3d7b1898e529396a65c23",
+      "requirement": {
+        "scheme": "exact",
+        "network": "eip155:84532",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+        "amount": "10000"
+      },
+      "now_unix": "1790000300",
+      "signature": "0x25756b2bf033967940a5fdc0735ab623fea0727447b70dbf4980a4e26a10a1e168a8a260ea84da98a5674371f183b87b966c972e320aac93d1e85916ca50aa841c"
+    },
+    "art-591-x402-signer-recovery-verifier": {
+      "digest": "0xb68e5d60d6169bad9739d30399af8f8c7378d464d25f4d971911ab65ef0b014b",
+      "r": "0x9b74dd5c8bb58124bcc04c7a561231fca3e1fddfac2e9b2e361bb494b6b9dbb6",
+      "s": "0x62b4d6e9bc1f5fb62742981efd25c46dcc979a8b37ca92705c690d8ce0b56712",
+      "yParity": 0,
+      "claimedFrom": "0x7e5f4552091a69125d5dfcb7b8c2659029395bdf"
+    },
+    "art-612-erc2612-permit-binding-verifier": {
+      "name": "USD Coin",
+      "version": "2",
+      "chainId": 1,
+      "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "owner": "0xe05fcc23807536bee418f142d19fa0d21bb0cff7",
+      "spender": "0x1111111111111111111111111111111111111111",
+      "value": 1000000,
+      "nonce": 0,
+      "deadline": 2000000000,
+      "r": "0x70bb0933677f1bd68df1604ed9dcdfab90cb39809ff6b370e3676fb81baa6081",
+      "s": "0x25f5a16ced7deac7fd852ea8501a09b720578aeec619db7ffd7022fea1ab7565",
+      "yParity": 0
     }
   },
   "x402-spend-evidence": {

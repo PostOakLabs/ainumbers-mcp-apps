@@ -12,32 +12,32 @@
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
       "uri": "ui://ainumbers/node/art-01-ap2-mandate-chain-validator",
-      "bytes": 120984,
-      "sha256": "866fdda6887a8cc16c697c8a21dadc1301208ba83ede47a1a54d14e33fba44ff"
+      "bytes": 121727,
+      "sha256": "10ae3e994ae0e27f84ddb210fbb2802014196210850cf01d17a5cf4a081dbdc2"
     },
     {
       "tool_id": "art-02-agent-spend-policy-simulator",
       "mcp_name": "simulate_spend_policy",
       "display_name": "Agent Spend-Policy Simulator",
       "uri": "ui://ainumbers/node/art-02-agent-spend-policy-simulator",
-      "bytes": 124774,
-      "sha256": "4cbebda542944df26c57c4bce0e4f63daede21b0da08258b7797565834a1ae87"
+      "bytes": 125517,
+      "sha256": "cd98c70c31978f603a8d79c624399f9564a1acfde83ade24b0a781cd9655d394"
     },
     {
       "tool_id": "art-03-x402-settlement-modeler",
       "mcp_name": "model_x402_settlement",
       "display_name": "x402 Settlement Cost & Finality Modeler",
       "uri": "ui://ainumbers/node/art-03-x402-settlement-modeler",
-      "bytes": 92531,
-      "sha256": "b2405918cb4554659f116c4137397a08698c8c03c4592fddd01a5f3de65772d3"
+      "bytes": 93274,
+      "sha256": "6370e5d5ac8eaf4d30b64dcafe16dcff30b3b638971d073f5f34877f1737ef27"
     },
     {
       "tool_id": "art-04-agent-identity-attestation-checker",
       "mcp_name": "check_agent_attestation",
       "display_name": "Agent Identity & Authorization Attestation Checker",
       "uri": "ui://ainumbers/node/art-04-agent-identity-attestation-checker",
-      "bytes": 102885,
-      "sha256": "b552b93546df512617c258c1d27884787cf231c404fb5af3f5c41d68f1bfca6d"
+      "bytes": 103628,
+      "sha256": "aeeb712dcf2deca2c1f03cdef5b9154858d131f72475192375df62cd35d6b241"
     },
     {
       "tool_id": "art-05-eu-ai-act-credit-scoring-conformity",
@@ -52,8 +52,8 @@
       "mcp_name": "precheck_reserve_attestation",
       "display_name": "GENIUS Act Reserve Attestation Pre-Check",
       "uri": "ui://ainumbers/node/art-06-genius-act-reserve-attestation",
-      "bytes": 83657,
-      "sha256": "2ae68762595e27c716d8c3e2bfd38a490b67d3a46f9e512230ac804a126b973b"
+      "bytes": 84254,
+      "sha256": "73db6cff0ded7f65de728051b22e1613e0efe475465d2b26d4d9a7fdf068161e"
     },
     {
       "tool_id": "art-07-basel31-reporting-delta-calculator",
@@ -100,8 +100,8 @@
       "mcp_name": "validate_acp_checkout",
       "display_name": "ACP Checkout Conformance Validator",
       "uri": "ui://ainumbers/node/art-12-acp-checkout-conformance-validator",
-      "bytes": 143774,
-      "sha256": "1d864e732dc6864f071776c13264a362e0c56c54e2d5a4bc4831745b789d7bed"
+      "bytes": 144517,
+      "sha256": "83aef2f4363d1083cb01532da091fd63ab02180d38cdb58e9c0baf410f0a8916"
     },
     {
       "tool_id": "art-13-eudi-wallet-credential-readiness-checker",
@@ -132,120 +132,120 @@
       "mcp_name": "draft_ap2_mandate_credential",
       "display_name": "Google AP2 Mandate Builder",
       "uri": "ui://ainumbers/node/art-16-google-ap2-mandate-builder",
-      "bytes": 94954,
-      "sha256": "9a75592a14f06041b6b4471e1410144ba14f87a987d014b2fad1a11e5330fac6"
+      "bytes": 95697,
+      "sha256": "32d9971dab4f940f246854f2b17a6782279bd35eea1d50b7b50a54b64cb9e1b4"
     },
     {
       "tool_id": "art-17-ap2-mcp-policy-validator",
       "mcp_name": "validate_ap2_mandate_credential",
       "display_name": "AP2/MCP Policy Validator",
       "uri": "ui://ainumbers/node/art-17-ap2-mcp-policy-validator",
-      "bytes": 125086,
-      "sha256": "f3d214e15db61abe876d10fa39637682ec4268b5e0bf30f1b607ceca0225b0a6"
+      "bytes": 125829,
+      "sha256": "620efa93fa92d817e869166612bf52dffd402e5562c05c55847eded707ab8d59"
     },
     {
       "tool_id": "art-18-mcp-developer-readiness-scorecard",
       "mcp_name": "score_mcp_server_readiness",
       "display_name": "MCP Developer Readiness Scorecard",
       "uri": "ui://ainumbers/node/art-18-mcp-developer-readiness-scorecard",
-      "bytes": 92035,
-      "sha256": "5c44e4dbf6d908c91edf75f52aef5a17130c9b0385428281ed2cfec4cf50e971"
+      "bytes": 92778,
+      "sha256": "271b2e53b8e18a5dec6c1137110fad1509c9dcdcd2a0b72456bd639f7d70396b"
     },
     {
       "tool_id": "art-19-agentic-checkout-protocol-selector",
       "mcp_name": "select_agentic_checkout_protocol",
       "display_name": "Agentic Checkout Protocol Selector",
       "uri": "ui://ainumbers/node/art-19-agentic-checkout-protocol-selector",
-      "bytes": 104132,
-      "sha256": "3e5d5e1568aca65279ca9c96337a87e8ae8344e7e58f22602a76aae1bfeac968"
+      "bytes": 104875,
+      "sha256": "8491f78ba4cb24cbc7a75d8df71b1e80183b2f4d6ba087d59e74d65e100147e1"
     },
     {
       "tool_id": "art-20-acp-ucp-product-feed-conformance-auditor",
       "mcp_name": "audit_acp_ucp_product_feed",
       "display_name": "ACP/UCP Product-Feed Conformance Auditor",
       "uri": "ui://ainumbers/node/art-20-acp-ucp-product-feed-conformance-auditor",
-      "bytes": 103783,
-      "sha256": "83feae762098fed642408c3eeb2be57b9a8fcf1ddbe619e70c17f648e009c5c3"
+      "bytes": 104526,
+      "sha256": "fb24be67a03cf707eb5db2e0a93be9ff6143fc7aa5c34a28a4b2cba5b6a3fbd9"
     },
     {
       "tool_id": "art-21-agent-traffic-acceptance-policy-builder",
       "mcp_name": "build_agent_traffic_policy",
       "display_name": "Agent-Traffic Acceptance Policy Builder",
       "uri": "ui://ainumbers/node/art-21-agent-traffic-acceptance-policy-builder",
-      "bytes": 103564,
-      "sha256": "6110f3808f29d0a5f563598f234016288c861a2714f79fa63387b8eeb2f5fa4f"
+      "bytes": 104307,
+      "sha256": "0904142db8f93a177db214bb296ff9e0e7249a02e2cd21680b8ca4ab38ec5680"
     },
     {
       "tool_id": "art-22-agentic-payments-protocol-comparator",
       "mcp_name": "compare_agentic_rail_protocols",
       "display_name": "Agentic Payments Protocol Comparator",
       "uri": "ui://ainumbers/node/art-22-agentic-payments-protocol-comparator",
-      "bytes": 95046,
-      "sha256": "7ae51e826e6b96dd494fc80b79c4f443152f56e55458692ac78e2a68d6c2c9b8"
+      "bytes": 95789,
+      "sha256": "1f630e37edd15df75251bc0e8d0262a7321fc91a8693dd32fcf7f69d48ce543c"
     },
     {
       "tool_id": "art-23-visa-trusted-agent-protocol-inspector",
       "mcp_name": "inspect_visa_trusted_agent_protocol",
       "display_name": "Visa Trusted Agent Protocol (TAP) Signature Inspector",
       "uri": "ui://ainumbers/node/art-23-visa-trusted-agent-protocol-inspector",
-      "bytes": 91186,
-      "sha256": "16207d382d99a163217591d77c42ec8fdeb47e559f1a09ad33f7c6776c0d9af4"
+      "bytes": 91929,
+      "sha256": "b8fe2229c95e21e358e8000065dfb2b4f6c4071698b45f391a983ed8a226ed58"
     },
     {
       "tool_id": "art-24-mastercard-agentic-token-builder",
       "mcp_name": "build_mastercard_agentic_token",
       "display_name": "Mastercard Agentic Token Scope Builder",
       "uri": "ui://ainumbers/node/art-24-mastercard-agentic-token-builder",
-      "bytes": 86594,
-      "sha256": "50da4bb756defe72ac9246c0c04013937b2ffe7ce3fe90b44aeb1e93a42e3210"
+      "bytes": 87337,
+      "sha256": "72bf335e871d8b003645cd39a751d7a89036a3187981d66247c2d059b4ea5bef"
     },
     {
       "tool_id": "art-25-a2a-agent-card-validator",
       "mcp_name": "verify_a2a_agent_card",
       "display_name": "A2A Agent Card Validator & Extension Checker",
       "uri": "ui://ainumbers/node/art-25-a2a-agent-card-validator",
-      "bytes": 88361,
-      "sha256": "b4355984d52187ba51bea6f72ca014a928d954a501b0273007b9d770f47967b7"
+      "bytes": 89104,
+      "sha256": "1914fc93d9f0e29d5cadb866a982f509937874826274b5b8515c4851e589c767"
     },
     {
       "tool_id": "art-26-x402-payload-decoder-flow-simulator",
       "mcp_name": "simulate_x402_flow",
       "display_name": "x402 Header Decoder, Payload Linter & 402 Flow Simulator",
       "uri": "ui://ainumbers/node/art-26-x402-payload-decoder-flow-simulator",
-      "bytes": 95218,
-      "sha256": "f561e909bf6ef9fa164647ab82f6e177ac8dd2c1b5b9688d4a3f6ba6b1bacea1"
+      "bytes": 95973,
+      "sha256": "433a5a942a348d07e32c08ea78f5d5ec98047383b8f2ac6806ce56d814f7ef26"
     },
     {
       "tool_id": "art-27-agentic-readiness-diagnostic",
       "mcp_name": "run_agentic_readiness_diagnostic",
       "display_name": "Agentic Payments Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-27-agentic-readiness-diagnostic",
-      "bytes": 50154,
-      "sha256": "a55bb877eacf809a78aedf522501c64ebb20ffb6f286ddd4347b80e97d54dfeb"
+      "bytes": 51748,
+      "sha256": "5bd64cd633e2afcff820f50ae77b2c373973a37d247363f56a659f95d56484d2"
     },
     {
       "tool_id": "art-28-mcp-server-deployability-diagnostic",
       "mcp_name": "run_mcp_deployability_diagnostic",
       "display_name": "MCP Server Deployability Diagnostic",
       "uri": "ui://ainumbers/node/art-28-mcp-server-deployability-diagnostic",
-      "bytes": 52298,
-      "sha256": "8f46c9b2de3a7626ea758e5965781d6c0f2409437dc3df21b063227787d51df3"
+      "bytes": 53892,
+      "sha256": "ecdee876c7c9e743a7bf6ed8490fd7f90d8b030ce401c4f110ef51c09391334f"
     },
     {
       "tool_id": "art-29-dora-readiness-diagnostic",
       "mcp_name": "run_dora_readiness_diagnostic",
       "display_name": "DORA Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-29-dora-readiness-diagnostic",
-      "bytes": 50923,
-      "sha256": "85338d6b3e3d4022bd714aa72a6a338702d7c565c1ae9663d8622de00da85611"
+      "bytes": 52507,
+      "sha256": "04487689f66848debf6e389e1e5c4da2be5d1cf788ca659684cb46b9913bbed1"
     },
     {
       "tool_id": "art-30-agent-commerce-conformance-validator",
       "mcp_name": "validate_agent_commerce_conformance",
       "display_name": "Agent Commerce Cross-Protocol Conformance Validator",
       "uri": "ui://ainumbers/node/art-30-agent-commerce-conformance-validator",
-      "bytes": 144280,
-      "sha256": "7643f475452dce4f9c330ec99cf43f240f729dcb312707ee00a3f40d72617e1a"
+      "bytes": 145023,
+      "sha256": "9606f0ccdec14253273d68e5ee82b47e3001a12b5a80f3733283e77d41f486cd"
     },
     {
       "tool_id": "art-31-a2a-x402-extension-mandate-validator",
@@ -260,8 +260,8 @@
       "mcp_name": "validate_a2a_trust_chain",
       "display_name": "A2A Agent-Card Trust-Chain Validator",
       "uri": "ui://ainumbers/node/art-32-a2a-agent-card-trust-chain-validator",
-      "bytes": 159665,
-      "sha256": "e5cdd422b7a96f6b12af0b338118dfea6da61591118b2c74dad0162ea5e96abb"
+      "bytes": 160408,
+      "sha256": "7b774546fed09c75964c3eecaca7e273b8076d89a1e1cf01c734068b47446f9c"
     },
     {
       "tool_id": "art-33-mcp-server-self-attestation-pack",
@@ -292,8 +292,8 @@
       "mcp_name": "decode_mpp_session",
       "display_name": "Tempo MPP Agent Mandate",
       "uri": "ui://ainumbers/node/art-36-tempo-mpp-agent-mandate",
-      "bytes": 99409,
-      "sha256": "9212fb9872e36ba806d0646a42499c6067ba0942076fc10a4a09361efe291621"
+      "bytes": 100152,
+      "sha256": "ba7b14f37f87e5fae40c9cca5a3ddcf775f055b6e59419c4edab0c1e3a11c22f"
     },
     {
       "tool_id": "art-37-tempo-stablecoin-issuance",
@@ -380,8 +380,8 @@
       "mcp_name": "validate_cctp_v2_transfer",
       "display_name": "Arc CCTP v2 Transfer Validator",
       "uri": "ui://ainumbers/node/art-47-arc-cctp-transfer",
-      "bytes": 61242,
-      "sha256": "66bb8b8dea2ecc01c5b6325de0528cc15d907bc4ff933dba26232d7e50b077db"
+      "bytes": 61815,
+      "sha256": "96b2bc28b296fe88b2e600d14332cf5587843e48b53b97658fed9debaf743d25"
     },
     {
       "tool_id": "art-48-treasury-clearing-fit-diagnostic",
@@ -428,8 +428,8 @@
       "mcp_name": "validate_mletr_record",
       "display_name": "MLETR / eBL Conformance & Enforceability Validator",
       "uri": "ui://ainumbers/node/art-53-mletr-ebl-conformance-validator",
-      "bytes": 81621,
-      "sha256": "a8b76786375b15b5268aaf92a3e0304dc50b497841ee2a0d6fa2bfde0595c421"
+      "bytes": 82138,
+      "sha256": "c5c3ec76f3b8e9007b7b027f209b2e574f3153b4e4caa0a2b9728b3baa4612de"
     },
     {
       "tool_id": "art-54-digital-trade-rules-checker",
@@ -492,16 +492,16 @@
       "mcp_name": "reconcile_x402_batch_settlement",
       "display_name": "x402 V2 Batch-Settlement Reconciler",
       "uri": "ui://ainumbers/node/art-61-x402-batch-settlement-reconciler",
-      "bytes": 87592,
-      "sha256": "aad6700cdbde6c4e04c1fab63336ebf1f77c84135308b58a9e9956fa43d42e5f"
+      "bytes": 88335,
+      "sha256": "eb736f871450271444e7f040d17bee98cf78c5a97a13782f3968ff2a10687b6e"
     },
     {
       "tool_id": "art-62-ap2-payment-receipt-verifier",
       "mcp_name": "verify_ap2_payment_receipt",
       "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
       "uri": "ui://ainumbers/node/art-62-ap2-payment-receipt-verifier",
-      "bytes": 91997,
-      "sha256": "fffcd247ae8f1c4b32da294818a2b2e2a17a2d06218aa3f401b8e2bc52063298"
+      "bytes": 92740,
+      "sha256": "5be9d2302b02be646337e5a1c02200551f040cacc8d20a5dfeb06fd109478e09"
     },
     {
       "tool_id": "art-63-agent-service-metering-modeler",
@@ -980,24 +980,24 @@
       "mcp_name": "validate_c2pa_manifest",
       "display_name": "C2PA Content Credential Manifest Validator",
       "uri": "ui://ainumbers/node/art-123-c2pa-manifest-validator",
-      "bytes": 110861,
-      "sha256": "b914d8587c6386a378fd2d3118df23355b036932edd496c8cac58c9b023f8843"
+      "bytes": 111604,
+      "sha256": "8295006581c11e4214ba417463144063637890f890694b6e5ae4b486ef507eac"
     },
     {
       "tool_id": "art-124-content-credential-signature-verifier",
       "mcp_name": "verify_content_credential_signature",
       "display_name": "Content Credential Signature Verifier",
       "uri": "ui://ainumbers/node/art-124-content-credential-signature-verifier",
-      "bytes": 119223,
-      "sha256": "008522d966077c61d00a1700c50da3565c53a97a1883028ecd7ab6cbcda4e672"
+      "bytes": 119966,
+      "sha256": "35492a6e92619851a9b44ae2de305c21ce27f614bc7d90bddba7fef6a4f89a88"
     },
     {
       "tool_id": "art-125-provenance-ingredient-tree-resolver",
       "mcp_name": "resolve_provenance_ingredient_tree",
       "display_name": "Provenance Ingredient Tree Resolver",
       "uri": "ui://ainumbers/node/art-125-provenance-ingredient-tree-resolver",
-      "bytes": 109542,
-      "sha256": "f0f0938dcf60ab9b28b0977ac689fa278c19a98ee3491b81cea351a04c7cd679"
+      "bytes": 110285,
+      "sha256": "ae242a23ee100564ad10de1cea275d16901d5d62a8a394c24e5472ea9a163bc5"
     },
     {
       "tool_id": "art-126-ai-act-art50-marking-checker",
@@ -1332,8 +1332,8 @@
       "mcp_name": "classify_eudr_commodity_scope",
       "display_name": "EUDR Commodity Scope Classifier",
       "uri": "ui://ainumbers/node/art-167-eudr-commodity-scope-classifier",
-      "bytes": 82744,
-      "sha256": "2fd8f5685ae5a3b7780fcb34d07ac6f800bd00fe1dacbd207c16f93c11009017"
+      "bytes": 79673,
+      "sha256": "363f53f9020752a2c1afb38ee341c5e544587143a780d927de5a4022530efc97"
     },
     {
       "tool_id": "art-168-eudr-country-benchmark-risk-scorer",
@@ -1396,8 +1396,8 @@
       "mcp_name": "check_gpai_code_conformance",
       "display_name": "GPAI Code of Practice Conformance",
       "uri": "ui://ainumbers/node/art-175-gpai-code-of-practice-conformance",
-      "bytes": 77003,
-      "sha256": "eafca650301becc861bf95f5864da5ae32984e404cf5c0233ebfe5f19d96a006"
+      "bytes": 78084,
+      "sha256": "63165b8525a49ecdc5f789593792aa2898eea3bbcd832f757385588b6bef8d03"
     },
     {
       "tool_id": "art-176-ai-governance-readiness-diagnostic",
@@ -2140,8 +2140,8 @@
       "mcp_name": "compute_cdd_ownership_25pct",
       "display_name": "FinCEN CDD 25% Beneficial Ownership Attribution",
       "uri": "ui://ainumbers/node/art-268-compute-cdd-ownership-25pct",
-      "bytes": 65577,
-      "sha256": "fc411da6ec64f8c3b46358a89ea75693c0b405068be6565ac5f3dbca76be724b"
+      "bytes": 66944,
+      "sha256": "5182a425fb1f42758ddaa9c2f10b70facc7d2f5546bb75c9837ea76bc43c4511"
     },
     {
       "tool_id": "art-269-validate-w8-series-structural",
@@ -2340,8 +2340,8 @@
       "mcp_name": "validate_einvoice_format",
       "display_name": "E-Invoice Format Validator",
       "uri": "ui://ainumbers/node/art-293-einvoice-format-validator",
-      "bytes": 51556,
-      "sha256": "c5ffa32aff014bed0733f7596df4183b29bbd64a429bf6c250f5217f10be929b"
+      "bytes": 52834,
+      "sha256": "67a25cfc0d199b985770037ca7c46887159f887515fef5b85198d47e7d3a5aae"
     },
     {
       "tool_id": "art-294-einvoice-vat-calc-verifier",
@@ -2356,8 +2356,8 @@
       "mcp_name": "route_einvoice_jurisdiction_mandate",
       "display_name": "E-Invoice Jurisdiction Mandate Router",
       "uri": "ui://ainumbers/node/art-295-einvoice-jurisdiction-mandate-router",
-      "bytes": 76862,
-      "sha256": "2a14e39304e48226656cbce18d1c256614db9f2bafd90aa3240e281d72350e6d"
+      "bytes": 78140,
+      "sha256": "ce5d8c999a35f8df6810a8386510316a0c57150df065c9a2aa3faad5d18a3ae3"
     },
     {
       "tool_id": "art-296-einvoice-transmission-receipt-builder",
@@ -2620,8 +2620,8 @@
       "mcp_name": "compute_convexity",
       "display_name": "Bond Convexity",
       "uri": "ui://ainumbers/node/art-331-tvm-convexity",
-      "bytes": 70073,
-      "sha256": "791055faf7aa24a44e09723832f647ab7188be16c22d4ce3354afed143b8b970"
+      "bytes": 70455,
+      "sha256": "8ed43d4f7d4ad4411af917b9741d867e244c479a611b170a16e0f96457f4d664"
     },
     {
       "tool_id": "art-332-build-amortization-schedule",
@@ -2940,8 +2940,8 @@
       "mcp_name": "check_agent_token_scope",
       "display_name": "Agent Token Scope Checker",
       "uri": "ui://ainumbers/node/art-385-agent-token-scope-checker",
-      "bytes": 91520,
-      "sha256": "d807dd11c335b5f8cfe2153faa7fc932fa1dc968ac48ef4272fc78c28f84a393"
+      "bytes": 92263,
+      "sha256": "fa644fada10226b523be48879a56eb057753aec8f5e1a6b055225c880de20d60"
     },
     {
       "tool_id": "art-386-lint-cbom-structure",
@@ -3004,16 +3004,16 @@
       "mcp_name": "lint_x402_v2_migration",
       "display_name": "x402 v2 Wire-Format Migration Linter",
       "uri": "ui://ainumbers/node/art-393-x402-v2-migration-linter",
-      "bytes": 88562,
-      "sha256": "578564a44b165814fa9635f16b3d3090a4fd711dddaf4decd8b2660552f88f0c"
+      "bytes": 89305,
+      "sha256": "5095f106df75135a9228243fc00732aaf7f5f09096f43efdfa301c1de239ad98"
     },
     {
       "tool_id": "art-394-x402-deferred-handshake-validator",
       "mcp_name": "validate_x402_deferred_handshake",
       "display_name": "x402 Deferred-Scheme Handshake Validator",
       "uri": "ui://ainumbers/node/art-394-x402-deferred-handshake-validator",
-      "bytes": 87217,
-      "sha256": "b7624b8077536828b5f68ada880d5751fa8feb299cd697f51fe7fcece72aefcd"
+      "bytes": 87960,
+      "sha256": "1fd4b72d4dc19b6cb44dc6971b3484a5757e929740ba112e1094d188644e66b2"
     },
     {
       "tool_id": "art-396-compute-15c3-3-reserve",
@@ -3268,16 +3268,16 @@
       "mcp_name": "map_bhc_schedule_hc",
       "display_name": "FR Y-9C Schedule HC (Consolidated Balance Sheet) Mapper",
       "uri": "ui://ainumbers/node/art-435-bhc-schedule-hc-balance-sheet",
-      "bytes": 41290,
-      "sha256": "94551189c26ed7b25df94feb72acb0a219cf3dc46707f8f54396630b6161da35"
+      "bytes": 41825,
+      "sha256": "219dd02e0b49fb9b00434feb94a4e3f4a6ceefb6a93c959841fe2651fc8ee96a"
     },
     {
       "tool_id": "art-436-bhc-schedule-hcr-capital",
       "mcp_name": "map_bhc_schedule_hcr",
       "display_name": "FR Y-9C Schedule HC-R (Regulatory Capital) Calculator",
       "uri": "ui://ainumbers/node/art-436-bhc-schedule-hcr-capital",
-      "bytes": 40632,
-      "sha256": "9874abec294df7462e40493abb2d36bae69053ae7e89a6822c07bc79b258ade2"
+      "bytes": 41167,
+      "sha256": "c0154a6b161564cdac371c95e3992b5e98411a340296c260c8cf9d7f605680f6"
     },
     {
       "tool_id": "art-437-fr2052a-inflow-outflow-classifier",
@@ -4084,16 +4084,16 @@
       "mcp_name": "validate_slate_report_fields",
       "display_name": "SLATE Securities-Loan Report Field Validator",
       "uri": "ui://ainumbers/node/art-544-slate-report-validator",
-      "bytes": 37275,
-      "sha256": "e6770be2f203eae0ee5ca5547ca422b0ff4383422be58d9990c8734af61dbd76"
+      "bytes": 37776,
+      "sha256": "8b108c431c1a9c1b63c1a84df4ee66b72d6894f30ad2773838e3d4f2b78ec97f"
     },
     {
       "tool_id": "art-545-slate-readiness-diagnostic",
       "mcp_name": "run_slate_reporting_fit",
       "display_name": "SLATE Reporting Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-545-slate-readiness-diagnostic",
-      "bytes": 80782,
-      "sha256": "2f54e5f9827a4e4c1b52580b32129e75333aebe908bcf3ac533df91786f36849"
+      "bytes": 81283,
+      "sha256": "0d0194649f8140022a64f9dd42b76a16f661f2001f4b629563cfa030684a249c"
     },
     {
       "tool_id": "art-546-dtcc-ca-iso20022-validator",
@@ -4116,8 +4116,8 @@
       "mcp_name": "run_vop_readiness_diagnostic",
       "display_name": "VoP Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-548-vop-readiness-diagnostic",
-      "bytes": 40169,
-      "sha256": "73f71df0c1747224f096824dc53e8336891960b3939a265a41a599b161fa6f16"
+      "bytes": 40677,
+      "sha256": "e8b40a4b32c9a6f70aca55317f69ac68753e56a1beacde40dcec3a57524c9119"
     },
     {
       "tool_id": "art-549-g20-corridor-cost-gap",
@@ -4196,8 +4196,8 @@
       "mcp_name": "lint_ucp_checkout_payload",
       "display_name": "UCP Checkout Payload Lint",
       "uri": "ui://ainumbers/node/art-564-ucp-checkout-payload-lint",
-      "bytes": 82025,
-      "sha256": "c942965e13df3dbe02bfc39f2dd5835401a5ecaf40d757d016b0c9fa1a3034bd"
+      "bytes": 82768,
+      "sha256": "0e3a084f25a38e4863f4b0f87032c75ba8add7cb96b662fea045bdeab9a1479e"
     },
     {
       "tool_id": "art-565-kya-x402-scope-verifier",
@@ -4340,8 +4340,8 @@
       "mcp_name": "check_genius_reserve_disclosure_conformance",
       "display_name": "GENIUS Act Reserve-Disclosure Conformance Monitor",
       "uri": "ui://ainumbers/node/art-582-genius-reserve-disclosure-conformance-monitor",
-      "bytes": 84375,
-      "sha256": "05d60990a46de88713cdf2a9ee33fc6987a656f618bc62623adb1eb0521e06db"
+      "bytes": 84526,
+      "sha256": "cb1f42dce4524717d2e4ce5d3d493e674e0ffe08583d8fe123a1a2a712262c16"
     },
     {
       "tool_id": "art-583-beacon-seeded-fair-sampling-deriver",
@@ -4868,16 +4868,32 @@
       "mcp_name": "recompute_x402_permit2_digest",
       "display_name": "X402 Permit2 Evidence Recomputer",
       "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
-      "bytes": 111304,
-      "sha256": "73400b1a494bc3354cbb8ec60994b761e4eaffc2a85a3b288b0f49bce9ed8dbf"
+      "bytes": 116302,
+      "sha256": "34a11b033b099a66657aa16e3cbf0e81bb2606326595157d6ea91dea178d7281"
     },
     {
       "tool_id": "art-700-authorization-payload-linter",
       "mcp_name": "lint_authorization_payload",
       "display_name": "Authorization Payload Linter",
       "uri": "ui://ainumbers/node/art-700-authorization-payload-linter",
-      "bytes": 93118,
-      "sha256": "690cd2db13ae3a57f776d5557c98fed2a5eca98206fee734888ff78815ebf44d"
+      "bytes": 93012,
+      "sha256": "c7286c3e386f43e43d871258c1290a91d90a39c5f9ea92834a832780884c7a06"
+    },
+    {
+      "tool_id": "art-701-three-way-invoice-match",
+      "mcp_name": "match_invoice_three_way",
+      "display_name": "Three Way Invoice Match",
+      "uri": "ui://ainumbers/node/art-701-three-way-invoice-match",
+      "bytes": 86189,
+      "sha256": "90429fc0155643c583f6bc2c20eb16f1322a1f2b10ce2aa16a48abea040c51e4"
+    },
+    {
+      "tool_id": "art-702-runway-goal-path",
+      "mcp_name": "find_runway_goal_path",
+      "display_name": "Runway Goal Path",
+      "uri": "ui://ainumbers/node/art-702-runway-goal-path",
+      "bytes": 75483,
+      "sha256": "614f776d1b01bc6b6b05c475157b795b3482c64adffbd7df28f2374e068d190d"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
