@@ -7,53 +7,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
-<title>Producer License Reciprocity Checker &middot; ART-267 &middot; OpenChainGraph &middot; AINumbers.co</title>
-<meta name="description" content="Checks NAIC producer license reciprocity for non-resident filing: identifies non-standard states requiring independent filing. LOA enum checks only. ZERO PII.">
-<link rel="canonical" href="https://ainumbers.co/chaingraph/art-267-check-producer-license-reciprocity.html">
-<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-267-check-producer-license-reciprocity.md">
+<title>Runway Goal Path · ART-702 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Goal-seek over a startup cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort. Client-side. Zero PII.">
+<meta name="ain:category" content="run">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-702-runway-goal-path.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-702-runway-goal-path.md">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--radius:6px;--radius-lg:10px}
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--green-dim:rgba(34,197,94,.12);--red:#EF4444;--warn:#F59E0B;--purple:#9B72F5;--radius:6px;--radius-lg:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--teal-lt);text-decoration:none}
-.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 80px}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
 h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
-.sub{color:var(--body);max-width:660px;margin-bottom:8px}
-.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
-.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
-.flag.warn{background:rgba(245,158,11,.08);color:var(--warn);border-color:rgba(245,158,11,.25)}
+.sub{color:var(--body);max-width:700px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
 .pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
 .card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
 .section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.q{margin-bottom:1.2rem}.q:last-child{margin-bottom:0}
-.q-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.4rem;display:block}
-.q-help{font-size:.72rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6}
-input[type="text"],input[type="number"],select,textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);border-radius:var(--radius);color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.5rem .7rem;outline:none;transition:border-color .2s}
-input:focus,select:focus{border-color:var(--teal)}
-button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
+.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.76rem}
+.tbl th{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 6px;border-bottom:1px solid var(--border)}
+.tbl td{padding:5px 6px;border-bottom:1px solid rgba(30,47,74,.5);vertical-align:middle}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 16px;margin:10px 0}
+@media(max-width:640px){.field-grid{grid-template-columns:1fr}}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:3px;letter-spacing:.02em}
+.field select,.field input{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.field textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;min-height:84px;resize:vertical}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.55rem 1.1rem;cursor:pointer;font-weight:600}
 button:hover{opacity:.9}
-.results-panel{display:none}.results-panel.show{display:block}
-.exec-hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--teal-lt);word-break:break-all;margin:6px 0}
-.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0}
-.stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;text-align:center;min-width:90px}
-.stat-val{font-size:1.1rem;color:var(--bright);font-weight:600;display:block}
-.stat-key{font-size:.58rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
-.kv{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);font-size:.74rem;gap:12px}
-.kv:last-child{border-bottom:none}
-.kv-k{color:var(--body);flex-shrink:0;min-width:160px}.kv-v{color:var(--bright);font-family:'JetBrains Mono',monospace;font-size:.7rem;word-break:break-all}
-.state-card{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:9px 13px;margin:5px 0;font-family:'JetBrains Mono',monospace;font-size:.68rem}
-.state-ok{border-left:3px solid var(--green)}.state-warn{border-left:3px solid var(--warn)}
-.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:center}
-.verify-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:none;color:var(--teal-lt);border:1px solid rgba(45,212,191,.3);border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer}
-.verify-result{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-left:8px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-2{background:transparent;color:var(--text);border:1px solid var(--border-2)}
+.results-panel{display:none}
+.results-panel.show{display:block}
+.hero-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:140px;flex:1}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--bright)}
+.hero-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
+.verdict{border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
+.verdict.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.verdict.fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.verdict.warn{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);color:var(--warn)}
+.badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
+.badge.err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
+pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+.hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--green);word-break:break-all;margin:6px 0}
+.muted-txt{color:var(--muted);font-size:.72rem}
 .mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
 #mfstBody{display:none;margin-top:10px}
-pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
+.results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}
 /* OCG-CHROME-CSS:v1 */
 /* Canonical nav — derived from chaingraph-hub.html */
 nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -91,7 +101,9 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
 .related-topics{max-width:900px;margin:0 auto}
 
 </style>
-<meta name="ai-tool" content="check_producer_license_reciprocity">
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-702-runway-goal-path.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:a62ea8245d5f29e41c714ffbcfc8b2f52d5a68cefb22a29a500b9dfc61c33beb">
+<meta name="ai-tool" content="find_runway_goal_path">
 </head>
 <body>
 <nav>
@@ -117,7 +129,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
       <span>›</span>
       <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
       <span>›</span>
-      <span style="color:var(--gold)">ART-267 · NAIC Producer License Reciprocity Check</span>
+      <span style="color:var(--gold)">ART-702 · Runway Goal Path</span>
     </div>
     <div class="nav-right">
       <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
@@ -125,83 +137,76 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
     </div>
   </div>
 </nav>
-
-<div class="wrap" role="main" aria-description="Checks NAIC producer license reciprocity for non-resident filing across target states per MDL-218 and NIPR Reciprocity Matrix 2024. Returns all_reciprocal (bool), non_standard_states[] (CA, FL, NJ, NY, HI, MN, WI -- require independent filing), and coverage_by_target[] with per-state reciprocal flag, LOA gaps, and independent-filing notes. State codes and NAIC LOA enum codes only. No National Producer Numbers. Zero PII by construction.">
-  <div class="eyebrow">OpenChainGraph Suite &middot; ART-267 &middot; Revenue Operations</div>
-  <h1>Producer License Reciprocity Checker</h1>
-  <p class="sub">Checks NAIC producer license reciprocity for non-resident filing across target states. Identifies non-standard states requiring independent filing or state exams: CA, FL, NJ, NY, HI, MN, WI. Per NAIC Producer Licensing Model Act (MDL-218) and NIPR Reciprocity Matrix 2024. Accepts state codes and standard NAIC LOA codes only. ZERO PII: never real NPN, SSN, or PDB data.</p>
-  <div style="margin-bottom:6px">
-    <span class="flag info">Revenue Operations</span>
-    <span class="flag info">NAIC MDL-218</span>
-    <span class="flag">Producer Licensing</span>
-    <span class="flag">Reciprocity</span>
-    <span class="flag warn">Proofs Deferred</span>
-  </div>
-  <div class="pii-notice">&#128274; All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data &mdash; use synthetic or anonymised inputs only. State codes and LOA enum codes only. Never real NPN, SSN, or PDB data.</div>
-
+<div class="wrap" role="main" aria-description="Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.">
+  <div class="eyebrow">OpenChainGraph Suite · ART-702</div>
+  <h1>Runway Goal Path</h1>
+  <p class="sub">The smallest change in price, in month-over-month growth, or in burn that reaches a declared goal: a runway of N months, solvency through the horizon, breakeven by a month, or a closing cash amount, ranked by least effort. A fixed monthly cash model walks every combination of your three lever grids; the all-zero scenario is always reported as the baseline.</p>
+  <div style="margin-bottom:6px"><span class="flag">Goal-Seek</span><span class="flag">Integer Minor Units</span><span class="flag">Zero PII</span><span class="flag">Client-side only</span></div>
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
+  <div class="info-box"><div class="ib-title">Scope &amp; reliance</div>Month 1 uses the declared revenue (optionally price-uplifted); growth applies from month 2 at a constant rate; burn is derived once and held constant. The first month where cash goes below zero is the cash-out month, interpolated in basis points of a month as (m−1)·10000 + floor(prev_cash·10000/(−net)); cash landing exactly on zero is not a cash-out. Effort is the half-up integer division by 100 of the sum of weight times lever; ties break by burn_cut, then price_uplift, then growth_add, all ascending. Scope limits: one revenue line, constant burn, no financing events, no churn model, and no tax. No formal correctness proof exists for this node yet (compute_proof_ready: deferred); see the proof-status note below the results.</div>
   <div class="card">
-    <div class="section-head">Licensing Parameters</div>
-    <div class="q">
-      <label class="q-label" for="residentState">Resident State (2-letter code)</label>
-      <div class="q-help">Producer's home state of residence. E.g. OR, TX, WA.</div>
-      <input type="text" id="residentState" value="OR" maxlength="2" style="width:80px" aria-label="resident_state" aria-description="type not evidenced by kernel source">
+    <div class="section-head">Cash model and goal</div>
+    <div class="muted-txt" style="margin-bottom:8px">Edit any field and run. The sample is fixture F1, the baseline-meets-goal seal vector from the conformance set.</div>
+    <div class="field-grid">
+      <div class="field"><label for="cash_minor">cash_minor</label><input id="cash_minor" value="100000000" aria-label="cash_minor"></div>
+      <div class="field"><label for="monthly_revenue_minor">monthly_revenue_minor</label><input id="monthly_revenue_minor" value="2000000" aria-label="monthly_revenue_minor"></div>
+      <div class="field"><label for="monthly_burn_minor">monthly_burn_minor</label><input id="monthly_burn_minor" value="6000000" aria-label="monthly_burn_minor"></div>
+      <div class="field"><label for="revenue_growth_bp">revenue_growth_bp</label><input id="revenue_growth_bp" value="800" aria-label="revenue_growth_bp"></div>
+      <div class="field"><label for="horizon_months">horizon_months</label><input id="horizon_months" value="36" aria-label="horizon_months"></div>
+      <div class="field"><label for="max_candidates">max_candidates</label><input id="max_candidates" value="4" aria-label="max_candidates"></div>
+      <div class="field" style="grid-column:1 / -1"><label for="goal">goal (JSON)</label><textarea id="goal" rows="2" aria-label="goal">{"type":"runway_months","value":18}</textarea></div>
+      <div class="field" style="grid-column:1 / -1"><label for="levers">levers (JSON)</label><textarea id="levers" rows="6" aria-label="levers"></textarea></div>
+      <div class="field" style="grid-column:1 / -1"><label for="effort_weights">effort_weights (JSON)</label><textarea id="effort_weights" rows="3" aria-label="effort_weights"></textarea></div>
     </div>
-    <div class="q">
-      <label class="q-label" for="loaCodes">LOA Codes (comma-separated)</label>
-      <div class="q-help">Standard NAIC Lines of Authority codes. E.g. L,H,A for Life, Health, Accident. Valid codes: L H A LTC VI CV P C HO CA LA MV WC SP PH FM OR SB MR PL LH PC VL.</div>
-      <input type="text" id="loaCodes" value="L,H,A" aria-label="loa_codes" aria-description="type not evidenced by kernel source">
-    </div>
-    <div class="q">
-      <label class="q-label" for="targetStates">Target States (comma-separated)</label>
-      <div class="q-help">States where non-resident license is sought. E.g. TX,IL,CO,NY.</div>
-      <input type="text" id="targetStates" value="TX,IL,CO,NY" aria-label="target_states" aria-description="type not evidenced by kernel source">
-    </div>
-    <div style="margin-top:20px">
-      <button onclick="runCompute()">&#9654; Check Reciprocity</button>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="run()">Run</button>
+      <button class="btn-2" onclick="loadSample()">Load sample (F1)</button>
+      <button class="btn-2" onclick="loadRefusalDemo()">Load refusal demo (F10)</button>
     </div>
   </div>
-
   <div class="results-panel" id="resultsPanel">
+    <div class="generated-at" id="generatedAt"></div>
     <div class="card">
-      <div class="generated-at" id="generatedAt"></div>
-      <div id="verdictBox" style="font-size:1.1rem;font-family:'JetBrains Mono',monospace;padding:10px 0 6px;font-weight:600"></div>
-      <div class="stat-row" id="statRow"></div>
-      <div class="section-head" style="margin-top:14px">Coverage by Target State</div>
-      <div id="statesDiv"></div>
-      <div class="section-head" style="margin-top:14px">Execution Hash (SHA-256)</div>
-      <div class="exec-hash" id="execHashBox"></div>
+      <div class="section-head">Result</div>
+      <div class="hero-row" id="heroRow"></div>
+      <div id="verdictDiv"></div>
+      <div id="baselineDiv" style="margin-top:8px"></div>
+      <div id="noneDiv" style="margin-top:8px"></div>
+      <table class="tbl" id="candTbl"></table>
+      <div class="info-box" style="margin-top:12px"><div class="ib-title">Proof status</div>This node ships <code>compute_proof_ready: deferred</code>. No formal correctness proof has been produced for this kernel; the result above is a deterministic recompute, verified by a property-test floor, not a proven one.</div>
+    </div>
+    <div class="card">
+      <div class="section-head">Execution Hash &amp; §4 Artifact</div>
+      <div style="margin-bottom:4px"><span class="muted-txt">SHA-256 execution hash (JCS canonical, RFC 8785):</span></div>
+      <div class="hash" id="execHash"></div>
+      <pre id="artifactPre"></pre>
       <div class="results-export-row">
-        <button onclick="exportArtifact()">Export &#167;4 Artifact</button>
-        <button class="verify-btn" onclick="verifyHash()">Verify Hash</button>
-        <span class="verify-result" id="verifyResult"></span>
+        <button id="ap2ExportBtn" onclick="exportAP2(_lastArtifact)" disabled>Export Policy Mandate JSON</button>
+        <button class="btn-2" onclick="exportArtifact(_lastArtifact)">Export §4 Artifact</button>
       </div>
     </div>
-    <button class="mfst-btn" onclick="toggleMfst()">&#9660; View MCP Manifest</button>
-    <div id="mfstBody"><pre id="mfstPre"></pre></div>
   </div>
+  <button class="mfst-btn" onclick="toggleMfst()">Show Tool Manifest</button>
+  <div id="mfstBody" class="card"><pre id="mfstCode"></pre></div>
 </div>
 
-
-
-
-
-<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-267-check-producer-license-reciprocity.manifest.json -->
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-702-runway-goal-path.manifest.json -->
 <section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
     <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
     <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
   </div>
   <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
-  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `check_producer_license_reciprocity`. Task: Check NAIC producer license reciprocity for non-resident filing across target states per MDL-218 and NIPR Reciprocity Matrix 2024.
-Call it with arguments: {"policy_parameters":{"resident_state":"OR","loa_codes":["L","H","A"],"target_states":["TX","IL","CO"]}}
-Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `check_producer_license_reciprocity`.
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `find_runway_goal_path`. Task: Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth.
+Call it with arguments: {"policy_parameters":{"cash_minor":100000000,"monthly_revenue_minor":2000000,"monthly_burn_minor":6000000,"revenue_growth_bp":800,"horizon_months":36,"goal":{"type":"runway_months","value":18},"levers":{"price_uplift_bp":[0,500,1000,1500,2000,3000],"growth_add_bp":[0,100,200,300,500],"burn_cut_bp":[0,500,1000,1500,2000,3000]},"effort_weights":{"price_uplift_bp":1,"growth_add_bp":2,"burn_cut_bp":1},"max_candidates":4}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `find_runway_goal_path`.
 Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
 PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
-Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-267-check-producer-license-reciprocity.html#p=v1.H4sIAAAAAAAA_wFSAK3_eyJyZXNpZGVudF9zdGF0ZSI6Ik9SIiwibG9hX2NvZGVzIjpbIkwiLCJIIiwiQSJdLCJ0YXJnZXRfc3RhdGVzIjpbIlRYIiwiSUwiLCJDTyJdfYCrxg5SAAAA</pre>
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-702-runway-goal-path.html#p=v1.H4sIAAAAAAAA_wGPAXD-eyJjYXNoX21pbm9yIjoxMDAwMDAwMDAsIm1vbnRobHlfcmV2ZW51ZV9taW5vciI6MjAwMDAwMCwibW9udGhseV9idXJuX21pbm9yIjo2MDAwMDAwLCJyZXZlbnVlX2dyb3d0aF9icCI6ODAwLCJob3Jpem9uX21vbnRocyI6MzYsImdvYWwiOnsidHlwZSI6InJ1bndheV9tb250aHMiLCJ2YWx1ZSI6MTh9LCJsZXZlcnMiOnsicHJpY2VfdXBsaWZ0X2JwIjpbMCw1MDAsMTAwMCwxNTAwLDIwMDAsMzAwMF0sImdyb3d0aF9hZGRfYnAiOlswLDEwMCwyMDAsMzAwLDUwMF0sImJ1cm5fY3V0X2JwIjpbMCw1MDAsMTAwMCwxNTAwLDIwMDAsMzAwMF19LCJlZmZvcnRfd2VpZ2h0cyI6eyJwcmljZV91cGxpZnRfYnAiOjEsImdyb3d0aF9hZGRfYnAiOjIsImJ1cm5fY3V0X2JwIjoxfSwibWF4X2NhbmRpZGF0ZXMiOjR9jkjCG48BAAA</pre>
 </section>
 <!-- ASK-AGENT:END -->
 
-<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-267-check-producer-license-reciprocity.manifest.json -->
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-702-runway-goal-path.manifest.json -->
 <script>
 /* OCG-A11Y-TREE v1 */
 /* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
@@ -211,8 +216,8 @@ Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-267
    aria-live status region and the post-compute announcement. */
 (function () {
   'use strict';
-  var RUN_TARGET = "runCompute";
-  var TABLE = {"loa_codes":["loaCodes","type not evidenced by kernel source"],"resident_state":["residentState","type not evidenced by kernel source"],"target_states":["targetStates","type not evidenced by kernel source"]};
+  var RUN_TARGET = "run";
+  var TABLE = {"cash_minor":["cash_minor",null],"monthly_revenue_minor":["monthly_revenue_minor",null],"monthly_burn_minor":["monthly_burn_minor",null],"revenue_growth_bp":["revenue_growth_bp",null],"horizon_months":["horizon_months",null],"goal":["goal",null],"levers":["levers",null],"effort_weights":["effort_weights",null],"max_candidates":["max_candidates",null]};
   var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
   var st = null;
   function ensureRegion() {
@@ -377,102 +382,220 @@ Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-267
   </div>
 </footer>
 
-<script id="manifest" type="application/json">
-{
-  "tool_id": "art-267-check-producer-license-reciprocity",
-  "tool_version": "1.0.0",
-  "mcp_name": "check_producer_license_reciprocity",
-  "mandate_type": "compliance_mandate",
-  "input_schema": {
-    "type": "object",
-    "properties": {
-      "resident_state": {"type": "string", "description": "Producer's home state (2-letter code)."},
-      "loa_codes": {"type": "array", "description": "Standard NAIC LOA codes (e.g. L, H, A)."},
-      "target_states": {"type": "array", "description": "States where non-resident license is sought."}
+<script>
+const MANIFEST={tool_id:"art-702-runway-goal-path",version:"1.0.0",title:"Runway Goal Path",mcp_tool_definition:{name:"find_runway_goal_path",description:"Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.",inputSchema:{type:"object",required:["cash_minor","monthly_revenue_minor","monthly_burn_minor","revenue_growth_bp","horizon_months","goal","levers","effort_weights","max_candidates"],properties:{cash_minor:{type:"integer"},monthly_revenue_minor:{type:"integer"},monthly_burn_minor:{type:"integer"},revenue_growth_bp:{type:"integer"},horizon_months:{type:"integer"},goal:{type:"object"},levers:{type:"object"},effort_weights:{type:"object"},max_candidates:{type:"integer"}}}},ap2_export:true,chaingraph:true};
+
+/* ── sample inputs: fixture F1 (baseline already meets the goal, the seal vector)
+   and F10 (refusal on a 13-value grid) from
+   chaingraph/kernels/fixtures/art-702-runway-goal-path.fixtures.json ── */
+const GRIDS={price_uplift_bp:[0,500,1000,1500,2000,3000],growth_add_bp:[0,100,200,300,500],burn_cut_bp:[0,500,1000,1500,2000,3000]};
+const WEIGHTS={price_uplift_bp:1,growth_add_bp:2,burn_cut_bp:1};
+const SAMPLE_F1={cash_minor:100000000,monthly_revenue_minor:2000000,monthly_burn_minor:6000000,revenue_growth_bp:800,horizon_months:36,goal:{type:"runway_months",value:18},levers:GRIDS,effort_weights:WEIGHTS,max_candidates:4};
+const SAMPLE_F10=(function(){const p=JSON.parse(JSON.stringify(SAMPLE_F1));p.levers={price_uplift_bp:[0,100,200,300,400,500,600,700,800,900,1000,1100,1200],growth_add_bp:GRIDS.growth_add_bp,burn_cut_bp:GRIDS.burn_cut_bp};return p;})();
+
+/* ── inline port of chaingraph/kernels/art-702-runway-goal-path.kernel.mjs compute():
+   same algorithm, same refusal reasons, same fixed orders. Pure function of pp. ── */
+const GOAL_TYPES=["runway_months","solvent_through_horizon","breakeven_by_month","ending_cash_at_least"];
+const LEVER_KEYS=["price_uplift_bp","growth_add_bp","burn_cut_bp"];
+const MAX_GRID_VALUES=12;
+const SCOPE_NOTE="One revenue line, constant burn, no financing events, no churn model, and no tax. Integer minor units and integer basis points only; rounding is half-up, applied once per month step.";
+const NO_CANDIDATE_REASON="No lever combination inside the declared grids reaches the declared goal.";
+function isMoney(v){return typeof v==="number"&&Number.isInteger(v)&&v>=0;}
+function isBp(v){return typeof v==="number"&&Number.isInteger(v)&&v>=0;}
+function isLeverGrid(grid){if(!Array.isArray(grid)||grid.length>MAX_GRID_VALUES)return false;for(let i=0;i<grid.length;i++){if(!isBp(grid[i]))return false;if(i>0&&grid[i]<grid[i-1])return false;}return true;}
+function roundHalfUpDiv(num,den){return Math.floor((num+Math.floor(den/2))/den);}
+function refusedPayload(reason,text){return{baseline:null,baseline_meets_goal:false,candidates:[],scenarios_evaluated:0,none_found_reason:null,refusal_reason:reason,domain_errors:[{code:reason,text:text}],scope_note:SCOPE_NOTE};}
+function validateAll(pp){
+  if(!isMoney(pp.cash_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","cash_minor must be a non-negative integer count of minor units");
+  if(!isMoney(pp.monthly_revenue_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","monthly_revenue_minor must be a non-negative integer count of minor units");
+  if(!isMoney(pp.monthly_burn_minor))return refusedPayload("REFUSED_NON_INTEGER_MONEY","monthly_burn_minor must be a non-negative integer count of minor units");
+  if(typeof pp.revenue_growth_bp!=="number"||!Number.isInteger(pp.revenue_growth_bp))return refusedPayload("REFUSED_NON_INTEGER_RATE","revenue_growth_bp must be an integer basis-point rate");
+  if(pp.revenue_growth_bp<-10000)return refusedPayload("REFUSED_GROWTH_BELOW_MINUS_10000","revenue_growth_bp must not be below -10000");
+  if(typeof pp.horizon_months!=="number"||!Number.isInteger(pp.horizon_months)||pp.horizon_months<1||pp.horizon_months>60)return refusedPayload("REFUSED_HORIZON_OUT_OF_RANGE","horizon_months must be an integer between 1 and 60");
+  const goal=pp.goal;
+  if(!goal||typeof goal!=="object"||GOAL_TYPES.indexOf(goal.type)===-1)return refusedPayload("REFUSED_UNKNOWN_GOAL_TYPE","goal.type must be one of runway_months, solvent_through_horizon, breakeven_by_month, ending_cash_at_least");
+  if(goal.type!=="solvent_through_horizon"){
+    if(typeof goal.value!=="number"||!Number.isInteger(goal.value)||goal.value<(goal.type==="ending_cash_at_least"?0:1))return refusedPayload("REFUSED_NON_INTEGER_GOAL","goal.value must be an integer"+(goal.type==="ending_cash_at_least"?" of at least zero":" of at least one")+" for goal.type "+goal.type);
+  }
+  const levers=pp.levers;
+  if(!levers||typeof levers!=="object")return refusedPayload("REFUSED_BAD_LEVER_GRID","levers must be an object with price_uplift_bp, growth_add_bp and burn_cut_bp arrays");
+  for(const key of LEVER_KEYS){if(!isLeverGrid(levers[key]))return refusedPayload("REFUSED_BAD_LEVER_GRID","levers."+key+" must be a sorted array of non-negative integer basis points with at most "+MAX_GRID_VALUES+" values");}
+  const weights=pp.effort_weights;
+  if(!weights||typeof weights!=="object")return refusedPayload("REFUSED_BAD_EFFORT_WEIGHTS","effort_weights must be an object with price_uplift_bp, growth_add_bp and burn_cut_bp keys");
+  for(const key of LEVER_KEYS){if(!isBp(weights[key]))return refusedPayload("REFUSED_BAD_EFFORT_WEIGHTS","effort_weights."+key+" must be a non-negative integer");}
+  if(typeof pp.max_candidates!=="number"||!Number.isInteger(pp.max_candidates)||pp.max_candidates<1)return refusedPayload("REFUSED_BAD_MAX_CANDIDATES","max_candidates must be an integer of at least one");
+  return null;
+}
+function simulateScenario(base,price,growthAdd,burnCut){
+  let rev=roundHalfUpDiv(base.revenue*(10000+price),10000);
+  const g=base.growthBp+growthAdd;
+  const burn=roundHalfUpDiv(base.burn*(10000-burnCut),10000);
+  let cash=base.cash,runwayBp=null,breakevenMonth=null;
+  for(let m=1;m<=base.horizon;m++){
+    if(m>1)rev=roundHalfUpDiv(rev*(10000+g),10000);
+    if(breakevenMonth===null&&rev>=burn)breakevenMonth=m;
+    const prevCash=cash,net=rev-burn;
+    cash+=net;
+    if(runwayBp===null&&cash<0)runwayBp=(m-1)*10000+Math.floor((prevCash*10000)/(-net));
+  }
+  return{runway_bp_of_month:runwayBp,breakeven_month:breakevenMonth,ending_cash_minor:cash,solvent_through_horizon:runwayBp===null};
+}
+function meetsGoal(goal,s){
+  if(goal.type==="runway_months")return s.runway_bp_of_month===null||s.runway_bp_of_month>=goal.value*10000;
+  if(goal.type==="solvent_through_horizon")return s.runway_bp_of_month===null;
+  if(goal.type==="breakeven_by_month")return s.breakeven_month!==null&&s.breakeven_month<=goal.value;
+  return s.ending_cash_minor>=goal.value;
+}
+function compute(pp){
+  pp=pp||{};
+  const bad=validateAll(pp);
+  if(bad){const rflags=[];if(bad.domain_errors.length>0)rflags.push("ART702_INPUT_REFUSED");return{output_payload:bad,compliance_flags:rflags};}
+  const base={cash:pp.cash_minor,revenue:pp.monthly_revenue_minor,burn:pp.monthly_burn_minor,growthBp:pp.revenue_growth_bp,horizon:pp.horizon_months};
+  const goal=pp.goal,weights=pp.effort_weights;
+  const priceGrid=pp.levers.price_uplift_bp,growthGrid=pp.levers.growth_add_bp,burnGrid=pp.levers.burn_cut_bp;
+  const flags=[];
+  const baseline=simulateScenario(base,0,0,0);
+  const baselineMeets=meetsGoal(goal,baseline);
+  const qualifying=[];
+  let evaluated=0;
+  for(const price of priceGrid){
+    for(const growth of growthGrid){
+      for(const burnCut of burnGrid){
+        evaluated++;
+        const s=simulateScenario(base,price,growth,burnCut);
+        if(!meetsGoal(goal,s))continue;
+        qualifying.push({levers:{price_uplift_bp:price,growth_add_bp:growth,burn_cut_bp:burnCut},effort:roundHalfUpDiv(weights.price_uplift_bp*price+weights.growth_add_bp*growth+weights.burn_cut_bp*burnCut,100),runway_bp_of_month:s.runway_bp_of_month,breakeven_month:s.breakeven_month,ending_cash_minor:s.ending_cash_minor});
+      }
     }
   }
+  qualifying.sort(function(a,b){return(a.effort-b.effort)||(a.levers.burn_cut_bp-b.levers.burn_cut_bp)||(a.levers.price_uplift_bp-b.levers.price_uplift_bp)||(a.levers.growth_add_bp-b.levers.growth_add_bp);});
+  const candidates=qualifying.slice(0,pp.max_candidates);
+  if(baselineMeets)flags.push("ART702_BASELINE_MEETS_GOAL");
+  if(candidates.length===0)flags.push("ART702_NO_CANDIDATE_FOUND");
+  return{output_payload:{baseline:{runway_bp_of_month:baseline.runway_bp_of_month,solvent_through_horizon:baseline.solvent_through_horizon,breakeven_month:baseline.breakeven_month,ending_cash_minor:baseline.ending_cash_minor},baseline_meets_goal:baselineMeets,candidates:candidates,scenarios_evaluated:evaluated,none_found_reason:candidates.length===0?NO_CANDIDATE_REASON:null,scope_note:SCOPE_NOTE},compliance_flags:flags};
 }
-</script>
 
-<script>
-const TOOL_ID      = 'art-267-check-producer-license-reciprocity';
-const TOOL_VERSION = '1.0.0';
-let _lastArtifact  = null;
+/* ── execution hash: JCS-canonical preimage over {policy_parameters, output_payload},
+   same algorithm as chaingraph/kernels/_hash.mjs, browser leg ── */
+function cgCanon(v){if(v===null||typeof v!=="object")return v;if(Array.isArray(v))return v.map(cgCanon);const o={};for(const k of Object.keys(v).sort())o[k]=cgCanon(v[k]);return o;}
+async function sha256Hex(bytes){const dig=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(dig)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
+async function executionHashLocal(pp,op){const obj=cgCanon({policy_parameters:pp,output_payload:op});const s=JSON.stringify(obj);const buf=new TextEncoder().encode(s);return sha256Hex(buf);}
 
-const NON_STANDARD = {CA:1,FL:1,NJ:1,NY:1,HI:1,MN:1,WI:1};
-const VALID_LOA = {L:1,H:1,A:1,LTC:1,VI:1,CV:1,P:1,C:1,HO:1,CA:1,LA:1,MV:1,WC:1,SP:1,PH:1,FM:1,OR:1,SB:1,MR:1,PL:1,LH:1,PC:1,VL:1};
-
-function compute(p) {
-  p = p || {};
-  const resident_state = (p.resident_state || '').toUpperCase();
-  const loa_codes = Array.isArray(p.loa_codes) ? p.loa_codes : [];
-  const target_states = Array.isArray(p.target_states) ? p.target_states : [];
-
-  const resident_non_standard = !!NON_STANDARD[resident_state];
-  const invalid_loa_codes = loa_codes.filter(function(c){return !VALID_LOA[c.toUpperCase()];});
-  const coverage_by_target = [];
-  let all_reciprocal = true;
-
-  for (let i = 0; i < target_states.length; i++) {
-    const tsUpper = target_states[i].toUpperCase();
-    const is_non_standard = !!NON_STANDARD[tsUpper];
-    const reciprocal = !is_non_standard && !resident_non_standard;
-    const loa_gaps = is_non_standard ? loa_codes.map(function(c){return {loa:c, note:tsUpper+' requires independent filing or exam; verify with NIPR'};}) : [];
-    const flags = [];
-    if (is_non_standard) flags.push(tsUpper+'_NON_STANDARD_STATE');
-    if (resident_non_standard) flags.push('RESIDENT_'+resident_state+'_NON_STANDARD');
-    if (!reciprocal) all_reciprocal = false;
-    coverage_by_target.push({target_state:tsUpper, is_non_standard:is_non_standard, reciprocal:reciprocal, loa_gaps:loa_gaps, flags:flags, note:reciprocal?'Standard NAIC reciprocity applies; non-resident license available without exam':'Manual filing required; verify current NAIC reciprocity matrix with NIPR before filing'});
+/* ── form plumbing: assemble pp from the fields (the no-arg wrapper the WebMCP
+   registration delegates to), run, hash, paint ── */
+function fieldJson(id){
+  const el=document.getElementById(id);
+  const raw=(el&&el.value!==undefined&&el.value!==null)?el.value.trim():"";
+  if(raw==="")return undefined;
+  return JSON.parse(raw);
+}
+function fieldNum(id){
+  const el=document.getElementById(id);
+  const raw=(el&&el.value!==undefined&&el.value!==null)?el.value.trim():"";
+  if(raw==="")return undefined;
+  return Number(raw);
+}
+function assemblePP(){
+  const pp={};
+  const cash=fieldNum("cash_minor"),rev=fieldNum("monthly_revenue_minor"),burn=fieldNum("monthly_burn_minor"),growth=fieldNum("revenue_growth_bp"),horizon=fieldNum("horizon_months"),maxC=fieldNum("max_candidates");
+  if(cash!==undefined)pp.cash_minor=cash;
+  if(rev!==undefined)pp.monthly_revenue_minor=rev;
+  if(burn!==undefined)pp.monthly_burn_minor=burn;
+  if(growth!==undefined)pp.revenue_growth_bp=growth;
+  if(horizon!==undefined)pp.horizon_months=horizon;
+  if(maxC!==undefined)pp.max_candidates=maxC;
+  const goal=fieldJson("goal"),levers=fieldJson("levers"),weights=fieldJson("effort_weights");
+  if(goal!==undefined)pp.goal=goal;
+  if(levers!==undefined)pp.levers=levers;
+  if(weights!==undefined)pp.effort_weights=weights;
+  return pp;
+}
+function monthsFmt(bp){
+  if(bp===null||bp===undefined)return"SOLVENT";
+  const whole=Math.floor(bp/10000),frac=bp%10000;
+  return whole+(frac?("."+(frac/10000).toString().slice(2)):"")+" mo";
+}
+let _lastArtifact=null,_lastPP=null,_lastOP=null,_lastHash=null,_lastFlags=null;
+async function run(){
+  let pp,out,flags,malformed=null;
+  try{
+    pp=assemblePP();
+    const r=compute(pp);
+    out=r.output_payload;flags=r.compliance_flags;
+  }catch(e){
+    malformed=String((e&&e.message)||e);
+    pp=null;out=refusedPayload("PAGE_INPUT_MALFORMED",malformed);flags=["ART702_INPUT_REFUSED"];
   }
-
-  const non_standard_states = target_states.map(function(t){return t.toUpperCase();}).filter(function(t){return !!NON_STANDARD[t];});
-
-  return {
-    resident_state: resident_state, loa_codes: loa_codes, invalid_loa_codes: invalid_loa_codes,
-    target_state_count: target_states.length, non_standard_states: non_standard_states,
-    all_reciprocal: all_reciprocal, coverage_by_target: coverage_by_target,
-    table_version: 'NAIC-PRODUCER-RECIPROCITY-MATRIX-2024',
-    table_source: 'NAIC State-Based Systems Producer Licensing Reciprocity Matrix 2024; NIPR Reciprocity Data 2024. Non-standard states: CA (no non-resident reciprocity), FL (background check required), NJ (limited life LOA), NY (independent license required), HI (limited), MN (state exam required), WI (limited P&C). Verify current matrix with NIPR before any license filing.',
-    regulatory_basis: 'NAIC Producer Licensing Model Act (MDL-218): reciprocal licensing for non-resident producers if resident state has substantially similar licensing requirements. 50 USC producer licensing: state-specific. NIPR Gateway = authoritative current data. ZERO PII: state/LOA enum inputs only. Never real NPN, SSN, or PDB data.',
-    pii_note: 'ZERO PII: state codes and LOA enum codes only. No NPN, SSN, PDB, producer name, or personal data enters this kernel. Use NIPR for live NPN verification.',
-    not_legal_advice: 'Not legal advice. Producer licensing requirements change; verify all reciprocity determinations with NIPR and state insurance departments before submitting non-resident license applications.'
-  };
+  const generatedAt=new Date().toISOString();
+  document.getElementById("generatedAt").textContent="generated_at "+generatedAt;
+  const artifact={"@context":"https://ainumbers.co/chaingraph/context/v0.3/context.jsonld",chaingraph_version:"0.4.0",compute_mode:"browser",mandate_type:"compliance_control",tool_id:MANIFEST.tool_id,tool_version:MANIFEST.version,generated_at:generatedAt,execution_hash:null,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:out,compliance_flags:flags,audit_signature:{payloadType:"application/vnd.openchain.graph+json;version=0.4",payload:"",signatures:[]}};
+  if(!malformed){
+    const rawHash=await executionHashLocal(pp,out);
+    artifact.execution_hash="sha256:"+rawHash;
+  }
+  _lastArtifact=artifact;_lastPP=pp;_lastOP=out;_lastHash=artifact.execution_hash;_lastFlags=flags;
+  paintResult();
 }
-
-function cgCanon(v){return Array.isArray(v)?v.map(cgCanon):(v&&typeof v==='object'&&v!==null)?Object.keys(v).sort().reduce(function(o,k){o[k]=cgCanon(v[k]);return o;},{}):v;}
-async function executionHash(pp,op){const canon=JSON.stringify(cgCanon({policy_parameters:pp,output_payload:op}));const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(canon));return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
-
-async function runCompute() {
-  const loaRaw = document.getElementById('loaCodes').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-  const tsRaw = document.getElementById('targetStates').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-  const pp = {resident_state: document.getElementById('residentState').value.trim(), loa_codes: loaRaw, target_states: tsRaw};
-  const op = compute(pp);
-  const hash = await executionHash(pp, op);
-  const generatedAt = new Date().toISOString();
-  const art = {' @context':'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',chaingraph_version:'0.4.0',mandate_type:'compliance_mandate',tool_id:TOOL_ID,tool_version:TOOL_VERSION,generated_at: generatedAt,execution_hash:hash,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:op,compliance_flags:[],compute_mode:'client',audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[]}};
-  document.getElementById('generatedAt').textContent = 'generated_at ' + generatedAt;
-  _lastArtifact = art;
-  const vb = document.getElementById('verdictBox');
-  vb.textContent = op.all_reciprocal ? 'ALL RECIPROCAL: Standard NAIC reciprocity applies to all target states' : 'MANUAL FILING REQUIRED: '+op.non_standard_states.length+' non-standard state(s): '+op.non_standard_states.join(', ');
-  vb.style.color = op.all_reciprocal ? 'var(--green)' : 'var(--warn)';
-  document.getElementById('statRow').innerHTML = [stat('All Reciprocal',op.all_reciprocal?'YES':'NO'),stat('Target States',op.target_state_count),stat('Non-Standard',op.non_standard_states.length),stat('Invalid LOAs',op.invalid_loa_codes.length)].join('');
-  document.getElementById('statesDiv').innerHTML = op.coverage_by_target.map(function(s){
-    const cls = s.reciprocal ? 'state-card state-ok' : 'state-card state-warn';
-    return '<div class="'+cls+'"><strong style="color:var(--bright)">'+s.target_state+'</strong> | '+(s.reciprocal?'<span style="color:var(--green)">RECIPROCAL</span>':'<span style="color:var(--warn)">MANUAL FILING</span>')+' | '+s.note+(s.flags.length?' | Flags: '+s.flags.join(', '):'')+'</div>';
-  }).join('');
-  document.getElementById('execHashBox').textContent = hash;
-  document.getElementById('resultsPanel').className = 'results-panel show';
+function paintResult(){
+  const a=_lastArtifact;if(!a)return;
+  renderResults(a.output_payload,a.execution_hash||"",a);
+  document.getElementById("ap2ExportBtn").disabled=false;
 }
-
-function stat(k,v){return '<div class="stat"><span class="stat-val">'+v+'</span><span class="stat-key">'+k+'</span></div>';}
-async function verifyHash(){if(!_lastArtifact)return;const h2=await executionHash(_lastArtifact.policy_parameters,_lastArtifact.output_payload);const el=document.getElementById('verifyResult');if(h2===_lastArtifact.execution_hash){el.textContent='&#10003; Hash verified';el.style.color='var(--green)';}else{el.textContent='&#10007; Mismatch';el.style.color='var(--red)';}}
-function exportArtifact(){if(!_lastArtifact)return;const blob=new Blob([JSON.stringify(_lastArtifact,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=TOOL_ID+'-artifact.json';a.click();}
-function toggleMfst(){const b=document.getElementById('mfstBody');b.style.display=b.style.display==='none'?'block':'none';if(b.style.display==='block'){const m=document.getElementById('manifest');document.getElementById('mfstPre').textContent=m?m.textContent:'{}';}}
+function renderResults(op,execHash,artifact){
+  const b=op.baseline;
+  const met=op.candidates.length>0;
+  document.getElementById("heroRow").innerHTML=
+    "<div class=\"hero-stat\"><div class=\"hero-val\" style=\"color:"+(met?"var(--green)":"var(--red)")+"\">"+(met?"GOAL MET":"NO PATH")+"</div><div class=\"hero-lbl\">Goal path</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+(b?monthsFmt(b.runway_bp_of_month):"—")+"</div><div class=\"hero-lbl\">Baseline runway</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+op.scenarios_evaluated+"</div><div class=\"hero-lbl\">Scenarios evaluated</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+op.candidates.length+"</div><div class=\"hero-lbl\">Candidates returned</div></div>";
+  const vd=document.getElementById("verdictDiv");
+  if(op.refusal_reason){
+    vd.innerHTML="<div class=\"verdict fail\">REFUSED — "+op.refusal_reason+": "+op.domain_errors.map(function(d){return d.text;}).join(" ")+"</div>";
+  }else if(op.baseline_meets_goal){
+    vd.innerHTML="<div class=\"verdict pass\">The baseline already meets the goal"+(met?" — the zero-lever scenario ranks first at effort "+op.candidates[0].effort+".":".")+"</div>";
+  }else if(met){
+    vd.innerHTML="<div class=\"verdict pass\">Least-effort path found: "+JSON.stringify(op.candidates[0].levers)+" at effort "+op.candidates[0].effort+".</div>";
+  }else{
+    vd.innerHTML="<div class=\"verdict warn\">"+op.none_found_reason+"</div>";
+  }
+  document.getElementById("baselineDiv").innerHTML=b
+    ?"<span class=\"muted-txt\">Baseline (all-zero levers): runway "+monthsFmt(b.runway_bp_of_month)+(b.runway_bp_of_month===null?" (solvent through the horizon)":"")+", breakeven month "+(b.breakeven_month===null?"—":b.breakeven_month)+", ending cash "+b.ending_cash_minor+" minor, baseline_meets_goal "+op.baseline_meets_goal+".</span>"
+    :"";
+  document.getElementById("noneDiv").innerHTML=op.none_found_reason?"<span class=\"badge warn\">none_found_reason</span> <span class=\"muted-txt\">"+op.none_found_reason+"</span>":"";
+  const tbl=document.getElementById("candTbl");
+  if(op.candidates.length){
+    let rows="";
+    for(const c of op.candidates){
+      rows+="<tr><td>"+c.levers.price_uplift_bp+"</td><td>"+c.levers.growth_add_bp+"</td><td>"+c.levers.burn_cut_bp+"</td><td>"+c.effort+"</td><td>"+monthsFmt(c.runway_bp_of_month)+"</td><td>"+(c.breakeven_month===null?"—":c.breakeven_month)+"</td><td>"+c.ending_cash_minor+"</td></tr>";
+    }
+    tbl.innerHTML="<thead><tr><th>Price uplift bp</th><th>Growth add bp</th><th>Burn cut bp</th><th>Effort</th><th>Runway</th><th>Breakeven month</th><th>Ending cash minor</th></tr></thead><tbody>"+rows+"</tbody>";
+  }else tbl.innerHTML="";
+  document.getElementById("execHash").textContent=execHash;
+  document.getElementById("artifactPre").textContent=JSON.stringify(artifact,null,2);
+  document.getElementById("resultsPanel").classList.add("show");
+}
+function fillField(id,v){document.getElementById(id).value=(v===undefined)?"":JSON.stringify(v,null,1);}
+function fillNum(id,v){document.getElementById(id).value=String(v);}
+function loadSample(){
+  const s=SAMPLE_F1;
+  fillNum("cash_minor",s.cash_minor);fillNum("monthly_revenue_minor",s.monthly_revenue_minor);fillNum("monthly_burn_minor",s.monthly_burn_minor);fillNum("revenue_growth_bp",s.revenue_growth_bp);fillNum("horizon_months",s.horizon_months);fillNum("max_candidates",s.max_candidates);
+  fillField("goal",s.goal);fillField("levers",s.levers);fillField("effort_weights",s.effort_weights);
+}
+function loadRefusalDemo(){
+  loadSample();
+  fillField("levers",SAMPLE_F10.levers);
+}
+function exportAP2(r){if(!r)return;const ap2={schema:"ainumbers-policy-mandate-v1.0",tool_id:MANIFEST.tool_id,version:MANIFEST.version,mandate_type:"compliance_control",generated_at:r.generated_at,execution_hash:r.execution_hash,policy_parameters:r.policy_parameters,output_payload:r.output_payload,compliance_flags:r.compliance_flags};dl(JSON.stringify(ap2,null,2),"art-702-policy-mandate.json","application/json");}
+function exportArtifact(r){if(!r)return;dl(JSON.stringify(r,null,2),"art-702-artifact.json","application/json");}
+function dl(c,f,m){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();}
+function toggleMfst(){const b=document.getElementById("mfstBody"),c=document.getElementById("mfstCode");if(b.style.display==="none"||!b.style.display){if(!c.textContent)c.textContent=JSON.stringify(MANIFEST,null,2);b.style.display="block";}else b.style.display="none";}
+loadSample();
 </script>
-<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-267-check-producer-license-reciprocity.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-702-runway-goal-path.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
 <script>
 // WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
-// manifests/art-267-check-producer-license-reciprocity.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// manifests/art-702-runway-goal-path.manifest.json (mcp_tool_definition reused verbatim; the generator computes
 // nothing and restates no computed value). Feature-detected: absent API
 // registers nothing, so this page is byte-identical without the API.
 // Answer-class delegate to this page's existing compute; zero network I/O.
@@ -487,31 +610,73 @@ function toggleMfst(){const b=document.getElementById('mfstBody');b.style.displa
 const mc = document.modelContext ?? (('modelContext' in navigator) ? navigator.modelContext : null);
 if (mc) {
   mc.registerTool({
-    name: 'check_producer_license_reciprocity',
-    description: 'Checks NAIC producer license reciprocity for non-resident filing across target states per MDL-218 and NIPR Reciprocity Matrix 2024. Returns all_reciprocal (bool), non_standard_states[] (CA, FL, NJ, NY, HI, MN, WI -- require independent filing), and coverage_by_target[] with per-state reciprocal flag, LOA gaps, and independent-filing notes. State codes and NAIC LOA enum codes only. No National Producer Numbers. Zero PII by construction.',
+    name: 'find_runway_goal_path',
+    description: 'Goal-seek over a monthly cash model: the smallest change in price, growth or burn that reaches a runway, solvency, breakeven or ending-cash goal, ranked by least effort with ties by burn cut, then price uplift, then growth. Integer minor units and basis points, half-up rounding once per month; cash-out interpolated in basis points of a month. Refuses non-integer or negative money, growth below -10000 bp, horizons outside 1-60, unknown goal types and bad lever grids with named reasons.',
     inputSchema: {
       "type": "object",
-      "required": [],
+      "required": [
+        "cash_minor",
+        "monthly_revenue_minor",
+        "monthly_burn_minor",
+        "revenue_growth_bp",
+        "horizon_months",
+        "goal",
+        "levers",
+        "effort_weights",
+        "max_candidates"
+      ],
       "properties": {
-        "loa_codes": {
-          "description": "type not evidenced by kernel source"
+        "cash_minor": {
+          "type": "integer"
         },
-        "resident_state": {
-          "default": "",
-          "description": "type not evidenced by kernel source"
+        "monthly_revenue_minor": {
+          "type": "integer"
         },
-        "target_states": {
-          "description": "type not evidenced by kernel source"
+        "monthly_burn_minor": {
+          "type": "integer"
+        },
+        "revenue_growth_bp": {
+          "type": "integer"
+        },
+        "horizon_months": {
+          "type": "integer"
+        },
+        "goal": {
+          "type": "object"
+        },
+        "levers": {
+          "type": "object"
+        },
+        "effort_weights": {
+          "type": "object"
+        },
+        "max_candidates": {
+          "type": "integer"
         }
       }
     },
     annotations: { readOnlyHint: true },
     execute: async function(params) {
       try {
-      if (params.loa_codes !== undefined && params.loa_codes !== null) document.getElementById('loaCodes').value = (params.loa_codes !== null && typeof params.loa_codes === 'object') ? JSON.stringify(params.loa_codes) : String(params.loa_codes);
-      if (params.resident_state !== undefined && params.resident_state !== null) document.getElementById('residentState').value = (params.resident_state !== null && typeof params.resident_state === 'object') ? JSON.stringify(params.resident_state) : String(params.resident_state);
-      if (params.target_states !== undefined && params.target_states !== null) document.getElementById('targetStates').value = (params.target_states !== null && typeof params.target_states === 'object') ? JSON.stringify(params.target_states) : String(params.target_states);
-      await runCompute();
+      if (params.cash_minor === undefined) throw new Error('cash_minor is required; received ' + JSON.stringify(params.cash_minor) + '.');
+      if (params.monthly_revenue_minor === undefined) throw new Error('monthly_revenue_minor is required; received ' + JSON.stringify(params.monthly_revenue_minor) + '.');
+      if (params.monthly_burn_minor === undefined) throw new Error('monthly_burn_minor is required; received ' + JSON.stringify(params.monthly_burn_minor) + '.');
+      if (params.revenue_growth_bp === undefined) throw new Error('revenue_growth_bp is required; received ' + JSON.stringify(params.revenue_growth_bp) + '.');
+      if (params.horizon_months === undefined) throw new Error('horizon_months is required; received ' + JSON.stringify(params.horizon_months) + '.');
+      if (params.goal === null || typeof params.goal !== 'object' || Array.isArray(params.goal)) throw new Error('goal must be a JSON object; received ' + JSON.stringify(params.goal) + '.');
+      if (params.levers === null || typeof params.levers !== 'object' || Array.isArray(params.levers)) throw new Error('levers must be a JSON object; received ' + JSON.stringify(params.levers) + '.');
+      if (params.effort_weights === null || typeof params.effort_weights !== 'object' || Array.isArray(params.effort_weights)) throw new Error('effort_weights must be a JSON object; received ' + JSON.stringify(params.effort_weights) + '.');
+      if (params.max_candidates === undefined) throw new Error('max_candidates is required; received ' + JSON.stringify(params.max_candidates) + '.');
+      document.getElementById('cash_minor').value = String(params.cash_minor);
+      document.getElementById('monthly_revenue_minor').value = String(params.monthly_revenue_minor);
+      document.getElementById('monthly_burn_minor').value = String(params.monthly_burn_minor);
+      document.getElementById('revenue_growth_bp').value = String(params.revenue_growth_bp);
+      document.getElementById('horizon_months').value = String(params.horizon_months);
+      document.getElementById('goal').value = JSON.stringify(params.goal);
+      document.getElementById('levers').value = JSON.stringify(params.levers);
+      document.getElementById('effort_weights').value = JSON.stringify(params.effort_weights);
+      document.getElementById('max_candidates').value = String(params.max_candidates);
+      await run();
       return _lastArtifact;
       } catch (err) {
         return { error: 'compute_failed', detail: String((err && err.message) || err) };
@@ -531,8 +696,8 @@ if (mc) {
 (function () {
   'use strict';
   var BUDGET = 30000;
-  var RUN_TARGET = "runCompute";
-  var PREFILL = {"loa_codes":["loaCodes","string"],"resident_state":["residentState","string"],"target_states":["targetStates","string"]};
+  var RUN_TARGET = "run";
+  var PREFILL = {"cash_minor":["cash_minor","string"],"monthly_revenue_minor":["monthly_revenue_minor","string"],"monthly_burn_minor":["monthly_burn_minor","string"],"revenue_growth_bp":["revenue_growth_bp","string"],"horizon_months":["horizon_months","string"],"goal":["goal","json"],"levers":["levers","json"],"effort_weights":["effort_weights","json"],"max_candidates":["max_candidates","string"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function b64uDec(s) {
@@ -677,8 +842,8 @@ if (mc) {
 (function () {
   'use strict';
   var MAX = 1000000;
-  var RUN_TARGET = "runCompute";
-  var PREFILL = {"loa_codes":["loaCodes","string"],"resident_state":["residentState","string"],"target_states":["targetStates","string"]};
+  var RUN_TARGET = "run";
+  var PREFILL = {"cash_minor":["cash_minor","string"],"monthly_revenue_minor":["monthly_revenue_minor","string"],"monthly_burn_minor":["monthly_burn_minor","string"],"revenue_growth_bp":["revenue_growth_bp","string"],"horizon_months":["horizon_months","string"],"goal":["goal","json"],"levers":["levers","json"],"effort_weights":["effort_weights","json"],"max_candidates":["max_candidates","string"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function fail(msg) {
