@@ -2140,8 +2140,8 @@
       "mcp_name": "compute_cdd_ownership_25pct",
       "display_name": "FinCEN CDD 25% Beneficial Ownership Attribution",
       "uri": "ui://ainumbers/node/art-268-compute-cdd-ownership-25pct",
-      "bytes": 66946,
-      "sha256": "38d6a1fe9b684173d403e9c2c5e7710b450f03d1c39d361a15c2c7e5f69b16c3"
+      "bytes": 67427,
+      "sha256": "26b17f0020478ac55793859fb2f6f8b5475e90b9cc7e8b8d55fbc5c730ab27e5"
     },
     {
       "tool_id": "art-269-validate-w8-series-structural",
@@ -4397,7 +4397,7 @@
       "display_name": "x402 EIP-712 Digest Recomputer",
       "uri": "ui://ainumbers/node/art-590-x402-eip712-digest-recomputer",
       "bytes": 113404,
-      "sha256": "0ec1d4ab8e00e3d414096ada9f1d28414c2a3896a70dc091c9d3e2647545501d"
+      "sha256": "e0324bef8d77d92fc127eed1b9e9b016d718fa84cc7c1c7d38a18cd83d4a7583"
     },
     {
       "tool_id": "art-591-x402-signer-recovery-verifier",
@@ -4405,7 +4405,7 @@
       "display_name": "x402 Signer Recovery Verifier",
       "uri": "ui://ainumbers/node/art-591-x402-signer-recovery-verifier",
       "bytes": 289311,
-      "sha256": "a36fa6a4428f6fdb1020024196ffc4e06dde423a902c4c2293cc92f5905ede1a"
+      "sha256": "0ff9c6bb04420428999210fb24d51b6dcaabb5143c1ca045a0050557f23e6ac4"
     },
     {
       "tool_id": "art-592-x402-domain-nonce-window-checker",
@@ -4444,8 +4444,8 @@
       "mcp_name": "correlate_ap2_cartmandate_x402",
       "display_name": "Ap2 X402 Cart Correlation",
       "uri": "ui://ainumbers/node/art-596-ap2-x402-cart-correlation",
-      "bytes": 85192,
-      "sha256": "2f07ac03f9bae32727f9f27ec993d7a33b7e377eb0529fcea6df9791834826c2"
+      "bytes": 90686,
+      "sha256": "427b5166b9401a3a39357f7193963e70deedca600ca30844908874339067d349"
     },
     {
       "tool_id": "art-597-c2pa-aiml-assertion-decoder",
@@ -4868,8 +4868,8 @@
       "mcp_name": "recompute_x402_permit2_digest",
       "display_name": "X402 Permit2 Evidence Recomputer",
       "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
-      "bytes": 116302,
-      "sha256": "34a11b033b099a66657aa16e3cbf0e81bb2606326595157d6ea91dea178d7281"
+      "bytes": 116614,
+      "sha256": "aa33728d8bb92c2369cced4c8bc69c2bb6cb666f0e927bd5df1b8c66658aa13f"
     },
     {
       "tool_id": "art-700-authorization-payload-linter",
@@ -4894,6 +4894,14 @@
       "uri": "ui://ainumbers/node/art-702-runway-goal-path",
       "bytes": 79178,
       "sha256": "1a7f2e7c75b6e74ae79253931f35f54c9d96bf40229aca5d47b4a5b9c4479a75"
+    },
+    {
+      "tool_id": "art-704-ai-token-spend",
+      "mcp_name": "estimate_ai_token_spend",
+      "display_name": "AI Token Spend",
+      "uri": "ui://ainumbers/node/art-704-ai-token-spend",
+      "bytes": 72655,
+      "sha256": "0c9dfec81c361b195e71430a2d53cb03b1004470f028cbe7990315a8ebcacffa"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",

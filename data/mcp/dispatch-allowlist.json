@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 718,
+  "tool_count": 719,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -373,6 +373,7 @@
     "dispose_carf_status_message",
     "draft_ap2_mandate_credential",
     "emit_chaingraph_artifact",
+    "estimate_ai_token_spend",
     "estimate_cross_margin_benefit",
     "estimate_cross_venue_margin_capital",
     "estimate_ficc_margin_netting",
