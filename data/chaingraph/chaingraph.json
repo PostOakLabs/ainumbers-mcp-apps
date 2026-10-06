@@ -45119,8 +45119,8 @@
   "compute_images": [
     {
       "system": "sha256-source",
-      "image_id": "sha256:bd768b21783024010879049cb1560f975da0ac0a210a9fde5da62dca74523c81",
-      "valid_from": "2026-08-18"
+      "image_id": "sha256:ca67c63df5452d0fd9bf794ae06e15c4e0b373729431053ac2e47b04792153ab",
+      "valid_from": "2026-09-26"
     },
     {
       "system": "risc0",
@@ -45139,12 +45139,14 @@
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "ACUZfUSrDvBjI2KqIPNmcaZoEvDK9E/e0AoS7eZGiWgiSxSL5LLePLbW3bmbS3KeBwRO2ylxqAcScLYEJblPCxmOYDvFcUxhbVIa+iGgKXyWpU3S9b61i0X5hKZUnlB0BPiJJJgQF31C6hoCSIT6hOCi1CzuSpdwBLIeOaGmFtknhBYwQvNcPZbgIBMFNO3pyT5p3ISzwNMeHKUXamC9dy5YFW+/LhV6NZe73ZABwvd53tQHAtODVlbpqNCP/2CcISWIzRkpTG2ZmUZZw/LpQlPfM4o7Ms4MFz1KEjUuMHcTcqTWaLyXK7GA1PaMfbaFUWF3fbulGDedhiNO/K5UEA==",
+    "seal": "DaDZR8CkGWXhoylK57qw4rS39Kw8pgUDYxGD6NOtcHYUAXxsS0xXA+PO9txeYccdBS+Lomur5Kip8I34I4RjvCH0tRM0STuEWDKM5SNscN7cUhRzSlcMSAcJG668SPOfE6WAHWAOUNr0xvH+yonK3uwa8YH6sNkTF870i2nOXooeGz0oFA+mVu7wfXkb0ywEO/yWTzrcMTA8yUi/r4oPWBqZfBnuZ0jQPU6sAcqVWVzu1moCzS3EeAVXEPOmUbNNCebO8HUpkKvTFpcX4I7xXlnXEykFXfvhr/TadYu15dAdRygxQRvDWJTaE0yU7XVC4Tk1av9FLuqvclSygiPk0Q==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:bd768b21783024010879049cb1560f975da0ac0a210a9fde5da62dca74523c81",
+      "kernel_digest": "sha256:ca67c63df5452d0fd9bf794ae06e15c4e0b373729431053ac2e47b04792153ab",
       "output": {
+        "authorization_value_atomic": "1000000",
         "cart_chain_intact": true,
+        "cart_total_atomic": "1000000",
         "cart_total_matches_authorization_value": true,
         "correlation_status": "CORRELATED",
         "disclosure": "This tool observes that the cart total and merchant identity are consistent with the x402 authorization's amount and recipient. It does not cryptographically bind the two -- no signature, hash, or on-chain reference ties this specific CartMandate to this specific x402 authorization. A party could present a valid CartMandate alongside an unrelated valid x402 authorization and this check would still report CORRELATED.",
@@ -52318,7 +52320,7 @@
   "compute_images": [
     {
       "system": "sha256-source",
-      "image_id": "sha256:610d0247168f9ed0ac30b0c745503f178fb840da35d67b3fb9f3342801021ba5",
+      "image_id": "sha256:0c36a136f75d75a9dbc83a6d6230e082a4d33eb3fb43c2c52de58b9dcc2b39f9",
       "valid_from": "2026-09-29"
     }
   ],
@@ -53108,6 +53110,29 @@
   "cited_clause_digest": [],
   "compute_proof_ready": "deferred",
   "deferred_reason": "New gpu:false node, art-702-runway-goal-path, built 2026-10-02 (ART702-RUNWAY-GOAL-PATH-1). Integer-only grid search over at most 180 scenarios of at most 60 months each, no digest inside compute(); expected FAST on GPU-CYCLE-PREFLIGHT-1's static pre-screen (no transcendentals, no iteration bound taken from policy_parameters beyond the declared 12-value grids), and the row defers the prove: ship deferred now and raise the section 18 deferred ceiling by one in the same PR (the #2133 and #2177 precedent). No GPU prove has been run; proving is async queue work under RIDER-KERNEL.md, not a per-wave gate."
+},
+    {
+  "tool_id": "art-704-ai-token-spend",
+  "tool_version": "1.0.0",
+  "display_name": "AI Token Spend",
+  "mcp_name": "estimate_ai_token_spend",
+  "mandate_type": "compliance_control",
+  "wave": 122,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-704-ai-token-spend.html",
+  "description": "Monthly AI token spend estimator and cross-model comparator. The caller supplies an as_of date (the node never reads a clock), a usage profile (requests per month, input tokens per request, a cached-input share in basis points, cache-write tokens with a 5-minute or 1-hour TTL, output tokens per request, a batch share and a long-context share), a dated price_table whose entries carry tier, effective_from/effective_through bounds and integer USD micros per million tokens, and the model names to compare. A price entry applies at as_of when effective_from <= as_of <= effective_through; two applicable entries for a compared model are an AMBIGUOUS_PRICE refusal, never a silent pick, and none is NO_PRICE_FOR_DATE. Each component's tokens are split into disjoint plain, batch and long-context slices priced from the matching block; a slice needing a combined batch+long-context block the entry does not list is NO_PRICE_FOR_COMBINATION, and a missing component price is a refusal naming the model and the component. The cost of T tokens at price P is floor(T/1e6)*P + floor((T mod 1e6)*P/1e6), overflow-safe for the validated caps (monthly tokens per component at most 1e12, refused above; prices at most 1e9). Output carries per-model monthly and per-request cost in integer micros, the four-component breakdown, a cheapest-first ranking with ties broken by the model string, per-model refusals, the snapshot age in days, and a scope note: no taxes or regional uplift, no image, audio or video tokens, no tool-use surcharges, no tiered volume discounts, and no subscription or committed-spend deals. Prices are an input, never kernel constants: the default snapshot is a dated capture of the official provider price pages, inlined in the page and manifest, and refreshing it never changes kernel bytes.",
+  "input_schema_ref": "chaingraph/art-704-ai-token-spend.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:1c2518f6e01085420d06609b2ae4d1354d5832d04729e000d4cf0bfba9460b15","valid_from":"2026-10-04"}],
+  "export_capability": ["json"],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-704-ai-token-spend, built 2026-10-04 (ART704-AI-SPEND-1). Integer-only cost arithmetic over four token components and a handful of price entries per compared model, no digest inside compute(); expected FAST on GPU-CYCLE-PREFLIGHT-1's static pre-screen (no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification). The described prices are vendor facts, so standards_basis is not_applicable: each price entry travels with its own source_url and source_sha256 from the dated snapshot instead of a standard's clause."
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
