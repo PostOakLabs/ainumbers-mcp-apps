@@ -4140,16 +4140,16 @@
       "mcp_name": "record_index_constituents",
       "display_name": "Record Index Constituents",
       "uri": "ui://ainumbers/node/art-557-record-index-constituents",
-      "bytes": 77566,
-      "sha256": "fe540b941f7e8df24edd800bf1879eac6b85422ca5463c6bc3c696a9023c0980"
+      "bytes": 77922,
+      "sha256": "8b8387efbe055173e3950a651cf7174d180343e7f719cf6f32347e9bf791da76"
     },
     {
       "tool_id": "art-558-record-fund-positions",
       "mcp_name": "record_fund_positions",
       "display_name": "Record Fund Positions",
       "uri": "ui://ainumbers/node/art-558-record-fund-positions",
-      "bytes": 75403,
-      "sha256": "af78b5d3a68b13af273bc7aec5c65df4f6db16101e6409977e8bf09b86d58780"
+      "bytes": 75755,
+      "sha256": "34973859c515918766e01ffa4b58517cac5d1dd50151951670f32f74f3d32c57"
     },
     {
       "tool_id": "art-559-attest-calc-agent-independence",
@@ -4868,8 +4868,8 @@
       "mcp_name": "recompute_x402_permit2_digest",
       "display_name": "X402 Permit2 Evidence Recomputer",
       "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
-      "bytes": 116614,
-      "sha256": "aa33728d8bb92c2369cced4c8bc69c2bb6cb666f0e927bd5df1b8c66658aa13f"
+      "bytes": 116641,
+      "sha256": "719c1833f6980e581a2a8cbff5b54d76575bd23dc2e0487a56037ee034531598"
     },
     {
       "tool_id": "art-700-authorization-payload-linter",
