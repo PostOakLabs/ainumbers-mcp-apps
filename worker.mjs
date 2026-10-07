@@ -15,6 +15,11 @@ import { toReqRes, toFetchResponse } from 'fetch-to-node';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import { z } from 'zod';
 import { PILOT } from './pilot.mjs';
+// Counts SSOT (generate.mjs writes data/counts.json): the tool total in SERVER_INSTRUCTIONS
+// derives from it, so the served prose can never drift from the catalog the tools/list gate
+// cross-checks. Hand-typed totals went stale here — the same class MCPCOUNTS-DRIFT-CAUSE
+// -2026-07-25 documented for utility counts.
+import counts from './data/counts.json' with { type: 'json' };
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { isConformantEvidence as haIsConformantEvidence, evaluateHaGate } from './kernels/_hagate.mjs';
@@ -834,10 +839,13 @@ const DISPATCH_STEER = 'If a tool named above is not in your tool list, call ' +
 // build time and the two paths cannot diverge. ⛔ KEEP IT ≤600 CHARS: it is prepended to the model's
 // context on every session by hosts that surface instructions, and scripts/check-hot-tool-order.mjs
 // asserts the bound. It says exactly what a host cannot work out from a truncated tool list:
-// the list is paginated, and there is a door to the rest of it.
+// the list is paginated, and there is a door to the rest of it. The tool total comes from the
+// counts import above — ⛔ NEVER hand-type it (hand-typed totals went stale here; both the
+// "722" total and the "page 1 is 75" figure were served prose contradicting the real
+// no-cursor-returns-everything behavior).
 const SERVER_INSTRUCTIONS =
-  'AINumbers: 722 deterministic finance/compliance calculators (zero PII, zero network, every result carries a verifiable execution_hash). '
-  + 'tools/list is PAGINATED — page 1 is 75 of 722 tools. '
+  'AINumbers: ' + counts.mcp_tools_total + ' deterministic finance/compliance calculators (zero PII, zero network, every result carries a verifiable execution_hash). '
+  + 'tools/list is PAGINATED — page via nextCursor; the full set is ' + counts.mcp_tools_total + ' tools. '
   + 'Find: find_tool(query) for one calculator, find_chain(query) for a multi-step workflow, describe_tool(name) for the exact schema. '
   + 'Run: the tools in your list directly; ANY other tool with call_tool({ name, arguments }) — same execution, same hash. '
   + 'Verify with verify_execution_hash; aggregate a session with build_session_receipt.';
