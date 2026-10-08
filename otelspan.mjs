@@ -433,14 +433,37 @@ function nanoNow(offsetMs) { return (BigInt(Date.now() + (offsetMs || 0)) * 1000
 function sv(s) { return { stringValue: String(s) }; }
 function attr(key, value) { return { key, value }; }
 
+/* TRACEPARENT-BINDING-1 — W3C Trace Context Level 1 `traceparent` parsing, for binding the
+   CALLER's trace context from the MCP request `_meta` (MCP 2026-07-28 reserves traceparent /
+   tracestate / baggage there for OTel compatibility). Pinned shape per the row: version 00,
+   32-hex trace id, 16-hex parent span id, 2-hex flags; an all-zero trace id or span id is
+   rejected per the W3C spec. Returns { traceId, spanId }, or null when absent/malformed —
+   null means the caller behaves exactly as before (no error, no new field). */
+const W3C_TRACEPARENT_RE = /^00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}$/;
+export function parseW3cTraceparent(value) {
+  if (typeof value !== 'string') return null;
+  const m = W3C_TRACEPARENT_RE.exec(value);
+  if (!m) return null;
+  const traceId = m[1];
+  const spanId = m[2];
+  if (/^0{32}$/.test(traceId) || /^0{16}$/.test(spanId)) return null;
+  return { traceId, spanId };
+}
+
 /**
- * chainRunToOtlpTrace(runChainResult, { service, compositeExecutionHash, stepMeta }) -> OTLP/JSON trace doc.
+ * chainRunToOtlpTrace(runChainResult, { service, compositeExecutionHash, stepMeta, parentTraceContext }) -> OTLP/JSON trace doc.
  * runChainResult: the structuredContent returned by run_chain (must have chain + steps[]).
  * Only steps with status "ok" become spans (same discipline as intoto.mjs's recordChainRunAsLinks).
  * opts.compositeExecutionHash: when present, stamped on the parent invoke_agent span as
  *   ocg.composite_execution_hash (MCP-OTEL-LINK-1).
  * opts.stepMeta: map tool_id -> { kernel_digest }; when a step has an entry, its execute_tool
  *   span carries ocg.kernel_digest (the §17 build_identity kernel digest, hash-excluded metadata).
+ * opts.parentTraceContext: when present ({ traceId, spanId } from parseW3cTraceparent), the whole
+ *   doc is emitted under the CALLER's trace id — the invoke_agent span joins the caller's W3C
+ *   trace instead of minting an estate-local one (TRACEPARENT-BINDING-1). The caller's span id is
+ *   deliberately NOT written as the root span's parentSpanId: an external parent reference is a
+ *   dangling-parent finding in lintOtlpTrace; the trace-id equality carries the parent context.
+ *   Absent ⇒ a fresh random trace id, byte-for-byte the pre-binding behavior.
  */
 export function chainRunToOtlpTrace(runChainResult, opts = {}) {
   if (!runChainResult || typeof runChainResult !== 'object') throw new Error('runChainResult must be the object returned by run_chain');
@@ -451,7 +474,7 @@ export function chainRunToOtlpTrace(runChainResult, opts = {}) {
   const skipped = allSteps.filter((s) => s.status !== 'ok').map((s) => ({ tool_id: s.tool_id, status: s.status }));
   if (ranSteps.length === 0) throw new Error('No successfully-executed steps to trace (see skipped[] for why).');
 
-  const traceId = randHex(16);
+  const traceId = opts.parentTraceContext?.traceId || randHex(16);
   const rootSpanId = randHex(8);
   const t0 = nanoNow(0);
   const service = opts.service || 'ainumbers-chaingraph-worker';
