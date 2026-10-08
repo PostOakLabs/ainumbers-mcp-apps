@@ -722,6 +722,18 @@ async function loadData(env) {
   for (const slug of PILOT) {
     manifests[slug] = await (await get('manifests/' + slug + '.manifest.json')).json();
   }
+  // WORKER-NULLPARITY-LIVE-FEED-1: the per-tool x_null_distinct exemption registry — generate.mjs's
+  // projection of every site manifests/<tool_id>.manifest.json that declares one, shaped directly for
+  // normalizeNullMembers' recursive properties/items walk. The PILOT manifests above carry their
+  // input_schema verbatim, but no other tool's schema is vendored (catalog.json is x_*-stripped,
+  // chaingraph nodes carry only input_schema_ref), so before this registry both kernel-dispatch
+  // sites passed `undefined` as the schema for every non-PILOT tool and the normalizer stripped ALL
+  // null members unconditionally — the whole declared class (20 tools / 27 paths, #2180/#436) could
+  // never reach the live M leg. ONE eager static-asset fetch keeps the feed off the tools/call hot
+  // path: cold-start subrequests go 27 -> 28 of the Free-plan 50 (22 spare); the file is emitted
+  // unconditionally by generate.mjs in the same push as this reader, so a miss here means a broken
+  // deploy that fails CI's wrangler dry-run + smoke first, and the throw is the honest signal.
+  const nullExemptions = await (await get('mcp/null-exemptions.json')).json();
   // Widget HTML bodies load LAZILY (only when a widget resource is actually READ), NOT eagerly
   // per PILOT here. On the Cloudflare FREE plan (50 subrequests/invocation) eager-loading every
   // widget's HTML at cold start put buildServer right at the ceiling; adding one widget (VM-1a
@@ -784,7 +796,7 @@ async function loadData(env) {
   let _completionIndexP = null;
   const loadCompletionIndex = () => (_completionIndexP ??= get('mcp/completion-index.json')
     .then((r) => r.json()).catch(() => null));
-  dataCache = { manifests, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
+  dataCache = { manifests, nullExemptions, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
   return dataCache;
 }
 
@@ -1952,7 +1964,14 @@ export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParam
     'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
 }
 
-function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+  // WORKER-NULLPARITY-LIVE-FEED-1: the schema argument both kernel-dispatch sites hand to
+  // normalizeNullMembers. PILOT widgets resolve their vendored manifest's input_schema exactly as
+  // before; every OTHER servable tool falls back to its generated exemption skeleton (the projected
+  // x_null_distinct declarations from data/mcp/null-exemptions.json, loaded once in loadData). A
+  // tool declared nowhere misses both lookups and gets null = strip-all, exactly the contract.
+  // `nullExemptions?` keeps hand-built callers (tests, precompute) that predate the registry green.
+  const inputSchemaFor = (id) => manifests[id]?.input_schema ?? nullExemptions?.[id] ?? null;
   // PROMPTS-WORKER-CONTEXT-1: the two generated indexes arrive EITHER already parsed (tests,
   // precompute, any caller that reads data/ off disk) or as the worker's lazy loaders. One accessor
   // each, so every call site below is identical in both contexts and neither pays for a file it
@@ -4067,11 +4086,13 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
           const now = new Date().toISOString();
           // MR-R4-NULL-NORMALIZE-WORKER-1: strip null-valued members BEFORE compute AND before the
           // execution_hash preimage — this same normalized object feeds both (buildArtifact echoes
-          // and hashes its `pp`). Null ARRAY elements are positional and preserved; a manifest input
-          // property declaring x_null_distinct is exempt. Deliberately NOT folded into _hash.mjs:
+          // and hashes its `pp`). Null ARRAY elements are positional and preserved; an input property
+          // declaring x_null_distinct is exempt — honoured for EVERY servable tool through the
+          // generated exemption registry (inputSchemaFor, WORKER-NULLPARITY-LIVE-FEED-1), not just
+          // the 16 PILOT manifests. Deliberately NOT folded into _hash.mjs:
           // a hash-only fold would give a null-carrying call and a null-free call identical receipts
           // while they still answer differently.
-          const pp_input = normalizeNullMembers(policy_parameters, manifests[tool_id]?.input_schema);
+          const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(tool_id));
           const artifact = await kernel.buildArtifact(pp_input, {
             now,
             parent_hashes: parent_hashes ?? [],
@@ -5995,11 +6016,13 @@ function buildServer({ manifests, widgets, loadWidget, loadNodeView, catalog, ch
             const now = new Date().toISOString();
             // MR-R4-NULL-NORMALIZE-WORKER-1: strip null-valued members BEFORE compute AND before the
             // execution_hash preimage — this same normalized object feeds both (buildArtifact echoes
-            // and hashes its `pp`). Null ARRAY elements are positional and preserved; a manifest input
-            // property declaring x_null_distinct is exempt. Deliberately NOT folded into _hash.mjs:
+            // and hashes its `pp`). Null ARRAY elements are positional and preserved; an input property
+            // declaring x_null_distinct is exempt — honoured for EVERY servable tool through the
+            // generated exemption registry (inputSchemaFor, WORKER-NULLPARITY-LIVE-FEED-1), not just
+            // the 16 PILOT manifests. Deliberately NOT folded into _hash.mjs:
             // a hash-only fold would give a null-carrying call and a null-free call identical receipts
             // while they still answer differently.
-            const pp_input = normalizeNullMembers(policy_parameters, manifests[node.tool_id]?.input_schema);
+            const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(node.tool_id));
             const artifact = await kernel.buildArtifact(pp_input, {
               now,
               parent_hashes: parent_hashes ?? [],

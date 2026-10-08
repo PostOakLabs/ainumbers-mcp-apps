@@ -86,6 +86,58 @@ for (const slug of PILOT) {
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
+
+// ---------------------------------------------------------------------------
+// WORKER-NULLPARITY-LIVE-FEED-1 — the per-tool x_null_distinct exemption registry.
+// data/mcp/null-exemptions.json: { [tool_id]: <projected input_schema skeleton> } for EVERY site
+// manifest that declares x_null_distinct: true inside its input_schema. The skeleton carries ONLY
+// the declared paths (the x_null_distinct marker plus the properties/items structure
+// _null_normalize.mjs's recursive walk needs), so the worker consumes the exact exemption
+// semantics of the full site schema in a few KB via ONE eager cold-start fetch — zero per-call
+// subrequests on the tools/call hot path. A declared node is projected as { x_null_distinct: true }
+// and NOT descended (the normalizer preserves that null and never walks into it). The eager-load
+// ban (2026-07-09 poisoned-isolate outage) applies to PER-TOOL assets; this is the ONE-asset
+// registry shape the row mandates instead.
+// ---------------------------------------------------------------------------
+const MANIFESTS_SRC = resolve(REPO, 'manifests');
+function buildNullExemptions() {
+  const project = (schema) => {
+    if (!schema || typeof schema !== 'object') return null;
+    let out = null;
+    if (schema.properties) {
+      for (const [k, sub] of Object.entries(schema.properties)) {
+        const projected = (sub && sub.x_null_distinct === true) ? { x_null_distinct: true } : project(sub);
+        if (projected) {
+          out ??= {};
+          (out.properties ??= {})[k] = projected;
+        }
+      }
+    } else if (schema.items) {
+      const inner = project(schema.items);
+      if (inner) out = { items: inner };
+    }
+    return out;
+  };
+  const countDeclared = (skeleton) => {
+    if (!skeleton || typeof skeleton !== 'object') return 0;
+    let n = 0;
+    if (skeleton.properties) for (const sub of Object.values(skeleton.properties)) n += (sub?.x_null_distinct === true ? 1 : 0) + countDeclared(sub);
+    else if (skeleton.items) n += countDeclared(skeleton.items);
+    return n;
+  };
+  const registry = {};
+  let paths = 0;
+  for (const f of readdirSync(MANIFESTS_SRC).filter((f) => f.endsWith('.manifest.json')).sort()) {
+    let m = null;
+    try { m = JSON.parse(readFileSync(resolve(MANIFESTS_SRC, f), 'utf8')); } catch { continue; }
+    const skeleton = project(m?.input_schema);
+    if (skeleton) { registry[f.slice(0, -'.manifest.json'.length)] = skeleton; paths += countDeclared(skeleton); }
+  }
+  return { registry, paths };
+}
+const { registry: nullExemptions, paths: nullExemptionPathCount } = buildNullExemptions();
+writeFileSync(resolve(DATA,'mcp','null-exemptions.json'), JSON.stringify(nullExemptions, null, 2) + '\n');
+console.log(`null-exemptions registry: ${Object.keys(nullExemptions).length} tool(s) / ${nullExemptionPathCount} declared path(s) -> data/mcp/null-exemptions.json`);
 // COMPOSER-PLAN-AND-ROOT-WEBMCP-1: vendor the two derived data sets the worker's
 // chain-plan / session-root parity tests assert against (same committed bytes as
 // the site repo's data/ — one fixture truth, both runtimes).
@@ -867,6 +919,15 @@ for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
       console.error(`SELF-CHECK FAIL: kernels/${f} is NOT registered in kernels/index.mjs (add import + KERNELS['${id}'] entry — dual-registry trap, CONTRACT §A4)`);
       selfFails++;
     }
+  }
+}
+
+// null-exemptions registry — regenerate + byte-compare (WORKER-NULLPARITY-LIVE-FEED-1)
+{
+  const { registry: regen } = buildNullExemptions();
+  const written = readFileSync(resolve(DATA, 'mcp', 'null-exemptions.json'), 'utf8');
+  if (written !== JSON.stringify(regen, null, 2) + '\n') {
+    console.error('SELF-CHECK FAIL: data/mcp/null-exemptions.json does not match the site manifests projection'); selfFails++;
   }
 }
 
