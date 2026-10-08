@@ -24,7 +24,7 @@ import { verifyProofs, didKeyToPublicKey } from './embed/lib/_proof.mjs';
 import { issueVc, issueSdJwt, presentSdJwtTool } from './credwork.mjs';
 import { validateDefinition as checklistValidateDefinition, definitionDigest as checklistDefinitionDigest, buildStepReceipt as checklistBuildStepReceipt, verifyRun as checklistVerifyRun } from './checkrun.mjs';
 import { recordChainRunAsLinks } from './intoto.mjs';
-import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace } from './otelspan.mjs';
+import { validateOtlpTrace, generateSpanReceiptBundle, verifySpanReceiptBundle, chainRunToOtlpTrace, parseW3cTraceparent } from './otelspan.mjs';
 import { registerExportArtifact } from './exporters/index.mjs';
 import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 // ERROR-REGISTRY-REQUEST-ID-SPEC (row AICONTRACT-PART-B-1): the SINGLE CONSTRUCTION SITE for
@@ -3020,7 +3020,11 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         .describe('Optional §22 Work Mandate artifact. When supplied: §16 signature is verified and validity window is checked (unsigned/bad-sig/expired returns a structured error); mandate_hash is folded into every step and the composite receipt as a conditional-presence key, proving which policy governed this run. A no-mandate run is byte-identical to the pre-binding baseline (linear-hash-freeze invariant).'),
     },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  }, async (runChainArgs) => executeChainRun(runChainArgs));
+  // TRACEPARENT-BINDING-1: the SDK hands the handler the request's `extra`, whose `_meta` is the
+  // tools/call `params._meta` (MCP 2026-07-28 per-request protocol fields) — the only place the
+  // caller's W3C traceparent/tracestate/baggage can arrive. Threaded to executeChainRun so the
+  // OTel span path can bind it; run_chain_batch keeps calling the engine without it (no binding).
+  }, async (runChainArgs, extra) => executeChainRun(runChainArgs, extra?._meta ?? null));
 
   // ── RUN-2-1 (board row RUN-2-1 / IMPL-PLAN-P0P1 §4 C2): the chain-run engine, moved VERBATIM
   // out of the run_chain callback so run_chain_batch (registered below) drives the IDENTICAL
@@ -3035,7 +3039,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   // principal. Strip the fragment (and nothing else) before comparing.
   const didBase = (v) => (typeof v === 'string' ? v.split('#')[0] : null);
 
-  const executeChainRun = async ({ chain, inputs, compute, mandate, escalation_transport }) => {
+  const executeChainRun = async ({ chain, inputs, compute, mandate, escalation_transport }, requestMeta = null) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
       return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
@@ -3659,15 +3663,33 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         const kd = r.artifact?.audit_signature?.build_identity?.kernel_digest;
         if (kd) stepMeta[r.tool_id] = { kernel_digest: kd };
       }
+      // TRACEPARENT-BINDING-1 — bind the CALLER's W3C trace context. MCP spec 2026-07-28 reserves
+      // traceparent / tracestate / baggage in `params._meta` for OpenTelemetry compatibility; when
+      // the tools/call carried a VALID traceparent, the span document is emitted under the caller's
+      // trace id (the invoke_agent span joins the caller's trace instead of minting an estate-local
+      // one) and the parsed ids + tracestate/baggage are echoed as response metadata next to the
+      // existing resource_link. Absent or malformed ⇒ byte-for-byte today's behavior: no error, no
+      // new field, fresh random trace id. Response metadata only — never inside policy_parameters
+      // or output_payload, so execution_hash cannot move (asserted by traceparent-binding.test.mjs).
+      const callerTrace = parseW3cTraceparent(requestMeta?.traceparent);
       const otelDoc = chainRunToOtlpTrace(out, {
         service: 'ainumbers-chaingraph-worker',
         compositeExecutionHash: composite_hash,
         stepMeta,
+        ...(callerTrace ? { parentTraceContext: callerTrace } : {}),
       });
       // encodeURIComponent + unescape gives a Latin-1 string safe for btoa (same posture as line ~683)
       const otelUri = 'data:application/json;base64,' +
         btoa(unescape(encodeURIComponent(JSON.stringify(otelDoc))));
       out.otel_span_link = otelUri; // response metadata mirror of the resource_link block
+      if (callerTrace) {
+        out.trace_context = {
+          trace_id: callerTrace.traceId, // equals every span's traceId in the doc above
+          parent_span_id: callerTrace.spanId, // the caller's W3C span (external parent; not written as the root span's parentSpanId — that would be a dangling-parent lint finding)
+          ...(typeof requestMeta.tracestate === 'string' && requestMeta.tracestate ? { tracestate: requestMeta.tracestate } : {}),
+          ...(typeof requestMeta.baggage === 'string' && requestMeta.baggage ? { baggage: requestMeta.baggage } : {}),
+        };
+      }
       otelResourceLink = { type: 'resource_link', name: `otel-spans-${chain}.json`, uri: otelUri, mimeType: 'application/json' };
     }
 
