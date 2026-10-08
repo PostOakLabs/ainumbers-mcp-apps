@@ -1044,8 +1044,8 @@
       "mcp_name": "validate_signature_agent_card",
       "display_name": "Signature Agent Card Validator",
       "uri": "ui://ainumbers/node/art-131-signature-agent-card-validator",
-      "bytes": 67044,
-      "sha256": "9a4de88782543a1cc0d1a5181eb28478b0984842a053d7ff52c9ea789f13d9a1"
+      "bytes": 68148,
+      "sha256": "be680782e488fb39af80d7445bc8263a6c27e428a1bc4d799a2cce8f35405978"
     },
     {
       "tool_id": "art-132-agent-key-rotation-auditor",
@@ -1060,8 +1060,8 @@
       "mcp_name": "crosswalk_agent_payment_rail_trust",
       "display_name": "Agent Payment Rail Trust Crosswalk",
       "uri": "ui://ainumbers/node/art-133-agent-payment-rail-trust-crosswalk",
-      "bytes": 67554,
-      "sha256": "948f03fd5a1e41ffa0325c3092f0733a4ac0c439828138150215b40b18454e43"
+      "bytes": 68206,
+      "sha256": "178e74a857085013ea5caf8d347852ae530a82589811e50df2ec91175a52f6f6"
     },
     {
       "tool_id": "art-134-agent-directory-publish-readiness",
@@ -2132,8 +2132,8 @@
       "mcp_name": "check_producer_license_reciprocity",
       "display_name": "NAIC Producer License Reciprocity Check",
       "uri": "ui://ainumbers/node/art-267-check-producer-license-reciprocity",
-      "bytes": 62866,
-      "sha256": "f209266dff93fc81431f51ce4d0ece46cd21c003882735b8eee4d0951e38150f"
+      "bytes": 63895,
+      "sha256": "94bf87b798ec1974e3e6a9ccbb648934cfe2d244ec3f0cec7d12eb4506928636"
     },
     {
       "tool_id": "art-268-compute-cdd-ownership-25pct",
@@ -4900,8 +4900,24 @@
       "mcp_name": "estimate_ai_token_spend",
       "display_name": "AI Token Spend",
       "uri": "ui://ainumbers/node/art-704-ai-token-spend",
-      "bytes": 78226,
-      "sha256": "2cbdb844bbe752e0723671a1226c18fa0473aaa449d9d297acc79b5440b8283c"
+      "bytes": 82975,
+      "sha256": "27b33b73383e5b7bc8adf639a1a6960ce25b9a26be7bab4e8ed6b32994e5260f"
+    },
+    {
+      "tool_id": "art-711-sco60-crypto-asset-exposure-classifier-v2",
+      "mcp_name": "classify_sco60_exposure_v2",
+      "display_name": "SCO60 Group 2 Exposure Limit V2",
+      "uri": "ui://ainumbers/node/art-711-sco60-crypto-asset-exposure-classifier-v2",
+      "bytes": 74547,
+      "sha256": "e3dc01975b268087d7606b1bcb1f3862d7d8675a7c96ad8981505c41ea74daaf"
+    },
+    {
+      "tool_id": "art-712-workforce-board-roi",
+      "mcp_name": "workforce_board_roi_report",
+      "display_name": "Workforce Board ROI Report",
+      "uri": "ui://ainumbers/node/art-712-workforce-board-roi",
+      "bytes": 48589,
+      "sha256": "22edb6e66b7beeadd6071d33021ad4aa0cf09f91c0d0386c718c04b5f3ba8575"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",

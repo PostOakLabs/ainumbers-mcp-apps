@@ -1,0 +1,291 @@
+{
+  "510-digital-asset-regulatory-classifier": {
+    "properties": {
+      "market_cap_eur": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "art-116-product-lineage-builder": {
+    "properties": {
+      "stages": {
+        "items": {
+          "properties": {
+            "certification": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-119-traceability-lot-code-linker": {
+    "properties": {
+      "events": {
+        "items": {
+          "properties": {
+            "prev_tlc": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-264-validate-commission-hierarchy": {
+    "properties": {
+      "hierarchy": {
+        "items": {
+          "properties": {
+            "parent_id": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-296-einvoice-transmission-receipt-builder": {
+    "properties": {
+      "document": {
+        "properties": {
+          "embedded_xml_sha256": {
+            "x_null_distinct": true
+          }
+        }
+      }
+    }
+  },
+  "art-378-quarterly-test-evidence-composer": {
+    "properties": {
+      "declared_prior_pack_digest": {
+        "x_null_distinct": true
+      },
+      "prior_quarter": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "art-379-agent-incident-record-composer": {
+    "properties": {
+      "escalation_cross_link": {
+        "properties": {
+          "failure_receipt_hash": {
+            "x_null_distinct": true
+          }
+        }
+      }
+    }
+  },
+  "art-418-idv-verification-failure-incident-composer": {
+    "properties": {
+      "escalation_cross_link": {
+        "properties": {
+          "failure_receipt_hash": {
+            "x_null_distinct": true
+          }
+        }
+      }
+    }
+  },
+  "art-425-large-exposures-limit-check": {
+    "properties": {
+      "counterparties": {
+        "items": {
+          "properties": {
+            "connected_group_id": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-431-fdic-assessment-rate-calculator": {
+    "properties": {
+      "rate_brackets": {
+        "items": {
+          "properties": {
+            "max_score": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-444-collateral-haircut-engine": {
+    "properties": {
+      "collateral_items": {
+        "items": {
+          "properties": {
+            "maturity_bucket": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      },
+      "haircut_table": {
+        "items": {
+          "properties": {
+            "maturity_bucket": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-47-arc-cctp-transfer": {
+    "properties": {
+      "hook_payload": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "art-480-rdarr-aggregation-recompute": {
+    "properties": {
+      "hierarchy": {
+        "items": {
+          "properties": {
+            "parent_node_id": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-488-model-replication-diff": {
+    "properties": {
+      "tolerance": {
+        "properties": {
+          "rel_tolerance": {
+            "x_null_distinct": true
+          }
+        }
+      }
+    }
+  },
+  "art-521-settlement-asset-backing-invariant": {
+    "properties": {
+      "buffers": {
+        "items": {
+          "properties": {
+            "max_minor_units": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-538-custody-segregation-ratio": {
+    "properties": {
+      "over_segregation_ceiling": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "art-589-redline-round-classifier": {
+    "properties": {
+      "segments": {
+        "items": {
+          "properties": {
+            "baseline_text": {
+              "x_null_distinct": true
+            },
+            "current_text": {
+              "x_null_distinct": true
+            },
+            "prior_text": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-627-effective-date-rule-version-registry": {
+    "properties": {
+      "registry_slice": {
+        "properties": {
+          "entries": {
+            "items": {
+              "properties": {
+                "parameter_set": {
+                  "properties": {
+                    "segment_disclosure_scope": {
+                      "items": {
+                        "properties": {
+                          "effective_to": {
+                            "x_null_distinct": true
+                          }
+                        }
+                      }
+                    },
+                    "entity_scope": {
+                      "items": {
+                        "properties": {
+                          "effective_to": {
+                            "x_null_distinct": true
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-637-globe-de-minimis-exclusion": {
+    "properties": {
+      "de_minimis_parameters": {
+        "properties": {
+          "averaging_window_years": {
+            "properties": {
+              "effective_to": {
+                "x_null_distinct": true
+              }
+            }
+          },
+          "income_threshold_eur": {
+            "properties": {
+              "effective_to": {
+                "x_null_distinct": true
+              }
+            }
+          },
+          "revenue_threshold_eur": {
+            "properties": {
+              "effective_to": {
+                "x_null_distinct": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "art-691-regulatory-obligations-register": {
+    "properties": {
+      "input_parameters": {
+        "properties": {
+          "rules": {
+            "items": {
+              "properties": {
+                "owner": {
+                  "x_null_distinct": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,68 +7,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
-<title>Signature Agent Card Validator · ART-131 · OpenChainGraph · AINumbers.co</title>
-<meta name="description" content="Validate the Signature Agent Card (Cloudflare/Bedrock AgentCore schema): required fields present, card keys consistent with validated directory. Emits identity-trust verdict. Terminal stage of agent-identity-verification chain.">
-<link rel="canonical" href="https://ainumbers.co/chaingraph/art-131-signature-agent-card-validator.html">
-<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-131-signature-agent-card-validator.md">
+<title>SCO60 Group 2 Exposure Limit V2 · ART-711 · OpenChainGraph · AINumbers.co</title>
+<meta name="description" content="Book-level Group 2 cryptoasset exposure-limit assessment against the 1% expectation threshold and the 2% hard limit of Tier 1 capital. Client-side. Zero PII.">
+<meta name="ain:category" content="run">
+<link rel="canonical" href="https://ainumbers.co/chaingraph/art-711-sco60-crypto-asset-exposure-classifier-v2.html">
+<link rel="alternate" type="text/markdown" href="https://ainumbers.co/chaingraph/art-711-sco60-crypto-asset-exposure-classifier-v2.md">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23080E1A'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='Sora,sans-serif' font-weight='600' font-size='13' fill='%2314B8A6'>AI</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--red:#EF4444;--warn:#F59E0B;--purple:#9B72F5;--radius:6px;--radius-lg:10px}
+:root{--bg:#080E1A;--bg-2:#0D1627;--bg-3:#111E35;--bg-4:#162340;--border:#1E2F4A;--border-2:#263855;--muted:#3A5270;--body:#6888A8;--text:#A8C4DE;--bright:#D4E8F8;--white:#EEF6FD;--teal:#14B8A6;--teal-dim:rgba(20,184,166,.12);--teal-lt:#2DD4BF;--gold:#D4A847;--green:#22C55E;--green-dim:rgba(34,197,94,.12);--red:#EF4444;--warn:#F59E0B;--purple:#9B72F5;--radius:6px;--radius-lg:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Sora',system-ui,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 a{color:var(--teal-lt);text-decoration:none}
-.wrap{max-width:920px;margin:0 auto;padding:24px 20px 80px}
-nav{position:sticky;top:0;z-index:10;background:rgba(8,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:0 20px;height:50px;display:flex;align-items:center}
-nav .in{max-width:920px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.wrap{max-width:980px;margin:0 auto;padding:24px 20px 80px}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:18px 0 8px}
 h1{font-size:1.6rem;color:var(--white);margin-bottom:8px;font-weight:600;font-family:'DM Serif Display',serif}
-.sub{color:var(--body);max-width:660px;margin-bottom:8px}
-.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
-.flag.info{background:rgba(20,184,166,.08);color:var(--teal-lt);border-color:rgba(20,184,166,.25)}
-.flag.purple{background:rgba(155,114,245,.08);color:var(--purple);border-color:rgba(155,114,245,.25)}
+.sub{color:var(--body);max-width:700px;margin-bottom:8px}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:rgba(20,184,166,.08);color:var(--teal-lt);border:1px solid rgba(20,184,166,.25);padding:.2rem .55rem;border-radius:20px;margin:4px 2px}
 .pii-notice{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--muted);background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:4px;padding:.5rem .85rem;line-height:1.5;margin:12px 0}
 .card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin:16px 0}
 .section-head{font-size:.78rem;color:var(--bright);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.q{margin-bottom:14px}
-.q label{display:block;font-size:.82rem;color:var(--bright);margin-bottom:5px}
-.q .dim{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
-textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:var(--radius);padding:.5rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;resize:vertical}
-button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.6rem 1.2rem;cursor:pointer;font-weight:600}
+.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
+.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.76rem}
+.tbl th{font-family:'JetBrains Mono',monospace;font-size:.55rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 6px;border-bottom:1px solid var(--border)}
+.tbl td{padding:5px 6px;border-bottom:1px solid rgba(30,47,74,.5);vertical-align:middle}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 16px;margin:10px 0}
+@media(max-width:640px){.field-grid{grid-template-columns:1fr}}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:3px;letter-spacing:.02em}
+.field select,.field input{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+.field textarea{width:100%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text);border-radius:4px;padding:.4rem .5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;min-height:84px;resize:vertical}
+button{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:var(--teal);color:#06121f;border:none;border-radius:var(--radius);padding:.55rem 1.1rem;cursor:pointer;font-weight:600}
 button:hover{opacity:.9}
-.preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.preset-btn{background:var(--bg-3);color:var(--body);border:1px solid var(--border-2);font-size:.62rem;padding:.3rem .7rem;text-transform:none;letter-spacing:0;font-weight:400}
-.preset-btn:hover{border-color:var(--teal);color:var(--teal-lt);opacity:1}
+button:disabled{opacity:.4;cursor:not-allowed}
+.btn-2{background:transparent;color:var(--text);border:1px solid var(--border-2)}
 .results-panel{display:none}
 .results-panel.show{display:block}
 .hero-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
-.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:110px;flex:1}
-.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:600}
+.hero-stat{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px;text-align:center;min-width:140px;flex:1}
+.hero-val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--bright)}
 .hero-lbl{font-family:'JetBrains Mono',monospace;font-size:.52rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:2px}
 .verdict{border-radius:var(--radius);padding:10px 14px;margin:6px 0;font-size:.82rem}
 .verdict.pass{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);color:var(--green)}
 .verdict.fail{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);color:var(--red)}
+.verdict.warn{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);color:var(--warn)}
 .badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.15rem .45rem;border-radius:10px;display:inline-block;white-space:nowrap;margin:2px 2px}
 .badge.err{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
 .badge.ok{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2)}
-.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:.78rem}
-.tbl th{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:7px 8px;border-bottom:1px solid var(--border)}
-.tbl td{padding:7px 8px;border-bottom:1px solid rgba(30,47,74,.5);color:var(--text);vertical-align:top}
-.tbl tr:last-child td{border-bottom:none}
+.badge.warn{background:rgba(245,158,11,.08);color:var(--warn);border:1px solid rgba(245,158,11,.25)}
 pre{background:#06101e;border:1px solid var(--border);border-radius:var(--radius);padding:12px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text);margin-top:10px;max-height:380px}
 .hash{font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--green);word-break:break-all;margin:6px 0}
 .muted-txt{color:var(--muted);font-size:.72rem}
 .mfst-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius);padding:.3rem .7rem;cursor:pointer;display:block;margin:24px auto 0;text-transform:uppercase;letter-spacing:.08em}
-.mfst-btn:hover{color:var(--text);border-color:var(--border-2)}
 #mfstBody{display:none;margin-top:10px}
 .results-export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
-.info-box{background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.7rem .9rem;margin:10px 0;font-family:'JetBrains Mono',monospace;font-size:.64rem;color:var(--text);line-height:1.7}
-.info-box .ib-title{color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
 .generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}
-</style>
-<style>
 /* OCG-CHROME-CSS:v1 */
 /* Canonical nav — derived from chaingraph-hub.html */
 nav{position:sticky;top:0;z-index:100;background:rgba(8,14,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -106,9 +101,9 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
 .related-topics{max-width:900px;margin:0 auto}
 
 </style>
-<meta name="ai-tool" content="validate_signature_agent_card">
-<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-131-signature-agent-card-validator.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
-<meta name="kernel-digest" content="sha256:5d6f9fd42c6de44f905132f55d36afa25bbe38665916fcbd9130d08308ea05d3">
+<!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-711-sco60-crypto-asset-exposure-classifier-v2.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
+<meta name="kernel-digest" content="sha256:5627f00323bc2806d95cc61771090e8d3ff31a943cb31b8a145a7dda8fdad419">
+<meta name="ai-tool" content="classify_sco60_exposure_v2">
 </head>
 <body>
 <nav>
@@ -134,7 +129,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
       <span>›</span>
       <a href="chaingraph-hub.html">OpenChainGraph Suite</a>
       <span>›</span>
-      <span style="color:var(--gold)">ART-131 · Signature Agent Card Validator</span>
+      <span style="color:var(--gold)">ART-711 · SCO60 Group 2 Exposure Limit V2</span>
     </div>
     <div class="nav-right">
       <a href="chaingraph-hub.html" class="nav-pill">ChainGraph Hub</a>
@@ -142,27 +137,25 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
     </div>
   </div>
 </nav>
-<div class="wrap" role="main" aria-description="Validate a Signature Agent Card: required fields + all card key IDs resolve against directory_keyids. Emits TRUSTED or UNTRUSTED.">
-  <div class="eyebrow">OpenChainGraph Suite · ART-131 · wave 24</div>
-  <h1>Signature Agent Card Validator</h1>
-  <p class="sub">Validate the Signature Agent Card (Cloudflare × Amazon Bedrock AgentCore schema): required fields present, card keys all present in the validated directory keyids. Emits identity-trust verdict. Terminal stage of the agent-identity-verification chain.</p>
-  <div style="margin-bottom:6px"><span class="flag info">Web Bot Auth</span><span class="flag info">AgentCore</span><span class="flag info">Cloudflare</span><span class="flag info">Bedrock</span><span class="flag purple">W3C VC §13.11</span><span class="flag">Zero PII</span><span class="flag">Client-side only</span></div>
-  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.</div>
-  <div class="info-box"><div class="ib-title">Scope</div>Terminal stage of the agent-identity-verification chain (art-129→130→131). Validates the Signature Agent Card: required fields [name, operator, expected_request_rate, keys], and all card <code>keys</code> keyids are present in the set of directory keyids validated by art-130. Emits <code>identity_trust_verdict</code>: TRUSTED or UNTRUSTED.</div>
+<div class="wrap" role="main" aria-description="Book-level Group 2 cryptoasset exposure-limit assessor (BCBS d545 SCO60.116-119): the aggregate of per-asset higher-of measurements is compared with the 1% expectation threshold and the 2% hard limit of Tier 1 capital. Above 1% the supervisor notification fires and only the excess over 1% takes the 1250% Group 2b weight; above 2% the whole book takes it and the Pillar 3 precheck fails. Strict integer comparisons: exactly 1% is not crossed and exactly 2% is not breached.">
+  <div class="eyebrow">OpenChainGraph Suite · ART-711</div>
+  <h1>SCO60 Group 2 Exposure Limit V2</h1>
+  <p class="sub">Assesses a bank's aggregate Group 2 cryptoasset exposure against the two-threshold ladder of BCBS SCO60.116-119 (d545): below 1% of Tier 1 is within expectation; above 1% the threshold is crossed, the supervisor must be notified and only the excess over 1% takes the 1250% Group 2b treatment; above 2% the limit is breached and the whole book takes the Group 2b treatment. This is the corrected successor to the earlier single-position classifier, which flagged a limit breach at 1.5% where the standard has none.</p>
+  <div style="margin-bottom:6px"><span class="flag">Basel SCO60</span><span class="flag">1% / 2% of Tier 1</span><span class="flag">Integer Minor Units</span><span class="flag">Zero PII</span><span class="flag">Client-side only</span></div>
+  <div class="pii-notice">🔒 All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data; use synthetic or anonymised inputs only.</div>
+  <div class="info-box"><div class="ib-title">Scope &amp; reliance</div>Implements the Group 2 exposure-limit paragraphs SCO60.116-119 of BCBS d545 (December 2022). The limit applies to the AGGREGATE book: every direct holding (cash and derivatives) and indirect holding (funds, ETF/ETN or similar) is supplied as a position, and per cryptoasset the legs are summed and counted at the HIGHER of the absolute long and short totals rather than a netted figure (SCO60.119). Both comparisons are strict and cross-multiplied over exact integers (exposure*100 against tier1*multiplier), so exactly 1% is not crossed and exactly 2% is not breached (SCO60.117). In the crossed band only the excess over 1% of Tier 1 takes the 1250% Group 2b weight and the Pillar 3 precheck is unaffected; above 2% the whole book takes the weight and the precheck fails (SCO60.118). Capital must be a positive multiple of 100 minor units so the thresholds and the excess are exact; zero, negative, fractional or over-cap capital is a typed refusal in place of any NaN or Infinity verdict. The caller owns the completeness of the book, the delta adjustment of the legs, and the Tier 1 figure; this node classifies no individual asset and applies no infrastructure-risk add-on, which remain the earlier classifier's decisions. No jurisdiction has adopted this standard as of 2026-10-05; national implementation timelines vary and the node never asserts adoption. No formal correctness proof exists for this node yet (compute_proof_ready: deferred); see the proof-status note below the results.</div>
   <div class="card">
-    <div class="section-head">Presets</div>
-    <div class="preset-row">
-      <button class="preset-btn" onclick="loadPreset('valid')">Valid Card — Keys Consistent (TRUSTED)</button>
-      <button class="preset-btn" onclick="loadPreset('missing')">Missing Required Fields (UNTRUSTED)</button>
-      <button class="preset-btn" onclick="loadPreset('notindir')">Card Keys Not in Directory (UNTRUSTED)</button>
+    <div class="section-head">Tier 1 capital and Group 2 positions</div>
+    <div class="muted-txt" style="margin-bottom:8px">Edit any field and run. The sample book (15 of 1000 Tier 1, 1.5%) sits in the crossed band: notified, excess-only at the 1250% weight, not breached.</div>
+    <div class="field-grid">
+      <div class="field"><label for="bank_tier1_capital">bank_tier1_capital</label><input id="bank_tier1_capital" value="1000" aria-label="bank_tier1_capital" aria-description="Tier 1 capital in integer minor units, a positive multiple of 100, at most 1e12. The denominator of both thresholds."></div>
+      <div class="field" style="grid-column:1 / -1"><label for="group2_positions">group2_positions (JSON array; one entry per holding, legs absolute and delta-adjusted)</label><textarea id="group2_positions" rows="8" aria-label="group2_positions" aria-description="Per-cryptoasset positions with absolute, delta-adjusted long_exposure and short_exposure integers; same-asset entries merge before the count."></textarea></div>
     </div>
-    <div class="q"><label>Signature Agent Card <span class="dim">JSON object</span></label>
-      <textarea id="card" rows="10" aria-label="card"></textarea>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="run()">Run</button>
+      <button class="btn-2" onclick="loadSample()">Load sample (1.5% crossed band)</button>
+      <button class="btn-2" onclick="loadRefusalDemo()">Load refusal demo (inexact capital)</button>
     </div>
-    <div class="q"><label>Directory Keyids <span class="dim">JSON array of kid strings from validated directory (art-130 output)</span></label>
-      <textarea id="directory_keyids" rows="3" placeholder='["key-2026-06","key-2026-07-next"]' aria-label="directory_keyids"></textarea>
-    </div>
-    <button style="margin-top:6px" onclick="run()">Run</button>
   </div>
   <div class="results-panel" id="resultsPanel">
     <div class="generated-at" id="generatedAt"></div>
@@ -170,30 +163,42 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
       <div class="section-head">Result</div>
       <div class="hero-row" id="heroRow"></div>
       <div id="verdictDiv"></div>
-      <div id="detailDiv"></div>
+      <div id="warningsDiv" style="margin-top:8px"></div>
+      <table class="tbl" id="resultTbl"></table>
+      <div class="info-box" style="margin-top:12px"><div class="ib-title">Proof status</div>This node ships <code>compute_proof_ready: deferred</code>. No formal correctness proof has been produced for this kernel; the result above is a deterministic recompute, verified by a property-test floor, not a proven one.</div>
     </div>
     <div class="card">
       <div class="section-head">Execution Hash &amp; §4 Artifact</div>
-      <div style="margin-bottom:4px"><span class="muted-txt">SHA-256 execution hash (JCS canonical — RFC 8785):</span></div>
+      <div style="margin-bottom:4px"><span class="muted-txt">SHA-256 execution hash (JCS canonical, RFC 8785):</span></div>
       <div class="hash" id="execHash"></div>
       <pre id="artifactPre"></pre>
       <div class="results-export-row">
-        <button id="ap2ExportBtn" onclick="exportAP2()" disabled>Export Policy Mandate JSON</button>
-        <button id="signArtifactBtn" onclick="signArtifact()" disabled style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:var(--bg-3);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);cursor:not-allowed;opacity:.55">⬇ Sign artifact (Ed25519 · §16)</button>
-        <button id="verifySigBtn" onclick="verifySignature()" style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.45rem 1rem;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer">🔏 Verify signature (§16)</button>
-        <button onclick="exportArtifact()">Export §4 Artifact</button>
-        <button onclick="exportVC()">Export W3C VC (§13.11)</button>
+        <button id="ap2ExportBtn" onclick="exportAP2(_lastArtifact)" disabled>Export Policy Mandate JSON</button>
+        <button class="btn-2" onclick="exportArtifact(_lastArtifact)">Export §4 Artifact</button>
       </div>
-    </div>
-    <div class="card">
-      <div style="background:var(--bg-3);border:1px solid var(--border-2);border-left:3px solid var(--teal);border-radius:4px;padding:.75rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text);line-height:1.7"><div style="color:var(--teal);font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Chain Terminal</div>This is the final stage of the agent-identity-verification chain. The <code>execution_hash</code> above is the chain's terminal artifact hash — export or pass to an orchestrating agent as proof of completed identity verification.</div>
     </div>
   </div>
   <button class="mfst-btn" onclick="toggleMfst()">Show Tool Manifest</button>
   <div id="mfstBody" class="card"><pre id="mfstCode"></pre></div>
 </div>
 
-<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/528-signature-agent-card-validator.manifest.json -->
+<!-- ASK-AGENT:BEGIN generator=scripts/check-ask-agent-block.mjs manifest=manifests/art-711-sco60-crypto-asset-exposure-classifier-v2.manifest.json -->
+<section id="ask-agent" style="max-width:900px;margin:32px auto 0;border:1px solid var(--border);border-radius:10px;padding:14px 18px;background:var(--bg-2)">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <h2 style="margin:0;font-size:.85rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em">Ask your agent</h2>
+    <button type="button" aria-label="Copy the ask-your-agent paragraph" onclick="(function(b){var t=document.getElementById('ask-agent-copy').textContent;function d(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}if(navigator.clipboard&amp;&amp;navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(d,function(){});}else{var r=document.createRange();r.selectNodeContents(document.getElementById('ask-agent-copy'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges();d();}})(this)" style="margin-left:auto;background:none;border:1px solid var(--border-2);border-radius:6px;color:var(--body);font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.3rem .8rem;cursor:pointer">Copy</button>
+  </div>
+  <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
+  <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `classify_sco60_exposure_v2`. Task: Book-level Group 2 cryptoasset exposure-limit assessor (BCBS d545 SCO60.116-119): the aggregate of per-asset higher-of measurements is compared with the 1% expectation threshold and the 2% hard limit of Tier 1 capital.
+Call it with arguments: {"policy_parameters":{"bank_tier1_capital":1000,"group2_positions":[{"cryptoasset":"btc","holding_type":"direct_cash","long_exposure":8,"short_exposure":0}]}}
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `classify_sco60_exposure_v2`.
+Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
+PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
+Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-711-sco60-crypto-asset-exposure-classifier-v2.html#p=v1.H4sIAAAAAAAA_wGIAHf_eyJiYW5rX3RpZXIxX2NhcGl0YWwiOjEwMDAsImdyb3VwMl9wb3NpdGlvbnMiOlt7ImNyeXB0b2Fzc2V0IjoiYnRjIiwiaG9sZGluZ190eXBlIjoiZGlyZWN0X2Nhc2giLCJsb25nX2V4cG9zdXJlIjo4LCJzaG9ydF9leHBvc3VyZSI6MH1dfX4ZqCWIAAAA</pre>
+</section>
+<!-- ASK-AGENT:END -->
+
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-711-sco60-crypto-asset-exposure-classifier-v2.manifest.json -->
 <script>
 /* OCG-A11Y-TREE v1 */
 /* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
@@ -204,7 +209,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
 (function () {
   'use strict';
   var RUN_TARGET = "run";
-  var TABLE = {"card":["card",null],"directory_keyids":["directory_keyids",null]};
+  var TABLE = {"bank_tier1_capital":["bank_tier1_capital","Tier 1 capital in integer minor units, a positive multiple of 100, at most 1e12. The denominator of both thresholds."],"group2_positions":["group2_positions","Per-cryptoasset positions with absolute, delta-adjusted long_exposure and short_exposure integers; same-asset entries merge before the count."]};
   var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
   var st = null;
   function ensureRegion() {
@@ -368,101 +373,174 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0}
     </div>
   </div>
 </footer>
+
 <script>
-const MANIFEST={tool_id:"art-131-signature-agent-card-validator",version:"1.0.0",title:"Signature Agent Card Validator",mcp_tool_definition:{name:"validate_signature_agent_card",description:"Validate the Signature Agent Card (Cloudflare/Bedrock AgentCore schema): required fields present, card keys consistent with validated directory.",inputSchema:{type:"object",properties:{card:{type:"object"},directory_keyids:{type:"array",items:{type:"string"}}},required:["card","directory_keyids"]}},ap2_export:true,chaingraph:true};
-const REQUIRED_FIELDS=['name','operator','expected_request_rate','keys'];
+const MANIFEST={"tool_id":"art-711-sco60-crypto-asset-exposure-classifier-v2","version":"1.0.0","title":"SCO60 Group 2 Exposure Limit V2","mcp_tool_definition":{"name":"classify_sco60_exposure_v2","description":"Book-level Group 2 cryptoasset exposure-limit assessor (BCBS d545 SCO60.116-119): the aggregate of per-asset higher-of measurements is compared with the 1% general-expectation threshold and the 2% hard limit of Tier 1 capital. Above 1% the supervisor notification fires and only the excess over 1% takes the 1250% Group 2b weight; above 2% the whole book takes the weight, the Pillar 3 precheck fails and the breach gap fires. Legs are absolute and delta-adjusted, summed per cryptoasset, counted at the higher of the two totals, never netted. Integer minor units with strict cross-multiplied comparisons, so exactly 1% is not crossed and exactly 2% is not breached. Capital must be a positive multiple of 100 minor units; degenerate or inexact capital and signed or fractional legs are typed refusals, never NaN or Infinity.","inputSchema":{"type":"object","required":["bank_tier1_capital","group2_positions"],"properties":{"bank_tier1_capital":{"type":"integer","description":"Tier 1 capital in integer minor units, a positive multiple of 100, at most 1e12. The denominator of both thresholds."},"group2_positions":{"type":"array","description":"Per-cryptoasset positions: cryptoasset name, optional holding_type (direct_cash, direct_derivative, indirect_fund, indirect_etn), and absolute long_exposure and short_exposure integers already delta-adjusted for derivatives."}}}},"ap2_export":true,"chaingraph":true};
+
+/* ── sample books: the 1.5% crossed band (V3) and an inexact-capital refusal demo ── */
+const SAMPLE={"bank_tier1_capital":1000,"group2_positions":[{"cryptoasset":"btc","holding_type":"direct_cash","long_exposure":15,"short_exposure":0}]};
+const REFUSAL_DEMO={"bank_tier1_capital":999,"group2_positions":[{"cryptoasset":"btc","holding_type":"direct_cash","long_exposure":15,"short_exposure":0}]};
+
+/* ── inline port of chaingraph/kernels/art-711-sco60-crypto-asset-exposure-classifier-v2.kernel.mjs compute():
+   same algorithm, same refusal reasons, same fixed orders. Pure function of pp. ── */
+const EXPECTATION_MULTIPLIER=1,HARD_LIMIT_MULTIPLIER=2;
+const GROUP2B_WEIGHT_PCT=1250,AMOUNT_CAP=1e12,MAX_POSITIONS=10000;
+const HOLDING_TYPES=["direct_cash","direct_derivative","indirect_fund","indirect_etn"];
+const SCOPE_NOTE="Book-level Group 2 exposure-limit assessment. Legs are aggregated per cryptoasset and each asset is counted at the higher of its absolute long and short totals, never a netted figure; legs must already be delta-adjusted for derivatives. The caller owns the completeness of the book: every direct holding (cash and derivatives) and indirect holding (funds, ETF/ETN or similar) must be supplied as a position. Tier 1 capital is caller-supplied and must be a multiple of 100 minor units so the 1% and 2% thresholds and the excess amount are exact integers. The 1250% weight shown is the treatment of the excess (or, above the 2% hard limit, of the whole aggregate); the remainder keeps its own per-asset treatment, which this node does not classify. National implementation of the underlying standard varies; no adoption status is asserted.";
+function refusedPayload(reason,text){return{group2_exposure_amount:null,bank_tier1_capital:null,group2_exposure_pct_tier1:null,one_pct_tier1_amount:null,two_pct_tier1_amount:null,group2_threshold_crossed:null,group2_limit_breached:null,group2b_excess_amount:null,group2b_treatment:null,risk_weight_applied_pct:null,base_risk_weight_pct:GROUP2B_WEIGHT_PCT,pillar3_precheck_pass:null,per_asset:[],gaps:[],warnings:[],domain_errors:[{code:reason,text:text}],refusal_reason:reason,scope_note:SCOPE_NOTE};}
+function isAmount(v,max){return typeof v==="number"&&Number.isInteger(v)&&v>=0&&v<=max;}
+function validateAll(pp){
+  const tier1=pp.bank_tier1_capital;
+  if(!isAmount(tier1,AMOUNT_CAP))return refusedPayload("REFUSED_BAD_TIER1","bank_tier1_capital must be a non-negative integer of minor units within the 1e12 cap; zero or negative capital is outside the declared domain, never a zero-division verdict");
+  if(tier1===0)return refusedPayload("REFUSED_BAD_TIER1","bank_tier1_capital must be positive; zero capital would make every percentage of it degenerate and is refused rather than reported as 0% or Infinity");
+  if(tier1%100!==0)return refusedPayload("REFUSED_BAD_TIER1","bank_tier1_capital must be divisible by 100 minor units so that 1% and 2% of it and the excess amount are exact integers; a fractional-threshold verdict is never emitted");
+  const positions=pp.group2_positions;
+  if(!Array.isArray(positions)||positions.length===0)return refusedPayload("REFUSED_BAD_POSITIONS","group2_positions must be a non-empty array of per-cryptoasset positions; an empty book cannot be assessed against the limit");
+  if(positions.length>MAX_POSITIONS)return refusedPayload("REFUSED_BAD_POSITIONS","group2_positions exceeds the "+MAX_POSITIONS+" position cap");
+  for(let i=0;i<positions.length;i++){
+    const p=positions[i];
+    if(!p||typeof p!=="object"||Array.isArray(p))return refusedPayload("REFUSED_BAD_POSITION_ENTRY","every group2_positions entry must be an object naming a cryptoasset with absolute long and short legs");
+    if(typeof p.cryptoasset!=="string"||!p.cryptoasset)return refusedPayload("REFUSED_BAD_POSITION_ENTRY","every position needs a non-empty cryptoasset name");
+    if(p.holding_type!==undefined&&!HOLDING_TYPES.includes(p.holding_type))return refusedPayload("REFUSED_BAD_POSITION_ENTRY","holding_type must be one of '"+HOLDING_TYPES.join("', '")+"' when present");
+    if(!isAmount(p.long_exposure,AMOUNT_CAP)||!isAmount(p.short_exposure,AMOUNT_CAP))return refusedPayload("REFUSED_BAD_POSITION_ENTRY","long_exposure and short_exposure must be non-negative integers within the 1e12 cap; send absolute leg values, already delta-adjusted for derivatives");
+  }
+  return null;
+}
 function compute(pp){
-  // Synced to chaingraph/kernels/art-131-signature-agent-card-validator.kernel.mjs (WEBMCP-CPARITY-ART131-1).
-  // The inline copy had drifted from the kernel: it emitted a different output_payload shape
-  // (fields_ok/keys_in_directory/identity_trust_verdict, object flags), so the page hashed a
-  // different preimage than the kernel/worker on identical inputs (page 1cdcc9161a64… vs
-  // golden 178651f6ce5f…). Below is the kernel's compute() byte-for-byte in logic; the hash
-  // preimage {policy_parameters, output_payload} now matches the kernel and live MCP.
-  const{card={},directory_keyids=[]}=pp;
-  const missing_fields=REQUIRED_FIELDS.filter(f=>card[f]===undefined||card[f]===null||card[f]==='');
-  const card_keyids=Array.isArray(card.keys)?card.keys.map(k=>k&&k.kid).filter(Boolean):[];
-  const keys_consistent=card_keyids.length>0&&card_keyids.every(kid=>directory_keyids.includes(kid));
-  const card_valid=missing_fields.length===0&&keys_consistent;
-  const compliance_flags=[];
-  compliance_flags.push('SIGNATURE_AGENT_CARD_ASSESSED');
-  compliance_flags.push(card_valid?'AGENT_CARD_VALID':'AGENT_CARD_INVALID');
-  if(!keys_consistent)compliance_flags.push('CARD_KEYS_NOT_IN_DIRECTORY');
-  return{output_payload:{card_valid,missing_fields,keys_consistent,card_key_count:card_keyids.length},compliance_flags};
+  pp=pp||{};
+  const bad=validateAll(pp);
+  if(bad){const f=[];if(bad.domain_errors.length>0)f.push("ART711_INPUT_REFUSED");return{output_payload:bad,compliance_flags:f};}
+  const tier1=pp.bank_tier1_capital;
+  const flags=[];
+  const warnings=[];
+  const byAsset=new Map();
+  for(let i=0;i<pp.group2_positions.length;i++){
+    const p=pp.group2_positions[i];
+    if(!byAsset.has(p.cryptoasset)){
+      byAsset.set(p.cryptoasset,{cryptoasset:p.cryptoasset,holding_type:p.holding_type===undefined?"direct_cash":p.holding_type,long_exposure:0,short_exposure:0});
+    }
+    const a=byAsset.get(p.cryptoasset);
+    a.long_exposure+=p.long_exposure;
+    a.short_exposure+=p.short_exposure;
+  }
+  const per_asset=[];
+  let exposure=0;
+  byAsset.forEach(function(a){
+    const counted=a.long_exposure>=a.short_exposure?a.long_exposure:a.short_exposure;
+    per_asset.push({cryptoasset:a.cryptoasset,holding_type:a.holding_type,long_exposure:a.long_exposure,short_exposure:a.short_exposure,counted_exposure:counted});
+    exposure+=counted;
+  });
+  if(exposure>AMOUNT_CAP)return refusedPayload("REFUSED_OVERFLOW_CAP","the aggregate Group 2 exposure would exceed the 1e12 minor-unit cap that keeps every threshold comparison inside exact integer arithmetic");
+  const onePct=tier1/100,twoPct=onePct*2;
+  const crossed=exposure*100>tier1*EXPECTATION_MULTIPLIER;
+  const limitBreached=exposure*100>tier1*HARD_LIMIT_MULTIPLIER;
+  if(crossed){flags.push("SCO60_GROUP2_1PCT_THRESHOLD_CROSSED","SUPERVISOR_NOTIFICATION_REQUIRED");warnings.push("SCO60_GROUP2_1PCT_THRESHOLD_CROSSED","SUPERVISOR_NOTIFICATION_REQUIRED");}
+  if(limitBreached){flags.push("SCO60_GROUP2_LIMIT_BREACHED","DIS55_PRECHECK_FAIL");warnings.push("SCO60_GROUP2_LIMIT_BREACHED","DIS55_PRECHECK_FAIL");}
+  const excess=limitBreached?exposure:(crossed?exposure-onePct:0);
+  const treatment=limitBreached?"whole_book":(crossed?"excess_only":"none");
+  const gaps=limitBreached?["GROUP2_EXPOSURE_LIMIT_BREACHED"]:[];
+  return{output_payload:{group2_exposure_amount:exposure,bank_tier1_capital:tier1,group2_exposure_pct_tier1:(exposure*100)/tier1,one_pct_tier1_amount:onePct,two_pct_tier1_amount:twoPct,group2_threshold_crossed:crossed,group2_limit_breached:limitBreached,group2b_excess_amount:excess,group2b_treatment:treatment,risk_weight_applied_pct:excess>0?GROUP2B_WEIGHT_PCT:null,base_risk_weight_pct:GROUP2B_WEIGHT_PCT,pillar3_precheck_pass:!limitBreached,per_asset:per_asset,gaps:gaps,warnings:warnings,domain_errors:[],refusal_reason:null,scope_note:SCOPE_NOTE},compliance_flags:flags};
 }
-function cgCanon(v){if(v===null||typeof v!=='object')return v;if(Array.isArray(v))return v.map(cgCanon);const o={};for(const k of Object.keys(v).sort())o[k]=cgCanon(v[k]);return o;}
-async function executionHashLocal(pp,op){const obj=cgCanon({policy_parameters:pp,output_payload:op});const s=JSON.stringify(obj);const buf=new TextEncoder().encode(s);const dig=await crypto.subtle.digest('SHA-256',buf);return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');}
-let _lastArtifact=null,_lastPP=null,_lastOP=null,_lastHash=null,_lastFlags=null;
+
+/* ── execution hash: JCS-canonical preimage over {policy_parameters, output_payload},
+   same algorithm as chaingraph/kernels/_hash.mjs, browser leg ── */
+function cgCanon(v){if(v===null||typeof v!=="object")return v;if(Array.isArray(v))return v.map(cgCanon);const o={};for(const k of Object.keys(v).sort())o[k]=cgCanon(v[k]);return o;}
+async function sha256Hex(bytes){const dig=await crypto.subtle.digest("SHA-256",bytes);return Array.from(new Uint8Array(dig)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
+async function executionHashLocal(pp,op){const obj=cgCanon({policy_parameters:pp,output_payload:op});const s=JSON.stringify(obj);const buf=new TextEncoder().encode(s);return sha256Hex(buf);}
+
+/* ── form plumbing ── */
+function fieldStr(id){const el=document.getElementById(id);return el&&el.value!=null?el.value.trim():"";}
+function fieldNum(id){const raw=fieldStr(id);return raw===""?undefined:Number(raw);}
+function fieldJson(id){const raw=fieldStr(id);return raw===""?undefined:JSON.parse(raw);}
+function assemblePP(){
+  const pp={};
+  const tier1=fieldNum("bank_tier1_capital");
+  if(tier1!==undefined)pp.bank_tier1_capital=tier1;
+  const pos=fieldJson("group2_positions");
+  if(pos!==undefined)pp.group2_positions=pos;
+  return pp;
+}
+function fmtNum(v){
+  if(v===null||v===undefined)return"—";
+  return Number(v).toLocaleString("en-US");
+}
+let _lastArtifact=null;
 async function run(){
-  let card,dkids;
-  try{card=JSON.parse(document.getElementById('card').value||'{}');}catch{alert('Card: invalid JSON');return;}
-  try{dkids=JSON.parse(document.getElementById('directory_keyids').value||'[]');}catch{alert('Directory Keyids: invalid JSON');return;}
-  const pp={card,directory_keyids:dkids};
-  const{output_payload,compliance_flags}=compute(pp);
-  const rawHash=await executionHashLocal(pp,output_payload);
-  const execHash='sha256:'+rawHash;
-  const generatedAt = new Date().toISOString();
-  document.getElementById('generatedAt').textContent='generated_at '+generatedAt;
-  const artifact={'@context':'https://ainumbers.co/chaingraph/context/v0.4/context.jsonld',chaingraph_version:'0.4.0',spec_version:'0.5.0',compute_mode:'browser',mandate_type:'compliance_mandate',tool_id:MANIFEST.tool_id,tool_version:MANIFEST.version,generated_at:generatedAt,execution_hash:execHash,chain:{parent_hashes:[],parent_tool_ids:['art-130-signature-directory-validator'],chain_depth:2},policy_parameters:pp,output_payload,compliance_flags,audit_signature:{payloadType:'application/vnd.openchain.graph+json;version=0.4',payload:'',signatures:[]}};
-  _lastArtifact=artifact;_lastPP=pp;_lastOP=output_payload;_lastHash=execHash;_lastFlags=compliance_flags;
-  renderResults(output_payload,compliance_flags,execHash,artifact);
-  document.getElementById('ap2ExportBtn').disabled=false;
+  let pp,out,flags,malformed=null;
+  try{
+    pp=assemblePP();
+    const r=compute(pp);
+    out=r.output_payload;flags=r.compliance_flags;
+  }catch(e){
+    malformed=String((e&&e.message)||e);
+    pp=null;out=refusedPayload("PAGE_INPUT_MALFORMED",malformed);flags=["ART711_INPUT_REFUSED"];
+  }
+  const generatedAt=new Date().toISOString();
+  document.getElementById("generatedAt").textContent="generated_at "+generatedAt;
+  const artifact={"@context":"https://ainumbers.co/chaingraph/context/v0.3/context.jsonld",chaingraph_version:"0.4.0",compute_mode:"browser",mandate_type:"compliance_mandate",tool_id:MANIFEST.tool_id,tool_version:MANIFEST.version,generated_at:generatedAt,execution_hash:null,chain:{parent_hashes:[],parent_tool_ids:[],chain_depth:0},policy_parameters:pp,output_payload:out,compliance_flags:flags,audit_signature:{payloadType:"application/vnd.openchain.graph+json;version=0.4",payload:"",signatures:[]}};
+  if(!malformed){
+    const rawHash=await executionHashLocal(pp,out);
+    artifact.execution_hash="sha256:"+rawHash;
+  }
+  _lastArtifact=artifact;
+  renderResults(out,artifact.execution_hash||"",pp);
+  document.getElementById("ap2ExportBtn").disabled=false;
 }
-function renderResults(op,flags,execHash,artifact){
-  const vok=op.card_valid===true;
-  const fieldsOk=Array.isArray(op.missing_fields)&&op.missing_fields.length===0;
-  const verdict=(fieldsOk&&op.keys_consistent)?'TRUSTED':'UNTRUSTED';
-  document.getElementById('heroRow').innerHTML=
-    '<div class="hero-stat"><div class="hero-val" style="color:'+(vok?'var(--green)':'var(--red)')+'">'+verdict+'</div><div class="hero-lbl">Identity Trust</div></div>'+
-    '<div class="hero-stat"><div class="hero-val" style="color:'+(fieldsOk?'var(--green)':'var(--red)')+'">'+( fieldsOk?'✓':'✗')+'</div><div class="hero-lbl">Fields OK</div></div>'+
-    '<div class="hero-stat"><div class="hero-val" style="color:'+(op.keys_consistent?'var(--green)':'var(--red)')+'">'+( op.keys_consistent?'✓':'✗')+'</div><div class="hero-lbl">Keys in Dir</div></div>';
-  const flagKeys=Array.isArray(flags)?flags.slice():Object.keys(flags).filter(k=>flags[k]);
-  document.getElementById('verdictDiv').innerHTML='<div class="verdict '+(vok?'pass':'fail')+'">'+( vok?'✓ TRUSTED — Required fields present and card keys consistent with directory.':'✗ UNTRUSTED — Card validation failed. See compliance flags.')+'</div><div style="margin-top:6px">'+flagKeys.map(f=>'<span class="badge '+(f.includes('UNTRUSTED')||f.includes('MISSING')||f.includes('NOT')||f.includes('INVALID')?'err':'ok')+'">'+f+'</span>').join('')+'</div>';
-  const mf=op.missing_fields&&op.missing_fields.length?op.missing_fields.join(', '):'none';
-  document.getElementById('detailDiv').innerHTML='<table class="tbl" style="margin-top:12px"><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody>'+
-    '<tr><td>fields_ok</td><td><span class="badge '+(fieldsOk?'ok':'err')+'">'+fieldsOk+'</span></td></tr>'+
-    '<tr><td>missing_fields</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem">'+mf+'</td></tr>'+
-    '<tr><td>keys_consistent</td><td><span class="badge '+(op.keys_consistent?'ok':'err')+'">'+op.keys_consistent+'</span></td></tr>'+
-    '<tr><td>card_key_count</td><td><span class="badge ok">'+op.card_key_count+'</span></td></tr>'+
-    '</tbody></table>';
-  document.getElementById('execHash').textContent=execHash;
-  document.getElementById('artifactPre').textContent=JSON.stringify(artifact,null,2);
-  document.getElementById('resultsPanel').classList.add('show');
+function renderResults(op,execHash,pp){
+  const met=op.refusal_reason===null;
+  const stateCol=!met?"var(--red)":(op.group2_limit_breached?"var(--red)":(op.group2_threshold_crossed?"var(--warn)":"var(--green)"));
+  const stateTxt=!met?"REFUSED":(op.group2_limit_breached?"LIMIT BREACHED":(op.group2_threshold_crossed?"1% CROSSED":"WITHIN EXPECTATION"));
+  document.getElementById("heroRow").innerHTML=
+    "<div class=\"hero-stat\"><div class=\"hero-val\" style=\"color:"+stateCol+"\">"+stateTxt+"</div><div class=\"hero-lbl\">Assessment</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+(met?op.group2_exposure_pct_tier1+"%":"—")+"</div><div class=\"hero-lbl\">Group 2 as % of Tier 1</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+(met?fmtNum(op.group2b_excess_amount):"—")+"</div><div class=\"hero-lbl\">Excess at 1250% ("+op.group2b_treatment+")</div></div>"+
+    "<div class=\"hero-stat\"><div class=\"hero-val\">"+(met?(op.pillar3_precheck_pass?"PASS":"FAIL"):"—")+"</div><div class=\"hero-lbl\">Pillar 3 precheck</div></div>";
+  const vd=document.getElementById("verdictDiv");
+  if(op.refusal_reason){
+    vd.innerHTML="<div class=\"verdict fail\">REFUSED — "+op.refusal_reason+": "+op.domain_errors.map(function(d){return d.text;}).join(" ")+"</div>";
+  }else if(op.group2_limit_breached){
+    vd.innerHTML="<div class=\"verdict fail\">Limit breached: the aggregate is above 2% of Tier 1, the WHOLE Group 2 book ("+fmtNum(op.group2_exposure_amount)+") takes the 1250% Group 2b treatment, the Pillar 3 precheck fails, and the supervisor must be notified (SCO60.118).</div>";
+  }else if(op.group2_threshold_crossed){
+    vd.innerHTML="<div class=\"verdict warn\">Threshold crossed, not breached: the aggregate is above 1% but at or below 2% of Tier 1. Only the excess over 1% of Tier 1 ("+fmtNum(op.group2b_excess_amount)+") takes the 1250% Group 2b treatment; the remainder keeps its own treatment and the Pillar 3 precheck is unaffected. Notify the supervisor (SCO60.118).</div>";
+  }else{
+    vd.innerHTML="<div class=\"verdict pass\">Within expectation: the aggregate is at or below 1% of Tier 1. No finding, no notification and no treatment change (SCO60.117).</div>";
+  }
+  document.getElementById("warningsDiv").innerHTML=op.warnings.length
+    ?op.warnings.map(function(w){return"<span class=\"badge warn\">"+w+"</span>";}).join("")
+    :(met?"<span class=\"badge ok\">No findings</span>":"");
+  const tbl=document.getElementById("resultTbl");
+  if(met&&op.per_asset.length){
+    let rows="";
+    for(const a of op.per_asset){
+      rows+="<tr><td>"+a.cryptoasset+"</td><td>"+a.holding_type+"</td><td>"+fmtNum(a.long_exposure)+"</td><td>"+fmtNum(a.short_exposure)+"</td><td>"+fmtNum(a.counted_exposure)+"</td></tr>";
+    }
+    tbl.innerHTML="<thead><tr><th>Cryptoasset</th><th>Holding</th><th>Absolute long</th><th>Absolute short</th><th>Counted (higher)</th></tr></thead><tbody>"+rows+"</tbody>";
+  }else tbl.innerHTML="";
+  document.getElementById("execHash").textContent=execHash;
+  document.getElementById("artifactPre").textContent=JSON.stringify(_lastArtifact,null,2);
+  document.getElementById("resultsPanel").classList.add("show");
 }
-function exportAP2(){if(!_lastArtifact)return;const ap2={schema:'ainumbers-policy-mandate-v1.0',tool_id:MANIFEST.tool_id,version:MANIFEST.version,mandate_type:'compliance_mandate',generated_at:_lastArtifact.generated_at,execution_hash:_lastHash,policy_parameters:_lastPP,output_payload:_lastOP,compliance_flags:_lastFlags};dl(JSON.stringify(ap2,null,2),'art-131-policy-mandate.json','application/json');}
-function exportArtifact(){if(!_lastArtifact)return;dl(JSON.stringify(_lastArtifact,null,2),'art-131-artifact.json','application/json');}
-function exportVC(){if(!_lastArtifact)return;const vc={"@context":["https://www.w3.org/ns/credentials/v2","https://ainumbers.co/chaingraph/context/v0.4/context.jsonld"],type:["VerifiableCredential","OpenChainGraphArtifact"],issuer:"did:web:ainumbers.co",validFrom:_lastArtifact.generated_at,credentialSubject:{...{id:"urn:ocg:"+_lastHash},..._lastArtifact}};dl(JSON.stringify(vc,null,2),'art-131-vc.json','application/json');}
-function dl(c,f,m){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();}
-function toggleMfst(){const b=document.getElementById('mfstBody'),c=document.getElementById('mfstCode');if(b.style.display==='none'||!b.style.display){if(!c.textContent)c.textContent=JSON.stringify(MANIFEST,null,2);b.style.display='block';}else b.style.display='none';}
-const PRESETS={
-  valid:{card:{name:"TradeAgent-v1",operator:"Acme Corp",expected_request_rate:100,keys:[{kid:"key-2026-06"},{kid:"key-2026-07-next"}]},dkids:["key-2026-06","key-2026-07-next"]},
-  missing:{card:{name:"IncompleteAgent",keys:[{kid:"key-2026-06"}]},dkids:["key-2026-06"]},
-  notindir:{card:{name:"TradeAgent-v1",operator:"Acme Corp",expected_request_rate:50,keys:[{kid:"old-key-2024"}]},dkids:["key-2026-06","key-2026-07-next"]}
-};
-function loadPreset(n){const d=PRESETS[n];if(!d)return;document.getElementById('card').value=JSON.stringify(d.card,null,2);document.getElementById('directory_keyids').value=JSON.stringify(d.dkids,null,2);}
-loadPreset('valid');
+function fillStr(id,v){document.getElementById(id).value=String(v);}
+function fillJson(id,v){document.getElementById(id).value=JSON.stringify(v,null,1);}
+function loadSample(){
+  fillStr("bank_tier1_capital",SAMPLE.bank_tier1_capital);
+  fillJson("group2_positions",SAMPLE.group2_positions);
+}
+function loadRefusalDemo(){
+  fillStr("bank_tier1_capital",REFUSAL_DEMO.bank_tier1_capital);
+  fillJson("group2_positions",REFUSAL_DEMO.group2_positions);
+}
+function exportAP2(r){if(!r)return;const ap2={schema:"ainumbers-policy-mandate-v1.0",tool_id:MANIFEST.tool_id,version:MANIFEST.version,mandate_type:"compliance_mandate",generated_at:r.generated_at,execution_hash:r.execution_hash,policy_parameters:r.policy_parameters,output_payload:r.output_payload,compliance_flags:r.compliance_flags};dl(JSON.stringify(ap2,null,2),"art-711-policy-mandate.json","application/json");}
+function exportArtifact(r){if(!r)return;dl(JSON.stringify(r,null,2),"art-711-artifact.json","application/json");}
+function dl(c,f,m){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([c],{type:m}));a.download=f;a.click();}
+function toggleMfst(){const b=document.getElementById("mfstBody"),c=document.getElementById("mfstCode");if(b.style.display==="none"||!b.style.display){if(!c.textContent)c.textContent=JSON.stringify(MANIFEST,null,2);b.style.display="block";}else b.style.display="none";}
+loadSample();
 </script>
-<script>
-/* OCG-CANON v1 — RFC 8785/JCS (I-JSON). DO NOT hand-edit. */
-function __ocgCanon(v){return Array.isArray(v)?v.map(__ocgCanon):(v&&typeof v==='object')?Object.keys(v).sort().reduce((o,k)=>(o[k]=__ocgCanon(v[k]),o),{}):v;}
-function __ocgAssertIJson(v){if(typeof v==='number'){if(!Number.isFinite(v))throw new Error('OCG: non-finite number is not I-JSON');if(Number.isInteger(v)&&!Number.isSafeInteger(v))throw new Error('OCG: integer exceeds 2^53; pass as string');}else if(Array.isArray(v)){v.forEach(__ocgAssertIJson);}else if(v&&typeof v==='object'){for(const k of Object.keys(v))__ocgAssertIJson(v[k]);}}
-function __ocgCanonStr(x){__ocgAssertIJson(x);return __ocgJcs(x);}
-function __ocgJcs(v){if(v===null||typeof v!=='object')return JSON.stringify(v);if(Array.isArray(v)){var s='[';for(var i=0;i<v.length;i++){if(i)s+=',';var e=v[i];s+=(e===undefined||typeof e==='function'||typeof e==='symbol')?'null':__ocgJcs(e);}return s+']';}var ks=Object.keys(v).sort(),o='{',f=true;for(var i=0;i<ks.length;i++){var k=ks[i],w=v[k];if(w===undefined||typeof w==='function'||typeof w==='symbol')continue;if(!f)o+=',';f=false;o+=JSON.stringify(k)+':'+__ocgJcs(w);}return o+'}';}
-</script>
-<script>
-/* OCG-PROOF v1 — W3C Data Integrity eddsa-jcs-2022 (OCG §16). DO NOT hand-edit. */
-(function(){var CS='eddsa-jcs-2022';function jcs(o){return new TextEncoder().encode(__ocgJcs(o));}function sha(b){return crypto.subtle.digest('SHA-256',b).then(function(d){return new Uint8Array(d);});}function secured(a){var c=structuredClone(a);if(c&&c.audit_signature){if('proof'in c.audit_signature)delete c.audit_signature.proof;if(Object.keys(c.audit_signature).length===0)delete c.audit_signature;}return c;}function opts(vm,created){return{type:'DataIntegrityProof',cryptosuite:CS,verificationMethod:vm,proofPurpose:'assertionMethod',created:created};}function hashData(a,o){return Promise.all([sha(jcs(o)),sha(jcs(secured(a)))]).then(function(h){var oh=h[0],dh=h[1];var c=new Uint8Array(oh.length+dh.length);c.set(oh,0);c.set(dh,oh.length);return c;});}var B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';function b58e(bytes){var z=0;while(z<bytes.length&&bytes[z]===0)z++;var d=[0];for(var i=z;i<bytes.length;i++){var c=bytes[i];for(var j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0;}while(c){d.push(c%58);c=(c/58)|0;}}var s='';for(var k=0;k<z;k++)s+='1';for(var q=d.length-1;q>=0;q--)s+=B58[d[q]];return s;}function b58d(str){var z=0;while(z<str.length&&str[z]==='1')z++;var b=[0];for(var i=z;i<str.length;i++){var c=B58.indexOf(str[i]);if(c<0)throw new Error('bad base58');for(var j=0;j<b.length;j++){c+=b[j]*58;b[j]=c&255;c>>=8;}while(c){b.push(c&255);c>>=8;}}var out=new Uint8Array(z+b.length);for(var k=0;k<b.length;k++)out[z+b.length-1-k]=b[k];return out;}var MC=[0xed,0x01];function didFromPub(pk){return crypto.subtle.exportKey('raw',pk).then(function(r){var raw=new Uint8Array(r);var p=new Uint8Array(MC.length+raw.length);p.set(MC,0);p.set(raw,MC.length);return'did:key:z'+b58e(p);});}function pubFromDid(did){if(did.indexOf('did:key:z')!==0)throw new Error('not did:key z-form');var p=b58d(did.slice(9));if(p[0]!==0xed||p[1]!==0x01)throw new Error('did:key not Ed25519');return crypto.subtle.importKey('raw',p.slice(2),{name:'Ed25519'},true,['verify']);}function sign(a,o){var po=opts(o.verificationMethod,o.created);return hashData(a,po).then(function(hd){return crypto.subtle.sign('Ed25519',o.privateKey,hd);}).then(function(s){var proof=Object.assign({},po,{proofValue:'z'+b58e(new Uint8Array(s))});var out=structuredClone(a);out.audit_signature=Object.assign({},out.audit_signature||{},{proof:proof});return out;});}function verify(a,pub){var pr=a&&a.audit_signature&&a.audit_signature.proof;if(!pr||pr.type!=='DataIntegrityProof'||pr.cryptosuite!==CS)return Promise.resolve(false);if(pr.proofPurpose!=='assertionMethod'||typeof pr.proofValue!=='string'||pr.proofValue[0]!=='z')return Promise.resolve(false);var po=opts(pr.verificationMethod,pr.created);return hashData(a,po).then(function(hd){var sig;try{sig=b58d(pr.proofValue.slice(1));}catch(e){return false;}return crypto.subtle.verify('Ed25519',pub,sig,hd);}).catch(function(){return false;});}window.__ocgSign=sign;window.__ocgVerify=verify;window.__ocgDidKeyFromPub=didFromPub;window.__ocgPubFromDidKey=pubFromDid;})();
-</script>
-<script>
-/* OCG-§16-UI v1 (univ-ap2). DO NOT hand-edit. */
-function __ocgGetArt(){var cands=['_artifact','_result','_lastArtifact','lastArtifact','_ap2','_lastResult','_ap2Artifact'];for(var i=0;i<cands.length;i++){var v=window[cands[i]];if(v&&typeof v==='object'&&v.chaingraph_version)return v;}return null;}
-async function signArtifact(){var art=__ocgGetArt();if(!art){alert('Run the tool first.');return;}if(!confirm('Signing binds this run to a one-time key (OCG §16.2). Continue?'))return;var kp=await crypto.subtle.generateKey('Ed25519',true,['sign','verify']);var did=await __ocgDidKeyFromPub(kp.publicKey);var signed=await __ocgSign(art,{verificationMethod:did,created:art.generated_at||new Date().toISOString(),privateKey:kp.privateKey});var ts=new Date().toISOString().replace(/[-:T.Z]/g,'').slice(0,14);var fn=(art.tool_id||'artifact')+'_'+ts+'.signed.json';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(signed,null,2)],{type:'application/json'}));a.download=fn;a.click();URL.revokeObjectURL(a.href);}
-async function verifySignature(){var t=window.prompt('Paste a signed OCG artifact JSON:');if(!t)return;var art;try{art=JSON.parse(t);}catch(e){alert('✗ not valid JSON');return;}var pr=art&&art.audit_signature&&art.audit_signature.proof;if(!pr){alert('✗ no §16 proof');return;}try{var pub=await __ocgPubFromDidKey(pr.verificationMethod);alert(await __ocgVerify(art,pub)?'✓ §16 signature valid':'✗ signature invalid / tampered');}catch(e){alert('✗ '+(e&&e.message?e.message:'verify failed'));}}
-(function(){var el=document.getElementById('ap2ExportBtn');if(!el)return;var obs=new MutationObserver(function(){var sab=document.getElementById('signArtifactBtn');if(sab){sab.disabled=false;}obs.disconnect();});obs.observe(el,{attributes:true,attributeFilter:['disabled']});})();
-</script>
-<!-- WEBMCP:GEN-BEGIN manifest=manifests/528-signature-agent-card-validator.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
+
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-711-sco60-crypto-asset-exposure-classifier-v2.manifest.json generator=scripts/gen-webmcp-registrations.mjs -->
 <script>
 // WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
-// manifests/528-signature-agent-card-validator.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// manifests/art-711-sco60-crypto-asset-exposure-classifier-v2.manifest.json (mcp_tool_definition reused verbatim; the generator computes
 // nothing and restates no computed value). Feature-detected: absent API
 // registers nothing, so this page is byte-identical without the API.
 // Answer-class delegate to this page's existing compute; zero network I/O.
@@ -477,33 +555,32 @@ async function verifySignature(){var t=window.prompt('Paste a signed OCG artifac
 const mc = document.modelContext ?? (('modelContext' in navigator) ? navigator.modelContext : null);
 if (mc) {
   mc.registerTool({
-    name: 'validate_signature_agent_card',
-    description: 'Validate a Signature Agent Card: required fields + all card key IDs resolve against directory_keyids. Emits TRUSTED or UNTRUSTED.',
+    name: 'classify_sco60_exposure_v2',
+    description: 'Book-level Group 2 cryptoasset exposure-limit assessor (BCBS d545 SCO60.116-119): the aggregate of per-asset higher-of measurements is compared with the 1% expectation threshold and the 2% hard limit of Tier 1 capital. Above 1% the supervisor notification fires and only the excess over 1% takes the 1250% Group 2b weight; above 2% the whole book takes it and the Pillar 3 precheck fails. Strict integer comparisons: exactly 1% is not crossed and exactly 2% is not breached.',
     inputSchema: {
       "type": "object",
-      "properties": {
-        "card": {
-          "type": "object"
-        },
-        "directory_keyids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
       "required": [
-        "card",
-        "directory_keyids"
-      ]
+        "bank_tier1_capital",
+        "group2_positions"
+      ],
+      "properties": {
+        "bank_tier1_capital": {
+          "type": "integer",
+          "description": "Tier 1 capital in integer minor units, a positive multiple of 100, at most 1e12. The denominator of both thresholds."
+        },
+        "group2_positions": {
+          "type": "array",
+          "description": "Per-cryptoasset positions with absolute, delta-adjusted long_exposure and short_exposure integers; same-asset entries merge before the count."
+        }
+      }
     },
     annotations: { readOnlyHint: true },
     execute: async function(params) {
       try {
-      if (params.card === null || typeof params.card !== 'object' || Array.isArray(params.card)) throw new Error('card must be a JSON object; received ' + JSON.stringify(params.card) + '.');
-      if (!Array.isArray(params.directory_keyids)) throw new Error('directory_keyids must be an array; received ' + JSON.stringify(params.directory_keyids) + '.');
-      document.getElementById('card').value = JSON.stringify(params.card);
-      document.getElementById('directory_keyids').value = JSON.stringify(params.directory_keyids);
+      if (params.bank_tier1_capital === undefined) throw new Error('bank_tier1_capital is required; received ' + JSON.stringify(params.bank_tier1_capital) + '.');
+      if (!Array.isArray(params.group2_positions)) throw new Error('group2_positions must be an array; received ' + JSON.stringify(params.group2_positions) + '.');
+      document.getElementById('bank_tier1_capital').value = String(params.bank_tier1_capital);
+      document.getElementById('group2_positions').value = JSON.stringify(params.group2_positions);
       await run();
       return _lastArtifact;
       } catch (err) {
@@ -525,7 +602,7 @@ if (mc) {
   'use strict';
   var BUDGET = 30000;
   var RUN_TARGET = "run";
-  var PREFILL = {"card":["card","json"],"directory_keyids":["directory_keyids","json"]};
+  var PREFILL = {"bank_tier1_capital":["bank_tier1_capital","string"],"group2_positions":["group2_positions","json"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function b64uDec(s) {
@@ -671,7 +748,7 @@ if (mc) {
   'use strict';
   var MAX = 1000000;
   var RUN_TARGET = "run";
-  var PREFILL = {"card":["card","json"],"directory_keyids":["directory_keyids","json"]};
+  var PREFILL = {"bank_tier1_capital":["bank_tier1_capital","string"],"group2_positions":["group2_positions","json"]};
   var PII_BANNER = 'All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.';
 
   function fail(msg) {

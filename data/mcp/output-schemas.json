@@ -43213,6 +43213,14 @@
     "type": "object",
     "description": "output_payload: as_of, snapshot_verified_on, snapshot_age_days, results[]{provider, model, tier, monthly_micros, per_request_micros, components{input, cached_input, cache_write, output}, price_entry_source_sha256}, ranking[model...], cheapest, refusals[]{provider, model, code, text}, refusal_reason, domain_errors[], scope_note."
   },
+  "classify_sco60_exposure_v2": {
+    "type": "object",
+    "description": "output_payload: group2_exposure_amount, bank_tier1_capital, group2_exposure_pct_tier1, one_pct_tier1_amount, two_pct_tier1_amount, group2_threshold_crossed, group2_limit_breached, group2b_excess_amount, group2b_treatment (none | excess_only | whole_book), risk_weight_applied_pct (1250 or null), base_risk_weight_pct (1250), pillar3_precheck_pass, per_asset[]{cryptoasset, holding_type, long_exposure, short_exposure, counted_exposure}, gaps[], warnings[], domain_errors[], refusal_reason, scope_note."
+  },
+  "workforce_board_roi_report": {
+    "type": "object",
+    "description": "output_payload: program_name, program_type, program_year, sector, sector_label, total_budget, participants_enrolled, participants_exited, avg_training_weeks, cost_per_participant, employed_q2, credentialed, cost_per_employed_q2, cost_per_credential, benchmarks[]{key,label,userVal,target,isEarnings,status(exceeds|meets|below|na)}, indicators_scored, indicators_met, indicators_exceeded, annualized_earnings, sector_baseline_annual, earnings_gain_annual, annual_tax_recapture, breakeven_months, three_year_net_benefit, return_per_dollar_3yr, grade, grade_sub, refusal_reason, domain_errors[], scope_note."
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 719,
+  "tool_count": 721,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -216,6 +216,7 @@
     "classify_reward_flow_related_party",
     "classify_safeguarding_method",
     "classify_sco60_exposure",
+    "classify_sco60_exposure_v2",
     "classify_settlement_asset_finality",
     "classify_settlement_finality",
     "classify_t1_posttrade_timing",
@@ -734,6 +735,7 @@
     "workbook_csv_parse",
     "workbook_evaluate",
     "workbook_range_digest",
-    "workbook_roundtrip_verify"
+    "workbook_roundtrip_verify",
+    "workforce_board_roi_report"
   ]
 }
