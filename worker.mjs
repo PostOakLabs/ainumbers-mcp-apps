@@ -1649,7 +1649,7 @@ function paginateToolsListFrame(sse, offset) {
 }
 
 // BM25 scorer (Workers-runtime safe — no Node APIs).
-function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
+export function bm25Search(query, index, { k1 = 1.2, b = 0.75, topN = 5 } = {}) {
   const terms = query.toLowerCase()
     .replace(/[^a-z0-9_-]/g, ' ')
     .split(/\s+/)
@@ -1698,6 +1698,39 @@ function matchUtilityTools(query, utilityIndex, topN = 3) {
     if (score > 0) scored.push({ mcp_name: name, title: e?.title ?? null, description: String(e?.description ?? '').slice(0, 240), match_score: score });
   }
   return scored.sort((a, b) => b.match_score - a.match_score).slice(0, topN);
+}
+
+// TOOL-RETRIEVAL-MEASURE-1 step 5 — auditability keys for the find_tool / find_chain result maps.
+// Measured 2026-10-09 on bench/retrieval-intents.json (44 held-out intents): top-5 hit rates sat
+// below the 80% pass bar on both arms, so per the row these two keys ship. Deliberately NEVER
+// inside bm25Search: these helpers only READ the index's idf map and the returned docs — they do
+// not touch scoring, ordering or relevance_score (purely additive keys, row hard-STOP).
+function explainTerms(query) {
+  // EXACTLY the bm25Search tokenizer: lowercase, strip non [a-z0-9_-], split whitespace, drop ≤1.
+  return String(query ?? '').toLowerCase().replace(/[^a-z0-9_-]/g, ' ').split(/\s+/).filter((t) => t.length > 1);
+}
+const EXPLAIN_SEARCH_FIELDS = ['mcp_name', 'display_name', 'mandate_type', 'tool_id', 'chain_name', 'title', 'description'];
+// why_matched: the query terms that actually scored (idf > 0), each with the returned doc field(s)
+// whose tokenized text contains the term. A term with zero idf contributed nothing to the score and
+// must never appear here — that is coverage_gaps' job. A term can hit indexed text that the clean
+// doc does not carry (nodes index description/consumes/feeds, chains index step tool_ids); such a
+// term is reported against 'indexed_text' rather than inventing a field it did not hit.
+function whyMatched(query, index, doc) {
+  return explainTerms(query)
+    .filter((t) => (index?.idf?.[t] ?? 0) > 0)
+    .map((term) => {
+      const fields = EXPLAIN_SEARCH_FIELDS.filter((f) =>
+        typeof doc?.[f] === 'string' && explainTerms(doc[f]).includes(term));
+      return { term, fields: fields.length ? fields : ['indexed_text'] };
+    });
+}
+// coverage_gaps: one plain sentence per query term that has zero idf across the arm's index (the
+// art-291 kernel convention — plain sentences, one gap each, the caller's own vocabulary, never a
+// parallel taxonomy).
+function coverageGaps(query, index, noun) {
+  return explainTerms(query)
+    .filter((t) => !((index?.idf?.[t] ?? 0) > 0))
+    .map((t) => `query term "${t}" appears in no indexed ${noun}; that part of the query contributed nothing to this match.`);
 }
 
 // Ledger fragment codec — response metadata only, never inside any artifact preimage.
@@ -4421,16 +4454,17 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     if (!results.length) {
       return {
         content: [{ type: 'text', text: 'No chains matched "' + query + '". Try broader terms or call list_ainumbers_tools for individual tool search.' }],
-        structuredContent: { query, results: [], hint: 'No matches. Try list_ainumbers_tools for individual tools or find_tool for node-level search.' },
+        structuredContent: { query, results: [], coverage_gaps: coverageGaps(query, searchIndex.chains, 'chain'), hint: 'No matches. Try list_ainumbers_tools for individual tools or find_tool for node-level search.' },
       };
     }
-    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000 }));
+    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000, why_matched: whyMatched(query, searchIndex.chains, r) }));
     return {
       content: [{ type: 'text', text: JSON.stringify(out, null, 2) + '\n' + DISPATCH_STEER }],
       structuredContent: {
         query,
         result_count: out.length,
         chains: out,
+        coverage_gaps: coverageGaps(query, searchIndex.chains, 'chain'),
         usage: 'For each step in order: if callable=true, invoke its mcp_name via /mcp; if callable=false it is a browser tool — open tool_url. Pass execution_hash from each callable step as parent_hashes to the next. Verify any artifact with verify_execution_hash. entry_mcp_name is the first callable node.',
         // MCP-REACH-DISPATCH-1 D1: the step names below are frequently on pages 2-13 of tools/list,
         // so a page-1-only host must be told the route or the recipe is unusable to it.
@@ -4464,11 +4498,11 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     if (!results.length && !utilityMatches.length) {
       return {
         content: [{ type: 'text', text: 'No node tools matched "' + query + '". Try find_chain for workflow-level search or list_ainumbers_tools for the full catalog.' }],
-        structuredContent: { query, results: [], hint: 'No matches — try find_chain or list_ainumbers_tools.' },
+        structuredContent: { query, results: [], coverage_gaps: coverageGaps(query, searchIndex.nodes, 'node tool'), hint: 'No matches — try find_chain or list_ainumbers_tools.' },
       };
     }
-    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000 }));
-    const payload = { query, result_count: out.length, tools: out };
+    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000, why_matched: whyMatched(query, searchIndex.nodes, r) }));
+    const payload = { query, result_count: out.length, tools: out, coverage_gaps: coverageGaps(query, searchIndex.nodes, 'node tool') };
     if (utilityMatches.length) payload.utility_tools = utilityMatches;
     payload.dispatch_hint = DISPATCH_STEER;
     return {
