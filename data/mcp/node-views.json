@@ -1796,8 +1796,8 @@
       "mcp_name": "compute_va_funding_fee_residual",
       "display_name": "VA Funding Fee and Residual Income",
       "uri": "ui://ainumbers/node/art-225-va-funding-fee-residual",
-      "bytes": 80621,
-      "sha256": "a67ffd874406d905f230207aaffae2d4956bb5fab52b8be66adafe48598c2524"
+      "bytes": 81455,
+      "sha256": "2b8ca6f6cb40ba138c58d0bb6c2e3ef42e4d0975c2d3a96864952f0982a0026c"
     },
     {
       "tool_id": "art-226-mismo-uldd-ulad",
@@ -1836,8 +1836,8 @@
       "mcp_name": "compute_hmda_rate_spread",
       "display_name": "Compute HMDA Rate Spread",
       "uri": "ui://ainumbers/node/art-230-compute-hmda-rate-spread",
-      "bytes": 67953,
-      "sha256": "bd3cf0ddd685aace640412758df6322a7095584b91f242f8153d519ec951d467"
+      "bytes": 67836,
+      "sha256": "77f630e08f1b18b435e65375963d4bc5b136b754724de11a29720c70f76a4232"
     },
     {
       "tool_id": "art-231-compute-mla-mapr",
@@ -1852,8 +1852,8 @@
       "mcp_name": "compute_scra_rate_cap",
       "display_name": "Compute SCRA Rate Cap",
       "uri": "ui://ainumbers/node/art-232-compute-scra-rate-cap",
-      "bytes": 68605,
-      "sha256": "baa0a647e5099a75c6521bcc45198a96828c7d8767f2a8f69fb2def0ae3dee0d"
+      "bytes": 70380,
+      "sha256": "7684de30c2fd211c39ef55c482e48e0ee90beec9ddeb071f67146d1d2e3c9beb"
     },
     {
       "tool_id": "art-233-check-card-act-ability-to-pay",
@@ -1932,8 +1932,8 @@
       "mcp_name": "validate_pacs008_party_completeness",
       "display_name": "pacs.008 Party Completeness Validator",
       "uri": "ui://ainumbers/node/art-242-pacs008-party-completeness-validator",
-      "bytes": 75105,
-      "sha256": "b37272f591831722da307090e426387ab38b49fa9ef873802f0f7d4cf3dd470a"
+      "bytes": 75197,
+      "sha256": "ee1f14750651bb0b31758f5af5f661e86e767719e7f146f98259454d47219c12"
     },
     {
       "tool_id": "art-243-purpose-code-requirement-checker",
