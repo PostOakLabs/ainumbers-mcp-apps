@@ -2,8 +2,8 @@
   "note": "one entry per spec_digest present under fv-status/ — today every live ChainGraph node shares one spec_digest (one chaingraph/standard/SPEC.md); worker.mjs degrades to \"no pointer\" if this list is empty or ambiguous, never fabricates one",
   "entries": [
     {
-      "spec_digest": "sha256:8498d0819c941fdb731f9e10f5d93ee929026919cb111a42149821b48b5ac180",
-      "url": "/fv-status/8498d0819c941fdb731f9e10f5d93ee929026919cb111a42149821b48b5ac180.json"
+      "spec_digest": "sha256:b045a29bca9fd0beac50a6e07610c46a4aa8b47dc4efbc1d208352b8d740b3eb",
+      "url": "/fv-status/b045a29bca9fd0beac50a6e07610c46a4aa8b47dc4efbc1d208352b8d740b3eb.json"
     }
   ]
 }
