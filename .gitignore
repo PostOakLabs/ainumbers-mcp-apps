@@ -11,3 +11,7 @@ mcp-publisher.tar.gz
 
 bundled/
 .wrangler/
+
+# local scratch worktrees (MCP-LITE-HYGIENE, 2026-10-09)
+.wt/
+.worktrees/
