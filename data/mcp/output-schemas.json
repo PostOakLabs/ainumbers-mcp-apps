@@ -43221,6 +43221,10 @@
     "type": "object",
     "description": "output_payload: program_name, program_type, program_year, sector, sector_label, total_budget, participants_enrolled, participants_exited, avg_training_weeks, cost_per_participant, employed_q2, credentialed, cost_per_employed_q2, cost_per_credential, benchmarks[]{key,label,userVal,target,isEarnings,status(exceeds|meets|below|na)}, indicators_scored, indicators_met, indicators_exceeded, annualized_earnings, sector_baseline_annual, earnings_gain_annual, annual_tax_recapture, breakeven_months, three_year_net_benefit, return_per_dollar_3yr, grade, grade_sub, refusal_reason, domain_errors[], scope_note."
   },
+  "model_scorp_break_even": {
+    "type": "object",
+    "description": "output_payload: verdict (SCORP_WINS when net_annual_savings >= 0), net_se_income, reasonable_salary_pct, annual_admin_cost, filing_status, owner_health_premium_annual, reasonable_w2_salary, distribution, sole_prop_se_tax, scorp_payroll_tax (full-wage FICA: SS capped at $184,500, Medicare 2.9% uncapped), se_tax_savings, net_annual_savings, five_year_savings, break_even_income (first point of the 500-step grid, null when never reached), half_se_tax_deduction and scorp_employer_tax (diagnostics), qbi_199a_income, qbi_199a_deduction_tentative (20%), qbi_199a_value_at_risk (wages at the adjudicated 19.8% effective rate), net_annual_savings_qbi_adjusted, qbi_adjusted_break_even_income, caveats (flag-mirror advisories), scope_note."
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

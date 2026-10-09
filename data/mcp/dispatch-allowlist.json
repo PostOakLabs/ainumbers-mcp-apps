@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 721,
+  "tool_count": 722,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -452,6 +452,7 @@
     "model_clearing_access_economics",
     "model_l1_fee_runway",
     "model_perp_position",
+    "model_scorp_break_even",
     "model_stablecoin_corridor_economics",
     "model_tempo_gas_economics",
     "model_tempo_payment_economics",
