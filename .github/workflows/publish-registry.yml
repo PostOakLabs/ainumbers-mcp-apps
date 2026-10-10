@@ -117,7 +117,7 @@ jobs:
         if: ${{ !inputs.dry_run }}
         run: ./publisher/mcp-publisher publish server.json
 
-      - name: ✅ Post-check: registry now serves what we just published
+      - name: "✅ Post-check: registry now serves what we just published"
         # The registry's isLatest view can lag a few seconds behind a publish,
         # so poll --check-drift with a bounded retry before declaring a red.
         # Unreachable registry prints REGISTRY_UNREACHABLE and exits 0 (see
