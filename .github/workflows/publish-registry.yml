@@ -81,7 +81,7 @@ jobs:
           SCHEMA_URL=$(node -e "const j=require('./server.json'); if(!j['\$schema']) process.exit(1); process.stdout.write(j['\$schema'])")
           echo "schema: $SCHEMA_URL"
           curl -fsSL "$SCHEMA_URL" -o /tmp/server.schema.json
-          npx -y ajv-cli@5.0.0 validate --spec=draft2020 -s /tmp/server.schema.json -d server.json
+          npx -y ajv-cli@5.0.0 validate --spec=draft7 --strict=false -s /tmp/server.schema.json -d server.json
 
       - name: 🧪 Pre-flight validate against the registry (dry-run; aborts before login)
         # mcp-publisher v1.8.1 has no `publish --dry-run` flag; `validate` is the
