@@ -31,7 +31,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 // JSON-RPC error responses — stable string names over the frozen wire codes, plus the additive
 // per-request `request_id` envelope member. scripts/gate-error-registry.mjs enforces that no
 // inline error construction appears outside errors.mjs (or the frozen dev-server baseline).
-import { mintRequestId, protocolErrorResponse, TOOL_ERRORS } from './errors.mjs';
+import { mintRequestId, protocolErrorResponse, toolDomainErrorResult, toolErrorResult, TOOL_ERRORS } from './errors.mjs';
 import { assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash, jcsStringify } from './kernels/_hash.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
@@ -2194,10 +2194,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     if (cursor !== undefined && cursor !== '') {
       const at = filtered.findIndex((t) => t.name === cursor);
       if (at < 0) {
-        return {
-          isError: true,
-          content: [{ type: 'text', text: 'Unknown cursor: not a name this tool issued under these filters (the catalog may have been regenerated). Restart listing without cursor.' }],
-        };
+        return toolErrorResult('tool.unknown_name.cursor', { requestId });
       }
       startIdx = at + 1;
     }
@@ -2259,27 +2256,18 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     let chainMeta = null;
     let rawSteps;
     if (chain && steps) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide either chain or steps, not both.' }],
-      };
+      return toolErrorResult('tool.invalid_args.chain_steps_exclusive', { requestId });
     }
     if (chain) {
       chainMeta = namedChains[chain];
       if (!chainMeta) {
-        return {
-          isError: true,
-          content: [{ type: 'text', text: 'Unknown chain "' + chain + '". Available: ' + namedChainNames.join(', ') }],
-        };
+        return toolErrorResult('tool.unknown_name.chain', { requestId, vars: { chain, available: namedChainNames.join(', ') } });
       }
       rawSteps = chainMeta.steps.map((s) => ({ tool_id: s.tool_id, fields: undefined, _handoff: s.handoff }));
     } else if (steps && steps.length > 0) {
       rawSteps = steps.map((s) => ({ tool_id: s.tool_id, fields: s.fields, _handoff: null }));
     } else {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide chain (named) or steps (ad-hoc array of {tool_id, fields?}).' }],
-      };
+      return toolErrorResult('tool.invalid_args.chain_steps_required', { requestId });
     }
 
     // Build output steps
@@ -2305,10 +2293,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         }
       }
       if (!entry) {
-        return {
-          isError: true,
-          content: [{ type: 'text', text: 'Unknown tool_id "' + rs.tool_id + '" at step ' + (i + 1) + '. Check mcp/catalog.json for catalog tools or chaingraph.json for ChainGraph node tool_ids.' }],
-        };
+        return toolErrorResult('tool.unknown_name.tool_id', { requestId, vars: { toolId: rs.tool_id, step: i + 1 } });
       }
       const prefill = !!entry.metadata?.prefill;
       let url = entry.metadata?.url ?? (BASE_URL + '/tools/' + rs.tool_id + '.html');
@@ -2443,10 +2428,10 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         },
       },
     };
-    // ERROR-REGISTRY-REQUEST-ID-SPEC §3: the additive envelope member exists ONLY in
-    // structuredContent — content[].text serializes the pre-envelope `out` and stays
+    // ERROR-REGISTRY-REQUEST-ID-SPEC §3 + BUILD-SPEC A1: the additive envelope members exist ONLY
+    // in structuredContent — content[].text serializes the pre-envelope `out` and stays
     // BYTE-IDENTICAL to the pre-envelope shape. ⛔ no content[].text rewrites.
-    const structuredContent = requestId != null ? { ...out, error: { ...out.error, request_id: requestId } } : out;
+    const structuredContent = requestId != null ? { ...out, error: { ...out.error, retryable: TOOL_ERRORS['tool.ijson_violation'].retryable, request_id: requestId } } : out;
     return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent };
   }
   // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
@@ -2480,10 +2465,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     const op = output_payload ?? artifact?.output_payload;
     const claimed = claimed_hash ?? artifact?.execution_hash ?? null;
     if (pp === undefined || op === undefined) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + output_payload + execution_hash) or policy_parameters + output_payload (+ claimed_hash).' }],
-      };
+      return toolErrorResult('tool.invalid_args.artifact_required', { requestId });
     }
     // I-JSON gate BEFORE any digest: a non-round-trippable value must never receive a hash.
     const ijsonBad = ijsonViolation({ policy_parameters: pp, output_payload: op });
@@ -2611,10 +2593,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     const pp = policy_parameters ?? artifact?.policy_parameters;
     const attestations = input_attestations ?? artifact?.input_attestations;
     if (pp === undefined || !Array.isArray(attestations)) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + input_attestations[]) or policy_parameters + input_attestations[].' }],
-      };
+      return toolErrorResult('tool.invalid_args.attestation_required', { requestId });
     }
     const results = await Promise.all(attestations.map((entry) => assessInputAttestation(entry, pp)));
     // §23 hash-exclusion sanity: input_attestations sit OUTSIDE the execution_hash preimage, so a
@@ -2724,10 +2703,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     const entries = private_inputs ?? artifact?.private_inputs;
     const proof = compute_proof ?? artifact?.audit_signature?.compute_proof;
     if (pp === undefined || !Array.isArray(entries)) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide a full artifact (with policy_parameters + private_inputs[]) or policy_parameters + private_inputs[].' }],
-      };
+      return toolErrorResult('tool.invalid_args.private_inputs_required', { requestId });
     }
     const byPointer = new Map((disclosures ?? []).map((d) => [d.pointer, d]));
     const results = await Promise.all(entries.map((entry) => assessPrivateInput(entry, pp, op, proof, byPointer.get(entry?.pointer))));
@@ -2842,7 +2818,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   }, async ({ room_label, entries }) => {
     let out;
     try { out = await buildDisclosureManifestCore({ room_label, entries }); }
-    catch (e) { return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] }; }
+    catch (e) { return toolErrorResult('tool.invalid_args.manifest_core', { requestId, text: e?.message ?? String(e) }); }
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
 
@@ -2862,7 +2838,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ manifest, path, digest }) => {
     if (!manifest || !Array.isArray(manifest.entries) || !manifest.merkle_root) {
-      return { isError: true, content: [{ type: 'text', text: 'manifest must include entries[] and merkle_root.' }] };
+      return toolErrorResult('tool.invalid_args.manifest_shape', { requestId });
     }
     const entries = manifest.entries.slice().sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
     const idx = entries.findIndex((e) => e.path === path);
@@ -2949,7 +2925,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     }
 
     if (missing.length > 0) {
-      return { isError: true, content: [{ type: 'text', text: 'Unknown ChainGraph tool_id(s): ' + missing.join(', ') + '. Call build_chaingraph with no arguments to list valid nodes.' }] };
+      return toolErrorResult('tool.unknown_name.chaingraph_tool_ids', { requestId, vars: { missing: missing.join(', ') } });
     }
 
     // chain_depth = max(parent depths)+1 within this ordered set.
@@ -3075,11 +3051,11 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   const executeChainRun = async ({ chain, inputs, compute, mandate, escalation_transport }, requestMeta = null) => {
     const chainMeta = namedChains[chain];
     if (!chainMeta) {
-      return { isError: true, content: [{ type: 'text', text: 'Unknown chain "' + chain + '". List chains with find_chain or build_workflow_links.' }] };
+      return toolErrorResult('tool.unknown_name.chain_run', { requestId, vars: { chain } });
     }
     const steps = (chainMeta.steps ?? []).map((s) => s.tool_id);
     if (!steps.length) {
-      return { isError: true, content: [{ type: 'text', text: 'Chain "' + chain + '" has no steps.' }] };
+      return toolErrorResult('tool.invalid_args.chain_no_steps', { requestId, vars: { chain } });
     }
     const effectiveCompute = compute ?? 'auto';
 
@@ -3091,13 +3067,13 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       const proof = mandate?.audit_signature?.proof;
       if (!proof) {
         const errOut = { error: 'mandate_unsigned', detail: 'Mandate has no §16 proof. Supply a signed mandate (audit_signature.proof required per OCG §16).' };
-        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        return toolDomainErrorResult('tool.mandate_error', errOut);
       }
       let sigOk = false;
       try { sigOk = await verifyProofs(mandate, (did) => didKeyToPublicKey(did)); } catch (_) {}
       if (!sigOk) {
         const errOut = { error: 'mandate_bad_signature', detail: 'Mandate §16 signature verification failed (eddsa-jcs-2022).' };
-        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        return toolDomainErrorResult('tool.mandate_error', errOut);
       }
       // §22.5(1), second half — WHO signed it. A cryptographically valid signature by some
       // other DID is not authority: SPEC §22.1 says of `principal` "The mandate's §16 signature
@@ -3111,7 +3087,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         && proofSet.every((p) => didBase(p?.verificationMethod) === didBase(principalId));
       if (!principalOk) {
         const errOut = { error: 'mandate_bad_signature', detail: 'Mandate signer does not match output_payload.principal.id (§22.1: the §16 signature MUST be verifiable against the principal identity).' };
-        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        return toolDomainErrorResult('tool.mandate_error', errOut);
       }
 
       // §22.5(2) validity. The SPEC field is `output_payload.validity` (§22.1: "`validity`
@@ -3127,11 +3103,11 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         const na = validity.not_after ? new Date(validity.not_after).getTime() : null;
         if (nb !== null && Number.isFinite(nb) && nb > now) {
           const errOut = { error: 'mandate_not_yet_valid', detail: 'Mandate not_before is in the future.', not_before: validity.not_before };
-          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+          return toolDomainErrorResult('tool.mandate_error', errOut);
         }
         if (na !== null && Number.isFinite(na) && na < now) {
           const errOut = { error: 'mandate_expired', detail: 'Mandate has expired.', not_after: validity.not_after };
-          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+          return toolDomainErrorResult('tool.mandate_error', errOut);
         }
       }
 
@@ -3145,13 +3121,13 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       const okToolIds = Array.isArray(mScope?.tool_ids) ? mScope.tool_ids : [];
       if (okChains.length && !okChains.includes(chain)) {
         const errOut = { error: 'mandate_out_of_scope', detail: 'Chain "' + chain + '" is not in the mandate scope.chains allow-list.', chain, scope_chains: okChains };
-        return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+        return toolDomainErrorResult('tool.mandate_error', errOut);
       }
       if (okToolIds.length) {
         const unauthorized = steps.filter((tid) => !okToolIds.includes(tid));
         if (unauthorized.length) {
           const errOut = { error: 'mandate_out_of_scope', detail: 'Chain steps outside the mandate scope.tool_ids allow-list: ' + unauthorized.join(', ') + '.', chain, unauthorized_tool_ids: unauthorized };
-          return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+          return toolDomainErrorResult('tool.mandate_error', errOut);
         }
       }
 
@@ -3893,7 +3869,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         total_server_kernel_steps: totalServerSteps,
         max_total_server_kernel_steps: RUN_CHAIN_BATCH_MAX_TOTAL_STEPS,
       };
-      return { isError: true, content: [{ type: 'text', text: JSON.stringify(errOut, null, 2) }], structuredContent: errOut };
+      return toolDomainErrorResult('tool.batch_budget', errOut);
     }
 
     const results = [];
@@ -4034,10 +4010,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       if (missing.length > 0 || !hasVersion) {
         const problems = [...missing];
         if (!hasVersion) problems.push('one of: chaingraph_version | ap2_version');
-        return {
-          isError: true,
-          content: [{ type: 'text', text: 'Artifact missing required ChainGraph Standard fields: ' + problems.join(', ') + '.' }],
-        };
+        return toolErrorResult('tool.invalid_args.artifact_fields', { requestId, vars: { problems: problems.join(', ') } });
       }
       const pp = pre_computed_artifact.policy_parameters;
       const op = pre_computed_artifact.output_payload;
@@ -4068,18 +4041,12 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
 
     // --- Modes 2 & 3: tool_id required ---
     if (!tool_id) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Provide either pre_computed_artifact or tool_id. To list available ChainGraph tool_ids call build_chaingraph.' }],
-      };
+      return toolErrorResult('tool.invalid_args.mode_required', { requestId });
     }
 
     const node = cgById[tool_id];
     if (!node) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: 'Unknown tool_id "' + tool_id + '". Run build_chaingraph or inspect chaingraph.json for live node tool_ids.' }],
-      };
+      return toolErrorResult('tool.unknown_name.chaingraph_tool_id', { requestId, vars: { toolId: tool_id } });
     }
 
     const browser_url = node.url ?? (BASE_URL + '/chaingraph/' + tool_id + '.html');
@@ -4204,10 +4171,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
           };
           return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
         } catch (err) {
-          return {
-            isError: true,
-            content: [{ type: 'text', text: 'Kernel compute error for "' + tool_id + '": ' + String(err?.message ?? err) }],
-          };
+          return toolErrorResult('tool.compute_error', { requestId, text: 'Kernel compute error for "' + tool_id + '": ' + String(err?.message ?? err) });
         }
       }
       // No kernel registered — fall through to Mode 2 (browser delegation).
@@ -4371,7 +4335,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   }, async ({ execution_hashes, tool_ids, session_id, framing, prior_receipt }) => {
     let receipt;
     try { receipt = await buildSessionReceiptCore({ execution_hashes, tool_ids, session_id, framing, prior_receipt }); }
-    catch (e) { return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] }; }
+    catch (e) { return toolErrorResult('tool.invalid_args.receipt_core', { requestId, text: e?.message ?? String(e) }); }
     return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
   });
 
@@ -4622,9 +4586,10 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     if (!recipe_id) {
       if (!recipeList.length) {
         return {
-          isError: true,
-          content: [{ type: 'text', text: 'Recipe index unavailable: data/mcp/recipes.json was not vendored. Re-run node generate.mjs in the worker repo and redeploy.' }],
-          structuredContent: { recipes_available: false },
+          ...toolErrorResult('tool.upstream_unavailable', { requestId }),
+          // The pre-registry site also carried this structured hint; keep it additively (A2: the
+          // error shape gains structuredContent.error — a site's OWN prior structured members stay).
+          structuredContent: { ...toolErrorResult('tool.upstream_unavailable', {}).structuredContent, recipes_available: false },
         };
       }
       const index = {
@@ -4642,9 +4607,10 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     const r = recipeList.find((x) => x.id === recipe_id);
     if (!r) {
       return {
-        isError: true,
-        content: [{ type: 'text', text: 'Unknown recipe_id "' + recipe_id + '". Call suite_howto with NO arguments for the compact index of ' + recipeList.length + ' recipe ids.' }],
-        structuredContent: { recipes_available: recipeList.length > 0, unknown_recipe_id: recipe_id },
+        ...toolErrorResult('tool.unknown_name.recipe', { requestId, vars: { recipeId: recipe_id, count: recipeList.length } }),
+        // The pre-registry site also carried this small structured hint; keep it additively (A2:
+        // the error shape gains structuredContent.error — a site's OWN prior structured members stay).
+        structuredContent: { ...toolErrorResult('tool.unknown_name.recipe', { vars: { recipeId: recipe_id, count: recipeList.length } }).structuredContent, recipes_available: recipeList.length > 0, unknown_recipe_id: recipe_id },
       };
     }
     const steps = r.steps ?? [];
@@ -4702,7 +4668,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   }, async ({ claims, subject_id, credential_type, valid_from, valid_until, pointer }) => {
     if (!claims || typeof claims !== 'object' || Array.isArray(claims) || Object.keys(claims).length === 0) {
-      return { isError: true, content: [{ type: 'text', text: 'claims must be a non-empty object of key-value pairs.' }] };
+      return toolErrorResult('tool.invalid_args.claims', { requestId });
     }
     const result = await issueVc({ subject_id, credential_type, claims, valid_from, valid_until, pointer });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
@@ -4723,7 +4689,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   }, async ({ claims, selective_keys, subject }) => {
     if (!claims || typeof claims !== 'object' || Array.isArray(claims) || Object.keys(claims).length === 0) {
-      return { isError: true, content: [{ type: 'text', text: 'claims must be a non-empty object of key-value pairs.' }] };
+      return toolErrorResult('tool.invalid_args.claims', { requestId });
     }
     const result = await issueSdJwt({ claims, selective_keys, subject });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
@@ -4747,13 +4713,13 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   }, async ({ sd_jwt, keep_keys, issuer_did, aud, nonce }) => {
     if (!sd_jwt || typeof sd_jwt !== 'string') {
-      return { isError: true, content: [{ type: 'text', text: 'sd_jwt must be a non-empty string.' }] };
+      return toolErrorResult('tool.invalid_args.sd_jwt', { requestId });
     }
     let result;
     try {
       result = await presentSdJwtTool({ sd_jwt, keep_keys, issuer_did, aud, nonce });
     } catch (e) {
-      return { isError: true, content: [{ type: 'text', text: 'Malformed sd_jwt: ' + (e?.message ?? String(e)) }] };
+      return toolErrorResult('tool.invalid_args.sd_jwt_malformed', { requestId, vars: { detail: e?.message ?? String(e) } });
     }
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
@@ -4815,7 +4781,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   }, async ({ definition_digest, step, step_index, timestamp, completer_key, evidence, prev_step_receipt_digest }) => {
     if (step.gate === 'blocking' && step.evidence_requirement !== 'none' && !evidence) {
-      return { isError: true, content: [{ type: 'text', text: `Step "${step.step_id}" is a blocking gate requiring ${step.evidence_requirement} evidence; none was supplied.` }] };
+      return toolErrorResult('tool.invalid_args.evidence_required', { requestId, vars: { stepId: step.step_id, requirement: step.evidence_requirement } });
     }
     const receipt = await checklistBuildStepReceipt({ definition_digest, step, step_index, completer_key, timestamp, evidence, prev_step_receipt_digest });
     return { content: [{ type: 'text', text: JSON.stringify(receipt, null, 2) }], structuredContent: receipt };
@@ -4923,7 +4889,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         verificationResult: verification_result, submissionReceipt: submission_receipt,
       });
     } catch (e) {
-      return { isError: true, content: [{ type: 'text', text: e?.message ?? String(e) }] };
+      return toolErrorResult('tool.invalid_args.ha_bundle', { requestId, text: e?.message ?? String(e) });
     }
     const result = { bundle };
     if (sd_jwt) {
@@ -4953,7 +4919,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   }, async ({ run_chain_result }) => {
     let bundle;
     try { bundle = await recordChainRunAsLinks(run_chain_result); }
-    catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
+    catch (err) { return toolErrorResult('tool.invalid_args.intoto_bundle', { requestId, text: String(err?.message ?? err) }); }
     return { content: [{ type: 'text', text: JSON.stringify(bundle, null, 2) }], structuredContent: bundle };
   });
 
@@ -5019,7 +4985,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         framing,
       });
     } catch (e) {
-      return { isError: true, content: [{ type: 'text', text: 'session_receipt: ' + (e?.message ?? String(e)) }] };
+      return toolErrorResult('tool.invalid_args.evidence_session_receipt', { requestId, vars: { detail: e?.message ?? String(e) } });
     }
 
     let ha_bundle;
@@ -5032,7 +4998,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
           verificationResult: verification_result, submissionReceipt: submission_receipt,
         });
       } catch (e) {
-        return { isError: true, content: [{ type: 'text', text: 'ha_bundle: ' + (e?.message ?? String(e)) }] };
+        return toolErrorResult('tool.invalid_args.evidence_ha_bundle', { requestId, vars: { detail: e?.message ?? String(e) } });
       }
       if (sd_jwt) {
         const kp = await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
@@ -5053,7 +5019,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       const { manifest } = await buildDisclosureManifestCore({ room_label, entries: disclosureEntries });
       disclosure_manifest = manifest;
     } catch (e) {
-      return { isError: true, content: [{ type: 'text', text: 'disclosure_manifest: ' + (e?.message ?? String(e)) }] };
+      return toolErrorResult('tool.invalid_args.evidence_disclosure_manifest', { requestId, vars: { detail: e?.message ?? String(e) } });
     }
 
     const out = {
@@ -5178,7 +5144,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
   }, async ({ trace }) => {
     let report;
     try { report = validateOtlpTrace(trace); }
-    catch (err) { return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] }; }
+    catch (err) { return toolErrorResult('tool.invalid_args.otlp_trace', { requestId, text: String(err?.message ?? err) }); }
     return { content: [{ type: 'text', text: JSON.stringify(report, null, 2) }], structuredContent: report };
   });
 
@@ -5223,7 +5189,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       const out = bridge ? { ...result, bridge } : result;
       return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
     } catch (err) {
-      return { isError: true, content: [{ type: 'text', text: String(err?.message ?? err) }] };
+      return toolErrorResult('tool.invalid_args.otlp_input', { requestId, text: String(err?.message ?? err) });
     }
   });
 
@@ -5254,7 +5220,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ original, revised, generated_at }) => {
     if (typeof original !== 'string' || typeof revised !== 'string') {
-      return { isError: true, content: [{ type: 'text', text: 'original and revised must both be strings.' }] };
+      return toolErrorResult('tool.invalid_args.redline_strings', { requestId });
     }
     const result = await runAgentDiff({ original, revised, generated_at: generated_at || new Date().toISOString() });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
@@ -5302,7 +5268,14 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   }, async ({ lei }) => {
     const result = await runLeiKybCheck({ lei });
-    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    if (result.isError) {
+      // A1: the retry answer is a property of the CAUSE — a GLEIF 404 is deterministic (false),
+      // a network/5xx lookup failure is upstream-unavailable (true), validation is false.
+      const name = result.notFound === true ? 'tool.unknown_name.gleif_record'
+        : result.notFound === false ? 'tool.upstream_unavailable'
+        : 'tool.invalid_args.lei_lookup';
+      return toolErrorResult(name, { requestId, text: result.error });
+    }
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
@@ -5323,7 +5296,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ credential }) => {
     const result = await runAcdcSaidCheck({ credential });
-    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    if (result.isError) return toolErrorResult('tool.invalid_args.acdc_credential', { requestId, text: result.error });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
@@ -5380,7 +5353,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     let wb;
     try { wb = buildWorkbookFromCells(cells); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.workbook', { requestId, text: msg });
     }
     if (as_artifact) return buildArtifactResult(wb, provenance);
     const values = {};
@@ -5413,13 +5386,13 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     let wb;
     try { wb = buildWorkbookFromCells(cells); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.workbook', { requestId, text: msg });
     }
     if (as_artifact) return buildArtifactResult(wb, provenance);
     let values_digest;
     try { values_digest = await wbRangeDigest(wb, range); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.workbook', { requestId, text: msg });
     }
     const result = { ref: range, values_digest, semantics: semantics ?? null };
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
@@ -5440,7 +5413,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     let wb;
     try { wb = csvToWorkbook(csv); } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.workbook', { requestId, text: msg });
     }
     if (as_artifact) return buildArtifactResult(wb, provenance);
     const cells = {};
@@ -5477,7 +5450,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       result = await verifyRoundtrip(manifest, observed_by_ref, { expectedByRef: expected_by_ref, producedBy: produced_by, producedAt: produced_at });
     } catch (e) {
       const msg = e instanceof WorkbookError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.workbook', { requestId, text: msg });
     }
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
@@ -5502,7 +5475,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     inputSchema: { xml: z.string().describe('pain.001.001.09 XML document text to validate.') },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ xml }) => {
-    if (typeof xml !== 'string') return { isError: true, content: [{ type: 'text', text: 'xml must be a string.' }] };
+    if (typeof xml !== 'string') return toolErrorResult('tool.invalid_args.xml_string', { requestId });
     const result = validatePain001(xml);
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
@@ -5518,12 +5491,12 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     inputSchema: { xml: z.string().describe('camt.053.001 XML statement document text to parse.') },
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ xml }) => {
-    if (typeof xml !== 'string') return { isError: true, content: [{ type: 'text', text: 'xml must be a string.' }] };
+    if (typeof xml !== 'string') return toolErrorResult('tool.invalid_args.xml_string', { requestId });
     let result;
     try { result = parseCamt053(xml); }
     catch (e) {
       const msg = e instanceof XmlParseError ? e.message : String(e?.message || e);
-      return { isError: true, content: [{ type: 'text', text: msg }] };
+      return toolErrorResult('tool.invalid_args.camt_xml', { requestId, text: msg });
     }
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
@@ -5548,10 +5521,10 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   }, async ({ statement_xml, expectations_csv, amount_tolerance, date_tolerance_days }) => {
     if (typeof statement_xml !== 'string' || typeof expectations_csv !== 'string') {
-      return { isError: true, content: [{ type: 'text', text: 'statement_xml and expectations_csv must both be strings.' }] };
+      return toolErrorResult('tool.invalid_args.recon_strings', { requestId });
     }
     const result = await reconMatch({ statement_xml, expectations_csv, amount_tolerance, date_tolerance_days });
-    if (result.isError) return { isError: true, content: [{ type: 'text', text: result.error }] };
+    if (result.isError) return toolErrorResult('tool.invalid_args.recon_inputs', { requestId, text: result.error });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
@@ -6050,17 +6023,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         const raw = (mrtr && mrtr.args && typeof mrtr.args === 'object' && !Array.isArray(mrtr.args)) ? mrtr.args : null;
         const rawKeys = raw ? Object.keys(raw).filter((k) => k !== '_meta') : [];
         if (rawKeys.length > 0 && !rawKeys.some((k) => DELEGATION_ARG_KEYS.includes(k))) {
-          return {
-            isError: true,
-            content: [{ type: 'text', text:
-              'Invalid arguments for ' + toolName + ': this tool takes its inputs NESTED under "policy_parameters", ' +
-              'and none of the key(s) you sent (' + rawKeys.join(', ') + ') is a recognised top-level argument — ' +
-              'they were discarded by schema validation, so nothing could be computed. ' +
-              'Retry as {"policy_parameters": {' + rawKeys.map((k) => JSON.stringify(k) + ': …').join(', ') + '}}. ' +
-              'The only top-level arguments are: ' + DELEGATION_ARG_KEYS.join(', ') + '. ' +
-              'Field names for policy_parameters are in this tool\'s manifest.',
-            }],
-          };
+          return toolErrorResult('tool.invalid_args.delegation_shape', { requestId, vars: { toolName, rawKeys, argKeys: DELEGATION_ARG_KEYS } });
         }
       }
       // --- Compute Binding (v0.4): server-side dispatch for gpu:false nodes ---
@@ -6129,10 +6092,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
               },
             };
           } catch (err) {
-            return {
-              isError: true,
-              content: [{ type: 'text', text: 'Kernel compute error: ' + String(err?.message ?? err) }],
-            };
+            return toolErrorResult('tool.compute_error', { requestId, text: 'Kernel compute error: ' + String(err?.message ?? err) });
           }
         }
       }
@@ -7409,32 +7369,34 @@ export default {
           // application-layer answer about the requested tool, not a transport fault, and the host
           // must be able to show the model the sentence and let it retry with a different name.
           if (toolName === CALL_TOOL_NAME) {
-            const refuse = (text) => {
-              const result = { resultType: 'complete', content: [{ type: 'text', text }], isError: true,
-                               _meta: { 'ainumbers/dispatched_via': CALL_TOOL_NAME } };
+            const refuse = (name, vars) => {
+              // Registry-built refusal (BUILD-SPEC §2 A2): the text is the errors.mjs message
+              // template, byte-identical to the pre-registry prose; structuredContent is additive.
+              const err = toolErrorResult(name, { requestId, ...(vars ? { vars } : {}) });
+              const result = { resultType: 'complete', ...err, _meta: { 'ainumbers/dispatched_via': CALL_TOOL_NAME } };
               const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
               return frameResponse(sse, request, corsHeaders);
             };
             const rawTarget = body?.params?.arguments?.name;
             if (typeof rawTarget !== 'string' || rawTarget === '') {
-              return refuse('call_tool needs { name: "<exact mcp_name>", arguments: { ... } } — "name" was missing or not a string; call find_tool(query) to get a name.');
+              return refuse('tool.invalid_args.call_tool_name');
             }
             // The target rides the SAME alias table a direct call does (MCP_NAME_ALIASES was
             // applied to params.name above), so an old name dispatches exactly as it calls.
             const target = MCP_NAME_ALIASES[rawTarget] ?? rawTarget;
             if (target === CALL_TOOL_NAME) {
-              return refuse('call_tool cannot target itself; pass the name of the tool you want to run.');
+              return refuse('tool.invalid_args.call_tool_self');
             }
             const allow = await getDispatchAllowlist(env);
             if (!known.has(target)) {
-              return refuse('Unknown tool name "' + rawTarget + '" — no such AINumbers tool; try find_tool(query) for ranked search.');
+              return refuse('tool.unknown_name.dispatch', { name: rawTarget });
             }
             if (!allow.has(target)) {
-              return refuse('"' + target + '" cannot be dispatched through call_tool because it is not read-only-and-closed-world; it needs host approval, so call it directly.');
+              return refuse('tool.not_dispatchable', { name: target });
             }
             const targetArgs = body?.params?.arguments?.arguments;
             if (targetArgs !== undefined && (targetArgs === null || typeof targetArgs !== 'object' || Array.isArray(targetArgs))) {
-              return refuse('call_tool "arguments" must be the target tool\'s arguments OBJECT (or omitted for a no-argument tool).');
+              return refuse('tool.invalid_args.call_tool_arguments');
             }
             // The rewrite. `params` is rebuilt rather than mutated in place so any sibling member a
             // future protocol revision adds (requestState, inputResponses, _meta) still rides along.
@@ -7507,8 +7469,9 @@ export default {
             // A Removed tool (§M2.2) is a DIFFERENT condition from a genuinely unknown name:
             // it keeps its own tool-result-shaped rejection (gate-deprecation-lifecycle.mjs
             // asserts result.isError + no thrown JSON-RPC error, HTTP 200, never a 500).
-            // Not this row's scope (MCP-728 T2 is the unknown-tool code, not lifecycle status).
-            const result = { resultType: 'complete', content: [{ type: 'text', text: 'MCP error: Tool ' + toolName + ' not found (Removed)' }], isError: true };
+            // Registry-built since MCP-TOOL-ERROR-REGISTRY-1 (stable name tool.removed); the
+            // text stays byte-identical and structuredContent is additive.
+            const result = { resultType: 'complete', ...toolErrorResult('tool.removed', { requestId, vars: { toolName } }) };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
             return frameResponse(sse, request, corsHeaders);
           } else {

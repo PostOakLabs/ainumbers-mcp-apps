@@ -28,6 +28,16 @@
 //   baseline-anchor     baseline entries are line-anchored: if the anchored line stops carrying
 //                       the recorded wire code, the baseline no longer describes reality → RED.
 //
+// BUILD-SPEC MCP-TOOL-ERROR-REGISTRY-1 §2 A4 adds the TOOL-LAYER census:
+//   tool-census         every literal `isError: true` tool result in worker.mjs must be built by
+//                       the ijsonErrorResult builder (the one resident TOOL_ERRORS constructor)
+//                       and is line-anchored in the baseline's `tool_sites` — a NEW prose error
+//                       site is RED until it routes through errors.mjs. Shrink-only, like the
+//                       protocol baseline.
+//   retryable           every PROTOCOL_ERRORS and TOOL_ERRORS entry must carry a boolean
+//                       `retryable` member (A1: the cause's retry answer lives in the registry);
+//                       protocolErrorBody / toolErrorResult / ijsonErrorResult must still emit it.
+//
 // Zero-dep and text-only over worker.mjs/server.mjs (SO #34 security rider, same as
 // gate-hash-ssot): the gate never evaluates the file it judges. It DOES import errors.mjs — the
 // registry is the SSOT being enforced, and importing it (never re-typing it) is the point.
@@ -78,6 +88,61 @@ const REGISTRY_CALL_RE = /\bprotocolError(?:Response|Body)\(\s*'([a-zA-Z0-9_.]+)
 const DATA_REASON_RE = /data:\s*\{[^\n}]*reason:\s*['"]([a-zA-Z0-9_.-]+)['"]/g;
 const TOOL_BLOBS_RE = /^.*blobs:\s*\[[^\n]*'ok' : 'error'[^\n]*$/gm;
 const INIT_BLOBS_RE = /^.*blobs:\s*\[[^\n]*'initialize'[^\n]*$/gm;
+const TOOL_ISERROR_RE = /\bisError:\s*true\b/g;             // matchAll form
+const TOOL_ISERROR_TEST_RE = /\bisError:\s*true\b/;         // .test form (global regexes carry lastIndex)
+const IJSON_RETRYABLE_RE = /retryable:\s*TOOL_ERRORS\['tool\.ijson_violation'\]\.retryable/;
+
+// Which character indexes of `src` sit inside a string literal ('…' / "…" / `…`)? The A4 census
+// must not red prose that merely MENTIONS isError:true (tool descriptions do — the description
+// text is pinned by other gates and this one must never force a reword). Template interpolation
+// (${…}) is conservatively masked too; no site in the tree constructs isError there.
+export function stringMask(src) {
+  const mask = new Uint8Array(src.length);
+  let quote = null;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (quote) {
+      mask[i] = 1;
+      if (ch === '\\') { if (i + 1 < src.length) mask[i + 1] = 1; i++; continue; }
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; mask[i] = 1; }
+  }
+  return mask;
+}
+
+// Quote-aware brace matcher: returns the index of the `}` closing the `{` at openIdx, or -1.
+// String literals (', ", `) are skipped so braces inside message templates cannot lie about depth.
+export function matchBraces(str, openIdx) {
+  let depth = 0, quote = null;
+  for (let j = openIdx; j < str.length; j++) {
+    const ch = str[j];
+    if (quote) {
+      if (ch === '\\') { j++; continue; }
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"' || ch === '`') { quote = ch; continue; }
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (depth === 0) return j; }
+  }
+  return -1;
+}
+
+// Quote-aware top-level entry scan over one registry object's source (the message templates hold
+// braces inside string literals, so naive depth counting would lie). Returns { name, src } pairs.
+export function scanRegistryEntries(body) {
+  const entries = [];
+  const entryRe = /'(protocol|tool)\.[a-zA-Z0-9_.]+':\s*\{/g;
+  let m;
+  while ((m = entryRe.exec(body))) {
+    const start = m.index + m[0].length - 1;
+    const end = matchBraces(body, start);
+    if (end > start) entries.push({ name: m[1], src: body.slice(start, end + 1) });
+  }
+  return entries;
+}
 
 // Audit the REGISTRY MODULE's own source (pure — the selftest feeds it mutants).
 export function auditErrorsModule(src) {
@@ -91,6 +156,41 @@ export function auditErrorsModule(src) {
     const body = i >= 0 ? src.slice(i) : '';
     if (!/request_id/.test(body)) {
       violations.push({ id: 'request_id-envelope-missing', why: `${REGISTRY_FILE}:protocolErrorBody must still emit the additive error.request_id member (spec §3)` });
+    }
+  }
+  // A1 additivity: protocolErrorBody must still emit the additive error.retryable member.
+  {
+    const i = src.indexOf('export function protocolErrorBody');
+    const body = i >= 0 ? src.slice(i) : '';
+    if (!/retryable/.test(body)) {
+      violations.push({ id: 'retryable-envelope-missing', why: `${REGISTRY_FILE}:protocolErrorBody must still emit the additive error.retryable member (BUILD-SPEC A1)` });
+    }
+  }
+  // A1 additivity: the tool builder must exist and emit BOTH retryable (A1) and data.reason (A2).
+  {
+    const i = src.indexOf('export function toolErrorResult');
+    const body = i >= 0 ? src.slice(i, src.indexOf('export function', i + 5)) : '';
+    if (!body || !/retryable/.test(body) || !/reason/.test(body)) {
+      violations.push({ id: 'tool-builder-retryable-missing', why: `${REGISTRY_FILE}:toolErrorResult must still emit the additive error.retryable and data.reason members (BUILD-SPEC §2 A1/A2)` });
+    }
+  }
+  // A1 registry sweep: EVERY entry in BOTH registries carries a boolean retryable. Scanned on
+  // comment-stripped source with a quote-aware entry scan (message templates contain braces).
+  {
+    const stripped = stripComments(src);
+    for (const exportName of ['PROTOCOL_ERRORS', 'TOOL_ERRORS']) {
+      const start = stripped.indexOf(`export const ${exportName} = {`);
+      if (start < 0) {
+        violations.push({ id: 'registry-retryable-missing', why: `${REGISTRY_FILE} no longer exports ${exportName} — the registry cannot be audited` });
+        continue;
+      }
+      const open = stripped.indexOf('{', start);
+      const end = matchBraces(stripped, open);
+      for (const { name, src: entrySrc } of scanRegistryEntries(stripped.slice(open, end + 1))) {
+        if (!/retryable:\s*(true|false)\b/.test(entrySrc)) {
+          violations.push({ id: 'registry-retryable-missing', why: `${REGISTRY_FILE} ${exportName}['${name}'] has no boolean retryable member (BUILD-SPEC A1: the cause's retry answer is part of the registry)` });
+        }
+      }
     }
   }
   // Frozen codes must still be minted by the registry at all.
@@ -114,10 +214,12 @@ export function auditErrorsModule(src) {
 
 // The whole rule set over the scanned tree, as one pure function — the selftest mutation-tests
 // EXACTLY this (SO #34), never a re-typed imitation.
-// sources: { 'worker.mjs': src, 'server.mjs': src }; baseline: parsed error-registry.baseline.json.
-export function auditSource(sources, { baseline = [] } = {}) {
+// sources: { 'worker.mjs': src, 'server.mjs': src }; baseline: parsed error-registry.baseline.json
+// `.sites`; toolBaseline: its `.tool_sites` (the worker's literal isError tool results, shrink-only).
+export function auditSource(sources, { baseline = [], toolBaseline = [] } = {}) {
   const violations = [];
   const baselineKeys = new Set(baseline.map((b) => `${b.file}:${b.line}:${b.code}`));
+  const toolBaselineKeys = new Set(toolBaseline.map((b) => `${b.file}:${b.line}`));
 
   for (const [file, raw] of Object.entries(sources)) {
     const code = stripComments(raw);
@@ -201,6 +303,26 @@ export function auditSource(sources, { baseline = [] } = {}) {
       if (!/request_id:\s*requestId/.test(code)) {
         violations.push({ file, line: lineOf(code, Math.max(0, code.indexOf('function ijsonErrorResult'))), id: 'request_id-envelope-missing', why: 'worker.mjs ijsonErrorResult must add the additive structuredContent.error.request_id member (spec §3)' });
       }
+      // A1 additivity: the same builder must surface the registry's retryable member into
+      // structuredContent (additively — content[].text stays byte-identical).
+      if (!IJSON_RETRYABLE_RE.test(code)) {
+        violations.push({ file, line: lineOf(code, Math.max(0, code.indexOf('function ijsonErrorResult'))), id: 'retryable-envelope-missing', why: "worker.mjs ijsonErrorResult must add the additive structuredContent.error.retryable member from TOOL_ERRORS['tool.ijson_violation'] (BUILD-SPEC A1)" });
+      }
+      // A4 tool-layer census: every literal isError:true tool result must be tool-baseline-listed
+      // (today: exactly the resident ijsonErrorResult builder). A NEW prose error site is RED
+      // until it routes through toolErrorResult()/toolDomainErrorResult(). String-literal
+      // mentions (tool descriptions) are prose, not sites — masked out.
+      const smask = stringMask(code);
+      for (const m of code.matchAll(TOOL_ISERROR_RE)) {
+        if (smask[m.index]) continue;
+        const line = lineOf(code, m.index);
+        if (!toolBaselineKeys.has(`${file}:${line}`)) {
+          violations.push({
+            file, line, id: 'unregistered-tool-error',
+            why: 'literal isError:true tool result is neither a registered tool-layer builder nor listed in the tool-layer baseline (BUILD-SPEC §2 A4) — route it through errors.mjs toolErrorResult()/toolDomainErrorResult()',
+          });
+        }
+      }
     }
   }
 
@@ -214,6 +336,17 @@ export function auditSource(sources, { baseline = [] } = {}) {
     const lineText = (src.split('\n')[b.line - 1] ?? '');
     if (!new RegExp(`code:\\s*${b.code}\\b`).test(lineText)) {
       violations.push({ file: b.file, line: b.line, id: 'stale-baseline-anchor', why: `baseline says ${b.file}:${b.line} carries code ${b.code}, but the line no longer matches — the site moved or changed, so re-baseline honestly (shrink-only, never grow)` });
+    }
+  }
+  for (const b of toolBaseline) {
+    const src = sources[b.file];
+    if (src === undefined) {
+      violations.push({ file: b.file, line: b.line, id: 'stale-tool-baseline-anchor', why: `tool baseline references ${b.file} which the gate does not scan` });
+      continue;
+    }
+    const lineText = (stripComments(src).split('\n')[b.line - 1] ?? '');
+    if (!TOOL_ISERROR_TEST_RE.test(lineText)) {
+      violations.push({ file: b.file, line: b.line, id: 'stale-tool-baseline-anchor', why: `tool baseline says ${b.file}:${b.line} carries an isError:true tool result, but the line no longer matches — the builder moved or changed, so re-baseline honestly (shrink-only, never grow)` });
     }
   }
 
@@ -231,13 +364,15 @@ async function loadRegistryNames() {
 
 async function main() {
   await loadRegistryNames();
-  const baseline = JSON.parse(readFileSync(BASELINE_FILE, 'utf8')).sites;
+  const baselineDoc = JSON.parse(readFileSync(BASELINE_FILE, 'utf8'));
+  const baseline = baselineDoc.sites;
+  const toolBaseline = baselineDoc.tool_sites ?? [];
   const sources = Object.fromEntries(TARGETS.map((f) => [f, readFileSync(resolve(ROOT, f), 'utf8')]));
   const errorsSrc = readFileSync(resolve(ROOT, REGISTRY_FILE), 'utf8');
 
   const violations = [
     ...auditErrorsModule(errorsSrc),
-    ...auditSource(sources, { baseline }),
+    ...auditSource(sources, { baseline, toolBaseline }),
   ];
 
   // Code-level cross-check: the SOURCE of errors.mjs says the frozen codes; the MODULE must agree
@@ -253,6 +388,15 @@ async function main() {
   if (!ijson || ijson.code !== -32602 || ijson.reason !== 'ijson_violation') {
     violations.push({ file: REGISTRY_FILE, line: 0, id: 'registry-code-drift', why: "TOOL_ERRORS['tool.ijson_violation'] must stay code -32602 + reason 'ijson_violation' (gate-hash-ijson asserts both)" });
   }
+  // Module-level A1 cross-check (guards a retryable member lost from the parsed module while its
+  // source survived in a comment the strip missed).
+  for (const [regName, reg] of [['PROTOCOL_ERRORS', mod.PROTOCOL_ERRORS], ['TOOL_ERRORS', mod.TOOL_ERRORS]]) {
+    for (const [name, entry] of Object.entries(reg ?? {})) {
+      if (typeof entry?.retryable !== 'boolean') {
+        violations.push({ file: REGISTRY_FILE, line: 0, id: 'registry-retryable-drift', why: `${regName}['${name}'].retryable must be a boolean (BUILD-SPEC A1)` });
+      }
+    }
+  }
 
   if (violations.length) {
     console.error(`✗ gate-error-registry: ${violations.length} violation(s) — the error registry is not the single construction site:`);
@@ -266,7 +410,7 @@ async function main() {
     console.error('  The baseline shrinks as sites migrate; it never grows.');
     process.exit(1);
   }
-  console.log(`✅ gate-error-registry: worker.mjs + server.mjs hold no unregistered JSON-RPC error construction; frozen codes (-32029/-32001/-32020) mint only in errors.mjs; request_id envelope present in protocolErrorBody, ijsonErrorResult and the tool Analytics datum; ${baseline.length} baseline anchor(s) verified.`);
+  console.log(`✅ gate-error-registry: worker.mjs + server.mjs hold no unregistered JSON-RPC error construction; frozen codes (-32029/-32001/-32020) mint only in errors.mjs; request_id + retryable envelopes present in protocolErrorBody, ijsonErrorResult, toolErrorResult and the tool Analytics datum; every registry entry carries boolean retryable; ${toolBaseline.length} tool-layer anchor(s) + ${baseline.length} baseline anchor(s) verified.`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
