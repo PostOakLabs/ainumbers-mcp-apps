@@ -17465,7 +17465,10 @@
         "type": "string"
       },
       "fedwire_chips_deadline": {
-        "type": "string"
+        "type": [
+          "string",
+          "null"
+        ]
       },
       "pii_note": {
         "type": "string"
@@ -17510,6 +17513,9 @@
         "type": "string"
       },
       "table_version": {
+        "type": "string"
+      },
+      "fedwire_chips_deadline_status": {
         "type": "string"
       }
     }
