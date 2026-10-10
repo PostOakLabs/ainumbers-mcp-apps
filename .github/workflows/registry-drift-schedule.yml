@@ -13,6 +13,15 @@ name: Registry Drift (scheduled)
 # bump -> commit -> push -> (Tim publishes by hand later) flow is legitimately "ahead"
 # for a while and must not cry wolf on every version-bump PR. --check-drift is the
 # strict mode, used only here, on a schedule, independent of any push.
+#
+# REGISTRY-PUBLISH-AUTO-1 (2026-10-10): publishing is now automated — a push to
+# master that touches server.json triggers publish-registry.yml, which logs in
+# with the dedicated registry-only key (DNS auth, ainumbers.co TXT challenge)
+# and publishes. This job is the tripwire for whatever still slips past it.
+# Also: an UNREACHABLE registry API (network error, timeout, 5xx) is not drift —
+# scripts/sync-registry.mjs prints REGISTRY_UNREACHABLE and exits 0 under
+# --check-drift, so a registry outage cannot red this gate. Real drift (a
+# successful comparison showing local ahead) still fails and raises below.
 
 on:
   schedule:
@@ -72,7 +81,7 @@ jobs:
 
           This means a version bump was committed and pushed but never published — the registry (our only free discovery channel) is advertising a stale version/tool count.
 
-          **Fix:** run \`.\\mcp-publisher.exe publish\` (needs the gitignored \`key.pem\`; Tim's act).
+          **Fix:** publishing is automated — \`.github/workflows/publish-registry.yml\` publishes on every push that touches \`server.json\` (REGISTRY-PUBLISH-AUTO-1). If this drift reached a scheduled cycle anyway, that automation failed: check its Actions runs, then re-run it via \`workflow_dispatch\`. The manual \`.\\mcp-publisher.exe publish\` route is a FALLBACK ONLY and uses the dedicated registry-only key from the \`mcp-registry\` environment — never the estate's §16 signing key. See \`docs/registry-publish.md\` (custody + rotation).
 
           Failing run: \$RUN_URL"
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then

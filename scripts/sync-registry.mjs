@@ -17,6 +17,10 @@
  *                                                  # fails on drift: the normal bump→commit→push→publish
  *                                                  # flow is legitimately "ahead" for a while and must
  *                                                  # not cry wolf on every version-bump PR.
+ *                                                  # REGISTRY-PUBLISH-AUTO-1: if the registry API itself
+ *                                                  # is unreachable (network error, timeout, 5xx), prints
+ *                                                  # REGISTRY_UNREACHABLE and exits 0 — that is not drift.
+ *                                                  # Real drift still exits 1.
  *
  * Run this immediately before:  .\mcp-publisher.exe publish
  *
@@ -118,7 +122,10 @@ function cmpSemver(a, b) {
 
 let driftIsAhead = false;
 try {
-  const res = await fetch('https://registry.modelcontextprotocol.io/v0/servers?search=ainumbers');
+  // REGISTRY-PUBLISH-AUTO-1: bound the request so a hang reads as
+  // "unreachable" (report-not-fail under --check-drift) instead of
+  // dangling a scheduled job forever.
+  const res = await fetch('https://registry.modelcontextprotocol.io/v0/servers?search=ainumbers', { signal: AbortSignal.timeout(60_000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const body = await res.json();
   const live = (body.servers || [])
@@ -144,7 +151,23 @@ try {
     }
   }
 } catch (err) {
-  console.log(`⚠️   live registry   : unreachable (${err.message}) — skipped, not a build failure`);
+  // REGISTRY-PUBLISH-AUTO-1 (2026-10-10): a network error, timeout, or 5xx from
+  // the registry API is NOT drift — nothing was compared, so it must not fail
+  // the scheduled gate or the post-publish check. Under --check-drift print
+  // REGISTRY_UNREACHABLE and exit 0 (report-not-fail); plain runs keep the old
+  // "skipped, not a build failure" line. REAL drift (a successful comparison
+  // showing local ahead) still exits 1 below.
+  const status = Number((err?.message || '').match(/^HTTP (\d+)$/)?.[1] || 0);
+  const unreachable = !(status >= 100 && status < 500); // network/timeout (status 0) or 5xx
+  if (unreachable) {
+    if (checkDrift) {
+      console.log(`REGISTRY_UNREACHABLE: registry API not comparable (${err.message}) — report-not-fail, exiting 0.`);
+      process.exit(0);
+    }
+    console.log(`⚠️   live registry   : unreachable (${err.message}) — skipped, not a build failure`);
+  } else {
+    console.log(`⚠️   live registry   : HTTP ${status} from the registry API — skipped, not a build failure`);
+  }
 }
 
 if (checkDrift && driftIsAhead) {
