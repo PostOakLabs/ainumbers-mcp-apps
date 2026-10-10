@@ -19,7 +19,7 @@ https://mcp.ainumbers.co/mcp
 npx @modelcontextprotocol/inspector   # then Streamable HTTP -> the URL above
 ```
 
-No auth, no API key, no account. Production runs on Cloudflare Workers (`/healthz` reports `runtime: cloudflare-workers`), so there are no cold starts. Cursor and other Open Plugins directories pick this repo up automatically via the root `.mcp.json`, which declares the same endpoint.
+No auth, no API key, no account. Production runs on Cloudflare Workers (`GET /health` reports status and version), so there are no cold starts. Cursor and other Open Plugins directories pick this repo up automatically via the root `.mcp.json`, which declares the same endpoint.
 
 **Live endpoint:** `https://mcp.ainumbers.co/mcp` (streamable HTTP) · **Docs:** [ainumbers.co/mcp.html](https://ainumbers.co/mcp.html) · **Registry:** [`co.ainumbers/tools`](https://registry.modelcontextprotocol.io/v0.1/servers?search=co.ainumbers) on the Official MCP Registry
 
