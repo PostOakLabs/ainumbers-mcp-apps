@@ -1,0 +1,139 @@
+name: MCP Registry Publish
+
+# REGISTRY-PUBLISH-AUTO-1 (2026-10-10): automated publish of `co.ainumbers/tools`
+# to the official MCP Registry. The listing uses a custom-domain namespace
+# (co.ainumbers), so GitHub OIDC cannot authenticate it — DNS-based auth with a
+# DEDICATED registry-only Ed25519 key does (domain challenge via a TXT record on
+# ainumbers.co). This replaces the manual `mcp-publisher.exe publish` step that
+# made the Registry Drift job (registry-drift-schedule.yml) go red after every
+# server.json bump: now a bump merged to master publishes itself.
+#
+# KEY LAW (Tim, 2026-10-01): only the DEDICATED registry key lives here, in the
+# `MCP_PRIVATE_KEY` secret of the `mcp-registry` environment. The estate's
+# single signing key NEVER touches CI and is never referenced by this workflow.
+# See docs/registry-publish.md for custody + rotation.
+#
+# Triggers: a push to master that changes server.json (the publishable artifact),
+# plus workflow_dispatch for the dry-run self-test and the first Tim-triggered
+# publish (RULINGS 204). No pull_request trigger — publishing is a
+# default-branch-only act and the mcp-registry environment is master-only.
+
+on:
+  push:
+    branches: [master]
+    paths: ['server.json']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Self-test: schema validation + registry validate only (no login, no publish)'
+        type: boolean
+        default: false
+      negative_test:
+        description: 'Negative test: DNS login with a throwaway WRONG key must FAIL (proves TXT gating)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: mcp-registry-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # mcp-publisher is pinned to an exact release and verified by sha256 before
+  # use — never `latest`. To upgrade: bump both lines together, taking the
+  # mcp-publisher_linux_amd64.tar.gz line from registry_<ver>_checksums.txt.
+  PUB_VERSION: 'v1.8.1'
+  PUB_SHA256: 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc'
+
+jobs:
+  publish:
+    name: Publish co.ainumbers/tools
+    runs-on: ubuntu-latest
+    environment: mcp-registry
+    permissions:
+      contents: read
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: 📦 Fetch mcp-publisher (${{ env.PUB_VERSION }}, sha256-verified)
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${PUB_VERSION}/mcp-publisher_linux_amd64.tar.gz" -o publisher.tar.gz
+          echo "${PUB_SHA256}  publisher.tar.gz" | sha256sum --check --strict -
+          mkdir -p ./publisher && tar -xzf publisher.tar.gz -C ./publisher mcp-publisher
+          ./publisher/mcp-publisher --version 2>/dev/null || echo "mcp-publisher ${PUB_VERSION} unpacked"
+
+      - name: 🧪 Schema-validate server.json
+        # Validates against the exact schema version server.json declares in
+        # $schema (draft 2020-12). A structurally invalid server.json aborts the
+        # job before any login.
+        run: |
+          SCHEMA_URL=$(node -e "const j=require('./server.json'); if(!j['\$schema']) process.exit(1); process.stdout.write(j['\$schema'])")
+          echo "schema: $SCHEMA_URL"
+          curl -fsSL "$SCHEMA_URL" -o /tmp/server.schema.json
+          npx -y ajv-cli@5.0.0 validate --spec=draft2020 -s /tmp/server.schema.json -d server.json
+
+      - name: 🧪 Pre-flight validate against the registry (dry-run; aborts before login)
+        # mcp-publisher v1.8.1 has no `publish --dry-run` flag; `validate` is the
+        # documented no-publish path: it checks server.json against the LIVE
+        # registry's validation rules without writing anything. A failure here
+        # aborts the job before login.
+        run: ./publisher/mcp-publisher validate server.json
+
+      - name: 🚫 Negative test — wrong throwaway key must FAIL DNS login
+        # Proves the domain TXT record actually gates publishing, i.e. that the
+        # DNS challenge is not a permissive path. The throwaway key is generated
+        # IN-JOB (random 32-byte seed, valid format, wrong key) and never stored
+        # or printed. If this step goes green, publishing is NOT gated and the
+        # run must fail loudly.
+        if: ${{ inputs.negative_test }}
+        run: |
+          WRONG_KEY=$(openssl rand -hex 32)
+          if ./publisher/mcp-publisher login dns --domain ainumbers.co --private-key "$WRONG_KEY"; then
+            echo "::error::NEGATIVE TEST FAILED: DNS login with a wrong throwaway key SUCCEEDED — the ainumbers.co TXT record is not gating publishing."
+            exit 1
+          fi
+          echo "✅ negative test passed: wrong key rejected by the DNS challenge"
+
+      - name: 🔑 DNS login (dedicated registry key, ainumbers.co TXT challenge)
+        # MCP_PRIVATE_KEY = the registry-only Ed25519 private seed (64 hex chars)
+        # held in the mcp-registry environment secret. NEVER the estate key.
+        if: ${{ !inputs.dry_run }}
+        env:
+          MCP_PRIVATE_KEY: ${{ secrets.MCP_PRIVATE_KEY }}
+        run: ./publisher/mcp-publisher login dns --domain ainumbers.co --private-key "$MCP_PRIVATE_KEY"
+
+      - name: 🚀 Publish
+        if: ${{ !inputs.dry_run }}
+        run: ./publisher/mcp-publisher publish server.json
+
+      - name: ✅ Post-check: registry now serves what we just published
+        # The registry's isLatest view can lag a few seconds behind a publish,
+        # so poll --check-drift with a bounded retry before declaring a red.
+        # Unreachable registry prints REGISTRY_UNREACHABLE and exits 0 (see
+        # scripts/sync-registry.mjs) — no new red class. Real drift (the
+        # registry definitively serving an older isLatest after all retries)
+        # still fails the job.
+        if: ${{ !inputs.dry_run }}
+        run: |
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            if node scripts/sync-registry.mjs --check-drift; then ok=1; break; fi
+            echo "attempt $attempt: registry has not caught up yet; retrying in 20s..."
+            sleep 20
+          done
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::Post-publish --check-drift stayed red after 6 attempts (2 min)."
+            exit 1
+          fi
+          echo "✅ registry isLatest now matches server.json"
