@@ -7466,6 +7466,25 @@
       "pro_rata_enabled": true
     }
   },
+  "paycheck-take-home-check": {
+    "art-338-compute-federal-withholding": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 2000,
+      "pay_frequency": "biweekly",
+      "filing_status": "single_or_mfs"
+    },
+    "art-339-compute-gross-to-net": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 5000,
+      "federal_withholding_per_period": 0,
+      "pretax_reduces_fica_and_fit": 0,
+      "post_tax_other_deductions": 0,
+      "ytd_fica_wages_before_period": 180000
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "pe-waterfall-true-up-pack": {
     "art-567-pe-waterfall-lp-recompute": {
       "fund_id": "FUND-A",
