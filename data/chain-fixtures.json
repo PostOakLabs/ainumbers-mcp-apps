@@ -7091,6 +7091,20 @@
       "serviced_escrows_within_carve_outs": false
     }
   },
+  "mortgage-pi-verifier": {
+    "art-327-tvm-annuity": {
+      "rate_pct": 0.6666666666666667,
+      "nper": 24,
+      "pmt": -100,
+      "fv": 0,
+      "solve_for": "pv",
+      "pv": 0,
+      "due": false
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "mra-consent-order-closure-cycle": {
     "art-533-mra-remediation-closure-register": {
       "register_id": "DEMO-MRA-2026Q2",
