@@ -43215,6 +43215,96 @@
       }
     }
   },
+  "authorize_payment_against_mandate": {
+    "type": "object",
+    "properties": {
+      "authorization": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "authorization_id": {
+        "type": "string"
+      },
+      "decision": {
+        "type": "string",
+        "enum": [
+          "authorize",
+          "commit_ok",
+          "reject"
+        ]
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "mode": {
+        "type": "string",
+        "enum": [
+          "authorize",
+          "verify_commit"
+        ]
+      },
+      "primary_reason": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "remaining_budget_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "decision",
+      "domain_errors",
+      "mode",
+      "reasons"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
   "estimate_ai_token_spend": {
     "type": "object",
     "description": "output_payload: as_of, snapshot_verified_on, snapshot_age_days, results[]{provider, model, tier, monthly_micros, per_request_micros, components{input, cached_input, cache_write, output}, price_entry_source_sha256}, ranking[model...], cheapest, refusals[]{provider, model, code, text}, refusal_reason, domain_errors[], scope_note."

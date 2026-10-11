@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 722,
+  "tool_count": 723,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -64,6 +64,7 @@
     "audit_agent_key_rotation",
     "audit_mcp_oauth",
     "audit_mcp_tool_scope_revocation",
+    "authorize_payment_against_mandate",
     "baas_provider_comparator",
     "benchmark_tp_interquartile_range",
     "bind_agreement_acceptance",
