@@ -2152,6 +2152,42 @@
       ]
     }
   },
+  "auto-loan-disclosure-verifier": {
+    "art-332-build-amortization-schedule": {
+      "schedule_type": "level_payment",
+      "loan_amount": 6000,
+      "note_rate_pct": 12,
+      "num_payments": 24,
+      "periods_per_year": 12
+    },
+    "art-404-check-retail-installment-disclosures": {
+      "inputs": {
+        "cash_price": 21500,
+        "downpayment": 1500,
+        "other_amounts_financed": 0,
+        "prepaid_finance_charge": 0,
+        "amortization_schedule": {
+          "totals": {
+            "total_interest": 3479.43,
+            "total_principal": 20000,
+            "num_payments": 60,
+            "ending_balance": 0
+          },
+          "schedule_digest": "sha256:cd726c8717cdc5b1dde830101a5a7fb29f10840048b8cb85d5d834837c493f3d",
+          "source_tool_id": "art-332-build-amortization-schedule"
+        },
+        "disclosed_amount_financed": 20000,
+        "disclosed_finance_charge": 3479.43,
+        "disclosed_total_of_payments": 23479.43,
+        "tolerance_cents": 500,
+        "dealer_participation": {
+          "markup_pct": 1.5,
+          "dealer_reserve_disclosed": true,
+          "declaration_note": "Dealer participation disclosed per contract Sec 4."
+        }
+      }
+    }
+  },
   "avax-evergreen-l1-onboarding": {
     "art-495-avax-permissioning-control-classifier": {
       "precompiles": {

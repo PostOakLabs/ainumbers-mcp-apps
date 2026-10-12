@@ -4912,6 +4912,14 @@
       "sha256": "25f593d0187172132290dd9dc15ccf30e02a1a3cde58bbdee65795dd8ed4be30"
     },
     {
+      "tool_id": "art-705-bond-ladder-builder",
+      "mcp_name": "build_bond_ladder",
+      "display_name": "Bond Ladder Builder",
+      "uri": "ui://ainumbers/node/art-705-bond-ladder-builder",
+      "bytes": 82883,
+      "sha256": "bcece8354097036bf363826aea21c0a4ed8aaa56a2ad20fd23358be29d4bc419"
+    },
+    {
       "tool_id": "art-711-sco60-crypto-asset-exposure-classifier-v2",
       "mcp_name": "classify_sco60_exposure_v2",
       "display_name": "SCO60 Group 2 Exposure Limit V2",
