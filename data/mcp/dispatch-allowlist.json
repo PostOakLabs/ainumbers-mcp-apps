@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 723,
+  "tool_count": 726,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -82,6 +82,7 @@
     "build_amortization_schedule",
     "build_ap2_cartmandate_hashchain",
     "build_art5_diligence_evidence",
+    "build_bond_ladder",
     "build_cbcr_report",
     "build_chaingraph",
     "build_claim_dispute_bundle",
@@ -112,6 +113,7 @@
     "build_validator_change_control_receipt",
     "build_vop_session_receipt",
     "build_workflow_links",
+    "build_yield_curve_gspread",
     "calculate_basis_risk_nii_shock",
     "calculate_cbam_embedded_emissions",
     "calculate_cecl_ecl_allowance",
@@ -186,6 +188,7 @@
     "check_sod_matrix",
     "check_ssi_conformance",
     "check_tokenized_collateral_eligibility",
+    "check_tsv_tier_cap_ladder",
     "check_webbotauth_nonce_replay",
     "check_x402_domain_nonce_window",
     "checklist_validate_definition",
