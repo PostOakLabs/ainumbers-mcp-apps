@@ -43309,6 +43309,263 @@
     "type": "object",
     "description": "output_payload: as_of, snapshot_verified_on, snapshot_age_days, results[]{provider, model, tier, monthly_micros, per_request_micros, components{input, cached_input, cache_write, output}, price_entry_source_sha256}, ranking[model...], cheapest, refusals[]{provider, model, code, text}, refusal_reason, domain_errors[], scope_note."
   },
+  "build_bond_ladder": {
+    "type": "object",
+    "properties": {
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REINVESTMENT_ASSUMPTION_INVALID",
+                "WEIGHTS_SUM_NOT_ONE"
+              ]
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "error": {
+        "type": "string",
+        "enum": [
+          "reinvestment_assumption_invalid",
+          "weights_sum_not_one"
+        ]
+      },
+      "ladder": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "notional": {
+        "type": "number"
+      },
+      "num_rungs": {
+        "type": "number"
+      },
+      "periods_per_year": {
+        "type": "number"
+      },
+      "portfolio": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "regulatory_basis": {
+        "type": "string"
+      },
+      "reinvestment_assumption": {
+        "type": "string",
+        "enum": [
+          "hold_to_maturity",
+          "roll_to_longest_rung"
+        ]
+      }
+    },
+    "required": [
+      "assumptions",
+      "ladder",
+      "portfolio"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
+  "build_yield_curve_gspread": {
+    "type": "object",
+    "properties": {
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "benchmark_yield_at_maturity_pct": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "curve": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "BENCHMARK_POINTS_TOO_FEW",
+                "MATURITY_OUTSIDE_CURVE_RANGE",
+                "TENORS_NOT_STRICTLY_INCREASING"
+              ]
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "error": {
+        "type": "string",
+        "enum": [
+          "benchmark_points_too_few",
+          "maturity_outside_curve_range",
+          "tenors_not_strictly_increasing"
+        ]
+      },
+      "g_spread_bp": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "regulatory_basis": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "assumptions",
+      "benchmark_yield_at_maturity_pct",
+      "curve",
+      "g_spread_bp"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
+  "check_tsv_tier_cap_ladder": {
+    "type": "object",
+    "properties": {
+      "affiliated_tsv_ids": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "as_of_date": {
+        "type": "string"
+      },
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "STOCK_TIER_INVALID",
+                "VOLUME_ENTRY_DUPLICATED",
+                "VOLUME_TSV_UNKNOWN"
+              ]
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "error": {
+        "type": "string",
+        "enum": [
+          "stock_tier_invalid",
+          "volume_entry_duplicated",
+          "volume_tsv_unknown"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "obligations": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "per_stock": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "status_as_of": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "symbol_count": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "tsv_id": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "assumptions",
+      "obligations",
+      "per_stock",
+      "status_as_of",
+      "symbol_count"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
   "classify_sco60_exposure_v2": {
     "type": "object",
     "description": "output_payload: group2_exposure_amount, bank_tier1_capital, group2_exposure_pct_tier1, one_pct_tier1_amount, two_pct_tier1_amount, group2_threshold_crossed, group2_limit_breached, group2b_excess_amount, group2b_treatment (none | excess_only | whole_book), risk_weight_applied_pct (1250 or null), base_risk_weight_pct (1250), pillar3_precheck_pass, per_asset[]{cryptoasset, holding_type, long_exposure, short_exposure, counted_exposure}, gaps[], warnings[], domain_errors[], refusal_reason, scope_note."
