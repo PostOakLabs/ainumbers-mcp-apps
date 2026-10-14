@@ -615,6 +615,91 @@
       }
     }
   },
+  "servicing_compliance_clock": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "obligations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "type": "string"
+            },
+            "cited_paragraph": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "calendar": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "trigger_date": {
+              "type": "string"
+            },
+            "due_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "action_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "state": {
+              "type": "string"
+            },
+            "state_reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "obligation_owed": {
+              "type": "boolean"
+            },
+            "window_start_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "window_variant": {
+              "type": "string"
+            },
+            "days_allowed": {
+              "type": "integer"
+            },
+            "days_before_sale": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "earliest_lawful_first_notice_date": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
