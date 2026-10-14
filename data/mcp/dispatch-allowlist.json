@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 726,
+  "tool_count": 730,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -188,7 +188,9 @@
     "check_sod_matrix",
     "check_ssi_conformance",
     "check_tokenized_collateral_eligibility",
+    "check_tsv_stoppage_concurrency",
     "check_tsv_tier_cap_ladder",
+    "check_v4_hook_fee_conformance",
     "check_webbotauth_nonce_replay",
     "check_x402_domain_nonce_window",
     "checklist_validate_definition",
@@ -514,6 +516,8 @@
     "reconcile_mpp_subscription",
     "reconcile_report_to_general_ledger",
     "reconcile_sii_ifrs17",
+    "reconcile_token2022_transfer_fee",
+    "reconcile_v4_hook_permissions",
     "reconcile_x402_batch_settlement",
     "record_fund_positions",
     "record_index_constituents",
