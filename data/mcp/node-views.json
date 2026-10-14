@@ -16,6 +16,14 @@
       "sha256": "5c64a8bd8bb69f3ac0baa9783071621e3ac0a82e98cf206791a947c4d7325b19"
     },
     {
+      "tool_id": "733-servicing-compliance-clock",
+      "mcp_name": "servicing_compliance_clock",
+      "display_name": "Servicing Compliance Clock",
+      "uri": "ui://ainumbers/node/733-servicing-compliance-clock",
+      "bytes": 105307,
+      "sha256": "dd42388985efae5d150b4449cf46588a23378f5316c902b29ff9ae6bd806755a"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
