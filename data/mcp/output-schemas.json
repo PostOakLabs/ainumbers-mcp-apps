@@ -544,6 +544,77 @@
     ],
     "additionalProperties": false
   },
+  "audit_borrower_escrow_stmt": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "account_status": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "periods_analyzed": {
+        "type": "integer"
+      },
+      "recomputed_balances": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "recomputed_low_point": {
+        "type": "number"
+      },
+      "target_low_point": {
+        "type": "number"
+      },
+      "total_annual_disbursements": {
+        "type": "number"
+      },
+      "cushion_cap_amount": {
+        "type": "number"
+      },
+      "stated_cushion": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "cushion_within_cap": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "shortage_amount": {
+        "type": "number"
+      },
+      "surplus_amount": {
+        "type": "number"
+      },
+      "shortage_spread_required": {
+        "type": "boolean"
+      },
+      "surplus_refund_required": {
+        "type": "boolean"
+      },
+      "surplus_refund_unverified": {
+        "type": "boolean"
+      },
+      "discrepancies": {
+        "type": "object"
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
