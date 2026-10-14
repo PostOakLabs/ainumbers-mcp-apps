@@ -44023,6 +44023,261 @@
     ],
     "additionalProperties": false
   },
+  "check_tsv_stoppage_concurrency": {
+    "type": "object",
+    "properties": {
+      "assumptions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "concurrency_tolerance_ms": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "counts": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "halt_records": {
+            "type": "number"
+          },
+          "participant_notices": {
+            "type": "number"
+          },
+          "stoppages": {
+            "type": "number"
+          },
+          "stoppages_without_notice": {
+            "type": "number"
+          },
+          "trades": {
+            "type": "number"
+          },
+          "trades_during_stoppages": {
+            "type": "number"
+          },
+          "trades_flagged": {
+            "type": "number"
+          },
+          "uncovered_stoppages": {
+            "type": "number"
+          },
+          "violations": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "halt_records",
+          "participant_notices",
+          "stoppages",
+          "stoppages_without_notice",
+          "trades",
+          "trades_during_stoppages",
+          "trades_flagged",
+          "uncovered_stoppages",
+          "violations"
+        ],
+        "additionalProperties": false
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "HALT_RECORD_ENTRY_INVALID",
+                "HALT_RECORDS_INVALID",
+                "NOTICE_ENTRY_INVALID",
+                "NOTICES_INVALID",
+                "STOPPAGE_ENTRY_INVALID",
+                "STOPPAGES_INVALID",
+                "TRADE_ENTRY_INVALID",
+                "TRADE_ID_DUPLICATE",
+                "TRADES_INVALID",
+                "TOLERANCE_INVALID"
+              ],
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "error": {
+        "type": "string",
+        "enum": [
+          "halt_record_entry_invalid",
+          "halt_records_invalid",
+          "notice_entry_invalid",
+          "notices_invalid",
+          "stoppage_entry_invalid",
+          "stoppages_invalid",
+          "tolerance_invalid",
+          "trade_entry_invalid",
+          "trade_id_duplicate",
+          "trades_invalid"
+        ]
+      },
+      "per_stoppage": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "covered": {
+              "type": "boolean",
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "covering_halt_record": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "end_ts": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "start_ts": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "end_ts",
+                "start_ts"
+              ],
+              "additionalProperties": false
+            },
+            "end_ts": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "halt",
+                "mwcb",
+                "suspension"
+              ]
+            },
+            "notice_latency_ms": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "start_ts": {
+              "type": "number"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "trades_during": {
+              "type": "number"
+            },
+            "trades_flagged": {
+              "type": "number"
+            },
+            "trades_within_tolerance": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "covered",
+            "covering_halt_record",
+            "end_ts",
+            "kind",
+            "notice_latency_ms",
+            "start_ts",
+            "symbol",
+            "trades_during",
+            "trades_flagged",
+            "trades_within_tolerance"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "violations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "halt",
+                "mwcb",
+                "suspension"
+              ]
+            },
+            "stoppage_end_ts": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "stoppage_start_ts": {
+              "type": "number"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "trade_id": {
+              "type": "string"
+            },
+            "trade_ts": {
+              "type": "number"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "HALT_RECORD_NOT_COVERING",
+                "NO_PARTICIPANT_NOTICE",
+                "TRADE_DURING_STOPPAGE"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "stoppage_end_ts",
+            "stoppage_start_ts",
+            "symbol",
+            "type"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "assumptions",
+      "concurrency_tolerance_ms",
+      "per_stoppage",
+      "violations"
+    ],
+    "additionalProperties": false
+  },
   "classify_sco60_exposure_v2": {
     "type": "object",
     "description": "output_payload: group2_exposure_amount, bank_tier1_capital, group2_exposure_pct_tier1, one_pct_tier1_amount, two_pct_tier1_amount, group2_threshold_crossed, group2_limit_breached, group2b_excess_amount, group2b_treatment (none | excess_only | whole_book), risk_weight_applied_pct (1250 or null), base_risk_weight_pct (1250), pillar3_precheck_pass, per_asset[]{cryptoasset, holding_type, long_exposure, short_exposure, counted_exposure}, gaps[], warnings[], domain_errors[], refusal_reason, scope_note."
