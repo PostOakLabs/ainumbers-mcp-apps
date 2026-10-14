@@ -3587,6 +3587,42 @@
       }
     }
   },
+  "commercial-loan-underwriting-check": {
+    "art-363-compute-dscr": {
+      "ebitda_musd": 30,
+      "ebit_musd": 22,
+      "interest_musd": 6,
+      "principal_musd": 5,
+      "leases_musd": 2,
+      "capex_musd": 6,
+      "taxes_musd": 5,
+      "working_capital_change_musd": 1.5,
+      "amortization_musd": 5,
+      "revolver_draw_musd": 0,
+      "total_debt_musd": 80,
+      "cash_musd": 12
+    },
+    "art-362-compute-raroc-loan-price": {
+      "ead_musd": 50,
+      "tenor_years": 5,
+      "margin_bps": 250,
+      "benchmark_rate_pct": 5.25,
+      "arrangement_fee_bps": 50,
+      "commitment_fee_bps": 30,
+      "utilization_pct": 85,
+      "pd_pct": 0.18,
+      "lgd_pct": 40,
+      "capital_approach": "airb",
+      "capital_buffer_bps": 300,
+      "hurdle_rate_pct": 12,
+      "cost_of_funds_pct": 4.8,
+      "operating_cost_kusd": 100,
+      "tax_rate_pct": 25
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "commission-integrity-and-amortization": {
     "art-264-validate-commission-hierarchy": {
       "hierarchy": [
@@ -5862,6 +5898,25 @@
       ]
     }
   },
+  "homebuyer-affordability-check": {
+    "art-335-compute-dti-ratios": {
+      "gross_monthly_income": 8000,
+      "housing_payment_pitia": 1800,
+      "other_monthly_debts": 600,
+      "underwriting_type": "du"
+    },
+    "art-336-compute-ltv-ratios": {
+      "appraised_value": 500000,
+      "sales_price": 490000,
+      "first_lien_amount": 392000,
+      "subordinate_lien_amount": 0,
+      "heloc_credit_limit": 0,
+      "transaction_type": "purchase"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "icfr-control-test-cycle": {
     "art-461-control-test-evidence-composer": {
       "control_id": "CTRL-AP-014",
@@ -7650,6 +7705,87 @@
           "fips_140_2_certified": false
         }
       ]
+    }
+  },
+  "private-student-loan-disclosure-check": {
+    "art-332-build-amortization-schedule": {
+      "schedule_type": "level_payment",
+      "loan_amount": 6000,
+      "note_rate_pct": 12,
+      "num_payments": 24,
+      "periods_per_year": 12
+    },
+    "art-405-check-private-student-loan-disclosures": {
+      "inputs": {
+        "application_elements": [
+          {
+            "element": "interest-rate-or-range",
+            "status": "complete"
+          },
+          {
+            "element": "fees-and-default-charges",
+            "status": "complete"
+          },
+          {
+            "element": "repayment-terms",
+            "status": "complete"
+          },
+          {
+            "element": "cosigner-rights-disclosure",
+            "status": "complete"
+          },
+          {
+            "element": "estimated-total-cost",
+            "status": "complete"
+          }
+        ],
+        "approval_elements": [
+          {
+            "element": "confirmed-interest-rate",
+            "status": "complete"
+          },
+          {
+            "element": "confirmed-fees",
+            "status": "complete"
+          },
+          {
+            "element": "confirmed-repayment-terms",
+            "status": "complete"
+          },
+          {
+            "element": "right-to-accept-30-days-disclosure",
+            "status": "complete"
+          },
+          {
+            "element": "rate-lock-period-disclosure",
+            "status": "complete"
+          }
+        ],
+        "final_elements": [
+          {
+            "element": "final-interest-rate",
+            "status": "complete"
+          },
+          {
+            "element": "final-fees",
+            "status": "complete"
+          },
+          {
+            "element": "final-repayment-schedule",
+            "status": "complete"
+          },
+          {
+            "element": "right-to-cancel-3-day-disclosure",
+            "status": "complete"
+          }
+        ],
+        "self_certification_present": true,
+        "final_disclosure_date": "2026-07-20",
+        "holiday_dates": []
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "producer-license-reciprocity": {

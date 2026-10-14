@@ -4936,6 +4936,22 @@
       "sha256": "05018367053d23d0bd742d6143b7c76e403ac7f6de1df9d9d1b691e1c86e1430"
     },
     {
+      "tool_id": "art-708-v4-hook-permission-reconciler",
+      "mcp_name": "reconcile_v4_hook_permissions",
+      "display_name": "V4 Hook Permission Reconciler",
+      "uri": "ui://ainumbers/node/art-708-v4-hook-permission-reconciler",
+      "bytes": 78488,
+      "sha256": "5a4dd7b42f8fc9cfbfd6f0921eaf8f89da55095a1033ba2d8a0f023963028ce0"
+    },
+    {
+      "tool_id": "art-709-v4-hook-fee-conformance",
+      "mcp_name": "check_v4_hook_fee_conformance",
+      "display_name": "V4 Hook Fee Conformance",
+      "uri": "ui://ainumbers/node/art-709-v4-hook-fee-conformance",
+      "bytes": 88520,
+      "sha256": "7d25f1d2e5fb971ce61747481e43fdf5d2391a7ffe133c86e1a05ca0556ad201"
+    },
+    {
       "tool_id": "art-711-sco60-crypto-asset-exposure-classifier-v2",
       "mcp_name": "classify_sco60_exposure_v2",
       "display_name": "SCO60 Group 2 Exposure Limit V2",
@@ -4958,6 +4974,14 @@
       "uri": "ui://ainumbers/node/art-713-scorp-election-break-even",
       "bytes": 76381,
       "sha256": "740ea8562420aad34908056ed03c7732535d3d0accdbb5f606bb15eecf0beec0"
+    },
+    {
+      "tool_id": "art-715-token2022-transfer-fee-reconciler",
+      "mcp_name": "reconcile_token2022_transfer_fee",
+      "display_name": "Token-2022 Transfer-Fee Payment Reconciler",
+      "uri": "ui://ainumbers/node/art-715-token2022-transfer-fee-reconciler",
+      "bytes": 87076,
+      "sha256": "4628eee15fd6c7ec49a8dd3a67703c2a83064c17ece496fa2283134861e155f3"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
