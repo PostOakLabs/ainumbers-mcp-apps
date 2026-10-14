@@ -179,6 +179,19 @@ jobs:
             echo "generate produced no diff — the already-open vendor PR (if any) carries this tree."
           fi
 
+      - name: 🩺 Registry-parity cure — keep server.json in lockstep with the regen (REGISTRY-PARITY-1)
+        if: steps.generate.outputs.dirty == 'true'
+        run: |
+          set -euo pipefail
+          # A regen that moves counts.json leaves the committed server.json
+          # description one landing behind, and the parity gate reds the
+          # self-heal PR (measured 2026-10-14: PR #470 stale at 741 while the
+          # regenerated counts said 742 — generate.mjs never touches
+          # server.json). Re-derive the description (and bump the patch
+          # version) so the PR carries its own cure; the designed
+          # bump→merge→publish flow (REGISTRY-PUBLISH-AUTO-1) publishes it.
+          node scripts/sync-registry.mjs --check || node scripts/sync-registry.mjs --write
+
       # Same App + same action pin as automerge-label.yml. BOTH permissions below
       # are required: the job PUSHES a branch (contents:write) and opens/labels a
       # PR (pull-requests:write).
@@ -240,7 +253,7 @@ jobs:
           git checkout -B "$BRANCH"
           git config user.name  "ainumbers-spec-sync[bot]"
           git config user.email "ainumbers-spec-sync[bot]@users.noreply.github.com"
-          git add -A -- data kernels
+          git add -A -- data kernels server.json
           # Two -m flags, not one multi-line literal: an unindented continuation
           # line inside `run: |` silently invalidates the whole workflow file
           # (measured 2026-08-16: 11 zero-job failure runs across every branch).

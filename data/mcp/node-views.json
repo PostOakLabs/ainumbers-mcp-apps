@@ -8,6 +8,14 @@
   ],
   "views": [
     {
+      "tool_id": "732-borrower-escrow-auditor",
+      "mcp_name": "audit_borrower_escrow_stmt",
+      "display_name": "Borrower Escrow Auditor",
+      "uri": "ui://ainumbers/node/732-borrower-escrow-auditor",
+      "bytes": 87776,
+      "sha256": "5c64a8bd8bb69f3ac0baa9783071621e3ac0a82e98cf206791a947c4d7325b19"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
