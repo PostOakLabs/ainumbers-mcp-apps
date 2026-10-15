@@ -83,13 +83,9 @@ const gates = [
   { name: 'error envelope: request_id in protocol+tool error responses (AICONTRACT-PART-B-1)', args: ['scripts/test-error-envelope.mjs'] },
   { name: '/access/v1 body+batch caps (WORKER-CAPS-1)', args: ['scripts/test-access-caps.mjs'] },
   { name: 'delegation reason names the real cause (WORKER-DELEGATION-REASON-1)', args: ['scripts/check-delegation-reason.mjs'] },
-  // COMPOSITE-FLAG-AGGREGATE-1. NOTE: scripts/linear-hash-freeze.mjs is deliberately NOT wired in
-  // here. It is red on origin/master d33b845 ahead of any change of ours — 8 stale goldens, one
-  // chain no longer fixture-runnable (`current: null`) — measured identically in a detached
-  // origin/master worktree and on this branch, which is how we know this row moved no hash. Wiring
-  // a pre-existing red into preflight would block every push; it needs its own row (goldens
-  // recapture after the WORKER-VENDOR-DRIFT-1 re-vendor).
   { name: 'composite flag carriage (FB-01/FB-04)', args: ['scripts/gate-composite-flag-carry.mjs'] },
+  // LINEAR-HASH-FREEZE-HEAL-1: goldens re-captured; gate wired here and in ci.yml (moved hashes stay red for human re-capture).
+  { name: 'linear-chain composite hash freeze (OCG v0.8 gate 3)', args: ['scripts/linear-hash-freeze.mjs'] },
   { name: 'decision-trail preimage boundary (DECISIONTRAIL-1)', args: ['scripts/gate-decision-trail-boundary.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
   { name: 'vendor-freshness vs site',             args: ['scripts/check-vendor-fresh.mjs'], env: { SITE_REPO: SITE }, needsSite: true },
