@@ -84,7 +84,7 @@ const gates = [
   { name: '/access/v1 body+batch caps (WORKER-CAPS-1)', args: ['scripts/test-access-caps.mjs'] },
   { name: 'delegation reason names the real cause (WORKER-DELEGATION-REASON-1)', args: ['scripts/check-delegation-reason.mjs'] },
   { name: 'composite flag carriage (FB-01/FB-04)', args: ['scripts/gate-composite-flag-carry.mjs'] },
-  // LINEAR-HASH-FREEZE-HEAL-1: goldens re-captured; gate wired here and in ci.yml (vendor self-heal re-captures).
+  // LINEAR-HASH-FREEZE-HEAL-1: goldens re-captured; gate wired here and in ci.yml (moved hashes stay red for human re-capture).
   { name: 'linear-chain composite hash freeze (OCG v0.8 gate 3)', args: ['scripts/linear-hash-freeze.mjs'] },
   { name: 'decision-trail preimage boundary (DECISIONTRAIL-1)', args: ['scripts/gate-decision-trail-boundary.mjs'] },
   { name: 'chain-fixtures freshness (OCGR §A)',   args: ['scripts/gen-chain-fixtures.mjs', '--check'], env: { SITE_REPO: SITE }, needsSite: true },
