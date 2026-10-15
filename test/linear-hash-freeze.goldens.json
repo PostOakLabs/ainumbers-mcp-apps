@@ -1,42 +1,162 @@
 {
+  "2052a-classify-daily": {
+    "composite_execution_hash": "be789082a37742cc4f1730d076104090fa4ac21e5023835a39428044b89c9fec",
+    "steps_ran": 1
+  },
+  "2052a-validate-classify-daily": {
+    "composite_execution_hash": "10399cfa54695604d5d9317c1c6bd6c1853a12826830d3eeab11094622dfd419",
+    "steps_ran": 2
+  },
+  "aca-226j-response-composer": {
+    "composite_execution_hash": "0cf4a4defeddb4d39a0ed4406ad053e6a2a81c340311e66b424f89f47c68aede",
+    "steps_ran": 3
+  },
+  "adverse-action-notice-compliance": {
+    "composite_execution_hash": "23ab85b3acf4666843745e8de203709f17f52848d7555f8a76a1aca3c05c4fcd",
+    "steps_ran": 2
+  },
+  "agent-audit-trail-conformance": {
+    "composite_execution_hash": "ee94437f694aae60caa8d0971d7234aa1a488a7410dcba620391e763821f6788",
+    "steps_ran": 2
+  },
+  "agent-authorization-lifecycle": {
+    "composite_execution_hash": "2d21b948050671b1b81039884339898d8eb40b5c5f62543e9e0e7f0df0554e79",
+    "steps_ran": 3
+  },
   "agent-commerce-conformance": {
     "composite_execution_hash": "e51f3c239b0e4395f5baa5d1f1088eca22852be4521b198089ea3a4356428bb6",
     "steps_ran": 4
   },
-  "tempo-fit": {
-    "composite_execution_hash": "d9ff246d443fdd8633ec46d664b35337635a44e6fe46fc5669542f9dbb37a047",
+  "agent-economy-audit-pack": {
+    "composite_execution_hash": "9299fe0d7f631d51ad58fed2d5da4472e4b1d80cb01eef1d7cc5da5fe58287e7",
+    "steps_ran": 3
+  },
+  "agent-economy-batch-settlement": {
+    "composite_execution_hash": "1867ae43cbdd639a2fbadc52fcfe16b1cd31e58a3e459c03a36af04f2584f1f4",
+    "steps_ran": 3
+  },
+  "agent-economy-fit": {
+    "composite_execution_hash": "cfb706e407326dfd39c09f0346e4d2058ca306560fe18ea21d9a420047b2e202",
     "steps_ran": 1
   },
-  "tempo-payments": {
-    "composite_execution_hash": "464ba258628d35398d53d14a59519be17a67c7ec1551458d05320732e7185b37",
+  "agent-economy-marketplace": {
+    "composite_execution_hash": "cb57732a8e616a5ecf091d52497c4683ebfc7886650df7bb8d8cf4f2cc922594",
+    "steps_ran": 3
+  },
+  "agent-economy-metering": {
+    "composite_execution_hash": "ee478e9215b086ce27040fa3ea1bb205a467238da00177d37cf539bd99d5f60a",
+    "steps_ran": 3
+  },
+  "agent-economy-payment-receipt": {
+    "composite_execution_hash": "56ee7f5d891c3389b0e1eae6ea2f9309a2d19ea95c663f5f1a2bdb42e00e02e8",
+    "steps_ran": 3
+  },
+  "agent-identity-publishing": {
+    "composite_execution_hash": "0c4aada4e72468ce85627750adc533ddba9899ab42768f7f0cd3a828cee2805d",
+    "steps_ran": 3
+  },
+  "agent-identity-verification": {
+    "composite_execution_hash": "7705bf0873e0719c3b984ba726d766c3e1b5c3e06e6e1cc7a1db416e52235d15",
+    "steps_ran": 3
+  },
+  "agent-session-receipt": {
+    "composite_execution_hash": "ca568f0c5261b0e3adfd2776bc17e2819659311890c65aef77461ac12176164e",
+    "steps_ran": 2
+  },
+  "agentic-commerce-convergence": {
+    "composite_execution_hash": "0ef7dce710731dfd2e0046e27fc20b1703f7444e4ad245f0f74101fb8b00c860",
+    "steps_ran": 3
+  },
+  "agentic-payment-mandate-lint": {
+    "composite_execution_hash": "a4714bbe20866931bcb7d8e6f7f17ca7228af23136a59e88f5e2c3d5a4b428b6",
+    "steps_ran": 3
+  },
+  "agentic-rail": {
+    "composite_execution_hash": "b0783e72b33678a2f6585d693d69b0a5309517d95ab92478fb489e606b66523a",
+    "steps_ran": 8
+  },
+  "ai-content-disclosure-conformance": {
+    "composite_execution_hash": "8d0697fe83234214a3e02d17f7153b29637e66981b32b444fc541f86d5b7c3a5",
+    "steps_ran": 3
+  },
+  "ai-decision-log-conformance": {
+    "composite_execution_hash": "44bbd5c0a27449cde6ba7143e88ab4e31bcc3d8f4f299fea6afe971bc1cee75f",
+    "steps_ran": 3
+  },
+  "ai-governance-audit-pack": {
+    "composite_execution_hash": "11b494025e0bfbc2f366e619f69fe35fd119ba19e5a0fa8adb473e1577128f04",
+    "steps_ran": 3
+  },
+  "ai-governance-fit": {
+    "composite_execution_hash": "735206146203227abc5e479de57a96ad9808d0cf219cfff94911fb504db68db6",
     "steps_ran": 1
   },
-  "tempo-agentic-checkout": {
-    "composite_execution_hash": "59fe4d55c550dbd0b403adc94be578a91ab023881b0f50c0b94ae849bb781c2d",
+  "ai-governance-framework-crosswalk": {
+    "composite_execution_hash": "bdf37530cdcde51e9b342e0acafe4143c6a844bdac776d6c604badaa8eee9b25",
+    "steps_ran": 3
+  },
+  "ai-governance-gpai-agentic": {
+    "composite_execution_hash": "6dace080b6f5ac43ebf0c5584070439a72537d10d6ee92f06fe12a80141600be",
+    "steps_ran": 3
+  },
+  "ai-governance-resilience-overlap": {
+    "composite_execution_hash": "dd01525dcfd685922f87d39c1e2cf8306741d0078b821f5cb96110b91ce9b9e1",
+    "steps_ran": 3
+  },
+  "ai-management-system-conformance": {
+    "composite_execution_hash": "63ef0c6a45695f3c1c07e280fd1d8ec3ee82d8982ef52a1fcb539239a0ad5f93",
+    "steps_ran": 3
+  },
+  "ai-vendor-onboarding-packet": {
+    "composite_execution_hash": "2b7cacfe25c53319b1e6e3e78ba9ee24fad149965ebf01be9b0ef58a3b13a302",
+    "steps_ran": 5
+  },
+  "allocation-decision-receipt": {
+    "composite_execution_hash": "a4e9b7f10beaa22db66c079fcd1a32d6c6178b071b769fc220e6bd1be4e2f030",
+    "steps_ran": 3
+  },
+  "aml-lookback-closure-cycle": {
+    "composite_execution_hash": "b388d42779d2e8d137eb7fa395562c32bcb9c6e0947b8895b59a31c9a1bdddf7",
+    "steps_ran": 3
+  },
+  "aml-lookback-cycle": {
+    "composite_execution_hash": "adabea81820fdb1681acad6e4139f2ad099d1f407afac1851d81ae59b4061e36",
     "steps_ran": 2
   },
-  "tempo-validator-readiness": {
-    "composite_execution_hash": "5f384d1e73465bf3aa325ed1da5a3b61a574b2ce56da83d0ba24d1b68b28cb0e",
+  "anchored-extract-verification": {
+    "composite_execution_hash": "1cc4e1d0e0568425963c5895948a64049ee85a03dbbccc37b63e088748731f23",
     "steps_ran": 1
   },
-  "canton-capital-efficiency": {
-    "composite_execution_hash": "9077ae5d002e541a7f22f213433c22774e93e7ebd96282f562b4d105077b0280",
+  "ap2-x402-cart-correlation": {
+    "composite_execution_hash": "798eb7dcb54b164ccb091dc4db15dc0459b3a75f9d9edaced78a65c45ba079fa",
     "steps_ran": 2
   },
-  "canton-dvp-readiness": {
-    "composite_execution_hash": "56d938b051fde1158245155ef6741f0fbce497e190dd3b423af5ce82d09e59a9",
+  "arc-agentic-commerce": {
+    "composite_execution_hash": "0065b6e93b424fe15c0aa09eab5e39bf04077c62e678836add35df71208a9e20",
+    "steps_ran": 3
+  },
+  "arc-cctp-transfer": {
+    "composite_execution_hash": "2da0aa4417706bf3993e9bac3b89ebe9326777fcb1b80ec8c7fd56d413f5719f",
     "steps_ran": 2
   },
-  "canton-repo-mobility": {
-    "composite_execution_hash": "03d7d19bf6b2a56382c56e01a19d41c473223b8c8c9a1ec701f62f422dbfeb85",
+  "arc-cpn-payment": {
+    "composite_execution_hash": "6af5e2fd6f1423b7da8a6047af96eef9efa81984984812de3c894b47d3040609",
+    "steps_ran": 2
+  },
+  "arc-dvp-settlement": {
+    "composite_execution_hash": "81dfb609075c4e218316099e51e1342d739c890a519055f08fdb0eac44be8ee6",
     "steps_ran": 3
   },
   "arc-fit": {
     "composite_execution_hash": "7ea032cf2d7035af73054607ed81ba08a14ca323419ea5b01ccf2cb1b97ffd58",
     "steps_ran": 1
   },
-  "arc-cpn-payment": {
-    "composite_execution_hash": "6af5e2fd6f1423b7da8a6047af96eef9efa81984984812de3c894b47d3040609",
+  "arc-multicurrency-corridor": {
+    "composite_execution_hash": "0714a87a1970dad94bcf23e9a1251067bde85ee63dd383c8d4e9088e9df557de",
+    "steps_ran": 3
+  },
+  "arc-reserve-compliance": {
+    "composite_execution_hash": "e0495b02d5bd4db71c60510eb02807e399d57632d18418e9e3ed94fe4cf33876",
     "steps_ran": 2
   },
   "arc-stablefx": {
@@ -47,376 +167,268 @@
     "composite_execution_hash": "a0d48282ad2716d1f446f234c3b136a6ba99c3451f96b8891cccc5a8bc478362",
     "steps_ran": 2
   },
-  "arc-dvp-settlement": {
-    "composite_execution_hash": "81dfb609075c4e218316099e51e1342d739c890a519055f08fdb0eac44be8ee6",
+  "assemble-agent-dispute-evidence": {
+    "composite_execution_hash": "83d0549caac11ccb62ef49111c85cca9657f47c1ab6acbf7f2f6d5076880cafa",
+    "steps_ran": 5
+  },
+  "assemble-aiuc1-evidence-pack": {
+    "composite_execution_hash": "e36c741defcc26164aa689cc41721b7af7eefd50024073ac390c332f1f5d30b4",
     "steps_ran": 3
   },
-  "arc-agentic-commerce": {
-    "composite_execution_hash": "0065b6e93b424fe15c0aa09eab5e39bf04077c62e678836add35df71208a9e20",
-    "steps_ran": 3
-  },
-  "arc-reserve-compliance": {
-    "composite_execution_hash": "e0495b02d5bd4db71c60510eb02807e399d57632d18418e9e3ed94fe4cf33876",
+  "auto-loan-disclosure-verifier": {
+    "composite_execution_hash": "434d3f3c9a1f33c878f9cf353bbb769191e07925c16dd87e6947ffed1ac8fb8d",
     "steps_ran": 2
   },
-  "arc-cctp-transfer": {
-    "composite_execution_hash": "2da0aa4417706bf3993e9bac3b89ebe9326777fcb1b80ec8c7fd56d413f5719f",
-    "steps_ran": 2
+  "avax-evergreen-l1-onboarding": {
+    "composite_execution_hash": "d7efd1f0da6d8f8a67e6848fb0bb3ed25fed7086b1eb642de1b1f445770b8ed2",
+    "steps_ran": 4
   },
-  "treasury-clearing-fit": {
-    "composite_execution_hash": "a2e2694804f59f0b58104685b8e95d6df71012bfe197e076b64591479418322f",
+  "basel-sco60-crypto-exposure-classification": {
+    "composite_execution_hash": "79903a8ec97913728524efad818bb38bef6deb4e887832a4cf76342d9db561be",
     "steps_ran": 1
   },
-  "treasury-clearing-access-model": {
-    "composite_execution_hash": "68aa005325dcec17288392e38c12ab39dcff0566fc5c1a6811cb0254f2217e05",
+  "basel-take2-impact-assessment": {
+    "composite_execution_hash": "d72855a706b48cb6569e04c55407c4d8bf1c3db74a1be10728f8fd7147982b9d",
+    "steps_ran": 4
+  },
+  "beacon-sampled-audit-testing": {
+    "composite_execution_hash": "535f7e7d27ee851e362576a9559e07bdaa408e4f9d18bf0b8e5a5cc3fd493131",
+    "steps_ran": 2
+  },
+  "benefits-nondiscrimination-composer": {
+    "composite_execution_hash": "953faabc46791e9589333f0dc43e55a1f6df9b46319a71a9ac64dbc680aae3d6",
+    "steps_ran": 2
+  },
+  "besu-contract-conformance": {
+    "composite_execution_hash": "a958114df2ac6c7ce02f8934adf8d14c43c9319f3daa9fd8e14359cf669b36a3",
     "steps_ran": 3
   },
-  "treasury-clearing-collateral": {
-    "composite_execution_hash": "10d8a3648ecce2f479d876a9786935ae91a23580379776df528c3600fd57af8c",
+  "broker-dealer-ops-pack": {
+    "composite_execution_hash": "295ef6b03b52698973f6acb033c84cdebcad017973cdc69c814c7779c07a7fbc",
+    "steps_ran": 2
+  },
+  "ca-genai-disclosure": {
+    "composite_execution_hash": "65724239eb8345ba6881251d36157f998f59968089c95f57d235d1583cd114b8",
+    "steps_ran": 1
+  },
+  "call-report-edit-gate": {
+    "composite_execution_hash": "4cff8e91ed8720c3e4fb7b18ed660400dd80f121937c21a8af6f42ae096f113a",
     "steps_ran": 3
   },
-  "treasury-clearing-settlement-integrity": {
-    "composite_execution_hash": "858ea20b36963b67ccf0bde1d5d861cb297838c1a2acef15fe61e5d408cdffcf",
+  "camt053-parallel-run-recon-pack": {
+    "composite_execution_hash": "28b11592b02482ac3b93992410e7de96c10bfb6ef7e97de4a1f20423e265c921",
     "steps_ran": 3
+  },
+  "canton-capital-efficiency": {
+    "composite_execution_hash": "9077ae5d002e541a7f22f213433c22774e93e7ebd96282f562b4d105077b0280",
+    "steps_ran": 2
   },
   "canton-counterparty-onboarding": {
     "composite_execution_hash": "18dc9f4653fb966961bd93f54ac27f84eb7fb5dc7e5383e55449ba358d116947",
     "steps_ran": 1
   },
-  "canton-securities-issuance": {
-    "composite_execution_hash": "5988216c5bb5b6b7ead28420be12e618b4cad09ec99a47ac65d50899161e6db0",
-    "steps_ran": 2
-  },
-  "canton-margin-call": {
-    "composite_execution_hash": "ff5f6ebef85a84076c1fc635d2e5966d2bfd653e16bb1af20e7651fda9341f98",
-    "steps_ran": 3
-  },
   "canton-deposit-compliance": {
     "composite_execution_hash": "183eccc9e3da56e90423d48952cf0507518c72588a7fad5395cc243c25481360",
-    "steps_ran": 2
-  },
-  "canton-mmf-collateral": {
-    "composite_execution_hash": "284d712630ff128d5745ee49a71ba8cf98e8fe5f91be515cbb185605b58473c7",
-    "steps_ran": 2
-  },
-  "canton-securities-lending": {
-    "composite_execution_hash": "2c0a918f98df4da761bb470489a5aa6d36fe54d02f1cf784be111aa90ae2707d",
-    "steps_ran": 2
-  },
-  "us-treasury-clearing": {
-    "composite_execution_hash": "994a34666274964104a4095dc540921df0096a76506363466649edb06df3e5b4",
-    "steps_ran": 6
-  },
-  "agent-session-receipt": {
-    "composite_execution_hash": "ca568f0c5261b0e3adfd2776bc17e2819659311890c65aef77461ac12176164e",
-    "steps_ran": 2
-  },
-  "digital-trade-fit": {
-    "composite_execution_hash": "ea902a1b332c4d62f0b8128069270ca49b5332b1a20db7cd39d7363c764c7fa5",
-    "steps_ran": 1
-  },
-  "digital-trade-ebl-enforceability": {
-    "composite_execution_hash": "728b36ab88cffbb9062df7477a43b86e6b171c18ffcfff14068cbd345d076ff2",
-    "steps_ran": 3
-  },
-  "digital-trade-doc-integrity": {
-    "composite_execution_hash": "444b2cbadb9500c241d79001bc5a5342936e88de936db2594589336ec308249b",
-    "steps_ran": 3
-  },
-  "digital-trade-audit-pack": {
-    "composite_execution_hash": "afd2575fff94a73460fb60e646b5f79a91b3d2fb64bc92a09d19bd50e882435c",
-    "steps_ran": 3
-  },
-  "wholesale-settlement-fit": {
-    "composite_execution_hash": "eecfd25387affffdc11232c51341015b96325639259ebebb12d28032f01ef7c8",
-    "steps_ran": 1
-  },
-  "wholesale-settlement-cross-network-dvp": {
-    "composite_execution_hash": "6482d9dc917c14ca7b75f7b3ec5669b6d392c83d3e6d03987dbc26decc752790",
-    "steps_ran": 3
-  },
-  "wholesale-settlement-deposit-token": {
-    "composite_execution_hash": "d009761295c02ca3af6f87aec82457f4346d2ea6d9b1c1d1f4cde8bf44adfdc6",
-    "steps_ran": 3
-  },
-  "wholesale-settlement-settlement-asset": {
-    "composite_execution_hash": "3b61b530114982407f16c72ffec08c534af2bba13421f64401fcbadb940db869",
-    "steps_ran": 3
-  },
-  "wholesale-settlement-collateral-mobility": {
-    "composite_execution_hash": "4c6867634e3f6da20404ebcb5c2393227be627d9b13a0a62cd4eeb5dc0fa2d2a",
-    "steps_ran": 3
-  },
-  "wholesale-settlement-audit-pack": {
-    "composite_execution_hash": "63b35bd21726ee8f3ac82bda05c59381e8bf94ea374f122a94e99fec1465c8d2",
-    "steps_ran": 3
-  },
-  "agent-economy-fit": {
-    "composite_execution_hash": "cfb706e407326dfd39c09f0346e4d2058ca306560fe18ea21d9a420047b2e202",
-    "steps_ran": 1
-  },
-  "agent-economy-batch-settlement": {
-    "composite_execution_hash": "1867ae43cbdd639a2fbadc52fcfe16b1cd31e58a3e459c03a36af04f2584f1f4",
-    "steps_ran": 3
-  },
-  "agent-economy-payment-receipt": {
-    "composite_execution_hash": "56ee7f5d891c3389b0e1eae6ea2f9309a2d19ea95c663f5f1a2bdb42e00e02e8",
-    "steps_ran": 3
-  },
-  "agent-economy-metering": {
-    "composite_execution_hash": "ee478e9215b086ce27040fa3ea1bb205a467238da00177d37cf539bd99d5f60a",
-    "steps_ran": 3
-  },
-  "agent-economy-marketplace": {
-    "composite_execution_hash": "cb57732a8e616a5ecf091d52497c4683ebfc7886650df7bb8d8cf4f2cc922594",
-    "steps_ran": 3
-  },
-  "agent-economy-audit-pack": {
-    "composite_execution_hash": "9299fe0d7f631d51ad58fed2d5da4472e4b1d80cb01eef1d7cc5da5fe58287e7",
-    "steps_ran": 3
-  },
-  "ai-governance-fit": {
-    "composite_execution_hash": "735206146203227abc5e479de57a96ad9808d0cf219cfff94911fb504db68db6",
-    "steps_ran": 1
-  },
-  "ai-governance-gpai-agentic": {
-    "composite_execution_hash": "6dace080b6f5ac43ebf0c5584070439a72537d10d6ee92f06fe12a80141600be",
-    "steps_ran": 3
-  },
-  "ai-governance-resilience-overlap": {
-    "composite_execution_hash": "dd01525dcfd685922f87d39c1e2cf8306741d0078b821f5cb96110b91ce9b9e1",
-    "steps_ran": 3
-  },
-  "ai-governance-audit-pack": {
-    "composite_execution_hash": "11b494025e0bfbc2f366e619f69fe35fd119ba19e5a0fa8adb473e1577128f04",
-    "steps_ran": 3
-  },
-  "cbam-fit": {
-    "composite_execution_hash": "cd47251277edf8fc9bfdacb11f698fda2a791d6d976867adfbd996e8b72b02f5",
-    "steps_ran": 1
-  },
-  "cbam-liability": {
-    "composite_execution_hash": "bbc14f76ed3014bdb44de4181b0dceb92a3bef956cda0f9e7deea90be3e77211",
-    "steps_ran": 3
-  },
-  "cbam-precursor": {
-    "composite_execution_hash": "a76cbb56381e5387e858774a298df8660e08e36e6dd4dfb0a4f7adb3d988903e",
-    "steps_ran": 3
-  },
-  "taxonomy-align": {
-    "composite_execution_hash": "c8632c230aea32a4ffcfcd2dcc0fc08a0d550bfecf444b68b80f0dd7fd25e5c2",
-    "steps_ran": 2
-  },
-  "taxonomy-kpi": {
-    "composite_execution_hash": "4fd98ce9b678a082f6137db20bf7888694ef32944cee990be2fff7dac8ce7fbd",
-    "steps_ran": 3
-  },
-  "eugb-conformance": {
-    "composite_execution_hash": "13fb050a9d3db5f79a53cc8b950a3b9615bc99b1a5c572bb6bfcb978b6508b6d",
-    "steps_ran": 3
-  },
-  "climate-scenario": {
-    "composite_execution_hash": "6ac12a758d45b1d5a6636a21c173c0031756efba2fdfc9d8774f16fb0e8067e5",
-    "steps_ran": 2
-  },
-  "carbon-audit-pack": {
-    "composite_execution_hash": "4edf0dd7f687c239f6f5cbd70ec2673d11bb6715719854fa319af21229367147",
-    "steps_ran": 3
-  },
-  "settlement-discipline-fit": {
-    "composite_execution_hash": "6f7ad097df10c2faa617e6a0252c18d0543ae21a9aaf35eda892991658f0db13",
-    "steps_ran": 1
-  },
-  "settlement-discipline-penalty": {
-    "composite_execution_hash": "6f19db62d34415006d55a2e2e4750dd81df3a6a83c6311316674aeb3a135a909",
-    "steps_ran": 3
-  },
-  "settlement-discipline-failpredict": {
-    "composite_execution_hash": "038e5008a196403d8f7117fef8a70e01681ed3569f82550f678a743f6a250864",
-    "steps_ran": 3
-  },
-  "settlement-discipline-ssi-hygiene": {
-    "composite_execution_hash": "84b784036f49742519a558f69df71b836463fdf43df78ef8b69e143856988028",
-    "steps_ran": 2
-  },
-  "settlement-discipline-alloc-affirm": {
-    "composite_execution_hash": "a10292df3c32e7098e7e78ab1933f159b96954db9b5c7b5547df6d57e59811fa",
-    "steps_ran": 3
-  },
-  "settlement-discipline-message-conformance": {
-    "composite_execution_hash": "46e4445bcd48090204cdeaa1ab96e1b80d3c3c6956de5eb65ab4978e3db9ffa6",
-    "steps_ran": 3
-  },
-  "settlement-discipline-buyin": {
-    "composite_execution_hash": "9cf35ddb92a539d7c8995286beed9c6e6fba6cb0517a95e52817953dbe7b0a3d",
-    "steps_ran": 3
-  },
-  "settlement-discipline-audit-pack": {
-    "composite_execution_hash": "519ae5a4380d080b413febe8f865d443100b92eddc35567be6f59da8832a8c98",
-    "steps_ran": 3
-  },
-  "pqc-fit": {
-    "composite_execution_hash": "2a65be0de6af7e89dea8b8b3ae96d67d587c4b3c2dbc2eb7592cbad13de4e2ff",
-    "steps_ran": 1
-  },
-  "pqc-fido-webauthn": {
-    "composite_execution_hash": "e32514b43b11c34d062616974cf633facba86c01f8494841f48f29b9f09a6670",
-    "steps_ran": 2
-  },
-  "pqc-audit-pack": {
-    "composite_execution_hash": "24bacd5131fb029dd7fae736235a77ad3f8b210a9a9bec4d1149661efd345ca7",
-    "steps_ran": 3
-  },
-  "sanctions-fit": {
-    "composite_execution_hash": "c77d1b03609769bf782d4e15d5cb5ccb890c4630687b5bbb51f569d0b83e3a5a",
-    "steps_ran": 1
-  },
-  "sanctions-ownership": {
-    "composite_execution_hash": "1b1fcabab60cb1378224991d748686b5282a4d5c14b1b0cc26577926a77dadc3",
-    "steps_ran": 3
-  },
-  "sanctions-list-coverage": {
-    "composite_execution_hash": "f3a2d9ec8dceae75ce13f87c5c2f3c71eac4c85f48f6634da011671e8402e1e9",
-    "steps_ran": 2
-  },
-  "sanctions-fuzzy-calibration": {
-    "composite_execution_hash": "a9a4e2e45036e578b7b9a2afce6ac4c535b69b22da2e75f3dbd372cb49269025",
-    "steps_ran": 2
-  },
-  "export-control-eccn": {
-    "composite_execution_hash": "53035bfc92c30639cde8eebcb5190a26d240e2897db4261a0acee472bb497102",
-    "steps_ran": 2
-  },
-  "export-control-circumvention": {
-    "composite_execution_hash": "faa758c132f0a9c44f127fbdce598458ba633e6acf7289b99e89f8ffc7d7ac93",
-    "steps_ran": 3
-  },
-  "sanctions-screening-quality": {
-    "composite_execution_hash": "9b030625df097a3de86edab5e8e421d9e44faf07e0d3aa8fcb37ff08a0047ca6",
-    "steps_ran": 3
-  },
-  "sanctions-audit-pack": {
-    "composite_execution_hash": "6f006d018cc41ae33c13760e91c81e02fcc4cab96eb358dc331e5259092fe940",
-    "steps_ran": 3
-  },
-  "mica-fit": {
-    "composite_execution_hash": "0c8207cdf5a198e2202196db228288013b7e7ee73ad862759f78318e69231c3f",
-    "steps_ran": 1
-  },
-  "mica-casp-authorization": {
-    "composite_execution_hash": "b2be5a12cd0fc3f138f662a25614abe44a1475395430f1fac51c8482fd34d6f0",
-    "steps_ran": 3
-  },
-  "mica-transitional": {
-    "composite_execution_hash": "7601fd16cb689f06f3abe23c725f5bee57d44bb4d9653cd1a99ef0c8ca1734eb",
-    "steps_ran": 3
-  },
-  "mica-whitepaper": {
-    "composite_execution_hash": "52c3cc83f41bad5903d570682393a987cae1e125b6431a08c726307fbd11d8c0",
-    "steps_ran": 2
-  },
-  "mica-mar-surveillance": {
-    "composite_execution_hash": "6a6d67ce86d0edf3a7c6f94c7ba48437e29b1c0a17c177ae657ffcc4fe8ccf67",
-    "steps_ran": 2
-  },
-  "mica-travel-rule": {
-    "composite_execution_hash": "eb16ca070eaed77e46f59f4bb2aab22b91f2e42909788b93c0dfb31da8beb40d",
-    "steps_ran": 2
-  },
-  "mica-token-scoping": {
-    "composite_execution_hash": "6421e31904dbe7c0b721fe0f7b0744c09708b0b450fd6d4c4ab603b13a174033",
-    "steps_ran": 2
-  },
-  "mica-audit-pack": {
-    "composite_execution_hash": "8169c9767656f0219881264a1e1edcb4464c627ab741d6f36e950a9b3b225cad",
-    "steps_ran": 3
-  },
-  "tempo-subscription-settlement": {
-    "composite_execution_hash": "d675878a2b5f1fafd85784df082d80d8632d20e6379e21ba394632a654e41c49",
-    "steps_ran": 4
-  },
-  "tempo-gas-economics": {
-    "composite_execution_hash": "acaf9b1a687182b2e77578ae29ba1a926b15e8e18bf0819644c58274c9248cd3",
     "steps_ran": 2
   },
   "canton-dtc-treasury": {
     "composite_execution_hash": "11bbd2bbefd3f500594a3f6623527afbb3f32709fce3422363ba1d4136794612",
     "steps_ran": 4
   },
-  "arc-multicurrency-corridor": {
-    "composite_execution_hash": "0714a87a1970dad94bcf23e9a1251067bde85ee63dd383c8d4e9088e9df557de",
+  "canton-dvp-readiness": {
+    "composite_execution_hash": "56d938b051fde1158245155ef6741f0fbce497e190dd3b423af5ce82d09e59a9",
+    "steps_ran": 2
+  },
+  "canton-margin-call": {
+    "composite_execution_hash": "ff5f6ebef85a84076c1fc635d2e5966d2bfd653e16bb1af20e7651fda9341f98",
     "steps_ran": 3
   },
-  "pharma-serialization-custody": {
-    "composite_execution_hash": "c14f55062d84e600f6e8f7e12a6106bac34a1d8f6cd8f62161113528bf8edf22",
+  "canton-mmf-collateral": {
+    "composite_execution_hash": "284d712630ff128d5745ee49a71ba8cf98e8fe5f91be515cbb185605b58473c7",
+    "steps_ran": 2
+  },
+  "canton-repo-mobility": {
+    "composite_execution_hash": "03d7d19bf6b2a56382c56e01a19d41c473223b8c8c9a1ec701f62f422dbfeb85",
     "steps_ran": 3
   },
-  "food-traceability-fsma204": {
-    "composite_execution_hash": "54174b4a42b7c5d2656f6fd7f158ada793bf36344c3f589eb54c9498cc9daca4",
+  "canton-securities-issuance": {
+    "composite_execution_hash": "5988216c5bb5b6b7ead28420be12e618b4cad09ec99a47ac65d50899161e6db0",
+    "steps_ran": 2
+  },
+  "canton-securities-lending": {
+    "composite_execution_hash": "2c0a918f98df4da761bb470489a5aa6d36fe54d02f1cf784be111aa90ae2707d",
+    "steps_ran": 2
+  },
+  "carbon-audit-pack": {
+    "composite_execution_hash": "4edf0dd7f687c239f6f5cbd70ec2673d11bb6715719854fa319af21229367147",
     "steps_ran": 3
+  },
+  "card-act-ability-to-pay": {
+    "composite_execution_hash": "04dd3914d070974125c165f81681447e8383639b8c0b10059b0fc1f8a2ceadc9",
+    "steps_ran": 2
+  },
+  "cat-bond-trigger-validation": {
+    "composite_execution_hash": "56547302b33f99439d59982d5ccf2ba1fcb144d4558289116fae5a9f55b2763a",
+    "steps_ran": 2
+  },
+  "cbam-fit": {
+    "composite_execution_hash": "cd47251277edf8fc9bfdacb11f698fda2a791d6d976867adfbd996e8b72b02f5",
+    "steps_ran": 1
+  },
+  "cbam-liability": {
+    "composite_execution_hash": "b7fedecb509de52b13e93ee878cefc03a916b7d355aacb815bf10992763e3c27",
+    "steps_ran": 3
+  },
+  "cbam-precursor": {
+    "composite_execution_hash": "a76cbb56381e5387e858774a298df8660e08e36e6dd4dfb0a4f7adb3d988903e",
+    "steps_ran": 3
+  },
+  "cbcr-annual-publish": {
+    "composite_execution_hash": "0261709a66951a97a0d6ebeb8d853d539c99f2c24b5968da48b345dc290276ba",
+    "steps_ran": 1
+  },
+  "cbpr-address-lint-chain": {
+    "composite_execution_hash": "a7f73950ea737cef3d86599cbdedda801d7cdabd2d217ac8f52a0965e10a6efe",
+    "steps_ran": 3
+  },
+  "ccp-margin-monitor": {
+    "composite_execution_hash": "24fd65e46763893885c229d60753dba3fb01023097376828fa66e3cfb11f3265",
+    "steps_ran": 1
+  },
+  "cecl-allowance-quarterly": {
+    "composite_execution_hash": "961f5ca260b4180701f9707b0d3f280bce7d0ef6d6bf8bf3b0e078b8a407a123",
+    "steps_ran": 1
+  },
+  "chain-ccp-default-waterfall": {
+    "composite_execution_hash": "d4fe25239f05612b6e1e3b6f79ffc2cb8c1bd217d0ca2a4aee108eb4b7c846cf",
+    "steps_ran": 2
+  },
+  "chain-ccp-pqd-benchmark": {
+    "composite_execution_hash": "d82a71b61cbc629c495d6b394503d060dd8f7767d1afe4b02e6c0f0d2cfd3a87",
+    "steps_ran": 1
+  },
+  "chain-member-margin-call-to-porting": {
+    "composite_execution_hash": "b8772e146f40c2b636b6b29cb5e8fef2ddb8dd17ebbe4f44ce7a955de523cd6a",
+    "steps_ran": 1
+  },
+  "claim-dispute-bundle-assembly": {
+    "composite_execution_hash": "5d8fd9d0c90aaec51ab7c92e4b8d3ee1f5b9a4a540e5e151a4115a7931acb977",
+    "steps_ran": 2
+  },
+  "climate-scenario": {
+    "composite_execution_hash": "6ac12a758d45b1d5a6636a21c173c0031756efba2fdfc9d8774f16fb0e8067e5",
+    "steps_ran": 2
+  },
+  "collections-compliance-pack": {
+    "composite_execution_hash": "98bc0b8021fef9baf3bb97d3afc9fe3feddaf8b94aaa6d2464e81b1c37d35a1b",
+    "steps_ran": 2
+  },
+  "commercial-loan-underwriting-check": {
+    "composite_execution_hash": "1e905f962c5934e4c9b4c907deb56928b433132717dc5f1bb4a8684e21b1a97a",
+    "steps_ran": 3
+  },
+  "commission-integrity-and-amortization": {
+    "composite_execution_hash": "7d339e72de560db429673dd0ea125e33944a600e70362d4949b28e778684d2a2",
+    "steps_ran": 3
+  },
+  "conditional-relief-collateral": {
+    "composite_execution_hash": "dab63fff99303cabce8e4722b023554facda421b9a10d8af402ae0d0d69d483f",
+    "steps_ran": 6
+  },
+  "content-credential-verification": {
+    "composite_execution_hash": "cbe5417ee01bf622fb9e9fc34d178b18225b75949f39d05fea4ed455dc8ed034",
+    "steps_ran": 3
+  },
+  "corporate-action-entitlement": {
+    "composite_execution_hash": "901f7d8a0030970d4af59f511474388976197b3304c62ca72af6b6fc2b3d83b2",
+    "steps_ran": 2
+  },
+  "corporate-treasury-statement-reconciliation": {
+    "composite_execution_hash": "22c09ade52a3b6faacf5c5caa290595316fc5b4fba488de8a9c1e581f7061b11",
+    "steps_ran": 2
+  },
+  "cra-product-conformance": {
+    "composite_execution_hash": "f60e9359b8302e51d8c1ae6d1de293c0c67b2803989ab4bba94dcd15bf99c407",
+    "steps_ran": 3
+  },
+  "cross-border-payment-prevalidation": {
+    "composite_execution_hash": "537830e9d39a4c944a4ba5fa808c212eadf6c86892a99680cc4391070e38cd58",
+    "steps_ran": 2
   },
   "digital-product-passport-lineage": {
     "composite_execution_hash": "c2b9f02f6aac6a136605ed2d8dd4286ed9d703bb5c1d5f7027617890c2e8da75",
+    "steps_ran": 3
+  },
+  "digital-trade-audit-pack": {
+    "composite_execution_hash": "afd2575fff94a73460fb60e646b5f79a91b3d2fb64bc92a09d19bd50e882435c",
+    "steps_ran": 3
+  },
+  "digital-trade-doc-integrity": {
+    "composite_execution_hash": "444b2cbadb9500c241d79001bc5a5342936e88de936db2594589336ec308249b",
+    "steps_ran": 3
+  },
+  "digital-trade-ebl-enforceability": {
+    "composite_execution_hash": "728b36ab88cffbb9062df7477a43b86e6b171c18ffcfff14068cbd345d076ff2",
+    "steps_ran": 3
+  },
+  "digital-trade-fit": {
+    "composite_execution_hash": "ea902a1b332c4d62f0b8128069270ca49b5332b1a20db7cd39d7363c764c7fa5",
+    "steps_ran": 1
+  },
+  "document-conversion-verification": {
+    "composite_execution_hash": "cd07520780d5ad1344276db5738f37cc99b35e82d374137e2369447b0b4e64e9",
     "steps_ran": 3
   },
   "document-integrity-anchor": {
     "composite_execution_hash": "e459646dbe34bf382ab821b8790b699bee862db5bcfeda31c6c8bf2c6af120b5",
     "steps_ran": 2
   },
-  "content-credential-verification": {
-    "composite_execution_hash": "7034315d6050371283de00a7d6e4a3772bb65b8bfc48ccb0eeaba507f548a2c2",
+  "document-sanitization-integrity": {
+    "composite_execution_hash": "9740a6fd7b70acef06e78c01f2b1666072e8f666d1c15559923e1149040190b4",
     "steps_ran": 3
   },
-  "ai-content-disclosure-conformance": {
-    "composite_execution_hash": "8d0697fe83234214a3e02d17f7153b29637e66981b32b444fc541f86d5b7c3a5",
-    "steps_ran": 3
+  "dora-escalation-demo": {
+    "composite_execution_hash": "ccdf3c7e20a32953257349296107266b0225d203d8e62936e4068b199ac94afd",
+    "steps_ran": 1
   },
-  "agent-identity-verification": {
-    "composite_execution_hash": "7705bf0873e0719c3b984ba726d766c3e1b5c3e06e6e1cc7a1db416e52235d15",
-    "steps_ran": 3
+  "dora-roi-annual-cycle": {
+    "composite_execution_hash": "3217a0220d601baa71ed13e25e047fd1c6a5c5c0595ae1873d313780da406534",
+    "steps_ran": 1
   },
-  "agent-identity-publishing": {
-    "composite_execution_hash": "0c4aada4e72468ce85627750adc533ddba9899ab42768f7f0cd3a828cee2805d",
-    "steps_ran": 3
+  "dora-roi-gleif-preflight-pack": {
+    "composite_execution_hash": "a3ccae941fc535ac71546e9455e9b5fe68779b2dd417ff8d9d6c7dfddcdaf807",
+    "steps_ran": 4
   },
-  "sbom-provenance-attestation": {
-    "composite_execution_hash": "221cd7dc8c690ffb8eb2e3959192dda9c766f695e0877c5357994cd7a20a0be2",
-    "steps_ran": 3
+  "dw-capacity-check": {
+    "composite_execution_hash": "11dc1534b44d158ea019251ed8473d23ced3d3818352954958fa3c0faa1bbc7f",
+    "steps_ran": 2
   },
-  "cra-product-conformance": {
-    "composite_execution_hash": "f60e9359b8302e51d8c1ae6d1de293c0c67b2803989ab4bba94dcd15bf99c407",
-    "steps_ran": 3
+  "ebl-control-evidence": {
+    "composite_execution_hash": "b1a5a6def248b097d1213e8601219820081f68be713b8983b76f760207261cf3",
+    "steps_ran": 2
   },
-  "nis2-entity-scope-and-obligations": {
-    "composite_execution_hash": "1f6226bfb1a82a9fe1c709e011efd2fc1a969f6259c88a37929f94a93f176347",
-    "steps_ran": 3
+  "einvoice-validation-pipeline": {
+    "composite_execution_hash": "75106a897988732f4173c763002f87763c5de537d736af0277995ca0950a0074",
+    "steps_ran": 4
   },
-  "nis2-incident-and-supply-chain-readiness": {
-    "composite_execution_hash": "d3de32c4415308ad4348fb8801a49c6c9c4ab0da10191f5bdd91cb90e9100feb",
-    "steps_ran": 3
+  "emir-recon-cycle": {
+    "composite_execution_hash": "de6e4ab6f1ae27d3e0a1b02e2ce77a23e729708c37659af2c8e07a225c4411e9",
+    "steps_ran": 2
   },
-  "mcp-server-governance-conformance": {
-    "composite_execution_hash": "ec7aa35d2155c5c1f75d84c3dd71070783726e766b0c39746124bba1bdca7dbe",
-    "steps_ran": 3
-  },
-  "agent-authorization-lifecycle": {
-    "composite_execution_hash": "2d21b948050671b1b81039884339898d8eb40b5c5f62543e9e0e7f0df0554e79",
+  "emir-reconciliation-and-lifecycle": {
+    "composite_execution_hash": "42e46fa59bdd718162e186d930143f9933f2cdcaa66eb640df14d607df403165",
     "steps_ran": 3
   },
   "emir-trade-report-validation": {
     "composite_execution_hash": "3f0cac09a00e6ab922db08e04602102df5c107d6489f81f5ff1293bda8f812b0",
     "steps_ran": 3
   },
-  "emir-reconciliation-and-lifecycle": {
-    "composite_execution_hash": "42e46fa59bdd718162e186d930143f9933f2cdcaa66eb640df14d607df403165",
-    "steps_ran": 3
+  "escalation-sla-supervised-autonomy-receipt": {
+    "composite_execution_hash": "ec1a168e0bc453886448e0c93c473e5af484c7307002a8f5969491d3ddc06310",
+    "steps_ran": 2
   },
-  "vida-digital-reporting-requirements": {
-    "composite_execution_hash": "69ba2c9e3b154042f062e627cbc515d6c5cdda569e7b92f9bd674fb76fbc14ac",
-    "steps_ran": 3
-  },
-  "vida-platform-and-registration": {
-    "composite_execution_hash": "80f76c18a95f7d296f5028f0c9da5a79ed17b08d6c1b33528c78887016353fbc",
+  "eudi-acceptance-vop-evidence": {
+    "composite_execution_hash": "060956aeef38ca6ce3e07185bc0f2332c8c177085b533d31823baced9451acd1",
     "steps_ran": 3
   },
   "eudr-due-diligence-statement-validation": {
@@ -427,48 +439,592 @@
     "composite_execution_hash": "46fb30d4c12c1035e4d83e7024306402bb36f81c753a5ce1a1e201f2b4d0dde7",
     "steps_ran": 3
   },
-  "ai-management-system-conformance": {
-    "composite_execution_hash": "63ef0c6a45695f3c1c07e280fd1d8ec3ee82d8982ef52a1fcb539239a0ad5f93",
+  "eugb-conformance": {
+    "composite_execution_hash": "13fb050a9d3db5f79a53cc8b950a3b9615bc99b1a5c572bb6bfcb978b6508b6d",
     "steps_ran": 3
   },
-  "ai-governance-framework-crosswalk": {
-    "composite_execution_hash": "bdf37530cdcde51e9b342e0acafe4143c6a844bdac776d6c604badaa8eee9b25",
+  "exchange-assurance-pack": {
+    "composite_execution_hash": "2487c44225379cd5ee3481d75969e6b3d256b6eaffb31959c4f7c124c1123d6c",
+    "steps_ran": 4
+  },
+  "export-control-circumvention": {
+    "composite_execution_hash": "faa758c132f0a9c44f127fbdce598458ba633e6acf7289b99e89f8ffc7d7ac93",
     "steps_ran": 3
+  },
+  "export-control-eccn": {
+    "composite_execution_hash": "53035bfc92c30639cde8eebcb5190a26d240e2897db4261a0acee472bb497102",
+    "steps_ran": 2
+  },
+  "fair-lending-disparity-audit": {
+    "composite_execution_hash": "9b10a1163315536199a5ba3000e0c4a3cf79a867e3adc58a928fe35f2ee97999",
+    "steps_ran": 2
+  },
+  "fatca-ro-certification-cycle": {
+    "composite_execution_hash": "3ac15bc13657a24d29823f47136df467eab76c8e0967d1e0dea1b0299dbdb7e8",
+    "steps_ran": 2
+  },
+  "food-traceability-fsma204": {
+    "composite_execution_hash": "54174b4a42b7c5d2656f6fd7f158ada793bf36344c3f589eb54c9498cc9daca4",
+    "steps_ran": 3
+  },
+  "genius-listing-acceptance-pack": {
+    "composite_execution_hash": "34bbdc6b0032ecdee007eab9d22af4d6cc86fc2d3e36f7082fd628e69450e80d",
+    "steps_ran": 3
+  },
+  "genius-reserve-disclosure": {
+    "composite_execution_hash": "5a83915878f687c5b8bdca49fc9eb0833f41712292f829c602db02586d22ac83",
+    "steps_ran": 1
+  },
+  "gl-tieout-recompute": {
+    "composite_execution_hash": "a887e691ae7c0579d9215aca55bdf87ed32be8c3fd630f2ef2a7066b31c399d5",
+    "steps_ran": 1
+  },
+  "globe-annual-cycle": {
+    "composite_execution_hash": "c92e8b67ed236ddf15d6967f7d7c8629c7bcf67023a33fba30642c0004d64761",
+    "steps_ran": 3
+  },
+  "government-payment-lifecycle": {
+    "composite_execution_hash": "6b414234e48fa870a6125409e294b4627e2b7dd64df9f56409f8b0c264a2deb2",
+    "steps_ran": 11
+  },
+  "government-payment-programme-assurance": {
+    "composite_execution_hash": "ebce958917a118566977480e3e27d9c63acaba1a7b18d17fd1ae6a442bd58988",
+    "steps_ran": 3
+  },
+  "gpi-mt-to-mx-translation": {
+    "composite_execution_hash": "8ed19a86ef00108197fd506d300e57764a63f22dcbf9d01af2aed5eb05225095",
+    "steps_ran": 2
+  },
+  "hedge-effectiveness-documentation": {
+    "composite_execution_hash": "81fdba5ec19a15900fdc9b314189e789c108b0b9c9ec905a9695306c50fce952",
+    "steps_ran": 2
+  },
+  "homebuyer-affordability-check": {
+    "composite_execution_hash": "aa95b62b73b29f820e5b9272f09560d3564f06a92a2e934d5116861dd806cd9a",
+    "steps_ran": 3
+  },
+  "icfr-control-test-cycle": {
+    "composite_execution_hash": "29ca6b06d0e45751eabf6916e9fb6e568acf72bb61fbb789884ac6101c4905f7",
+    "steps_ran": 1
+  },
+  "idv-session-evidence": {
+    "composite_execution_hash": "d4cc4538a573b530c95505f4203353b9d1c6c53abf223766eec66d30eaf15ef5",
+    "steps_ran": 2
   },
   "ifrs17-measurement-conformance": {
     "composite_execution_hash": "ab6e1302133daa0a693cf19d60fb3b7295d98be6c36c3dd7dd2e0e80a3c4841f",
     "steps_ran": 3
   },
-  "solvency-ii-reconciliation-and-capital": {
-    "composite_execution_hash": "c2245387ebbd485551553cae99d5956dd71adac51896b806d72ea9d387430624",
+  "insurance-ai-bias-attestation": {
+    "composite_execution_hash": "7b9ea281c1fae1425e6998db818ae84bd8416995b2b028f338f40d9da0b19e37",
+    "steps_ran": 2
+  },
+  "insurer-rbc-action-level": {
+    "composite_execution_hash": "140b440b01bc5e2c2f2bf16bcfab6dfc62d6156724f25d6f2bbacc2d48200558",
+    "steps_ran": 1
+  },
+  "interest-accrual-recompute": {
+    "composite_execution_hash": "dad73377b95a7e1135b893c1d5ccb3033df5b945cc390b3c236dc0a2703242d7",
+    "steps_ran": 1
+  },
+  "intl-wire-iso-preflight": {
+    "composite_execution_hash": "9b8c9a6e1bed927f3a92ca236ce09d5a626f5d6475a57b720adc14407f68e41b",
+    "steps_ran": 4
+  },
+  "intraday-finality-attestation": {
+    "composite_execution_hash": "4aca0411ba78c8ef3e1ca93ad61bb97507073ed9cb240d043b5686dc39b8729b",
+    "steps_ran": 5
+  },
+  "ip-license-election-and-attestation": {
+    "composite_execution_hash": "1fc14d9c51e0cfc448f2b7c5b42bbe447719e9d5d6671722b0f28219bb5ab278",
+    "steps_ran": 6
+  },
+  "irrbb-measurement-and-disclosure": {
+    "composite_execution_hash": "be642674c5c5d5f23fe1eb5d60e9725c2fb1c31ca5a140e5755b91773b7f5205",
     "steps_ran": 3
   },
   "irrbb-supervisory-outlier-test": {
     "composite_execution_hash": "d55ec29b904f504c12f4e55ffdcb84eac6b792fd2b8cb3241ef0d1c563b3992f",
     "steps_ran": 3
   },
-  "irrbb-measurement-and-disclosure": {
-    "composite_execution_hash": "be642674c5c5d5f23fe1eb5d60e9725c2fb1c31ca5a140e5755b91773b7f5205",
+  "kya-agent-counterparty-receipt": {
+    "composite_execution_hash": "e4143ac9ed9ecb47ced0767099f55a4a544282a8dac3b35b5e7bed01685bed79",
+    "steps_ran": 4
+  },
+  "kyb-beneficial-ownership-attribution": {
+    "composite_execution_hash": "fbebab36e1256f90f1723ea78f70157629fa88fd48c61f269cf8c60501f3da07",
+    "steps_ran": 2
+  },
+  "large-exposures-check": {
+    "composite_execution_hash": "835f6cc6392b89eceb638f8ac90cdb5325a3ebfc9484566c18e51126b4485dd0",
+    "steps_ran": 1
+  },
+  "license-compatibility-check": {
+    "composite_execution_hash": "1aaa9a7507aa79ec52046653cea78901681f9af88ed26110b44b5d8454773c7a",
+    "steps_ran": 2
+  },
+  "life-illustration-self-support-test": {
+    "composite_execution_hash": "fb565543cee3a5052498693ef927170bd43631b4f9ff4e5242c4c2ce3ac7c540",
+    "steps_ran": 2
+  },
+  "mcp-server-attestation": {
+    "composite_execution_hash": "27ccff31e354e7493685df11beef5a2c6595fabd579f585ec0e75f4f849646f2",
     "steps_ran": 3
   },
-  "document-conversion-verification": {
-    "composite_execution_hash": "cd07520780d5ad1344276db5738f37cc99b35e82d374137e2369447b0b4e64e9",
+  "mcp-server-governance-conformance": {
+    "composite_execution_hash": "ec7aa35d2155c5c1f75d84c3dd71070783726e766b0c39746124bba1bdca7dbe",
     "steps_ran": 3
   },
-  "document-sanitization-integrity": {
-    "composite_execution_hash": "9740a6fd7b70acef06e78c01f2b1666072e8f666d1c15559923e1149040190b4",
+  "mica-audit-pack": {
+    "composite_execution_hash": "8169c9767656f0219881264a1e1edcb4464c627ab741d6f36e950a9b3b225cad",
     "steps_ran": 3
   },
-  "ip-license-election-and-attestation": {
-    "composite_execution_hash": "1fc14d9c51e0cfc448f2b7c5b42bbe447719e9d5d6671722b0f28219bb5ab278",
-    "steps_ran": 6
+  "mica-casp-authorization": {
+    "composite_execution_hash": "b2be5a12cd0fc3f138f662a25614abe44a1475395430f1fac51c8482fd34d6f0",
+    "steps_ran": 3
+  },
+  "mica-fit": {
+    "composite_execution_hash": "0c8207cdf5a198e2202196db228288013b7e7ee73ad862759f78318e69231c3f",
+    "steps_ran": 1
+  },
+  "mica-mar-surveillance": {
+    "composite_execution_hash": "6a6d67ce86d0edf3a7c6f94c7ba48437e29b1c0a17c177ae657ffcc4fe8ccf67",
+    "steps_ran": 2
+  },
+  "mica-register-crosscheck": {
+    "composite_execution_hash": "23a173a3c104d0d17be2d3a1a3f8020bb010f8d22d4bdef0e35f7d7852c87e70",
+    "steps_ran": 4
+  },
+  "mica-token-scoping": {
+    "composite_execution_hash": "6421e31904dbe7c0b721fe0f7b0744c09708b0b450fd6d4c4ab603b13a174033",
+    "steps_ran": 2
+  },
+  "mica-travel-rule": {
+    "composite_execution_hash": "eb16ca070eaed77e46f59f4bb2aab22b91f2e42909788b93c0dfb31da8beb40d",
+    "steps_ran": 2
+  },
+  "mica-whitepaper": {
+    "composite_execution_hash": "52c3cc83f41bad5903d570682393a987cae1e125b6431a08c726307fbd11d8c0",
+    "steps_ran": 2
+  },
+  "model-passport-lifecycle": {
+    "composite_execution_hash": "53b4992f12a19c858559c5a189dbe4c642c6d39da67bc04ead7a3f72bfacb975",
+    "steps_ran": 3
+  },
+  "model-risk-lineage-pack": {
+    "composite_execution_hash": "d2eb7508fdc056805bb6469fa837f736e5c4a445a0d5fede61c2eee85dae41f9",
+    "steps_ran": 1
+  },
+  "model-validation-cycle": {
+    "composite_execution_hash": "d31171114d5b9e0770a749951dba8a7c37cc699fece5029a56c621fc35162948",
+    "steps_ran": 2
+  },
+  "mortgage-agency-pricing-and-eligibility": {
+    "composite_execution_hash": "5e13b4ed89e785e213f6d4a8e112f40a8bdca297baa15468a3fda43edd8bec67",
+    "steps_ran": 3
+  },
+  "mortgage-apr-accuracy-and-tolerance-cure": {
+    "composite_execution_hash": "515116f96d3941afbdf3288b8a401f86281a10d834bcf004f72d56e57f220147",
+    "steps_ran": 3
+  },
+  "mortgage-compliance-preflight": {
+    "composite_execution_hash": "b7d48c638a82202b0cd485a68ca9db9e69a58d74855e77860819fef6c22af310",
+    "steps_ran": 4
+  },
+  "mortgage-government-loan-fit": {
+    "composite_execution_hash": "48efa5f3a232703472693e62ea33f551f22fba89977cf6b46cc6bca122854ec8",
+    "steps_ran": 3
+  },
+  "mortgage-high-cost-and-hpml-screen": {
+    "composite_execution_hash": "a7dd6eb630d010ef1516cd9dc6021e0b9d23a0b6538ab5c75d78575ec896d273",
+    "steps_ran": 1
+  },
+  "mortgage-pi-verifier": {
+    "composite_execution_hash": "803be6f065d103d77822600430b0f0bc12c1f444cf91023120777a1b2780b3c7",
+    "steps_ran": 2
+  },
+  "mra-consent-order-closure-cycle": {
+    "composite_execution_hash": "8683cf3351df10f53e9d4b140853765c7d206fe26b9690aa31451eb500196086",
+    "steps_ran": 1
+  },
+  "multilateral-netting-settlement": {
+    "composite_execution_hash": "efa6f1ebc146c66a382abaacc3603dda494d7add3ea76242d33a0fed7b0d487b",
+    "steps_ran": 2
+  },
+  "muni-spending-exception-tracker-pack": {
+    "composite_execution_hash": "76ec974a917b382111abfb4b867ed664721c7c94080c1bb7b5490813021346f2",
+    "steps_ran": 2
+  },
+  "mutual-nda-composer": {
+    "composite_execution_hash": "427654f8fcd221ee879f328b59584c38a94bf187d514fc938d7067699c321bce",
+    "steps_ran": 2
+  },
+  "nav-verification-pack": {
+    "composite_execution_hash": "941e220d865c896fdecbbbee55c88f14ebc967cbe3fdb65588e5a181857ceb98",
+    "steps_ran": 3
+  },
+  "nis2-entity-scope-and-obligations": {
+    "composite_execution_hash": "1f6226bfb1a82a9fe1c709e011efd2fc1a969f6259c88a37929f94a93f176347",
+    "steps_ran": 3
+  },
+  "nis2-incident-and-supply-chain-readiness": {
+    "composite_execution_hash": "d3de32c4415308ad4348fb8801a49c6c9c4ab0da10191f5bdd91cb90e9100feb",
+    "steps_ran": 3
+  },
+  "overtime-pay-check": {
+    "composite_execution_hash": "691929723ce84c97b6be1242772a61e572f787725007dadfed9582a06a280417",
+    "steps_ran": 2
+  },
+  "parametric-trigger-adjudication": {
+    "composite_execution_hash": "2269834b59e47e106f50ee5df9af985b1659bae02f78255101cc170482751b8d",
+    "steps_ran": 2
+  },
+  "paycheck-take-home-check": {
+    "composite_execution_hash": "aeec217c824cfc4a46894a436987cd8669f535416f6422226b905a545dc77e52",
+    "steps_ran": 3
+  },
+  "pe-waterfall-true-up-pack": {
+    "composite_execution_hash": "73c917b80c5de5c1b62f09dc23c0bf7ae558c2970f6a012021966ed950a73438",
+    "steps_ran": 1
+  },
+  "pharma-serialization-custody": {
+    "composite_execution_hash": "c14f55062d84e600f6e8f7e12a6106bac34a1d8f6cd8f62161113528bf8edf22",
+    "steps_ran": 3
+  },
+  "pqc-audit-pack": {
+    "composite_execution_hash": "24bacd5131fb029dd7fae736235a77ad3f8b210a9a9bec4d1149661efd345ca7",
+    "steps_ran": 3
+  },
+  "pqc-fido-webauthn": {
+    "composite_execution_hash": "e32514b43b11c34d062616974cf633facba86c01f8494841f48f29b9f09a6670",
+    "steps_ran": 2
+  },
+  "pqc-fit": {
+    "composite_execution_hash": "2a65be0de6af7e89dea8b8b3ae96d67d587c4b3c2dbc2eb7592cbad13de4e2ff",
+    "steps_ran": 1
+  },
+  "pqc-migration-evidence": {
+    "composite_execution_hash": "71f940cd0a6f1e09cb169da1d00539891788b138275aabdb77b42934f2ca853e",
+    "steps_ran": 2
+  },
+  "private-student-loan-disclosure-check": {
+    "composite_execution_hash": "85b3fe8e6cf6a299b56e8e14604c21c870e25c4e7f7123076e3267cfb5967e60",
+    "steps_ran": 3
+  },
+  "producer-license-reciprocity": {
+    "composite_execution_hash": "b3ce3e06b7d280ef0414dc6bedac4f0116baa04432ad6942c5a812d7dc66c55b",
+    "steps_ran": 1
+  },
+  "psd3-readiness-consent-vop": {
+    "composite_execution_hash": "af9e2b90548eb09567213a914c119d98a79f5855c62e3da9d8485f1d527798b4",
+    "steps_ran": 3
+  },
+  "qfc-recordkeeping-cycle": {
+    "composite_execution_hash": "c464986c9d7f4778e607674a14554a801d2f875d604c4983a647cad5f936dcc4",
+    "steps_ran": 1
+  },
+  "rdarr-attestation-cycle": {
+    "composite_execution_hash": "ac66ad97c62e286066907087f0ce1b7a80a546953a6924dc95fd9d25da19f790",
+    "steps_ran": 2
+  },
+  "reg-w-23a-23b-testing-cycle": {
+    "composite_execution_hash": "41f41638ec0bfc3b49ba12632faa9f6da4f746e555ee33e51038f77dd2565520",
+    "steps_ran": 1
+  },
+  "regrpt-submission-cycle": {
+    "composite_execution_hash": "a2c4ea74bac49e8862813c12f0ded4f8d7d78e390625f89c5c7cc007ef424af5",
+    "steps_ran": 2
+  },
+  "remittance-disclosure-and-corridor-cost": {
+    "composite_execution_hash": "5995a5ccc8b529ff50f816b3841464e23ab43900c93fbc511898b648848090f3",
+    "steps_ran": 2
+  },
+  "reputation-score-aggregate": {
+    "composite_execution_hash": "e4d3d9f1cfbd06fcacdc6ccd5ea0c6b2f9d6b629da6abd569bf411cdeba465ec",
+    "steps_ran": 1
+  },
+  "reserve-proof-verification": {
+    "composite_execution_hash": "59a96135bd44c5df5850a6733bd7ed36ac77a632a2510646eb8ef105a7cd843f",
+    "steps_ran": 1
+  },
+  "retirement-decumulation-decisions": {
+    "composite_execution_hash": "e7d66c02c039b74e8c2631cb990e2b3d27bcb74f9806b6763355e7245d0ddae1",
+    "steps_ran": 2
+  },
+  "rhc-ap-redemption-stress": {
+    "composite_execution_hash": "02893aa9bfa4cd443b86cdc6363bacfc49767bfd36a40848f897df3c760e0220",
+    "steps_ran": 1
+  },
+  "rhc-bold-finality-classification": {
+    "composite_execution_hash": "0d7734cae2c7145fc2a185881d6bfbb32f585359431f977c2dddf0cdc281e3f8",
+    "steps_ran": 2
+  },
+  "rhc-collateral-haircut": {
+    "composite_execution_hash": "40b386b82a1f035236174e81817e577c1de7158652c10ee9ebcdac92789aa51e",
+    "steps_ran": 3
+  },
+  "rhc-fit": {
+    "composite_execution_hash": "d5d19cc468ad2f64597bdeafefc6aeb496cd15fc267ebcabf0275db867427bdd",
+    "steps_ran": 1
+  },
+  "rhc-multiplier-reconciliation": {
+    "composite_execution_hash": "381ab704e3ff51a3fd2c100d95c1080b74a4fe9ff50e8afb213afc1f9e7f45a0",
+    "steps_ran": 1
+  },
+  "rhc-regime-mapping": {
+    "composite_execution_hash": "c354d11377c6b33e00abec8f1773361fbd0a730bf9bfd9a3ebe73ced1963d088",
+    "steps_ran": 1
+  },
+  "rhc-valuation-lint": {
+    "composite_execution_hash": "c7c95035d5a6219107e38171d859746a9735d31e76505708e89a1cf52c576483",
+    "steps_ran": 1
+  },
+  "sanctions-audit-pack": {
+    "composite_execution_hash": "6f006d018cc41ae33c13760e91c81e02fcc4cab96eb358dc331e5259092fe940",
+    "steps_ran": 3
+  },
+  "sanctions-fit": {
+    "composite_execution_hash": "c77d1b03609769bf782d4e15d5cb5ccb890c4630687b5bbb51f569d0b83e3a5a",
+    "steps_ran": 1
+  },
+  "sanctions-fuzzy-calibration": {
+    "composite_execution_hash": "a9a4e2e45036e578b7b9a2afce6ac4c535b69b22da2e75f3dbd372cb49269025",
+    "steps_ran": 2
+  },
+  "sanctions-list-coverage": {
+    "composite_execution_hash": "f3a2d9ec8dceae75ce13f87c5c2f3c71eac4c85f48f6634da011671e8402e1e9",
+    "steps_ran": 2
+  },
+  "sanctions-ownership": {
+    "composite_execution_hash": "1b1fcabab60cb1378224991d748686b5282a4d5c14b1b0cc26577926a77dadc3",
+    "steps_ran": 3
+  },
+  "sanctions-screening-quality": {
+    "composite_execution_hash": "9b030625df097a3de86edab5e8e421d9e44faf07e0d3aa8fcb37ff08a0047ca6",
+    "steps_ran": 3
+  },
+  "sb53-frontier-scope": {
+    "composite_execution_hash": "ababeff9c9e831bc60bb24557b1579fac52b80ed6d88449d6e6fa4ec575a890a",
+    "steps_ran": 1
+  },
+  "sbom-provenance-attestation": {
+    "composite_execution_hash": "221cd7dc8c690ffb8eb2e3959192dda9c766f695e0877c5357994cd7a20a0be2",
+    "steps_ran": 3
+  },
+  "sec16b-early-warning-pack": {
+    "composite_execution_hash": "5c4814113b8b417aaff9dd2c0759f0433893fecc5c4c40508e826d9a9b692430",
+    "steps_ran": 2
+  },
+  "servicemember-lending-protections": {
+    "composite_execution_hash": "f87f55c83dba3aecdaf79d36c04848f6981e7274c34e812212e3d451b0a3c31f",
+    "steps_ran": 2
+  },
+  "servicing-audit": {
+    "composite_execution_hash": "ef7d81470a297fd584cae15831c852ca810108f75ff6cb16f2daad9475520c81",
+    "steps_ran": 3
+  },
+  "settlement-discipline-alloc-affirm": {
+    "composite_execution_hash": "a10292df3c32e7098e7e78ab1933f159b96954db9b5c7b5547df6d57e59811fa",
+    "steps_ran": 3
+  },
+  "settlement-discipline-audit-pack": {
+    "composite_execution_hash": "519ae5a4380d080b413febe8f865d443100b92eddc35567be6f59da8832a8c98",
+    "steps_ran": 3
+  },
+  "settlement-discipline-buyin": {
+    "composite_execution_hash": "57fd0b2f45717d8ea38c0022f9ab93699749812e5fb7cbc0ba49a02433c5cf26",
+    "steps_ran": 3
+  },
+  "settlement-discipline-failpredict": {
+    "composite_execution_hash": "038e5008a196403d8f7117fef8a70e01681ed3569f82550f678a743f6a250864",
+    "steps_ran": 3
+  },
+  "settlement-discipline-fit": {
+    "composite_execution_hash": "6f7ad097df10c2faa617e6a0252c18d0543ae21a9aaf35eda892991658f0db13",
+    "steps_ran": 1
+  },
+  "settlement-discipline-message-conformance": {
+    "composite_execution_hash": "46e4445bcd48090204cdeaa1ab96e1b80d3c3c6956de5eb65ab4978e3db9ffa6",
+    "steps_ran": 3
+  },
+  "settlement-discipline-penalty": {
+    "composite_execution_hash": "5a4413d4211e18eddfe1c2da295b1f50894292c3788155f107770f8025b3d7d8",
+    "steps_ran": 3
+  },
+  "settlement-discipline-penalty-v2": {
+    "composite_execution_hash": "4ac06902bad2ab1c639c05e4aca0b049d4daa99e8c2ebc904286cf22736afd20",
+    "steps_ran": 3
+  },
+  "settlement-discipline-ssi-hygiene": {
+    "composite_execution_hash": "84b784036f49742519a558f69df71b836463fdf43df78ef8b69e143856988028",
+    "steps_ran": 2
+  },
+  "slate-reporting-readiness": {
+    "composite_execution_hash": "ec2eaf732d4d32379fdf914069f87e257dc8c19a28ae3212fb4cc25410e7e30e",
+    "steps_ran": 2
+  },
+  "solvency-ii-reconciliation-and-capital": {
+    "composite_execution_hash": "c2245387ebbd485551553cae99d5956dd71adac51896b806d72ea9d387430624",
+    "steps_ran": 3
+  },
+  "stablecoin-examiner-pack": {
+    "composite_execution_hash": "c9a400ac3ca26d8b001cb9f5254fca65d4eacc8bb7911afc932d56ae8d32317c",
+    "steps_ran": 4
+  },
+  "stablecoin-remittance-corridor-economics": {
+    "composite_execution_hash": "3816caa67b031054a5420d674d40c9a5879ea461eeec8f729ed108be112dcf76",
+    "steps_ran": 2
+  },
+  "stablecoin-reserve-scorecard": {
+    "composite_execution_hash": "86101f9f2c3f444114aecbb2cae64e34c0cbd81bb4900a37e78f458829ab488a",
+    "steps_ran": 2
+  },
+  "state-proof-verification": {
+    "composite_execution_hash": "eb27f20e934a85728dd17ee430e8edd08494bbd056bdaeb08c379ec27cb6c31f",
+    "steps_ran": 1
+  },
+  "substantive-procedure-cycle": {
+    "composite_execution_hash": "8d7018b00b8823801329250c5bd2fd7f0f7623faf313021edbf3a5ea2f54162f",
+    "steps_ran": 4
+  },
+  "swift-csp-attestation-cycle": {
+    "composite_execution_hash": "dca207a2af66fb2d2add91c53daa080bf2ad2443bea5696c125d2246931fd7a4",
+    "steps_ran": 1
+  },
+  "swift-ledger-transfer-readiness": {
+    "composite_execution_hash": "1ece82b53beb083b7c2bdd75dc1c4f61f5edff530409498b545b61996d02d590",
+    "steps_ran": 4
+  },
+  "taxonomy-align": {
+    "composite_execution_hash": "c8632c230aea32a4ffcfcd2dcc0fc08a0d550bfecf444b68b80f0dd7fd25e5c2",
+    "steps_ran": 2
+  },
+  "taxonomy-kpi": {
+    "composite_execution_hash": "4fd98ce9b678a082f6137db20bf7888694ef32944cee990be2fff7dac8ce7fbd",
+    "steps_ran": 3
+  },
+  "tempo-agentic-checkout": {
+    "composite_execution_hash": "59fe4d55c550dbd0b403adc94be578a91ab023881b0f50c0b94ae849bb781c2d",
+    "steps_ran": 2
+  },
+  "tempo-fit": {
+    "composite_execution_hash": "d9ff246d443fdd8633ec46d664b35337635a44e6fe46fc5669542f9dbb37a047",
+    "steps_ran": 1
+  },
+  "tempo-gas-economics": {
+    "composite_execution_hash": "acaf9b1a687182b2e77578ae29ba1a926b15e8e18bf0819644c58274c9248cd3",
+    "steps_ran": 2
+  },
+  "tempo-payments": {
+    "composite_execution_hash": "464ba258628d35398d53d14a59519be17a67c7ec1551458d05320732e7185b37",
+    "steps_ran": 1
+  },
+  "tempo-subscription-settlement": {
+    "composite_execution_hash": "d675878a2b5f1fafd85784df082d80d8632d20e6379e21ba394632a654e41c49",
+    "steps_ran": 4
+  },
+  "tempo-validator-readiness": {
+    "composite_execution_hash": "5f384d1e73465bf3aa325ed1da5a3b61a574b2ce56da83d0ba24d1b68b28cb0e",
+    "steps_ran": 1
+  },
+  "tmpg-fails-charge-claim-pack": {
+    "composite_execution_hash": "ff54f78374fb579646a2c2cf996d037a1beec4b15c489ad1941c28e77152f92b",
+    "steps_ran": 1
   },
   "tokenization-prep": {
     "composite_execution_hash": "76f805af8f3ad030c6893b8d000e9337ccc55bea20858ae505bd0722788e966d",
     "steps_ran": 5
   },
-  "license-compatibility-check": {
-    "composite_execution_hash": "1aaa9a7507aa79ec52046653cea78901681f9af88ed26110b44b5d8454773c7a",
+  "traiga-safe-harbor": {
+    "composite_execution_hash": "6ccba4c8e47b8b8bec6a641eb844ef17d4947d6d96d5b9f995ed4552d05c7f2a",
+    "steps_ran": 3
+  },
+  "treasury-account-lifecycle-ebam": {
+    "composite_execution_hash": "a188c9ec251c5e2b3d429197abffaff8f1dcce90cee77ce9ed39d98dcf4a4d10",
     "steps_ran": 2
+  },
+  "treasury-clearing-access-model": {
+    "composite_execution_hash": "d47bc9d9c651ad0c5daf3744fd6ee38c05efde317193902d0ceeb1d8bb21ae09",
+    "steps_ran": 3
+  },
+  "treasury-clearing-collateral": {
+    "composite_execution_hash": "10d8a3648ecce2f479d876a9786935ae91a23580379776df528c3600fd57af8c",
+    "steps_ran": 3
+  },
+  "treasury-clearing-fit": {
+    "composite_execution_hash": "28158fc50c3773edf6831f9ee23c7b7ff7f19d4f5281adee61968dc855410fad",
+    "steps_ran": 1
+  },
+  "treasury-clearing-settlement-integrity": {
+    "composite_execution_hash": "858ea20b36963b67ccf0bde1d5d861cb297838c1a2acef15fe61e5d408cdffcf",
+    "steps_ran": 3
+  },
+  "trust-audit-closeout-pack": {
+    "composite_execution_hash": "108bdaa97ce59c2e948d1776309c94a53c0fa2b96e87b329bfd4d6b175729aae",
+    "steps_ran": 3
+  },
+  "us-treasury-clearing": {
+    "composite_execution_hash": "6a27d7c1072c6a687ded06d74cffb08e5363a8ec710f30de5209c6e7f7a235a4",
+    "steps_ran": 6
+  },
+  "verify-agent-delegation": {
+    "composite_execution_hash": "d0b669871f720ec4fbe84a88e3606adc538a9092ddb88c03e806a12f1db4f240",
+    "steps_ran": 2
+  },
+  "vida-digital-reporting-requirements": {
+    "composite_execution_hash": "69ba2c9e3b154042f062e627cbc515d6c5cdda569e7b92f9bd674fb76fbc14ac",
+    "steps_ran": 3
+  },
+  "vida-platform-and-registration": {
+    "composite_execution_hash": "80f76c18a95f7d296f5028f0c9da5a79ed17b08d6c1b33528c78887016353fbc",
+    "steps_ran": 3
+  },
+  "visa-tap-agent-verification": {
+    "composite_execution_hash": "4ea646be27f9a7c5bc44b22953465ff501689edaa35c007d174213c0605ae03a",
+    "steps_ran": 4
+  },
+  "vop-liability-evidence": {
+    "composite_execution_hash": "3c71fa8c2c74fbfe45a361413950a7b7380cffd3b0a0010e47e14439f0883ba0",
+    "steps_ran": 2
+  },
+  "wholesale-settlement-audit-pack": {
+    "composite_execution_hash": "63b35bd21726ee8f3ac82bda05c59381e8bf94ea374f122a94e99fec1465c8d2",
+    "steps_ran": 3
+  },
+  "wholesale-settlement-collateral-mobility": {
+    "composite_execution_hash": "4c6867634e3f6da20404ebcb5c2393227be627d9b13a0a62cd4eeb5dc0fa2d2a",
+    "steps_ran": 3
+  },
+  "wholesale-settlement-cross-network-dvp": {
+    "composite_execution_hash": "6482d9dc917c14ca7b75f7b3ec5669b6d392c83d3e6d03987dbc26decc752790",
+    "steps_ran": 3
+  },
+  "wholesale-settlement-deposit-token": {
+    "composite_execution_hash": "d009761295c02ca3af6f87aec82457f4346d2ea6d9b1c1d1f4cde8bf44adfdc6",
+    "steps_ran": 3
+  },
+  "wholesale-settlement-fit": {
+    "composite_execution_hash": "eecfd25387affffdc11232c51341015b96325639259ebebb12d28032f01ef7c8",
+    "steps_ran": 1
+  },
+  "wholesale-settlement-settlement-asset": {
+    "composite_execution_hash": "a1bf7e157cf646fd09612546ef9483a19d4492ce92595de08730a78d475f55de",
+    "steps_ran": 3
+  },
+  "x402-permit2-spend-evidence": {
+    "composite_execution_hash": "1b69f0f529c69a35f73c74699dfee91194522e6976b094ade08161797b28341b",
+    "steps_ran": 2
+  },
+  "x402-permit2-sponsored-spend-evidence": {
+    "composite_execution_hash": "e7e7b611b27fedc9c084179a00f0aca036547f3a6d55135e2dd71be2ade2ad24",
+    "steps_ran": 3
+  },
+  "x402-spend-evidence": {
+    "composite_execution_hash": "a63b624bb9502577b589befe4d9e08ed72990d47154cbefcb0429bff01ab5470",
+    "steps_ran": 3
+  },
+  "y9c-schedule-hc-hcr-capital": {
+    "composite_execution_hash": "5e0dc8cbd6bb36d995479792d7cf25717f291858626c0b19672a06a2e2f7ba54",
+    "steps_ran": 3
   }
 }
