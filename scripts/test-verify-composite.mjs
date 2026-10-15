@@ -95,6 +95,12 @@ await withServer(data, async (call) => {
   const h2 = await executionHash(pp2, op2);
   const vn2 = await call('verify_execution_hash', { policy_parameters: pp2, output_payload: op2, claimed_hash: h2 });
   check(vn2.valid === true && vn2.rule === 'node-§6', 'node payload with a steps array but no chain markers stays on node-§6');
+
+  // String `chain` + `steps` array but no step_tool_ids: NOT composite, stays on node-§6.
+  const pp3 = { chain: 'x', a: 1 }, op3 = { chain: 'x', steps: [1], extra: 'kept' };
+  const h3 = await executionHash(pp3, op3);
+  const vn3 = await call('verify_execution_hash', { policy_parameters: pp3, output_payload: op3, claimed_hash: h3 });
+  check(vn3.valid === true && vn3.rule === 'node-§6', 'string chain + steps array without step_tool_ids stays on node-§6');
 });
 
 if (failed) { console.error(`\n✗ ${failed} check(s) failed`); process.exit(1); }

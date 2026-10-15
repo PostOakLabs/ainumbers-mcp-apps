@@ -2493,7 +2493,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     // preimage is rebuilt from an ALLOWLIST (deny-by-default) per SPEC §21.2/§21.4. Mirrors the producer's
     // composite_policy / composite_output members; optional members are included only when present.
     const isComposite = Array.isArray(op?.steps) && pp !== null && typeof pp === 'object'
-      && (Array.isArray(pp.step_tool_ids) || typeof pp.chain === 'string');
+      && Array.isArray(pp.step_tool_ids);
     let hashPp = pp, hashOp = op, rule = 'node-§6';
     if (isComposite) {
       rule = 'composite-§21.2';
