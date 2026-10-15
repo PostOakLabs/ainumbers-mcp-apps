@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 732,
+  "tool_count": 733,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -153,6 +153,7 @@
     "check_eudi_readiness",
     "check_fatca_crs_submission_conformance",
     "check_fido_pqc_conformance",
+    "check_force_placed_notice",
     "check_g20_corridor_cost_gap",
     "check_genius_reserve_disclosure",
     "check_genius_reserve_disclosure_conformance",

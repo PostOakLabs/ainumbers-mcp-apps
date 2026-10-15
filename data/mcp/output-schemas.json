@@ -44580,6 +44580,55 @@
     "additionalProperties": false,
     "x-derived-from": "fixture"
   },
+  "check_force_placed_notice": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "elements": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "element_id": {
+              "type": "string"
+            },
+            "cited_paragraph": {
+              "type": "string"
+            },
+            "requirement": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "premium_benchmark": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "refund_evaluation": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "charge_summary": {
+        "type": "object"
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
