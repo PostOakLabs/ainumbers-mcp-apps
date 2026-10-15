@@ -7541,6 +7541,16 @@
       "board_review_age_days": 90
     }
   },
+  "overdraft-nsf-fee-recompute-check": {
+    "art-662-odnsf-fee-recompute": {
+      "account_token": "acct-demo-001",
+      "period_label": "2026-08",
+      "ledger": []
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "overtime-pay-check": {
     "art-340-compute-flsa-regular-rate": {
       "hours_worked_week": 45,
