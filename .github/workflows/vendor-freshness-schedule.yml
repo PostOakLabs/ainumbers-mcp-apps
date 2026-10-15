@@ -170,10 +170,15 @@ jobs:
           # NOTE the '=': the bare '--repo <path>' form silently no-ops
           # (generate.mjs only parses '--repo=<path>').
           node generate.mjs --repo=_site
-          if [ -n "$(git status --porcelain -- ./data ./kernels)" ]; then
+          # Capture first, then slice: `| head -20` under `set -o pipefail`
+          # SIGPIPEs git status (exit 141) when the dirty list exceeds the
+          # pipe buffer (run 38763768621). sed reads all input, so the
+          # capture-then-slice form cannot 141.
+          DIRTY="$(git status --porcelain -- ./data ./kernels)"
+          if [ -n "$DIRTY" ]; then
             echo "dirty=true" >> "$GITHUB_OUTPUT"
             echo "Regenerated tree differs from the vendored tree:"
-            git status --porcelain -- ./data ./kernels | head -20
+            printf '%s\n' "$DIRTY" | sed -n '1,20p'
           else
             echo "dirty=false" >> "$GITHUB_OUTPUT"
             echo "generate produced no diff — the already-open vendor PR (if any) carries this tree."
