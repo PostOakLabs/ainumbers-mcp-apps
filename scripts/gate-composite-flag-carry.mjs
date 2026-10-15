@@ -44,8 +44,9 @@ const fixtures = rd('chain-fixtures.json');
 const deps = { getKernel, chaingraph, fixtures };
 
 // Adjacent (hash-EXCLUDED) members of composite output_payload. Every entry here is attached
-// AFTER the composite hash is taken; assertion 4 proves that claim rather than trusting it.
-const ADJACENT_MEMBERS = ['step_compliance_flags', 'escalation_record'];
+// AFTER the composite hash is taken (non_live_steps: embed/runChain.mjs lines 217-222, same
+// posture as step_compliance_flags); assertion 4 proves that claim rather than trusting it.
+const ADJACENT_MEMBERS = ['step_compliance_flags', 'escalation_record', 'non_live_steps'];
 
 let failed = 0;
 const fail = (m) => { console.error(`  ✗ ${m}`); failed++; };
