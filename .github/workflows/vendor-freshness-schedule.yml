@@ -192,6 +192,16 @@ jobs:
           # bump→merge→publish flow (REGISTRY-PUBLISH-AUTO-1) publishes it.
           node scripts/sync-registry.mjs --check || node scripts/sync-registry.mjs --write
 
+      - name: 🧊 Linear-hash-freeze cure — re-capture goldens with the regen (LINEAR-HASH-FREEZE-HEAL-1)
+        if: steps.generate.outputs.dirty == 'true'
+        run: |
+          set -euo pipefail
+          # A vendored kernel/fixture change legitimately moves linear composite
+          # hashes; the freeze gate exists to catch RUNNER drift, not that. Re-capture
+          # so the self-heal PR carries its own cure (same pattern as the registry
+          # cure above). The goldens diff stays visible in the PR for review.
+          node scripts/linear-hash-freeze.mjs || node scripts/linear-hash-freeze.mjs --capture
+
       # Same App + same action pin as automerge-label.yml. BOTH permissions below
       # are required: the job PUSHES a branch (contents:write) and opens/labels a
       # PR (pull-requests:write).
@@ -253,7 +263,7 @@ jobs:
           git checkout -B "$BRANCH"
           git config user.name  "ainumbers-spec-sync[bot]"
           git config user.email "ainumbers-spec-sync[bot]@users.noreply.github.com"
-          git add -A -- data kernels server.json
+          git add -A -- data kernels server.json test/linear-hash-freeze.goldens.json
           # Two -m flags, not one multi-line literal: an unindented continuation
           # line inside `run: |` silently invalidates the whole workflow file
           # (measured 2026-08-16: 11 zero-job failure runs across every branch).

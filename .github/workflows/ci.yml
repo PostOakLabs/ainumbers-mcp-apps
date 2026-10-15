@@ -363,6 +363,14 @@ jobs:
         # that a genuinely flag-free chain still reports [] without inventing a member.
         run: node scripts/gate-composite-flag-carry.mjs
 
+      - name: 🧊 Linear-chain composite hash freeze (OCG v0.8 gate 3)
+        # LINEAR-HASH-FREEZE-HEAL-1. Pins composite_execution_hash for every fixture-runnable
+        # linear chain (test/linear-hash-freeze.goldens.json). A runner/composite change that
+        # moves a linear hash reds here. Legitimate moves come only from vendored kernel/
+        # fixture changes; the vendor self-heal re-captures in the same PR, a hand vendor PR
+        # runs `node scripts/linear-hash-freeze.mjs --capture` and commits the goldens.
+        run: node scripts/linear-hash-freeze.mjs
+
       - name: 🧭 Decision-trail preimage boundary (DECISIONTRAIL-1)
         # Per-step decision reason codes (gate rule id / escalation rule id / input_required
         # cause) on run_chain results, carried as HASH-EXCLUDED adjacent metadata on the
