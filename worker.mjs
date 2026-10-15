@@ -2467,7 +2467,8 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       'Pass either a full artifact object, or policy_parameters + output_payload + claimed_hash. ' +
       'Inputs must be I-JSON (RFC 7493): integers beyond 2^53 must be passed as JSON strings, and NaN/Infinity are rejected. ' +
       'Values outside I-JSON have no stable canonical form, so this tool returns a structured -32602 error (error.data.reason "ijson_violation") instead of a hash. ' +
-      'Pure client-safe compute -- no data is stored. Use this to verify artifacts from any vendor that conforms to the ChainGraph Standard.',
+      'Pure client-safe compute -- no data is stored. Use this to verify artifacts from any vendor that conforms to the ChainGraph Standard. ' +
+      'Also verifies composite chain artifacts from run_chain (composite_artifact, ChainGraph SPEC §21.2/§21.4): hash-excluded adjacent metadata such as decision_trail, step_compliance_flags, non_live_steps and escalation_record is dropped before recompute, and the response names which rule applied.',
     inputSchema: {
       artifact: z.record(z.any()).optional().describe('A full ChainGraph artifact envelope (must contain policy_parameters, output_payload, and execution_hash).'),
       policy_parameters: z.record(z.any()).optional().describe('Artifact policy_parameters (if not passing a full artifact).'),
@@ -2488,7 +2489,19 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     // I-JSON gate BEFORE any digest: a non-round-trippable value must never receive a hash.
     const ijsonBad = ijsonViolation({ policy_parameters: pp, output_payload: op });
     if (ijsonBad) return ijsonErrorResult(ijsonBad, 'policy_parameters + output_payload');
-    const computed_hash = await sharedExecutionHash(pp, op);
+    // Composite (run_chain) artifacts: the served payload carries hash-excluded adjacent metadata, so the
+    // preimage is rebuilt from an ALLOWLIST (deny-by-default) per SPEC §21.2/§21.4. Mirrors the producer's
+    // composite_policy / composite_output members; optional members are included only when present.
+    const isComposite = Array.isArray(op?.steps) && pp !== null && typeof pp === 'object'
+      && (Array.isArray(pp.step_tool_ids) || typeof pp.chain === 'string');
+    let hashPp = pp, hashOp = op, rule = 'node-§6';
+    if (isComposite) {
+      rule = 'composite-§21.2';
+      const pick = (src, keys) => { const o = {}; for (const k of keys) if (Object.prototype.hasOwnProperty.call(src, k) && src[k] !== undefined) o[k] = src[k]; return o; };
+      hashPp = pick(pp, ['compute_mode', 'chain', 'chain_title', 'step_count', 'step_tool_ids', 'mandate_hash', 'route_plan_digest']);
+      hashOp = pick(op, ['chain', 'steps', 'decisions', 'path_taken']);
+    }
+    const computed_hash = await sharedExecutionHash(hashPp, hashOp);
     // Tolerate the optional "sha256:" prefix (OCG spec convention) on either side.
     const __norm = (h) => (h == null ? h : String(h).replace(/^sha256:/, ''));
     const valid = claimed != null && __norm(computed_hash) === __norm(claimed);
@@ -2504,6 +2517,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
           ? 'Verified: recomputed hash matches the artifact. Inputs reproduce outputs deterministically.'
           : 'MISMATCH: recomputed hash does not match the claimed hash. Treat the artifact as unverified.'),
       spec: 'ChainGraph Standard v0.1 §6',
+      rule,
     };
     return { content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent: out };
   });
