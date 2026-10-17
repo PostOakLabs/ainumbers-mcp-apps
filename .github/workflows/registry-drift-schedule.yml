@@ -75,6 +75,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          # BODY is a double-quoted assignment: it expands at assignment time, so
+          # $RUN_URL below must stay UNESCAPED — escaping it bakes a literal
+          # "$RUN_URL" into the raised issue body instead of the run URL.
           TITLE="Registry drift: server.json ahead of live MCP Registry"
           EXISTING=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number')
           BODY="Scheduled registry-drift check (REGISTRY-DRIFT-GATE-1) found local \`server.json\` committed ahead of what the live MCP Registry serves.
@@ -83,7 +86,7 @@ jobs:
 
           **Fix:** publishing is automated — \`.github/workflows/publish-registry.yml\` publishes on every push that touches \`server.json\` (REGISTRY-PUBLISH-AUTO-1). If this drift reached a scheduled cycle anyway, that automation failed: check its Actions runs, then re-run it via \`workflow_dispatch\`. The manual \`.\\mcp-publisher.exe publish\` route is a FALLBACK ONLY and uses the dedicated registry-only key from the \`mcp-registry\` environment — never the estate's §16 signing key. See \`docs/registry-publish.md\` (custody + rotation).
 
-          Failing run: \$RUN_URL"
+          Failing run: $RUN_URL"
           if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
             gh issue comment "$EXISTING" --repo "$GITHUB_REPOSITORY" --body "Still diverged as of this cycle. $RUN_URL"
           else
