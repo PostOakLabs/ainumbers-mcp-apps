@@ -30,7 +30,8 @@ const BASELINE_SERVER = [{ file: 'server.mjs', line: 3, code: -32601 }];
 
 // A worker.mjs slice that SATISFIES every rule — the clean control. Registry-built sites, the
 // tool builder sourcing code/message from the TOOL_ERRORS registry with the additive
-// structuredContent member, the request_id blob on the tool datum and NOT on the initialize datum.
+// structuredContent members (request_id + retryable), the request_id blob on the tool datum and
+// NOT on the initialize datum.
 const CLEAN_WORKER = `import { mintRequestId, protocolErrorResponse, TOOL_ERRORS } from './errors.mjs';
 function ijsonErrorResult(detail, where) {
   const out = {
@@ -40,7 +41,7 @@ function ijsonErrorResult(detail, where) {
       data: { reason: 'ijson_violation', where, detail },
     },
   };
-  const structuredContent = requestId != null ? { ...out, error: { ...out.error, request_id: requestId } } : out;
+  const structuredContent = requestId != null ? { ...out, error: { ...out.error, retryable: TOOL_ERRORS['tool.ijson_violation'].retryable, request_id: requestId } } : out;
   return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent };
 }
 function handler(request) {
@@ -62,6 +63,13 @@ const CLEAN_SERVER = `app.post('/mcp', (req, res) => {
 const INLINE_BAD = `return new Response(JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, message: 'nope' }, id: null }));`;
 const lineOfIn = (src, needle) => src.slice(0, src.indexOf(needle)).split('\n').length;
 
+// The clean control's ONE sanctioned literal isError:true — the resident ijsonErrorResult builder,
+// line-anchored in the tool baseline exactly as the real tree anchors its own.
+const TOOL_BASELINE_SERVER = [{ file: 'worker.mjs', line: lineOfIn(CLEAN_WORKER, 'isError: true') }];
+
+// A NEW prose isError tool result (the exact defect BUILD-SPEC §2 A4 exists to prevent).
+const PROSE_TOOL_BAD = `if (grumpy) return { isError: true, content: [{ type: 'text', text: 'nope' }] };\n`;
+
 // Each mutant re-introduces a defect a different way. `expect` names the rule id that must fire
 // (null = negative control: must stay legal).
 const MUTANTS = [
@@ -69,6 +77,16 @@ const MUTANTS = [
     name: 'spec §4.3a: a live inline construction site with NO baseline entry',
     expect: 'unregistered-construction',
     sources: { 'worker.mjs': CLEAN_WORKER + INLINE_BAD + '\n' },
+  },
+  {
+    name: 'BUILD-SPEC A4: a NEW prose isError tool result outside the tool baseline',
+    expect: 'unregistered-tool-error',
+    sources: { 'worker.mjs': CLEAN_WORKER + PROSE_TOOL_BAD },
+  },
+  {
+    name: 'BUILD-SPEC A1: ijsonErrorResult lost the additive retryable member',
+    expect: 'retryable-envelope-missing',
+    sources: { 'worker.mjs': CLEAN_WORKER.replace("retryable: TOOL_ERRORS['tool.ijson_violation'].retryable, ", '') },
   },
   {
     name: 'the deleted hand-rolled helper reintroduced',
@@ -121,10 +139,30 @@ const MUTANTS = [
     expect: null,
     sources: { 'worker.mjs': CLEAN_WORKER + `// History: this used to be an inline JSON.stringify({ jsonrpc: '2.0', error: { code: -32600, ... } }) literal.\n`, 'server.mjs': CLEAN_SERVER },
   },
+  {
+    name: 'negative control: isError:true MENTIONED in a string (a tool description) stays legal',
+    expect: null,
+    sources: { 'worker.mjs': CLEAN_WORKER + `const desc = 'if any section fails, the whole call fails isError:true with that message';\n`, 'server.mjs': CLEAN_SERVER },
+  },
 ];
 
 // Mutants for the REGISTRY MODULE's own source (auditErrorsModule).
 const ERRORS_MUTANTS = [
+  {
+    name: "errors.mjs: a PROTOCOL_ERRORS entry without the boolean retryable member",
+    expect: 'registry-retryable-missing',
+    src: `export const PROTOCOL_ERRORS = { 'protocol.rate_limited': { code: -32029, message: 'Rate limit exceeded. Wait and retry.' } };\nexport const TOOL_ERRORS = { 'tool.ijson_violation': { code: -32602, reason: 'ijson_violation', retryable: false } };\nconst codes = { a: -32001, b: -32020 };\n`,
+  },
+  {
+    name: "errors.mjs: a TOOL_ERRORS entry without the boolean retryable member",
+    expect: 'registry-retryable-missing',
+    src: `export const PROTOCOL_ERRORS = { 'protocol.rate_limited': { code: -32029, retryable: true } };\nexport const TOOL_ERRORS = { 'tool.invalid_args.xml_string': { code: -32602, message: 'xml must be a string.', reason: 'invalid_args.xml_string' } };\nconst codes = { a: -32001, b: -32020 };\nconst keep1 = 'Tool not found: '; const keep2 = 'Header mismatch: '; const keep3 = 'Server timeout'; const keep4 = 'Internal error'; const keep5 = 'Rate limit exceeded. Wait and retry.'; const keep6 = 'ijson_violation';\n`,
+  },
+  {
+    name: 'errors.mjs: toolErrorResult lost the retryable/reason emission',
+    expect: 'tool-builder-retryable-missing',
+    src: `export function toolErrorResult(name, opts) {\n  return { isError: true, content: [{ type: 'text', text: opts.text }] };\n}\n`,
+  },
   {
     name: 'errors.mjs: request_id member stripped from protocolErrorBody',
     expect: 'request_id-envelope-missing',
@@ -152,7 +190,10 @@ function main() {
   const rows = [];
 
   // 1. The clean control must be ACCEPTED.
-  const cleanViolations = auditSource({ 'worker.mjs': CLEAN_WORKER, 'server.mjs': CLEAN_SERVER }, { baseline: BASELINE_SERVER });
+  const cleanViolations = auditSource(
+    { 'worker.mjs': CLEAN_WORKER, 'server.mjs': CLEAN_SERVER },
+    { baseline: BASELINE_SERVER, toolBaseline: TOOL_BASELINE_SERVER },
+  );
   if (cleanViolations.length) {
     fail++;
     rows.push({ ok: false, name: 'clean control accepted', note: 'rejected with: ' + cleanViolations.map((v) => `${v.id}@${v.file}:${v.line}`).join(', ') });
@@ -162,7 +203,10 @@ function main() {
 
   // 2. Every tree mutant must be REJECTED by the specific rule it was built to trip.
   for (const m of MUTANTS) {
-    const violations = auditSource(m.sources ?? { 'worker.mjs': CLEAN_WORKER, 'server.mjs': CLEAN_SERVER }, { baseline: m.baseline ?? BASELINE_SERVER });
+    const violations = auditSource(
+      m.sources ?? { 'worker.mjs': CLEAN_WORKER, 'server.mjs': CLEAN_SERVER },
+      { baseline: m.baseline ?? BASELINE_SERVER, toolBaseline: m.toolBaseline ?? TOOL_BASELINE_SERVER },
+    );
     const ids = violations.map((v) => v.id);
     if (m.expect === null) {
       const ok = violations.length === 0;
@@ -184,12 +228,14 @@ function main() {
   }
 
   // 4. The REAL tree must be clean — the RED-then-GREEN second half, reported in the same run.
-  const baseline = JSON.parse(readFileSync(resolve(ROOT, 'scripts', 'error-registry.baseline.json'), 'utf8')).sites;
+  const baselineDoc = JSON.parse(readFileSync(resolve(ROOT, 'scripts', 'error-registry.baseline.json'), 'utf8'));
+  const baseline = baselineDoc.sites;
+  const toolBaseline = baselineDoc.tool_sites ?? [];
   const live = [
     ...auditErrorsModule(readFileSync(resolve(ROOT, 'errors.mjs'), 'utf8')),
     ...auditSource(
       { 'worker.mjs': readFileSync(resolve(ROOT, 'worker.mjs'), 'utf8'), 'server.mjs': readFileSync(resolve(ROOT, 'server.mjs'), 'utf8') },
-      { baseline },
+      { baseline, toolBaseline },
     ),
   ];
   if (live.length) { fail++; rows.push({ ok: false, name: 'live tree clean (worker.mjs + server.mjs + errors.mjs)', note: live.map((v) => `${v.id}@${v.file}:${v.line}`).join(', ') }); }
