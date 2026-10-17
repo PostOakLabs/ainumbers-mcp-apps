@@ -3981,6 +3981,41 @@
       "coordinated_disclosure_policy": true
     }
   },
+  "cross-border-payment-cost-check": {
+    "art-367-compute-cross-border-fees": {
+      "invoice_amount": 85000,
+      "origin_country": "US",
+      "dest_country": "GB",
+      "fx_spread_bps": 75,
+      "method_fee": 35,
+      "vat_rate": 0,
+      "doc_cost": 0,
+      "recon_cost": 12
+    },
+    "art-549-g20-corridor-cost-gap": {
+      "as_of": "2026-08-01",
+      "corridor_pair": {
+        "send_country": "US",
+        "receive_country": "MX"
+      },
+      "observed_cost_bps": 250,
+      "send_amount_basis": "USD_200",
+      "target_year": 2027
+    },
+    "art-250-model-stablecoin-corridor-economics": {
+      "send_amount_usd": 1000,
+      "on_ramp_fee_pct": 0.5,
+      "chain_fee_usd": 0.01,
+      "off_ramp_fee_pct": 0.3,
+      "fx_spread_pct": 0.2,
+      "float_savings_rate_pct": 4,
+      "float_days": 0,
+      "correspondent_cost_pct": 6
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "cross-border-payment-prevalidation": {
     "art-243-purpose-code-requirement-checker": {
       "beneficiary_country": "AE",

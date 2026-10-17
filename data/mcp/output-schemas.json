@@ -595,8 +595,29 @@
       "surplus_amount": {
         "type": "number"
       },
-      "shortage_spread_required": {
-        "type": "boolean"
+      "shortage_threshold_base": {
+        "type": "number"
+      },
+      "shortage_threshold_base_source": {
+        "type": "string"
+      },
+      "shortage_at_or_above_one_month_payment": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "shortage_permitted_courses": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "servicer_course_permitted": {
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "surplus_refund_required": {
         "type": "boolean"
