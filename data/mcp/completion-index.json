@@ -817,6 +817,7 @@
       "cra-product-conformance",
       "credit-decisioning",
       "credit-ecl-valuation",
+      "cross-border-payment-cost-check",
       "cross-border-payment-prevalidation",
       "crypto-tax-reporting",
       "digital-product-passport-lineage",
@@ -2298,6 +2299,12 @@
       151,
       152,
       153
+    ],
+    "cross-border-payment-cost-check": [
+      368,
+      529,
+      263,
+      666
     ],
     "cross-border-payment-prevalidation": [
       256,
