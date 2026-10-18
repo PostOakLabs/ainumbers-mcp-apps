@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 733,
+  "tool_count": 734,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -27,6 +27,7 @@
     "aggregate_solvency2_scr_modules",
     "aggregate_summa_mst_liabilities",
     "aggregate_taxonomy_kpi_gar",
+    "ai_displacement_risk_screener",
     "allocate_ihb_interest",
     "amortize_asc606_commissions",
     "analyze_dc_vs_lc_cost_benefit",
