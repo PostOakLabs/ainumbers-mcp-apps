@@ -4956,16 +4956,16 @@
       "mcp_name": "reconcile_v4_hook_permissions",
       "display_name": "V4 Hook Permission Reconciler",
       "uri": "ui://ainumbers/node/art-708-v4-hook-permission-reconciler",
-      "bytes": 78484,
-      "sha256": "778f72ebb98f870a57f92d51c0761317b6c9dd4bd65c22518c2891f9e4ddc5fc"
+      "bytes": 78552,
+      "sha256": "55013ce3f70bf90c0d2796d5333c03c1b9066db25cd72125940f2a72dd475212"
     },
     {
       "tool_id": "art-709-v4-hook-fee-conformance",
       "mcp_name": "check_v4_hook_fee_conformance",
       "display_name": "V4 Hook Fee Conformance",
       "uri": "ui://ainumbers/node/art-709-v4-hook-fee-conformance",
-      "bytes": 88516,
-      "sha256": "2e9bf8ffdbb85d2aaa76f2ccd0d86000f0c61a27fb8b89663bbbdad6869cedd4"
+      "bytes": 89010,
+      "sha256": "f9367686d84a19608299e61f0b9f53e3aabe2298da0502a90162f71abc351643"
     },
     {
       "tool_id": "art-710-tsv-stoppage-concurrency",
