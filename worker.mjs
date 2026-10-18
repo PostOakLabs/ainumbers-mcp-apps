@@ -739,6 +739,10 @@ async function loadData(env) {
   // unconditionally by generate.mjs in the same push as this reader, so a miss here means a broken
   // deploy that fails CI's wrangler dry-run + smoke first, and the throw is the honest signal.
   const nullExemptions = await (await get('mcp/null-exemptions.json')).json();
+  // MCP-TOOL-SCHEMA-PARAMS-1: the compact per-tool input spec registry (field names/types, required,
+  // manifest summary, output keys). ONE eager asset like null-exemptions; tolerant (null) so a missing
+  // file degrades to today's free-form policy_parameters instead of poisoning the cold isolate.
+  const inputSpecs = await get('mcp/input-schemas.json').then((r) => r.json()).catch(() => null);
   // Widget HTML bodies load LAZILY (only when a widget resource is actually READ), NOT eagerly
   // per PILOT here. On the Cloudflare FREE plan (50 subrequests/invocation) eager-loading every
   // widget's HTML at cold start put buildServer right at the ceiling; adding one widget (VM-1a
@@ -801,7 +805,7 @@ async function loadData(env) {
   let _completionIndexP = null;
   const loadCompletionIndex = () => (_completionIndexP ??= get('mcp/completion-index.json')
     .then((r) => r.json()).catch(() => null));
-  dataCache = { manifests, nullExemptions, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
+  dataCache = { manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
   return dataCache;
 }
 
@@ -2005,7 +2009,48 @@ export function delegationReason({ gpu = false, compute = 'auto', hasPolicyParam
     'No kernel registered for this node yet. Open URL in browser, run, export AP2 artifact. Pass execution_hash to downstream tools via parent_hashes.' };
 }
 
-function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+// ── MCP-TOOL-SCHEMA-PARAMS-1 ──────────────────────────────────────────────────────────────────
+// Publish each node's manifest input fields in its tool schema, refuse unknown policy_parameters
+// keys with a did-you-mean, and put the manifest summary in the tool description / find_tool rows.
+// Source: data/mcp/input-schemas.json (generate.mjs buildInputSchemas). Worker-side only: kernels,
+// execution_hash preimages and goldens are untouched.
+export function didYouMean(key, candidates) {
+  const k = String(key).toLowerCase();
+  let best = null, bestScore = Infinity;
+  for (const c of candidates) {
+    const lc = c.toLowerCase();
+    let score = levenshtein(k, lc);
+    if (k.length >= 3 && (lc.startsWith(k) || k.startsWith(lc))) score = Math.min(score, 1);
+    if (score < bestScore) { bestScore = score; best = c; }
+  }
+  return best !== null && bestScore <= Math.max(2, Math.ceil(String(key).length / 3)) ? best : null;
+}
+// Unknown top-level policy_parameters keys for a tool spec (empty when no spec or nothing unknown).
+export function unknownPolicyKeys(spec, pp) {
+  if (!spec?.p || !pp || typeof pp !== 'object' || Array.isArray(pp)) return [];
+  return Object.keys(pp).filter((k) => !Object.prototype.hasOwnProperty.call(spec.p, k));
+}
+export function unknownPolicyKeyMessage(toolName, spec, unknown) {
+  const valid = Object.keys(spec.p);
+  return 'Unknown policy_parameters key(s) for ' + toolName + ': ' +
+    unknown.map((k) => { const d = didYouMean(k, valid); return JSON.stringify(k) + (d ? ' (did you mean ' + JSON.stringify(d) + '?)' : ''); }).join(', ') +
+    '. Valid keys: ' + valid.join(', ') + '.';
+}
+// Zod shape for policy_parameters: every declared field published (name + type + enum), all optional
+// and typed z.any() so schema-level validation accepts exactly what it accepts today; the guard in
+// the handler does the policing. Extra keys stay permitted at the schema level (catchall).
+function policyParamsSchema(spec) {
+  const shape = {};
+  for (const [k, f] of Object.entries(spec.p)) {
+    const meta = {};
+    if (f.t) meta.type = f.t;
+    if (f.e) meta.enum = f.e;
+    shape[k] = z.any().meta(meta).optional();
+  }
+  return z.object(shape).catchall(z.any()).optional();
+}
+
+function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
   // WORKER-NULLPARITY-LIVE-FEED-1: the schema argument both kernel-dispatch sites hand to
   // normalizeNullMembers. PILOT widgets resolve their vendored manifest's input_schema exactly as
   // before; every OTHER servable tool falls back to its generated exemption skeleton (the projected
@@ -4523,7 +4568,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         structuredContent: { query, results: [], coverage_gaps: coverageGaps(query, searchIndex.nodes, 'node tool'), hint: 'No matches — try find_chain or list_ainumbers_tools.' },
       };
     }
-    const out = results.map(({ _score, ...r }) => ({ ...r, relevance_score: Math.round(_score * 1000) / 1000, why_matched: whyMatched(query, searchIndex.nodes, r) }));
+    const out = results.map(({ _score, ...r }) => ({ ...r, ...(inputSpecs?.[r.tool_id]?.s ? { summary: inputSpecs[r.tool_id].s } : {}), relevance_score: Math.round(_score * 1000) / 1000, why_matched: whyMatched(query, searchIndex.nodes, r) }));
     const payload = { query, result_count: out.length, tools: out, coverage_gaps: coverageGaps(query, searchIndex.nodes, 'node tool') };
     if (utilityMatches.length) payload.utility_tools = utilityMatches;
     payload.dispatch_hint = DISPATCH_STEER;
@@ -6028,6 +6073,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
     const feeds = node.feeds ?? [];
     const deadlineNote = node.deadline ? ' Regulatory deadline: ' + node.deadline + (node.deadline_note ? ' (' + node.deadline_note + ').' : '.') : '';
     const nodeView = nodeViewByToolId.get(node.tool_id) ?? null;
+    const inputSpec = inputSpecs?.[node.tool_id] ?? null;
     // The View resource rides the same registration pass (full builds only — see the O(1) note
     // above; in onlyTool builds server.registerResource is a stub, so this is a cheap no-op).
     if (nodeView && loadNodeView) {
@@ -6045,10 +6091,13 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
         ' Deterministic OpenChainGraph compute node. By default (compute:"auto") inputs are computed server-side on Cloudflare Workers for gpu:false nodes with a registered kernel; compute:"browser" forces client-side execution and returns a browser delegation URL instead. gpu:true nodes always delegate to the browser. Inputs are processed transiently to compute the response and are not stored, logged, or retained. Use synthetic or anonymised inputs only. Exports an AP2 artifact with execution_hash for chain provenance.' +
         (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
         (feeds.length   ? ' Output feeds: ' + feeds.join(', ') + '.' : '') +
-        ' Open at: ' + node.url + fvStatusNote,
+        ' Open at: ' + node.url + fvStatusNote +
+        (inputSpec?.s ? ' Summary: ' + inputSpec.s : '') +
+        (inputSpec?.o?.length ? ' Outputs: ' + inputSpec.o.join(', ') + '.' : ''),
       inputSchema: {
-        policy_parameters: z.record(z.any()).optional()
-          .describe('Input parameters for this tool\'s decision function. For gpu:false nodes with a registered kernel, these are computed server-side when compute is "auto" or "server". See the tool\'s manifest for field names.'),
+        policy_parameters: (inputSpec ? policyParamsSchema(inputSpec) : z.record(z.any()).optional())
+          .describe('Input parameters for this tool\'s decision function. For gpu:false nodes with a registered kernel, these are computed server-side when compute is "auto" or "server". ' +
+            (inputSpec ? (inputSpec.r?.length ? 'Required: ' + inputSpec.r.join(', ') + '. ' : '') + 'Unknown keys are refused.' : 'See the tool\'s manifest for field names.')),
         compute: z.enum(['auto', 'server', 'browser']).optional()
           .describe('Compute mode (v0.4 Compute Binding). "auto" (default) = server for gpu:false nodes with registered kernels; "server" = force server-side; "browser" = always return browser delegation URL. gpu:true nodes always delegate.'),
         parent_hashes: z.array(z.string()).optional()
@@ -6085,6 +6134,23 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
           };
         }
       }
+      // --- Unknown policy_parameters key (MCP-TOOL-SCHEMA-PARAMS-1) ---
+      // A misspelt field (rate for rate_pct) validates at the schema level and the kernel silently
+      // defaults it, so the call returns a wrong answer with no signal. WARNING mode, not isError:
+      // 23 shipped chain fixtures pass keys absent from the manifest input_schema.properties
+      // (scripts/measure-unknown-policy-keys.mjs), so a hard refusal needs a ruling first. The call
+      // still executes and the result carries the UNKNOWN_POLICY_PARAMETER warning + did-you-mean.
+      const unknownKeys = unknownPolicyKeys(inputSpec, policy_parameters);
+      const unknownWarnings = unknownKeys.length ? [{
+        code: 'UNKNOWN_POLICY_PARAMETER',
+        message: unknownPolicyKeyMessage(toolName, inputSpec, unknownKeys),
+        unknown_keys: unknownKeys,
+        valid_keys: Object.keys(inputSpec.p),
+        did_you_mean: Object.fromEntries(unknownKeys.map((k) => [k, didYouMean(k, Object.keys(inputSpec.p))]).filter(([, v]) => v)),
+      }] : null;
+      const withWarnings = (result) => unknownWarnings
+        ? { ...result, content: [...result.content, { type: 'text', text: 'WARNING ' + unknownWarnings[0].code + ': ' + unknownWarnings[0].message }], structuredContent: { ...result.structuredContent, warnings: unknownWarnings } }
+        : result;
       // --- Compute Binding (v0.4): server-side dispatch for gpu:false nodes ---
       const effectiveCompute = compute ?? 'auto';
       if (policy_parameters && effectiveCompute !== 'browser' && !node.gpu) {
@@ -6140,7 +6206,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
                 artifact.deferred_reason = 'a compute_proof exists for this kernel but its journal.output does not match this input\'s output_payload -- the receipt attests a different output';
               }
             }
-            return {
+            return withWarnings({
               content: [{ type: 'text', text: JSON.stringify(artifact, null, 2) }],
               structuredContent: {
                 compute_mode: 'server',
@@ -6149,7 +6215,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
                 artifact,
                 note: 'Kernel computed server-side. Pass artifact.execution_hash as parent_hashes to downstream tools.',
               },
-            };
+            });
           } catch (err) {
             return {
               isError: true,
@@ -6171,7 +6237,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       const chainNote = (parent_hashes && parent_hashes.length)
         ? '\nChain from: ' + parent_hashes.join(', ') + (parent_tool_ids ? ' (' + parent_tool_ids.join(', ') + ')' : '')
         : '';
-      return {
+      return withWarnings({
         content: [{ type: 'text', text:
           'ChainGraph tool: ' + node.display_name + '\n' +
           'URL: ' + node.url + '\n' +
@@ -6197,7 +6263,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
           delegation_reason: delegation.reason,
           instruction: delegation.instruction,
         },
-      };
+      });
     });
   }
 
