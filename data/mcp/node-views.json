@@ -468,8 +468,8 @@
       "mcp_name": "run_tokenized_settlement_fit",
       "display_name": "Wholesale Tokenized Settlement Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-56-tokenized-settlement-fit-diagnostic",
-      "bytes": 89881,
-      "sha256": "79336162436408901565a4b8876bbaa40bd08926883262621461bbc9ce17aefe"
+      "bytes": 92388,
+      "sha256": "cbf6ef6bdbce3d1cacf65a5ac256dbcd83e8e9a18e81fb3ba6d0ef6305ab5ac8"
     },
     {
       "tool_id": "art-57-deposit-token-compliance-validator",
@@ -492,8 +492,8 @@
       "mcp_name": "classify_settlement_asset_finality",
       "display_name": "Settlement-Asset & Legal-Finality Classifier",
       "uri": "ui://ainumbers/node/art-59-settlement-asset-finality-classifier",
-      "bytes": 46234,
-      "sha256": "4cf354a445f1e0e90c12db25906cd8adb700947ceb2e7738f7e53ed42d849b1b"
+      "bytes": 48741,
+      "sha256": "d5056cf125e5e4ced39cc68a0bf41b3c6c4f684965bd6443c3768179179e2061"
     },
     {
       "tool_id": "art-60-agent-economy-runtime-fit-diagnostic",
