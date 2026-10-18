@@ -1018,6 +1018,7 @@
       "stablecoin-reserve-scorecard",
       "state-proof-verification",
       "substantive-procedure-cycle",
+      "supplier-invoice-three-way-match-check",
       "sustainability-disclosure-sfdr",
       "swift-csp-attestation-cycle",
       "swift-ledger-transfer-readiness",
@@ -2980,6 +2981,11 @@
       448,
       449,
       450
+    ],
+    "supplier-invoice-three-way-match-check": [
+      649,
+      307,
+      666
     ],
     "swift-csp-attestation-cycle": [
       469,
