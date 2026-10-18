@@ -1521,6 +1521,60 @@
       }
     }
   },
+  "apy-earned-check": {
+    "art-661-interest-accrual-recompute": {
+      "daily_balances": [
+        {
+          "date": "2026-01-01",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-02",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-03",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-04",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-05",
+          "principal_balance_cents": 100000
+        }
+      ],
+      "core_reported_accruals": [
+        {
+          "date": "2026-01-05",
+          "amount_cents": 70
+        }
+      ],
+      "product_terms": {
+        "day_count_convention": "actual/365",
+        "compounding": "none",
+        "rate_type": "fixed",
+        "rate_value": 0.05
+      }
+    },
+    "art-663-apy-earned-recompute": {
+      "interest_earned": 5.25,
+      "days_in_period": 30,
+      "average_daily_balance": 1000,
+      "disclosed_apy_earned": 6.58,
+      "accuracy_band_pp": {
+        "value": 0.05,
+        "effective_from": "2019-07-03",
+        "effective_to": null,
+        "source": "12 CFR 1030.3(f)(2) accuracy tolerance for the annual percentage yield earned",
+        "source_digest": "sha256:a31899e46c5b515c6e5b69bc6ec15ca0a4fb67e4e89ad45c772872cc4dc0a8fc"
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "arc-agentic-commerce": {
     "art-42-arc-fit-diagnostic": {
       "q1_cpn_connectivity": "yes",

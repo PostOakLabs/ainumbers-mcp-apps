@@ -5016,6 +5016,14 @@
       "sha256": "ef7582d2129b5c0a84752854b8b14c2b0711613524327dbe7f92695824488990"
     },
     {
+      "tool_id": "art-763-ai-displacement-risk-screener",
+      "mcp_name": "ai_displacement_risk_screener",
+      "display_name": "AI Displacement Risk Screener",
+      "uri": "ui://ainumbers/node/art-763-ai-displacement-risk-screener",
+      "bytes": 44053,
+      "sha256": "e830293b3591f671f590110bd2281491d3b96dbeb64500986f111ef22b0d4a16"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
