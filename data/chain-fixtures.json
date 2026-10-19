@@ -1521,6 +1521,60 @@
       }
     }
   },
+  "apy-earned-check": {
+    "art-661-interest-accrual-recompute": {
+      "daily_balances": [
+        {
+          "date": "2026-01-01",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-02",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-03",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-04",
+          "principal_balance_cents": 100000
+        },
+        {
+          "date": "2026-01-05",
+          "principal_balance_cents": 100000
+        }
+      ],
+      "core_reported_accruals": [
+        {
+          "date": "2026-01-05",
+          "amount_cents": 70
+        }
+      ],
+      "product_terms": {
+        "day_count_convention": "actual/365",
+        "compounding": "none",
+        "rate_type": "fixed",
+        "rate_value": 0.05
+      }
+    },
+    "art-663-apy-earned-recompute": {
+      "interest_earned": 5.25,
+      "days_in_period": 30,
+      "average_daily_balance": 1000,
+      "disclosed_apy_earned": 6.58,
+      "accuracy_band_pp": {
+        "value": 0.05,
+        "effective_from": "2019-07-03",
+        "effective_to": null,
+        "source": "12 CFR 1030.3(f)(2) accuracy tolerance for the annual percentage yield earned",
+        "source_digest": "sha256:a31899e46c5b515c6e5b69bc6ec15ca0a4fb67e4e89ad45c772872cc4dc0a8fc"
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "arc-agentic-commerce": {
     "art-42-arc-fit-diagnostic": {
       "q1_cpn_connectivity": "yes",
@@ -4890,6 +4944,58 @@
       "operator_id": "bank-xyz"
     }
   },
+  "escrow-statement-check": {
+    "732-borrower-escrow-auditor": {
+      "starting_balance": 0,
+      "monthly_payments": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "disbursements": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1200
+      ],
+      "stated_cushion": 0,
+      "borrower_current": true,
+      "stated_balances": [
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        0
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "eudi-acceptance-vop-evidence": {
     "art-13-eudi-wallet-credential-readiness-checker": {
       "credential_type": "eaa",
@@ -5251,6 +5357,20 @@
           "date": "2026-05-06"
         }
       ]
+    }
+  },
+  "force-placed-insurance-check": {
+    "art-734-force-placed-insurance-checker": {
+      "first_notice_date": "2026-03-01",
+      "reminder_notice_date": "2026-04-01",
+      "charge_date": "2026-04-20",
+      "charged_premium_amount": 1200,
+      "charge_coverage_start": "2026-04-20",
+      "charge_coverage_end": "2027-04-19",
+      "alternative_quote_amount": 600
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "genius-listing-acceptance-pack": {
@@ -9212,6 +9332,134 @@
         "role": "engagement_partner",
         "statement": "Released the area for reporting."
       }
+    }
+  },
+  "supplier-invoice-three-way-match-check": {
+    "art-701-three-way-invoice-match": {
+      "currency": "USD",
+      "invoice": {
+        "invoice_number": "INV-0042",
+        "issue_date": "2026-09-30",
+        "vendor_id": "V-1",
+        "po_number": "PO-7",
+        "subtotal_minor": 170000,
+        "tax_minor": 14025,
+        "total_minor": 184025,
+        "lines": [
+          {
+            "line": 1,
+            "po_line": 1,
+            "sku": "A-100",
+            "qty": 10,
+            "unit_price_minor": 12000,
+            "amount_minor": 120000
+          },
+          {
+            "line": 2,
+            "po_line": 2,
+            "sku": "B-200",
+            "qty": 5,
+            "unit_price_minor": 4000,
+            "amount_minor": 20000
+          },
+          {
+            "line": 3,
+            "po_line": 3,
+            "sku": "C-300",
+            "qty": 2,
+            "unit_price_minor": 15000,
+            "amount_minor": 30000
+          }
+        ]
+      },
+      "purchase_order": {
+        "po_number": "PO-7",
+        "lines": [
+          {
+            "line": 1,
+            "sku": "A-100",
+            "qty": 10,
+            "unit_price_minor": 12000
+          },
+          {
+            "line": 2,
+            "sku": "B-200",
+            "qty": 5,
+            "unit_price_minor": 4000
+          },
+          {
+            "line": 3,
+            "sku": "C-300",
+            "qty": 2,
+            "unit_price_minor": 15000
+          }
+        ]
+      },
+      "goods_receipt": {
+        "receipt_id": "GR-3",
+        "lines": [
+          {
+            "po_line": 1,
+            "qty_received": 10
+          },
+          {
+            "po_line": 2,
+            "qty_received": 5
+          },
+          {
+            "po_line": 3,
+            "qty_received": 2
+          }
+        ]
+      },
+      "vendor_terms": {
+        "price_tolerance_bp": 200,
+        "tax_rate_bp": 825,
+        "tax_rounding": "half_up"
+      },
+      "prior_invoices": [],
+      "duplicate_window_days": 14
+    },
+    "art-294-einvoice-vat-calc-verifier": {
+      "document": {
+        "line_items": [
+          {
+            "line_id": 1,
+            "net_amount": 1000,
+            "vat_category": "S",
+            "vat_rate_pct": 19
+          },
+          {
+            "line_id": 2,
+            "net_amount": 500,
+            "vat_category": "Z",
+            "vat_rate_pct": 0
+          }
+        ],
+        "tax_subtotals_asserted": [
+          {
+            "vat_category": "S",
+            "vat_rate_pct": 19,
+            "taxable_amount": 1000,
+            "tax_amount": 190
+          },
+          {
+            "vat_category": "Z",
+            "vat_rate_pct": 0,
+            "taxable_amount": 500,
+            "tax_amount": 0
+          }
+        ],
+        "grand_total_asserted": 1690,
+        "tax_total_asserted": 190
+      },
+      "rounding": {
+        "method": "half-up",
+        "granularity": "per-line"
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "swift-csp-attestation-cycle": {
