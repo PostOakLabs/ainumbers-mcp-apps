@@ -679,6 +679,32 @@ for (const slug of PILOT) {
 writeFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), JSON.stringify(outputSchemas, null, 2) + '\n');
 console.log('outputSchema projected for', Object.keys(outputSchemas).length, 'tools (read-only from repo/manifests/*)');
 
+// ---------------------------------------------------------------------------
+// input_schema projection (DESCRIBE-INPUT-SCHEMA-1) — same sources and loop shape as the
+// outputSchema projection above. Keyed by mcp_name; value = the manifest's input_schema VERBATIM.
+// Served by describe_tool ONLY (as x_manifest_input_schema) — never attached to tools/list. A node
+// whose manifest has no input_schema gets no key (never a skeleton). MUST be written before
+// precomputeDiscovery() below reads it.
+// ---------------------------------------------------------------------------
+const inputSchemas = {};
+for (const n of cgNodes) {
+  if (n.status !== 'live' || !n.mcp_name || !n.tool_id) continue;
+  try {
+    const manifestPath = resolve(REPO, 'manifests', n.tool_id + '.manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    if (manifest.input_schema) inputSchemas[n.mcp_name] = manifest.input_schema;
+  } catch { /* no manifest for this tool_id — omit, don't fabricate */ }
+}
+for (const slug of PILOT) {
+  try {
+    const manifest = JSON.parse(readFileSync(resolve(DATA, 'manifests', slug + '.manifest.json'), 'utf8'));
+    const name = manifest?.mcp_tool_definition?.name;
+    if (name && manifest.input_schema) inputSchemas[name] = manifest.input_schema;
+  } catch { /* ignore */ }
+}
+writeFileSync(resolve(DATA, 'mcp', 'input-schemas.json'), JSON.stringify(inputSchemas, null, 2) + '\n');
+console.log('input_schema projected for', Object.keys(inputSchemas).length, 'tools (read-only from repo/manifests/*)');
+
 console.log('vendored', PILOT.length, 'pilot tools + manifests + catalog + chaingraph.json (' + liveNodes + '/' + cgNodes.length + ' live nodes, ' + cgChains.length + ' chains, ' + chainDocs.length + ' advertisable in find_chain) + kernels + counts.json + ext-apps-inline.js + search-index.json into ./data');
 
 // ---------------------------------------------------------------------------

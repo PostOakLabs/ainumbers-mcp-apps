@@ -126,7 +126,7 @@ console.log(`· page one: ${p1.bytes} bytes (SSE frame), ${p1Tools.length} tools
   check('cursor walk: 0 outputSchema keys across all pages', schemaKeys === 0, String(schemaKeys));
   check('cursor walk: matches the committed template tool-for-tool',
     walked.length === committed.length && committed.every((t) => unique.has(t.name)));
-  check('every page under the 150KB budget', Math.max(...pageBytes) < 200 * 1024, 'max page ' + Math.max(...pageBytes) + 'B');
+  check('every page under the 200KB budget', Math.max(...pageBytes) < 200 * 1024, 'max page ' + Math.max(...pageBytes) + 'B');
   console.log(`· walk: ${walked.length} tools over ${pages} pages (max page ${Math.max(...pageBytes)}B), 0 duplicates, 0 outputSchema keys`);
   const tplBytes = readFileSync(join(DATA_DIR, 'mcp', 'static', 'tools-list.sse.txt'), 'utf8').length;
   console.log(`· committed trimmed template: ${tplBytes} bytes total (was 2,244,424 before the trim)`);

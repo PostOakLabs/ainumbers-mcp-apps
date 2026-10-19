@@ -1508,7 +1508,7 @@ function describeToolPayload(data, def) {
     description: def.description,
     inputSchema: def.inputSchema,
     ...(def.outputSchema !== undefined ? { outputSchema: def.outputSchema } : {}),
-    ...(def.annotations !== undefined ? { annotations: def.annotations } : {}),
+    ...(def.annotations !== undefined ? { annotations: def.annotations } : {}), ...(def.x_manifest_input_schema !== undefined ? { x_manifest_input_schema: def.x_manifest_input_schema } : {}), // DESCRIBE-INPUT-SCHEMA-1: manifest input_schema, describe-only
     lifecycle_status: lifecycleStatusOf(data, def.name),
     // MCP-REACH-DISPATCH-1 D1: describe_tool is the tool a host calls about a name it CANNOT see in
     // its own list (that is the whole point of the trimmed list + find_tool flow), so the route to
@@ -4553,7 +4553,7 @@ function buildServer({ manifests, nullExemptions, widgets, loadWidget, loadNodeV
       description: z.string(),
       inputSchema: z.record(z.string(), z.unknown()),
       outputSchema: z.record(z.string(), z.unknown()).optional(),
-      annotations: z.record(z.string(), z.unknown()).optional(),
+      annotations: z.record(z.string(), z.unknown()).optional(), x_manifest_input_schema: z.record(z.string(), z.unknown()).optional().describe('The site manifest\'s richer input_schema (parameter descriptions, defaults, enums), verbatim; present only when the manifest declares one.'),
       lifecycle_status: z.enum(['Active', 'Deprecated']),
       // MCP-REACH-DISPATCH-1 D1 steer line (describeToolPayload stamps it on both the SDK leg and
       // the worker's static describe branch, so the two answers stay byte-identical).
