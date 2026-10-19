@@ -138,6 +138,47 @@ function buildNullExemptions() {
 const { registry: nullExemptions, paths: nullExemptionPathCount } = buildNullExemptions();
 writeFileSync(resolve(DATA,'mcp','null-exemptions.json'), JSON.stringify(nullExemptions, null, 2) + '\n');
 console.log(`null-exemptions registry: ${Object.keys(nullExemptions).length} tool(s) / ${nullExemptionPathCount} declared path(s) -> data/mcp/null-exemptions.json`);
+// ---------------------------------------------------------------------------
+// MCP-TOOL-SCHEMA-PARAMS-1 - compact per-tool input spec for the worker's tool schema.
+// data/mcp/input-schemas.json: { [tool_id]: { p: { <field>: { t?: type, e?: [enum] } }, r?: [required],
+// s?: <first sentence of the manifest description, <=300 chars>, o?: [top-level output keys] } }
+// for EVERY site manifest that declares input_schema.properties. Name + type (+ short enum) only:
+// the worker publishes these as policy_parameters.properties, polices unknown keys against them,
+// and puts `s`/`o` in tool descriptions and find_tool rows. ONE eager asset (same shape and reason
+// as null-exemptions.json); full schemas stay in the manifest / describe_tool.
+// ---------------------------------------------------------------------------
+function buildInputSchemas() {
+  const registry = {};
+  for (const f of readdirSync(MANIFESTS_SRC).filter((f) => f.endsWith('.manifest.json')).sort()) {
+    let m = null;
+    try { m = JSON.parse(readFileSync(resolve(MANIFESTS_SRC, f), 'utf8')); } catch { continue; }
+    const props = m?.input_schema?.properties;
+    if (!props || typeof props !== 'object' || Array.isArray(props) || !Object.keys(props).length) continue;
+    const p = {};
+    for (const [k, v] of Object.entries(props)) {
+      const spec = {};
+      if (v && typeof v.type === 'string') spec.t = v.type;
+      else if (v && Array.isArray(v.type)) spec.t = v.type.join('|');
+      if (v && Array.isArray(v.enum) && v.enum.length <= 12 && v.enum.every((x) => typeof x === 'string')) spec.e = v.enum;
+      p[k] = spec;
+    }
+    const entry = { p };
+    const req = m.input_schema.required;
+    if (Array.isArray(req) && req.length) entry.r = req.filter((x) => typeof x === 'string');
+    const desc = typeof m.description === 'string' ? m.description.trim() : '';
+    if (desc) {
+      const first = desc.split(/(?<=[.!?])\s/)[0];
+      entry.s = first.length > 300 ? first.slice(0, 297).trimEnd() + '...' : first;
+    }
+    const outKeys = Object.keys(m.output_schema?.properties ?? {});
+    if (outKeys.length) entry.o = outKeys;
+    registry[f.slice(0, -'.manifest.json'.length)] = entry;
+  }
+  return registry;
+}
+const inputSchemas = buildInputSchemas();
+writeFileSync(resolve(DATA,'mcp','input-schemas.json'), JSON.stringify(inputSchemas) + '\n');
+console.log(`input-schemas registry: ${Object.keys(inputSchemas).length} tool(s) -> data/mcp/input-schemas.json`);
 // COMPOSER-PLAN-AND-ROOT-WEBMCP-1: vendor the two derived data sets the worker's
 // chain-plan / session-root parity tests assert against (same committed bytes as
 // the site repo's data/ — one fixture truth, both runtimes).
@@ -928,6 +969,14 @@ for (const f of readdirSync(KERNELS_SRC).filter(f => KERNEL_FILE_RE.test(f))) {
   const written = readFileSync(resolve(DATA, 'mcp', 'null-exemptions.json'), 'utf8');
   if (written !== JSON.stringify(regen, null, 2) + '\n') {
     console.error('SELF-CHECK FAIL: data/mcp/null-exemptions.json does not match the site manifests projection'); selfFails++;
+  }
+}
+
+// input-schemas registry - regenerate + byte-compare (MCP-TOOL-SCHEMA-PARAMS-1)
+{
+  const written = readFileSync(resolve(DATA, 'mcp', 'input-schemas.json'), 'utf8');
+  if (written !== JSON.stringify(buildInputSchemas()) + '\n') {
+    console.error('SELF-CHECK FAIL: data/mcp/input-schemas.json does not match the site manifests projection'); selfFails++;
   }
 }
 

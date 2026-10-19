@@ -37,8 +37,11 @@ function loadDataFromDisk() {
   let nodeViews = null;
   try { nodeViews = JSON.parse(get('mcp/node-views.json')); } catch { /* pre-row — no views */ }
   const loadNodeView = async (toolId) => readFileSync(resolve(DATA, 'chaingraph', 'pages', toolId + '.html'), 'utf8');
+  // MCP-TOOL-SCHEMA-PARAMS-1: mirror worker.mjs loadData() — tolerant, null degrades to free-form.
+  let inputSpecs = null;
+  try { inputSpecs = JSON.parse(get('mcp/input-schemas.json')); } catch { /* pre-row tree */ }
   return {
-    manifests, widgets,
+    manifests, inputSpecs, widgets,
     catalog: JSON.parse(get('mcp/catalog.json')),
     chaingraph: JSON.parse(get('chaingraph/chaingraph.json')),
     searchIndex: JSON.parse(get('search-index.json')),

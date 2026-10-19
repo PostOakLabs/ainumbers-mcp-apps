@@ -287,6 +287,12 @@ jobs:
         # degrading (zod strips unknown top-level keys), and that a nested call still computes.
         run: node scripts/check-delegation-reason.mjs
 
+      - name: 🧩 Tool schema publishes manifest fields (MCP-TOOL-SCHEMA-PARAMS-1)
+        # policy_parameters.properties comes from data/mcp/input-schemas.json (generate.mjs). Asserts the
+        # art-327 schema names rate_pct, a misspelt `rate` runs but carries an UNKNOWN_POLICY_PARAMETER
+        # warning with a did-you-mean, rate_pct still returns pv 2211.05, and find_tool rows carry a summary.
+        run: node scripts/check-tool-schema-params.mjs
+
       - name: 📥 Checkout site repo (vendor-freshness + schema source)
         # PostOakLabs/ainumbers is PUBLIC — the default token checks it out, no secret needed.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
