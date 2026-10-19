@@ -12,16 +12,16 @@
       "mcp_name": "audit_borrower_escrow_stmt",
       "display_name": "Borrower Escrow Auditor",
       "uri": "ui://ainumbers/node/732-borrower-escrow-auditor",
-      "bytes": 94435,
-      "sha256": "f64a05dc64c4be35f837c737b93693cdadc70f1c6cb269f63ceb1100485d9c18"
+      "bytes": 94432,
+      "sha256": "13a5593c546ae599fc65536fc6e0337aaccca20269559365060a50b92f5ec274"
     },
     {
       "tool_id": "733-servicing-compliance-clock",
       "mcp_name": "servicing_compliance_clock",
       "display_name": "Servicing Compliance Clock",
       "uri": "ui://ainumbers/node/733-servicing-compliance-clock",
-      "bytes": 110593,
-      "sha256": "a2908396e53132f1a2d8d97afa4fc0bb0b98a8a318ed2784742270a60192584a"
+      "bytes": 110590,
+      "sha256": "efade93410dc131fcd9051741f359711425299a6b87e5ea9a9de4157725a2acc"
     },
     {
       "tool_id": "art-01-ap2-mandate-chain-validator",
@@ -4980,8 +4980,8 @@
       "mcp_name": "classify_sco60_exposure_v2",
       "display_name": "SCO60 Group 2 Exposure Limit V2",
       "uri": "ui://ainumbers/node/art-711-sco60-crypto-asset-exposure-classifier-v2",
-      "bytes": 74623,
-      "sha256": "366b806abbecaa7636596864ad16a6ccdb353b054b9782808f5c4f23a2053c00"
+      "bytes": 74650,
+      "sha256": "11d0df6ca1ce6a8dc1464da0489c1df3aedd50b866b996d76c6d9ec91b775a00"
     },
     {
       "tool_id": "art-712-workforce-board-roi",
@@ -5012,8 +5012,8 @@
       "mcp_name": "check_force_placed_notice",
       "display_name": "Force-Placed Insurance Notice Checker",
       "uri": "ui://ainumbers/node/art-734-force-placed-insurance-checker",
-      "bytes": 106940,
-      "sha256": "ef7582d2129b5c0a84752854b8b14c2b0711613524327dbe7f92695824488990"
+      "bytes": 106937,
+      "sha256": "11bf4fe291fadaca4594c1b89ebda5046700f3965d84f6ef91736ae04075375c"
     },
     {
       "tool_id": "art-763-ai-displacement-risk-screener",
