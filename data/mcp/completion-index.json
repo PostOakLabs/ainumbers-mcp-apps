@@ -853,6 +853,7 @@
       "emir-reconciliation-and-lifecycle",
       "emir-trade-report-validation",
       "escalation-sla-supervised-autonomy-receipt",
+      "escrow-statement-check",
       "eu-ai-act-provider-obligations",
       "eudi-acceptance-vop-evidence",
       "eudi-wallet-acceptance",
@@ -871,6 +872,7 @@
       "financial-crime-compliance",
       "fiusd-reserve-attestation",
       "food-traceability-fsma204",
+      "force-placed-insurance-check",
       "fraud-decisioning",
       "fx-corridor",
       "fx-risk-management",
@@ -2425,6 +2427,10 @@
       81,
       249
     ],
+    "escrow-statement-check": [
+      13,
+      667
+    ],
     "eudi-acceptance-vop-evidence": [
       27,
       528,
@@ -2487,6 +2493,10 @@
       131,
       132,
       133
+    ],
+    "force-placed-insurance-check": [
+      663,
+      667
     ],
     "genius-listing-acceptance-pack": [
       20,

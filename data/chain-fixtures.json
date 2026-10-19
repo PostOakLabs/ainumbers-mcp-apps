@@ -4944,6 +4944,58 @@
       "operator_id": "bank-xyz"
     }
   },
+  "escrow-statement-check": {
+    "732-borrower-escrow-auditor": {
+      "starting_balance": 0,
+      "monthly_payments": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "disbursements": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1200
+      ],
+      "stated_cushion": 0,
+      "borrower_current": true,
+      "stated_balances": [
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        0
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "eudi-acceptance-vop-evidence": {
     "art-13-eudi-wallet-credential-readiness-checker": {
       "credential_type": "eaa",
@@ -5305,6 +5357,20 @@
           "date": "2026-05-06"
         }
       ]
+    }
+  },
+  "force-placed-insurance-check": {
+    "art-734-force-placed-insurance-checker": {
+      "first_notice_date": "2026-03-01",
+      "reminder_notice_date": "2026-04-01",
+      "charge_date": "2026-04-20",
+      "charged_premium_amount": 1200,
+      "charge_coverage_start": "2026-04-20",
+      "charge_coverage_end": "2027-04-19",
+      "alternative_quote_amount": 600
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "genius-listing-acceptance-pack": {
