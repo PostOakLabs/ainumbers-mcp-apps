@@ -8,6 +8,6 @@
     { "file": "server.mjs", "line": 239, "code": -32603, "note": "dev server: express error handler internal error" }
   ],
   "tool_sites": [
-    { "file": "worker.mjs", "line": 2443, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required)" }
+    { "file": "worker.mjs", "line": 2488, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required)" }
   ]
 }
