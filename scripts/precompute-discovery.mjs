@@ -125,11 +125,16 @@ export async function precomputeDiscovery() {
   //     append to each trimmed description EXACTLY ONE pointer sentence — the manifest prose
   //     itself is never rewritten. The map above keeps the original description + schema, so
   //     describe_tool("<name>") returns the definition the list no longer carries.
+  // DESCRIBE-INPUT-SCHEMA-1: the manifest's richer input_schema rides the describe map ONLY, as
+  // x_manifest_input_schema — tools/list entries (and so the BM25 index / page cap) are untouched.
+  let inputSchemas = {};
+  try { inputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'input-schemas.json'), 'utf8')); } catch { /* none yet */ }
   const trimStats = { tools: toolsMsg.result.tools.length, trimmed: 0, outputSchemaBytes: 0, pointerBytes: 0 };
   const describeEntries = toolsMsg.result.tools.map((t) => {
     const def = { name: t.name, description: t.description, inputSchema: t.inputSchema };
     if (t.outputSchema !== undefined) { def.outputSchema = t.outputSchema; }
     if (t.annotations !== undefined) { def.annotations = t.annotations; }
+    if (inputSchemas[t.name] !== undefined) { def.x_manifest_input_schema = inputSchemas[t.name]; }
     return def;
   });
   for (const t of toolsMsg.result.tools) {
