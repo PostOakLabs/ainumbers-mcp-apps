@@ -347,6 +347,7 @@ const { buildServer, loadData } = await import('../worker.mjs');
 const { Client } = await import('@modelcontextprotocol/sdk/client/index.js');
 const { InMemoryTransport } = await import('@modelcontextprotocol/sdk/inMemory.js');
 const data = await loadData(env);
+await data.loadSearchIndex(); // search-index.json is lazy (MCP-WORKER-1102-LIMITS-1); a full build needs it, as in the /mcp handler
 async function callTool(name, args) {
   const server = buildServer(data, { onlyTool: name });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();

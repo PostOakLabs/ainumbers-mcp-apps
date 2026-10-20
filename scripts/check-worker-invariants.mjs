@@ -202,6 +202,33 @@ else ok.push('GET/HEAD -> 405 short-circuit present');
   }
 }
 
+// 9) MCP-WORKER-1102-LIMITS-1: search-index.json (~3.6MB BM25 index) loads LAZILY — an eager parse in
+//    loadData put ~29ms + ~10MB heap on every cold tools/call / prompts/get (post-deploy smoke 1102,
+//    CI run 39298168223). Single-tool builds skip the load unless the tool is in SEARCH_INDEX_TOOLS,
+//    so every registerTool block that reads `searchIndex` must be in that set, or its single-tool
+//    call silently sees null.
+{
+  if (/get\(\s*'search-index\.json'\s*\)\)\.json\(\)/.test(worker))
+    fails.push('loadData parses search-index.json EAGERLY again — keep it behind loadSearchIndex() (cold-isolate 1102, MCP-WORKER-1102-LIMITS-1).');
+  else ok.push('search-index.json lazy');
+  const setM = worker.match(/const SEARCH_INDEX_TOOLS = new Set\(\[([^\]]*)\]\)/);
+  const declared = new Set(setM ? [...setM[1].matchAll(/'([^']+)'/g)].map((m) => m[1]) : []);
+  if (!setM) fails.push('SEARCH_INDEX_TOOLS set missing from worker.mjs');
+  const bsStart = worker.indexOf('function buildServer(');
+  const bsEnd = worker.indexOf('\nexport {', bsStart);
+  const body = worker.slice(bsStart, bsEnd > 0 ? bsEnd : undefined);
+  const parts = body.split(/server\.registerTool\(\s*'/).slice(1);
+  const readers = parts.filter((p) => /\bsearchIndex\b/.test(p.split(/server\.registerTool\(|regPrompt\(/)[0]))
+    .map((p) => p.slice(0, p.indexOf("'")));
+  const undeclared = readers.filter((n) => !declared.has(n));
+  if (undeclared.length)
+    fails.push('tools reading searchIndex but missing from SEARCH_INDEX_TOOLS (their single-tool call would see null): ' + undeclared.join(', '));
+  else if (setM) ok.push('searchIndex readers ⊆ SEARCH_INDEX_TOOLS (' + readers.join(', ') + ')');
+  if (!/const onlyPrompts = method === 'prompts\/get'/.test(worker))
+    fails.push('prompts/get no longer takes the prompts-only build — a full ~700-tool build per prompts/get is the cold-isolate 1102 shape (MCP-WORKER-1102-LIMITS-1).');
+  else ok.push('prompts/get uses the prompts-only build');
+}
+
 if (fails.length) {
   console.error('✗ worker-invariants FAILED (' + fails.length + '):');
   for (const f of fails) console.error('  • ' + f);

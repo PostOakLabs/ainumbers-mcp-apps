@@ -142,6 +142,7 @@ if (!gpuNode)     { console.error('✗ no live gpu:true node in the vendored gra
 // scripts/gate-mcp-era.mjs). `mrtr.args` is handed the same arguments object the client sends —
 // exactly what the /mcp handler does at the tools/call dispatch (`args: body?.params?.arguments`).
 const data = await loadData(env);
+await data.loadSearchIndex(); // search-index.json is lazy (MCP-WORKER-1102-LIMITS-1); a full build needs it, as in the /mcp handler
 async function callTool(name, args) {
   const server = buildServer(data, {
     onlyTool: name,
