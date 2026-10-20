@@ -44650,6 +44650,101 @@
       }
     }
   },
+  "estimate_hdhp_ppo_breakeven": {
+    "type": "object",
+    "properties": {
+      "as_of": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "coverage": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "break_even_spend": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "First $50 grid point in [0, 20000] where the HDHP total is <= the PPO total; null when the HDHP is never cheaper."
+      },
+      "hdhp_total_at_expected": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "ppo_total_at_expected": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "winner": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "enum": [
+          "HDHP",
+          "PPO",
+          null
+        ]
+      },
+      "savings": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "hsa_total_applied": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "hsa_tax_shield": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "comparison_table": {
+        "type": "array"
+      },
+      "recommendation": {
+        "type": [
+          "null",
+          "string"
+        ],
+        "enum": [
+          "PPO_ALL_LEVELS",
+          "PPO_LIKELY",
+          "HDHP_BETTER",
+          null
+        ]
+      },
+      "refusals": {
+        "type": "array"
+      },
+      "refusal_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "domain_errors": {
+        "type": "array"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
