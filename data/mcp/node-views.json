@@ -5016,6 +5016,14 @@
       "sha256": "11bf4fe291fadaca4594c1b89ebda5046700f3965d84f6ef91736ae04075375c"
     },
     {
+      "tool_id": "art-758-hdhp-ppo-break-even",
+      "mcp_name": "estimate_hdhp_ppo_breakeven",
+      "display_name": "HDHP vs. PPO Break-Even",
+      "uri": "ui://ainumbers/node/art-758-hdhp-ppo-break-even",
+      "bytes": 44847,
+      "sha256": "1d6af1367eff1d7f33f2ab3cf6ded08946c4504f34715cf4929eaa832242e3a9"
+    },
+    {
       "tool_id": "art-763-ai-displacement-risk-screener",
       "mcp_name": "ai_displacement_risk_screener",
       "display_name": "AI Displacement Risk Screener",
