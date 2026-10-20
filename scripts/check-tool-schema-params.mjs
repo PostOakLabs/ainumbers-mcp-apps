@@ -27,6 +27,7 @@ const env = { ASSETS: { fetch: async (url) => {
 const failures = [];
 const check = (ok, label, detail) => { if (ok) console.log('  \u2713 ' + label); else { console.log('  \u2717 ' + label + (detail ? ' - ' + detail : '')); failures.push(label); } };
 const data = await loadData(env);
+await data.loadSearchIndex(); // search-index.json is lazy (MCP-WORKER-1102-LIMITS-1); a full build needs it, as in the /mcp handler
 const NAME = 'compute_annuity';
 async function withClient(fn, args = {}, only = NAME) {
   const server = buildServer(data, { ...(only ? { onlyTool: only } : {}), mrtr: { env, args, requestState: null, inputResponses: null, clientCaps: null, principal: 'schema-params-gate' } });

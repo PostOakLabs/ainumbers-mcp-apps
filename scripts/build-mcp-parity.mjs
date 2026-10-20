@@ -191,6 +191,36 @@ if (committedTotal !== registered.size) {
   console.log('✓ counts.json mcp_tools_total=' + committedTotal + ' matches ' + registered.size + ' registered tools (pre-deploy count-drift guard)');
 }
 
+// ── MCP-WORKER-1102-LIMITS-1: prompts-only build parity ─────────────────────────────────────
+// The worker answers prompts/get from buildServer(data, { onlyPrompts: true }) — no tools, no
+// resources, node loop skipped — instead of the full build that 1102'd cold isolates. That is only
+// safe if every prompts/get answer (and prompts/list) is byte-identical to the full build's. Prompt
+// data is loaded here (tolerant, like the worker) so EVERY registered prompt is exercised, each with
+// every declared argument set (a fixed node page URL for node_page, a plain token otherwise), plus
+// an unknown prompt name (must keep the SDK's own -32602, not a zero-prompt -32601).
+let promptsChecked = 0;
+{
+  const tol = (f) => { try { return JSON.parse(readFileSync(resolve(DATA, f), 'utf8')); } catch { return null; } };
+  const pdata = { ...data, recipes: tol('mcp/recipes.json'), showcasePrompts: tol('mcp/showcase-prompts.json'),
+    promptContext: tol('mcp/prompt-context.json'), completionIndex: tol('mcp/completion-index.json'),
+    utilityIndex: tol('mcp/utility-tool-index.json'), chainFixtures: tol('chain-fixtures.json') };
+  const strip = (m) => JSON.stringify({ ...m, id: undefined });
+  const fullPl = await rpcOnce(buildServer(pdata, {}), 'prompts/list', {});
+  const onePl = await rpcOnce(buildServer(pdata, { onlyPrompts: true }), 'prompts/list', {});
+  if (strip(fullPl) !== strip(onePl)) { console.error('✗ prompts/list DIFFERS full vs prompts-only build'); failures++; }
+  const prompts = fullPl.result?.prompts ?? [];
+  if (!prompts.length) { console.error('✗ full build registered ZERO prompts — prompt parity would be vacuous'); failures++; }
+  const nodePage = 'https://ainumbers.co/chaingraph/art-129-webbotauth-signature-verifier.html';
+  for (const pr of [...prompts, { name: 'definitely_not_a_real_prompt_xyz', arguments: [] }]) {
+    const args = Object.fromEntries((pr.arguments ?? []).map((a) => [a.name, a.name === 'node_page' ? nodePage : 'x']));
+    const f = await rpcOnce(buildServer(pdata, {}), 'prompts/get', { name: pr.name, arguments: args });
+    const o = await rpcOnce(buildServer(pdata, { onlyPrompts: true }), 'prompts/get', { name: pr.name, arguments: args });
+    if (strip(f) !== strip(o)) { console.error('✗ prompts/get ' + pr.name + ' DIFFERS full vs prompts-only build'); failures++; continue; }
+    promptsChecked++;
+  }
+  console.log('✓ prompts-only build: prompts/list + ' + promptsChecked + ' prompts/get answers (incl. unknown name) byte-identical to the full build');
+}
+
 // Capture the SDK's exact unknown-tool error shape (for the worker short-circuit).
 const unknownName = 'definitely_not_a_real_tool_xyz';
 const full = buildServer(data, {});
@@ -198,5 +228,5 @@ const errMsg = await rpcOnce(full, 'tools/call', { name: unknownName, arguments:
 console.log('\n--- unknown-tool tools/call response (full build) ---');
 console.log(JSON.stringify(errMsg, null, 2));
 
-console.log('\n' + (failures ? '❌ build-mcp-parity FAILED: ' + failures + ' mismatch(es)' : '✅ build-mcp-parity OK — ' + uniqueSample.length + ' tools identical (full == single-tool), ' + dupNames.length + ' pilot↔node dup(s) covered'));
+console.log('\n' + (failures ? '❌ build-mcp-parity FAILED: ' + failures + ' mismatch(es)' : '✅ build-mcp-parity OK — ' + uniqueSample.length + ' tools identical (full == single-tool), ' + dupNames.length + ' pilot↔node dup(s) covered, ' + promptsChecked + ' prompts/get identical (full == prompts-only)'));
 process.exit(failures ? 1 : 0);

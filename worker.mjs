@@ -713,6 +713,13 @@ await app.connect();
 // sandboxed widget iframe it would fight the inline glue. The host enforces its own CSP -- strip ours.
 const stripCspMeta = (html) => html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/i, '');
 
+// MCP-WORKER-1102-LIMITS-1: the ONLY tools whose registration or handler reads `searchIndex`
+// (find_chain / find_tool BM25, describe_tool's nearest-name fallback). A single-tool tools/call
+// for any other name skips the lazy search-index load. ⛔ A new reader of `searchIndex` inside
+// buildServer MUST be added here, or its single-tool call sees null (check-worker-invariants.mjs
+// counts the readers against this set).
+const SEARCH_INDEX_TOOLS = new Set(['find_chain', 'find_tool', 'describe_tool']);
+
 // Module-scope cache: assets are immutable per deploy, so load once per isolate.
 let dataCache = null;
 async function loadData(env) {
@@ -764,7 +771,17 @@ async function loadData(env) {
     (nodeViewPages[toolId] ??= await (await get('chaingraph/pages/' + toolId + '.html')).text());
   const catalog = await (await get('mcp/catalog.json')).json();
   const chaingraph = await (await get('chaingraph/chaingraph.json')).json();
-  const searchIndex = await (await get('search-index.json')).json();
+  // MCP-WORKER-1102-LIMITS-1: search-index.json (~3.6MB, the BM25 index) loads LAZILY. It was the
+  // single largest eager parse here (measured ~29ms of ~67ms total, ~10MB retained heap) and only
+  // find_chain / find_tool / describe_tool read it (SEARCH_INDEX_TOOLS) — every other tools/call
+  // and prompts/get paid for it on each cold isolate, the post-deploy smoke's 1102 shape.
+  // `data.searchIndex` stays null until loadSearchIndex() runs; the /mcp handler awaits it before
+  // any build that can reach a reader (see SEARCH_INDEX_TOOLS there). NOT tolerant: a miss throws,
+  // exactly as the old eager load did.
+  let _searchIndexP = null;
+  const loadSearchIndex = () => (_searchIndexP ??= get('search-index.json').then((r) => r.json())
+    .then((idx) => { dataCache.searchIndex = idx; return idx; })
+    .catch((e) => { _searchIndexP = null; throw e; }));
   const chainFixtures = await (await get('chain-fixtures.json')).json();
   const lifecycle = await (await get('mcp/lifecycle.json')).json();
   const fvStatusIndex = await (await get('mcp/fv-status-index.json')).json();
@@ -805,7 +822,7 @@ async function loadData(env) {
   let _completionIndexP = null;
   const loadCompletionIndex = () => (_completionIndexP ??= get('mcp/completion-index.json')
     .then((r) => r.json()).catch(() => null));
-  dataCache = { manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
+  dataCache = { manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex: null, loadSearchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
   return dataCache;
 }
 
@@ -2050,7 +2067,7 @@ function policyParamsSchema(spec) {
   return z.object(shape).catchall(z.any()).optional();
 }
 
-function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, mrtr = null, requestId = null } = {}) {
+function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, onlyPrompts = false, mrtr = null, requestId = null } = {}) {
   // WORKER-NULLPARITY-LIVE-FEED-1: the schema argument both kernel-dispatch sites hand to
   // normalizeNullMembers. PILOT widgets resolve their vendored manifest's input_schema exactly as
   // before; every OTHER servable tool falls back to its generated exemption skeleton (the projected
@@ -2095,6 +2112,18 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     server.registerTool = (name, ...rest) => (name === onlyTool ? _realRegisterTool(name, ...rest) : _stub);
     server.registerResource = () => _stub;
     server.registerPrompt = () => _stub;
+  }
+  // MCP-WORKER-1102-LIMITS-1: prompts/get builds PROMPTS ONLY. A full build constructs every
+  // node's zod schema/description/closure (~700 nodes) just to answer one prompt — measured
+  // offline as ~3x the cold cost of a single-tool tools/call and the largest heap spike on the
+  // /mcp path, which is what 1102'd the post-deploy smoke's prompts/get on cold isolates. Every
+  // prompt still registers (so an unknown prompt name keeps the SDK's own -32602, and prompts/get
+  // output is byte-identical — scripts/build-mcp-parity.mjs asserts it for every prompt); tools
+  // and resources are stubbed and the node loop is skipped. Fresh server per request, as always.
+  if (onlyPrompts) {
+    const _stub = { enabled: true, enable() {}, disable() {}, update() {}, remove() {} };
+    server.registerTool = () => _stub;
+    server.registerResource = () => _stub;
   }
 
   for (const slug of PILOT) {
@@ -6041,7 +6070,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     // cold-isolate CPU that trips the Free-plan 1102 under bursty tools/call). The dedup .add above
     // still runs so duplicate-mcp_name protection is unchanged. Full build (onlyTool null) is
     // untouched. Verified byte-identical to the full build per requested tool (build-mcp-parity).
-    if (onlyTool && toolName !== onlyTool) continue;
+    if ((onlyTool && toolName !== onlyTool) || onlyPrompts) continue;
     const consumes = node.consumes ?? [];
     const feeds = node.feeds ?? [];
     const deadlineNote = node.deadline ? ' Regulatory deadline: ' + node.deadline + (node.deadline_note ? ' (' + node.deadline_note + ').' : '.') : '';
@@ -7521,6 +7550,7 @@ export default {
               // scorer find_tool itself runs); when the query is too garbled to score (BM25 returns
               // 0 hits — e.g. "nope"), fall back to the 5 closest registered names by edit distance
               // so the caller always gets a next step.
+              await data.loadSearchIndex?.();   // MCP-WORKER-1102-LIMITS-1: lazy; error path only
               let nearest = (data.searchIndex?.nodes
                 ? bm25Search(name, data.searchIndex.nodes, { topN: 5 }).map((r) => r.mcp_name).filter(Boolean)
                 : []);
@@ -7596,7 +7626,14 @@ export default {
             ?? body?.params?._meta?.['io.modelcontextprotocol/clientCapabilities'] ?? null,
           principal: await mrtrPrincipal(request),
         } : null;
-        const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}), requestId });
+        // MCP-WORKER-1102-LIMITS-1: prompts/get → prompts-only build (no tool/resource
+        // registration, node loop skipped). The BM25 search index (lazy in loadData) is loaded for
+        // every build that can reach one of its readers: a full build, or a single-tool build of a
+        // SEARCH_INDEX_TOOLS member. A single-tool build of any other tool and the prompts-only
+        // build never touch it, so a cold isolate serving them skips the ~3.6MB parse.
+        const onlyPrompts = method === 'prompts/get';
+        if (!onlyPrompts && (!onlyTool || SEARCH_INDEX_TOOLS.has(onlyTool))) await data.loadSearchIndex?.();
+        const server = buildServer(data, { ...(onlyTool ? { onlyTool } : {}), ...(onlyPrompts ? { onlyPrompts } : {}), ...(mrtrCtx ? { mrtr: mrtrCtx } : {}), requestId });
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
         // ⛔ STRIP THE MODERN VERSION HEADER BEFORE THE SDK TRANSPORT (MCP728-CONFORM-FIX-2).
         // The SDK's validateProtocolVersion rejects ANY mcp-protocol-version outside its own
