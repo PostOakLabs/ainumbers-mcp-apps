@@ -44740,6 +44740,157 @@
       }
     }
   },
+  "compute_automation_payback": {
+    "type": "object",
+    "properties": {
+      "as_of": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Echo of the as_of input; null when unparseable."
+      },
+      "haircut_pct": {
+        "type": "number",
+        "description": "Haircut percent after the 0 floor."
+      },
+      "horizon_months": {
+        "type": "integer",
+        "description": "Horizon after half-up rounding and the 1 floor."
+      },
+      "weeks_per_month": {
+        "type": "number",
+        "description": "Weeks per month after the 1 floor, 2dp."
+      },
+      "candidates": {
+        "type": "array",
+        "description": "Echo of the candidate inputs, 2dp."
+      },
+      "ranked": {
+        "type": "array",
+        "description": "Candidates sorted by descending net_mo, ties preserving input order.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "value_mo": {
+              "type": "number",
+              "description": "hours_saved_wk x weeks x loaded_rate + error_cost_mo."
+            },
+            "recurring_with_haircut_mo": {
+              "type": "number",
+              "description": "subscription_mo x (1 + haircut_pct/100)."
+            },
+            "build_amortized_mo": {
+              "type": "number",
+              "description": "build_cost / horizon_months."
+            },
+            "tco_mo": {
+              "type": "number"
+            },
+            "net_mo": {
+              "type": "number",
+              "description": "value_mo - tco_mo."
+            },
+            "breakeven_months": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "build_cost / (value_mo - recurring_with_haircut_mo); null when that margin is not positive. 1dp."
+            },
+            "breakeven_months_exact": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "description": "The same quotient at 6dp."
+            },
+            "call": {
+              "type": "string",
+              "enum": [
+                "BUILD",
+                "SKIP"
+              ],
+              "description": "BUILD when net_mo >= 0."
+            },
+            "horizon_net": {
+              "type": "number",
+              "description": "value_mo x horizon - (build + recurring x horizon)."
+            }
+          }
+        }
+      },
+      "keepers": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Ranked names with call BUILD."
+      },
+      "droppers": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Ranked names with call SKIP."
+      },
+      "net_keep_mo": {
+        "type": "number",
+        "description": "Sum of net_mo over keepers."
+      },
+      "net_all_mo": {
+        "type": "number",
+        "description": "Sum of net_mo over all ranked."
+      },
+      "hours_reclaimed_wk": {
+        "type": "number",
+        "description": "Sum of hours over BUILD rows only, 1dp."
+      },
+      "horizon_net_keep": {
+        "type": "number"
+      },
+      "horizon_net_all": {
+        "type": "number"
+      },
+      "best_candidate": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Highest-net ranked name."
+      },
+      "fastest_breakeven_candidate": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Defined-break-even candidate with the smallest breakeven_months; net-sorted order breaks ties."
+      },
+      "fastest_breakeven_months": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "ALL_CLEAR",
+          "MIXED_LIST",
+          "NO_CANDIDATE_CLEARS"
+        ]
+      },
+      "regulatory_basis": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

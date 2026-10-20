@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 734,
+  "tool_count": 735,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -255,6 +255,7 @@
     "compute_apy_earned_recompute",
     "compute_asset_liability_coverage",
     "compute_authzen_conformance_fixture",
+    "compute_automation_payback",
     "compute_basel31_delta",
     "compute_basel_haircut_adjusted_exposure",
     "compute_best_execution_evidence_pack",
