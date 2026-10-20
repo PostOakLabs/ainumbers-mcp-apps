@@ -44650,6 +44650,27 @@
       }
     }
   },
+  "dual_career_optimizer": {
+    "type": "object",
+    "properties": {
+      "tab1": {
+        "type": "object",
+        "description": "Childcare break-even leg: totalChildcare, childcareBreakevenSalary (null when combinedTaxRate >= 100), netContribution, householdNetBothWorking, householdNetOneStops, netHouseholdGainFromBothWorking, verdicts {belowBreakEven, netPositive}."
+      },
+      "tab2": {
+        "type": "object",
+        "description": "Sabbatical leg: directIncomeLost, matchLost, opportunityCost10yr, totalTrueCost, verdicts {substantialCost}."
+      },
+      "tab3": {
+        "type": "object",
+        "description": "Relocation leg: currentHousehold, newHousehold, nominalChange, nominalPct, colAdjustedChange, colPct, breakEvenMonths (null unless Partner B takes a cut), verdicts {nominalGain, colGain, colTrap, partnerBCut, partnerBNoJob}."
+      },
+      "compliance_flags": {
+        "type": "array",
+        "description": "DIV_ZERO_GUARD appears when a guard branch engaged (taxRate >= 100, currentHousehold == 0, or destCOL == 0); Apex has no such guard and would emit Infinity/NaN."
+      }
+    }
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
