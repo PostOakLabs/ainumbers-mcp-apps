@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 734,
+  "tool_count": 735,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -387,6 +387,7 @@
     "estimate_cross_margin_benefit",
     "estimate_cross_venue_margin_capital",
     "estimate_ficc_margin_netting",
+    "estimate_quarterly_tax",
     "evaluate_decision_tree",
     "evaluate_globe_de_minimis_exclusion",
     "evaluate_globe_safe_harbour_tests",

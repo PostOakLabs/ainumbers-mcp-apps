@@ -5016,6 +5016,14 @@
       "sha256": "11bf4fe291fadaca4594c1b89ebda5046700f3965d84f6ef91736ae04075375c"
     },
     {
+      "tool_id": "art-752-freelance-quarterly-estimated-tax",
+      "mcp_name": "estimate_quarterly_tax",
+      "display_name": "Freelance Quarterly Estimated Tax Calculator",
+      "uri": "ui://ainumbers/node/art-752-freelance-quarterly-estimated-tax",
+      "bytes": 36731,
+      "sha256": "dfa8810bdb54ecac890ca88d00706d1f219d6e367a1e156ebb181f7c8ff653fb"
+    },
+    {
       "tool_id": "art-763-ai-displacement-risk-screener",
       "mcp_name": "ai_displacement_risk_screener",
       "display_name": "AI Displacement Risk Screener",

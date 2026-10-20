@@ -44650,6 +44650,108 @@
       }
     }
   },
+  "estimate_quarterly_tax": {
+    "type": "object",
+    "properties": {
+      "net_se_income": {
+        "type": "number"
+      },
+      "se_tax": {
+        "type": "number"
+      },
+      "ss_tax": {
+        "type": "number"
+      },
+      "mc_tax": {
+        "type": "number"
+      },
+      "agi": {
+        "type": "number"
+      },
+      "taxable_income": {
+        "type": "number"
+      },
+      "federal_income_tax": {
+        "type": "number"
+      },
+      "effective_fed_rate": {
+        "type": "number"
+      },
+      "state_tax": {
+        "type": "number"
+      },
+      "total_federal_tax": {
+        "type": "number"
+      },
+      "total_annual_tax": {
+        "type": "number"
+      },
+      "effective_total_rate": {
+        "type": "number"
+      },
+      "per_quarter": {
+        "type": "number"
+      },
+      "remaining_after_ytd": {
+        "type": "number"
+      },
+      "safe_harbor_total": {
+        "type": "number"
+      },
+      "safe_harbor_quarterly": {
+        "type": "number"
+      },
+      "quarters": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "quarter": {
+              "type": "string"
+            },
+            "due": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "quarter",
+            "due",
+            "amount"
+          ]
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "net_se_income",
+      "se_tax",
+      "ss_tax",
+      "mc_tax",
+      "agi",
+      "taxable_income",
+      "federal_income_tax",
+      "effective_fed_rate",
+      "state_tax",
+      "total_federal_tax",
+      "total_annual_tax",
+      "effective_total_rate",
+      "per_quarter",
+      "remaining_after_ytd",
+      "safe_harbor_total",
+      "safe_harbor_quarterly",
+      "quarters",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
