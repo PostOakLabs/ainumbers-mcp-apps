@@ -64,7 +64,7 @@ import { executionHash } from './_hash.mjs';
 export const meta = {
   tool_id: 'art-767-compute-travel-nurse-vs-staff-comp',
   tool_version: '1.0.0',
-  mcp_name: 'compute_travel_nurse_vs_staff_comp',
+  mcp_name: 'compute_travel_nurse_pay',
   mandate_type: 'compliance_control',
   gpu: false,
 };
@@ -245,6 +245,14 @@ export function compute(pp) {
     stipendTaxSavings, gapCost, effectiveHourly, delta, weeksWorked,
     totalAnnualGapWeeks, totalHoursWorked, travelWins,
     inputs_defaulted: defaultsUsed,
+    // AUTHORING-STANDARD flag-mirror doctrine: every conditional compliance flag has
+    // a mirrored, reader-facing warnings member in the payload.
+    warnings: compliance_flags
+      .filter((f) => f !== 'NOT_TAX_ADVICE' && f !== 'STIPEND_TAX_TREATMENT_CALLER_ASSERTED')
+      .map((f) => (f.startsWith('DEFAULTS_APPLIED:')
+        ? 'Substituted page defaults for: ' + f.slice('DEFAULTS_APPLIED:'.length)
+        : f)),
+    warn_count: compliance_flags.filter((f) => f !== 'NOT_TAX_ADVICE' && f !== 'STIPEND_TAX_TREATMENT_CALLER_ASSERTED').length,
   };
 
   return { output_payload, compliance_flags };
