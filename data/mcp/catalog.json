@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "1204 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "1209 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
-  "generated": "2026-10-14",
-  "tool_count": 1204,
+  "generated": "2026-10-18",
+  "tool_count": 1208,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -24723,6 +24723,178 @@
           "zero-PII"
         ],
         "url": "https://ainumbers.co/tools/688-education-funding-gap-calculator.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "audit_borrower_escrow_stmt",
+      "description": "Audits a servicer escrow accounting statement from borrower-supplied values only: recomputes the aggregate accounting trial running balance month by month, compares the servicer stated end-of-month balances line by line, flags each discrepant line, checks the stated cushion against the one-sixth-of-annual-disbursements cap, and classifies the recomputed account as balanced, shortage, surplus, or deficiency. Identifier-like fields are refused, never echoed; over 12 monthly periods is refused.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "starting_balance",
+          "monthly_payments",
+          "disbursements",
+          "stated_balances"
+        ],
+        "properties": {
+          "starting_balance": {
+            "type": "number",
+            "description": "Stated opening escrow balance at the start of the computation year, in dollars. Required."
+          },
+          "monthly_payments": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Stated monthly escrow deposit values, one per month, at most 12 entries. Values only - never dates or identifiers."
+          },
+          "disbursements": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Stated monthly escrow disbursement values, one per month, at most 12 entries. Values only."
+          },
+          "stated_balances": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "The servicer statement end-of-month balance values, one per month. Compared line by line against the recomputation."
+          },
+          "stated_cushion": {
+            "type": "number",
+            "description": "Optional: the servicer stated/target cushion amount. Checked against the one-sixth cap when supplied."
+          },
+          "borrower_current": {
+            "type": "boolean",
+            "description": "Optional: whether the borrower is current at analysis time. A refund-band surplus without it holds the audit for manual review."
+          },
+          "monthly_escrow_payment": {
+            "type": "number",
+            "description": "Optional: the borrower's monthly escrow payment in dollars, the base for the one-month shortage threshold. Defaults to the mean of monthly_payments."
+          },
+          "servicer_chosen_course": {
+            "type": "string",
+            "enum": [
+              "do_nothing",
+              "repay_within_30_days",
+              "repay_equal_monthly_12_plus_months"
+            ],
+            "description": "Optional: the course the servicer chose: do_nothing, repay_within_30_days or repay_equal_monthly_12_plus_months. Reported as permitted or not."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "732-borrower-escrow-auditor",
+        "category": "chaingraph",
+        "tags": [
+          "escrow",
+          "mortgage-servicing",
+          "statement-audit",
+          "mcp:audit_borrower_escrow_stmt"
+        ],
+        "url": "https://ainumbers.co/chaingraph/732-borrower-escrow-auditor.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "servicing_compliance_clock",
+      "description": "Computes servicer-compliance due dates and clock states from event dates and loan values across the Regulation X/Z servicing rules: error-resolution, information-request, loss-mitigation, foreclosure-timeline, force-placed-insurance, reminder, cancel, refund, payment-crediting, payoff-statement and ARM notice clocks. Every obligation carries its paragraph citation, a named business-day calendar assumption and its due window; invalid dates and over-bound event sets are refused, never computed.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "properties": {
+          "events": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "required": [
+                "rule",
+                "trigger_date"
+              ],
+              "properties": {
+                "rule": {
+                  "type": "string"
+                },
+                "trigger_date": {
+                  "type": "string"
+                },
+                "action_date": {
+                  "type": "string"
+                },
+                "error_category": {
+                  "type": "integer"
+                },
+                "request_type": {
+                  "type": "string"
+                },
+                "foreclosure_sale_date": {
+                  "type": "string"
+                },
+                "extension_notice_given": {
+                  "type": "boolean"
+                },
+                "charge_date": {
+                  "type": "string"
+                },
+                "initial_notice_date": {
+                  "type": "string"
+                },
+                "first_adjusted_payment_date": {
+                  "type": "string"
+                },
+                "consummation_date": {
+                  "type": "string"
+                },
+                "adjustment_frequency_days": {
+                  "type": "integer"
+                },
+                "originated_before_2015_01_10": {
+                  "type": "boolean"
+                },
+                "index_figure_lt_45_days": {
+                  "type": "boolean"
+                },
+                "first_adjustment_within_60_days_of_consummation": {
+                  "type": "boolean"
+                },
+                "disclosed_rate_was_estimate": {
+                  "type": "boolean"
+                },
+                "prior_complete_application_date": {
+                  "type": "string"
+                },
+                "continuously_delinquent_since": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "description": "Event list, at most 32: rule id, strict ISO trigger date, rule-specific parameters."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "733-servicing-compliance-clock",
+        "category": "chaingraph",
+        "tags": [
+          "mortgage-servicing",
+          "respas-regx",
+          "reg-z",
+          "compliance-clock",
+          "mcp:servicing_compliance_clock"
+        ],
+        "url": "https://ainumbers.co/chaingraph/733-servicing-compliance-clock.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",
@@ -51281,6 +51453,177 @@
           "mcp:reconcile_token2022_transfer_fee"
         ],
         "url": "https://ainumbers.co/chaingraph/art-715-token2022-transfer-fee-reconciler.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "check_force_placed_notice",
+      "description": "Checks a lender-placed insurance event against the 12 CFR 1024.37 notice sequence: the 45-day advance first notice with its prescribed content set, the reminder notice at least 15 days before the charge and at least 30 days after the first notice, the no-evidence precondition, the 15-day cancel-and-refund clock with pro-rata overlapping-coverage refund, and a values-only premium benchmark against the borrower alternative quote. Never labels a premium reasonable; missing values are refused.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "first_notice_date",
+          "reminder_notice_date",
+          "charge_date",
+          "charged_premium_amount",
+          "charge_coverage_start",
+          "charge_coverage_end"
+        ],
+        "properties": {
+          "first_notice_date": {
+            "type": "string"
+          },
+          "reminder_notice_date": {
+            "type": "string"
+          },
+          "charge_date": {
+            "type": "string"
+          },
+          "charged_premium_amount": {
+            "type": "number"
+          },
+          "charge_coverage_start": {
+            "type": "string"
+          },
+          "charge_coverage_end": {
+            "type": "string"
+          },
+          "alternative_quote_amount": {
+            "type": "number"
+          },
+          "evidence_of_continuous_coverage_date": {
+            "type": "string"
+          },
+          "borrower_coverage_start": {
+            "type": "string"
+          },
+          "borrower_coverage_end": {
+            "type": "string"
+          },
+          "cancellation_date": {
+            "type": "string"
+          },
+          "refund_date": {
+            "type": "string"
+          },
+          "refund_amount": {
+            "type": "number"
+          },
+          "notice_mail_class": {
+            "type": "string"
+          },
+          "first_notice_content_items": {
+            "type": "array"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-734-force-placed-insurance-checker",
+        "category": "chaingraph",
+        "tags": [
+          "mortgage-servicing",
+          "respa-regx",
+          "force-placed-insurance",
+          "notice-sequence",
+          "mcp:check_force_placed_notice"
+        ],
+        "url": "https://ainumbers.co/chaingraph/art-734-force-placed-insurance-checker.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "ai_displacement_risk_screener",
+      "description": "AI displacement risk screener ported from ApexLogics Apex #104 (AL-111): a 0..100 composite score (0.40 automation probability + 0.40 routine-task fraction + 0.20 sector exposure) with a Low/Medium/High/Critical tier, an education-adjusted informational score, and up to three adjacent lower-exposure pivots gated at similarity >= 60. Probabilities are Frey-Osborne 2013-vintage; salary cells are ungrounded and informational only. Full provenance in the manifest description.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "rc",
+          "rm",
+          "nra",
+          "nri",
+          "nrm",
+          "sector_exp",
+          "ed_level",
+          "years_role"
+        ],
+        "properties": {
+          "soc_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "6-digit SOC code key into the embedded 62-row table; null selects the custom-occupation estimate branch (Apex L480-488). The only optional input."
+          },
+          "rc": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Routine Cognitive share 0..100 (slider t_rc, Apex L470; parseInt read)."
+          },
+          "rm": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Routine Manual share 0..100 (slider t_rm, Apex L471; parseInt read)."
+          },
+          "nra": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Non-routine Analytical share 0..100 (slider t_nra, Apex L472; parseInt read)."
+          },
+          "nri": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Non-routine Interpersonal share 0..100 (slider t_nri, Apex L473; parseInt read)."
+          },
+          "nrm": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Non-routine Manual share 0..100 (slider t_nrm, Apex L474; parseInt read)."
+          },
+          "sector_exp": {
+            "type": "number",
+            "description": "Sector exposure factor (select sector, Apex L475; parseFloat read). Apex option values 0.22..0.75."
+          },
+          "ed_level": {
+            "type": "string",
+            "enum": [
+              "no_degree",
+              "associate",
+              "bachelor",
+              "master",
+              "doctorate"
+            ],
+            "description": "Highest education (select edLevel, Apex L476; informational education adjustment only, Apex L499-500)."
+          },
+          "years_role": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Years in role (input yearsRole, Apex L477; parseInt read; recorded, not in the arithmetic)."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-763-ai-displacement-risk-screener",
+        "category": "chaingraph",
+        "tags": [
+          "labor-market",
+          "displacement-risk",
+          "frey-osborne",
+          "career",
+          "workforce",
+          "mcp:ai_displacement_risk_screener"
+        ],
+        "url": "https://ainumbers.co/chaingraph/art-763-ai-displacement-risk-screener.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",

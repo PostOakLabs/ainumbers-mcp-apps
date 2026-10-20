@@ -544,6 +544,183 @@
     ],
     "additionalProperties": false
   },
+  "audit_borrower_escrow_stmt": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "account_status": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "periods_analyzed": {
+        "type": "integer"
+      },
+      "recomputed_balances": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "recomputed_low_point": {
+        "type": "number"
+      },
+      "target_low_point": {
+        "type": "number"
+      },
+      "total_annual_disbursements": {
+        "type": "number"
+      },
+      "cushion_cap_amount": {
+        "type": "number"
+      },
+      "stated_cushion": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "cushion_within_cap": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "shortage_amount": {
+        "type": "number"
+      },
+      "surplus_amount": {
+        "type": "number"
+      },
+      "shortage_threshold_base": {
+        "type": "number"
+      },
+      "shortage_threshold_base_source": {
+        "type": "string"
+      },
+      "shortage_at_or_above_one_month_payment": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "shortage_permitted_courses": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "servicer_course_permitted": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "surplus_refund_required": {
+        "type": "boolean"
+      },
+      "surplus_refund_unverified": {
+        "type": "boolean"
+      },
+      "discrepancies": {
+        "type": "object"
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
+  "servicing_compliance_clock": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "obligations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "type": "string"
+            },
+            "cited_paragraph": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "calendar": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "trigger_date": {
+              "type": "string"
+            },
+            "due_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "action_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "state": {
+              "type": "string"
+            },
+            "state_reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "obligation_owed": {
+              "type": "boolean"
+            },
+            "window_start_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "window_variant": {
+              "type": "string"
+            },
+            "days_allowed": {
+              "type": "integer"
+            },
+            "days_before_sale": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "earliest_lawful_first_notice_date": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
@@ -44423,6 +44600,145 @@
     ],
     "additionalProperties": false,
     "x-derived-from": "fixture"
+  },
+  "check_force_placed_notice": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "elements": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "element_id": {
+              "type": "string"
+            },
+            "cited_paragraph": {
+              "type": "string"
+            },
+            "requirement": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "premium_benchmark": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "refund_evaluation": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "charge_summary": {
+        "type": "object"
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      }
+    }
+  },
+  "ai_displacement_risk_screener": {
+    "type": "object",
+    "properties": {
+      "score": {
+        "type": "integer",
+        "description": "Composite risk score 0..100 (Apex L494-496)."
+      },
+      "adj_score": {
+        "type": "integer",
+        "description": "Education-adjusted score, informational (Apex L499-500)."
+      },
+      "tier": {
+        "type": "string",
+        "enum": [
+          "Low",
+          "Medium",
+          "High",
+          "Critical"
+        ],
+        "description": "Risk tier (Apex L504-507)."
+      },
+      "prob": {
+        "type": "number",
+        "description": "Automation probability 0..1, Frey-Osborne 2013 vintage."
+      },
+      "routine_frac": {
+        "type": "number",
+        "description": "Routine task fraction (rc+rm)/100."
+      },
+      "sector_exp": {
+        "type": "number",
+        "description": "Echo of sector exposure input."
+      },
+      "automation_pct": {
+        "type": "integer",
+        "description": "Rounded automation percent."
+      },
+      "routine_pct": {
+        "type": "integer",
+        "description": "Routine task percent rc+rm."
+      },
+      "sector_pct": {
+        "type": "integer",
+        "description": "Rounded sector percent."
+      },
+      "title": {
+        "type": "string"
+      },
+      "soc": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "median_salary_usd": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "UNGROUNDED informational salary cell."
+      },
+      "alts": {
+        "type": "array",
+        "maxItems": 3,
+        "items": {
+          "type": "object",
+          "properties": {
+            "soc": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "score": {
+              "type": "integer"
+            },
+            "sim": {
+              "type": "integer"
+            },
+            "salary_delta_vs_selected_usd": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
   },
   "generate_zk_compliance_proof": {
     "type": "object",

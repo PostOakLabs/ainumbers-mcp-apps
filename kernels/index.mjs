@@ -19,6 +19,7 @@ import * as t513      from './513-margin-call-collateral-mobilizer.kernel.mjs';
 import * as t514      from './514-tokenized-fund-collateral-validator.kernel.mjs';
 import * as t515      from './515-collateral-swap-eligibility-validator.kernel.mjs';
 import * as t732      from './732-borrower-escrow-auditor.kernel.mjs';
+import * as t733      from './733-servicing-compliance-clock.kernel.mjs';
 import * as art01     from './art-01-ap2-mandate-chain-validator.kernel.mjs';
 import * as art02     from './art-02-agent-spend-policy-simulator.kernel.mjs';
 import * as art03     from './art-03-x402-settlement-modeler.kernel.mjs';
@@ -643,9 +644,12 @@ import * as art713    from './art-713-scorp-election-break-even.kernel.mjs';
 import * as art715    from './art-715-token2022-transfer-fee-reconciler.kernel.mjs';
 import * as art72     from './art-72-cbam-precursor-emissions-aggregator.kernel.mjs';
 import * as art73     from './art-73-taxonomy-alignment-scorer.kernel.mjs';
+import * as art734    from './art-734-force-placed-insurance-checker.kernel.mjs';
 import * as art74     from './art-74-taxonomy-kpi-gar-aggregator.kernel.mjs';
 import * as art75     from './art-75-eugb-factsheet-validator.kernel.mjs';
 import * as art76     from './art-76-climate-scenario-applicator.kernel.mjs';
+import * as art763    from './art-763-ai-displacement-risk-screener.kernel.mjs';
+import * as art767    from './art-767-compute-travel-nurse-vs-staff-comp.kernel.mjs';
 import * as art77     from './art-77-t1-settlement-readiness-diagnostic.kernel.mjs';
 import * as art78     from './art-78-csdr-penalty-calculator.kernel.mjs';
 import * as art79     from './art-79-settlement-fail-predictor.kernel.mjs';
@@ -704,6 +708,7 @@ export const KERNELS = {
   '514-tokenized-fund-collateral-validator':                    t514,
   '515-collateral-swap-eligibility-validator':                  t515,
   '732-borrower-escrow-auditor':                                t732,
+  '733-servicing-compliance-clock':                             t733,
   'art-01-ap2-mandate-chain-validator':                         art01,
   'art-02-agent-spend-policy-simulator':                        art02,
   'art-03-x402-settlement-modeler':                             art03,
@@ -1328,9 +1333,12 @@ export const KERNELS = {
   'art-715-token2022-transfer-fee-reconciler':                  art715,
   'art-72-cbam-precursor-emissions-aggregator':                 art72,
   'art-73-taxonomy-alignment-scorer':                           art73,
+  'art-734-force-placed-insurance-checker':                     art734,
   'art-74-taxonomy-kpi-gar-aggregator':                         art74,
   'art-75-eugb-factsheet-validator':                            art75,
   'art-76-climate-scenario-applicator':                         art76,
+  'art-763-ai-displacement-risk-screener':                      art763,
+  'art-767-compute-travel-nurse-vs-staff-comp':                 art767,
   'art-77-t1-settlement-readiness-diagnostic':                  art77,
   'art-78-csdr-penalty-calculator':                             art78,
   'art-79-settlement-fail-predictor':                           art79,
