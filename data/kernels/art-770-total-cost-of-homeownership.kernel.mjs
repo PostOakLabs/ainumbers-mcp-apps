@@ -101,8 +101,11 @@ function refusedPayload(inputEcho, code, message) {
       grossCost: null, netCost: null, costPerMonth: null, netCostPerMonth: null,
       breakEvenMonthlyRent: null, shareBps: null, negativeAppreciation: null,
       refusal: code, message,
+      // FLAG-MIRROR-DOCTRINE (AUTHORING-STANDARD 2.2): closed-list member so a
+      // 21.4 chain gate can route on the refusal (H4 declared divergence from the
+      // payload refusal shape, which carried no mirror member).
+      domain_errors: [code],
     },
-    compliance_flags: ["ART770_INPUT_REFUSED"],
   };
 }
 
@@ -114,6 +117,16 @@ function refusedPayload(inputEcho, code, message) {
  * @returns {{ output_payload: object, compliance_flags: string[] }}
  */
 export function compute(pp) {
+  const r = computeInner(pp);
+  return {
+    output_payload: r.output_payload,
+    // Ternary construction (FLAGS-COMPUTED-LINT-1 sanctioned form): the flag is
+    // emitted only when the hold comparator actually refused.
+    compliance_flags: r.refused ? ["ART770_INPUT_REFUSED"] : [],
+  };
+}
+
+function computeInner(pp) {
   if (pp === null || typeof pp !== "object") pp = {};
   // --- Sanitization mirrors calculate() exactly (Apex ~L453-484) ---
   let price = num(pp.price, 0); if (price < 0) price = 0;
@@ -157,8 +170,8 @@ export function compute(pp) {
   // Comparator C-hold: holdYears <= 0 -> Apex shows 'Years you plan to stay must be
   // at least 1.' and returns with stale results (H0: returned as a value here).
   if (holdYears <= 0) {
-    return refusedPayload(inputs, "REFUSED_BAD_HOLD_YEARS",
-      "Years you plan to stay must be at least 1.");
+    return { output_payload: refusedPayload(inputs, "REFUSED_BAD_HOLD_YEARS",
+      "Years you plan to stay must be at least 1.").output_payload, refused: true };
   }
 
   // Step 1: loan setup
@@ -296,8 +309,9 @@ export function compute(pp) {
       grossCost, netCost, costPerMonth, netCostPerMonth, breakEvenMonthlyRent,
       shareBps, negativeAppreciation: appreciationPct < 0,
       refusal: null, message: null,
+      domain_errors: [],
     },
-    compliance_flags: [],
+    refused: false,
   };
 }
 
