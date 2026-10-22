@@ -114,6 +114,25 @@ export async function precomputeDiscovery() {
   toolsMsg.result.tools = toolsMsg.result.tools.filter((t) => lifecycleStatusOf(t.name) !== 'Removed');
   for (const t of toolsMsg.result.tools) t.lifecycle_status = lifecycleStatusOf(t.name);
 
+  // CGMCP-TOOLSCHEMA-400-CURE-1 — draft 2020-12 schema declaration. The SDK's zod->JSON Schema
+  // conversion stamps EVERY inputSchema/outputSchema with `$schema:
+  // "http://json-schema.org/draft-07/schema#"`. The Anthropic API validates served tool schemas
+  // against the JSON Schema draft 2020-12 META-schema with the full catalogue loaded
+  // (ENABLE_TOOL_SEARCH=false / alwaysLoad) and hard-400s on the first offender
+  // (`tools.41.custom.input_schema: JSON schema is invalid. It must match JSON Schema draft
+  // 2020-12`, measured 2026-10-21). The schema BODIES are 2020-12-clean (ajv draft-2020-12
+  // meta-schema sweep: 721/721 invalid ONLY on the declared $schema, 0 invalid once it is
+  // re-declared), so the cure is exactly to re-declare the dialect: draft-07 $schema -> the
+  // draft 2020-12 URI. Mirrored at runtime on the SDK fallback path in worker.mjs
+  // (SCHEMA_DIALECT_2020) so the two paths stay byte-agreeable answers.
+  for (const t of toolsMsg.result.tools) {
+    for (const slot of [t.inputSchema, t.outputSchema]) {
+      if (slot && typeof slot === 'object' && typeof slot.$schema === 'string' && slot.$schema.includes('draft-07')) {
+        slot.$schema = 'https://json-schema.org/draft/2020-12/schema';
+      }
+    }
+  }
+
   // outputSchema (§M1.4) — read-only projection from repo/manifests/*, attach when present.
   let outputSchemas = {};
   try { outputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none yet */ }

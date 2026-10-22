@@ -842,6 +842,9 @@ function lifecycleStatusOf(data, name) {
 // ⛔ MCP-REACH-DISPATCH-1 D2: this set is ALSO the page-1 head — orderToolsHotFirst() below puts
 // these 13 names at tools/list positions 1-13 on both the precompute and the runtime path, and
 // scripts/check-hot-tool-order.mjs reds if any of them falls outside that window.
+// CGMCP-TOOLSCHEMA-400-CURE-1 — the only JSON Schema dialect the Anthropic API's tool-schema
+// validation accepts (draft 2020-12 meta-schema, hard-400 otherwise, measured 2026-10-21).
+const SCHEMA_DIALECT_2020 = 'https://json-schema.org/draft/2020-12/schema';
 const HOT_TOOLS = new Set([
   'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
   'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
@@ -7696,6 +7699,15 @@ export default {
               parsed.result.tools = parsed.result.tools.filter((tool) => lifecycleStatusOf(data, tool.name) !== 'Removed');
               for (const tool of parsed.result.tools) {
                 tool.lifecycle_status = lifecycleStatusOf(data, tool.name);
+                // CGMCP-TOOLSCHEMA-400-CURE-1 — re-declare the schema dialect as draft 2020-12
+                // (the SDK zod conversion stamps draft-07 and the Anthropic API hard-400s on it
+                // with the full catalogue loaded). Mirrors the precompute pass in
+                // scripts/precompute-discovery.mjs so a static-miss serve is the same answer.
+                for (const slot of [tool.inputSchema, tool.outputSchema]) {
+                  if (slot && typeof slot === 'object' && typeof slot.$schema === 'string' && slot.$schema.includes('draft-07')) {
+                    slot.$schema = SCHEMA_DIALECT_2020;
+                  }
+                }
               }
               // MCP-REACH-DISPATCH-1 D2 — the SAME ordering function the precompute uses, so this
               // fallback path and the static bytes agree on page 1 (the gate checks the static
