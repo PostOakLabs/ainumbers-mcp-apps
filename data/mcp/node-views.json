@@ -636,8 +636,8 @@
       "mcp_name": "run_t1_readiness_diagnostic",
       "display_name": "T+1 Settlement Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-77-t1-settlement-readiness-diagnostic",
-      "bytes": 53626,
-      "sha256": "97b7f5cc7e6625bd3c536ef3a932a03b4e5681ab98069ded2b426c73b381ab4f"
+      "bytes": 53754,
+      "sha256": "22246588f1c97d8d483fcfec2beb68d5be6c2aff4d66cecc3d2a2af154558c2b"
     },
     {
       "tool_id": "art-78-csdr-penalty-calculator",
@@ -668,8 +668,8 @@
       "mcp_name": "check_allocation_affirmation",
       "display_name": "Allocation/Affirmation Conformance Checker",
       "uri": "ui://ainumbers/node/art-81-allocation-affirmation-conformance",
-      "bytes": 51877,
-      "sha256": "005d65f3117f4809ec34e20f559a7bc38eaca0a0a5a00e38c2699a7317e08adb"
+      "bytes": 52119,
+      "sha256": "0db84d41275434ce16686fa457bd4940b4a3f829964081b5477cbbe356b3014b"
     },
     {
       "tool_id": "art-82-securities-settlement-message-linter",
@@ -3756,24 +3756,24 @@
       "mcp_name": "check_safeguarding_reconciliation",
       "display_name": "CASS 15 Safeguarding Reconciliation Check",
       "uri": "ui://ainumbers/node/art-499-check-safeguarding-reconciliation",
-      "bytes": 49542,
-      "sha256": "540d7736e95370ab4d5fa8e32a26c22f1943ba9bd7d811c65215d206ae602ee3"
+      "bytes": 63872,
+      "sha256": "63a4833df0cf279b7c48cbf529da22e602ea2f3c1255bc038fdf4adf0e218e14"
     },
     {
       "tool_id": "art-500-classify-safeguarding-method",
       "mcp_name": "classify_safeguarding_method",
       "display_name": "CASS 15 Safeguarding Method Classifier",
       "uri": "ui://ainumbers/node/art-500-classify-safeguarding-method",
-      "bytes": 56027,
-      "sha256": "ce44d239aed47603fd0890b229eeaa27456d2bc7a642164e325339242ce1162b"
+      "bytes": 63503,
+      "sha256": "f00826bae98a433a923119682784468838b7df72c9c1d91f54c53fc14d4fbe3f"
     },
     {
       "tool_id": "art-501-build-safeguarding-audit-evidence",
       "mcp_name": "build_safeguarding_audit_evidence",
       "display_name": "CASS 15 Safeguarding Audit Evidence Pack",
       "uri": "ui://ainumbers/node/art-501-build-safeguarding-audit-evidence",
-      "bytes": 84124,
-      "sha256": "47fa8e707285fcdf61bce66683095af1946a1027d02417d6f77ff7480255721c"
+      "bytes": 93716,
+      "sha256": "e844e8695c49e010e431a049b1f14ed33938497e9d8e6eaa940036da2dec58a7"
     },
     {
       "tool_id": "art-502-bind-attested-subject",
