@@ -114,6 +114,46 @@ export async function precomputeDiscovery() {
   toolsMsg.result.tools = toolsMsg.result.tools.filter((t) => lifecycleStatusOf(t.name) !== 'Removed');
   for (const t of toolsMsg.result.tools) t.lifecycle_status = lifecycleStatusOf(t.name);
 
+  // CGMCP-TOOLSCHEMA-400-CURE-1 — draft 2020-12 schema declaration. The SDK's zod->JSON Schema
+  // conversion stamps EVERY inputSchema/outputSchema with `$schema:
+  // "http://json-schema.org/draft-07/schema#"`. The Anthropic API validates served tool schemas
+  // against the JSON Schema draft 2020-12 META-schema with the full catalogue loaded
+  // (ENABLE_TOOL_SEARCH=false / alwaysLoad) and hard-400s on the first offender
+  // (`tools.41.custom.input_schema: JSON schema is invalid. It must match JSON Schema draft
+  // 2020-12`, measured 2026-10-21). The schema BODIES are 2020-12-clean (ajv draft-2020-12
+  // meta-schema sweep: 721/721 invalid ONLY on the declared $schema, 0 invalid once it is
+  // re-declared), so the cure is exactly to re-declare the dialect: draft-07 $schema -> the
+  // draft 2020-12 URI. Mirrored at runtime on the SDK fallback path in worker.mjs
+  // (SCHEMA_DIALECT_2020) so the two paths stay byte-agreeable answers.
+  // VENDOR-507-PIPEUNION-CURE-1 — normalize pipe-union `type` values. Kernel doc-comments carry
+  // `match_column?: string|number|null`-shaped annotations that the schema pipeline emits
+  // VERBATIM as a JSON Schema `type` value (`type: "string|number|null"`). A string `type` with
+  // a `|` is invalid under the draft 2020-12 meta-schema (`type` must be a single primitive or
+  // an array of primitives) — the Anthropic API hard-400s on the first offender even after the
+  // $schema cure above. The JSON-Schema-valid form of `a|b|null` is the type ARRAY
+  // ["a","b","null"] (anyOf is equivalent but array form preserves the authoring order and is
+  // byte-cheaper). Mirrored at runtime on the SDK fallback path in worker.mjs so the two paths
+  // stay byte-agreeable answers.
+  const normalizePipeUnionTypes = (node) => {
+    if (Array.isArray(node)) { for (const item of node) normalizePipeUnionTypes(item); return; }
+    if (!node || typeof node !== 'object') return;
+    for (const [key, value] of Object.entries(node)) {
+      if (key === 'type' && typeof value === 'string' && value.includes('|')) {
+        node.type = value.split('|').map((s) => s.trim()).filter(Boolean);
+      } else if (value && typeof value === 'object') {
+        normalizePipeUnionTypes(value);
+      }
+    }
+  };
+  for (const t of toolsMsg.result.tools) {
+    for (const slot of [t.inputSchema, t.outputSchema]) {
+      if (slot && typeof slot === 'object' && typeof slot.$schema === 'string' && slot.$schema.includes('draft-07')) {
+        slot.$schema = 'https://json-schema.org/draft/2020-12/schema';
+      }
+      normalizePipeUnionTypes(slot);
+    }
+  }
+
   // outputSchema (§M1.4) — read-only projection from repo/manifests/*, attach when present.
   let outputSchemas = {};
   try { outputSchemas = JSON.parse(readFileSync(resolve(DATA, 'mcp', 'output-schemas.json'), 'utf8')); } catch { /* none yet */ }
