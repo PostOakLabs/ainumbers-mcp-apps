@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 735,
+  "tool_count": 736,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -373,6 +373,7 @@
     "decode_mpp_session",
     "decode_x402_payment",
     "derive_beacon_fair_sample",
+    "derive_beacon_fair_sample_v2",
     "derive_parametric_index_from_receipts",
     "describe_tool",
     "detect_timeseries_anomalies",
