@@ -3185,6 +3185,212 @@
       "credit_bureau_phone": "1-800-685-1111"
     }
   },
+  "cass15-safeguarding-audit-pack": {
+    "art-500-classify-safeguarding-method": {
+      "as_of_date": "2026-07-29",
+      "relevant_funds_high_water_minor_units": 4200000,
+      "weeks_observed": 60,
+      "streams": [
+        {
+          "stream_ref": "STRM-001",
+          "funds_category": "emoney_relevant_funds",
+          "method_asserted": "segregation",
+          "designated_account_status": "designated_relevant_funds_bank_account",
+          "acknowledgement_letter_status": "received_and_countersigned",
+          "receipt_to_segregation_timing": "same_business_day"
+        }
+      ]
+    },
+    "art-499-check-safeguarding-reconciliation": {
+      "as_of_date": "2026-07-29",
+      "currency": "GBP",
+      "reconciliation_type": "internal",
+      "safeguarding_requirement_minor_units": 48250000,
+      "tolerance_minor_units": 100,
+      "safeguarding_resource_components": [
+        {
+          "account_ref": "ACC-REF-A1",
+          "component_type": "relevant_funds_bank_account",
+          "amount_minor_units": 41000000
+        },
+        {
+          "account_ref": "ACC-REF-B2",
+          "component_type": "segregated_not_yet_placed",
+          "amount_minor_units": 2250000
+        },
+        {
+          "account_ref": "ACC-REF-C3",
+          "component_type": "relevant_assets",
+          "amount_minor_units": 3000000
+        },
+        {
+          "account_ref": "ACC-REF-D4",
+          "component_type": "insurance_or_guarantee",
+          "amount_minor_units": 2000000
+        }
+      ]
+    },
+    "art-501-build-safeguarding-audit-evidence": {
+      "firm_ref": "FIRM-SYNTH-0001",
+      "audit_period": {
+        "start_date": "2026-05-07",
+        "end_date": "2027-05-06"
+      },
+      "attested_subject": {
+        "subject_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "subject_preimage": {
+          "tool_ref": {
+            "tool_id": "acme-safeguarding-recon",
+            "tool_version": "4.2.0",
+            "entry": "buildSafeguardingRecon",
+            "manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "inputs_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "artifact": {
+            "content_type": "application/pdf",
+            "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "producer_pinned": true,
+        "binding_complete": true,
+        "inputs_digest_source": "derived"
+      },
+      "reconciliation_results": [
+        {
+          "entry_ref": "RECON-2026-06-30",
+          "as_of_date": "2026-06-30",
+          "reconciliation_type": "internal",
+          "verdict": "reconciled",
+          "difference_direction": "level",
+          "difference_display": "0.00",
+          "safeguarding_requirement_display": "1250000.00",
+          "safeguarding_resource_display": "1250000.00",
+          "currency": "GBP"
+        },
+        {
+          "entry_ref": "RECON-2026-09-30",
+          "as_of_date": "2026-09-30",
+          "reconciliation_type": "internal",
+          "verdict": "reconciled",
+          "difference_direction": "level",
+          "difference_display": "0.00",
+          "safeguarding_requirement_display": "1310000.00",
+          "safeguarding_resource_display": "1310000.00",
+          "currency": "GBP"
+        },
+        {
+          "entry_ref": "RECON-2026-12-31",
+          "as_of_date": "2026-12-31",
+          "reconciliation_type": "external",
+          "verdict": "reconciled",
+          "difference_direction": "level",
+          "difference_display": "0.00",
+          "safeguarding_requirement_display": "1402500.00",
+          "safeguarding_resource_display": "1402500.00",
+          "currency": "GBP"
+        }
+      ],
+      "method_classification": {
+        "classification_verdict": "COHERENT_ON_SUPPLIED_FACTS",
+        "stream_count": 2,
+        "coherent_count": 2,
+        "incoherent_count": 0,
+        "open_judgment_count": 0,
+        "audit_exemption_indicator": {
+          "outcome": "audit_required",
+          "basis": "Relevant funds held exceed the exemption level."
+        },
+        "determinations": [
+          {
+            "stream_ref": "STREAM-SYNTH-A",
+            "funds_category": "payment_service_relevant_funds",
+            "method_asserted": "segregation",
+            "relevant_funds_determination": {
+              "outcome": "relevant",
+              "basis": "Declared as payment_service_relevant_funds.",
+              "citation_id": null
+            },
+            "method_coherence": "coherent",
+            "method_findings": []
+          },
+          {
+            "stream_ref": "STREAM-SYNTH-B",
+            "funds_category": "emoney_relevant_funds",
+            "method_asserted": "segregation",
+            "relevant_funds_determination": {
+              "outcome": "relevant",
+              "basis": "Declared as emoney_relevant_funds.",
+              "citation_id": null
+            },
+            "method_coherence": "coherent",
+            "method_findings": []
+          }
+        ]
+      },
+      "accountability_records": [
+        {
+          "record_type": "approval",
+          "role": "preparer",
+          "subject_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "identity": {
+            "id": "did:key:zPreparerSynth1",
+            "actor_type": "human"
+          },
+          "decision": "prepared",
+          "timestamp": "2027-05-20T09:00:00Z",
+          "audit_signature": {
+            "proof": {
+              "type": "DataIntegrityProof",
+              "cryptosuite": "eddsa-jcs-2022",
+              "proofPurpose": "assertionMethod",
+              "verificationMethod": "did:key:zPreparerSynth1#zPreparerSynth1",
+              "proofValue": "zSYNTHETICPREPARERSIGNATURE"
+            }
+          }
+        },
+        {
+          "record_type": "approval",
+          "role": "reviewer",
+          "subject_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "identity": {
+            "id": "did:key:zAuditorSynth1",
+            "actor_type": "human"
+          },
+          "decision": "reviewed",
+          "timestamp": "2027-05-21T14:30:00Z",
+          "audit_signature": {
+            "proof": {
+              "type": "DataIntegrityProof",
+              "cryptosuite": "eddsa-jcs-2022",
+              "proofPurpose": "assertionMethod",
+              "verificationMethod": "did:key:zAuditorSynth1#zAuditorSynth1",
+              "proofValue": "zSYNTHETICAUDITORSIGNATURE"
+            }
+          }
+        },
+        {
+          "record_type": "approval",
+          "role": "approver",
+          "subject_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "identity": {
+            "id": "did:key:zApproverSynth1",
+            "actor_type": "human"
+          },
+          "decision": "approved",
+          "timestamp": "2027-05-22T11:15:00Z",
+          "audit_signature": {
+            "proof": {
+              "type": "DataIntegrityProof",
+              "cryptosuite": "eddsa-jcs-2022",
+              "proofPurpose": "assertionMethod",
+              "verificationMethod": "did:key:zApproverSynth1#zApproverSynth1",
+              "proofValue": "zSYNTHETICAPPROVERSIGNATURE"
+            }
+          }
+        }
+      ]
+    }
+  },
   "cat-bond-trigger-validation": {
     "art-252-validate-cat-bond-trigger-terms": {
       "reported_loss": 750000000,
@@ -7694,6 +7900,46 @@
       "training_covers_threat_landscape": true,
       "training_covers_incident_response": true,
       "board_review_age_days": 90
+    }
+  },
+  "order-execution-quality-pack": {
+    "art-541-best-execution-recompute": {
+      "fills": [
+        {
+          "side": "buy",
+          "execution_price": 10.02,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 100
+        },
+        {
+          "side": "sell",
+          "execution_price": 10.03,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 200
+        }
+      ]
+    },
+    "art-681-best-execution-evidence-pack": {
+      "venues": [
+        {
+          "venue": "V1",
+          "fills": 60,
+          "avg_improvement_bps": 2.1
+        },
+        {
+          "venue": "V2",
+          "fills": 40,
+          "avg_improvement_bps": -0.4
+        }
+      ]
+    },
+    "art-682-rule-605-publication-composer": {
+      "orders_covered": 1200,
+      "shares_covered": 450000,
+      "avg_effective_spread_bps": 3.2,
+      "avg_quoted_spread_bps": 4
     }
   },
   "overdraft-nsf-fee-recompute-check": {

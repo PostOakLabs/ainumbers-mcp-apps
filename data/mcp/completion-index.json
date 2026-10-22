@@ -791,6 +791,7 @@
       "card-interchange",
       "card-programme",
       "card-scheme-dispute-management",
+      "cass15-safeguarding-audit-pack",
       "cat-bond-trigger-validation",
       "cbam-fit",
       "cbam-liability",
@@ -944,6 +945,7 @@
       "nis2-entity-scope-and-obligations",
       "nis2-incident-and-supply-chain-readiness",
       "open-banking-api-lifecycle",
+      "order-execution-quality-pack",
       "overdraft-nsf-fee-recompute-check",
       "overtime-pay-check",
       "parametric-trigger-adjudication",
@@ -2223,6 +2225,11 @@
       246,
       241
     ],
+    "cass15-safeguarding-audit-pack": [
+      482,
+      481,
+      483
+    ],
     "cat-bond-trigger-validation": [
       265,
       264
@@ -2743,6 +2750,11 @@
       157,
       158,
       159
+    ],
+    "order-execution-quality-pack": [
+      522,
+      635,
+      636
     ],
     "overdraft-nsf-fee-recompute-check": [
       619,
