@@ -44835,6 +44835,118 @@
       }
     }
   },
+  "derive_beacon_fair_sample_v2": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "DERIVED",
+          "INDETERMINATE"
+        ]
+      },
+      "reasons": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "beacon_source": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "beacon_round": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "beacon_randomness": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "item_manifest_hash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "item_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "sample_size": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "algorithm_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "seed_hex": {
+        "type": "string"
+      },
+      "selected_indices": {
+        "type": "array",
+        "items": {
+          "type": "integer"
+        }
+      },
+      "draws_used": {
+        "type": "integer"
+      },
+      "reduction_rejects": {
+        "type": "integer"
+      },
+      "derivation_transcript": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "draw": {
+              "type": "integer"
+            },
+            "hmac_hex": {
+              "type": "string"
+            },
+            "result": {
+              "type": "string",
+              "enum": [
+                "selected",
+                "rejected_reduction"
+              ]
+            },
+            "position": {
+              "type": "integer"
+            },
+            "swap_index": {
+              "type": "integer"
+            },
+            "selected_index": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "transcript_truncated": {
+        "type": "boolean"
+      },
+      "manual_review_required": {
+        "type": "boolean",
+        "description": "True exactly when the verdict is INDETERMINATE and an input must be fixed before re-running (flag-mirror member)."
+      }
+    }
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
