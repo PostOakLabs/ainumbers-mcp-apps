@@ -977,6 +977,7 @@
       "rdarr-attestation-cycle",
       "reg-w-23a-23b-testing-cycle",
       "regrpt-submission-cycle",
+      "regulatory-change-operationalisation",
       "regulatory-impact",
       "reinsurance-catastrophe",
       "remittance-disclosure-and-corridor-cost",
@@ -2848,6 +2849,10 @@
     "regrpt-submission-cycle": [
       467,
       468
+    ],
+    "regulatory-change-operationalisation": [
+      644,
+      562
     ],
     "remittance-disclosure-and-corridor-cost": [
       261,
