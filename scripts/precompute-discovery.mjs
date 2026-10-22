@@ -125,11 +125,32 @@ export async function precomputeDiscovery() {
   // re-declared), so the cure is exactly to re-declare the dialect: draft-07 $schema -> the
   // draft 2020-12 URI. Mirrored at runtime on the SDK fallback path in worker.mjs
   // (SCHEMA_DIALECT_2020) so the two paths stay byte-agreeable answers.
+  // VENDOR-507-PIPEUNION-CURE-1 — normalize pipe-union `type` values. Kernel doc-comments carry
+  // `match_column?: string|number|null`-shaped annotations that the schema pipeline emits
+  // VERBATIM as a JSON Schema `type` value (`type: "string|number|null"`). A string `type` with
+  // a `|` is invalid under the draft 2020-12 meta-schema (`type` must be a single primitive or
+  // an array of primitives) — the Anthropic API hard-400s on the first offender even after the
+  // $schema cure above. The JSON-Schema-valid form of `a|b|null` is the type ARRAY
+  // ["a","b","null"] (anyOf is equivalent but array form preserves the authoring order and is
+  // byte-cheaper). Mirrored at runtime on the SDK fallback path in worker.mjs so the two paths
+  // stay byte-agreeable answers.
+  const normalizePipeUnionTypes = (node) => {
+    if (Array.isArray(node)) { for (const item of node) normalizePipeUnionTypes(item); return; }
+    if (!node || typeof node !== 'object') return;
+    for (const [key, value] of Object.entries(node)) {
+      if (key === 'type' && typeof value === 'string' && value.includes('|')) {
+        node.type = value.split('|').map((s) => s.trim()).filter(Boolean);
+      } else if (value && typeof value === 'object') {
+        normalizePipeUnionTypes(value);
+      }
+    }
+  };
   for (const t of toolsMsg.result.tools) {
     for (const slot of [t.inputSchema, t.outputSchema]) {
       if (slot && typeof slot === 'object' && typeof slot.$schema === 'string' && slot.$schema.includes('draft-07')) {
         slot.$schema = 'https://json-schema.org/draft/2020-12/schema';
       }
+      normalizePipeUnionTypes(slot);
     }
   }
 

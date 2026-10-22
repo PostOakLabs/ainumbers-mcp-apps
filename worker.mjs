@@ -845,6 +845,20 @@ function lifecycleStatusOf(data, name) {
 // CGMCP-TOOLSCHEMA-400-CURE-1 — the only JSON Schema dialect the Anthropic API's tool-schema
 // validation accepts (draft 2020-12 meta-schema, hard-400 otherwise, measured 2026-10-21).
 const SCHEMA_DIALECT_2020 = 'https://json-schema.org/draft/2020-12/schema';
+// VENDOR-507-PIPEUNION-CURE-1 — a string `type` carrying `|` (kernel doc-comment unions emitted
+// verbatim) is invalid under the draft 2020-12 meta-schema; the JSON-Schema-valid form is the
+// type array. Recursive so nested properties/applies are covered.
+const normalizePipeUnionTypes = (node) => {
+  if (Array.isArray(node)) { for (const item of node) normalizePipeUnionTypes(item); return; }
+  if (!node || typeof node !== 'object') return;
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'type' && typeof value === 'string' && value.includes('|')) {
+      node.type = value.split('|').map((s) => s.trim()).filter(Boolean);
+    } else if (value && typeof value === 'object') {
+      normalizePipeUnionTypes(value);
+    }
+  }
+};
 const HOT_TOOLS = new Set([
   'list_ainumbers_tools', 'build_workflow_links', 'verify_execution_hash',
   'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
@@ -7707,6 +7721,11 @@ export default {
                   if (slot && typeof slot === 'object' && typeof slot.$schema === 'string' && slot.$schema.includes('draft-07')) {
                     slot.$schema = SCHEMA_DIALECT_2020;
                   }
+                  // VENDOR-507-PIPEUNION-CURE-1 — normalize pipe-union `type` strings
+                  // (`"string|number|null"` -> `["string","number","null"]`), the runtime mirror
+                  // of scripts/precompute-discovery.mjs: a string `type` with `|` is invalid
+                  // under the draft 2020-12 meta-schema and the Anthropic API hard-400s on it.
+                  normalizePipeUnionTypes(slot);
                 }
               }
               // MCP-REACH-DISPATCH-1 D2 — the SAME ordering function the precompute uses, so this
