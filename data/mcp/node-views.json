@@ -4860,8 +4860,8 @@
       "mcp_name": "compute_regulatory_obligations_register",
       "display_name": "Regulatory Obligations Register",
       "uri": "ui://ainumbers/node/art-691-regulatory-obligations-register",
-      "bytes": 41241,
-      "sha256": "ae6635728331658f5cd5164c9b647fd7d8cac69592c7eb6e256ab2fc0e1a6e68"
+      "bytes": 72804,
+      "sha256": "0cf66af896ed9195329e2ff341c4e05a98db40894f03806e6a3a1a2cd1825db4"
     },
     {
       "tool_id": "art-692-close-posting-lineage",
@@ -4988,8 +4988,8 @@
       "mcp_name": "workforce_board_roi_report",
       "display_name": "Workforce Board ROI Report",
       "uri": "ui://ainumbers/node/art-712-workforce-board-roi",
-      "bytes": 52209,
-      "sha256": "8f3a46639e2c92521e9681823b1eb9fcb6d59f4ba93c757181d2dede8bcaef6a"
+      "bytes": 53709,
+      "sha256": "9af6d2cba1db8edd94c5e3e3bd95c641610c67c85df3348548bb73cf0d9db4ed"
     },
     {
       "tool_id": "art-713-scorp-election-break-even",
@@ -5036,8 +5036,8 @@
       "mcp_name": "derive_beacon_fair_sample_v2",
       "display_name": "Beacon-Seeded Fair-Sampling Deriver V2",
       "uri": "ui://ainumbers/node/art-774-beacon-seeded-fair-sampling-v2",
-      "bytes": 241242,
-      "sha256": "e733dc80ad1137790a7ca3c527278c0cca54f7120023461b8338b2ef0b9b85da"
+      "bytes": 241428,
+      "sha256": "7b5550e312162e37c57859c0d6ea5d02c1732cafbe872c6c2f892c5ce244f79a"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
@@ -5060,8 +5060,8 @@
       "mcp_name": "aggregate_execution_receipts",
       "display_name": "Agent-Action Audit-Trail Aggregator",
       "uri": "ui://ainumbers/node/cry-05-agent-action-audit-trail-aggregator",
-      "bytes": 70841,
-      "sha256": "2d3eac3a01cee455adf47a134b8c18954caa98090f0c4c725e57a67c87d07a6b"
+      "bytes": 99684,
+      "sha256": "17e197564a069d24049bf9b2d4679ad94ee7960d8adaaea1d93811c698f06e75"
     },
     {
       "tool_id": "ml-01-isolation-forest",
