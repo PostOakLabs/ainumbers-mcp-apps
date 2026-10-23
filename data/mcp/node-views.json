@@ -5016,6 +5016,14 @@
       "sha256": "f9776ec68649217c6411c9ff65c764873641ce1e7c4bb47312928e3e885bcb06"
     },
     {
+      "tool_id": "art-754-equity-exit-waterfall",
+      "mcp_name": "calc_equity_exit_waterfall",
+      "display_name": "Equity Exit Waterfall Modeler",
+      "uri": "ui://ainumbers/node/art-754-equity-exit-waterfall",
+      "bytes": 84583,
+      "sha256": "4859d21729fbc17fa5cbcbbc9a43e69e5f2642d435faa21cd16523d8a8cec5cd"
+    },
+    {
       "tool_id": "art-758-hdhp-ppo-break-even",
       "mcp_name": "estimate_hdhp_ppo_breakeven",
       "display_name": "HDHP vs. PPO Break-Even",
