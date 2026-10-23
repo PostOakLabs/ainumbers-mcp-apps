@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 737,
+  "tool_count": 738,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -116,6 +116,7 @@
     "build_vop_session_receipt",
     "build_workflow_links",
     "build_yield_curve_gspread",
+    "calc_equity_exit_waterfall",
     "calculate_basis_risk_nii_shock",
     "calculate_cbam_embedded_emissions",
     "calculate_cecl_ecl_allowance",
