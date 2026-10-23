@@ -44745,6 +44745,10 @@
       }
     }
   },
+  "estimate_iso_amt_exposure": {
+    "type": "object",
+    "description": "output_payload: shares_exercised, strike_price, fmv_at_exercise, ordinary_income, other_amt_adjustments, filing_status, iso_spread, amti, effective_exemption, amt_base, tentative_minimum_tax, regular_tax, amt_owed, amt_credit_generated, max_shares_no_amt, amt_triggered, scenarios[]{shares_exercised, iso_spread, amti, effective_exemption, amt_owed, net_value_after_amt, is_entered}."
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
