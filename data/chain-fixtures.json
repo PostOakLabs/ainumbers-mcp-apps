@@ -7202,6 +7202,29 @@
       "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   },
+  "mla-mapr-cashflow-check": {
+    "art-616-mla-mapr-actuarial-recompute": {
+      "advances": [
+        {
+          "amount": 1000,
+          "full_periods": 0,
+          "fraction": 0
+        }
+      ],
+      "payments": [
+        {
+          "amount": 1030,
+          "full_periods": 1,
+          "fraction": 0
+        }
+      ],
+      "periods_per_year": 12,
+      "mla_charges": []
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "model-passport-lifecycle": {
     "art-450-model-inventory-entry": {
       "model_name": "Retail Credit Scoring Model v3",
