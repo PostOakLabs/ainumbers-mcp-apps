@@ -176,6 +176,24 @@ else ok.push('GET/HEAD -> 405 short-circuit present');
   else if (JSON.parse(readFileSync(initP2, 'utf8'))?.capabilities?.tools?.listChanged !== true) {
     fails.push('initialize.json capabilities.tools.listChanged is not true — the client must be told the tool list can change (row ADDITION A).');
   } else ok.push('initialize.json advertises capabilities.tools.listChanged: true');
+  // (e2) VERIFY-HASH-WORDING-1: the tool total interpolated into the initialize.json
+  // instructions must equal counts.json mcp_tools_total. Guard for the generate.mjs import-order
+  // root cause: precompute-discovery (which builds SERVER_INSTRUCTIONS) statically imports
+  // worker.mjs, which reads data/counts.json at module load — a static top-level import in
+  // generate.mjs evaluates that chain BEFORE counts.json is rewritten, so the instructions lag
+  // one generate. generate.mjs now dynamically imports it after the counts write; this check
+  // fails with both numbers if the lag ever returns.
+  try {
+    const countsTotal = JSON.parse(readFileSync(resolve(ROOT, 'data', 'counts.json'), 'utf8')).mcp_tools_total;
+    const instr = readFileSync(initP2, 'utf8');
+    const m = instr.match(/the full set is (\d+) tools/);
+    if (!m) fails.push('initialize.json instructions carry no "the full set is <N> tools" total — re-run generate.mjs.');
+    else if (Number(m[1]) !== countsTotal)
+      fails.push('initialize.json instructions say the full set is ' + m[1] + ' tools but counts.json mcp_tools_total is ' + countsTotal + ' — the generate.mjs import of precompute-discovery must stay AFTER the counts.json write; re-run generate.mjs.');
+    else ok.push('initialize.json instructions total (' + m[1] + ') equals counts.json mcp_tools_total');
+  } catch (e) {
+    fails.push('initialize-vs-counts check could not run — ' + e.message);
+  }
   // (f) MCP-LITE-PROFILE-1 — the ?profile=lite template: exactly the discovery set, and each
   // entry BYTE-IDENTICAL to its full-list counterpart (the lite file must filter the same
   // generated objects, never re-type them — a re-typed description drifts from describe_tool
