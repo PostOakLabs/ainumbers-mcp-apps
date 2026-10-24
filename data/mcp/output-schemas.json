@@ -44913,6 +44913,10 @@
     "type": "object",
     "description": "output_payload: shares_exercised, strike_price, fmv_at_exercise, ordinary_income, other_amt_adjustments, filing_status, iso_spread, amti, effective_exemption, amt_base, tentative_minimum_tax, regular_tax, amt_owed, amt_credit_generated, max_shares_no_amt, amt_triggered, scenarios[]{shares_exercised, iso_spread, amti, effective_exemption, amt_owed, net_value_after_amt, is_entered}."
   },
+  "analyze_espp_disposition": {
+    "type": "object",
+    "description": "output_payload: purchase_price, offering_price, current_price, shares_exercised, grant_date, purchase_date, ordinary_income, filing_status, marginal_rate, fmv_at_purchase, disq_ord_income, disq_ltcg_gain, disq_gross, disq_ord_tax, disq_ltcg_tax, disq_total_tax, disq_proceeds, disq_effective_rate, qual_ord_income, qual_ltcg_gain, qual_gross, qual_ord_tax, qual_ltcg_tax, qual_total_tax, qual_proceeds, qual_effective_rate, benefit, qualify_date, already_qualified."
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
