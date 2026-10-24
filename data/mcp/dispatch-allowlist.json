@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 738,
+  "tool_count": 739,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -31,6 +31,7 @@
     "allocate_ihb_interest",
     "amortize_asc606_commissions",
     "analyze_dc_vs_lc_cost_benefit",
+    "analyze_espp_disposition",
     "analyze_prediction_market",
     "anchor_document_integrity",
     "ap2_aml_mandate_builder",

@@ -5579,6 +5579,71 @@
       "artifacts": []
     }
   },
+  "garnishment-withholding-check": {
+    "art-338-compute-federal-withholding": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 2000,
+      "pay_frequency": "biweekly",
+      "filing_status": "single_or_mfs"
+    },
+    "art-339-compute-gross-to-net": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 5000,
+      "federal_withholding_per_period": 0,
+      "pretax_reduces_fica_and_fit": 0,
+      "post_tax_other_deductions": 0,
+      "ytd_fica_wages_before_period": 180000
+    },
+    "art-572-multi-garnishment-stacking-recompute": {
+      "employee_ref": "SYNTH-EMP-001",
+      "period_label": "2026-01-15 biweekly pay period",
+      "currency": "USD",
+      "gross_minor_units": 100000,
+      "legally_required_deductions": [
+        {
+          "label": "Federal income tax withholding",
+          "amount_minor_units": 15000
+        },
+        {
+          "label": "FICA",
+          "amount_minor_units": 7650
+        },
+        {
+          "label": "State income tax withholding",
+          "amount_minor_units": 4000
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "ord-1",
+          "label": "Child support order, county court",
+          "type": "child_support",
+          "arrears_over_12wk": false,
+          "second_family": false,
+          "claimed_amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "label": "Creditor garnishment",
+          "type": "creditor",
+          "claimed_amount_minor_units": 30000
+        }
+      ],
+      "noticed_amounts": [
+        {
+          "order_id": "ord-1",
+          "amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "amount_minor_units": 0
+        }
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "genius-listing-acceptance-pack": {
     "art-06-genius-act-reserve-attestation": {},
     "art-275-genius-reserve-disclosure-checker": {},

@@ -4620,8 +4620,8 @@
       "mcp_name": "recompute_mla_mapr_actuarial",
       "display_name": "MLA MAPR Actuarial Recompute",
       "uri": "ui://ainumbers/node/art-616-mla-mapr-actuarial-recompute",
-      "bytes": 60520,
-      "sha256": "ff92f3004189925557e07431e06973a3e481c7a214b301ceb648f976f38ccd51"
+      "bytes": 66967,
+      "sha256": "0762b730b6a86ea7afde2ceb655db9c99880b35e4c69e051fde2e435d9d1127f"
     },
     {
       "tool_id": "art-618-naic-clo-rbc-factor-calculator",
@@ -5038,6 +5038,14 @@
       "uri": "ui://ainumbers/node/art-759-iso-amt-exposure-modeler",
       "bytes": 41774,
       "sha256": "f6d7176add2fb7870fdb1e7fc7cad5f01829c32e31275106a9c5a657330319b6"
+    },
+    {
+      "tool_id": "art-760-espp-break-even-optimal-sell",
+      "mcp_name": "analyze_espp_disposition",
+      "display_name": "ESPP Break-Even & Optimal Sell",
+      "uri": "ui://ainumbers/node/art-760-espp-break-even-optimal-sell",
+      "bytes": 46773,
+      "sha256": "3352fad54933c45f1112f8d13ed10b11d4b4b128a0538c3c343a23f3bdf17fab"
     },
     {
       "tool_id": "art-763-ai-displacement-risk-screener",
