@@ -8,7 +8,6 @@ import { execSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PILOT } from './pilot.mjs';
-import { precomputeDiscovery } from './scripts/precompute-discovery.mjs';
 import { UTILITY_TOOL_COUNT, UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -754,6 +753,12 @@ console.log('lifecycle:', lifecycleCounts);
 // from the REAL buildServer so the Worker never rebuilds ~186 tools per request on the Free-plan
 // CPU budget. Must run AFTER all data/ files above are written (it reads them). See
 // scripts/precompute-discovery.mjs + the O(1) fast path in worker.mjs.
+// Dynamic import (VERIFY-HASH-WORDING-1): precompute-discovery statically imports worker.mjs,
+// which imports data/counts.json at module load. A static import at the top of this file
+// evaluated that chain BEFORE the counts.json write above, so SERVER_INSTRUCTIONS was built
+// from the previous run's mcp_tools_total and lagged one generate. Importing here, after the
+// write, makes the chain read the fresh counts.
+const { precomputeDiscovery } = await import('./scripts/precompute-discovery.mjs');
 const disc = await precomputeDiscovery();
 console.log('precomputed discovery static responses:', disc, '→ data/mcp/static/');
 

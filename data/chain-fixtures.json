@@ -9011,6 +9011,43 @@
       "servicemember_notified": true
     }
   },
+  "servicer-response-clock-and-payment-check": {
+    "733-servicing-compliance-clock": {
+      "events": [
+        {
+          "rule": "error_acknowledgment",
+          "trigger_date": "2026-11-25"
+        }
+      ]
+    },
+    "art-664-loan-servicing-waterfall-recompute": {
+      "application_order": [
+        "late_fee",
+        "escrow_shortage",
+        "escrow",
+        "interest",
+        "principal"
+      ],
+      "bucket_balances": {
+        "late_fee": 500,
+        "escrow_shortage": 1000,
+        "escrow": 2000,
+        "interest": 1500,
+        "principal": 5000
+      },
+      "payment_amount": 10000,
+      "core_applied": {
+        "late_fee": 500,
+        "escrow_shortage": 1000,
+        "escrow": 2000,
+        "interest": 1500,
+        "principal": 5000
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "servicing-audit": {
     "art-332-build-amortization-schedule": {
       "schedule_type": "level_payment",

@@ -2547,7 +2547,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       'Independently verify a ChainGraph artifact (ChainGraph Standard v0.1 §6). ' +
       'Recomputes SHA-256 over the canonical (sorted-key, whitespace-stripped) JSON of ' +
       'policy_parameters + output_payload and compares it to the claimed execution_hash. ' +
-      'A match proves the artifact\'s stated inputs deterministically produce its stated outputs. ' +
+      'A match proves integrity: policy_parameters and output_payload are byte-for-byte what was hashed. It does not by itself show the outputs were computed from the inputs; for that, re-run the stage and compare (SPEC §4), or check the artifact\'s compute_proof where one is present (SPEC §18). ' +
       'Pass either a full artifact object, or policy_parameters + output_payload + claimed_hash. ' +
       'Inputs must be I-JSON (RFC 7493): integers beyond 2^53 must be passed as JSON strings, and NaN/Infinity are rejected. ' +
       'Values outside I-JSON have no stable canonical form, so this tool returns a structured -32602 error (error.data.reason "ijson_violation") instead of a hash. ' +
@@ -2595,7 +2595,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       note: claimed == null
         ? 'No claimed hash supplied -- returning the computed hash only.'
         : (valid
-          ? 'Verified: recomputed hash matches the artifact. Inputs reproduce outputs deterministically.'
+          ? 'Verified: recomputed hash matches the artifact (integrity). This does not show the outputs were computed from the inputs; re-run the stage or check compute_proof for that.'
           : 'MISMATCH: recomputed hash does not match the claimed hash. Treat the artifact as unverified.'),
       spec: 'ChainGraph Standard v0.1 §6',
       rule,
