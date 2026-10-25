@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 741,
+  "tool_count": 742,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -744,6 +744,7 @@
     "verify_saleable_return",
     "verify_settlement_asset_backing",
     "verify_slsa_provenance",
+    "verify_solana_paychan_voucher",
     "verify_summa_mst_inclusion",
     "verify_tempo_mpp_voucher",
     "verify_timestamp_attestation",
