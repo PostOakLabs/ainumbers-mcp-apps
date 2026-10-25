@@ -8060,16 +8060,16 @@
       "status": "live",
       "conformance_fixtures": false,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:bfd9eea1801c12c0b1358e111e33f08fcc221f3e847edd481053c5e90f81cd12","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:9fc6a79e641f9ef6d5828a5d7dab51f388fea19179dfc01ec116853d112c07a4","valid_from":"2026-10-23"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
       "compute_proof": {
         "type": "ZkVmReceipt",
         "system": "risc0",
         "receiptFormat": "groth16-bn254",
         "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "H73afabs85l8abbmOId6H67SL/XIVpYlJVpYf65YTSQBEQ8ui5gG9bGAmEBuxb9PKhw81B/gfWQKACgUYRUaeAt5okdiInvGlhNSIUBXBOvDElsee3PMFzUsHZouMuJPHchzM93Ms27PHh1VVYCGAi3U56Lz8gY2VQsi7e7J2yAYU8VY/yutWboqIIg2yHeruPbIQm/A/ZdgN4s+YoCHUAPORqEx6fuEmJwxULtuWxWksf9QoxXCoA9CAGdPm/BiAsbmfJWU9oJA3Cd7HZl1xpbbZaAVVCqNvcZ+4i+srSAsotKrti5Ey5lFzpY9zX7jHvTqNEq9UxKPslw+IGrD/Q==",
+        "seal": "Drkh5amYwbbDEPBSKVRM5tzkoyuJR3o02quwC7lOtKAdVqrxsrcJTe1lVl+KdNzcQUKKKpr2d8PGmBTDvbYHRgnw2uSK0hl/jirO6WH1ey2a52fb3YElqYp1+MF0c7KzI0YFegApI7e/IY0RqIsO+ZF6NthRjnF3mxO99uyuiR8j+MY1nQWhbDFpxfjHiYSqy9XqqNqP/ThgZY+Pr3B6khppaTqvoDrDMKXz3z5C/Zp589c/5J/Yt5fP4UwutE6FCzav5Pn278F7fVyPRsXujJiyl9xjxKrq4vbsSv/WnyMOAOpBizcHSNKPU67C9nz7Ghhg6b9OIvdsd/jywayznQ==",
         "journal": {
           "chaingraph_version": "0.4.0",
-          "kernel_digest": "sha256:bfd9eea1801c12c0b1358e111e33f08fcc221f3e847edd481053c5e90f81cd12",
+          "kernel_digest": "sha256:9fc6a79e641f9ef6d5828a5d7dab51f388fea19179dfc01ec116853d112c07a4",
           "output": {
             "cutoff_applied": "23:00",
             "cutoff_timezone": "CET (Central European Time)",
@@ -8088,6 +8088,7 @@
           }
         }
       },
+      "compute_proof_ready": "ready",
       "export_capability": [
         "pdf",
         "xlsx"
@@ -55106,6 +55107,33 @@
   "deferred_reason": "New gpu:false node, art-774-beacon-seeded-fair-sampling-v2, built 2026-10-21 (SAMPLER-583-V2-1). No GPU prove has been run and none is proposed by this row: deferred per the section 18 steady-state rule, with the first prove to follow later via SIDEBYSIDE then PROVE. Cycle class declared per the GPU-CYCLE-PREFLIGHT-1 static pre-screen: SLOW at the maximum population (an in-guest HMAC-SHA256 loop per draw plus an O(item_count) Fisher-Yates index-array initialization, up to 1,000,000 entries = a 4 MB Uint32Array, before up to 1,000,000 per-draw HMACs on a full sample); a measured user_cycles exec preflight is owed by the first prove row before any GPU booking. The section 18 ceiling is raised by one deferred node in this PR; scripts/compute-proof-baseline.json is no longer edited by node PRs and is written main-side by the regen workflow (PROVE-BASELINE-SINGLE-WRITER-1)."
 },
     {
+  "tool_id": "art-776-paypal-dispute-deadline-evidence",
+  "tool_version": "1.0.0",
+  "display_name": "PayPal Dispute Deadline & Evidence",
+  "mcp_name": "compute_paypal_response",
+  "mandate_type": "compliance_mandate",
+  "wave": 135,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-776-paypal-dispute-deadline-evidence.html",
+  "description": "PayPal dispute deadline calculator and evidence-bundle producer, the PayPal-side PRODUCER for the existing dispute-evidence chain (hub proposal PAYPAL-HUB-PROPOSALS-2026-10-24 row 9). Inputs: one of the four dispute reasons in the estate's PayPal dispute-evidence map (MERCHANDISE_OR_SERVICE_NOT_RECEIVED, MERCHANDISE_OR_SERVICE_NOT_AS_DESCRIBED, UNAUTHORISED, CREDIT_NOT_PROCESSED, reused verbatim from paypal-agent-shop/lib/disputes.js), a lifecycle stage from PayPal's dispute_life_cycle_stage enum (INQUIRY, CHARGEBACK, PRE_ARBITRATION, ARBITRATION), a funding source, ISO-8601 UTC timestamps (dispute creation, caller-supplied as_of, optional seller_response_due_date passthrough) and the evidence items on hand. Outputs: the seller response deadline from PayPal's stated rules (10 days after dispute creation at the inquiry stage; 20-day inquiry window) or the passthrough timestamp, with days remaining and past-due status; windows PayPal does not state (chargeback-stage response, appeal period) are returned as null with a reason, never guessed. Also outputs required evidence and missing items per reason, and the evidence bundle: for a chargeback on a card-funded transaction only, a CE3.0-shaped bundle with art-297's field names kept verbatim (delivery proof from fulfillment evidence; null for ap2_mandate, tap_signature, agentic_token and prior_transactions where PayPal has no counterpart), consumable by art-297 (mcp:lint_compelling_evidence_ce30_agentic); for inquiry, claim and appeal stages, or non-card funding, a paypal_process_evidence bundle using the lib's evidence types on the Disputes API v1.12 evidence_info shape, explicitly labelled not CE3.0; for unknown funding, no CE3.0 bundle and a reason. Zero network, zero PII, synthetic values only. Clause authority: research/clause-snapshots/paypal-disputes-2026-10/SNAPSHOT.md (fetch 2026-10-25T03Z).",
+  "input_schema_ref": "chaingraph/art-776-paypal-dispute-deadline-evidence.html#manifest",
+  "deadline": null,
+  "deadline_note": "PayPal-stated windows this node computes: inquiry seller response 10 days after dispute creation (S8/S1) and a 20-day inquiry window (S1/S8). Chargeback-stage response window and appeal period length are NOT STATED by PayPal (S9, S2) and are returned as null with a reason.",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "standards_basis": "not_applicable",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:eccdef3d5f7ca5483630fafd6531b68216f4f0bbab99b37885cc0f2c1a29b6f7","valid_from":"2026-10-24"}],
+  "export_capability": [
+    "json"
+  ],
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-776-paypal-dispute-deadline-evidence, built 2026-10-24 (PAYPAL-DISPUTE-DEADLINE-NODE-1). Integer millisecond and day arithmetic, string assembly and one sync SHA-256 over a short fixed-shape preimage for the delivery-proof element digest; no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification beyond plain SHA-256. Expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. Excluded from section-18 proving until the next batch (SPEC.md section 18)."
+},
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "tool_version": "1.0.0",
       "display_name": "ZK Compliance Proof Generator",
@@ -58936,6 +58964,7 @@
         }
       ]
     },
+    {"composer_url":"https://ainumbers.co/chaingraph/chains/carf-dac8-reporting-cycle-check.html","description":"Check a CARF/DAC8 reporting cycle in two stages, plus a session receipt. First, classify crypto-asset user records and their transactions against a policy set the caller declares rather than one the node asserts: reportable residence jurisdictions, in-scope transaction classes, due-diligence rule codes and pinned schema version, with self-certification as the gating step and undetermined verdicts naming the missing input and the deciding role (ART-504). Then dispose the authority's returned CARF/DAC8 status message for that filed population into a break list, counting only dispositions signed by a named signer and carrying prior-cycle dispositions forward with signer and cycle attached; the node refuses to invent a break list when the jurisdiction's return channel is not declared (ART-505). Finally, a session receipt aggregating the run's execution hashes (CRY-05). The classification output is the filing population that the disposition stage answers; disposition without a classified filing has nothing to disposition, and classification alone cannot say whether the filing came back clean. The nodes state no view on how any jurisdiction has implemented CARF or DAC8, compute no tax liability, submit and transmit nothing, and are not legal or tax advice.","domain":"Digital-Asset Rails","name":"carf-dac8-reporting-cycle-check","regulatory_basis_decided_at":"2026-10-24","regulatory_basis_decided_by":"CHAIN-COMPOSE-CDC-1","regulatory_basis_status":"not_assessed","regulatory_refs":["OECD Crypto-Asset Reporting Framework (CARF), approved August 2022","Council Directive (EU) 2023/2226 of 17 October 2023 amending Directive 2011/16/EU (DAC8)"],"sequence_not_statutory":true,"steps":[{"handoff":"Classifies crypto-asset user records and transactions against a caller-declared policy set: reportable residence jurisdictions, in-scope transaction classes, due-diligence rule codes and pinned schema version; self-certification gates, undetermined verdicts name the missing input and the deciding role","tool_id":"art-504-classify-carf-reportable"},{"handoff":"Turns the authority's returned CARF/DAC8 status message for the filed population into a dispositioned break list, counting only dispositions signed by a named signer and carrying prior-cycle dispositions forward with signer and cycle attached; refuses to invent a break list when the return channel is not declared","tool_id":"art-505-dispose-carf-status-message"},{"handoff":"Produces session_receipt_root, the Merkle root over the run's execution_hashes (final stage)","tool_id":"cry-05-agent-action-audit-trail-aggregator"}],"title":"CARF / DAC8 Reporting Cycle Check"},
     {
   "name": "cass15-safeguarding-audit-pack",
   "domain": "BaaS & Embedded Finance",
@@ -59202,6 +59231,7 @@
         }
       ]
     },
+    {"composer_url":"https://ainumbers.co/chaingraph/chains/certified-payroll-compliance-pack.html","description":"Check a federal construction week's payroll end to end in two recompute stages: first recompute whether each worker on a caller-declared certified payroll was paid at or above the wage-determination rate for their classification, with Contract Work Hours and Safety Standards Act overtime at time-and-a-half on the basic hourly rate (ART-574), then attest that the week's bulk disbursement run is internally consistent and matches its authorized control total in count and value, with duplicate candidates, roster movement, and limit breaches surfaced (ART-518), closing with a session receipt aggregating the run's execution hashes (CRY-05). Payroll rows, wage determinations, payee records, and control totals are caller-supplied inputs; a deficiency or a reconciliation break is an arithmetic finding, never a legal determination. Not legal advice.","domain":"HR & Benefits Compliance","name":"certified-payroll-compliance-pack","regulatory_basis_decided_at":"2026-10-23","regulatory_basis_decided_by":"CHAIN-COMPOSE-CERTPAY-1","regulatory_basis_status":"not_assessed","regulatory_refs":["29 CFR Part 5","40 USC 3141-3148"],"sequence_not_statutory":true,"steps":[{"handoff":"Recomputes, for one stated certified-payroll week, whether each worker on a caller-declared payroll was paid at or above the wage-determination rate for their classification, with Contract Work Hours and Safety Standards Act overtime at time-and-a-half on the basic hourly rate and fringe due straight-time for every hour","tool_id":"art-574-certified-payroll-prevailing-wage-recompute"},{"handoff":"Attests that a bulk payment run is internally consistent and matches its authorization: reconciles per-payee records against the authorized control total in count and value, surfaces duplicate-candidate clusters, reports payee roster movement against the prior run, and flags limit breaches","tool_id":"art-518-bulk-disbursement-integrity"},{"handoff":"Produces session_receipt_root, the Merkle root over the run's execution_hashes (final stage)","tool_id":"cry-05-agent-action-audit-trail-aggregator"}],"title":"Certified Payroll Compliance Pack"},
     {
       "name": "cfpb-1033-open-banking",
       "domain": "Open Banking / Open Finance",

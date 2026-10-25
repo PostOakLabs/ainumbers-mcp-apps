@@ -45119,6 +45119,10 @@
       }
     }
   },
+  "compute_paypal_response": {
+    "type": "object",
+    "description": "output_payload: dispute_reason, lifecycle_stage, funding_source, dispute_create_time, as_of, deadlines (seller_response {due, source, basis, days_remaining, past_due}, inquiry_stage, escalation_available_until), required_evidence {evidence_type, required, why}, evidence_on_hand echo, missing_evidence, bundle_decision {ce30_applicable, bundle_kind, reason}, ce30_shaped_bundle (art-297 field names: dispute {network, reason_code, transaction_ref}, evidence {ap2_mandate, tap_signature, agentic_token, delivery_proof {digest, bound_transaction_ref}, prior_transactions}; null where PayPal has no counterpart) or null, paypal_process_evidence (evidences [{evidence_type, evidence_info {tracking_info|refund_ids}, notes?}], submittable) or null, cited_clauses [{id, quote, url}], domain_errors, refusal_reason."
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

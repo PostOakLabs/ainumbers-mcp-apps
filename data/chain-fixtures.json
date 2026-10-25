@@ -3185,6 +3185,105 @@
       "credit_bureau_phone": "1-800-685-1111"
     }
   },
+  "carf-dac8-reporting-cycle-check": {
+    "art-504-classify-carf-reportable": {
+      "reporting_jurisdiction": "IE",
+      "schema_version": "OECD-CARF-XML-SCHEMA-JULY-2025",
+      "reporting_period": "2026",
+      "judgment_owner_role": "named tax compliance officer of the Reporting Crypto-Asset Service Provider",
+      "reportable_residence_jurisdictions": [
+        "DE",
+        "FR",
+        "IE"
+      ],
+      "reportable_transaction_classes": [
+        "crypto_to_fiat_exchange",
+        "crypto_to_crypto_exchange",
+        "retail_payment_above_threshold",
+        "transfer"
+      ],
+      "due_diligence_rules": [
+        {
+          "rule_code": "BR-CARF-WALLETADDR-001",
+          "step": "wallet address capture",
+          "applies_to": "all",
+          "required_field": "wallet_address_ref",
+          "description": "A wallet address reference is required on every reportable user record (BR-CARF-WALLETADDR-001)."
+        }
+      ],
+      "suppressed_rule_codes": [],
+      "records": [
+        {
+          "record_ref": "USER-OPAQUE-0001",
+          "entity_type": "individual",
+          "self_certification_status": "valid",
+          "claimed_tax_residences": [
+            "DE"
+          ],
+          "declared_fields": {
+            "wallet_address_ref": "WALLET-REF-0001"
+          },
+          "transactions": [
+            {
+              "transaction_ref": "TXN-0001",
+              "transaction_class": "crypto_to_fiat_exchange"
+            },
+            {
+              "transaction_ref": "TXN-0002",
+              "transaction_class": "staking_reward"
+            }
+          ]
+        }
+      ]
+    },
+    "art-505-dispose-carf-status-message": {
+      "submission_ref": "CARF-SUB-2027-IE-0001",
+      "reporting_jurisdiction": "IE",
+      "schema_version": "OECD-CARF-STATUS-MESSAGE-XML-SCHEMA-JUNE-2025",
+      "cycle_ref": "CYCLE-2027-01",
+      "status_message_return_declared": false,
+      "status_message_channel": "",
+      "suppressed_error_codes": [],
+      "submitted_records": [
+        {
+          "doc_ref_id": "IE2027DOC0001",
+          "record_ref": "USER-OPAQUE-0001"
+        },
+        {
+          "doc_ref_id": "IE2027DOC0002",
+          "record_ref": "USER-OPAQUE-0002"
+        }
+      ],
+      "dispositions": [],
+      "prior_dispositions": [],
+      "status_message": {
+        "message_ref": "STATUS-MSG-2027-IE-0001",
+        "file_errors": [
+          {
+            "error_code": "FILE-ERR-50001",
+            "error_detail": "The message reference identifier is not unique for this sending operator."
+          }
+        ],
+        "record_errors": [
+          {
+            "error_code": "REC-ERR-80014",
+            "doc_ref_id": "IE2027DOC0001",
+            "field_path": "CryptoAsset/AccountHolder/Individual/TIN",
+            "error_detail": "The tax identification number is absent for a claimed residence that requires one."
+          },
+          {
+            "error_code": "REC-ERR-80022",
+            "doc_ref_id": "IE2027DOC0002",
+            "field_path": "CryptoAsset/Transactions/Transfer/AssetType",
+            "error_detail": "The asset type is outside the permitted value set for this schema version."
+          }
+        ]
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "cass15-safeguarding-audit-pack": {
     "art-500-classify-safeguarding-method": {
       "as_of_date": "2026-07-29",
@@ -3588,6 +3687,84 @@
           ]
         }
       ]
+    }
+  },
+  "certified-payroll-compliance-pack": {
+    "art-574-certified-payroll-prevailing-wage-recompute": {
+      "project_ref": "SYNTH-PROJ-574-A",
+      "week_ending_label": "2026-08-01 payroll week",
+      "currency": "USD",
+      "pwa_mode": true,
+      "wage_determination": [
+        {
+          "classification": "Electrician",
+          "base_rate_minor_units": 4200,
+          "fringe_rate_minor_units": 1100
+        }
+      ],
+      "payroll_rows": [
+        {
+          "worker_id": "W-1",
+          "classification": "Electrician",
+          "st_hours": 40,
+          "ot_hours": 4,
+          "rate_paid_minor_units": 4200,
+          "fringe_paid_minor_units": 1100
+        }
+      ],
+      "submitted_payroll": [
+        {
+          "worker_id": "W-1",
+          "gross_minor_units": 241600
+        }
+      ]
+    },
+    "art-518-bulk-disbursement-integrity": {
+      "run_reference": "RUN-2026-07-31-PENSION",
+      "as_of": "2026-07-31",
+      "currency": "USD",
+      "authorized_control_total": {
+        "payee_count": 4,
+        "total_minor_units": 400000
+      },
+      "per_payee_limit_minor_units": 150000,
+      "per_run_limit_minor_units": 1000000,
+      "payee_records": [
+        {
+          "payee_ref": "PAYEE-A001",
+          "amount_minor_units": 100000,
+          "rail": "ach",
+          "duplicate_key": "h_9f2c1a"
+        },
+        {
+          "payee_ref": "PAYEE-A002",
+          "amount_minor_units": 100000,
+          "rail": "ach",
+          "duplicate_key": "h_3b7d90"
+        },
+        {
+          "payee_ref": "PAYEE-A003",
+          "amount_minor_units": 100000,
+          "rail": "mobile_wallet",
+          "duplicate_key": "h_51ae22"
+        },
+        {
+          "payee_ref": "PAYEE-A004",
+          "amount_minor_units": 100000,
+          "rail": "cash_agent",
+          "duplicate_key": "h_e40d18"
+        }
+      ],
+      "declared_exclusions": [],
+      "prior_run_payee_refs": [
+        "PAYEE-A001",
+        "PAYEE-A002",
+        "PAYEE-A003",
+        "PAYEE-A004"
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "chain-ccp-default-waterfall": {
