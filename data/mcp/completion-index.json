@@ -935,6 +935,7 @@
       "model-risk-governance",
       "model-risk-lineage-pack",
       "model-validation-cycle",
+      "month-end-close-substantiation-check",
       "mortgage-agency-pricing-and-eligibility",
       "mortgage-apr-accuracy-and-tolerance-cure",
       "mortgage-compliance-preflight",
@@ -1021,6 +1022,7 @@
       "settlement-discipline-penalty-v2",
       "settlement-discipline-ssi-hygiene",
       "slate-reporting-readiness",
+      "small-business-1071-readiness-check",
       "sme-credit-intelligence",
       "sme-finance-lending",
       "sme-government-grants-funding",
@@ -2711,6 +2713,13 @@
       471,
       472
     ],
+    "month-end-close-substantiation-check": [
+      505,
+      622,
+      638,
+      645,
+      672
+    ],
     "mortgage-agency-pricing-and-eligibility": [
       236,
       235,
@@ -3008,6 +3017,10 @@
     "slate-reporting-readiness": [
       524,
       525
+    ],
+    "small-business-1071-readiness-check": [
+      458,
+      672
     ],
     "solvency-ii-reconciliation-and-capital": [
       193,

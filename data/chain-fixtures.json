@@ -7490,6 +7490,84 @@
       }
     }
   },
+  "month-end-close-substantiation-check": {
+    "art-524-source-arrival-freshness-register": {
+      "reference_as_of": 1000,
+      "expected_sources": [
+        {
+          "source_id": "core-ledger-extract",
+          "expected_as_of": 990,
+          "freshness_threshold_hours": 50
+        },
+        {
+          "source_id": "trade-blotter-feed",
+          "expected_as_of": 995,
+          "freshness_threshold_hours": 50
+        }
+      ],
+      "observed_arrivals": [
+        {
+          "source_id": "core-ledger-extract",
+          "arrived": true,
+          "observed_as_of": 980
+        },
+        {
+          "source_id": "trade-blotter-feed",
+          "arrived": true,
+          "observed_as_of": 985
+        }
+      ]
+    },
+    "art-665-gl-tieout-recompute": {
+      "period_label": "2026-08"
+    },
+    "art-684-intercompany-elimination-netting": {
+      "pairs": [
+        {
+          "a": "SUB-1",
+          "b": "SUB-2",
+          "a_receivable": 50000,
+          "b_payable": 50000
+        },
+        {
+          "a": "SUB-1",
+          "b": "SUB-3",
+          "a_receivable": 20000,
+          "b_payable": 18000
+        }
+      ]
+    },
+    "art-692-close-posting-lineage": {
+      "as_of": "2026-09-30",
+      "coding_entries": [
+        {
+          "key": "COD-1",
+          "gl_account": "6100-office",
+          "amount": 1200,
+          "source_document_digest": "doc-digest-1"
+        }
+      ],
+      "accrual_entries": [
+        {
+          "key": "ACC-1",
+          "gl_account": "2100-accrued-expense",
+          "amount": 1200,
+          "traces_to": [
+            "COD-1"
+          ]
+        },
+        {
+          "key": "ACC-2",
+          "gl_account": "2200-accrued-interest",
+          "amount": 300,
+          "traces_to": []
+        }
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "mortgage-agency-pricing-and-eligibility": {
     "art-223-conforming-loan-limit": {
       "loan_amount": 700000,
@@ -9279,6 +9357,38 @@
       "field_spec_mapping_complete": true,
       "unique_loan_identifier_scheme": true,
       "recordkeeping_retention_configured": true
+    }
+  },
+  "small-business-1071-readiness-check": {
+    "art-475-cfpb-1071-coverage-check": {
+      "originations_year1_count": 1500,
+      "originations_year2_count": 1200,
+      "required_sblar_fields": [
+        "uli",
+        "application_date",
+        "action_taken"
+      ],
+      "sblar_records": [
+        {
+          "record_id": "rec-1",
+          "fields": {
+            "uli": "X123",
+            "application_date": "2028-02-01",
+            "action_taken": "originated"
+          }
+        },
+        {
+          "record_id": "rec-2",
+          "fields": {
+            "uli": "X124",
+            "application_date": "2028-02-03",
+            "action_taken": "denied"
+          }
+        }
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "solvency-ii-reconciliation-and-capital": {
