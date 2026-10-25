@@ -5016,6 +5016,14 @@
       "sha256": "f9776ec68649217c6411c9ff65c764873641ce1e7c4bb47312928e3e885bcb06"
     },
     {
+      "tool_id": "art-749-solana-paychan-voucher-verifier",
+      "mcp_name": "verify_solana_paychan_voucher",
+      "display_name": "Solana Paychan Voucher Verifier",
+      "uri": "ui://ainumbers/node/art-749-solana-paychan-voucher-verifier",
+      "bytes": 85298,
+      "sha256": "2fa75d48dd712b8718840625ad91275bd66fbf842f43f61aa7be71672dc94e71"
+    },
+    {
       "tool_id": "art-754-equity-exit-waterfall",
       "mcp_name": "calc_equity_exit_waterfall",
       "display_name": "Equity Exit Waterfall Modeler",
