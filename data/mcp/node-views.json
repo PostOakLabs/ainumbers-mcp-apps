@@ -5072,6 +5072,14 @@
       "sha256": "7b5550e312162e37c57859c0d6ea5d02c1732cafbe872c6c2f892c5ce244f79a"
     },
     {
+      "tool_id": "art-776-paypal-dispute-deadline-evidence",
+      "mcp_name": "compute_paypal_response",
+      "display_name": "PayPal Dispute Deadline & Evidence",
+      "uri": "ui://ainumbers/node/art-776-paypal-dispute-deadline-evidence",
+      "bytes": 60017,
+      "sha256": "9ac44eb83c0a98d35d1f4c4ded5f60f8dee4bb3c9247298bd503a8cb4230c8e9"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
