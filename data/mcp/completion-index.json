@@ -674,6 +674,7 @@
       "https://ainumbers.co/chaingraph/art-763-ai-displacement-risk-screener.html",
       "https://ainumbers.co/chaingraph/art-771-automation-payback.html",
       "https://ainumbers.co/chaingraph/art-774-beacon-seeded-fair-sampling-v2.html",
+      "https://ainumbers.co/chaingraph/art-776-paypal-dispute-deadline-evidence.html",
       "https://ainumbers.co/chaingraph/cry-01-zk-compliance-proof-generator.html",
       "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
       "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
@@ -1829,6 +1830,7 @@
       "ai_displacement_risk_screener",
       "compute_automation_payback",
       "derive_beacon_fair_sample_v2",
+      "compute_paypal_response",
       "generate_zk_compliance_proof",
       "verify_merkle_batch",
       "aggregate_execution_receipts",
@@ -1883,9 +1885,9 @@
       44
     ],
     "agent-economy-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "agent-economy-autonomous-guardrail": [
       16,
@@ -1894,16 +1896,16 @@
     ],
     "agent-economy-batch-settlement": [
       75,
-      672,
-      673
+      673,
+      674
     ],
     "agent-economy-fit": [
       74
     ],
     "agent-economy-fraud-runtime": [
       16,
-      677,
-      676
+      678,
+      677
     ],
     "agent-economy-marketplace": [
       18,
@@ -1913,12 +1915,12 @@
     "agent-economy-metering": [
       77,
       17,
-      676
+      677
     ],
     "agent-economy-payment-receipt": [
       76,
       15,
-      673
+      674
     ],
     "agent-identity-publishing": [
       145,
@@ -1940,8 +1942,8 @@
       381
     ],
     "agent-session-receipt": [
-      673,
-      679
+      674,
+      680
     ],
     "agentic-commerce-checkout": [
       26,
@@ -1979,7 +1981,7 @@
       79,
       19,
       80,
-      673
+      674
     ],
     "ai-content-disclosure-conformance": [
       139,
@@ -1992,9 +1994,9 @@
       250
     ],
     "ai-governance-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "ai-governance-conformity": [
       79,
@@ -2005,8 +2007,8 @@
       80
     ],
     "ai-governance-fairness-bias": [
-      675,
-      674
+      676,
+      675
     ],
     "ai-governance-fit": [
       78
@@ -2018,7 +2020,7 @@
     ],
     "ai-governance-fria-monitoring": [
       80,
-      673
+      674
     ],
     "ai-governance-gpai-agentic": [
       81,
@@ -2028,7 +2030,7 @@
     "ai-governance-resilience-overlap": [
       43,
       79,
-      672
+      673
     ],
     "ai-management-system-conformance": [
       184,
@@ -2071,7 +2073,7 @@
     "apy-earned-check": [
       618,
       620,
-      673
+      674
     ],
     "arc-agentic-commerce": [
       56,
@@ -2103,7 +2105,7 @@
       56,
       123,
       59,
-      685
+      686
     ],
     "arc-reserve-compliance": [
       59,
@@ -2121,7 +2123,7 @@
       15,
       37,
       38,
-      673,
+      674,
       310
     ],
     "assemble-aiuc1-evidence-pack": [
@@ -2160,7 +2162,7 @@
     "besu-contract-conformance": [
       302,
       305,
-      673
+      674
     ],
     "bond-mandate-receipt": [
       287,
@@ -2188,8 +2190,8 @@
       1
     ],
     "canton-cash-leg-assurance": [
-      687,
-      685,
+      688,
+      686,
       3
     ],
     "canton-counterparty-onboarding": [
@@ -2234,12 +2236,12 @@
     "canton-selective-disclosure": [
       4,
       121,
-      671
+      672
     ],
     "carbon-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "card-act-ability-to-pay": [
       246,
@@ -2248,7 +2250,7 @@
     "carf-dac8-reporting-cycle-check": [
       486,
       487,
-      673
+      674
     ],
     "cass15-safeguarding-audit-pack": [
       482,
@@ -2270,7 +2272,7 @@
     "cbam-precursor": [
       86,
       83,
-      672
+      673
     ],
     "cbcr-annual-publish": [
       455
@@ -2289,7 +2291,7 @@
     "certified-payroll-compliance-pack": [
       549,
       500,
-      673
+      674
     ],
     "chain-ccp-default-waterfall": [
       510,
@@ -2308,7 +2310,7 @@
     ],
     "climate-scenario": [
       90,
-      673
+      674
     ],
     "collections-compliance-pack": [
       397,
@@ -2317,7 +2319,7 @@
     "commercial-loan-underwriting-check": [
       364,
       363,
-      673
+      674
     ],
     "commission-integrity-and-amortization": [
       277,
@@ -2354,7 +2356,7 @@
       368,
       529,
       263,
-      673
+      674
     ],
     "cross-border-payment-prevalidation": [
       256,
@@ -2366,9 +2368,9 @@
       130
     ],
     "digital-trade-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "digital-trade-counterparty-aml": [
       6,
@@ -2376,18 +2378,18 @@
     ],
     "digital-trade-doc-integrity": [
       69,
-      672,
-      676
+      673,
+      677
     ],
     "digital-trade-ebl-enforceability": [
       67,
       7,
-      672
+      673
     ],
     "digital-trade-finance": [
       67,
-      675,
-      676
+      676,
+      677
     ],
     "digital-trade-fit": [
       66
@@ -2399,8 +2401,8 @@
     ],
     "digital-trade-tbml-surveillance": [
       24,
-      677,
-      676
+      678,
+      677
     ],
     "document-conversion-verification": [
       202,
@@ -2421,7 +2423,7 @@
       23
     ],
     "dora-resilience": [
-      678,
+      679,
       43
     ],
     "dora-roi-annual-cycle": [
@@ -2468,7 +2470,7 @@
     ],
     "escrow-statement-check": [
       13,
-      673
+      674
     ],
     "eudi-acceptance-vop-evidence": [
       27,
@@ -2488,7 +2490,7 @@
     "eugb-conformance": [
       89,
       87,
-      672
+      673
     ],
     "exchange-assurance-pack": [
       519,
@@ -2503,7 +2505,7 @@
     ],
     "export-control-eccn": [
       108,
-      672
+      673
     ],
     "fair-lending-disparity-audit": [
       243,
@@ -2520,11 +2522,11 @@
     "financial-crime-compliance": [
       107,
       24,
-      676
+      677
     ],
     "fiusd-reserve-attestation": [
       20,
-      685,
+      686,
       124,
       123
     ],
@@ -2535,13 +2537,13 @@
     ],
     "force-placed-insurance-check": [
       663,
-      673
+      674
     ],
     "garnishment-withholding-check": [
       345,
       346,
       547,
-      673
+      674
     ],
     "genius-listing-acceptance-pack": [
       20,
@@ -2589,7 +2591,7 @@
     "homebuyer-affordability-check": [
       343,
       344,
-      673
+      674
     ],
     "icfr-control-test-cycle": [
       446
@@ -2598,7 +2600,7 @@
       443,
       445,
       446,
-      673
+      674
     ],
     "idv-session-evidence": [
       362,
@@ -2685,21 +2687,21 @@
       162
     ],
     "mica-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "mica-casp-authorization": [
       113,
       114,
-      673
+      674
     ],
     "mica-fit": [
       112
     ],
     "mica-mar-surveillance": [
       116,
-      673
+      674
     ],
     "mica-register-crosscheck": [
       576,
@@ -2709,19 +2711,19 @@
     ],
     "mica-token-scoping": [
       118,
-      673
+      674
     ],
     "mica-travel-rule": [
       117,
-      672
+      673
     ],
     "mica-whitepaper": [
       115,
-      672
+      673
     ],
     "mla-mapr-cashflow-check": [
       590,
-      673
+      674
     ],
     "model-passport-lifecycle": [
       435,
@@ -2740,7 +2742,7 @@
       622,
       638,
       645,
-      673
+      674
     ],
     "mortgage-agency-pricing-and-eligibility": [
       236,
@@ -2769,7 +2771,7 @@
     ],
     "mortgage-pi-verifier": [
       337,
-      673
+      674
     ],
     "mra-consent-order-closure-cycle": [
       514
@@ -2792,7 +2794,7 @@
       375
     ],
     "neobank-baas": [
-      677
+      678
     ],
     "nis2-entity-scope-and-obligations": [
       154,
@@ -2811,11 +2813,11 @@
     ],
     "overdraft-nsf-fee-recompute-check": [
       619,
-      673
+      674
     ],
     "overtime-pay-check": [
       347,
-      673
+      674
     ],
     "parametric-trigger-adjudication": [
       264,
@@ -2824,7 +2826,7 @@
     "paycheck-take-home-check": [
       345,
       346,
-      673
+      674
     ],
     "pe-waterfall-true-up-pack": [
       542
@@ -2835,24 +2837,24 @@
       127
     ],
     "pqc-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "pqc-blockchain-risk": [
       103,
-      672
+      673
     ],
     "pqc-fido-webauthn": [
       102,
-      673
+      674
     ],
     "pqc-fit": [
       99
     ],
     "pqc-hndl-protocol-plan": [
       100,
-      673
+      674
     ],
     "pqc-migration-evidence": [
       382,
@@ -2860,23 +2862,23 @@
     ],
     "pqc-swift-iso20022": [
       101,
-      672
+      673
     ],
     "pqc-tls-pki": [
       100,
-      672
+      673
     ],
     "private-student-loan-disclosure-check": [
       342,
       400,
-      673
+      674
     ],
     "producer-license-reciprocity": [
       280
     ],
     "psd3-readiness-consent-vop": [
       28,
-      689,
+      690,
       25
     ],
     "public-money-settlement-receipt": [
@@ -2884,7 +2886,7 @@
       475,
       73,
       8,
-      686
+      687
     ],
     "qfc-recordkeeping-cycle": [
       518
@@ -2943,25 +2945,25 @@
       329
     ],
     "sanctions-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "sanctions-fit": [
       104
     ],
     "sanctions-fuzzy-calibration": [
       107,
-      673
+      674
     ],
     "sanctions-list-coverage": [
       106,
-      672
+      673
     ],
     "sanctions-ownership": [
       105,
       106,
-      673
+      674
     ],
     "sanctions-screening-quality": [
       107,
@@ -2987,7 +2989,7 @@
     "servicer-response-clock-and-payment-check": [
       14,
       621,
-      673
+      674
     ],
     "servicing-audit": [
       342,
@@ -2997,44 +2999,44 @@
     "settlement-discipline-alloc-affirm": [
       95,
       96,
-      672
+      673
     ],
     "settlement-discipline-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "settlement-discipline-buyin": [
       92,
       97,
-      673
+      674
     ],
     "settlement-discipline-failpredict": [
       94,
       93,
-      672
+      673
     ],
     "settlement-discipline-fit": [
       91
     ],
     "settlement-discipline-message-conformance": [
       96,
-      672,
-      679
+      673,
+      680
     ],
     "settlement-discipline-penalty": [
       92,
       98,
-      673
+      674
     ],
     "settlement-discipline-penalty-v2": [
       523,
       98,
-      673
+      674
     ],
     "settlement-discipline-ssi-hygiene": [
       94,
-      673
+      674
     ],
     "slate-reporting-readiness": [
       524,
@@ -3042,7 +3044,7 @@
     ],
     "small-business-1071-readiness-check": [
       458,
-      673
+      674
     ],
     "solvency-ii-reconciliation-and-capital": [
       193,
@@ -3058,8 +3060,8 @@
     "stablecoin-issuer-genius-mica": [
       7,
       20,
-      672,
       673,
+      674,
       71,
       53
     ],
@@ -3083,7 +3085,7 @@
     "supplier-invoice-three-way-match-check": [
       649,
       307,
-      673
+      674
     ],
     "swift-csp-attestation-cycle": [
       469,
@@ -3104,12 +3106,12 @@
     ],
     "taxonomy-align": [
       87,
-      673
+      674
     ],
     "taxonomy-kpi": [
       87,
       88,
-      673
+      674
     ],
     "tempo-agentic-checkout": [
       40,
@@ -3144,8 +3146,8 @@
     "tempo-subscription-settlement": [
       50,
       119,
-      672,
-      673
+      673,
+      674
     ],
     "tempo-validator-readiness": [
       55
@@ -3153,7 +3155,7 @@
     "tempo-zone-disclosure": [
       52,
       53,
-      671
+      672
     ],
     "tmpg-fails-charge-claim-pack": [
       550
@@ -3168,7 +3170,7 @@
     "tokenized-deposit-settlement-proof": [
       70,
       73,
-      671,
+      672,
       134
     ],
     "traiga-safe-harbor": [
@@ -3188,7 +3190,7 @@
     "treasury-clearing-capital-relief": [
       1,
       21,
-      688
+      689
     ],
     "treasury-clearing-collateral": [
       2,
@@ -3197,32 +3199,32 @@
     ],
     "treasury-clearing-cross-margin": [
       65,
-      681,
-      682
+      682,
+      683
     ],
     "treasury-clearing-fit": [
       62
     ],
     "treasury-clearing-liquidity": [
-      687,
+      688,
       10,
-      682
+      683
     ],
     "treasury-clearing-onboarding": [
       6,
       24,
-      673
+      674
     ],
     "treasury-clearing-repo-margin": [
       64,
       5,
       10,
-      681
+      682
     ],
     "treasury-clearing-settlement-integrity": [
-      672,
+      673,
       4,
-      676
+      677
     ],
     "trust-audit-closeout-pack": [
       541,
@@ -3241,7 +3243,7 @@
       281,
       408,
       560,
-      673
+      674
     ],
     "verify-agent-delegation": [
       297,
@@ -3268,9 +3270,9 @@
       377
     ],
     "wholesale-settlement-audit-pack": [
-      672,
       673,
-      679
+      674,
+      680
     ],
     "wholesale-settlement-collateral-mobility": [
       2,
@@ -3285,15 +3287,15 @@
     "wholesale-settlement-deposit-token": [
       71,
       7,
-      672
+      673
     ],
     "wholesale-settlement-fit": [
       70
     ],
     "wholesale-settlement-intraday-liquidity": [
       1,
-      687,
-      676
+      688,
+      677
     ],
     "wholesale-settlement-participant-onboarding": [
       6,
