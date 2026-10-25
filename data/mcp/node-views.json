@@ -669,7 +669,7 @@
       "display_name": "Allocation/Affirmation Conformance Checker",
       "uri": "ui://ainumbers/node/art-81-allocation-affirmation-conformance",
       "bytes": 52119,
-      "sha256": "0db84d41275434ce16686fa457bd4940b4a3f829964081b5477cbbe356b3014b"
+      "sha256": "adbdf27aa38a91c2479fbcc9229aa22c282c7de3897585ab80889ebc4ae77e86"
     },
     {
       "tool_id": "art-82-securities-settlement-message-linter",
@@ -5062,6 +5062,14 @@
       "uri": "ui://ainumbers/node/art-774-beacon-seeded-fair-sampling-v2",
       "bytes": 241428,
       "sha256": "7b5550e312162e37c57859c0d6ea5d02c1732cafbe872c6c2f892c5ce244f79a"
+    },
+    {
+      "tool_id": "art-776-paypal-dispute-deadline-evidence",
+      "mcp_name": "compute_paypal_response",
+      "display_name": "PayPal Dispute Deadline & Evidence",
+      "uri": "ui://ainumbers/node/art-776-paypal-dispute-deadline-evidence",
+      "bytes": 60017,
+      "sha256": "9ac44eb83c0a98d35d1f4c4ded5f60f8dee4bb3c9247298bd503a8cb4230c8e9"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
