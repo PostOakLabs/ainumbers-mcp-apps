@@ -55076,6 +55076,37 @@
   }
 },
     {
+  "tool_id": "art-771-automation-payback",
+  "tool_version": "1.0.0",
+  "display_name": "Automation Payback",
+  "mcp_name": "compute_automation_payback",
+  "mandate_type": "analytics_mandate",
+  "wave": 133,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-771-automation-payback.html",
+  "description": "Automation Payback ranker ported from ApexLogics Apex #180 (AL-194). For a list of automation candidates (hours saved per week, loaded hourly rate, error cost avoided per month, one-time build cost, monthly subscription) and three global policy parameters (maintenance haircut percent on recurring cost, evaluation horizon in months, weeks per month), the node computes each candidate's monthly reclaimable value and total cost of ownership (subscription with haircut plus straight-line amortised build), ranks candidates by descending net monthly dollars with ties preserving input order, assigns BUILD or SKIP at net >= 0, derives break-even months as build cost over the positive monthly margin excluding amortisation, and returns portfolio totals (net dollars kept and all-in, hours reclaimed over BUILD rows, horizon net), the best candidate, the fastest break-even, and an ALL_CLEAR / MIXED_LIST / NO_CANDIDATE_CLEARS verdict with an empty-list guard. Gross-dollar arithmetic over user estimates; the 20 percent haircut and the 4.33 weeks-per-month default are policy parameters kept for live-vector parity (the 52/12 quotient is UNGROUNDED), with no tax or regulatory premise (payload DIFFERS.md D-01..D-06, CITES.md).",
+  "input_schema_ref": "chaingraph/art-771-automation-payback.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:f1cbca96684bdb0eb0cc36aab3ccdd2afb1ba0c35afbf5acf2375fc3d781341a",
+      "valid_from": "2026-10-20"
+    }
+  ],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-771-automation-payback, built 2026-10-20 (APEX-PORT-180-LAND-1). Add-subtract-multiply float arithmetic over caller-supplied dollar and hour estimates with three Math.max clamp floors, a Math.round horizon and two sorts, with no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification; expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. standards_basis is not_applicable: the node implements no published standard or regulation — its premises are the Apex page's own payback model, ported with the haircut and weeks-per-month policy parameters and the UNGROUNDED 52/12 quotient flagged per the APEXPORT-180 payload (CITES.md records the explicit absence of tax/regulatory premises)."
+},
+    {
   "tool_id": "art-774-beacon-seeded-fair-sampling-v2",
   "tool_version": "1.0.0",
   "display_name": "Beacon-Seeded Fair-Sampling Deriver V2",
@@ -55105,33 +55136,6 @@
   "cited_clause_digest": [],
   "compute_proof_ready": "deferred",
   "deferred_reason": "New gpu:false node, art-774-beacon-seeded-fair-sampling-v2, built 2026-10-21 (SAMPLER-583-V2-1). No GPU prove has been run and none is proposed by this row: deferred per the section 18 steady-state rule, with the first prove to follow later via SIDEBYSIDE then PROVE. Cycle class declared per the GPU-CYCLE-PREFLIGHT-1 static pre-screen: SLOW at the maximum population (an in-guest HMAC-SHA256 loop per draw plus an O(item_count) Fisher-Yates index-array initialization, up to 1,000,000 entries = a 4 MB Uint32Array, before up to 1,000,000 per-draw HMACs on a full sample); a measured user_cycles exec preflight is owed by the first prove row before any GPU booking. The section 18 ceiling is raised by one deferred node in this PR; scripts/compute-proof-baseline.json is no longer edited by node PRs and is written main-side by the regen workflow (PROVE-BASELINE-SINGLE-WRITER-1)."
-},
-    {
-  "tool_id": "art-776-paypal-dispute-deadline-evidence",
-  "tool_version": "1.0.0",
-  "display_name": "PayPal Dispute Deadline & Evidence",
-  "mcp_name": "compute_paypal_response",
-  "mandate_type": "compliance_mandate",
-  "wave": 135,
-  "gpu": false,
-  "url": "https://ainumbers.co/chaingraph/art-776-paypal-dispute-deadline-evidence.html",
-  "description": "PayPal dispute deadline calculator and evidence-bundle producer, the PayPal-side PRODUCER for the existing dispute-evidence chain (hub proposal PAYPAL-HUB-PROPOSALS-2026-10-24 row 9). Inputs: one of the four dispute reasons in the estate's PayPal dispute-evidence map (MERCHANDISE_OR_SERVICE_NOT_RECEIVED, MERCHANDISE_OR_SERVICE_NOT_AS_DESCRIBED, UNAUTHORISED, CREDIT_NOT_PROCESSED, reused verbatim from paypal-agent-shop/lib/disputes.js), a lifecycle stage from PayPal's dispute_life_cycle_stage enum (INQUIRY, CHARGEBACK, PRE_ARBITRATION, ARBITRATION), a funding source, ISO-8601 UTC timestamps (dispute creation, caller-supplied as_of, optional seller_response_due_date passthrough) and the evidence items on hand. Outputs: the seller response deadline from PayPal's stated rules (10 days after dispute creation at the inquiry stage; 20-day inquiry window) or the passthrough timestamp, with days remaining and past-due status; windows PayPal does not state (chargeback-stage response, appeal period) are returned as null with a reason, never guessed. Also outputs required evidence and missing items per reason, and the evidence bundle: for a chargeback on a card-funded transaction only, a CE3.0-shaped bundle with art-297's field names kept verbatim (delivery proof from fulfillment evidence; null for ap2_mandate, tap_signature, agentic_token and prior_transactions where PayPal has no counterpart), consumable by art-297 (mcp:lint_compelling_evidence_ce30_agentic); for inquiry, claim and appeal stages, or non-card funding, a paypal_process_evidence bundle using the lib's evidence types on the Disputes API v1.12 evidence_info shape, explicitly labelled not CE3.0; for unknown funding, no CE3.0 bundle and a reason. Zero network, zero PII, synthetic values only. Clause authority: research/clause-snapshots/paypal-disputes-2026-10/SNAPSHOT.md (fetch 2026-10-25T03Z).",
-  "input_schema_ref": "chaingraph/art-776-paypal-dispute-deadline-evidence.html#manifest",
-  "deadline": null,
-  "deadline_note": "PayPal-stated windows this node computes: inquiry seller response 10 days after dispute creation (S8/S1) and a 20-day inquiry window (S1/S8). Chargeback-stage response window and appeal period length are NOT STATED by PayPal (S9, S2) and are returned as null with a reason.",
-  "consumes": [],
-  "feeds": [],
-  "status": "live",
-  "standards_basis": "not_applicable",
-  "conformance_fixtures": true,
-  "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:eccdef3d5f7ca5483630fafd6531b68216f4f0bbab99b37885cc0f2c1a29b6f7","valid_from":"2026-10-24"}],
-  "export_capability": [
-    "json"
-  ],
-  "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-776-paypal-dispute-deadline-evidence, built 2026-10-24 (PAYPAL-DISPUTE-DEADLINE-NODE-1). Integer millisecond and day arithmetic, string assembly and one sync SHA-256 over a short fixed-shape preimage for the delivery-proof element digest; no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification beyond plain SHA-256. Expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. Excluded from section-18 proving until the next batch (SPEC.md section 18)."
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
@@ -65889,6 +65893,38 @@
         }
       ]
     },
+    {
+  "composer_url": "https://ainumbers.co/chaingraph/chains/vendor-onboarding-ubo-screening-check.html",
+  "description": "Screen a vendor's ultimate beneficial owners in four independent stages: first compute 25% UBO ownership from caller-supplied ownership structure under the FinCEN Customer Due Diligence rule (ART-268, bank KYB, not CTA/BOI beneficial ownership reporting and not the OFAC 50% rule); then screen caller-supplied persons against a caller-supplied private test list, never live sanctions data (ART-413, the screened list stays private); then assemble the screening evidence pack from caller-supplied run facts (ART-585); then a session receipt aggregating the run's execution hashes (CRY-05). All ownership, screening, and evidence facts are caller-supplied; findings are arithmetic findings, never compliance determinations. Federal only, not legal advice.",
+  "domain": "Financial Crime & KYC",
+  "name": "vendor-onboarding-ubo-screening-check",
+  "regulatory_basis_decided_at": "2026-10-23",
+  "regulatory_basis_decided_by": "CHAIN-COMPOSE-VOU-1",
+  "regulatory_basis_status": "not_assessed",
+  "regulatory_refs": [
+    "31 CFR 1010.230 (FinCEN CDD Rule)"
+  ],
+  "sequence_not_statutory": true,
+  "steps": [
+    {
+      "handoff": "Computes 25% ultimate beneficial owners from caller-supplied ownership structure under the FinCEN Customer Due Diligence rule (bank KYB; not CTA/BOI reporting, not the OFAC 50% rule)",
+      "tool_id": "art-268-compute-cdd-ownership-25pct"
+    },
+    {
+      "handoff": "Screens caller-supplied persons against a caller-supplied private test list (never live sanctions data; the screened list stays private)",
+      "tool_id": "art-413-screen-sanctions-private"
+    },
+    {
+      "handoff": "Assembles the sanctions screening evidence pack from caller-supplied run facts",
+      "tool_id": "art-585-sanctions-screening-evidence-pack"
+    },
+    {
+      "handoff": "Produces session_receipt_root, the Merkle root over the run's execution_hashes (final stage)",
+      "tool_id": "cry-05-agent-action-audit-trail-aggregator"
+    }
+  ],
+  "title": "Vendor Onboarding UBO Screening Check"
+},
     {
       "name": "verify-agent-delegation",
       "domain": "AI & Agent Governance",
