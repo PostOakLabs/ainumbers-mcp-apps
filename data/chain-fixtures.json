@@ -10798,6 +10798,52 @@
       "custody_linkage": "dtc"
     }
   },
+  "vendor-onboarding-ubo-screening-check": {
+    "art-268-compute-cdd-ownership-25pct": {
+      "ownership_tiers": [
+        {
+          "entity_id": "EntityABC",
+          "parent_id": "NP_ALPHA",
+          "ownership_pct": 25
+        }
+      ],
+      "natural_persons": [
+        "NP_ALPHA"
+      ],
+      "target_entity_id": "EntityABC"
+    },
+    "art-413-screen-sanctions-private": {
+      "0": {
+        "name": "Acme Trading LLC"
+      },
+      "1": {
+        "name": "Beta Freight Co"
+      },
+      "list_version": "OFAC-SDN-TEST-2026-07",
+      "list_source": "OFAC Specially Designated Nationals (SDN) List test fixture set, per FinCEN 31 CFR Chapter X screening obligations. Production deployments substitute the live OFAC SDN + FATF Travel Rule party lists; this profile proves the SCREENING RAN against a committed list, not the list contents.",
+      "matching_config": {
+        "case_insensitive": true
+      },
+      "salt": "36a37cfd1fc45b1115e40acceb3fa614856e50c02f318bf111a45da4c0b97700"
+    },
+    "art-585-sanctions-screening-evidence-pack": {
+      "screening": {
+        "query": "synthetic-test-entity-01",
+        "decision": "clear",
+        "match_count": 0
+      },
+      "dataset_ref": {
+        "dataset_id": "opensanctions-default",
+        "version": "20260810",
+        "digest_algo": "sha256",
+        "published_digest": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+      },
+      "caller_computed_digest": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "verify-agent-delegation": {
     "art-284-did-webvh-log-verifier": {
       "did": "did:webvh:{SCID}:example.com:agents:alpha",

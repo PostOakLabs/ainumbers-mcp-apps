@@ -672,8 +672,8 @@
       "https://ainumbers.co/chaingraph/art-759-iso-amt-exposure-modeler.html",
       "https://ainumbers.co/chaingraph/art-760-espp-break-even-optimal-sell.html",
       "https://ainumbers.co/chaingraph/art-763-ai-displacement-risk-screener.html",
+      "https://ainumbers.co/chaingraph/art-771-automation-payback.html",
       "https://ainumbers.co/chaingraph/art-774-beacon-seeded-fair-sampling-v2.html",
-      "https://ainumbers.co/chaingraph/art-776-paypal-dispute-deadline-evidence.html",
       "https://ainumbers.co/chaingraph/cry-01-zk-compliance-proof-generator.html",
       "https://ainumbers.co/chaingraph/cry-04-merkle-batch-verifier.html",
       "https://ainumbers.co/chaingraph/cry-05-agent-action-audit-trail-aggregator.html",
@@ -1075,6 +1075,7 @@
       "trust-audit-closeout-pack",
       "us-banking-compliance",
       "us-treasury-clearing",
+      "vendor-onboarding-ubo-screening-check",
       "verify-agent-delegation",
       "vida-digital-reporting-requirements",
       "vida-platform-and-registration",
@@ -1825,8 +1826,8 @@
       "estimate_iso_amt_exposure",
       "analyze_espp_disposition",
       "ai_displacement_risk_screener",
+      "compute_automation_payback",
       "derive_beacon_fair_sample_v2",
-      "compute_paypal_response",
       "generate_zk_compliance_proof",
       "verify_merkle_batch",
       "aggregate_execution_receipts",
@@ -3228,6 +3229,12 @@
       65,
       10,
       2
+    ],
+    "vendor-onboarding-ubo-screening-check": [
+      281,
+      408,
+      560,
+      673
     ],
     "verify-agent-delegation": [
       297,

@@ -5056,20 +5056,20 @@
       "sha256": "e830293b3591f671f590110bd2281491d3b96dbeb64500986f111ef22b0d4a16"
     },
     {
+      "tool_id": "art-771-automation-payback",
+      "mcp_name": "compute_automation_payback",
+      "display_name": "Automation Payback",
+      "uri": "ui://ainumbers/node/art-771-automation-payback",
+      "bytes": 54947,
+      "sha256": "1ce8822d00a7a3fa92ff1039aff474bb2d371454ea40f7874212d340588c508c"
+    },
+    {
       "tool_id": "art-774-beacon-seeded-fair-sampling-v2",
       "mcp_name": "derive_beacon_fair_sample_v2",
       "display_name": "Beacon-Seeded Fair-Sampling Deriver V2",
       "uri": "ui://ainumbers/node/art-774-beacon-seeded-fair-sampling-v2",
       "bytes": 241428,
       "sha256": "7b5550e312162e37c57859c0d6ea5d02c1732cafbe872c6c2f892c5ce244f79a"
-    },
-    {
-      "tool_id": "art-776-paypal-dispute-deadline-evidence",
-      "mcp_name": "compute_paypal_response",
-      "display_name": "PayPal Dispute Deadline & Evidence",
-      "uri": "ui://ainumbers/node/art-776-paypal-dispute-deadline-evidence",
-      "bytes": 60017,
-      "sha256": "9ac44eb83c0a98d35d1f4c4ded5f60f8dee4bb3c9247298bd503a8cb4230c8e9"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
