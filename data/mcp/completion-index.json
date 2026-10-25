@@ -898,6 +898,7 @@
       "hedge-effectiveness-documentation",
       "homebuyer-affordability-check",
       "icfr-control-test-cycle",
+      "icfr-sampling-ipe-evidence-check",
       "idv-session-evidence",
       "ifrs17-measurement-conformance",
       "instant-payments-compliance",
@@ -2592,6 +2593,12 @@
     ],
     "icfr-control-test-cycle": [
       446
+    ],
+    "icfr-sampling-ipe-evidence-check": [
+      443,
+      445,
+      446,
+      673
     ],
     "idv-session-evidence": [
       362,
