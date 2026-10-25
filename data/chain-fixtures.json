@@ -6561,6 +6561,66 @@
       ]
     }
   },
+  "icfr-sampling-ipe-evidence-check": {
+    "art-458-attribute-sampling-plan": {
+      "confidence_level": 95,
+      "population_size": 1000,
+      "tolerable_deviation_rate": 5,
+      "expected_deviation_rate": 0,
+      "population_hash": "abc123"
+    },
+    "art-460-ipe-integrity-verifier": {
+      "source_extract_hash": "sha256:aaa111",
+      "report_hash": "sha256:aaa111",
+      "source_row_count": 1000,
+      "report_row_count": 1000,
+      "source_control_total": 500000,
+      "report_control_total": 500000,
+      "tolerance": 0.01
+    },
+    "art-461-control-test-evidence-composer": {
+      "control_id": "CTRL-AP-014",
+      "population_hash": "sha256:pop-aaa111",
+      "reporting_period": "2026-Q2",
+      "tester_id": "tester-jsmith",
+      "tolerable_exception_count": 0,
+      "sample": [
+        {
+          "item_id": "INV-1001"
+        },
+        {
+          "item_id": "INV-1002"
+        },
+        {
+          "item_id": "INV-1003"
+        },
+        {
+          "item_id": "INV-1004"
+        }
+      ],
+      "test_results": [
+        {
+          "item_id": "INV-1001",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1002",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1003",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1004",
+          "result": "pass"
+        }
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "idv-session-evidence": {
     "art-361-camera-provenance-check": {
       "manifest_digest": "sha256:9c1185a5c5e9fc54612808977ee8f548b2258d31",
