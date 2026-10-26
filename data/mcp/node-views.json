@@ -4988,8 +4988,8 @@
       "mcp_name": "workforce_board_roi_report",
       "display_name": "Workforce Board ROI Report",
       "uri": "ui://ainumbers/node/art-712-workforce-board-roi",
-      "bytes": 53709,
-      "sha256": "9af6d2cba1db8edd94c5e3e3bd95c641610c67c85df3348548bb73cf0d9db4ed"
+      "bytes": 53757,
+      "sha256": "1fb312d70d1d3421fa90fb0839d4baf68867a8080e29520e88a8d6e112accc10"
     },
     {
       "tool_id": "art-713-scorp-election-break-even",
@@ -5014,6 +5014,14 @@
       "uri": "ui://ainumbers/node/art-734-force-placed-insurance-checker",
       "bytes": 106919,
       "sha256": "f9776ec68649217c6411c9ff65c764873641ce1e7c4bb47312928e3e885bcb06"
+    },
+    {
+      "tool_id": "art-735-solana-dvp-prefund-verifier",
+      "mcp_name": "verify_solana_dvp_terms",
+      "display_name": "Solana DvP Pre-Funding Terms Verifier",
+      "uri": "ui://ainumbers/node/art-735-solana-dvp-prefund-verifier",
+      "bytes": 56893,
+      "sha256": "7762022d063a396f1ac43408812aa9a679218d713b039fb0a6a7bd157a7d1e86"
     },
     {
       "tool_id": "art-749-solana-paychan-voucher-verifier",
@@ -5076,8 +5084,8 @@
       "mcp_name": "derive_beacon_fair_sample_v2",
       "display_name": "Beacon-Seeded Fair-Sampling Deriver V2",
       "uri": "ui://ainumbers/node/art-774-beacon-seeded-fair-sampling-v2",
-      "bytes": 241428,
-      "sha256": "7b5550e312162e37c57859c0d6ea5d02c1732cafbe872c6c2f892c5ce244f79a"
+      "bytes": 241429,
+      "sha256": "d9c3e621c9a80531b547e9296609a704660d5a78736804c23c7670359dd3b66b"
     },
     {
       "tool_id": "art-776-paypal-dispute-deadline-evidence",

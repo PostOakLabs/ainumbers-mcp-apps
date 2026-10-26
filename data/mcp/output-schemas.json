@@ -44650,6 +44650,151 @@
       }
     }
   },
+  "verify_solana_dvp_terms": {
+    "type": "object",
+    "properties": {
+      "prefund_check": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "FAIL",
+          "REFUSED"
+        ]
+      },
+      "owner_matches": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "length_matches": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "terms_match": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "terms_mismatches": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "earliest_within_expiry": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "expiry_within_one_year": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "expiry_in_future": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "no_blocked_extensions": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "blocked_extensions_found": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "hook_extras_within_cap": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "failed_checks": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "trust_flags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "record": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "error": {
+        "type": "string"
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "manual_review_required": {
+        "type": "boolean"
+      },
+      "disclaimer": {
+        "type": "string"
+      },
+      "audit_scope_note": {
+        "type": "string"
+      },
+      "expected_terms_note": {
+        "type": "string"
+      },
+      "error_direction": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "prefund_check",
+      "owner_matches",
+      "length_matches",
+      "terms_match",
+      "earliest_within_expiry",
+      "expiry_within_one_year",
+      "expiry_in_future",
+      "no_blocked_extensions",
+      "hook_extras_within_cap",
+      "failed_checks",
+      "trust_flags",
+      "warnings",
+      "disclaimer",
+      "audit_scope_note"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "chaingraph/kernels/art-735-solana-dvp-prefund-verifier.kernel.mjs compute() output_payload"
+  },
   "verify_solana_paychan_voucher": {
     "type": "object",
     "properties": {
