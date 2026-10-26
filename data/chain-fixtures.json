@@ -4321,6 +4321,95 @@
       ]
     }
   },
+  "control-test-exception-disposition-check": {
+    "art-458-attribute-sampling-plan": {
+      "confidence_level": 95,
+      "population_size": 1000,
+      "tolerable_deviation_rate": 5,
+      "expected_deviation_rate": 0,
+      "population_hash": "abc123"
+    },
+    "art-461-control-test-evidence-composer": {
+      "control_id": "CTRL-AP-014",
+      "population_hash": "sha256:pop-aaa111",
+      "reporting_period": "2026-Q2",
+      "tester_id": "tester-jsmith",
+      "tolerable_exception_count": 0,
+      "sample": [
+        {
+          "item_id": "INV-1001"
+        },
+        {
+          "item_id": "INV-1002"
+        },
+        {
+          "item_id": "INV-1003"
+        },
+        {
+          "item_id": "INV-1004"
+        }
+      ],
+      "test_results": [
+        {
+          "item_id": "INV-1001",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1002",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1003",
+          "result": "pass"
+        },
+        {
+          "item_id": "INV-1004",
+          "result": "pass"
+        }
+      ]
+    },
+    "art-465-workpaper-bundle-composer": {
+      "procedure_id": "PROC-AR-CONFIRM-2026Q2",
+      "population_hash": "sha256:aaaa1111bbbb2222",
+      "kernel_artifacts": [
+        {
+          "tool_id": "art-462-je-ruleset-screen",
+          "execution_hash": "1111aaaa"
+        },
+        {
+          "tool_id": "art-463-recalc-suite",
+          "execution_hash": "2222bbbb"
+        },
+        {
+          "tool_id": "art-464-confirmation-matcher",
+          "execution_hash": "3333cccc"
+        }
+      ],
+      "exceptions": [
+        {
+          "item_id": "EXC-1",
+          "reason_code": "TOLERANCE_EXCEEDED",
+          "disposition": "ACCEPTED_IMMATERIAL",
+          "disposed_by_role": "engagement_reviewer"
+        }
+      ],
+      "preparer": {
+        "role": "staff_auditor",
+        "statement": "Prepared the substantive procedure workpapers for this area."
+      },
+      "reviewer": {
+        "role": "engagement_reviewer",
+        "statement": "Reviewed the prepared workpapers and disposed all noted exceptions."
+      },
+      "partner": {
+        "role": "engagement_partner",
+        "statement": "Released the area for reporting."
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "corporate-action-entitlement": {
     "art-546-dtcc-ca-iso20022-validator": {
       "message_function": "NOTIFICATION",
@@ -8387,6 +8476,72 @@
       "board_review_age_days": 90
     }
   },
+  "nmd-ladder-sot-eve-check": {
+    "art-442-nmd-behavioral-repricing-mapper": {
+      "nmd_segments": [
+        {
+          "name": "checking_core",
+          "balance": 1000000,
+          "beta": 0.2,
+          "allocation": {
+            "on_1m": 0,
+            "m1_y1": 0,
+            "y1_y3": 0.1,
+            "y3_y5": 0.2,
+            "y5_y10": 0.3,
+            "y10_plus": 0.4
+          }
+        },
+        {
+          "name": "savings_volatile",
+          "balance": 500000,
+          "beta": 0.6,
+          "allocation": {
+            "on_1m": 0.5,
+            "m1_y1": 0.5,
+            "y1_y3": 0,
+            "y3_y5": 0,
+            "y5_y10": 0,
+            "y10_plus": 0
+          }
+        }
+      ]
+    },
+    "art-369-run-rate-shock-ladder": {
+      "repricing_gaps": {
+        "on_1m": 100000,
+        "m1_y1": 250000,
+        "y1_y3": -150000,
+        "y3_y5": 200000,
+        "y5_y10": -50000,
+        "y10_plus": 150000
+      },
+      "nii_12m_gap": 300000,
+      "shock_presets": [
+        {
+          "name": "steepener",
+          "short_bps": -50,
+          "long_bps": 100
+        },
+        {
+          "name": "flattener",
+          "short_bps": 100,
+          "long_bps": -50
+        }
+      ]
+    },
+    "art-184-irrbb-sot-eve-evaluator": {
+      "eve_shock": {
+        "worst_delta_eve": -180
+      },
+      "capital": {
+        "tier1_capital": 1000
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "order-execution-quality-pack": {
     "art-541-best-execution-recompute": {
       "fills": [
@@ -8443,6 +8598,77 @@
       "hourly_rate": 15,
       "other_includable_pay": 30,
       "nondiscretionary_bonus_amount": 100
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "overtime-paycheck-garnishment-check": {
+    "art-340-compute-flsa-regular-rate": {
+      "hours_worked_week": 45,
+      "hourly_rate": 15,
+      "other_includable_pay": 30,
+      "nondiscretionary_bonus_amount": 100
+    },
+    "art-338-compute-federal-withholding": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 2000,
+      "pay_frequency": "biweekly",
+      "filing_status": "single_or_mfs"
+    },
+    "art-339-compute-gross-to-net": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 5000,
+      "federal_withholding_per_period": 0,
+      "pretax_reduces_fica_and_fit": 0,
+      "post_tax_other_deductions": 0,
+      "ytd_fica_wages_before_period": 180000
+    },
+    "art-572-multi-garnishment-stacking-recompute": {
+      "employee_ref": "SYNTH-EMP-001",
+      "period_label": "2026-01-15 biweekly pay period",
+      "currency": "USD",
+      "gross_minor_units": 100000,
+      "legally_required_deductions": [
+        {
+          "label": "Federal income tax withholding",
+          "amount_minor_units": 15000
+        },
+        {
+          "label": "FICA",
+          "amount_minor_units": 7650
+        },
+        {
+          "label": "State income tax withholding",
+          "amount_minor_units": 4000
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "ord-1",
+          "label": "Child support order, county court",
+          "type": "child_support",
+          "arrears_over_12wk": false,
+          "second_family": false,
+          "claimed_amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "label": "Creditor garnishment",
+          "type": "creditor",
+          "claimed_amount_minor_units": 30000
+        }
+      ],
+      "noticed_amounts": [
+        {
+          "order_id": "ord-1",
+          "amount_minor_units": 44010
+        },
+        {
+          "order_id": "ord-2",
+          "amount_minor_units": 0
+        }
+      ]
     },
     "cry-05-agent-action-audit-trail-aggregator": {
       "artifacts": []
@@ -9405,6 +9631,32 @@
           }
         ]
       }
+    }
+  },
+  "scorp-owner-paycheck-check": {
+    "art-713-scorp-election-break-even": {
+      "net_se_income": 150000,
+      "reasonable_salary_pct": 50,
+      "annual_admin_cost": 3000,
+      "owner_health_premium_annual": 0,
+      "filing_status": "single"
+    },
+    "art-338-compute-federal-withholding": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 2000,
+      "pay_frequency": "biweekly",
+      "filing_status": "single_or_mfs"
+    },
+    "art-339-compute-gross-to-net": {
+      "tax_year": "2026",
+      "gross_wages_per_period": 5000,
+      "federal_withholding_per_period": 0,
+      "pretax_reduces_fica_and_fit": 0,
+      "post_tax_other_deductions": 0,
+      "ytd_fica_wages_before_period": 180000
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "sec16b-early-warning-pack": {

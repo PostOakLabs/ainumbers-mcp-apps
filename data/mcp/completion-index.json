@@ -826,6 +826,7 @@
       "conditional-relief-collateral",
       "consumer-protection",
       "content-credential-verification",
+      "control-test-exception-disposition-check",
       "corporate-action-entitlement",
       "corporate-treasury-statement-reconciliation",
       "counterparty-capital-margin",
@@ -960,10 +961,12 @@
       "neobank-baas",
       "nis2-entity-scope-and-obligations",
       "nis2-incident-and-supply-chain-readiness",
+      "nmd-ladder-sot-eve-check",
       "open-banking-api-lifecycle",
       "order-execution-quality-pack",
       "overdraft-nsf-fee-recompute-check",
       "overtime-pay-check",
+      "overtime-paycheck-garnishment-check",
       "parametric-trigger-adjudication",
       "paycheck-take-home-check",
       "payment-economics-benchmarking",
@@ -1016,6 +1019,7 @@
       "sb53-frontier-scope",
       "sbom-provenance-attestation",
       "sca-consent-fapi",
+      "scorp-owner-paycheck-check",
       "sec16b-early-warning-pack",
       "securities-lending-impact",
       "servicemember-lending-protections",
@@ -2350,6 +2354,12 @@
       137,
       138
     ],
+    "control-test-exception-disposition-check": [
+      443,
+      446,
+      450,
+      676
+    ],
     "corporate-action-entitlement": [
       526,
       527
@@ -2823,6 +2833,12 @@
       158,
       159
     ],
+    "nmd-ladder-sot-eve-check": [
+      427,
+      370,
+      197,
+      676
+    ],
     "order-execution-quality-pack": [
       522,
       635,
@@ -2834,6 +2850,13 @@
     ],
     "overtime-pay-check": [
       347,
+      676
+    ],
+    "overtime-paycheck-garnishment-check": [
+      347,
+      345,
+      346,
+      547,
       676
     ],
     "parametric-trigger-adjudication": [
@@ -2994,6 +3017,12 @@
       148,
       149,
       150
+    ],
+    "scorp-owner-paycheck-check": [
+      661,
+      345,
+      346,
+      676
     ],
     "sec16b-early-warning-pack": [
       548,
