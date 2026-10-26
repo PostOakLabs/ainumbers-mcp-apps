@@ -53478,12 +53478,13 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:b57f647a37e62cd55bd20c9fb5aec358e2ccf0127aa4f2261772e718808a1625","valid_from":"2026-10-01"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:750cab31c114f06d0cb64d91acc3b3caca115e9adf10c69953ebfa3d1cac7a59","valid_from":"2026-10-01"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-701-three-way-invoice-match, built 2026-10-01 (ART701-THREE-WAY-MATCH-1). Integer-only decision arithmetic over small arrays with no digest inside compute(); expected FAST on GPU-CYCLE-PREFLIGHT-1's static pre-screen, and the row defers the prove: ship deferred now and raise the section 18 deferred ceiling by one in the same PR (the #2133 precedent). No GPU prove has been run; proving is async queue work under RIDER-KERNEL.md, not a per-wave gate."
+  "compute_proof_ready": "ready",
+
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"JGHn5LfRO2hUxCvQxIrqkHIQgTDnDT9R2BSxM2zemTEA5fMmMyFuDMo/dS5KqSC6DHmj++sItQwyN+9MiWTGuykFhDxUFXYaLDtkEChBFTDElbXP/nT3fYW+FpdnBUzjH5ukQuU+EgTWIlsACq6wyDavvRQEsD+x4mi6T0C2ouYTFKRYpZbplvm1gLYfaBXZC+6qzMavudG11uYdwCXU4BrIdfe+6w10yb7SK/hqhyCZh1lHESqecoabbqFUZYDNCWeV3lug6LGyzkMy9WVDktzA5mCRevy+uyqtY+iIS7so3NAm2FHGgJbx8LqgS1/85wfeSGLoDV9ILMmVR/DVNQ==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:750cab31c114f06d0cb64d91acc3b3caca115e9adf10c69953ebfa3d1cac7a59","output":{"domain_errors":[],"duplicates":[],"hold_recommended":false,"lines":[{"amount_ok":true,"line":1,"paired_po_line":1,"po_unit_price_minor":12000,"qty":10,"qty_ordered":10,"qty_received":10,"unit_price_minor":12000,"variance_bp":0,"verdict":"ok"},{"amount_ok":true,"line":2,"paired_po_line":2,"po_unit_price_minor":4000,"qty":5,"qty_ordered":5,"qty_received":5,"unit_price_minor":4000,"variance_bp":0,"verdict":"ok"},{"amount_ok":true,"line":3,"paired_po_line":3,"po_unit_price_minor":15000,"qty":2,"qty_ordered":2,"qty_received":2,"unit_price_minor":15000,"variance_bp":0,"verdict":"ok"}],"mismatches":[],"outcome":"match","po_number":"PO-7","receipt_id":"GR-3","scope_note":"Integer minor units only: fractional quantities and sub-minor-unit prices are refused, not rounded. One currency per invoice. One declared tax rate; no tax-jurisdiction logic.","totals":{"line_sum_minor":170000,"subtotal_ok":true,"tax_expected_minor":14025,"tax_ok":true,"total_expected_minor":184025,"total_ok":true}}}}
 },
     {
   "tool_id": "art-702-runway-goal-path",
@@ -54643,7 +54644,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:020915c5c02c1d2cb9bcb284db4b533d4828472f3b005e2ad70d94c473ab4578","valid_from":"2026-10-12"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:c414a3768622106b76dff42ac67c64552af24be5aae08474f240c16e0f676cdc","valid_from":"2026-10-12"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": [
     "json"
   ],
@@ -54674,8 +54675,9 @@
       "clause_path": "Lines 196-470: the program transfer-fee test vectors (calculate_fee_min, calculate_fee_max, calculate_fee_zero, test_transfer_fee_config epoch boundary)"
     }
   ],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-715-token2022-transfer-fee-reconciler, built 2026-10-11 (SOLANA-B1-TRANSFER-FEE-NODE-1). No GPU prove has been run and none is proposed by this row — deferred per the section 18 steady-state rule; the section 18 ceiling is raised by one in the same PR (SO #59 in-PR shape) via check-compute-proof-coverage.mjs --update-baseline under a scratch DERIVED_ROOT."
+  "compute_proof_ready": "ready",
+
+  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"AC3tzutUDBrsmXVRu02AB6F+UUsPTQaTzLwxVP9o/hkiY26BwDGDGAWTbiZnF4E1pYcUITF0hhcKQmZq1xZwbylPgaMANhuCIKjH7HH+5MU7ts2TjIa3YYqh0uJzvpNOFY1ZyadKEgETIKOq7GFv5Ilf8zhKaKFCoUD6RhDvtMoLpcsdtztiiOgsh/iassQwxnEJxwkpRl3/XF+/Z2y0lATstpGvrBYT562ye4c3BXbLZ3w0/oUnTm8rT+DQ0HFBJmMv2tA2Sk/5+tqiqtglfX9ap6rciKA37RaMlJLJzJYQT027E47JApLuj///ZRph9vPELLWxqLmrB4Tvt7920w==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:c414a3768622106b76dff42ac67c64552af24be5aae08474f240c16e0f676cdc","output":{"consumer_view":null,"credited_amount":"0","credited_minus_net":"0","declared_fee":null,"epoch_race":null,"execution_epoch":"0","fee":"1","fee_mismatch":null,"min_pre_fee_for_net":"0","net":"0","note":"Fee arithmetic ports the Token-2022 transfer-fee extension: ceiling(amount * bps / 10,000) capped at maximum_fee, computed in 128-bit intermediates, with the newer schedule applying from its epoch on. The Kora GHSA-725g defect class is a verifier crediting the pre-fee amount; OVER_CREDITED with credited_minus_net = fee reproduces it.","reconciliation":"MATCH","schedule":"newer","verifier_epoch":null,"withheld_added":"1"}}}
 },
     {
   "tool_id": "art-734-force-placed-insurance-checker",
@@ -54946,14 +54948,76 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:48b85460b3225af44a79ed74664c8f16736b8cef433492fa32e1a1a4ef79c3b3","valid_from":"2026-10-21"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:48b85460b3225af44a79ed74664c8f16736b8cef433492fa32e1a1a4ef79c3b3","valid_from":"2026-10-21"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": [
     "json"
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-754-equity-exit-waterfall, built 2026-10-20 (APEX-PORT-141-LAND-1). Pure arithmetic waterfall walk (min/max, products, one floor chain); no digest inside compute(), no transcendentals, no iteration at all; expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. standards_basis is not_applicable: the node ports the Apex page's own planning model; the conventions it uses (NVCA model term sheet liquidation-preference mechanics, IRC §1001 gain computation) are quoted in the payload CITES.md F2/F3 and carried as DIFFERS records rather than as a standards conformance claim."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "FAST - 5,217,757 user_cycles max across all 18 fixture vectors, measured exec-only 2026-10-25 (DEFERRED-EXEC-MEASURE-4); 0.17x the 30,000,000 line.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "DLreKrYNkNcn0k95XjQ3pgju77ZnI+pZoDUDc0/EiXYUHOAG6ZlWpTfsbTaCvY2fivWw5EpVZgOeIt/j64UsOhkXvUwicKtYST3AMkLOiqr/HuvJohGdCdB8RghdBFC3DoIh0gKxxGSSRNdD0xAyb83UTOZq+JC14Ak9VksnHxwWnZFZdnmKUCPLZNzqPMXl5B0m8vv1oDRocm1DXOfFTRIPFZYf5ghrHzcQ4TADnKtcjL4mGdFL+XW66nGSUlF2JALgul/bTshLxCXEfSV4a+XYU9phfbzNk4YCn/FrIxIYGNFMqXU8mIxN2ME4BhlS2vYYkEkalycjqzusflvV1A==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:48b85460b3225af44a79ed74664c8f16736b8cef433492fa32e1a1a4ef79c3b3",
+      "output": {
+        "break_even_exit_usd": 11000000,
+        "common_pool_usd": 20000000,
+        "compliance_flags": [
+          "ART754_PREF_WINS_WARNING_HEURISTIC",
+          "ART754_NON_PARTICIPATING_CONVERSION"
+        ],
+        "exit_valuation_usd": 50000000,
+        "layers": [
+          {
+            "amount": 30000000,
+            "label": "Pro-Rata (Preferred converts to common)",
+            "recipient": "All stockholders"
+          },
+          {
+            "amount": 20000000,
+            "label": "Pro-Rata Common",
+            "recipient": "Common stockholders"
+          }
+        ],
+        "liquidation_preference_multiple": 1,
+        "liquidation_preference_usd": 10000000,
+        "notes": [
+          "Liquidation preference mechanics follow NVCA model term sheet conventions (fetched 2026-10-06).",
+          "Taxable gain is computed as max(0, net proceeds - cost basis) per IRC §1001 (fetched 2026-10-06).",
+          "Preferred investors captured more than common pool — Apex #141 warns the common position is significantly diluted. No official threshold exists for this warning (DIFFERS-02).",
+          "Non-participating preferred converted to common — pro-rata share exceeded liquidation preference."
+        ],
+        "participation_cap_multiple": 3,
+        "participation_type": "non",
+        "preferred_ownership_fraction": 0.6,
+        "preferred_total_usd": 30000000,
+        "refusal_reason": null,
+        "switches": {
+          "apex_faithful_mode": false,
+          "pref_wins_warning_threshold": 0.5,
+          "refuse_non_finite_input": true
+        },
+        "total_preferred_invested_usd": 10000000,
+        "warnings": [
+          "ART754_PREF_WINS_WARNING_HEURISTIC",
+          "ART754_NON_PARTICIPATING_CONVERSION"
+        ],
+        "your_cost_basis_usd": 50000,
+        "your_gross_proceeds_usd": 2500000,
+        "your_net_proceeds_usd": 2450000,
+        "your_option_strike_total_usd": 50000,
+        "your_ownership_fraction": 0.05,
+        "your_role": "common",
+        "your_taxable_gain_usd": 2400000
+      }
+    }
+  }
 },
     {
   "tool_id": "art-758-hdhp-ppo-break-even",
@@ -55071,14 +55135,90 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:0cfc6871b5e506aedc2ed9dd8d8b59b8f81e58e537501004068a454b020f3180","valid_from":"2026-10-24"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:0cfc6871b5e506aedc2ed9dd8d8b59b8f81e58e537501004068a454b020f3180","valid_from":"2026-10-24"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": [
     "json"
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-759-iso-amt-exposure-modeler, built 2026-10-19 (APEX-PORT-109-LAND-1). Fixed-bracket table walk and a binary search with a constant 60-iteration bound; no digest inside compute(), no transcendentals, no iteration bound taken from policy_parameters; expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. standards_basis is not_applicable: the node ports the Apex page s own planning model; the tax constants it uses are the 2026 adjusted figures from Rev. Proc. 2025-32 quoted in the payload CITES.md, carried as MATCH records in payload DIFFERS.md rather than as a standards conformance claim."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "FAST - 5,683,075 user_cycles max across all 19 fixture vectors, measured exec-only 2026-10-25 (DEFERRED-EXEC-MEASURE-4); 0.19x the 30,000,000 line.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "FO9maWVp7KaAhxAbufouUKptlyuGOCggF0BysJ9zw+QfGGlnhD6+NjtV8wSHYLK8sSQ2vrU0jP20ammGIUQUgC4/KL0VqsXlzT4Vp3Wh2GnI0hiYbwn6UKdI45DybMNQDpAbZ/EpkL0GAtMjMIOqv0HP9dOoOOr821rwvkZnDtIA9Bf+hXg3GXhzbuACVvlqccxoPD3OMRv0LQBh+l9nhyAOaeWDvckyhto5m98elQgH0MAVI3S3shyRTsp8nlEGCqTUqIyYiXtRhJpx1G3Z8MNq0/Z+vZ7MwowWoRDFrUgWMRG+FoHnXpxrAgshOuHzvqfD+e09vOCVvD9NJ18+Sg==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:0cfc6871b5e506aedc2ed9dd8d8b59b8f81e58e537501004068a454b020f3180",
+      "output": {
+        "amt_base": 239900,
+        "amt_credit_generated": 27776,
+        "amt_owed": 27776,
+        "amt_triggered": true,
+        "amti": 330000,
+        "effective_exemption": 90100,
+        "filing_status": "single",
+        "fmv_at_exercise": 18,
+        "iso_spread": 155000,
+        "max_shares_no_amt": 3107,
+        "ordinary_income": 175000,
+        "other_amt_adjustments": 0,
+        "regular_tax": 34598,
+        "scenarios": [
+          {
+            "amt_owed": 0,
+            "amti": 175000,
+            "effective_exemption": 90100,
+            "is_entered": false,
+            "iso_spread": 0,
+            "net_value_after_amt": 0,
+            "shares_exercised": 0
+          },
+          {
+            "amt_owed": 0,
+            "amti": 213750,
+            "effective_exemption": 90100,
+            "is_entered": false,
+            "iso_spread": 38750,
+            "net_value_after_amt": 38750,
+            "shares_exercised": 2500
+          },
+          {
+            "amt_owed": 7626,
+            "amti": 252500,
+            "effective_exemption": 90100,
+            "is_entered": false,
+            "iso_spread": 77500,
+            "net_value_after_amt": 69874,
+            "shares_exercised": 5000
+          },
+          {
+            "amt_owed": 17701,
+            "amti": 291250,
+            "effective_exemption": 90100,
+            "is_entered": false,
+            "iso_spread": 116250,
+            "net_value_after_amt": 98549,
+            "shares_exercised": 7500
+          },
+          {
+            "amt_owed": 27776,
+            "amti": 330000,
+            "effective_exemption": 90100,
+            "is_entered": true,
+            "iso_spread": 155000,
+            "net_value_after_amt": 127224,
+            "shares_exercised": 10000
+          }
+        ],
+        "shares_exercised": 10000,
+        "strike_price": 2.5,
+        "tentative_minimum_tax": 62374
+      }
+    }
+  }
 },
     {
   "tool_id": "art-760-espp-break-even-optimal-sell",
@@ -55096,14 +55236,58 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:bfdfad68ef74e4bf837405730e2352a16e0b593d907e51738f4dbccc36d7f42e","valid_from":"2026-10-21"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:bfdfad68ef74e4bf837405730e2352a16e0b593d907e51738f4dbccc36d7f42e","valid_from":"2026-10-21"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": [
     "json"
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-760-espp-break-even-optimal-sell, built 2026-10-19 (APEX-PORT-110B-LAND-1). Float bracket-walk arithmetic over two fixed rate tables with no digest inside compute(); expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen (no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification). The single clock branch (already_qualified) is eliminated by the optional as_of_date input; excluded from section-18 proving until the next batch (SPEC.md section 18)."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "FAST - 5,227,917 user_cycles max across all 22 fixture vectors, measured exec-only 2026-10-25 (DEFERRED-EXEC-MEASURE-4); 0.17x the 30,000,000 line.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "C4bO1iLf/HacNOHPM0Wa0SsDn5cD4jlovlKr9zmfn3QCTGt7L5qssP0jvfQAk9Rolh1KetzRnArGcNMkC+ibiw5wnqbniU9A+zOqRMVlxxOniKk92sSCXRboWpH90KSZC4Xlz98+CrJLkmmiZY/Q1DYPJE7C7ln1t4sceXZZVjEIHdeMWhIYxY/qodI+mHVJCX3drujDnmF0YFFEIG4uuxA27ILjOHbr2esl/fatGOetww4W+h3KzikRcpXdSas7EqLeykfiSyrpG3TqWuiv20Mu9bo+n9U2HxbXiGLXhAkt6T4qeF7nEXH9yyNJIPqHBRPxwolDMIZfWUhiHDcM0g==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:bfdfad68ef74e4bf837405730e2352a16e0b593d907e51738f4dbccc36d7f42e",
+      "output": {
+        "already_qualified": true,
+        "benefit": 0,
+        "current_price": 48,
+        "disq_effective_rate": 0.066875,
+        "disq_gross": 24000,
+        "disq_ltcg_gain": 6500,
+        "disq_ltcg_tax": 975,
+        "disq_ord_income": 2625,
+        "disq_ord_tax": 630,
+        "disq_proceeds": 22395,
+        "disq_total_tax": 1605,
+        "domain_errors": [],
+        "filing_status": "single",
+        "fmv_at_purchase": 35,
+        "grant_date": "2024-01-01",
+        "marginal_rate": 0.24,
+        "offering_price": 35,
+        "ordinary_income": 180000,
+        "purchase_date": "2024-07-01",
+        "purchase_price": 29.75,
+        "qual_effective_rate": 0.066875,
+        "qual_gross": 24000,
+        "qual_ltcg_gain": 6500,
+        "qual_ltcg_tax": 975,
+        "qual_ord_income": 2625,
+        "qual_ord_tax": 630,
+        "qual_proceeds": 22395,
+        "qual_total_tax": 1605,
+        "qualify_date": "2026-01-02",
+        "refusal_reason": null,
+        "shares_exercised": 500
+      }
+    }
+  }
 },
     {
   "tool_id": "art-763-ai-displacement-risk-screener",
@@ -55210,6 +55394,11 @@
       "system": "sha256-source",
       "image_id": "sha256:f1cbca96684bdb0eb0cc36aab3ccdd2afb1ba0c35afbf5acf2375fc3d781341a",
       "valid_from": "2026-10-20"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-09-12"
     }
   ],
   "export_capability": [
@@ -55217,8 +55406,107 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-771-automation-payback, built 2026-10-20 (APEX-PORT-180-LAND-1). Add-subtract-multiply float arithmetic over caller-supplied dollar and hour estimates with three Math.max clamp floors, a Math.round horizon and two sorts, with no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification; expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. standards_basis is not_applicable: the node implements no published standard or regulation — its premises are the Apex page's own payback model, ported with the haircut and weeks-per-month policy parameters and the UNGROUNDED 52/12 quotient flagged per the APEXPORT-180 payload (CITES.md records the explicit absence of tax/regulatory premises)."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "FAST - 6,885,653 user_cycles max across all 19 fixture vectors, measured exec-only 2026-10-25 (DEFERRED-EXEC-MEASURE-4); 0.23x the 30,000,000 line.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "KQmGHyvROdVyeEOdJa0lr87Db2fqSmCMM1WJETtt/DErEK2p0r4M7IKnzAaUaaezTS7eXfZLSsKpRWIml+UaqA7wz7+WyJBIyaS4NeExjiwrcX5dCRPONHRbamWSH5jmKuEPCPs/YEiLhcRzG3iVbAX0cKaWP50RpEKw1mf3+TgqmoQd1UoU/CdYEqGaWrHdLOgbVEWpSJtKhU4ehoWwwAuqVm88TGMnrkd5RXFsLzi0b311OONl7znN2ODCMhp7FZ3LW/s5IgCPpOOsn69rA5yH7d7NbN3Jc7OArxpEKisq1F53eznvEQyUGcu8klfuPJFD6Zf/ZBI5WL499bfCog==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:f1cbca96684bdb0eb0cc36aab3ccdd2afb1ba0c35afbf5acf2375fc3d781341a",
+      "output": {
+        "as_of": "2026-10-13",
+        "best_candidate": "Invoice processing",
+        "candidates": [
+          {
+            "build_cost": 2000,
+            "error_cost_mo": 150,
+            "hours_saved_wk": 3,
+            "loaded_rate": 45,
+            "name": "Invoice processing",
+            "subscription_mo": 60
+          },
+          {
+            "build_cost": 500,
+            "error_cost_mo": 75,
+            "hours_saved_wk": 2,
+            "loaded_rate": 55,
+            "name": "Report generation",
+            "subscription_mo": 30
+          },
+          {
+            "build_cost": 3500,
+            "error_cost_mo": 200,
+            "hours_saved_wk": 5,
+            "loaded_rate": 28,
+            "name": "Data-entry migration",
+            "subscription_mo": 120
+          }
+        ],
+        "droppers": [],
+        "fastest_breakeven_candidate": "Report generation",
+        "fastest_breakeven_months": 1,
+        "haircut_pct": 20,
+        "horizon_months": 24,
+        "horizon_net_all": 38161.2,
+        "horizon_net_keep": 38161.2,
+        "hours_reclaimed_wk": 10,
+        "keepers": [
+          "Invoice processing",
+          "Data-entry migration",
+          "Report generation"
+        ],
+        "net_all_mo": 1590.05,
+        "net_keep_mo": 1590.05,
+        "note": "value_mo = hours_saved_wk*weeks_per_month*loaded_rate + error_cost_mo. tco_mo = subscription_mo*(1+haircut_pct/100) + build_cost/horizon_months. net_mo = value_mo - tco_mo. breakeven_months = build_cost/(value_mo - recurring_with_haircut_mo), null when that denominator is not positive. horizon_net = value_mo*horizon_months - (build_cost + recurring_with_haircut_mo*horizon_months), which equals net_mo*horizon_months. The maintenance haircut applies to the subscription only, never to the amortised build. hours_reclaimed_wk sums hours over BUILD candidates only. Ranking is descending net_mo; ties preserve input order (Array.prototype.sort stability, ES2019).",
+        "ranked": [
+          {
+            "breakeven_months": 3,
+            "breakeven_months_exact": 3.01864,
+            "build_amortized_mo": 83.33,
+            "call": "BUILD",
+            "horizon_net": 13901.2,
+            "name": "Invoice processing",
+            "net_mo": 579.22,
+            "recurring_with_haircut_mo": 72,
+            "tco_mo": 155.33,
+            "value_mo": 734.55
+          },
+          {
+            "breakeven_months": 5.3,
+            "breakeven_months_exact": 5.285412,
+            "build_amortized_mo": 145.83,
+            "call": "BUILD",
+            "horizon_net": 12392.8,
+            "name": "Data-entry migration",
+            "net_mo": 516.37,
+            "recurring_with_haircut_mo": 144,
+            "tco_mo": 289.83,
+            "value_mo": 806.2
+          },
+          {
+            "breakeven_months": 1,
+            "breakeven_months_exact": 0.970309,
+            "build_amortized_mo": 20.83,
+            "call": "BUILD",
+            "horizon_net": 11867.2,
+            "name": "Report generation",
+            "net_mo": 494.47,
+            "recurring_with_haircut_mo": 36,
+            "tco_mo": 56.83,
+            "value_mo": 551.3
+          }
+        ],
+        "regulatory_basis": "none — pure gross-dollar payback arithmetic over user estimates; no tax or regulatory premise",
+        "verdict": "ALL_CLEAR",
+        "warning_checks": [],
+        "weeks_per_month": 4.33
+      }
+    }
+  }
 },
     {
   "tool_id": "art-774-beacon-seeded-fair-sampling-v2",
@@ -55241,6 +55529,11 @@
       "system": "sha256-source",
       "image_id": "sha256:225a33c9b312d9564601be3adb3aaf90e35f077f3d2352d63ad7a9dc9d55b102",
       "valid_from": "2026-10-21"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-09-12"
     }
   ],
   "export_capability": [
@@ -55248,8 +55541,128 @@
   ],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-774-beacon-seeded-fair-sampling-v2, built 2026-10-21 (SAMPLER-583-V2-1). No GPU prove has been run and none is proposed by this row: deferred per the section 18 steady-state rule, with the first prove to follow later via SIDEBYSIDE then PROVE. Cycle class declared per the GPU-CYCLE-PREFLIGHT-1 static pre-screen: SLOW at the maximum population (an in-guest HMAC-SHA256 loop per draw plus an O(item_count) Fisher-Yates index-array initialization, up to 1,000,000 entries = a 4 MB Uint32Array, before up to 1,000,000 per-draw HMACs on a full sample); a measured user_cycles exec preflight is owed by the first prove row before any GPU booking. The section 18 ceiling is raised by one deferred node in this PR; scripts/compute-proof-baseline.json is no longer edited by node PRs and is written main-side by the regen workflow (PROVE-BASELINE-SINGLE-WRITER-1)."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "SLOW - 62,563,379 user_cycles at proved vector 0 of 6 (drand_quicknet_n10_full_sample; full sample, sample_size 10 of item_count 10), re-measured exec-only 2026-10-26 against these guarded bytes (sha256:225a33c9b312d9564601be3adb3aaf90e35f077f3d2352d63ad7a9dc9d55b102), matching DEFERRED-EXEC-MEASURE-4's figure exactly; 2.1x the 30M line, 12.9-min succinct + wrap = 777s wall (ART774-FIRST-PROVE-1). Vector 1 (nistir_8213_n20000_full_sample, sample_size 20,000 of 20,000) exec cap-aborts at the RUNQ-EXEC-CAP-DEFAULT-3 400M budget (EXEC_BUDGET_EXCEEDED, no cycle figure) and is not covered by this receipt. Honesty line: this receipt attests execution of published fixture vector 0, not vector 1; freshness and recompute-equality are satisfied by any published vector; a vector-1 receipt would need a lifted exec budget and is not proposed.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "K+AWpqUhhSQQfcbJXtVIxw+jzMqd7DlIOdkFFkyjCb0In3ewa0Hao7RF2tFVtLYw80a6LV/xfQRDrksYygTVUBBvXLv/iUaaH8BhtR9tmBiu97pDD6zP2VMbNGvxaIksIo/jO8nTD6+nUeHyEoAWtGS2UF4+HTHc3MN3uUzmV9cVUxw0YXrRhyfrna5GlTgEwe2G1vC5mj40jQcWXDcz5ilkeP5T9DhZNSNap3mCiiPAxRjE2hnnLIHQgUFEEbKYD9JdbvIfrHb+KGIQRvvshxM1Pmb29EcerKVEdhp+7hUJgXtchmRpaPAIMEHNP9I5Kjg2D62iO1ZnJQPXfGEZIA==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:225a33c9b312d9564601be3adb3aaf90e35f077f3d2352d63ad7a9dc9d55b102",
+      "output": {
+        "algorithm_id": "hmac-drbg-sha256-v2",
+        "beacon_randomness": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "beacon_round": "4321000",
+        "beacon_source": "drand_quicknet",
+        "derivation_transcript": [
+          {
+            "draw": 0,
+            "hmac_hex": "dc186f2a0171dad106ead199b8e596e0fa6628cadbce8b84f5cc53b67064df6d",
+            "position": 0,
+            "result": "selected",
+            "selected_index": 2,
+            "swap_index": 2
+          },
+          {
+            "draw": 1,
+            "hmac_hex": "2c043070ddfac04190b919f09ba7c2102a4a7556553a126426b74bb2649c2ddf",
+            "position": 1,
+            "result": "selected",
+            "selected_index": 8,
+            "swap_index": 8
+          },
+          {
+            "draw": 2,
+            "hmac_hex": "7396b987a617a9c39bfa7d898d5874160e421411de164234247e6bac8003629b",
+            "position": 2,
+            "result": "selected",
+            "selected_index": 9,
+            "swap_index": 9
+          },
+          {
+            "draw": 3,
+            "hmac_hex": "dc7d8b484c371a621062cb5a72e8e86b6120169b89a9f86b1cf6e87907bce0d1",
+            "position": 3,
+            "result": "selected",
+            "selected_index": 0,
+            "swap_index": 9
+          },
+          {
+            "draw": 4,
+            "hmac_hex": "b8d3308066882b9664e0e0d5a32843342fb42da2ea72ce6843ef0490a19973c6",
+            "position": 4,
+            "result": "selected",
+            "selected_index": 1,
+            "swap_index": 8
+          },
+          {
+            "draw": 5,
+            "hmac_hex": "f96948b53199166a17f7b0c8daaf745211ceffcfe985c3ec6336e128e66b30b3",
+            "position": 5,
+            "result": "selected",
+            "selected_index": 7,
+            "swap_index": 7
+          },
+          {
+            "draw": 6,
+            "hmac_hex": "9255a9b3d4f7fa8e08e09d84c56e09febe0a72aeb69c99a4ae3f63af42fd92d5",
+            "position": 6,
+            "result": "selected",
+            "selected_index": 3,
+            "swap_index": 9
+          },
+          {
+            "draw": 7,
+            "hmac_hex": "8b96426638312ce1436452a810fcdeb955f2a7d349ae27e6d4310b1fdc763a01",
+            "position": 7,
+            "result": "selected",
+            "selected_index": 4,
+            "swap_index": 8
+          },
+          {
+            "draw": 8,
+            "hmac_hex": "32f82193d0b725b304d7ea6424e4883b1c66e7f27b61c9cb0712b70be439b9ac",
+            "position": 8,
+            "result": "selected",
+            "selected_index": 6,
+            "swap_index": 9
+          },
+          {
+            "draw": 9,
+            "hmac_hex": "0c9d80a2dae0a433b257bf0c0c40c3c70cd5f8602d73e04353cffe4f8555df5c",
+            "position": 9,
+            "result": "selected",
+            "selected_index": 5,
+            "swap_index": 9
+          }
+        ],
+        "draws_used": 10,
+        "item_count": 10,
+        "item_manifest_hash": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+        "manual_review_required": false,
+        "reduction_rejects": 0,
+        "sample_size": 10,
+        "seed_hex": "7ad621a6c02245bd61170cd5df633f2464fe26816c0db0b4647bd358c9ea8684",
+        "selected_indices": [
+          2,
+          8,
+          9,
+          0,
+          1,
+          7,
+          3,
+          4,
+          6,
+          5
+        ],
+        "transcript_truncated": false,
+        "verdict": "DERIVED"
+      }
+    }
+  }
 },
     {
   "tool_id": "art-776-paypal-dispute-deadline-evidence",
@@ -55270,13 +55683,117 @@
   "standards_basis": "not_applicable",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:eccdef3d5f7ca5483630fafd6531b68216f4f0bbab99b37885cc0f2c1a29b6f7","valid_from":"2026-10-24"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:eccdef3d5f7ca5483630fafd6531b68216f4f0bbab99b37885cc0f2c1a29b6f7","valid_from":"2026-10-24"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
   "export_capability": [
     "json"
   ],
   "cited_clause_digest": [],
-  "compute_proof_ready": "deferred",
-  "deferred_reason": "New gpu:false node, art-776-paypal-dispute-deadline-evidence, built 2026-10-24 (PAYPAL-DISPUTE-DEADLINE-NODE-1). Integer millisecond and day arithmetic, string assembly and one sync SHA-256 over a short fixed-shape preimage for the delivery-proof element digest; no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification beyond plain SHA-256. Expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen. Excluded from section-18 proving until the next batch (SPEC.md section 18)."
+  "compute_proof_ready": "ready",
+  "cycle_preflight": "FAST - 10,136,806 user_cycles max across all 18 fixture vectors, measured exec-only 2026-10-25 (DEFERRED-EXEC-MEASURE-4); 0.34x the 30,000,000 line.",
+  "compute_proof":   {
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "HoS89otp06b3zd1Be9T4rHv/LiqzvtocL1ntVO/bjoMvUJylKHJoWmIgZyVfJhPbtKSiHmiwkRORa4vGR5KxIwfEQaBzyKi3Ij8bDwrw81Ren9Rmy4RA3pXHhcbW6KYmHc3ZicL3yAm1qWiTtkTqhbv9zPC9h2rVIE96SDS4XsQf+YFUntu4X4dl2+ZCaSri7Km+d9N45EuDe1eA4KbiEy4/zLSOvixGke2xJKOVHEj4TrkVYz+uBaiDlcqNp41pIuyzKXwAC4Mvjfbth5Pt1t55YZjAEV9lVfCQQvHOrDYORMhHyF2yaLn2r0V+IYzr9sBpdom1+akyX036+Xo07Q==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:eccdef3d5f7ca5483630fafd6531b68216f4f0bbab99b37885cc0f2c1a29b6f7",
+      "output": {
+        "as_of": "2026-10-05T12:00:00.000Z",
+        "bundle_decision": {
+          "bundle_kind": "paypal_process_evidence",
+          "ce30_applicable": false,
+          "reason": "Inquiry or appeal stage: PayPal buyer-protection process evidence, explicitly not CE3.0. CE3.0 does not govern PayPal inquiries, claims or appeals."
+        },
+        "ce30_shaped_bundle": null,
+        "cited_clauses": [
+          {
+            "id": "S1",
+            "quote": "As a merchant, you can submit supporting documentation within 10 days after the inquiry starts.",
+            "url": "https://developer.paypal.com/platforms/disputes/handle-disputes/use-disputes-api"
+          },
+          {
+            "id": "S8",
+            "quote": "You must respond within the first 10 days following a dispute creation.",
+            "url": "https://www.paypal.com/us/cshelp/article/how-do-i-respond-to-%E2%80%98item-not-received%E2%80%99-and-%E2%80%98significantly-not-as-described%E2%80%99-disputes-help1083"
+          },
+          {
+            "id": "S8",
+            "quote": "If you don't respond within these 10 days and the buyer escalates it to a claim, we will resolve the case in the buyer's favor.",
+            "url": "https://www.paypal.com/us/cshelp/article/how-do-i-respond-to-%E2%80%98item-not-received%E2%80%99-and-%E2%80%98significantly-not-as-described%E2%80%99-disputes-help1083"
+          },
+          {
+            "id": "S1",
+            "quote": "The inquiry stage lasts up to 20 days unless escalated to a claim.",
+            "url": "https://developer.paypal.com/platforms/disputes/handle-disputes/use-disputes-api"
+          },
+          {
+            "id": "S8",
+            "quote": "Disputes are closed automatically after 20 days unless you or the buyer escalate it.",
+            "url": "https://www.paypal.com/us/cshelp/article/how-do-i-respond-to-%E2%80%98item-not-received%E2%80%99-and-%E2%80%98significantly-not-as-described%E2%80%99-disputes-help1083"
+          }
+        ],
+        "deadlines": {
+          "escalation_available_until": "2026-10-21T12:00:00.000Z",
+          "inquiry_stage": {
+            "basis": "Snapshot rule: \"The inquiry stage lasts up to 20 days unless escalated to a claim.\" (S1); \"Disputes are closed automatically after 20 days unless you or the buyer escalate it.\" (S8)",
+            "days_remaining": 16,
+            "due": "2026-10-21T12:00:00.000Z",
+            "past_due": false,
+            "source": "snapshot_rule_20_day"
+          },
+          "seller_response": {
+            "basis": "Snapshot rule: \"You must respond within the first 10 days following a dispute creation.\" (S8); \"As a merchant, you can submit supporting documentation within 10 days after the inquiry starts.\" (S1)",
+            "days_remaining": 6,
+            "due": "2026-10-11T12:00:00.000Z",
+            "past_due": false,
+            "source": "snapshot_rule_10_day"
+          }
+        },
+        "dispute_create_time": "2026-10-01T12:00:00.000Z",
+        "dispute_reason": "MERCHANDISE_OR_SERVICE_NOT_RECEIVED",
+        "domain_errors": [],
+        "evidence_on_hand": {
+          "carrier_name": "SyntheticCarrier",
+          "notes": null,
+          "refund_id": null,
+          "tracking_number": "SYN-0001"
+        },
+        "funding_source": "paypal_balance_or_bank",
+        "lifecycle_stage": "INQUIRY",
+        "missing_evidence": [],
+        "paypal_process_evidence": {
+          "evidences": [
+            {
+              "evidence_info": {
+                "tracking_info": {
+                  "tracking_info_list": [
+                    {
+                      "carrier_name": "SyntheticCarrier",
+                      "tracking_number": "SYN-0001"
+                    }
+                  ]
+                }
+              },
+              "evidence_type": "PROOF_OF_FULFILLMENT"
+            }
+          ],
+          "label": "paypal_process_evidence: PayPal buyer-protection process evidence, explicitly NOT CE3.0 (no card-network compelling-evidence program applies)",
+          "submittable": true
+        },
+        "refusal_reason": null,
+        "required_evidence": {
+          "evidence_type": "PROOF_OF_FULFILLMENT",
+          "required": [
+            "carrier_name",
+            "tracking_number"
+          ],
+          "why": "prove delivery: carrier name + tracking number for the shipment"
+        }
+      }
+    }
+  }
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
@@ -59216,6 +59733,7 @@
         }
       ]
     },
+    {"composer_url":"https://ainumbers.co/chaingraph/chains/cbam-precursor-certificate-liability-check.html","description":"Price a complex good in CBAM certificates in three independent runs plus a session receipt: roll up precursor emissions for a declared final good and quantity (ART-72), calculate consignment embedded emissions from declared direct data and a declared precursor total (ART-69), then model the certificate liability, holding schedule and surrender deadline from the declared embedded total (ART-71), closing with a session receipt aggregating the run execution hashes (CRY-05). Each run computes from its own declared inputs. This chain is decision support, not a filed CBAM declaration, not a verification, and not a surrender of certificates.","domain":"CBAM","name":"cbam-precursor-certificate-liability-check","regulatory_basis_decided_at":"2026-10-25","regulatory_basis_decided_by":"CHAIN-COMPOSE-CBAM-1","regulatory_basis_status":"not_assessed","regulatory_refs":["Regulation (EU) 2023/956 as amended by Regulation (EU) 2025/2083","Commission Implementing Regulation (EU) 2025/2621 (default values, applying 1 January 2026)"],"sequence_not_statutory":true,"steps":[{"handoff":"Rolls up embedded emissions across declared precursors for a declared final good and quantity, with a per-precursor breakdown, a mass-fraction total, and a data quality grade. The 2028 pre-consumer-scrap rule is applied only when a scrap input share is declared, and its credit modelling is a preliminary approximation to verify against final text.","tool_id":"art-72-cbam-precursor-emissions-aggregator"},{"handoff":"Calculates consignment embedded emissions from declared direct and indirect data, a declared good category, country of origin and quantity, plus a declared precursor total cited from the step 1 run. The run states its emissions basis as actual or default in its own record, and its indirect component uses the kernel built-in factor described on the chain page.","tool_id":"art-69-cbam-embedded-emissions-calculator"},{"handoff":"Models certificate liability from a declared embedded total, a declared factor year, declared EUA prices and a declared origin carbon price, with a de minimis screen, a quarterly holding schedule, a purchase window and a surrender deadline. The 2026 vintage uses quarterly-average-of-quarter-of-importation pricing; weekly closing-average pricing applies from 2027 onward. Repurchase and cancellation are not modelled by this step.","tool_id":"art-71-cbam-certificate-cost-engine"},{"handoff":"Produces session_receipt_root, the Merkle root over the run execution hashes (final stage)","tool_id":"cry-05-agent-action-audit-trail-aggregator"}],"title":"CBAM Precursor Certificate Liability Check"},
     {
       "name": "cbcr-annual-publish",
       "domain": "Audit & Assurance",
@@ -61696,6 +62214,7 @@
         }
       ]
     },
+    {"composer_url":"https://ainumbers.co/chaingraph/chains/index-rebalance-evidence-publication.html","description":"Prove an index rebalance in five independent runs plus a session receipt: record a caller-declared constituent set as of a stated date (ART-557), compute a weight per constituent under a stated methodology from caller-supplied input rows (ART-645), compile one rebalance event into a pack diffing current against prior constituent and weight rows and citing the step 1 and step 2 receipts (ART-646), publish the pack as one sequence-numbered head-commit event for the index stream (ART-658), closing with a session receipt aggregating the run execution hashes (CRY-05). Every constituent row, input row, methodology, and verification claim is caller-supplied and asserted, never fetched; each run is an independent recompute from its own declared inputs. This chain attests declared inputs in sequence, it does not verify them against market data, and it is not a live index feed.","domain":"Securities Compliance & Corporate Governance","name":"index-rebalance-evidence-publication","regulatory_basis_decided_at":"2026-10-25","regulatory_basis_decided_by":"CHAIN-COMPOSE-INDEX-1","regulatory_basis_status":"not_assessed","regulatory_refs":["EU Benchmark Regulation (EU) 2016/1011 (informative context only)","SEBI (Index Providers) Regulations, 2024 (informative context only)"],"sequence_not_statutory":true,"steps":[{"handoff":"Records a caller-declared constituent set as of a stated date, with its own execution_hash. Every constituent row, the eligibility-criteria description, and the selection universe size are caller-supplied and asserted, never fetched. This step attests that a declared set exists exactly as stated, never whether the criteria were applied correctly against market data.","tool_id":"art-557-record-index-constituents"},{"handoff":"Computes a weight per constituent under a stated methodology from caller-supplied input rows, with weight_sum_check within 1e-9 of 1.0, and its own execution_hash. The step 2 run cites the step 1 receipt by execution_hash plus tool_id as a receipt citation; it does not re-derive the step 1 constituent set, and it does not verify that its input list matches any particular constituent-set attestation.","tool_id":"art-645-compute-index-weights"},{"handoff":"Compiles one rebalance event into a pack: current and prior constituent and weight rows, diffed into additions, removals and weight deltas, citing the step 1 and step 2 receipts by execution_hash plus tool_id. The step 1 to step 2 to step 3 links are receipt citations, not declared graph edges. The pack does not re-run or independently re-derive the cited arithmetic, and a reviewer must check the cited hashes against the step 1 and step 2 receipts as a manual check.","tool_id":"art-646-compile-rebalance-evidence-pack"},{"handoff":"Publishes one sequence-numbered head-commit event for the index stream, with head_hash independently recomputed by SHA-256 and seq and prev_head_hash checked. signature_valid and chain_valid are the caller's own verification claim, asserted and digested into this receipt; this node never handles private key material and never itself runs an Ed25519 verify, and head_hash is not proof of signing. A head-file tip proves the signer's claimed stream tip at that seq; it does not detect a signer publishing conflicting levels elsewhere.","tool_id":"art-658-publish-index-head"},{"handoff":"Produces session_receipt_root, the Merkle root over the run execution hashes (final stage)","tool_id":"cry-05-agent-action-audit-trail-aggregator"}],"title":"Index Rebalance Evidence Publication Check"},
     {
       "name": "instant-payments-compliance",
       "domain": "Cross-Border & Instant Payments",

@@ -4900,8 +4900,8 @@
       "mcp_name": "match_invoice_three_way",
       "display_name": "Three Way Invoice Match",
       "uri": "ui://ainumbers/node/art-701-three-way-invoice-match",
-      "bytes": 86307,
-      "sha256": "3f87e68445998fd134820ef41f3170e4c75fbad99936f03de0ced7b52f77c890"
+      "bytes": 86354,
+      "sha256": "61daec8745ece455544a145122e6991146a93f5a44b2463e2f08a046c04f6f5a"
     },
     {
       "tool_id": "art-702-runway-goal-path",
@@ -5004,8 +5004,8 @@
       "mcp_name": "reconcile_token2022_transfer_fee",
       "display_name": "Token-2022 Transfer-Fee Payment Reconciler",
       "uri": "ui://ainumbers/node/art-715-token2022-transfer-fee-reconciler",
-      "bytes": 87087,
-      "sha256": "3d05b017ea00042ec93fd8c74229466932cb2d911ac3a37d25b90f9914da0640"
+      "bytes": 87127,
+      "sha256": "046276b81767346d26f2c00a718f42f1121321102c920c0e9b13dd3d03f4d083"
     },
     {
       "tool_id": "art-734-force-placed-insurance-checker",

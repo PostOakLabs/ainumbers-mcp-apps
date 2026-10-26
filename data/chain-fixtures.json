@@ -3547,6 +3547,39 @@
       "merkle_root": "0000000000000000000000000000000000000000000000000000000000000000"
     }
   },
+  "cbam-precursor-certificate-liability-check": {
+    "art-72-cbam-precursor-emissions-aggregator": {},
+    "art-69-cbam-embedded-emissions-calculator": {},
+    "art-71-cbam-certificate-cost-engine": {
+      "embedded_emissions_tco2e": 10000,
+      "cbam_factor_year": 2027,
+      "origin_carbon_price_eur_per_t": 5,
+      "eua_reference_price": 65,
+      "import_schedule": [
+        {
+          "quarter": "Q1",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q2",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q3",
+          "emissions": 2500
+        },
+        {
+          "quarter": "Q4",
+          "emissions": 2500
+        }
+      ],
+      "annual_imported_net_mass_t": 12000,
+      "cbam_sector": "iron_steel"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "cbcr-annual-publish": {
     "art-472-cbcr-builder": {
       "schema_version": "oecd-cbcr-xml-3.0-2026-07-01",
@@ -6825,6 +6858,87 @@
         "onerous_contracts_identified": false,
         "loss_component_recognized": false
       }
+    }
+  },
+  "index-rebalance-evidence-publication": {
+    "art-557-record-index-constituents": {
+      "index_id": "IDX-DEMO-100",
+      "as_of_date": "2026-08-05",
+      "constituents": [
+        {
+          "security_id": "SEC-A",
+          "name": "Alpha Corp",
+          "sector": "Industrials",
+          "country": "US"
+        },
+        {
+          "security_id": "SEC-B",
+          "name": "Beta Ltd",
+          "sector": "Financials",
+          "country": "GB"
+        },
+        {
+          "security_id": "SEC-C",
+          "name": "Gamma SA",
+          "sector": "Materials",
+          "country": "FR"
+        }
+      ],
+      "eligibility_criteria_ref": "market-cap rank <=200, free-float >=15%, ADV >= threshold",
+      "selection_universe_size": 200
+    },
+    "art-645-compute-index-weights": {
+      "index_id": "IDX-DEMO-100",
+      "as_of_date": "2026-08-05",
+      "weighting_methodology": "market-cap",
+      "inputs": [
+        {
+          "security_id": "SEC-A",
+          "market_cap": 600,
+          "currency": "USD"
+        },
+        {
+          "security_id": "SEC-B",
+          "market_cap": 400,
+          "currency": "USD"
+        }
+      ]
+    },
+    "art-646-compile-rebalance-evidence-pack": {
+      "index_id": "IDX-DEMO-100",
+      "rebalance_date": "2026-08-05",
+      "current": {
+        "constituents_ref": {
+          "execution_hash": "sha256:aaa111",
+          "tool_id": "art-557-record-index-constituents"
+        },
+        "constituents": [
+          {
+            "security_id": "SEC-A"
+          },
+          {
+            "security_id": "SEC-B"
+          }
+        ],
+        "weights_ref": {
+          "execution_hash": "sha256:bbb222",
+          "tool_id": "art-645-compute-index-weights"
+        },
+        "weights": [
+          {
+            "security_id": "SEC-A",
+            "weight": 0.6
+          },
+          {
+            "security_id": "SEC-B",
+            "weight": 0.4
+          }
+        ]
+      }
+    },
+    "art-658-publish-index-head": {},
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "insurance-ai-bias-attestation": {
