@@ -806,6 +806,7 @@
       "cbam-fit",
       "cbam-liability",
       "cbam-precursor",
+      "cbam-precursor-certificate-liability-check",
       "cbcr-annual-publish",
       "cbdc-dlt-architecture",
       "cbpr-address-lint-chain",
@@ -906,6 +907,7 @@
       "icfr-sampling-ipe-evidence-check",
       "idv-session-evidence",
       "ifrs17-measurement-conformance",
+      "index-rebalance-evidence-publication",
       "instant-payments-compliance",
       "instant-payments-vop",
       "insurance-ai-bias-attestation",
@@ -2289,6 +2291,12 @@
       83,
       675
     ],
+    "cbam-precursor-certificate-liability-check": [
+      86,
+      83,
+      85,
+      676
+    ],
     "cbcr-annual-publish": [
       455
     ],
@@ -2632,6 +2640,13 @@
       190,
       191,
       192
+    ],
+    "index-rebalance-evidence-publication": [
+      532,
+      604,
+      605,
+      615,
+      676
     ],
     "insurance-ai-bias-attestation": [
       252,
