@@ -837,6 +837,7 @@
       "cross-border-payment-cost-check",
       "cross-border-payment-prevalidation",
       "crypto-tax-reporting",
+      "deposit-insurance-coverage-check",
       "digital-product-passport-lineage",
       "digital-trade-audit-pack",
       "digital-trade-counterparty-aml",
@@ -2390,6 +2391,11 @@
     "cross-border-payment-prevalidation": [
       256,
       260
+    ],
+    "deposit-insurance-coverage-check": [
+      489,
+      516,
+      676
     ],
     "digital-product-passport-lineage": [
       128,

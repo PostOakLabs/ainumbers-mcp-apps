@@ -4594,6 +4594,83 @@
       "address_country": "DE"
     }
   },
+  "deposit-insurance-coverage-check": {
+    "art-507-determine-deposit-insurance-coverage": {
+      "as_of_date": "2026-06-30",
+      "institution_ref": "IDI-SYNTH-0001",
+      "currency": "USD",
+      "minor_unit_scale": 100,
+      "smdia": 25000000,
+      "covered_institution_declared": true,
+      "declared_deposit_account_count": 2400000,
+      "certification_assertion": {
+        "testing_performed_in_preceding_twelve_months": true,
+        "assertion_date": "2026-03-31",
+        "signer_role": "chief executive officer"
+      },
+      "account_records": [
+        {
+          "account_ref": "ACCT-A1",
+          "ownership_right_and_capacity": "SGL",
+          "insurance_aggregation_key": "HOLDER-1",
+          "balance": 12500000
+        },
+        {
+          "account_ref": "ACCT-A2",
+          "ownership_right_and_capacity": "SGL",
+          "insurance_aggregation_key": "HOLDER-2",
+          "balance": 20000000
+        },
+        {
+          "account_ref": "ACCT-A3",
+          "ownership_right_and_capacity": "SGL",
+          "insurance_aggregation_key": "HOLDER-2",
+          "balance": 15000000
+        },
+        {
+          "account_ref": "ACCT-B1",
+          "ownership_right_and_capacity": "JNT",
+          "insurance_aggregation_key": "HOLDER-3",
+          "balance": 9000000
+        }
+      ]
+    },
+    "art-535-fdic370-output-file-validator": {
+      "as_of_date": "2026-06-30",
+      "institution_ref": "IDI-SYNTH-0001",
+      "file_records": [
+        {
+          "row_ref": "FR-1",
+          "ownership_right_and_capacity": "SGL",
+          "deposit_account_count": 3,
+          "distinct_account_holder_count": 2,
+          "fully_insured_account_count": 1,
+          "accounts_with_uninsured_deposits_count": 2,
+          "insured_minor_units": 37500000,
+          "uninsured_minor_units": 10000000
+        },
+        {
+          "row_ref": "FR-2",
+          "ownership_right_and_capacity": "JNT",
+          "deposit_account_count": 1,
+          "distinct_account_holder_count": 1,
+          "fully_insured_account_count": 1,
+          "accounts_with_uninsured_deposits_count": 0,
+          "insured_minor_units": 9000000,
+          "uninsured_minor_units": 0
+        }
+      ],
+      "art507_result": {
+        "fully_insured_account_count": 2,
+        "accounts_with_uninsured_deposits_count": 2,
+        "insured_minor_units": 46500000,
+        "uninsured_minor_units": 10000000
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "digital-product-passport-lineage": {
     "art-115-dpp-data-carrier-validator": {
       "product_id": "GS1-DL-8712345678901",
