@@ -6892,11 +6892,8 @@ export default {
     // MCP-estate servers (ainumbers compute, ainumbers anchor, ApexLogics, OmegaCentauri)
     // cross-link each other's server cards/manifests. No standard `rel` exists for this
     // yet (ahead of spec) — we define `sibling-server` inline here.
-    const SIBLING_SERVERS = [
-      { rel: 'sibling-server', name: 'ainumbers-anchor', url: 'https://anchor.ainumbers.co/.well-known/mcp' },
-      { rel: 'sibling-server', name: 'apexlogics-mcp', url: 'https://apexlogics.org/.well-known/mcp' },
-      { rel: 'sibling-server', name: 'omegacentauri-mcp', url: 'https://omegacentauri.me/.well-known/mcp' },
-    ];
+    // Entries were removed 2026-10 because each target 404s; re-add one only when its manifest serves 200.
+    const SIBLING_SERVERS = [];
 
     // Well-known MCP server card (SEP-1649 / SEP-2127) — static discovery descriptor for agents
     // and MCP clients that fetch /.well-known/mcp/server-card.json before connecting.
