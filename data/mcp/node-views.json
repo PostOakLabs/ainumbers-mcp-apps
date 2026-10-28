@@ -2836,8 +2836,8 @@
       "mcp_name": "compute_globe_topup_tax",
       "display_name": "GloBE Top-Up Tax & QDMTT Allocation Calculator",
       "uri": "ui://ainumbers/node/art-365-compute-globe-topup-tax",
-      "bytes": 41483,
-      "sha256": "a37a378bf58bd228612d8d91e2212ac74b6da886e291bc47d09a60f950f7becf"
+      "bytes": 41961,
+      "sha256": "4deaa9743a6485c38bd38a71f8517c9354da037a418756bf2dcdf7f95e0e7b73"
     },
     {
       "tool_id": "art-366-price-embedded-insurance",
@@ -5052,8 +5052,8 @@
       "mcp_name": "estimate_iso_amt_exposure",
       "display_name": "ISO AMT Exposure Modeler",
       "uri": "ui://ainumbers/node/art-759-iso-amt-exposure-modeler",
-      "bytes": 41981,
-      "sha256": "ac55a11cc54dd0005d8fb26aaa3259d7701cb7a2bda2b88dbf457c3a064e2796"
+      "bytes": 42962,
+      "sha256": "a6e22d496f64f497d795d6ae4e8d6512d06e04d03b529a0dd867251afc1764d2"
     },
     {
       "tool_id": "art-760-espp-break-even-optimal-sell",
