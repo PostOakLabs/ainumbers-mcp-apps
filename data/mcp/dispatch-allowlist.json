@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 746,
+  "tool_count": 747,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -236,6 +236,7 @@
     "compare_agentic_payment_protocols",
     "compare_agentic_rail_protocols",
     "compare_basel_2023_vs_2026",
+    "compare_bnpl_plans",
     "compare_corridor_cost",
     "compare_cross_ccp_pqd_fields",
     "compare_model_outcome_analysis",

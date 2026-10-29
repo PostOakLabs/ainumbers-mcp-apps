@@ -45846,6 +45846,10 @@
       }
     }
   },
+  "compare_bnpl_plans": {
+    "type": "object",
+    "description": "output_payload: input echo, comparison (ranking by total of payments, lowest-total plan indices), per-plan schedule (kind, instalment_no, due_periods_from_purchase, amount), totals, fee total, finance charge, stated APR, reg_z_apr (apr_pct null with flags when no rate is bracketed; computed by art-215), preset provenance (clauses, lender, late-fee note, qualifiers, not-an-offer status), method and terms notes; refusals return domain_error by name."
+  },
   "audit_solana_pda_ata": {
     "type": "object",
     "properties": {

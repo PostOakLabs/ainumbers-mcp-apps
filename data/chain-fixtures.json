@@ -704,6 +704,142 @@
       "include_citations": true
     }
   },
+  "agent-trade-evidence": {
+    "art-151-agent-obo-mandate-validator": {
+      "mandate": {
+        "subject": "user:alice@example.com",
+        "intent": "retrieve_invoice_data",
+        "scope": [
+          "invoices:read",
+          "payments:read"
+        ],
+        "valid_until_unix": 9999999999
+      },
+      "now_unix": 1000000000
+    },
+    "art-703-mandate-authorization-gate": {
+      "mode": "authorize",
+      "as_of": "2026-10-01T15:00:00Z",
+      "ttl_seconds": 60,
+      "mandate": {
+        "mandate_id": "m-1",
+        "payer_ref": "acct:alice",
+        "payee_ref": "merchant:42",
+        "currency": "USD",
+        "max_amount": "250.00",
+        "issued_at": "2026-10-01T00:00:00Z",
+        "expires_at": "2026-10-08T00:00:00Z",
+        "purpose": "groceries"
+      },
+      "extensions": {
+        "total_budget_minor": 100000,
+        "spent_minor": 72000,
+        "allowed_rails": [
+          "x402-exact-evm"
+        ],
+        "verified_payees": [
+          "merchant:42"
+        ],
+        "revoked_at": null
+      },
+      "request": {
+        "payer_ref": "acct:alice",
+        "payee_ref": "merchant:42",
+        "amount_minor": 24999,
+        "currency": "USD",
+        "rail": "x402-exact-evm",
+        "purpose": "groceries"
+      }
+    },
+    "art-560-oracle-price-aggregation": {
+      "mode": "median_filtered_confidence_weighted_mean",
+      "currency_pair": "EUR_USD",
+      "submissions": [
+        {
+          "id": "sub-01",
+          "price": 1.0823,
+          "weight_pct": 4.2,
+          "confidence": 0.005,
+          "timestamp": "2026-08-08T12:00:00Z"
+        },
+        {
+          "id": "sub-02",
+          "price": 1.0819,
+          "weight_pct": 3.8,
+          "confidence": 0.0045,
+          "timestamp": "2026-08-08T12:00:00Z"
+        },
+        {
+          "id": "sub-03",
+          "price": 1.12,
+          "weight_pct": 5.1,
+          "confidence": 0.006,
+          "timestamp": "2026-08-08T12:00:00Z"
+        }
+      ],
+      "outlier_threshold_pct": 3,
+      "epoch": 14200
+    },
+    "art-655-publish-market-mark-head": {},
+    "art-669-algo-execution-schedule-simulator": {
+      "side": "buy",
+      "order_shares": 100000,
+      "method": "vwap",
+      "volume_profile_pct": [
+        10,
+        25,
+        30,
+        20,
+        15
+      ],
+      "arrival_price": 50,
+      "avg_fill_price": 50.06
+    },
+    "art-541-best-execution-recompute": {
+      "fills": [
+        {
+          "side": "buy",
+          "execution_price": 10.02,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 100
+        },
+        {
+          "side": "sell",
+          "execution_price": 10.03,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 200
+        }
+      ]
+    },
+    "art-681-best-execution-evidence-pack": {
+      "venues": [
+        {
+          "venue": "V1",
+          "fills": 60,
+          "avg_improvement_bps": 2.1
+        },
+        {
+          "venue": "V2",
+          "fills": 40,
+          "avg_improvement_bps": -0.4
+        }
+      ]
+    },
+    "art-237-validate-agent-audit-trail": {
+      "agent_identity": "did:web:agent.example.com#key-1",
+      "action_class": "EXECUTE",
+      "outcome": "SUCCESS",
+      "trust_level": "HIGH",
+      "sha256_prev_record": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+      "ecdsa_present": true,
+      "record_id": "rec-001"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "agentic-commerce-convergence": {
     "art-564-ucp-checkout-payload-lint": {
       "payload": {

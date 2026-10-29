@@ -657,10 +657,12 @@ import * as art760    from './art-760-espp-break-even-optimal-sell.kernel.mjs';
 import * as art763    from './art-763-ai-displacement-risk-screener.kernel.mjs';
 import * as art77     from './art-77-t1-settlement-readiness-diagnostic.kernel.mjs';
 import * as art771    from './art-771-automation-payback.kernel.mjs';
+import * as art772    from './art-772-money-primitives-demonstrator.kernel.mjs';
 import * as art774    from './art-774-beacon-seeded-fair-sampling-v2.kernel.mjs';
 import * as art776    from './art-776-paypal-dispute-deadline-evidence.kernel.mjs';
 import * as art777    from './art-777-psp-dispute-reason-crosswalk.kernel.mjs';
 import * as art778    from './art-778-token2022-withheld-fee-reconciler.kernel.mjs';
+import * as art779    from './art-779-bnpl-plan-comparator.kernel.mjs';
 import * as art78     from './art-78-csdr-penalty-calculator.kernel.mjs';
 import * as art780    from './art-780-solana-pda-ata-audit.kernel.mjs';
 import * as art79     from './art-79-settlement-fail-predictor.kernel.mjs';
@@ -1357,10 +1359,12 @@ export const KERNELS = {
   'art-763-ai-displacement-risk-screener':                      art763,
   'art-77-t1-settlement-readiness-diagnostic':                  art77,
   'art-771-automation-payback':                                 art771,
+  'art-772-money-primitives-demonstrator':                      art772,
   'art-774-beacon-seeded-fair-sampling-v2':                     art774,
   'art-776-paypal-dispute-deadline-evidence':                   art776,
   'art-777-psp-dispute-reason-crosswalk':                       art777,
   'art-778-token2022-withheld-fee-reconciler':                  art778,
+  'art-779-bnpl-plan-comparator':                               art779,
   'art-78-csdr-penalty-calculator':                             art78,
   'art-780-solana-pda-ata-audit':                               art780,
   'art-79-settlement-fail-predictor':                           art79,
