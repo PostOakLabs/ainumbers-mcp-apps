@@ -2212,8 +2212,8 @@
       "mcp_name": "check_genius_reserve_disclosure",
       "display_name": "GENIUS Act Monthly Reserve Disclosure Checker",
       "uri": "ui://ainumbers/node/art-275-genius-reserve-disclosure-checker",
-      "bytes": 69904,
-      "sha256": "5e5625dbc29c3d5b92acef653835b18b2806966f5eb8ec2b46937fcde1839426"
+      "bytes": 70333,
+      "sha256": "2dbcce96a11d2625403b39f309e75ceb69d12fda78f66a7411835968275d0e86"
     },
     {
       "tool_id": "art-276-mutual-nda-composer",
@@ -4516,8 +4516,8 @@
       "mcp_name": "recompute_stablecoin_reserve_3source",
       "display_name": "Stablecoin Reserve 3-Source Recompute",
       "uri": "ui://ainumbers/node/art-603-stablecoin-reserve-3source-recompute",
-      "bytes": 71816,
-      "sha256": "0b36d496a3b4106af4a4873544fdd643e75819ad28a555baacd3f2db1150e8f6"
+      "bytes": 73191,
+      "sha256": "cb40ba1f11eafcd67d1de1a4ba4aab4a14279dc27d1ba0164d56c3610ace1863"
     },
     {
       "tool_id": "art-604-erc8004-registry-entry-verifier",
@@ -5044,8 +5044,8 @@
       "mcp_name": "estimate_hdhp_ppo_breakeven",
       "display_name": "HDHP vs. PPO Break-Even",
       "uri": "ui://ainumbers/node/art-758-hdhp-ppo-break-even",
-      "bytes": 44847,
-      "sha256": "1d6af1367eff1d7f33f2ab3cf6ded08946c4504f34715cf4929eaa832242e3a9"
+      "bytes": 44843,
+      "sha256": "b9f6fd08943b879c57fb0554575b4942e00948979616b4db9b6ca69815d295d8"
     },
     {
       "tool_id": "art-759-iso-amt-exposure-modeler",
@@ -5094,6 +5094,30 @@
       "uri": "ui://ainumbers/node/art-776-paypal-dispute-deadline-evidence",
       "bytes": 60017,
       "sha256": "9ac44eb83c0a98d35d1f4c4ded5f60f8dee4bb3c9247298bd503a8cb4230c8e9"
+    },
+    {
+      "tool_id": "art-777-psp-dispute-reason-crosswalk",
+      "mcp_name": "crosswalk_psp_dispute_reasons",
+      "display_name": "PSP Dispute Reason Crosswalk",
+      "uri": "ui://ainumbers/node/art-777-psp-dispute-reason-crosswalk",
+      "bytes": 62766,
+      "sha256": "a78c09a3ba759488d04092ba6521ab48e5099e1c1c9e1a522ae579a0630a7060"
+    },
+    {
+      "tool_id": "art-778-token2022-withheld-fee-reconciler",
+      "mcp_name": "reconcile_token2022_withheld",
+      "display_name": "Token-2022 Withheld-Fee Reconciler",
+      "uri": "ui://ainumbers/node/art-778-token2022-withheld-fee-reconciler",
+      "bytes": 63914,
+      "sha256": "f2c36380e3f436e8d3ed4c219ae9dfa2dd512d356098e43d558b7282074bd1f5"
+    },
+    {
+      "tool_id": "art-779-bnpl-plan-comparator",
+      "mcp_name": "compare_bnpl_plans",
+      "display_name": "BNPL Plan Comparator",
+      "uri": "ui://ainumbers/node/art-779-bnpl-plan-comparator",
+      "bytes": 63802,
+      "sha256": "4f24840091f6d26fa761e8dfe9ce3562865e0c83ccfc5349346ce7a85acd5438"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",

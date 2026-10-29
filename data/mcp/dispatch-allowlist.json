@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 743,
+  "tool_count": 746,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -235,6 +235,7 @@
     "compare_agentic_payment_protocols",
     "compare_agentic_rail_protocols",
     "compare_basel_2023_vs_2026",
+    "compare_bnpl_plans",
     "compare_corridor_cost",
     "compare_cross_ccp_pqd_fields",
     "compare_model_outcome_analysis",
@@ -370,6 +371,7 @@
     "convert_tempo_fee_amm",
     "correlate_ap2_cartmandate_x402",
     "crosswalk_agent_payment_rail_trust",
+    "crosswalk_psp_dispute_reasons",
     "currency_basket_index",
     "customer_risk_rating",
     "decode_c2pa_aiml_assertions",
@@ -527,6 +529,7 @@
     "reconcile_report_to_general_ledger",
     "reconcile_sii_ifrs17",
     "reconcile_token2022_transfer_fee",
+    "reconcile_token2022_withheld",
     "reconcile_v4_hook_permissions",
     "reconcile_x402_batch_settlement",
     "record_fund_positions",
