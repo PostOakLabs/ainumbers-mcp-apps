@@ -828,6 +828,7 @@
       "chain-ccp-pqd-benchmark",
       "chain-member-margin-call-to-porting",
       "claim-dispute-bundle-assembly",
+      "claim-dispute-bundle-to-pld-disclosure-pack",
       "climate-scenario",
       "collections-compliance-pack",
       "commercial-loan-underwriting-check",
@@ -2365,6 +2366,11 @@
     "claim-dispute-bundle-assembly": [
       320,
       321
+    ],
+    "claim-dispute-bundle-to-pld-disclosure-pack": [
+      321,
+      322,
+      682
     ],
     "climate-scenario": [
       91,
