@@ -721,6 +721,113 @@
       }
     }
   },
+  "compute_corridor_cost_averages": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "corridor": {
+        "type": "string"
+      },
+      "send_amount": {
+        "type": "number"
+      },
+      "lowest_n": {
+        "type": "integer"
+      },
+      "quotes_count": {
+        "type": "integer"
+      },
+      "averages": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "simple": {
+            "type": "object",
+            "properties": {
+              "total_cost_pct": {
+                "type": "number"
+              },
+              "meets_sdg_3pct": {
+                "type": "boolean"
+              },
+              "meets_g20_corridor_5pct": {
+                "type": "boolean"
+              },
+              "quotes_used": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          },
+          "weighted": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "lowest_n": {
+            "type": "object",
+            "properties": {
+              "total_cost_pct": {
+                "type": "number"
+              },
+              "meets_sdg_3pct": {
+                "type": "boolean"
+              },
+              "meets_g20_corridor_5pct": {
+                "type": "boolean"
+              },
+              "quotes_used": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "weighted_null_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "spread_pp": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "weighting_coverage_pct": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "targets": {
+        "type": "object"
+      },
+      "method_notes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "pii_note": {
+        "type": "string"
+      },
+      "adjacency_note": {
+        "type": "string"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
@@ -45539,123 +45646,6 @@
       }
     }
   },
-  "money_primitives_demo": {
-    "type": "object",
-    "properties": {
-      "status": {
-        "type": "string",
-        "enum": [
-          "OK",
-          "REFUSED"
-        ]
-      },
-      "error_code": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "message": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "mode": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "mode_echo": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "ccy": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "exponent": {
-        "type": [
-          "integer",
-          "null"
-        ]
-      },
-      "places": {
-        "type": [
-          "integer",
-          "null"
-        ]
-      },
-      "currency_entry_echo": {
-        "type": [
-          "object",
-          "null"
-        ]
-      },
-      "table_version": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "amount_echo": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "parsed_amount": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "rounded_amount": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "weights_echo": {
-        "type": [
-          "array",
-          "null"
-        ]
-      },
-      "allocations": {
-        "type": [
-          "array",
-          "null"
-        ]
-      },
-      "allocation_sum": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "truncate_excess_declared": {
-        "type": "boolean"
-      },
-      "closed_mode_set": {
-        "type": "array"
-      },
-      "bounds": {
-        "type": "object"
-      },
-      "float_sensitive": {
-        "type": "boolean"
-      },
-      "scope_note": {
-        "type": "string"
-      }
-    }
-  },
   "derive_beacon_fair_sample_v2": {
     "type": "object",
     "properties": {
@@ -46163,6 +46153,68 @@
           "string",
           "null"
         ]
+      }
+    }
+  },
+  "parse_csv_table": {
+    "type": "object",
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "error": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "detail": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "header": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "records": {
+        "type": "array"
+      },
+      "errors": {
+        "type": "array"
+      },
+      "column_summary": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "export_rows": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "serialized_rows": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "injection_flags": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "note": {
+        "type": "string"
       }
     }
   },

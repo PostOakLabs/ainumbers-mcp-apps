@@ -9403,6 +9403,42 @@
       "artifacts": []
     }
   },
+  "parametric-index-to-trigger-payout-check": {
+    "art-309-parametric-index-deriver": {
+      "receipts": [
+        {
+          "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "measured_metric": 10
+        },
+        {
+          "receipt_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "measured_metric": 20
+        },
+        {
+          "receipt_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "measured_metric": 30
+        }
+      ],
+      "index_def": {
+        "metric": "wind_speed_mph",
+        "aggregation": "mean",
+        "window": {
+          "from": "2026-08-01",
+          "to": "2026-08-31"
+        }
+      }
+    },
+    "art-251-compute-parametric-trigger-payout": {
+      "trigger_type": "threshold",
+      "index_value": 120,
+      "threshold": 100,
+      "coverage_amount": 50000,
+      "parametric_limit": 50000
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "parametric-trigger-adjudication": {
     "art-251-compute-parametric-trigger-payout": {
       "trigger_type": "threshold",

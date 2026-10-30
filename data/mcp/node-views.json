@@ -24,6 +24,14 @@
       "sha256": "698ac94dfc46b2aaa48efe62f0c42b9724d423d8b4d2985b454ab777a01d2679"
     },
     {
+      "tool_id": "787-corridor-cost-averages",
+      "mcp_name": "compute_corridor_cost_averages",
+      "display_name": "Corridor Cost Averages",
+      "uri": "ui://ainumbers/node/787-corridor-cost-averages",
+      "bytes": 64265,
+      "sha256": "adc733064eb21f38da9f0d18df7f8a850b89ff5e343d92e53f087e7d5ae37136"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
