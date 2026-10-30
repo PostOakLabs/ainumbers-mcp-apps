@@ -704,6 +704,142 @@
       "include_citations": true
     }
   },
+  "agent-trade-evidence": {
+    "art-151-agent-obo-mandate-validator": {
+      "mandate": {
+        "subject": "user:alice@example.com",
+        "intent": "retrieve_invoice_data",
+        "scope": [
+          "invoices:read",
+          "payments:read"
+        ],
+        "valid_until_unix": 9999999999
+      },
+      "now_unix": 1000000000
+    },
+    "art-703-mandate-authorization-gate": {
+      "mode": "authorize",
+      "as_of": "2026-10-01T15:00:00Z",
+      "ttl_seconds": 60,
+      "mandate": {
+        "mandate_id": "m-1",
+        "payer_ref": "acct:alice",
+        "payee_ref": "merchant:42",
+        "currency": "USD",
+        "max_amount": "250.00",
+        "issued_at": "2026-10-01T00:00:00Z",
+        "expires_at": "2026-10-08T00:00:00Z",
+        "purpose": "groceries"
+      },
+      "extensions": {
+        "total_budget_minor": 100000,
+        "spent_minor": 72000,
+        "allowed_rails": [
+          "x402-exact-evm"
+        ],
+        "verified_payees": [
+          "merchant:42"
+        ],
+        "revoked_at": null
+      },
+      "request": {
+        "payer_ref": "acct:alice",
+        "payee_ref": "merchant:42",
+        "amount_minor": 24999,
+        "currency": "USD",
+        "rail": "x402-exact-evm",
+        "purpose": "groceries"
+      }
+    },
+    "art-560-oracle-price-aggregation": {
+      "mode": "median_filtered_confidence_weighted_mean",
+      "currency_pair": "EUR_USD",
+      "submissions": [
+        {
+          "id": "sub-01",
+          "price": 1.0823,
+          "weight_pct": 4.2,
+          "confidence": 0.005,
+          "timestamp": "2026-08-08T12:00:00Z"
+        },
+        {
+          "id": "sub-02",
+          "price": 1.0819,
+          "weight_pct": 3.8,
+          "confidence": 0.0045,
+          "timestamp": "2026-08-08T12:00:00Z"
+        },
+        {
+          "id": "sub-03",
+          "price": 1.12,
+          "weight_pct": 5.1,
+          "confidence": 0.006,
+          "timestamp": "2026-08-08T12:00:00Z"
+        }
+      ],
+      "outlier_threshold_pct": 3,
+      "epoch": 14200
+    },
+    "art-655-publish-market-mark-head": {},
+    "art-669-algo-execution-schedule-simulator": {
+      "side": "buy",
+      "order_shares": 100000,
+      "method": "vwap",
+      "volume_profile_pct": [
+        10,
+        25,
+        30,
+        20,
+        15
+      ],
+      "arrival_price": 50,
+      "avg_fill_price": 50.06
+    },
+    "art-541-best-execution-recompute": {
+      "fills": [
+        {
+          "side": "buy",
+          "execution_price": 10.02,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 100
+        },
+        {
+          "side": "sell",
+          "execution_price": 10.03,
+          "nbbo_bid": 10,
+          "nbbo_ask": 10.05,
+          "quantity": 200
+        }
+      ]
+    },
+    "art-681-best-execution-evidence-pack": {
+      "venues": [
+        {
+          "venue": "V1",
+          "fills": 60,
+          "avg_improvement_bps": 2.1
+        },
+        {
+          "venue": "V2",
+          "fills": 40,
+          "avg_improvement_bps": -0.4
+        }
+      ]
+    },
+    "art-237-validate-agent-audit-trail": {
+      "agent_identity": "did:web:agent.example.com#key-1",
+      "action_class": "EXECUTE",
+      "outcome": "SUCCESS",
+      "trust_level": "HIGH",
+      "sha256_prev_record": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+      "ecdsa_present": true,
+      "record_id": "rec-001"
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "agentic-commerce-convergence": {
     "art-564-ucp-checkout-payload-lint": {
       "payload": {
@@ -1457,6 +1593,24 @@
       "reviewer_roster": [
         "reviewer_1"
       ]
+    }
+  },
+  "amortization-schedule-to-actuarial-apr-check": {
+    "art-332-build-amortization-schedule": {
+      "schedule_type": "level_payment",
+      "loan_amount": 6000,
+      "note_rate_pct": 12,
+      "num_payments": 24,
+      "periods_per_year": 12
+    },
+    "art-215-reg-z-appendix-j-apr": {
+      "loan_amount": 6000,
+      "payment_amount": 282.43,
+      "num_payments": 24,
+      "periods_per_year": 12
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
     }
   },
   "anchored-extract-verification": {
@@ -5578,6 +5732,291 @@
       "artifacts": []
     }
   },
+  "eslr-recalibration-call-report-check": {
+    "art-364-compute-lcr-nsfr-leverage": {
+      "lcr": {
+        "hqla_positions": [
+          {
+            "level": "l1",
+            "market_value_musd": 5000
+          },
+          {
+            "level": "l2a",
+            "market_value_musd": 2000
+          },
+          {
+            "level": "l2b",
+            "market_value_musd": 500
+          }
+        ],
+        "outflows": [
+          {
+            "label": "Retail stable deposits",
+            "balance_musd": 8000,
+            "rate_pct": 5
+          },
+          {
+            "label": "Retail less-stable deposits",
+            "balance_musd": 3000,
+            "rate_pct": 10
+          },
+          {
+            "label": "Wholesale deposits - financial institution",
+            "balance_musd": 500,
+            "rate_pct": 100
+          },
+          {
+            "label": "Committed credit facilities - non-financial corporates",
+            "balance_musd": 2000,
+            "rate_pct": 10
+          }
+        ],
+        "inflows": [
+          {
+            "label": "Retail customer inflows",
+            "balance_musd": 1000,
+            "rate_pct": 50
+          },
+          {
+            "label": "Non-financial corporate inflows",
+            "balance_musd": 800,
+            "rate_pct": 50
+          }
+        ]
+      },
+      "nsfr": {
+        "asf_items": [
+          {
+            "label": "Tier 1 + Tier 2 regulatory capital",
+            "amount_musd": 8000,
+            "factor_pct": 100
+          },
+          {
+            "label": "Retail stable deposits >=1yr",
+            "amount_musd": 5000,
+            "factor_pct": 95
+          },
+          {
+            "label": "Retail less-stable <1yr",
+            "amount_musd": 2000,
+            "factor_pct": 90
+          },
+          {
+            "label": "Other liabilities residual <1yr",
+            "amount_musd": 3000,
+            "factor_pct": 0
+          }
+        ],
+        "rsf_items": [
+          {
+            "label": "Unencumbered Level 1 HQLA",
+            "amount_musd": 5000,
+            "factor_pct": 5
+          },
+          {
+            "label": "Loans to retail/SME <1yr",
+            "amount_musd": 4000,
+            "factor_pct": 50
+          },
+          {
+            "label": "Loans to non-financial corporate >=1yr",
+            "amount_musd": 3000,
+            "factor_pct": 65
+          },
+          {
+            "label": "All other assets residual",
+            "amount_musd": 2000,
+            "factor_pct": 100
+          }
+        ]
+      },
+      "leverage": {
+        "cet1_musd": 5000,
+        "at1_musd": 500,
+        "gsib_bucket": 0,
+        "onbs_exposure_musd": 60000,
+        "derivative_exposure_musd": 3000,
+        "sft_exposure_musd": 5000,
+        "offbs_exposure_musd": 2000,
+        "other_exposure_musd": 0
+      }
+    },
+    "art-432-call-report-rc-balance-sheet": {
+      "entity_id": "FDIC-CERT-3510",
+      "reporting_period": "2026-03-31",
+      "rounding_tolerance_usd": 1,
+      "cash_and_due_from_usd": 226409000,
+      "securities_htm_usd": 0,
+      "securities_afs_usd": 864213000,
+      "loans_and_leases_net_usd": 1191560000,
+      "bank_premises_usd": 21670000,
+      "other_assets_usd": 368340000,
+      "total_deposits_usd": 2128004000,
+      "borrowings_usd": 250000000,
+      "other_liabilities_usd": 52478000,
+      "common_stock_usd": 3020000,
+      "surplus_usd": 177631000,
+      "retained_earnings_usd": 61059000,
+      "aoci_usd": 0
+    },
+    "art-433-call-report-rcr-capital": {
+      "entity_id": "FDIC-CERT-3510",
+      "reporting_period": "2026-03-31",
+      "constants_version": "2026-07-23.basel3-standardized-v1",
+      "is_gsib": false,
+      "cet1_capital_usd": 186870000,
+      "additional_tier1_capital_usd": 0,
+      "tier2_capital_usd": 15731000,
+      "total_rwa_usd": 1535559000,
+      "total_leverage_exposure_usd": 2672192000
+    },
+    "art-434-call-report-edit-check-gate": {
+      "rounding_tolerance_usd": 1,
+      "rc_output_payload": {
+        "entity_id": "FDIC-CERT-3510",
+        "reporting_period": "2026-03-31",
+        "report_form": "FFIEC 031",
+        "schedule": "RC",
+        "assets": [
+          {
+            "key": "cash_and_due_from_usd",
+            "mdrm": "RCON0071",
+            "label": "Cash and balances due from depository institutions",
+            "value_usd": 226409000
+          },
+          {
+            "key": "securities_htm_usd",
+            "mdrm": "RCON1754",
+            "label": "Held-to-maturity securities",
+            "value_usd": 0
+          },
+          {
+            "key": "securities_afs_usd",
+            "mdrm": "RCON1773",
+            "label": "Available-for-sale securities",
+            "value_usd": 864213000
+          },
+          {
+            "key": "loans_and_leases_net_usd",
+            "mdrm": "RCON2122",
+            "label": "Total loans and leases, net of unearned income and allowance",
+            "value_usd": 1191560000
+          },
+          {
+            "key": "bank_premises_usd",
+            "mdrm": "RCON2145",
+            "label": "Bank premises and fixed assets",
+            "value_usd": 21670000
+          },
+          {
+            "key": "other_assets_usd",
+            "mdrm": "RCON2160",
+            "label": "Other assets",
+            "value_usd": 368340000
+          }
+        ],
+        "total_assets_usd": 2672192000,
+        "total_assets_mdrm": "RCON2170",
+        "liabilities": [
+          {
+            "key": "total_deposits_usd",
+            "mdrm": "RCON2200",
+            "label": "Total deposits",
+            "value_usd": 2128004000
+          },
+          {
+            "key": "borrowings_usd",
+            "mdrm": "RCON2800",
+            "label": "Total borrowings",
+            "value_usd": 250000000
+          },
+          {
+            "key": "other_liabilities_usd",
+            "mdrm": "RCON2930",
+            "label": "Other liabilities",
+            "value_usd": 52478000
+          }
+        ],
+        "total_liabilities_usd": 2430482000,
+        "total_liabilities_mdrm": "RCON2948",
+        "equity": [
+          {
+            "key": "common_stock_usd",
+            "mdrm": "RCON3230",
+            "label": "Common stock",
+            "value_usd": 3020000
+          },
+          {
+            "key": "surplus_usd",
+            "mdrm": "RCON3839",
+            "label": "Surplus",
+            "value_usd": 177631000
+          },
+          {
+            "key": "retained_earnings_usd",
+            "mdrm": "RCON3632",
+            "label": "Retained earnings",
+            "value_usd": 61059000
+          },
+          {
+            "key": "aoci_usd",
+            "mdrm": "RCON3216",
+            "label": "Accumulated other comprehensive income",
+            "value_usd": 0
+          }
+        ],
+        "total_equity_capital_usd": 241710000,
+        "total_equity_capital_mdrm": "RCON3210",
+        "total_liabilities_and_equity_usd": 2672192000,
+        "identity_delta_usd": 0,
+        "identity_balanced": true,
+        "rounding_tolerance_usd": 1,
+        "boundary_note": "Line-item values are caller-declared from the institution's own books; this kernel performs only the arithmetic aggregation into Schedule RC totals and the Total assets == Total liabilities + Total equity capital identity check. It does not derive, estimate, or audit any individual line item.",
+        "xbrl_json_annex1_note": "MDRM concept codes above (RCON2170/RCON2948/RCON3210) align with the §13.13 xBRL-JSON export profile's Annex 1 FFIEC Call Report mapping; rendering to that profile is a separate exporter work unit, not performed by this kernel."
+      },
+      "rcr_output_payload": {
+        "entity_id": "FDIC-CERT-3510",
+        "reporting_period": "2026-03-31",
+        "report_form": "FFIEC 031",
+        "schedule": "RC-R",
+        "constants_version": "2026-07-23.basel3-standardized-v1",
+        "is_gsib": false,
+        "cet1_capital_usd": 186870000,
+        "additional_tier1_capital_usd": 0,
+        "tier1_capital_usd": 186870000,
+        "tier2_capital_usd": 15731000,
+        "total_capital_usd": 202601000,
+        "total_rwa_usd": 1535559000,
+        "total_leverage_exposure_usd": 2672192000,
+        "ratios": {
+          "cet1_ratio_pct": 0.121695,
+          "cet1_min_pct": 0.045,
+          "cet1_pass": true,
+          "tier1_ratio_pct": 0.121695,
+          "tier1_min_pct": 0.06,
+          "tier1_pass": true,
+          "total_capital_ratio_pct": 0.13194,
+          "total_capital_min_pct": 0.08,
+          "total_capital_pass": true,
+          "supplementary_leverage_ratio_pct": 0.069931,
+          "slr_min_pct": 0.03,
+          "slr_pass": true
+        },
+        "eslr": {
+          "applicable": false,
+          "buffer_pct": 0,
+          "required_slr_pct": null,
+          "pass": true,
+          "final_rule_citation": "eSLR final rule, published 2025-12-01, effective 2026-04-01 (§0.2)"
+        },
+        "boundary_note": "Capital component and RWA values are caller-declared; this kernel performs only ratio arithmetic and threshold comparison against caller-declared, version-pinned minimums. It does not calculate risk weights, classify exposures, or derive GSIB status.",
+        "mdrm_note": "Schedule RC-R MDRM item prefixes vary by advanced vs. standardized approach and reporting vintage; capital-component field names here mirror the FDIC BankFind Suite mnemonics (RBCT1J tier1, RBCT2 tier2, RWAJT total RWA), which the FDIC itself derives from filed Call Report Schedule RC-R submissions."
+      }
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "eudi-acceptance-vop-evidence": {
     "art-13-eudi-wallet-credential-readiness-checker": {
       "credential_type": "eaa",
@@ -8493,6 +8932,105 @@
       "acceptance_statement": ""
     }
   },
+  "nav-error-disclosure-evidence-pack": {
+    "art-373-recompute-fund-nav": {
+      "fund_id": "FUND-STD-01",
+      "valuation_date": "2026-07-18",
+      "base_currency": "USD",
+      "holdings": [
+        {
+          "security_id": "SEC-A",
+          "quantity": 1000,
+          "price": 10.005,
+          "currency": "USD",
+          "fx_rate_to_base": 1
+        },
+        {
+          "security_id": "SEC-B",
+          "quantity": 500,
+          "price": 20.02,
+          "currency": "USD",
+          "fx_rate_to_base": 1
+        }
+      ],
+      "liabilities": [],
+      "shares_outstanding": 15000,
+      "rounding": {
+        "decimal_places": 2,
+        "mode": "half_up"
+      }
+    },
+    "art-374-test-nav-error-materiality": {
+      "fund_id": "FUND-A",
+      "valuation_date": "2026-07-18",
+      "erroneous_nav_per_share": 10.001,
+      "corrected_nav_per_share": 10
+    },
+    "art-660-compile-nav-error-evidence-pack": {
+      "fund_id": "LU-FUND-ALPHA-01",
+      "detection_date": "2026-03-14",
+      "nav_ref": {
+        "execution_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678901234567890abcdef012345",
+        "tool_id": "art-373-recompute-fund-nav"
+      },
+      "materiality_ref": {
+        "execution_hash": "b2c3d4e5f60718293a4b5c6d7e8f9012345678901234567890abcdef01234561",
+        "tool_id": "art-374-test-nav-error-materiality",
+        "output_payload": {
+          "materiality_verdict": "MATERIAL",
+          "error": {
+            "erroneous_nav_per_share": "10.20000000",
+            "corrected_nav_per_share": "10.05000000",
+            "error_amount": "0.15000000",
+            "error_amount_abs": "0.15000000",
+            "error_direction": "overstated",
+            "error_pct_abs": "1.492537"
+          },
+          "declared_policy": {
+            "absolute_threshold": "0.00500000",
+            "percent_threshold": "1",
+            "policy_source": "industry_default",
+            "absolute_breach": true,
+            "percent_breach": true,
+            "material": true
+          },
+          "industry_convention": {
+            "absolute_threshold": "0.005",
+            "percent_threshold": "1",
+            "absolute_breach": true,
+            "percent_breach": true,
+            "material": true
+          },
+          "reprocessing_need_indicated": true
+        }
+      },
+      "affected_period": {
+        "start_date": "2026-03-01",
+        "end_date": "2026-03-14",
+        "days": 14
+      },
+      "correction": {
+        "correction_method": "accounting",
+        "compensation_paid_without_delay": true,
+        "de_minimis_applied": false,
+        "financial_intermediary_pass_through": true
+      },
+      "notification": {
+        "notified_to_cssf": true,
+        "notification_date": "2026-03-20"
+      },
+      "supplementary_receipts": [
+        {
+          "role": "positions",
+          "execution_hash": "c3d4e5f60718293a4b5c6d7e8f9012345678901234567890abcdef012345612",
+          "tool_id": "art-NN-record-fund-positions"
+        }
+      ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "nav-verification-pack": {
     "art-373-recompute-fund-nav": {
       "fund_id": "FUND-STD-01",
@@ -8860,6 +9398,42 @@
           "amount_minor_units": 0
         }
       ]
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
+  "parametric-index-to-trigger-payout-check": {
+    "art-309-parametric-index-deriver": {
+      "receipts": [
+        {
+          "receipt_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "measured_metric": 10
+        },
+        {
+          "receipt_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "measured_metric": 20
+        },
+        {
+          "receipt_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "measured_metric": 30
+        }
+      ],
+      "index_def": {
+        "metric": "wind_speed_mph",
+        "aggregation": "mean",
+        "window": {
+          "from": "2026-08-01",
+          "to": "2026-08-31"
+        }
+      }
+    },
+    "art-251-compute-parametric-trigger-payout": {
+      "trigger_type": "threshold",
+      "index_value": 120,
+      "threshold": 100,
+      "coverage_amount": 50000,
+      "parametric_limit": 50000
     },
     "cry-05-agent-action-audit-trail-aggregator": {
       "artifacts": []
