@@ -5072,6 +5072,14 @@
       "sha256": "7909ca9e0d369c4b81f401507bd80455043b885fd393d3d4b9ae6452442a748f"
     },
     {
+      "tool_id": "art-764-solo-401k-vs-sep-ira",
+      "mcp_name": "compare_solo401k_sep_simple",
+      "display_name": "Solo 401(k) vs. SEP-IRA Optimizer",
+      "uri": "ui://ainumbers/node/art-764-solo-401k-vs-sep-ira",
+      "bytes": 55415,
+      "sha256": "212b0073c4b868c8fb1726298048bda831dafdbfc6e6cebc5bbf8e994e92b8cb"
+    },
+    {
       "tool_id": "art-771-automation-payback",
       "mcp_name": "compute_automation_payback",
       "display_name": "Automation Payback",

@@ -45384,6 +45384,10 @@
       }
     }
   },
+  "compare_solo401k_sep_simple": {
+    "type": "object",
+    "description": "output_payload: tax_year, net_income_usd_cents, self_employment_tax_base_usd_cents, self_employment_tax_usd_cents, half_se_tax_deduction_usd_cents, net_earnings_after_half_deduction_usd_cents, age, marginal_rate_bp, catchup_eligible, super_catchup_band, existing_employer_plan, existing_deferrals_cents, solo_401k{employee_deferral_usd_cents, catchup_usd_cents, employer_contribution_usd_cents, max_total_usd_cents, tax_savings_usd_cents, binding_caps{employee_deferral, employer_contribution, total}}, sep_ira{max_total_usd_cents, tax_savings_usd_cents, binding_caps{contribution}}, simple_ira{employee_usd_cents, employer_nonelective_usd_cents, max_total_usd_cents, tax_savings_usd_cents, binding_caps{employee}}, ranking[{plan, max_total_usd_cents}], winner, winner_tied, winner_tie_order, refusal_reason, domain_errors[], scope_note."
+  },
   "compute_automation_payback": {
     "type": "object",
     "properties": {
