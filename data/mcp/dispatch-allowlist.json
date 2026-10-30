@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 747,
+  "tool_count": 749,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -243,6 +243,7 @@
     "compare_pension_lump_sum_annuity",
     "compare_receivables_finance_economics",
     "compare_rights_matrix",
+    "compare_solo401k_sep_simple",
     "compile_model_risk_lineage_pack",
     "compile_nav_error_evidence_pack",
     "compile_rebalance_evidence_pack",
@@ -476,6 +477,7 @@
     "model_tempo_gas_economics",
     "model_tempo_payment_economics",
     "model_x402_settlement",
+    "money_primitives_demo",
     "optimize_settlement_capital",
     "optimize_social_security_claim_age",
     "oracle_price_aggregation",

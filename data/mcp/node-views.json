@@ -1220,8 +1220,8 @@
       "mcp_name": "validate_agent_obo_mandate",
       "display_name": "Agent On-Behalf-Of (OBO) Mandate Validator",
       "uri": "ui://ainumbers/node/art-151-agent-obo-mandate-validator",
-      "bytes": 45172,
-      "sha256": "12cbd8876a77224386d86136f073361156c3ed5c0c68a164353e991095695e6f"
+      "bytes": 54611,
+      "sha256": "a75d75096aa059c1b24af55e6d9bc1e1d31e094cd1c6d0be10d47aed94f35ffa"
     },
     {
       "tool_id": "art-152-mcp-task-lifecycle-validator",
@@ -1908,8 +1908,8 @@
       "mcp_name": "validate_agent_audit_trail",
       "display_name": "Agent Audit Trail Conformance Validator (IETF AAT)",
       "uri": "ui://ainumbers/node/art-237-validate-agent-audit-trail",
-      "bytes": 39216,
-      "sha256": "4fea6eaafd89206d0a82c7017f221ea3d14c3381b3f688f5ae237a554a5a71fe"
+      "bytes": 54482,
+      "sha256": "0d38b7c13595c39a0d5806c2ca8782f421fb578d5532f70f61039b991d2a3763"
     },
     {
       "tool_id": "art-238-classify-annex3-decisioning-obligations",
@@ -5070,6 +5070,14 @@
       "uri": "ui://ainumbers/node/art-763-ai-displacement-risk-screener",
       "bytes": 43142,
       "sha256": "7909ca9e0d369c4b81f401507bd80455043b885fd393d3d4b9ae6452442a748f"
+    },
+    {
+      "tool_id": "art-764-solo-401k-vs-sep-ira",
+      "mcp_name": "compare_solo401k_sep_simple",
+      "display_name": "Solo 401(k) vs. SEP-IRA Optimizer",
+      "uri": "ui://ainumbers/node/art-764-solo-401k-vs-sep-ira",
+      "bytes": 55415,
+      "sha256": "212b0073c4b868c8fb1726298048bda831dafdbfc6e6cebc5bbf8e994e92b8cb"
     },
     {
       "tool_id": "art-771-automation-payback",
