@@ -10782,8 +10782,8 @@
     "art-180-solvency2-scr-ratio-calculator": {
       "capital": {
         "eligible_own_funds": 1500,
-        "tier1_unrestricted": 800,
-        "tier1_restricted": 200,
+        "tier1_unrestricted": 850,
+        "tier1_restricted": 150,
         "tier2": 400,
         "tier3": 100,
         "scr": 1000,

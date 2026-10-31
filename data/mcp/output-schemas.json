@@ -721,6 +721,53 @@
       }
     }
   },
+  "validate_cbr_data_return": {
+    "type": "object",
+    "properties": {
+      "valid": {
+        "type": "boolean"
+      },
+      "refused": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "violations": {
+        "type": "array"
+      },
+      "flags": {
+        "type": "array"
+      },
+      "readiness": {
+        "type": "object"
+      },
+      "rules_checked": {
+        "type": "array"
+      },
+      "profile": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "template_version": {
+        "type": "string"
+      },
+      "profile_definition": {
+        "type": "object"
+      },
+      "computed": {
+        "type": "object"
+      },
+      "pii_note": {
+        "type": "string"
+      },
+      "disambiguation": {
+        "type": "string"
+      }
+    }
+  },
   "compute_corridor_cost_averages": {
     "type": "object",
     "properties": {
@@ -8216,47 +8263,56 @@
   "calculate_solvency2_scr_ratio": {
     "type": "object",
     "properties": {
-      "eligible_own_funds": {
-        "type": "integer"
-      },
-      "mcr": {
-        "type": "integer"
-      },
-      "mcr_breached": {
-        "type": "boolean"
+      "scr_coverage_ratio": {
+        "type": "number"
       },
       "mcr_coverage_ratio": {
-        "type": "integer"
-      },
-      "scr": {
-        "type": "integer"
+        "type": "number"
       },
       "scr_breached": {
         "type": "boolean"
       },
-      "scr_coverage_ratio": {
-        "type": "integer"
+      "mcr_breached": {
+        "type": "boolean"
+      },
+      "tiering_ok": {
+        "type": "boolean"
+      },
+      "tier1_unrestricted_pct_of_scr": {
+        "type": "number"
+      },
+      "tier1_total_pct_of_scr": {
+        "type": "number"
+      },
+      "tier3_pct_of_scr": {
+        "type": "number"
       },
       "tier1_total_limit_ok": {
         "type": "boolean"
       },
-      "tier1_total_pct_of_scr": {
-        "type": "integer"
-      },
-      "tier1_unrestricted_limit_ok": {
-        "type": "boolean"
-      },
-      "tier1_unrestricted_pct_of_scr": {
-        "type": "integer"
-      },
       "tier3_limit_ok": {
         "type": "boolean"
       },
-      "tier3_pct_of_scr": {
-        "type": "integer"
+      "tier2_tier3_pct_of_scr": {
+        "type": "number"
       },
-      "tiering_ok": {
+      "tier2_tier3_limit_ok": {
         "type": "boolean"
+      },
+      "tier1_restricted_pct_of_tier1": {
+        "type": "number"
+      },
+      "tier1_restricted_share_ok": {
+        "type": "boolean"
+      },
+      "eligible_own_funds": {
+        "type": "number"
+      },
+      "scr": {
+        "type": "number"
+      },
+      "mcr": {
+        "type": "number"
       }
     }
   },

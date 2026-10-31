@@ -24,6 +24,14 @@
       "sha256": "698ac94dfc46b2aaa48efe62f0c42b9724d423d8b4d2985b454ab777a01d2679"
     },
     {
+      "tool_id": "784-cbr-data-return-validator",
+      "mcp_name": "validate_cbr_data_return",
+      "display_name": "CBR Data Return Validator",
+      "uri": "ui://ainumbers/node/784-cbr-data-return-validator",
+      "bytes": 70862,
+      "sha256": "631e7bf3ed62d97f61ec5cfc70addadadd305949db2b8f256c4836859f81ef33"
+    },
+    {
       "tool_id": "787-corridor-cost-averages",
       "mcp_name": "compute_corridor_cost_averages",
       "display_name": "Corridor Cost Averages",
@@ -1460,8 +1468,8 @@
       "mcp_name": "calculate_solvency2_scr_ratio",
       "display_name": "Solvency II SCR Ratio Calculator",
       "uri": "ui://ainumbers/node/art-180-solvency2-scr-ratio-calculator",
-      "bytes": 41949,
-      "sha256": "28e43e223e1728e1dabd429fc09adba230343b6a0a6285cc3f502bbe5a5db855"
+      "bytes": 43938,
+      "sha256": "aa65b9f0ad3645d004c72b956bac3b2a0cec30fa0b15db12f9f18ee0e424077e"
     },
     {
       "tool_id": "art-181-sii-ifrs17-reconciliation-bridger",
