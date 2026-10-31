@@ -63,6 +63,10 @@
     "composite_execution_hash": "ca568f0c5261b0e3adfd2776bc17e2819659311890c65aef77461ac12176164e",
     "steps_ran": 2
   },
+  "agent-trade-evidence": {
+    "composite_execution_hash": "41d787706c373e3125f7010fd900e6e1e55622ae3e2b6aff0d5aea881b7bf227",
+    "steps_ran": 9
+  },
   "agentic-commerce-convergence": {
     "composite_execution_hash": "0ef7dce710731dfd2e0046e27fc20b1703f7444e4ad245f0f74101fb8b00c860",
     "steps_ran": 3
@@ -123,6 +127,10 @@
     "composite_execution_hash": "adabea81820fdb1681acad6e4139f2ad099d1f407afac1851d81ae59b4061e36",
     "steps_ran": 2
   },
+  "amortization-schedule-to-actuarial-apr-check": {
+    "composite_execution_hash": "7d7d170ace5b8993ac524409d546fca5119c520c2d73bced1ec76ec49965885c",
+    "steps_ran": 3
+  },
   "anchored-extract-verification": {
     "composite_execution_hash": "1cc4e1d0e0568425963c5895948a64049ee85a03dbbccc37b63e088748731f23",
     "steps_ran": 1
@@ -130,6 +138,10 @@
   "ap2-x402-cart-correlation": {
     "composite_execution_hash": "798eb7dcb54b164ccb091dc4db15dc0459b3a75f9d9edaced78a65c45ba079fa",
     "steps_ran": 2
+  },
+  "apy-earned-check": {
+    "composite_execution_hash": "5034fd6ad80f582967b7e5fa63dcec62122180949a9699ed5544d513270f8891",
+    "steps_ran": 3
   },
   "arc-agentic-commerce": {
     "composite_execution_hash": "0065b6e93b424fe15c0aa09eab5e39bf04077c62e678836add35df71208a9e20",
@@ -267,6 +279,14 @@
     "composite_execution_hash": "04dd3914d070974125c165f81681447e8383639b8c0b10059b0fc1f8a2ceadc9",
     "steps_ran": 2
   },
+  "carf-dac8-reporting-cycle-check": {
+    "composite_execution_hash": "335985bf4e6af72f698d43b29c27113b8943ab5b7c522d56446911c2234413a7",
+    "steps_ran": 3
+  },
+  "cass15-safeguarding-audit-pack": {
+    "composite_execution_hash": "e747b53c2eb730056859c3c2271ca2ce76f12270d6a92d47a9981393e4ed9c0b",
+    "steps_ran": 3
+  },
   "cat-bond-trigger-validation": {
     "composite_execution_hash": "56547302b33f99439d59982d5ccf2ba1fcb144d4558289116fae5a9f55b2763a",
     "steps_ran": 2
@@ -282,6 +302,10 @@
   "cbam-precursor": {
     "composite_execution_hash": "a76cbb56381e5387e858774a298df8660e08e36e6dd4dfb0a4f7adb3d988903e",
     "steps_ran": 3
+  },
+  "cbam-precursor-certificate-liability-check": {
+    "composite_execution_hash": "6fb871bc26f6ec7234c61ec3d52ad894b5aceb4bc9813853fca41e13441a935e",
+    "steps_ran": 4
   },
   "cbcr-annual-publish": {
     "composite_execution_hash": "0261709a66951a97a0d6ebeb8d853d539c99f2c24b5968da48b345dc290276ba",
@@ -299,6 +323,10 @@
     "composite_execution_hash": "961f5ca260b4180701f9707b0d3f280bce7d0ef6d6bf8bf3b0e078b8a407a123",
     "steps_ran": 1
   },
+  "certified-payroll-compliance-pack": {
+    "composite_execution_hash": "bf050269ea64dc8489aa9a5d39b7145a4ab28daa9bbd3dc76d9b57fa02a9b0de",
+    "steps_ran": 3
+  },
   "chain-ccp-default-waterfall": {
     "composite_execution_hash": "d4fe25239f05612b6e1e3b6f79ffc2cb8c1bd217d0ca2a4aee108eb4b7c846cf",
     "steps_ran": 2
@@ -314,6 +342,10 @@
   "claim-dispute-bundle-assembly": {
     "composite_execution_hash": "5d8fd9d0c90aaec51ab7c92e4b8d3ee1f5b9a4a540e5e151a4115a7931acb977",
     "steps_ran": 2
+  },
+  "claim-dispute-bundle-to-pld-disclosure-pack": {
+    "composite_execution_hash": "9666a3dccb05b5f41ac822bf7913d382f37d1ae47464019898f388411e523bc4",
+    "steps_ran": 3
   },
   "climate-scenario": {
     "composite_execution_hash": "6ac12a758d45b1d5a6636a21c173c0031756efba2fdfc9d8774f16fb0e8067e5",
@@ -339,6 +371,10 @@
     "composite_execution_hash": "cbe5417ee01bf622fb9e9fc34d178b18225b75949f39d05fea4ed455dc8ed034",
     "steps_ran": 3
   },
+  "control-test-exception-disposition-check": {
+    "composite_execution_hash": "99baf79e48eb6143bb47fa529ca28ff5320209a238042df882543f2af662d965",
+    "steps_ran": 4
+  },
   "corporate-action-entitlement": {
     "composite_execution_hash": "901f7d8a0030970d4af59f511474388976197b3304c62ca72af6b6fc2b3d83b2",
     "steps_ran": 2
@@ -351,9 +387,17 @@
     "composite_execution_hash": "f60e9359b8302e51d8c1ae6d1de293c0c67b2803989ab4bba94dcd15bf99c407",
     "steps_ran": 3
   },
+  "cross-border-payment-cost-check": {
+    "composite_execution_hash": "ffc94697c5d70f7fdfd62ec4d1f56576ab6428f3e620982f5536fd755f42e5f3",
+    "steps_ran": 4
+  },
   "cross-border-payment-prevalidation": {
     "composite_execution_hash": "537830e9d39a4c944a4ba5fa808c212eadf6c86892a99680cc4391070e38cd58",
     "steps_ran": 2
+  },
+  "deposit-insurance-coverage-check": {
+    "composite_execution_hash": "16fa97e365b3c35b7fe956d0e44fac8670acfd36d53ed95cec2b70525d4389e4",
+    "steps_ran": 3
   },
   "digital-product-passport-lineage": {
     "composite_execution_hash": "c2b9f02f6aac6a136605ed2d8dd4286ed9d703bb5c1d5f7027617890c2e8da75",
@@ -427,6 +471,14 @@
     "composite_execution_hash": "ec1a168e0bc453886448e0c93c473e5af484c7307002a8f5969491d3ddc06310",
     "steps_ran": 2
   },
+  "escrow-statement-check": {
+    "composite_execution_hash": "c4e09f834c9809b63af3bf9052edccab9e267da3e7abb6f1ff7a6da46e2c5763",
+    "steps_ran": 2
+  },
+  "eslr-recalibration-call-report-check": {
+    "composite_execution_hash": "b240b0ba1a55477f93862598c2ea4b0585822214c7f3be27a10619f76e7830d6",
+    "steps_ran": 5
+  },
   "eudi-acceptance-vop-evidence": {
     "composite_execution_hash": "060956aeef38ca6ce3e07185bc0f2332c8c177085b533d31823baced9451acd1",
     "steps_ran": 3
@@ -467,12 +519,20 @@
     "composite_execution_hash": "54174b4a42b7c5d2656f6fd7f158ada793bf36344c3f589eb54c9498cc9daca4",
     "steps_ran": 3
   },
+  "force-placed-insurance-check": {
+    "composite_execution_hash": "c3cc315e915eba5155c679291ed5ef3209cbd34e73f1e912bc8f92027ba2d8dc",
+    "steps_ran": 2
+  },
+  "garnishment-withholding-check": {
+    "composite_execution_hash": "573d2a3a9fb0ba87cd427cf953a6c01028eb47a143a817449227b516ff1ef583",
+    "steps_ran": 4
+  },
   "genius-listing-acceptance-pack": {
-    "composite_execution_hash": "34bbdc6b0032ecdee007eab9d22af4d6cc86fc2d3e36f7082fd628e69450e80d",
+    "composite_execution_hash": "f6128dafdb9a90facafd12162e50da8d4cf84ea248d18accae009217c328f618",
     "steps_ran": 3
   },
   "genius-reserve-disclosure": {
-    "composite_execution_hash": "5a83915878f687c5b8bdca49fc9eb0833f41712292f829c602db02586d22ac83",
+    "composite_execution_hash": "a1522add32572ea0082f501dd8cd25e9d8fea46c022415ba5f3b9466d22c8577",
     "steps_ran": 1
   },
   "gl-tieout-recompute": {
@@ -507,6 +567,10 @@
     "composite_execution_hash": "29ca6b06d0e45751eabf6916e9fb6e568acf72bb61fbb789884ac6101c4905f7",
     "steps_ran": 1
   },
+  "icfr-sampling-ipe-evidence-check": {
+    "composite_execution_hash": "05d2bb8bde775506cc7226c700dcdec59da85a9de31720d198117b938ef67004",
+    "steps_ran": 4
+  },
   "idv-session-evidence": {
     "composite_execution_hash": "d4cc4538a573b530c95505f4203353b9d1c6c53abf223766eec66d30eaf15ef5",
     "steps_ran": 2
@@ -514,6 +578,10 @@
   "ifrs17-measurement-conformance": {
     "composite_execution_hash": "ab6e1302133daa0a693cf19d60fb3b7295d98be6c36c3dd7dd2e0e80a3c4841f",
     "steps_ran": 3
+  },
+  "index-rebalance-evidence-publication": {
+    "composite_execution_hash": "4c46b1743cbe6d5062e76f77f4efe9e4014ba99d0d03f7eac706660e1f295140",
+    "steps_ran": 5
   },
   "insurance-ai-bias-attestation": {
     "composite_execution_hash": "7b9ea281c1fae1425e6998db818ae84bd8416995b2b028f338f40d9da0b19e37",
@@ -542,6 +610,10 @@
   "irrbb-measurement-and-disclosure": {
     "composite_execution_hash": "be642674c5c5d5f23fe1eb5d60e9725c2fb1c31ca5a140e5755b91773b7f5205",
     "steps_ran": 3
+  },
+  "irrbb-nmd-shock-and-basis-risk-check": {
+    "composite_execution_hash": "067d96b1d4a7c42548d2611f6df411343f483113cb08640c49dbf6b5041886c5",
+    "steps_ran": 4
   },
   "irrbb-supervisory-outlier-test": {
     "composite_execution_hash": "d55ec29b904f504c12f4e55ffdcb84eac6b792fd2b8cb3241ef0d1c563b3992f",
@@ -607,6 +679,10 @@
     "composite_execution_hash": "52c3cc83f41bad5903d570682393a987cae1e125b6431a08c726307fbd11d8c0",
     "steps_ran": 2
   },
+  "mla-mapr-cashflow-check": {
+    "composite_execution_hash": "8c859c12a476bc21f4c99a67363cf341ca160530a417423dee20873659df1ee8",
+    "steps_ran": 2
+  },
   "model-passport-lifecycle": {
     "composite_execution_hash": "53b4992f12a19c858559c5a189dbe4c642c6d39da67bc04ead7a3f72bfacb975",
     "steps_ran": 3
@@ -618,6 +694,10 @@
   "model-validation-cycle": {
     "composite_execution_hash": "d31171114d5b9e0770a749951dba8a7c37cc699fece5029a56c621fc35162948",
     "steps_ran": 2
+  },
+  "month-end-close-substantiation-check": {
+    "composite_execution_hash": "61963c20a60bde7103a82f993da000108887bf40ad5e31eefc7c671af78554ff",
+    "steps_ran": 5
   },
   "mortgage-agency-pricing-and-eligibility": {
     "composite_execution_hash": "5e13b4ed89e785e213f6d4a8e112f40a8bdca297baa15468a3fda43edd8bec67",
@@ -659,6 +739,10 @@
     "composite_execution_hash": "427654f8fcd221ee879f328b59584c38a94bf187d514fc938d7067699c321bce",
     "steps_ran": 2
   },
+  "nav-error-disclosure-evidence-pack": {
+    "composite_execution_hash": "b8897f8d28f2986bb3f031ee62861fd2461cd2a72589d626ddd59d6b44ecab0e",
+    "steps_ran": 4
+  },
   "nav-verification-pack": {
     "composite_execution_hash": "941e220d865c896fdecbbbee55c88f14ebc967cbe3fdb65588e5a181857ceb98",
     "steps_ran": 3
@@ -671,9 +755,29 @@
     "composite_execution_hash": "d3de32c4415308ad4348fb8801a49c6c9c4ab0da10191f5bdd91cb90e9100feb",
     "steps_ran": 3
   },
+  "nmd-ladder-sot-eve-check": {
+    "composite_execution_hash": "8cd2dfb784a27fee1dcd9465b566e6df66805f6d928eb794c443ef82c998127f",
+    "steps_ran": 4
+  },
+  "order-execution-quality-pack": {
+    "composite_execution_hash": "12b3d9b8c33502ee8185f47bdb12ba2de85ed57d954d9494bdf956477259bb26",
+    "steps_ran": 3
+  },
+  "overdraft-nsf-fee-recompute-check": {
+    "composite_execution_hash": "7200bf051d8d0794884228fb831aa2fbdb751a399263dd864fba23e15ab83387",
+    "steps_ran": 2
+  },
   "overtime-pay-check": {
     "composite_execution_hash": "691929723ce84c97b6be1242772a61e572f787725007dadfed9582a06a280417",
     "steps_ran": 2
+  },
+  "overtime-paycheck-garnishment-check": {
+    "composite_execution_hash": "86b492a9c4561cc172b4658b6018a137e447f271698993508800a27cdc22007e",
+    "steps_ran": 5
+  },
+  "parametric-index-to-trigger-payout-check": {
+    "composite_execution_hash": "1bcc04f62e43a71a59fce8c3264ed929be25a224173f0b6df4adcc81a616d9b4",
+    "steps_ran": 3
   },
   "parametric-trigger-adjudication": {
     "composite_execution_hash": "2269834b59e47e106f50ee5df9af985b1659bae02f78255101cc170482751b8d",
@@ -811,6 +915,10 @@
     "composite_execution_hash": "221cd7dc8c690ffb8eb2e3959192dda9c766f695e0877c5357994cd7a20a0be2",
     "steps_ran": 3
   },
+  "scorp-owner-paycheck-check": {
+    "composite_execution_hash": "fd58112f09407e94f97f5ff9d6d6236ee6f0e954d052d9543ec9507f56f381fe",
+    "steps_ran": 4
+  },
   "sec16b-early-warning-pack": {
     "composite_execution_hash": "5c4814113b8b417aaff9dd2c0759f0433893fecc5c4c40508e826d9a9b692430",
     "steps_ran": 2
@@ -818,6 +926,10 @@
   "servicemember-lending-protections": {
     "composite_execution_hash": "f87f55c83dba3aecdaf79d36c04848f6981e7274c34e812212e3d451b0a3c31f",
     "steps_ran": 2
+  },
+  "servicer-response-clock-and-payment-check": {
+    "composite_execution_hash": "ecc3316691cf7e61274a4cf16481823bc7cb990c997600e310a2932ff188ade4",
+    "steps_ran": 3
   },
   "servicing-audit": {
     "composite_execution_hash": "ef7d81470a297fd584cae15831c852ca810108f75ff6cb16f2daad9475520c81",
@@ -863,12 +975,16 @@
     "composite_execution_hash": "ec2eaf732d4d32379fdf914069f87e257dc8c19a28ae3212fb4cc25410e7e30e",
     "steps_ran": 2
   },
+  "small-business-1071-readiness-check": {
+    "composite_execution_hash": "87ef6eded1d3c978003a63caabeca710599f6fb9bcecf68147b35c6eed02a687",
+    "steps_ran": 2
+  },
   "solvency-ii-reconciliation-and-capital": {
-    "composite_execution_hash": "c2245387ebbd485551553cae99d5956dd71adac51896b806d72ea9d387430624",
+    "composite_execution_hash": "12735c8c56f747d151f440d63fd3a7239869515071fe7646cc32d5b61c1364b9",
     "steps_ran": 3
   },
   "stablecoin-examiner-pack": {
-    "composite_execution_hash": "c9a400ac3ca26d8b001cb9f5254fca65d4eacc8bb7911afc932d56ae8d32317c",
+    "composite_execution_hash": "26c035ecaa75c75e933f87a78ddd939016fa0d85c7a53da6d1b608af6a413964",
     "steps_ran": 4
   },
   "stablecoin-remittance-corridor-economics": {
@@ -886,6 +1002,10 @@
   "substantive-procedure-cycle": {
     "composite_execution_hash": "8d7018b00b8823801329250c5bd2fd7f0f7623faf313021edbf3a5ea2f54162f",
     "steps_ran": 4
+  },
+  "supplier-invoice-three-way-match-check": {
+    "composite_execution_hash": "048cd2257328c11e31a4d05324d1826563442ea9ac4798f3f3b638901c8864c9",
+    "steps_ran": 3
   },
   "swift-csp-attestation-cycle": {
     "composite_execution_hash": "dca207a2af66fb2d2add91c53daa080bf2ad2443bea5696c125d2246931fd7a4",
@@ -966,6 +1086,10 @@
   "us-treasury-clearing": {
     "composite_execution_hash": "6a27d7c1072c6a687ded06d74cffb08e5363a8ec710f30de5209c6e7f7a235a4",
     "steps_ran": 6
+  },
+  "vendor-onboarding-ubo-screening-check": {
+    "composite_execution_hash": "449e73eba1c6e3ce7a8f4040f5568f0fce627a66e3bcaa1845c3811b790b0b74",
+    "steps_ran": 4
   },
   "verify-agent-delegation": {
     "composite_execution_hash": "d0b669871f720ec4fbe84a88e3606adc538a9092ddb88c03e806a12f1db4f240",
