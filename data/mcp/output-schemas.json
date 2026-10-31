@@ -721,6 +721,160 @@
       }
     }
   },
+  "validate_cbr_data_return": {
+    "type": "object",
+    "properties": {
+      "valid": {
+        "type": "boolean"
+      },
+      "refused": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "violations": {
+        "type": "array"
+      },
+      "flags": {
+        "type": "array"
+      },
+      "readiness": {
+        "type": "object"
+      },
+      "rules_checked": {
+        "type": "array"
+      },
+      "profile": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "template_version": {
+        "type": "string"
+      },
+      "profile_definition": {
+        "type": "object"
+      },
+      "computed": {
+        "type": "object"
+      },
+      "pii_note": {
+        "type": "string"
+      },
+      "disambiguation": {
+        "type": "string"
+      }
+    }
+  },
+  "compute_corridor_cost_averages": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "corridor": {
+        "type": "string"
+      },
+      "send_amount": {
+        "type": "number"
+      },
+      "lowest_n": {
+        "type": "integer"
+      },
+      "quotes_count": {
+        "type": "integer"
+      },
+      "averages": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "simple": {
+            "type": "object",
+            "properties": {
+              "total_cost_pct": {
+                "type": "number"
+              },
+              "meets_sdg_3pct": {
+                "type": "boolean"
+              },
+              "meets_g20_corridor_5pct": {
+                "type": "boolean"
+              },
+              "quotes_used": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          },
+          "weighted": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "lowest_n": {
+            "type": "object",
+            "properties": {
+              "total_cost_pct": {
+                "type": "number"
+              },
+              "meets_sdg_3pct": {
+                "type": "boolean"
+              },
+              "meets_g20_corridor_5pct": {
+                "type": "boolean"
+              },
+              "quotes_used": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "weighted_null_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "spread_pp": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "weighting_coverage_pct": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "targets": {
+        "type": "object"
+      },
+      "method_notes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "pii_note": {
+        "type": "string"
+      },
+      "adjacency_note": {
+        "type": "string"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
@@ -8109,47 +8263,56 @@
   "calculate_solvency2_scr_ratio": {
     "type": "object",
     "properties": {
-      "eligible_own_funds": {
-        "type": "integer"
-      },
-      "mcr": {
-        "type": "integer"
-      },
-      "mcr_breached": {
-        "type": "boolean"
+      "scr_coverage_ratio": {
+        "type": "number"
       },
       "mcr_coverage_ratio": {
-        "type": "integer"
-      },
-      "scr": {
-        "type": "integer"
+        "type": "number"
       },
       "scr_breached": {
         "type": "boolean"
       },
-      "scr_coverage_ratio": {
-        "type": "integer"
+      "mcr_breached": {
+        "type": "boolean"
+      },
+      "tiering_ok": {
+        "type": "boolean"
+      },
+      "tier1_unrestricted_pct_of_scr": {
+        "type": "number"
+      },
+      "tier1_total_pct_of_scr": {
+        "type": "number"
+      },
+      "tier3_pct_of_scr": {
+        "type": "number"
       },
       "tier1_total_limit_ok": {
         "type": "boolean"
       },
-      "tier1_total_pct_of_scr": {
-        "type": "integer"
-      },
-      "tier1_unrestricted_limit_ok": {
-        "type": "boolean"
-      },
-      "tier1_unrestricted_pct_of_scr": {
-        "type": "integer"
-      },
       "tier3_limit_ok": {
         "type": "boolean"
       },
-      "tier3_pct_of_scr": {
-        "type": "integer"
+      "tier2_tier3_pct_of_scr": {
+        "type": "number"
       },
-      "tiering_ok": {
+      "tier2_tier3_limit_ok": {
         "type": "boolean"
+      },
+      "tier1_restricted_pct_of_tier1": {
+        "type": "number"
+      },
+      "tier1_restricted_share_ok": {
+        "type": "boolean"
+      },
+      "eligible_own_funds": {
+        "type": "number"
+      },
+      "scr": {
+        "type": "number"
+      },
+      "mcr": {
+        "type": "number"
       }
     }
   },
@@ -38903,11 +39066,14 @@
           "type": "object"
         }
       },
-      "provisional_nprm_detail": {
+      "counterparty_concentration": {
         "type": "array",
         "items": {
           "type": "object"
         }
+      },
+      "concentration_limit_note": {
+        "type": "string"
       },
       "reconciles": {
         "type": "array",
@@ -45381,6 +45547,10 @@
       }
     }
   },
+  "compare_solo401k_sep_simple": {
+    "type": "object",
+    "description": "output_payload: tax_year, net_income_usd_cents, self_employment_tax_base_usd_cents, self_employment_tax_usd_cents, half_se_tax_deduction_usd_cents, net_earnings_after_half_deduction_usd_cents, age, marginal_rate_bp, catchup_eligible, super_catchup_band, existing_employer_plan, existing_deferrals_cents, solo_401k{employee_deferral_usd_cents, catchup_usd_cents, employer_contribution_usd_cents, max_total_usd_cents, tax_savings_usd_cents, binding_caps{employee_deferral, employer_contribution, total}}, sep_ira{max_total_usd_cents, tax_savings_usd_cents, binding_caps{contribution}}, simple_ira{employee_usd_cents, employer_nonelective_usd_cents, max_total_usd_cents, tax_savings_usd_cents, binding_caps{employee}}, ranking[{plan, max_total_usd_cents}], winner, winner_tied, winner_tie_order, refusal_reason, domain_errors[], scope_note."
+  },
   "compute_automation_payback": {
     "type": "object",
     "properties": {
@@ -45647,6 +45817,462 @@
   "compute_paypal_response": {
     "type": "object",
     "description": "output_payload: dispute_reason, lifecycle_stage, funding_source, dispute_create_time, as_of, deadlines (seller_response {due, source, basis, days_remaining, past_due}, inquiry_stage, escalation_available_until), required_evidence {evidence_type, required, why}, evidence_on_hand echo, missing_evidence, bundle_decision {ce30_applicable, bundle_kind, reason}, ce30_shaped_bundle (art-297 field names: dispute {network, reason_code, transaction_ref}, evidence {ap2_mandate, tap_signature, agentic_token, delivery_proof {digest, bound_transaction_ref}, prior_transactions}; null where PayPal has no counterpart) or null, paypal_process_evidence (evidences [{evidence_type, evidence_info {tracking_info|refund_ids}, notes?}], submittable) or null, cited_clauses [{id, quote, url}], domain_errors, refusal_reason."
+  },
+  "crosswalk_psp_dispute_reasons": {
+    "type": "object",
+    "description": "output_payload: input echo, concept + concept_label, match, per_psp_match, crosswalk {<psp>: {psp, value, match, basis, evidence_categories, clauses [{id, quote, url}]}}, network_codes, network_codes_note, cited_clauses [{id, quote, url}], domain_errors [{code}], refusal_reason."
+  },
+  "reconcile_token2022_withheld": {
+    "type": "object",
+    "properties": {
+      "mint": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "account_count": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "harvestable_account_count": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "wrong_mint_account_count": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "duplicate_address_count": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mint_withheld_accumulated": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "recomputed_account_sum": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "declared_total": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "reconciliation": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "MATCH | DECLARED_ABOVE_RECOMPUTED | DECLARED_BELOW_RECOMPUTED"
+      },
+      "declared_minus_recomputed": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Signed decimal string: 0, +N or -N."
+      },
+      "sum_over_all_declared_entries": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "sum_exceeds_u64": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "post_harvest_mint_withheld": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "post_harvest_would_overflow_u64": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "wrong_mint_accounts": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "declared_mint": {
+              "type": "string"
+            },
+            "account_mint": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "duplicate_addresses": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": "string"
+            },
+            "declared_count": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "fee_receiver_placement": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "declared_destination_address": {
+            "type": "string"
+          },
+          "declared_destination_mint": {
+            "type": "string"
+          },
+          "declared_mint": {
+            "type": "string"
+          },
+          "destination_mint_matches_declared_mint": {
+            "type": "boolean"
+          },
+          "declared_withdraw_authority": {
+            "type": "string"
+          },
+          "config_withdraw_withheld_authority": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "declared_withdraw_authority_matches_config": {
+            "type": "boolean"
+          },
+          "authority_basis": {
+            "type": "string"
+          }
+        }
+      },
+      "error": {
+        "type": "string"
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
+  "compare_bnpl_plans": {
+    "type": "object",
+    "description": "output_payload: input echo, comparison (ranking by total of payments, lowest-total plan indices), per-plan schedule (kind, instalment_no, due_periods_from_purchase, amount), totals, fee total, finance charge, stated APR, reg_z_apr (apr_pct null with flags when no rate is bracketed; computed by art-215), preset provenance (clauses, lender, late-fee note, qualifiers, not-an-offer status), method and terms notes; refusals return domain_error by name."
+  },
+  "audit_solana_pda_ata": {
+    "type": "object",
+    "properties": {
+      "program_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "seed_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "seed_count_with_bump": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "seeds_exceeding_max_len": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer"
+            },
+            "byte_length": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "seed_count_with_bump_exceeds_max": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "derived_hash_base58": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "on_curve": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "create_program_address_verdict": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "off_curve | on_curve | max_seed_length_exceeded"
+      },
+      "claimed_bump": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "claimed_address": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "claimed_matches": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "canonical_bump": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "canonical_address": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "claimed_bump_is_canonical": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "ata_derivation": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "wallet": {
+            "type": "string"
+          },
+          "mint": {
+            "type": "string"
+          },
+          "token_program_id": {
+            "type": "string"
+          },
+          "declared_token_program_is_token_2022": {
+            "type": "boolean"
+          },
+          "declared_token_program_is_classic": {
+            "type": "boolean"
+          },
+          "ata_under_declared_token_program": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "bump": {
+                "type": "integer"
+              }
+            }
+          },
+          "ata_under_classic_token_program": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "bump": {
+                "type": "integer"
+              }
+            }
+          },
+          "ata_addresses_differ": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "token_program_mismatch": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "error": {
+        "type": "string"
+      },
+      "detail": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "note": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    }
+  },
+  "parse_csv_table": {
+    "type": "object",
+    "properties": {
+      "ok": {
+        "type": "boolean"
+      },
+      "error": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "detail": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "header": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "records": {
+        "type": "array"
+      },
+      "errors": {
+        "type": "array"
+      },
+      "column_summary": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "export_rows": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "serialized_rows": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "injection_flags": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "note": {
+        "type": "string"
+      }
+    }
   },
   "generate_zk_compliance_proof": {
     "type": "object",
