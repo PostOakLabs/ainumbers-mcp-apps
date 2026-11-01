@@ -340,8 +340,8 @@
       "mcp_name": "screen_tip20_transfer_batch",
       "display_name": "Tempo On-Chain AML & Travel Rule Screener",
       "uri": "ui://ainumbers/node/art-38-tempo-onchain-aml",
-      "bytes": 56408,
-      "sha256": "a75a65a0f73445d515c761a955d814c18acd0caeecf67ad5323e16b0d62671ed"
+      "bytes": 56758,
+      "sha256": "caf1f57854d7001949dddd91685cbcc8820ca6c10e390db409f9091bf583bd6f"
     },
     {
       "tool_id": "art-39-tempo-zone-disclosure",
@@ -2324,8 +2324,8 @@
       "mcp_name": "verify_revocation_status",
       "display_name": "Revocation-Status Verifier",
       "uri": "ui://ainumbers/node/art-287-revocation-status-verifier",
-      "bytes": 46610,
-      "sha256": "75c5cf073ff171017a5912c5a3b9ef565918c52118d1dc63e1e26981d8cac00e"
+      "bytes": 47044,
+      "sha256": "9c05a38ca1530d459bd7b6ae2e02d00e2b86931ae8005c4de6b341c759bc2507"
     },
     {
       "tool_id": "art-288-map-iso20022-to-evm-calldata",
@@ -3188,8 +3188,8 @@
       "mcp_name": "screen_sanctions_private",
       "display_name": "Private-Input Sanctions Screen",
       "uri": "ui://ainumbers/node/art-413-screen-sanctions-private",
-      "bytes": 33100,
-      "sha256": "7ecd8cd3b49f8b64b5ead648526039e9a58d5a23c71e2bf22e3604566e849be5"
+      "bytes": 33967,
+      "sha256": "40d4a65478339729204d1bed4a360a1900b4e2b677c54d99d8cbe932ac921692"
     },
     {
       "tool_id": "art-414-compute-rbc-action-level-private",
@@ -3220,8 +3220,8 @@
       "mcp_name": "verify_witness_cosignatures",
       "display_name": "Witness Cosignature Verifier",
       "uri": "ui://ainumbers/node/art-424-witness-cosignature-verifier",
-      "bytes": 202966,
-      "sha256": "e013e7e3024d0cd5c3e397caf5c748099f0dd78178d885e3277fb7c3f511e7b5"
+      "bytes": 203777,
+      "sha256": "9be7ea5d6fccb3cacfee78e349477690ed8280723caa6d3c7756e9e5691539f5"
     },
     {
       "tool_id": "art-425-large-exposures-limit-check",
