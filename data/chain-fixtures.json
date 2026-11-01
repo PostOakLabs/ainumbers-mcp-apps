@@ -2360,6 +2360,66 @@
       ]
     }
   },
+  "attested-subject-to-quarterly-test-evidence-pack": {
+    "art-502-bind-attested-subject": {
+      "tool_ref": {
+        "tool_id": "acme-safeguarding-recon",
+        "tool_version": "4.2.0",
+        "entry": "buildClientMoneyRecon",
+        "manifest_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "producer_inputs": {
+        "as_of": "2026-06-30",
+        "ledger_ref": "LEDGER-SYNTH-0001",
+        "accounts": [
+          "ACC-SYNTH-1",
+          "ACC-SYNTH-2"
+        ]
+      },
+      "artifact": {
+        "content_type": "application/pdf",
+        "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    "art-378-quarterly-test-evidence-composer": {
+      "quarter": "2026-Q1",
+      "aiuc_version": "2026-Q1",
+      "suite": {
+        "suite_id": "agent-e2e-suite",
+        "suite_version": "3.4.0",
+        "suite_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "tests": [
+        {
+          "test_id": "t1",
+          "determinism_class": "deterministic",
+          "status": "pass",
+          "receipt_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        {
+          "test_id": "t2",
+          "determinism_class": "deterministic",
+          "status": "pass",
+          "receipt_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        {
+          "test_id": "t3",
+          "determinism_class": "estimated",
+          "status": "pass",
+          "prng": {
+            "algorithm": "xoshiro256**",
+            "seed": "42",
+            "draws": 10000
+          }
+        }
+      ],
+      "prior_quarter": null,
+      "declared_prior_pack_digest": null
+    },
+    "cry-05-agent-action-audit-trail-aggregator": {
+      "artifacts": []
+    }
+  },
   "auto-loan-disclosure-verifier": {
     "art-332-build-amortization-schedule": {
       "schedule_type": "level_payment",
