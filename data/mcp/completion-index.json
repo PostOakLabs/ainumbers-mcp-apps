@@ -773,6 +773,7 @@
       "arc-xreserve-issuance",
       "assemble-agent-dispute-evidence",
       "assemble-aiuc1-evidence-pack",
+      "attested-subject-to-quarterly-test-evidence-pack",
       "auto-loan-disclosure-verifier",
       "avax-evergreen-l1-onboarding",
       "b2b-payments-ap-automation",
@@ -2185,6 +2186,11 @@
       318,
       319,
       320
+    ],
+    "attested-subject-to-quarterly-test-evidence-pack": [
+      486,
+      380,
+      683
     ],
     "auto-loan-disclosure-verifier": [
       344,
