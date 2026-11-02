@@ -63,6 +63,10 @@
     "composite_execution_hash": "ca568f0c5261b0e3adfd2776bc17e2819659311890c65aef77461ac12176164e",
     "steps_ran": 2
   },
+  "agent-trade-evidence": {
+    "composite_execution_hash": "41d787706c373e3125f7010fd900e6e1e55622ae3e2b6aff0d5aea881b7bf227",
+    "steps_ran": 9
+  },
   "agentic-commerce-convergence": {
     "composite_execution_hash": "0ef7dce710731dfd2e0046e27fc20b1703f7444e4ad245f0f74101fb8b00c860",
     "steps_ran": 3
@@ -181,6 +185,10 @@
   },
   "assemble-aiuc1-evidence-pack": {
     "composite_execution_hash": "e36c741defcc26164aa689cc41721b7af7eefd50024073ac390c332f1f5d30b4",
+    "steps_ran": 3
+  },
+  "attested-subject-to-quarterly-test-evidence-pack": {
+    "composite_execution_hash": "6aa2297d80c582f817190072a89e0d147aea1a3a238db4302a75491708a4810a",
     "steps_ran": 3
   },
   "auto-loan-disclosure-verifier": {
@@ -338,6 +346,10 @@
   "claim-dispute-bundle-assembly": {
     "composite_execution_hash": "5d8fd9d0c90aaec51ab7c92e4b8d3ee1f5b9a4a540e5e151a4115a7931acb977",
     "steps_ran": 2
+  },
+  "claim-dispute-bundle-to-pld-disclosure-pack": {
+    "composite_execution_hash": "9666a3dccb05b5f41ac822bf7913d382f37d1ae47464019898f388411e523bc4",
+    "steps_ran": 3
   },
   "climate-scenario": {
     "composite_execution_hash": "6ac12a758d45b1d5a6636a21c173c0031756efba2fdfc9d8774f16fb0e8067e5",
@@ -767,6 +779,10 @@
     "composite_execution_hash": "86b492a9c4561cc172b4658b6018a137e447f271698993508800a27cdc22007e",
     "steps_ran": 5
   },
+  "parametric-index-to-trigger-payout-check": {
+    "composite_execution_hash": "1bcc04f62e43a71a59fce8c3264ed929be25a224173f0b6df4adcc81a616d9b4",
+    "steps_ran": 3
+  },
   "parametric-trigger-adjudication": {
     "composite_execution_hash": "2269834b59e47e106f50ee5df9af985b1659bae02f78255101cc170482751b8d",
     "steps_ran": 2
@@ -968,7 +984,7 @@
     "steps_ran": 2
   },
   "solvency-ii-reconciliation-and-capital": {
-    "composite_execution_hash": "c2245387ebbd485551553cae99d5956dd71adac51896b806d72ea9d387430624",
+    "composite_execution_hash": "12735c8c56f747d151f440d63fd3a7239869515071fe7646cc32d5b61c1364b9",
     "steps_ran": 3
   },
   "stablecoin-examiner-pack": {
