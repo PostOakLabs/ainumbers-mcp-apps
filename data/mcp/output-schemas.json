@@ -46212,6 +46212,42 @@
       }
     }
   },
+  "compute_modified_premium": {
+    "type": "object",
+    "properties": {
+      "modified_premium": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "mod": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "subject_premium": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "regulatory_basis": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      },
+      "gate": {
+        "type": "string",
+        "enum": [
+          "computed",
+          "flagged"
+        ]
+      }
+    }
+  },
   "parse_csv_table": {
     "type": "object",
     "properties": {

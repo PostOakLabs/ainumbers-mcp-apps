@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 751,
+  "tool_count": 752,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -327,6 +327,7 @@
     "compute_m3p_monthly_cap",
     "compute_mla_mapr",
     "compute_mlr_rebate",
+    "compute_modified_premium",
     "compute_multilateral_netting",
     "compute_note_h_margin_debit",
     "compute_npv",
