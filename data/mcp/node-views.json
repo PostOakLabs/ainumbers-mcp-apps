@@ -5152,6 +5152,14 @@
       "sha256": "051ce202b3a90c1136f40f11e6b3c93845876f54c0156ee871bb92559ab063b6"
     },
     {
+      "tool_id": "art-782-modified-premium",
+      "mcp_name": "compute_modified_premium",
+      "display_name": "Modified Premium Calculator",
+      "uri": "ui://ainumbers/node/art-782-modified-premium",
+      "bytes": 34215,
+      "sha256": "e878b809b36c67fa09d16ef4d228f2b47b3c7f26ed737bb0d6966a1fb1696065"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
