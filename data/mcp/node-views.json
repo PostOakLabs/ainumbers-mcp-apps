@@ -108,8 +108,8 @@
       "mcp_name": "classify_dora_incident",
       "display_name": "DORA Major-Incident Reporting Threshold Classifier",
       "uri": "ui://ainumbers/node/art-09-dora-incident-classifier",
-      "bytes": 83942,
-      "sha256": "3197504ca0c365457b31e60e933e66f1714e2ce5f012efe661c28543c0f86715"
+      "bytes": 82607,
+      "sha256": "d29f01316b7fd1ae5e9256cf3d06ba4b0b5e44652db70f4e6b2daf46e6d84ac8"
     },
     {
       "tool_id": "art-10-amla-transaction-typology-risk-scorer",
@@ -404,8 +404,8 @@
       "mcp_name": "model_arc_paymaster_economics",
       "display_name": "Arc Paymaster Economics Model",
       "uri": "ui://ainumbers/node/art-46-arc-paymaster-model",
-      "bytes": 55193,
-      "sha256": "c67e5a5b11ed6af41027b4ffdaff613e06855a9e3d3354676a884a35e6482f7f"
+      "bytes": 54658,
+      "sha256": "5bf96beebf83f22073f2d3f395140e4fe52d401d9ec0d38bb70a352a7d5c5fdd"
     },
     {
       "tool_id": "art-47-arc-cctp-transfer",
@@ -420,8 +420,8 @@
       "mcp_name": "run_treasury_clearing_fit",
       "display_name": "Treasury Clearing Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-48-treasury-clearing-fit-diagnostic",
-      "bytes": 44858,
-      "sha256": "da1616eced92d0f3ddc080d4b9226af1ab59c7fe27993c05b479b8325b0b7b57"
+      "bytes": 44730,
+      "sha256": "8b1478f12df8a9ef04d3f0cf2905001758a35cd776d7e56c595efd293d38e446"
     },
     {
       "tool_id": "art-49-clearing-access-model-selector",
@@ -492,8 +492,8 @@
       "mcp_name": "validate_deposit_token_compliance",
       "display_name": "Deposit-Token Compliance Validator",
       "uri": "ui://ainumbers/node/art-57-deposit-token-compliance-validator",
-      "bytes": 48673,
-      "sha256": "c7cd17a9ac837a79f8e3e6f47f492c0e356929fd9a944e8632cbb6b1ab845f0c"
+      "bytes": 48612,
+      "sha256": "ba7ba189513e35e6a1b9904390de8b8d91a6fbf3bce0091d77adb505f4b69872"
     },
     {
       "tool_id": "art-58-cross-network-settlement-validator",
@@ -628,8 +628,8 @@
       "mcp_name": "aggregate_taxonomy_kpi_gar",
       "display_name": "Taxonomy KPI & Green Asset Ratio Aggregator",
       "uri": "ui://ainumbers/node/art-74-taxonomy-kpi-gar-aggregator",
-      "bytes": 53083,
-      "sha256": "0ccc040512be42efff9c8105f87bb56486163948b9a4675a867d98cbcdf0a6cc"
+      "bytes": 51766,
+      "sha256": "7f6c48d0ffb361639b4c187237a21782c8db989d5c24d60cbc96523047d6cffb"
     },
     {
       "tool_id": "art-75-eugb-factsheet-validator",
@@ -964,8 +964,8 @@
       "mcp_name": "verify_product_authenticity",
       "display_name": "Luxury Goods Product Authenticity Verifier",
       "uri": "ui://ainumbers/node/art-117-product-authenticity-verifier",
-      "bytes": 44119,
-      "sha256": "b80bf9e478307927a9887afff666a3cd9d4a14f6f058e3ff1ccf2eba7728be24"
+      "bytes": 44057,
+      "sha256": "0e671661021014bbd8086818cbd17027733bb2b6d3506eee4180dab6ff0290b2"
     },
     {
       "tool_id": "art-118-fsma204-cte-validator",
@@ -3620,8 +3620,8 @@
       "mcp_name": "compare_receivables_finance_economics",
       "display_name": "Forfaiting vs Factoring vs Invoice Discounting Economics",
       "uri": "ui://ainumbers/node/art-479-compare-receivables-finance-economics",
-      "bytes": 41466,
-      "sha256": "d4e59ab8a48ceb508fcaef5a0fe549c817ad29383d800899700ea8a4383304c3"
+      "bytes": 41877,
+      "sha256": "4a2d39c4f781cd1c988296c947be5abf0cf25414c4776d9527254e8589c427c6"
     },
     {
       "tool_id": "art-480-rdarr-aggregation-recompute",
@@ -3636,8 +3636,8 @@
       "mcp_name": "rdarr_quality_scorecard",
       "display_name": "RDARR Quality Scorecard",
       "uri": "ui://ainumbers/node/art-481-rdarr-quality-scorecard",
-      "bytes": 42835,
-      "sha256": "6d6dfa58e7807ad22aaccd8fcd682a8fff717a8808f83c4048a7ce0d9056606e"
+      "bytes": 42685,
+      "sha256": "5af32c76f5a4d6bcaef1750dcd26aa595380d82ff20312543790e250619b8771"
     },
     {
       "tool_id": "art-482-emir-recon-adjudicator",
@@ -4252,8 +4252,8 @@
       "mcp_name": "recompute_pe_waterfall_lp",
       "display_name": "PE Distribution Waterfall LP-Side Recompute",
       "uri": "ui://ainumbers/node/art-567-pe-waterfall-lp-recompute",
-      "bytes": 60050,
-      "sha256": "a266b3d79fc20098b273531438516d55e02a6a1172c47ed1d99fe9d0ae22dc88"
+      "bytes": 59961,
+      "sha256": "91b0cecb3c2c3399987126685769b0faafd0b60ea2be7148679318ba8ac35677"
     },
     {
       "tool_id": "art-568-securitization-trustee-report-recompute",
@@ -4292,8 +4292,8 @@
       "mcp_name": "recompute_garnishment_stack",
       "display_name": "Multi-Garnishment Stacking Recomputation",
       "uri": "ui://ainumbers/node/art-572-multi-garnishment-stacking-recompute",
-      "bytes": 65298,
-      "sha256": "460b7b918c1fdfc29f396ad2a36b6885fa9fe540e9137698f481733fbda83d87"
+      "bytes": 65253,
+      "sha256": "c6e1eeacfef128ae4c912e50ef7c77c74341ddc0dee2153a9178eba4a0eed6c8"
     },
     {
       "tool_id": "art-573-section16b-short-swing-profit-recompute",
