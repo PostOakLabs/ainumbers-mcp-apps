@@ -3188,24 +3188,24 @@
       "mcp_name": "screen_sanctions_private",
       "display_name": "Private-Input Sanctions Screen",
       "uri": "ui://ainumbers/node/art-413-screen-sanctions-private",
-      "bytes": 33967,
-      "sha256": "40d4a65478339729204d1bed4a360a1900b4e2b677c54d99d8cbe932ac921692"
+      "bytes": 34228,
+      "sha256": "365eea23fd983b715b24793263b020489160e6000891e66e1d969a3e6052bb71"
     },
     {
       "tool_id": "art-414-compute-rbc-action-level-private",
       "mcp_name": "compute_rbc_action_level_private",
       "display_name": "Private-Input NAIC RBC Action Level",
       "uri": "ui://ainumbers/node/art-414-compute-rbc-action-level-private",
-      "bytes": 35191,
-      "sha256": "51320cf8c70ca9cbf5a07b32257e68e202b5ce63dddcd84da4b39203fe61ce12"
+      "bytes": 35284,
+      "sha256": "8097ad7ebfb2f51f21fec751ab95424603c2ec5f34bc6526d2423fa28ab232bd"
     },
     {
       "tool_id": "art-415-check-capital-adequacy-private",
       "mcp_name": "check_capital_adequacy_private",
       "display_name": "Private-Input Capital Adequacy Check",
       "uri": "ui://ainumbers/node/art-415-check-capital-adequacy-private",
-      "bytes": 33728,
-      "sha256": "1af5f2a45fda683450c9b33ef77dd34de7eb1cf62aba211d8320e83ec29fbaac"
+      "bytes": 33824,
+      "sha256": "8e41d616bbc0a4cb8d3b4b5831902faf7edbf452a6de99c355ef0aba1d5dd7b8"
     },
     {
       "tool_id": "art-418-idv-verification-failure-incident-composer",
