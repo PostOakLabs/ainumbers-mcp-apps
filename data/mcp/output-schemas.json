@@ -875,6 +875,68 @@
       }
     }
   },
+  "lint_event_contract_terms": {
+    "type": "object",
+    "properties": {
+      "refused": {
+        "type": "boolean"
+      },
+      "reason_code": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "field": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "profile_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "profile_venue_label": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "as_of": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "contract_label": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "evaluated_items": {
+        "type": "integer"
+      },
+      "verdict": {
+        "type": "string"
+      },
+      "issues": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
