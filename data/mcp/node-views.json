@@ -40,6 +40,22 @@
       "sha256": "0fb1af42f5f4b3b09543dbea473b29b83d98b1cad0d1f8f1636162e879f24986"
     },
     {
+      "tool_id": "806-event-contract-terms-lint",
+      "mcp_name": "lint_event_contract_terms",
+      "display_name": "Event Contract Terms Lint",
+      "uri": "ui://ainumbers/node/806-event-contract-terms-lint",
+      "bytes": 102064,
+      "sha256": "77010b997730945b68c568c19e3570379ee036b7850949ea7a59e50bc98ccbee"
+    },
+    {
+      "tool_id": "813-eth-staking-accounting",
+      "mcp_name": "recompute_eth_epoch_accounting",
+      "display_name": "Ethereum Epoch Accounting Recompute",
+      "uri": "ui://ainumbers/node/813-eth-staking-accounting",
+      "bytes": 39553,
+      "sha256": "f97f03aa9ae23cfff67ebddac7fd54d7f88d1558cca52092797bb71d2cfe1b07"
+    },
+    {
       "tool_id": "815-eth-fee-market",
       "mcp_name": "recompute_eth_fee_market",
       "display_name": "Ethereum Base Fee and Blob Base Fee Recompute",
