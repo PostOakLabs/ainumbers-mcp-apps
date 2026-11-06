@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 755,
+  "tool_count": 757,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -222,6 +222,7 @@
     "classify_ledger_consensus_finality",
     "classify_mla_charge_inclusion",
     "classify_nis2_entity",
+    "classify_privacy_coin_regulatory_treatment",
     "classify_qm_apr_apor_spread",
     "classify_rate_rec_5pct_threshold",
     "classify_redline_round_changes",
@@ -521,6 +522,7 @@
     "recompute_mla_mapr_actuarial",
     "recompute_payment_waterfall",
     "recompute_pe_waterfall_lp",
+    "recompute_quadratic_funding_round",
     "recompute_section16b_profit",
     "recompute_stablecoin_reserve_3source",
     "recompute_stock_loan_rebate_fee",

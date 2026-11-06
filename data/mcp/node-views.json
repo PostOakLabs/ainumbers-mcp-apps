@@ -5184,6 +5184,22 @@
       "sha256": "56a43a08a8fb04836de4a89c849ec544bcc56fa606ba8bb8435585449b6e482e"
     },
     {
+      "tool_id": "art-814-qf-pairwise-recompute",
+      "mcp_name": "recompute_quadratic_funding_round",
+      "display_name": "Quadratic Funding Round Recompute",
+      "uri": "ui://ainumbers/node/art-814-qf-pairwise-recompute",
+      "bytes": 44357,
+      "sha256": "105f2240216375f2b47c864f024d1902a6cdc74cf3c77fc2e3fb7ca4fae11f4a"
+    },
+    {
+      "tool_id": "art-818-zcash-reg-classifier",
+      "mcp_name": "classify_privacy_coin_regulatory_treatment",
+      "display_name": "Privacy Coin Regulatory Classifier (MiCA and AMLR)",
+      "uri": "ui://ainumbers/node/art-818-zcash-reg-classifier",
+      "bytes": 45306,
+      "sha256": "66af57c5e908282c0f804f04c87eeb819e9bd22205a4c84b097e04411215fe41"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
