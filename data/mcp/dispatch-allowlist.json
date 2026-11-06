@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 752,
+  "tool_count": 753,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -510,6 +510,7 @@
     "recompute_erc4337_userop_math",
     "recompute_erc4626_vault_share_math",
     "recompute_erc7540_request_accounting",
+    "recompute_eth_fee_market",
     "recompute_exchange_fee_tier_invoice",
     "recompute_fund_fees",
     "recompute_fund_nav",

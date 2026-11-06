@@ -40,6 +40,14 @@
       "sha256": "0fb1af42f5f4b3b09543dbea473b29b83d98b1cad0d1f8f1636162e879f24986"
     },
     {
+      "tool_id": "815-eth-fee-market",
+      "mcp_name": "recompute_eth_fee_market",
+      "display_name": "Ethereum Base Fee and Blob Base Fee Recompute",
+      "uri": "ui://ainumbers/node/815-eth-fee-market",
+      "bytes": 41994,
+      "sha256": "eaf06cb417ee757ee62f6532b0193782094c36ad2dfd8c10eaf33f5b4c0115c2"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
@@ -2740,8 +2748,8 @@
       "mcp_name": "lint_fedwire_structured_address",
       "display_name": "Fedwire Structured Address Linter",
       "uri": "ui://ainumbers/node/art-349-fedwire-structured-address-linter",
-      "bytes": 40756,
-      "sha256": "77cd6a14bc08c62445ebda42564828178c7132e8a7e1376e0721997b8923f82d"
+      "bytes": 42563,
+      "sha256": "f925c7e59333e5f4b2237bb35e8c19c89118d379986d9cf1c4adc5d4ad88b5e0"
     },
     {
       "tool_id": "art-350-fedwire-address-sweep",
