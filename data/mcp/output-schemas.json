@@ -17788,6 +17788,12 @@
         "type": "integer"
       },
       "fedwire_chips_deadline": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "fedwire_chips_deadline_status": {
         "type": "string"
       },
       "network": {
