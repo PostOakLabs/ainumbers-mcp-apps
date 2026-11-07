@@ -68,8 +68,8 @@
       "mcp_name": "audit_zcash_pool_supply",
       "display_name": "Zcash Supply Check",
       "uri": "ui://ainumbers/node/822-zcash-supply-check",
-      "bytes": 78504,
-      "sha256": "f4661e6bc3dde27249bd4ae7e5705c8a385dea08c4a632bc4c3a0281b6eeb4bb"
+      "bytes": 81881,
+      "sha256": "95779f30e0eefcd7d38fcc48b36fe6e858cfee6825fa410b12bb7e4a9bf77620"
     },
     {
       "tool_id": "art-01-ap2-mandate-chain-validator",
@@ -924,8 +924,8 @@
       "mcp_name": "validate_canton_selective_disclosure",
       "display_name": "Canton Selective-Disclosure DvP Reconciliation Attestation",
       "uri": "ui://ainumbers/node/art-108-canton-selective-disclosure",
-      "bytes": 51710,
-      "sha256": "1b66fa034a264f6f092fc1f7c6e86b6f5c6b38e09850a703800d0fdc933cfa0b"
+      "bytes": 79197,
+      "sha256": "c124567c9c2edc1c20c78cec5fd27731a6a86dbcff58d891be10ec6b906f34ec"
     },
     {
       "tool_id": "art-109-dtc-tokenized-treasury",
@@ -940,8 +940,8 @@
       "mcp_name": "score_partner_stablecoin_readiness",
       "display_name": "Arc Partner Stablecoin Onboarding Conformance",
       "uri": "ui://ainumbers/node/art-110-arc-partner-stablecoin-onboarding",
-      "bytes": 59102,
-      "sha256": "6831c067fd417fbf4710b4e7039b8300a39b6fe0e886fcad74d541d06d6c1148"
+      "bytes": 84581,
+      "sha256": "b11077a9ac08ca3df5ae60d4b9da18bc88671b955b848903fc85231e68c2dee5"
     },
     {
       "tool_id": "art-111-arc-corridor-jurisdiction-router",
@@ -1020,24 +1020,24 @@
       "mcp_name": "resolve_recall_trace",
       "display_name": "FSMA 204 Recall Trace Resolver (24-Hour FDA List)",
       "uri": "ui://ainumbers/node/art-120-recall-trace-resolver",
-      "bytes": 44685,
-      "sha256": "e7fb5ed0ae69db6d37761508e3c91972dfb38119c79954cee4306c3a1bf62420"
+      "bytes": 74760,
+      "sha256": "c0630e3d8e44db44376b359e5700052b47a064856d103efb00e4460df2342a6c"
     },
     {
       "tool_id": "art-121-document-integrity-anchor",
       "mcp_name": "anchor_document_integrity",
       "display_name": "Document Integrity & eIDAS Electronic Timestamp Anchor",
       "uri": "ui://ainumbers/node/art-121-document-integrity-anchor",
-      "bytes": 43917,
-      "sha256": "78885c36342b4e853c493da4293b88500901885b4989d8a7ea5969d446c6e266"
+      "bytes": 74955,
+      "sha256": "047763729ab52faf84ee741b5c9ffc4d3a233b9a59f65128ef055deba3d4906d"
     },
     {
       "tool_id": "art-122-timestamp-attestation-verifier",
       "mcp_name": "verify_timestamp_attestation",
       "display_name": "Timestamp Attestation Verifier",
       "uri": "ui://ainumbers/node/art-122-timestamp-attestation-verifier",
-      "bytes": 45304,
-      "sha256": "9b82c60be880baa701baf6eff67296a353d48df2909892e0669bdff4ab5d9773"
+      "bytes": 76481,
+      "sha256": "6541c8a7b683ed7b747c79d85d48dcbdc9f11e06a20f06a3f94e3584505cc5ec"
     },
     {
       "tool_id": "art-123-c2pa-manifest-validator",
