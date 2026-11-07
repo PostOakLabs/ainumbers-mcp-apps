@@ -64,6 +64,14 @@
       "sha256": "eaf06cb417ee757ee62f6532b0193782094c36ad2dfd8c10eaf33f5b4c0115c2"
     },
     {
+      "tool_id": "822-zcash-supply-check",
+      "mcp_name": "audit_zcash_pool_supply",
+      "display_name": "Zcash Supply Check",
+      "uri": "ui://ainumbers/node/822-zcash-supply-check",
+      "bytes": 78504,
+      "sha256": "f4661e6bc3dde27249bd4ae7e5705c8a385dea08c4a632bc4c3a0281b6eeb4bb"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
@@ -5118,6 +5126,14 @@
       "uri": "ui://ainumbers/node/art-764-solo-401k-vs-sep-ira",
       "bytes": 55506,
       "sha256": "af858b5b852e05bb0ecb21564dc4c8252d2bfc6e72cbfa3c354dbf38fe6e5e87"
+    },
+    {
+      "tool_id": "art-770-total-cost-of-homeownership",
+      "mcp_name": "total_cost_of_homeownership",
+      "display_name": "Total Cost of Homeownership",
+      "uri": "ui://ainumbers/node/art-770-total-cost-of-homeownership",
+      "bytes": 60861,
+      "sha256": "5328a642ef60369130de4f2c624919b18bdb0aa60e92162023bcc886619ed03b"
     },
     {
       "tool_id": "art-771-automation-payback",

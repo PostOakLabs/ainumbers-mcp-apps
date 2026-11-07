@@ -25,6 +25,7 @@ import * as t787      from './787-corridor-cost-averages.kernel.mjs';
 import * as t806      from './806-event-contract-terms-lint.kernel.mjs';
 import * as t813      from './813-eth-staking-accounting.kernel.mjs';
 import * as t815      from './815-eth-fee-market.kernel.mjs';
+import * as t822      from './822-zcash-supply-check.kernel.mjs';
 import * as art01     from './art-01-ap2-mandate-chain-validator.kernel.mjs';
 import * as art02     from './art-02-agent-spend-policy-simulator.kernel.mjs';
 import * as art03     from './art-03-x402-settlement-modeler.kernel.mjs';
@@ -662,6 +663,7 @@ import * as art760    from './art-760-espp-break-even-optimal-sell.kernel.mjs';
 import * as art763    from './art-763-ai-displacement-risk-screener.kernel.mjs';
 import * as art764    from './art-764-solo-401k-vs-sep-ira.kernel.mjs';
 import * as art77     from './art-77-t1-settlement-readiness-diagnostic.kernel.mjs';
+import * as art770    from './art-770-total-cost-of-homeownership.kernel.mjs';
 import * as art771    from './art-771-automation-payback.kernel.mjs';
 import * as art774    from './art-774-beacon-seeded-fair-sampling-v2.kernel.mjs';
 import * as art776    from './art-776-paypal-dispute-deadline-evidence.kernel.mjs';
@@ -736,6 +738,7 @@ export const KERNELS = {
   '806-event-contract-terms-lint':                              t806,
   '813-eth-staking-accounting':                                 t813,
   '815-eth-fee-market':                                         t815,
+  '822-zcash-supply-check':                                     t822,
   'art-01-ap2-mandate-chain-validator':                         art01,
   'art-02-agent-spend-policy-simulator':                        art02,
   'art-03-x402-settlement-modeler':                             art03,
@@ -1373,6 +1376,7 @@ export const KERNELS = {
   'art-763-ai-displacement-risk-screener':                      art763,
   'art-764-solo-401k-vs-sep-ira':                               art764,
   'art-77-t1-settlement-readiness-diagnostic':                  art77,
+  'art-770-total-cost-of-homeownership':                        art770,
   'art-771-automation-payback':                                 art771,
   'art-774-beacon-seeded-fair-sampling-v2':                     art774,
   'art-776-paypal-dispute-deadline-evidence':                   art776,
