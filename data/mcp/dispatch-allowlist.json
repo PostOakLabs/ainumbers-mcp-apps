@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 757,
+  "tool_count": 759,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -68,6 +68,7 @@
     "audit_mcp_oauth",
     "audit_mcp_tool_scope_revocation",
     "audit_solana_pda_ata",
+    "audit_zcash_pool_supply",
     "authorize_payment_against_mandate",
     "baas_provider_comparator",
     "benchmark_tp_interquartile_range",
@@ -650,6 +651,7 @@
     "test_hpml_escrow",
     "test_nav_error_materiality",
     "test_reg_w_affiliate_transactions",
+    "total_cost_of_homeownership",
     "track_fatca_crs_ro_remediation_closure",
     "track_globe_transition_deferred_tax",
     "track_ifrs17_loss_component_rollforward",
