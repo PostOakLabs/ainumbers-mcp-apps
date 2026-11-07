@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 759,
+  "tool_count": 760,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -531,6 +531,7 @@
     "recompute_trustee_report_waterfall",
     "recompute_x402_eip712_digest",
     "recompute_x402_permit2_digest",
+    "recompute_zip317_transfer_fee",
     "recon_match",
     "reconcile_aml_lookback_completeness",
     "reconcile_commission_statement",

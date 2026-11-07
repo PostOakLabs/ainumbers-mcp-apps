@@ -72,6 +72,14 @@
       "sha256": "95779f30e0eefcd7d38fcc48b36fe6e858cfee6825fa410b12bb7e4a9bf77620"
     },
     {
+      "tool_id": "824-zip317-transfer-fee",
+      "mcp_name": "recompute_zip317_transfer_fee",
+      "display_name": "ZIP-317 Transfer Fee",
+      "uri": "ui://ainumbers/node/824-zip317-transfer-fee",
+      "bytes": 51206,
+      "sha256": "68a3272f0915461565b1e713732f5ab9b0ab61d2ec7aa77653935bde58e715c5"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
