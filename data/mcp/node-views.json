@@ -80,6 +80,14 @@
       "sha256": "68a3272f0915461565b1e713732f5ab9b0ab61d2ec7aa77653935bde58e715c5"
     },
     {
+      "tool_id": "827-agent-cred-class-matrix",
+      "mcp_name": "compute_agent_cred_matrix",
+      "display_name": "Agent Cred Class Matrix",
+      "uri": "ui://ainumbers/node/827-agent-cred-class-matrix",
+      "bytes": 63191,
+      "sha256": "169a58669b88a6714413f92b3dc1d980bd7ec3c980d5a652b2f7517cf8837b08"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
@@ -5206,6 +5214,14 @@
       "uri": "ui://ainumbers/node/art-782-modified-premium",
       "bytes": 34306,
       "sha256": "56a43a08a8fb04836de4a89c849ec544bcc56fa606ba8bb8435585449b6e482e"
+    },
+    {
+      "tool_id": "art-807-erc3643-transfer-decision",
+      "mcp_name": "recompute_erc3643_transfer_decision",
+      "display_name": "ERC-3643 Transfer Decision Recompute",
+      "uri": "ui://ainumbers/node/art-807-erc3643-transfer-decision",
+      "bytes": 63312,
+      "sha256": "ff23b6efe203621f81b960956f6f10de1543f0593cba0ee3250920f63e4b9424"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",

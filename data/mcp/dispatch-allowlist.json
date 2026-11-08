@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 760,
+  "tool_count": 762,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -257,6 +257,7 @@
     "compose_workpaper_bundle",
     "compute_15c3_3_reserve",
     "compute_aca_affordability_safe_harbor",
+    "compute_agent_cred_matrix",
     "compute_algo_execution_schedule_simulator",
     "compute_annuity",
     "compute_apy_earned_recompute",
@@ -510,6 +511,7 @@
     "recompute_certified_payroll_pwa",
     "recompute_corporate_action_entitlement",
     "recompute_csdr_penalty",
+    "recompute_erc3643_transfer_decision",
     "recompute_erc4337_userop_math",
     "recompute_erc4626_vault_share_math",
     "recompute_erc7540_request_accounting",
