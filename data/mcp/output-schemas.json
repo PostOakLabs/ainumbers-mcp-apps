@@ -990,6 +990,20 @@
       }
     }
   },
+  "compute_agent_cred_matrix": {
+    "type": "object",
+    "properties": {
+      "matrix": {
+        "type": "array"
+      },
+      "rail_acceptance_summary": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "array"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {

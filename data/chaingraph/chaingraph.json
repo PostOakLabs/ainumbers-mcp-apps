@@ -1735,6 +1735,181 @@
   "deferred_reason": "New gpu:false node, 824-zip317-transfer-fee, authored 2026-11-03 (KERNEL-SCAFFOLD-1 scaffold, compute authored same-day). No GPU prove has been run and none is proposed by this row -- deferred per the section 18 steady-state rule (RIDER-KERNEL.md); the row lands deferred and a SIDEBYSIDE row against the pinned fee-rule text is staged before any prove dispatch (SO #39). GPU-CYCLE-PREFLIGHT-1 static pre-screen is clean (no transcendentals, no policy-parameter-bound loops, no in-guest verification loops -- trivial integer arithmetic), so a runq-cpu exec measurement before any booking should classify FAST."
 },
     {
+  "tool_id": "827-agent-cred-class-matrix",
+  "tool_version": "1.0.0",
+  "display_name": "Agent Cred Class Matrix",
+  "mcp_name": "compute_agent_cred_matrix",
+  "mandate_type": "compliance_mandate",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/827-agent-cred-class-matrix.html",
+  "description": "Maps five agent payment credential classes (shared payment token, network agentic token, API-key card proxy, x402 EIP-3009 permit, wallet delegated session key) across scope, expiry, replay protection, revocability and what the agent can learn. Scope, expiry and replay cells chain to sibling verdicts; revocability and learn are declared facts from closed vocabularies. Columns no cited source settles are marked unpinned and flagged for review.",
+  "input_schema_ref": "chaingraph/827-agent-cred-class-matrix.html#manifest",
+  "consumes": [
+    "art-133-agent-payment-rail-trust-crosswalk",
+    "art-385-agent-token-scope-checker",
+    "art-699-x402-permit2-evidence-recomputer",
+    "art-703-mandate-authorization-gate"
+  ],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:958f0ba4ec1952e6069a73353e103148c7b697d61cc12de33d2522c3705cdf59","valid_from":"2026-11-08"}],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "cites_informative",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:defb536e8079d44044f7ea4d38ba97c680ca37c9f4acbb9868ba4eeecbd4175c",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-7715",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 304-315: ExpiryRule bounds a permission with a unix timestamp at which the permission becomes invalid",
+      "scheme": "eips-site",
+      "id": "erc-7715 expiry rule"
+    },
+    {
+      "digest": "sha256:cf84af05afe1c6fc8d7168f8995d0d0a984415308195c8ba8cccc53f814d84a7",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-7715",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 448-482: wallet_revokeExecutionPermission revokes a permission identified by permissionContext; empty response on success",
+      "scheme": "eips-site",
+      "id": "erc-7715 revoke rpc"
+    },
+    {
+      "digest": "sha256:b3a1b1fbd6a2bc24eca20da332681083002fce59dd2e9259a8a25828c4b0f9ed",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-7715",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 318-347: wallet_requestExecutionPermissions PermissionRequest scopes the permission by chainId, from, to, permission type and optional rules",
+      "scheme": "eips-site",
+      "id": "erc-7715 grant request"
+    },
+    {
+      "digest": "sha256:e98c8fcfca45081b75b28fdad993cfa8c71680f37cc01f3ceeef7fb590f509f8",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-7715",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 751-763: permissionsContext is an opaque string that can encode arbitrary information for different permission schemes",
+      "scheme": "eips-site",
+      "id": "erc-7715 opaque context"
+    },
+    {
+      "digest": "sha256:3ce738a160ee157dc83e1284532a7196a990c926e39b5c7242ef382a7aad3b60",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-4337",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 319-367: UserOperation fields; nonce is the anti-replay parameter; callData is the data passed to the sender",
+      "scheme": "eips-site",
+      "id": "erc-4337 useroperation"
+    },
+    {
+      "digest": "sha256:8ae2b60623d70bebffcee9495058a61d4caba03898a721334330f17da6092cc0",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-4337",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 498-533: validateUserOp MUST validate the userOpHash signature; validUntil bounds validity; validAfter gates the start",
+      "scheme": "eips-site",
+      "id": "erc-4337 validateuserop"
+    },
+    {
+      "digest": "sha256:323b73b29582efcffe3150f447c6f5d5a67c622158e22af39d00f641d9a50611",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-4337",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 973-988: alternative mempools propagate UserOperations to other bundlers",
+      "scheme": "eips-site",
+      "id": "erc-4337 alt mempools"
+    },
+    {
+      "digest": "sha256:af03e06dd7dc3ac9ad16a1eae9401206fd70f0a61cf32ba3dc98bd4d474be58a",
+      "source_url": "https://eips.ethereum.org/EIPS/eip-7579",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Lines 443-496: IERC7579ModuleConfig installModule/uninstallModule MUST implement authorization control, emit ModuleInstalled/ModuleUninstalled, revert if not installed",
+      "scheme": "eips-site",
+      "id": "erc-7579 module config"
+    },
+    {
+      "digest": "sha256:5ae62b473393597be6a61acb284910c94e76af4184bdb4dd76e18384cf31f13c",
+      "source_url": "https://developers.basistheory.com/docs/guides/browser-proxy",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "browser-proxy.html line 53: access rule grants token:use on only the container holding the paid cards vs proxy:invoke which can use any token in the tenant",
+      "scheme": "vendor-docs",
+      "id": "bt proxy scope"
+    },
+    {
+      "digest": "sha256:5c13c0a754efbaa41b61c7b9d960effd5916622994be12b75e33e95d2249cc05",
+      "source_url": "https://developers.basistheory.com/docs/guides/browser-proxy",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "browser-proxy.html line 56: script fails closed; aborts non-matching requests; forwards the matched request at most once",
+      "scheme": "vendor-docs",
+      "id": "bt proxy fail closed"
+    },
+    {
+      "digest": "sha256:0f0aebb775db30e9d4f5c327ab9f3587203e29ed3d39e9f56656ed3a7df39509",
+      "source_url": "https://developers.basistheory.com/docs/guides/browser-proxy",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "browser-proxy.html line 68: card number visible to browser provider, session recordings, screenshots, logs, network captures and live views",
+      "scheme": "vendor-docs",
+      "id": "bt recording warning"
+    },
+    {
+      "digest": "sha256:42721706542703bc53345fac6dbc940da6acf280a9a55d6b7bf4b691533433b7",
+      "source_url": "https://developers.basistheory.com/docs/guides/agentic/implementation",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "acp-implementation.html lines 159-170: single-use card credential scoped to the mandate; Shared Payment Token bearer returned once and never persisted; later GET returns metadata only",
+      "scheme": "vendor-docs",
+      "id": "bt acp spt"
+    },
+    {
+      "digest": "sha256:ad296da67598727ee128a0a1f566fc393017aa268303a8e59eaa576e16501c9e",
+      "source_url": "https://developers.basistheory.com/docs/features/network-tokens",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "network-tokens.html lines 53, 67, 70: cryptogram is an ephemeral credential for exactly one transaction; network token lifecycle managed by Basis Theory",
+      "scheme": "vendor-docs",
+      "id": "bt network tokens"
+    },
+    {
+      "digest": "sha256:ff3a75299ca6b10e131232548aef19887fb6287fdc1610b97af6aa864d41f3d5",
+      "source_url": "https://raw.githubusercontent.com/ethereum/ercs/master/ERCS/erc-3009.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Lines 60-68: TRANSFER/RECEIVE_WITH_AUTHORIZATION_TYPEHASH structs carry from, to, value, validAfter, validBefore, nonce; AuthorizationUsed event",
+      "scheme": "github-source",
+      "id": "erc-3009 typehashes"
+    },
+    {
+      "digest": "sha256:46fb56fe5646892568f98497e18edfb42cdc1cbd3611e3daae0bb50ac1533085",
+      "source_url": "https://raw.githubusercontent.com/ethereum/ercs/master/ERCS/erc-3009.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Lines 138-160: optional cancelAuthorization plus AuthorizationCanceled event",
+      "scheme": "github-source",
+      "id": "erc-3009 cancel"
+    },
+    {
+      "digest": "sha256:996ce986939869c81edc42a15c512162cb20e96b6dcd51df10b1961592410663",
+      "source_url": "https://raw.githubusercontent.com/ethereum/ercs/master/ERCS/erc-3009.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Lines 437-459: strict window require(now > validAfter / now < validBefore); nonce consumed once via _authorizationStates then set true; AuthorizationUsed emitted",
+      "scheme": "github-source",
+      "id": "erc-3009 window nonce"
+    },
+    {
+      "digest": "sha256:79466c4169d24b427a506e58d13d8307d75a345a5708859c737fe60952d61323",
+      "source_url": "https://raw.githubusercontent.com/coinbase/x402/main/specs/schemes/exact/scheme_exact_evm.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Lines 55-73: payload carries signature plus authorization from/to/value/validAfter/validBefore/nonce; extra.name and extra.version required",
+      "scheme": "github-source",
+      "id": "x402 exact evm payload"
+    },
+    {
+      "digest": "sha256:4e71fe6254d84f1406028e16aa367e099b9c4c8bd802d2cb08dcd233a2380418",
+      "source_url": "https://raw.githubusercontent.com/coinbase/x402/main/specs/schemes/exact/scheme_exact_evm.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Line 17: the Facilitator cannot modify the amount or destination",
+      "scheme": "github-source",
+      "id": "x402 facilitator fixed"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "gpu:false pure-vocabulary decision kernel; no GPU prove has been run and none is proposed. Deferred per the section 18 steady-state rule (RIDER-KERNEL.md); measure user_cycles with runq-cpu exec before booking."
+},
+    {
   "tool_id": "art-01-ap2-mandate-chain-validator",
   "tool_version": "1.0.0",
   "display_name": "AP2 Mandate-Chain Validator",
@@ -57434,6 +57609,104 @@
       }
     }
   }
+},
+    {
+  "tool_id": "art-807-erc3643-transfer-decision",
+  "tool_version": "1.0.0",
+  "display_name": "ERC-3643 Transfer Decision Recompute",
+  "mcp_name": "recompute_erc3643_transfer_decision",
+  "mandate_type": "compliance_mandate",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-807-erc3643-transfer-decision.html",
+  "description": "Recomputes whether one proposed ERC-3643 (T-REX) transfer or mint would go through, from caller-declared state only: identity registry entries (identity present, investor country, claims with caller-declared validity), required claim topics, trusted issuers per topic, bound compliance modules and token state (paused, frozen wallets, frozen token amounts, balances, total supply). Gate order follows the reference implementation pinned at commit 2f0704d: for a transfer the pause gate, then either party frozen, then the amount against the sender's unfrozen balance, then receiver identity verification, then every bound module in declared order as a logical AND; a mint skips the first three. The output names the first failing gate (and the failing module or claim topics) while still reporting every gate. Four module rules are re-implemented from the pinned legacy compliance features: max balance per identity, supply limit on mints, country restriction and country whitelist, reading the receiver's registry country. Any other module can be declared as a pass-through outcome, which the node aggregates but does not judge. An optional fund covenant (jurisdiction allowlist, holder cap, lock-up date) is evaluated separately over the same state and any divergence from the token-level outcome is reported. Declared-state recompute only: no chain is read, claim signatures are not checked, and the node cannot confirm the declared state matches a deployed contract. The output is not legal advice and not a determination that a transfer is lawful. Malformed or missing inputs refuse with INPUT_REFUSED rather than being coerced.",
+  "input_schema_ref": "chaingraph/art-807-erc3643-transfer-decision.html#manifest",
+  "deadline": null,
+  "deadline_note": "No regulatory deadline: this node recomputes a declared transfer decision, it does not carry a dated obligation.",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:a13bb6fb2360995f8dd6eb7293320ae993dba46132cca39716e58ea13c783ed1","valid_from":"2026-11-03"}],
+  "export_capability": ["json"],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:1d7628ea9a3a2ed21e8d0c5e8fbcb228091f97b0211d7116e1a1d49df50957bd",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/token/Token.sol",
+      "retrieved_at": "2026-10-23",
+      "clause_path": "contracts/token/Token.sol L217-234 transferFrom",
+      "scheme": "erc-3643",
+      "id": "T-REX Token.transferFrom"
+    },
+    {
+      "digest": "sha256:56fa52066b1b53675631e86769fd37ade069d02247a879621d71b3ae86ac56e0",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/token/Token.sol",
+      "retrieved_at": "2026-10-23",
+      "clause_path": "contracts/token/Token.sol L417-426 transfer",
+      "scheme": "erc-3643",
+      "id": "T-REX Token.transfer"
+    },
+    {
+      "digest": "sha256:de889af09ff540bb826aed125b1e8526c0abe33340a22c8892130190a862c9cb",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/token/Token.sol",
+      "retrieved_at": "2026-10-23",
+      "clause_path": "contracts/token/Token.sol L453-459 mint",
+      "scheme": "erc-3643",
+      "id": "T-REX Token.mint"
+    },
+    {
+      "digest": "sha256:824fedcfa00aa1f389af8879f300bfec5e30731260ade526bc8e204277837638",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/registry/implementation/IdentityRegistry.sol",
+      "retrieved_at": "2026-10-23",
+      "clause_path": "contracts/registry/implementation/IdentityRegistry.sol L172-221 isVerified",
+      "scheme": "erc-3643",
+      "id": "T-REX IdentityRegistry.isVerified"
+    },
+    {
+      "digest": "sha256:9d6430da10bd6e58b2489e105aae1086eb4484251f5435b5bff91f6f7bdadc88",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/compliance/modular/ModularCompliance.sol",
+      "retrieved_at": "2026-10-23",
+      "clause_path": "contracts/compliance/modular/ModularCompliance.sol L245-253 canTransfer",
+      "scheme": "erc-3643",
+      "id": "T-REX ModularCompliance.canTransfer"
+    },
+    {
+      "digest": "sha256:5a9fccef809ea5873ff238b72a66a8edb10421545b483531c0b1931ba55e02cc",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/compliance/legacy/features/MaxBalance.sol",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "contracts/compliance/legacy/features/MaxBalance.sol L105-145",
+      "scheme": "erc-3643",
+      "id": "T-REX MaxBalance"
+    },
+    {
+      "digest": "sha256:03b941efad58437d39e0677708c6a6c9db21b2d2f7fc9c2df23a720285330c93",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/compliance/legacy/features/SupplyLimit.sol",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "contracts/compliance/legacy/features/SupplyLimit.sol L98-121",
+      "scheme": "erc-3643",
+      "id": "T-REX SupplyLimit"
+    },
+    {
+      "digest": "sha256:44b7110c6e873cc865c46827482767acbca33a69bf0d16d3ab3065c637ed040b",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/compliance/legacy/features/CountryRestrictions.sol",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "contracts/compliance/legacy/features/CountryRestrictions.sol L158-165",
+      "scheme": "erc-3643",
+      "id": "T-REX CountryRestrictions"
+    },
+    {
+      "digest": "sha256:81515b445d02649308dfd1fc433c2d2ea132f228d40522e5121d36c33a270d2e",
+      "source_url": "https://raw.githubusercontent.com/ERC-3643/ERC-3643/2f0704dee9658ad9cd5b6ed82e7427da74c28345/contracts/compliance/legacy/features/CountryWhitelisting.sol",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "contracts/compliance/legacy/features/CountryWhitelisting.sol L159-166",
+      "scheme": "erc-3643",
+      "id": "T-REX CountryWhitelisting"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node built 2026-11-03 (ETH-ERC3643-DECISION-NODE-1). BigInt comparisons and additions over declared state; every loop is bounded by fixed hard caps (64 registry entries, 16 topics, 16 issuers per topic, 32 claims per identity, 16 modules), never by a policy_parameters iteration count; no hashing inside the kernel (the artifact execution_hash is computed by the shared _hash.mjs outside it), no transcendentals, no signature verification. Expected FAST on a GPU static pre-screen; not measured. Standards-implementing, so a SIDEBYSIDE row must pass before any prove. Excluded from section-18 proving until then (SPEC.md section 18)."
 },
     {
   "tool_id": "art-814-qf-pairwise-recompute",
