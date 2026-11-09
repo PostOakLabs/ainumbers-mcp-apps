@@ -1279,6 +1279,74 @@
   }
 },
     {
+  "tool_id": "792-curator-vault-cap-auditor",
+  "tool_version": "1.0.0",
+  "display_name": "Curator Vault Cap Auditor",
+  "mcp_name": "audit_curator_vault_caps",
+  "mandate_type": "compliance_control",
+  "wave": 141,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/792-curator-vault-cap-auditor.html",
+  "description": "Audits a vault curator's point-in-time allocation snapshot against per-market caps and a declared mandate, from caller-declared minor-unit values only. Caps follow the pinned Morpho curation documentation semantics: an absolute cap is a fixed maximum amount per market and a relative cap is a maximum share of the vault's total assets, compared by exact integer cross-multiplication with no division; caps are allocation-time constraints, so an audit legitimately reports observed breaches on a snapshot. The kernel also checks the declared mandate (per-market, per-asset-class, idle floor, RWA floor, DeFi ceiling), reports concentration (largest market share and a Herfindahl index in basis points), idle-plus-withdrawable coverage of pending redemptions, and conservation (idle plus allocations equals total assets). Verdicts: WITHIN_MANDATE, WITHIN_MANDATE_WITH_WARNINGS or BREACH. Scope limits: no on-chain reads and no pricing: share pricing is the art-610 (ERC-4626 share math) domain and async redemption state is the art-611 (ERC-7540 request accounting) domain; asset classes are a fixed declared enum; relative-cap on-chain rounding and id-granularity encoding are code details shipped caller-declared, excluded here; profiles are morpho_vault_v2 (documented semantics) or generic (caller-declared); no curator or platform is named.",
+  "input_schema_ref": "chaingraph/792-curator-vault-cap-auditor.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:5c179330342a136524f4808a6f201ab22ba0f39015250bc42ef835c7cd944a1e","valid_from":"2026-11-08"}],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:a65dc86f1bedb0f9eb4403cdd1ff78e852b152d3ec1e640abb1a0aa3b2e15959",
+      "source_url": "https://docs.morpho.org/curate/concepts/liquidity/",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "Morpho docs, Curate > Concepts > Liquidity: caps constrain allocation operations only; Absolute Cap (fixed maximum amount per id/market); Relative Cap (max percentage of vault total assets, measured at start of transaction); exposure can exceed caps without new allocation; lowering a cap blocks new allocations only",
+      "scheme": "html-doc",
+      "id": "Morpho liquidity curation caps (pinned edition 2026-10-30)"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, 792-curator-vault-cap-auditor, scaffolded 2026-10-31 (KERNEL-SCAFFOLD-1). No GPU prove has been run and none is proposed by this scaffold — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real, then measure user_cycles with runq-cpu exec before booking."
+},
+    {
+  "tool_id": "795-stablecoin-refund-dispute",
+  "tool_version": "1.0.0",
+  "display_name": "Stablecoin Refund Dispute Check",
+  "mcp_name": "check_stablecoin_refunds",
+  "mandate_type": "compliance_control",
+  "wave": 141,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/795-stablecoin-refund-dispute.html",
+  "description": "Recomputes the expected refund and dispute outcome of stablecoin payments held under an escrowed refund protocol (lock period, refund request, arbiter decision, early-withdrawal fee, partial refunds) from aggregate, synthetic-label payment records only, and flags each break between the merchant reported state or amounts and the recomputation with a named rule: payments held for the caller-declared lock period are released in full after the lock, an arbiter refund is all-or-nothing unless the caller declares partial refunds allowed, an early withdrawal inside the lock carries a fee recomputed as floor(amount times fee_bp over 10000) in integer minor units (round-down, the node single documented rounding rule), and paid equals refunded plus released plus fee plus still held per payment and in total with a CONSISTENT, CONSISTENT_WITH_BREAKS or INCONSISTENT verdict. Aggregate-only: payment_ref values are opaque synthetic labels; any label resembling an address, transaction hash or long identifier-like blob is refused with no echo, and no payer or merchant data is accepted. Rules for the pinned profile re-implement the Circle Refund Protocol (Apache-2.0) escrow, refund, arbiter and early-withdrawal behaviour from a pinned source snapshot cited in cited_clause_digest; the generic profile takes every rule caller-declared. Payment settlement evidence lives in the x402 and CCTP nodes; this node consumes none of their outputs. Declared domain exclusions: no fiat chargeback networks, no FX or token-price effects, no legal-outcome prediction, values only, synthetic data only.",
+  "input_schema_ref": "chaingraph/795-stablecoin-refund-dispute.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:6732f77e7fd36d16eb53e230d2cef36876c58d2adc6c0e88e6f040fae0229c0a","valid_from":"2026-11-08"}],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:d732c55a9379189b49d5dd55f924652a07b9ffd524c54985e20ff2989df69b11",
+      "source_url": "https://raw.githubusercontent.com/circlefin/refund-protocol/a7ae494b67ceae4693b416efd52f835d7b53c690/src/RefundProtocol.sol",
+      "retrieved_at": "2026-10-31",
+      "clause_path": "Circle Refund Protocol RefundProtocol.sol at commit a7ae494b67ceae4693b416efd52f835d7b53c690: pay() escrow with releaseTimestamp = payment time plus lockup seconds; withdraw() post-lock full release reverting PaymentIsStillLocked; refundByRecipient() and refundByArbiter() full-amount refunds; earlyWithdrawByArbiter() arbiter-authorised early release carrying an explicit fee amount",
+      "scheme": "github",
+      "id": "circlefin/refund-protocol@a7ae494 (Apache-2.0)"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node 795-stablecoin-refund-dispute, built 2026-10-31 (K-FULL single-PR row STABLECOIN-REFUND-DISPUTE-CHECK-1). No GPU prove has been run; deferred per the section 18 steady-state rule. Prove lands via the async GPU queue."
+},
+    {
   "tool_id": "806-event-contract-terms-lint",
   "tool_version": "1.0.0",
   "display_name": "Event Contract Terms Lint",
@@ -7406,7 +7474,7 @@
       "wave": 15,
       "gpu": false,
       "url": "https://ainumbers.co/chaingraph/art-64-ai-act-highrisk-fit-diagnostic.html",
-      "description": "12-question A-F diagnostic that screens in-force obligations first (Art 5 prohibited practices, Art 4 AI literacy, GPAI) then classifies financial AI system high-risk status (Annex III: credit scoring, insurance pricing, financial-standing) and grades Article 9-15 readiness plus the provider/deployer split. Routes to the right ai-governance chain with a do-now vs prepare-ahead checklist and applicable date (2 Dec 2027 per Digital Omnibus, verify).",
+      "description": "12-question A-F diagnostic that screens in-force obligations first (Art 5 prohibited practices, Art 4 AI literacy, GPAI) then classifies financial AI system high-risk status (Annex III: credit scoring, insurance pricing, financial-standing) and grades Article 9-15 readiness plus the provider/deployer split. Routes to the right ai-governance chain with a do-now vs prepare-ahead checklist and applicable date (Annex III 2 Dec 2027; Art 6(1) 2 Aug 2028 per Regulation (EU) 2026/1744, adopted 8 July 2026).",
       "input_schema_ref": "chaingraph/art-64-ai-act-highrisk-fit-diagnostic.html#manifest",
       "consumes": [],
       "feeds": [
@@ -7420,91 +7488,96 @@
       "status": "live",
       "conformance_fixtures": false,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:e7cbaf562ec7a4b991bdd70cfafb39fcd09bb43a73d085fd0ea270e45dd2c0cb","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:2a9a7dc41081e1500c8380adcc35bf1b59b38f29d746552bcd0fd7ba5ab8d616","valid_from":"2026-11-04"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
       "compute_proof": {
-    "type": "ZkVmReceipt",
-    "system": "risc0",
-    "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "G3n0EC97rsE0+Prf5dc8vCNEj2tiGN5SokjaWkTIxcIcxtKQlKr2C4Xmn3EoJ4iFVE7UzTv3lWmjTEest7xo5w6fdhxo2+LC52f+aN9QM2HcaVE/v78tOXGCViwPm3biIGnnVtpkenTlmKvhP1kbj3pXY2bYGBaUtLG9lBTMC8Qj4pl6wNn7PT+L0cxpdtnWRkAvkWIa/OYHckz5aNb3YAQKFnvvrn+Ri5i/MOhmlJ/xxh/PtwkeaoJiacsvvaBID/mNOQ6e1wnZDqAtnIpI0MUGjft1Ur1IpcJIPuTGC4MriVQgIu7xx1noCGSpJGkaiK5V6/hxPBPO6N/5GJ8cUA==",
-    "journal": {
-      "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:e7cbaf562ec7a4b991bdd70cfafb39fcd09bb43a73d085fd0ea270e45dd2c0cb",
-      "output": {
-        "ai_literacy_grade": "F",
-        "annex_iii_basis": "Use-case-specific analysis required — review consolidated Annex III against actual deployment context",
-        "applicable_date": {
-          "digital_omnibus_date": "2026-12-02",
-          "note": "Verify current status: Digital Omnibus (provisional agreement 7 May 2026) proposes Annex III high-risk obligations → 2 Dec 2027. Legal effect only on formal adoption and publication in Official Journal before 2 Aug 2026. If not adopted in time, original 2 Aug 2026 date applies. Always check the current AI Act timeline before relying on this date.",
-          "original_date": "2026-08-02"
-        },
-        "dim_scores": {
-          "articles_9_15": {
-            "grade": "F",
-            "score": 0
+      "type": "ZkVmReceipt",
+      "system": "risc0",
+      "receiptFormat": "groth16-bn254",
+      "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "seal": "BmhPypAiAefv82/mt+8xr894xlveEbfQxwQSXYNdhj4pbRq207FS8e4/WbWWCe/TiHQWe6RRkb3joTBSB2bo7wNJKliwdfGTpedXOIn1G1Q8N0VqwJJF8aAZQ4WFeaskCowwacjMMUGepwwBpI1AyqIyJt3jB9LrDFRg2z+GJOcbF/jhr7C6/Rl7Zq0cfOdcmUNyvBk+nifAlr+44OHfsSeBhaq7/nfNbAy72qJndyBifcPgNssmlBI3WqS8bnjVIFLIq1diVBzGoqiuHKL1V39nO89ukX0MR1dER3r12cYKHOVC7aYt4P2nu9dwjPienZGuVFpn6rQLtpohXYJ1XQ==",
+      "journal": {
+        "chaingraph_version": "0.4.0",
+        "kernel_digest": "sha256:2a9a7dc41081e1500c8380adcc35bf1b59b38f29d746552bcd0fd7ba5ab8d616",
+        "output": {
+          "ai_literacy_grade": "F",
+          "annex_iii_basis": "Use-case-specific analysis required — review consolidated Annex III against actual deployment context",
+          "applicable_date": {
+            "digital_omnibus_date": "2027-12-02",
+            "note": "Regulation (EU) 2026/1744 (adopted 8 July 2026): Annex III high-risk obligations apply from 2 Dec 2027 (amended Art 113 point (c)(i)); Art 6(1) high-risk from 2 Aug 2028 (point (c)(ii)).",
+            "original_date": "2026-08-02"
           },
-          "classification": {
-            "grade": "A",
-            "score": 100
+          "dim_scores": {
+            "articles_9_15": {
+              "grade": "F",
+              "score": 0
+            },
+            "classification": {
+              "grade": "A",
+              "score": 100
+            },
+            "deployer": {
+              "grade": "F",
+              "score": 0
+            },
+            "gpai": {
+              "grade": "A",
+              "score": 100
+            },
+            "literacy": {
+              "grade": "F",
+              "score": 0
+            },
+            "maturity": {
+              "grade": "F",
+              "score": 0
+            },
+            "prohibited": {
+              "grade": "A",
+              "score": 100
+            },
+            "role": {
+              "grade": "B",
+              "score": 75
+            }
           },
-          "deployer": {
-            "grade": "F",
-            "score": 0
-          },
-          "gpai": {
-            "grade": "A",
-            "score": 100
-          },
-          "literacy": {
-            "grade": "F",
-            "score": 0
-          },
-          "maturity": {
-            "grade": "F",
-            "score": 0
-          },
-          "prohibited": {
-            "grade": "A",
-            "score": 100
-          },
-          "role": {
-            "grade": "B",
-            "score": 75
-          }
-        },
-        "do_now_checklist": [
-          {
-            "action": "Art 4 AI literacy — in force 2 Feb 2025. Implement AI-literacy programme for all staff deploying or using AI systems. Verify against consolidated AI Act Art 4 text.",
-            "obligation": "Art 4 AI Literacy",
-            "status": "IN FORCE 2 Feb 2025"
-          },
-          {
-            "action": "DORA (Reg. 2022/2554) — fully enforced since 17 Jan 2025. Treat the AI system as an ICT system: ICT risk management, incident reporting, vendor management (TPRM), TLPT. Run aig-resilience-overlap chain.",
-            "obligation": "DORA ICT Risk (if AI is an ICT system)",
-            "status": "IN FORCE 17 Jan 2025"
-          },
-          {
-            "action": "Non-discrimination / fair-lending (existing law, independent of AI Act date). Screen credit/insurance AI models for protected-characteristic bias. Run aig-fairness-bias chain.",
-            "obligation": "Non-Discrimination / Fair-Lending (existing law)",
-            "status": "IN FORCE"
-          }
-        ],
-        "gpai_applicability": "Not applicable — no GPAI/foundation-model dependency",
-        "high_risk_verdict": "OUT-OF-SCOPE — current assessment indicates system does not meet Annex III criteria. Re-assess if use case changes.",
-        "note": "Educational decision-support diagnostic. Outputs are not legal conformity certificates. EU AI Act timeline is in flux (Digital Omnibus pending formal adoption as of 2026-06-20) — carry both dates (2 Aug 2026 / 2 Dec 2027) and verify against the current AI Act / Official Journal. Verify all Article/Annex references against EU AI Act (Reg. 2024/1689) consolidated text at https://eur-lex.europa.eu/eli/reg/2024/1689/oj and Digital Omnibus updates.",
-        "overall_grade": "D",
-        "overall_score": 49.5,
-        "prepare_ahead_checklist": [],
-        "primary_recommendation": "aig-audit-pack",
-        "prohibited_practice_verdict": "PASS — no obvious prohibited-practice exposure.",
-        "role": "deployer",
-        "secondary_recommendations": [
-          "aig-resilience-overlap",
-          "aig-fairness-bias"
-        ]
+          "do_now_checklist": [
+            {
+              "action": "Art 4 AI literacy — in force 2 Feb 2025. Implement AI-literacy programme for all staff deploying or using AI systems. Verify against consolidated AI Act Art 4 text.",
+              "obligation": "Art 4 AI Literacy",
+              "status": "IN FORCE 2 Feb 2025"
+            },
+            {
+              "action": "DORA (Reg. 2022/2554) — fully enforced since 17 Jan 2025. Treat the AI system as an ICT system: ICT risk management, incident reporting, vendor management (TPRM), TLPT. Run aig-resilience-overlap chain.",
+              "obligation": "DORA ICT Risk (if AI is an ICT system)",
+              "status": "IN FORCE 17 Jan 2025"
+            },
+            {
+              "action": "Non-discrimination / fair-lending (existing law, independent of AI Act date). Screen credit/insurance AI models for protected-characteristic bias. Run aig-fairness-bias chain.",
+              "obligation": "Non-Discrimination / Fair-Lending (existing law)",
+              "status": "IN FORCE"
+            }
+          ],
+          "gpai_applicability": "Not applicable — no GPAI/foundation-model dependency",
+          "high_risk_verdict": "OUT-OF-SCOPE — current assessment indicates system does not meet Annex III criteria. Re-assess if use case changes.",
+          "note": "Educational decision-support diagnostic. Outputs are not legal conformity certificates. Regulation (EU) 2026/1744 (adopted 8 July 2026): Annex III high-risk obligations apply from 2 Dec 2027; Art 6(1) high-risk from 2 Aug 2028. Verify all Article/Annex references against EU AI Act (Reg. 2024/1689) consolidated text at https://eur-lex.europa.eu/eli/reg/2024/1689/oj and Digital Omnibus updates.",
+          "overall_grade": "D",
+          "overall_score": 49.5,
+          "prepare_ahead_checklist": [],
+          "primary_recommendation": "aig-audit-pack",
+          "prohibited_practice_verdict": "PASS — no obvious prohibited-practice exposure.",
+          "role": "deployer",
+          "secondary_recommendations": [
+            "aig-resilience-overlap",
+            "aig-fairness-bias"
+          ],
+          "warnings": [
+            "NO_AI_LITERACY_PROGRAMME",
+            "NO_FRIA",
+            "TECH_DOC_INCOMPLETE_ANNEX_IV"
+          ]
+        }
       }
-    }
-  },
+    },
       "export_capability": [
         "pdf"
       ]
@@ -55917,6 +55990,29 @@
  "compute_proof": {"type":"ZkVmReceipt","system":"risc0","receiptFormat":"groth16-bn254","imageId":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","seal":"ALtnGcqOpI9JtNR2Ubs2kkR1nhT86JHqBTsTcI7zIQckQudYXyGoECECjU0V2sxYgJLJ0dSQFnEXlKLzazPNExPNr01gp1esRbEZ3bE6x/sovwK2E6dOeV1oJKK2nPyUFpdg6ugLnVpgFBXXt2F0U1tvcZfOs3M8bRFiHcjI8oMPF7XefoFph8htQmaoazsKUAAAIzyDjvI/8k9IJHkWAyWd70NPC5lDhqFGn6VYhhSeA+7YTsruBnlwj0sGF0hpJInHB7AjicdtH4vLmUuAXGJlO0zcXQ7+bMion+nEXQQFIc7iGFsXqPASHzQZu0n7D76jGkXavOJ+JNdJ+1IB9g==","journal":{"chaingraph_version":"0.4.0","kernel_digest":"sha256:6264bf5f2da03bba7b4b978a27f112253e00955c788b4a28213e38838029744c","output":{"all_pass":true,"channel_id_hex":"4f6c64000000000000000000000000000000000000000000000000000000a1b2","checks":{"channel_id_matches_pda":true,"cumulative_above_settled_watermark":true,"cumulative_within_deposit_ceiling":true,"length_is_50":true,"magic_is_56_01":true,"not_expired":true},"cumulative_amount":"1000","expires_at":"0","note":"Checks mirror the program validator in its own order after the Ed25519 precompile has proven the signature: exact 50-byte layout, magic tag/version, channel-address binding, deposit cap, strictly monotonic watermark, expiry (0 disables). settle_delta is the amount a settle of this voucher would add to the channel.","out_of_scope":"the Ed25519 signature is NOT verified here (the authorized signer is a trusted claim) and nothing is read from chain","pinned_constants":{"field_sizes":{"channel_id":32,"cumulative_amount":8,"expires_at":8},"magic":[86,1],"offsets":{"channel_id":2,"cumulative_amount":34,"expires_at":42},"open_slot_window":1500,"voucher_len":50},"second_voucher":null,"settle_delta":"600","trusted_terms":{"authorized_signer":null,"current_time":"1700000000","deposit_ceiling":"5000","mint":null,"settled_watermark":"400"},"voucher":{"hex_prefix_stripped":true,"length":50}}}}
 },
     {
+  "tool_id": "art-750-diff-evidence-bundles",
+  "tool_version": "1.0.0",
+  "display_name": "Diff Evidence Bundles",
+  "mcp_name": "compute_diff_evidence_bundles",
+  "mandate_type": "compliance_control",
+  "wave": 134,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-750-diff-evidence-bundles.html",
+  "description": "Evidence-bundle diff: takes two parsed JSON bundles (bundle_a = baseline, bundle_b = comparison) plus an optional as_of timestamp and reports, as values only, what moved between them. Inputs are classified the same way the estate's verification desk classifies them (OCG artifact carrying an execution_hash, chain given as a step-artifact array or a steps array, evidence bundle carrying a subject_hash without an execution_hash, or a records array); anything else is refused by throw with a named reason. Four comparison sections follow: hash- and digest-bearing fields (execution_hash, subject_hash, receipt hashes, chained workpaper hashes), version-bearing fields, a normalized human-accountability view (approval, rejection and override membership sets plus threshold or gate-policy fields, where a legacy records array, an embedded sign_off and the converged evidence-bundle shape all normalize to the same keys so a shape migration alone never surfaces as a diff row), and the verdict, taken from verification_result first, then explicit verdict-family fields, then derived from a checks array, with a regressed flag when the verdict moved toward fail, reject or hold. Nesting is capped at 200 levels for hostile-input safety. The one wall-clock read the source page performs (override freshness) is a caller-supplied as_of parameter here: it is required whenever an override record is present. The node ports the internal comparison math of the existing root page bundle-diff.html (kept untouched) so an MCP auditor gets an execution_hash-bearing result instead of a page-only view. compute_proof_ready is deferred; the kernel is pure structural comparison with no float arithmetic, no transcendentals and no loop bound taken from policy_parameters.",
+  "input_schema_ref": "chaingraph/art-750-diff-evidence-bundles.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:693b7edea3f0a7a3d0123d9918e30abee3503aa91c3cf880d882c89fb78aab16","valid_from":"2026-10-20"}],
+  "export_capability": ["json"],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-750-diff-evidence-bundles, built 2026-10-20 (BUNDLE-DIFF-KERNEL-1). Pure structural comparison over string fields and set membership: no digest or signature verification inside compute(), no transcendentals, no iteration count from policy_parameters, so the GPU-CYCLE-PREFLIGHT-1 static pre-screen reads FAST-expected. No GPU prove is proposed by this row; deferred per the section 18 steady-state rule (RIDER-KERNEL.md)."
+},
+    {
   "tool_id": "art-754-equity-exit-waterfall",
   "tool_version": "1.0.0",
   "display_name": "Equity Exit Waterfall Modeler",
@@ -56002,6 +56098,37 @@
       }
     }
   }
+},
+    {
+  "tool_id": "art-756-sales-ote-commission-analyzer",
+  "tool_version": "1.0.0",
+  "display_name": "Sales OTE & Commission Analyzer",
+  "mcp_name": "analyze_sales_ote_commission",
+  "mandate_type": "sales_comp_record",
+  "wave": 134,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-756-sales-ote-commission-analyzer.html",
+  "description": "Gross W-2 model for a sales OTE offer ported from ApexLogics Apex #89 (AL-96): base salary plus variable pay as a function of quota attainment, with an optional accelerator tier (strictly inactive at or below the threshold) and an optional recoverable draw with a months-to-payback figure and a clawback-elevated flag. Reports the base commission rate (ote-base)/quota, the at-target variable and total (always evaluated at exactly 100% attainment), a flat-rate after-tax figure, the base/variable split with a high/moderate/low risk label at 60%/40% of OTE in variable pay, a six-level attainment scenario ladder (50/75/100/125/150/200), and an accelerator insight row at 150%. Refuses ote <= base and base <= 0 with named reasons in Apex guard order, and refuses a non-calendar as_of: the node reads no clock, as_of is an input. Every numeric input is read with the Apex `||` default semantics, so an explicit 0 is replaced by the default and reported in apex_zero_coercion_applied with an APEX_ZERO_COERCION_APPLIED flag. The node computes NO tax liability (after_tax_at_target is gross times one flat caller rate, not the 2026 marginal schedule, which the kernel records as named literals from Rev. Proc. 2025-32 sec. 4.01 without applying), NO FLSA regular rate and NO overtime. The risk cuts, the 6-month clawback threshold and the 25-point highlight bucket are the Apex tool's own editorial constants with no cited source; the advertised BLS OEWS 2024 vintage is not present in the compute and was not carried across (payload DIFFERS.md D-1..D-4, CITES.md UNGROUNDED).",
+  "input_schema_ref": "chaingraph/art-756-sales-ote-commission-analyzer.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:b16c64afb3ceeef8652c4aa0d61ba66b70be5f669ed8970d4a480b4e6aa8b87f",
+      "valid_from": "2026-10-19"
+    }
+  ],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-756-sales-ote-commission-analyzer, built 2026-10-19 (APEX-PORT-89-LAND-1). Float arithmetic over the Apex page's own operation order with no digest inside compute(); expected FAST on GPU-CYCLE-PREFLIGHT-1 static pre-screen (no transcendentals, no iteration bound taken from policy_parameters, no in-guest signature or hash verification). standards_basis is not_applicable: the node implements no published standard or regulation — it ports the Apex page's OTE arithmetic, records the 2026 IRS marginal schedule as unused named literals, and carries the payload's DIFFERS/UNGROUNDED flags (flat federal rate is not a tax computation; Apex `||` zero-coercion reproduced deliberately; quota cancels algebraically in the accelerated branch)."
 },
     {
   "tool_id": "art-758-hdhp-ppo-break-even",
@@ -57611,6 +57738,31 @@
   }
 },
     {
+  "tool_id": "art-793-government-stablecoin-acceptance",
+  "tool_version": "1.0.0",
+  "display_name": "Government Stablecoin Acceptance Audit",
+  "mcp_name": "assess_gov_stablecoin_accept",
+  "mandate_type": "compliance_control",
+  "wave": 141,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-793-government-stablecoin-acceptance.html",
+  "description": "Assesses a government acceptor's aggregate stablecoin receipt ledger against its written acceptance policy, which tokens are eligible, how fast receipts must be converted to fiat, how much unconverted value may be held, and how refunds are handled, and reconciles tokens received, converted and credited in fiat line by line, reporting policy conformance, reconciliation breaks, peak unconverted exposure and an overall verdict. Inputs are aggregate per-day-per-token totals in integer minor units; no payer data is accepted. All policy parameters are caller-declared: the pinned Bermuda government statement (gov.bm, 2026-01-19) names agency stablecoin-payment pilots and USDC as principal token but fixes no conversion window, holding cap, refund rule or custody arrangement. Scope limits: no issuer-side reserve evidence (that is the reserve-attestation node's job), no pricing or FX logic, no jurisdiction profiles shipped, the generic profile only.",
+  "input_schema_ref": "tools/793-government-stablecoin-acceptance.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:d44f492e6dce3ac9d6b9ea5064405ca5b994b83c4df9fa45ed2ca8732a00f812","valid_from":"2026-11-08"}],
+  "export_capability": [
+    "json"
+  ],
+  "standards_basis": "not_applicable",
+  "cited_clause_digest": [],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-793-government-stablecoin-acceptance, authored 2026-10-31 (GOV-STABLECOIN-ACCEPTANCE-1). No GPU prove has been run and none is proposed by this row, deferred per the section 18 steady-state rule (RIDER-KERNEL.md)."
+},
+    {
   "tool_id": "art-807-erc3643-transfer-decision",
   "tool_version": "1.0.0",
   "display_name": "ERC-3643 Transfer Decision Recompute",
@@ -57707,6 +57859,38 @@
   ],
   "compute_proof_ready": "deferred",
   "deferred_reason": "New gpu:false node built 2026-11-03 (ETH-ERC3643-DECISION-NODE-1). BigInt comparisons and additions over declared state; every loop is bounded by fixed hard caps (64 registry entries, 16 topics, 16 issuers per topic, 32 claims per identity, 16 modules), never by a policy_parameters iteration count; no hashing inside the kernel (the artifact execution_hash is computed by the shared _hash.mjs outside it), no transcendentals, no signature verification. Expected FAST on a GPU static pre-screen; not measured. Standards-implementing, so a SIDEBYSIDE row must pass before any prove. Excluded from section-18 proving until then (SPEC.md section 18)."
+},
+    {
+  "tool_id": "art-811-check-dti-within-policy-private",
+  "tool_version": "1.0.0",
+  "display_name": "Private-Input Debt-to-Income Within Policy Check",
+  "mcp_name": "check_dti_within_policy_private",
+  "mandate_type": "compliance_control",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-811-check-dti-within-policy-private.html",
+  "description": "Pilot private-input predicate. Checks that privately held monthly debt obligations, 16 fixed slots, are at most a chosen share of a privately held monthly income, and publishes only a yes/no verdict. The share comes from a fixed public list (36, 43, 45 or 50 percent) because 12 CFR 1026.51(a)(1)(ii) tells a card issuer to consider the ratio of debt obligations to income in its written policies but names no number. Zero income gives no. Carries an OCG Standard section 25 ocg-private-input@1 declaration: the income and the debts are each committed under sha256-salted@1 with their own independent salt, in policy_parameters.income_commitment and policy_parameters.debts_commitment, so the income can be opened to an employment-verification party without opening the debts. Integer arithmetic only. The witness must be exactly 16 slots of 20-digit amounts so its length does not reveal how many debts exist; any other shape is refused and nothing is sealed. It does not show that every debt was listed, that the income is real or accessible, or the minimum-payment estimate in paragraph (a)(2), and assets are out of scope. The verdict is public and the inputs are not in the receipt; a receipt made from inputs given to a server was seen by that server, and many yes/no questions about the same figures at different shares reveal more than one. Pilot: the node lands with its proof deferred and the in-browser result is a preview, not a receipt.",
+  "input_schema_ref": "chaingraph/art-811-check-dti-within-policy-private.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:decfd41bf3e450e1251e6cf36e4c3286f4008c9c8cfa831220b10804b8da7cb6","valid_from":"2026-11-03"}],
+  "export_capability": ["json"],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:d9f6c7c0a8e812c417d9197f0026930a7b788306cdd03016abdc5695e3405a32",
+      "source_url": "https://www.ecfr.gov/api/versioner/v1/full/2026-09-01/title-12.xml?part=1026&section=1026.51",
+      "retrieved_at": "2026-09-03",
+      "clause_path": "12 CFR 1026.51(a) general rule (incl. (a)(1)(i)-(ii) income/assets/current obligations, DTI ratio; (a)(2) minimum periodic payment estimate safe harbor) and (b) rules affecting young consumers (under-21 independent ability / cosigner)",
+      "scheme": "cfr",
+      "id": "12 CFR 1026.51"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false private-input node, art-811-check-dti-within-policy-private, authored 2026-11-03. Exec-only measure on the section 25 private-input guest (PRIVATE-PREDICATE-DESIGN-1, prototype of this kernel): MAX 7,295,082 user_cycles over 48 segments, FAST class under the 30M ceiling; proving is the separate PRIVATE-PREDICATE-PROVE-1 row, which needs its SIDEBYSIDE row first (SO #39; the threshold list is CLAUSE-SILENT). Deferred per the section 18 steady-state rule (RIDER-KERNEL.md)."
 },
     {
   "tool_id": "art-814-qf-pairwise-recompute",
@@ -57880,6 +58064,151 @@
   },
   "deadline": null,
   "deadline_note": "No deadline of its own: the node reports the application dates the pinned text states."
+},
+    {
+  "tool_id": "art-819-ucp-request-constraints",
+  "tool_version": "1.0.0",
+  "display_name": "Ucp Request Constraints",
+  "mcp_name": "eval_ucp_request_constraints",
+  "mandate_type": "compliance_control",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/mcp.html",
+  "pageless": "Page-less by construction, matching the art-788 and art-653 shape: a fresh node page would be a NAV-ISLAND-1 unlinked island until an ASSEMBLE row wires it into chaingraph-hub.html, and no legal fix exists in a kernel row; the page belongs to ASSEMBLE-LAND. Presented through the shared MCP tool catalog (mcp.html).",
+  "description": "Deterministic, verify-only preflight of a caller-pasted Universal Commerce Protocol (UCP) request against a caller-pasted set of ucp.request_constraints values, per the Request Constraints section of the 2026-08-25 overview (tag v2026-08-25 of github.com/Universal-Commerce-Protocol/ucp, Apache-2.0). Evaluates the closed constraint grammar (required, properties, anyOf, enum, const) against every object each value's path selects; an omitted path falls back to the caller-supplied Normalized Path of the object that held ucp. Paths are evaluated with a minimal inline RFC 9535 subset: root, child member, index, wildcard, and equality filters joined by &&, which covers every path in the spec's own examples; anything else is INDETERMINATE with UNSUPPORTED_PATH, never a guess. Verdict SATISFIED, VIOLATED or INDETERMINATE, listing each violated constraint with its path and reason. A malformed value (including an empty or path-carrying anyOf branch) is CONSTRAINT_MALFORMED, a value whose path selects a non-object is skipped, and contradictory const or enum constraints on one object are reported as CONSTRAINT_CONTRADICTION (an authoring error, verdict INDETERMINATE). A missing constraints set means nothing to check. Input size and depth are bounded and over-bound input is INDETERMINATE. Declared exclusions: the resolved request schema is not checked, Business runtime outcomes are not modelled, and the node never fetches a profile, a key or a merchant endpoint.",
+  "input_schema_ref": "manifests/art-819-ucp-request-constraints.manifest.json#input_schema",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:4a5187312e049580210fd22d0251703f75812c440d72262fa7286ad1afe624d0","valid_from":"2026-11-08"}],
+  "export_capability": ["json"],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:24f448b9257854ee1e233394f2fdcdf1f5afafd085e86ba78ba822d266aede75",
+      "source_url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/v2026-08-25/docs/specification/overview/index.md",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "docs/specification/overview/index.md (Request Constraints: validation model, constraint expression, path, guidelines, scope and lifecycle)",
+      "scheme": "ucp",
+      "id": "UCP v2026-08-25 overview, Request Constraints"
+    },
+    {
+      "digest": "sha256:987eaa192930a0ea8d1c7b6a7cc947153e1d9da32b46d61aa49eaf782c166edf",
+      "source_url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/v2026-08-25/source/schemas/common/types/request_constraints.json",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "source/schemas/common/types/request_constraints.json (path + constraint expression binding)",
+      "scheme": "ucp",
+      "id": "UCP v2026-08-25 Request Constraints schema"
+    },
+    {
+      "digest": "sha256:8c0fcbfabc3f8038c89a86b7f6b9fa32c2754eba727328c6d90062584855ade2",
+      "source_url": "https://github.com/Universal-Commerce-Protocol/ucp/blob/v2026-08-25/source/schemas/common/types/constraint_expression.json",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "source/schemas/common/types/constraint_expression.json (required, properties, anyOf, enum, const)",
+      "scheme": "ucp",
+      "id": "UCP v2026-08-25 Constraint Expression schema"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-819-ucp-request-constraints, scaffolded 2026-11-03 (KERNEL-SCAFFOLD-1). No GPU prove has been run and none is proposed by this scaffold — deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real, then measure user_cycles with runq-cpu exec before booking."
+},
+    {
+  "tool_id": "art-820-negotiate-ucp-capabilities",
+  "tool_version": "1.0.0",
+  "display_name": "UCP Capability Negotiation",
+  "mcp_name": "negotiate_ucp_capabilities",
+  "mandate_type": "compliance_mandate",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-820-negotiate-ucp-capabilities.html",
+  "description": "Intersects the UCP capability sets two pasted profiles advertise: keeps the capabilities named by both sides at their highest mutually supported dated version, applies each extension's requires bounds, prunes extensions whose parents did not survive, and reports profile-shape findings (canonical keys[] placement, namespace authority binding against the reversed schema host, dev.ucp.* release pinning, protocol version format). Verify-only: decides from the two pasted profile objects and never fetches profiles, leaf documents, or schemas.",
+  "input_schema_ref": "chaingraph/art-820-negotiate-ucp-capabilities.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:f09fdc7369978626a800a5464785c62999cad6868894f8be97db94225f52dc7a","valid_from":"2026-11-04"}],
+  "export_capability": ["json"],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:f8816cd478fb18d3e96839251c40f8642ee34ee7549f5595b2db58c787a4e43f",
+      "source_url": "https://ucp.dev/latest/specification/overview/",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Overview / Capability Versioning / Intersection Algorithm / Extension Dependencies / Profile Resolution Flow",
+      "scheme": "ucp",
+      "id": "UCP Overview (serves 2026-08-25) - Intersection Algorithm and requires bounds"
+    },
+    {
+      "digest": "sha256:cd0441675907f86e5d129eb447269fe7dcc2f4fb7e4a3b72cc7c2376c09a5c70",
+      "source_url": "https://ucp.dev/latest/specification/overview/",
+      "retrieved_at": "2026-11-04",
+      "clause_path": "Overview / Profile Structure / Keys / Namespace Authority Binding / Namespace Governance / Version Format / Supported Versions / Component Versioning",
+      "scheme": "ucp",
+      "id": "UCP Overview (serves 2026-08-25) - Profile structure, keys[], namespace binding, version format"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-820-negotiate-ucp-capabilities, authored 2026-11-04 (row UCP-NEGOTIATE-1). No GPU prove has been run and none is proposed by this row - deferred per the section 18 steady-state rule for new gpu:false nodes, which accept a verified compute_proof or a declared compute_proof_ready:'deferred' with a stated reason. Run GPU-CYCLE-PREFLIGHT-1's static pre-screen once compute() is real (it is), then measure user_cycles with runq-cpu exec before booking a prove cycle."
+},
+    {
+  "tool_id": "art-826-authenticator-assurance-level",
+  "tool_version": "1.0.0",
+  "display_name": "Authenticator Assurance Level Evaluator",
+  "mcp_name": "compute_authn_assurance_level",
+  "mandate_type": "compliance_control",
+  "wave": 142,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-826-authenticator-assurance-level.html",
+  "description": "Rates whether a DECLARED authenticator set and session policy reach a DECLARED target level of a caller-supplied, versioned authentication assurance framework -- never a hardcoded framework such as NIST SP 800-63B or the eIDAS levels of assurance. This is the authentication counterpart to the identity-proofing evaluator (art-523), on the same framework-as-input pattern: the framework supplies levels ordered lowest-to-highest, each carrying criteria in a shared generic vocabulary (a distinct-factor-category floor, required factor categories, phishing-resistance / verifier-impersonation-resistance / hardware-binding / dynamic-authentication requirements, reauthentication and idle-timeout ceilings in minutes, and restricted authenticator kinds). The kernel never interprets a framework it was not given: every threshold and restriction comes from the declared framework, and authenticator kinds come from the node's own closed enum (password, otp_device, otp_sms, crypto_software, crypto_hardware, passkey_synced, passkey_device_bound, biometric_local), with factor categories only ever tested for set membership in the caller's own vocabulary. A criterion whose declared value is malformed is flagged AAL_DEFINITION_INSUFFICIENT -- the definition cannot express what it asks for -- which is distinct from AAL_SHORTFALL (declared data failing a well-formed criterion, reported per criterion as {criterion, required, found}); the two are never conflated. When the target level is not met, achieved_level falls back to the highest fully-met level below it. The named compliance flags cover a restricted authenticator in use, missing phishing resistance, an exceeded reauthentication interval, and a short factor count. Honest posture: this evidences that a declared authenticator set was measured against a declared policy. It does not assert anyone controls any authenticator, does not verify possession, biometrics or device state, and carries no user identifiers -- inputs are kinds, boolean capabilities and minute intervals, nothing else. The shipped example frameworks in its fixtures are modeled on NIST SP 800-63B-4 AAL1-3 and on the authentication section of the eIDAS implementing regulation's annex; both are caller data, and no output implies endorsement by NIST, the European Commission or any government.",
+  "input_schema_ref": "chaingraph/art-826-authenticator-assurance-level.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:753097999c8df944333000a9093ba2448c0aec45306ed0f6aa21d19d8f437227","valid_from":"2026-11-08"}],
+  "export_capability": ["json"],
+  "standards_basis": "cites_informative",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:ec9338bc460498f92257226b50cf93fa680222a6b871a5b6a684dc0b478b13cc",
+      "source_url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "SP 800-63B-4 Sec. 2 Authentication Assurance Levels (AAL1-AAL3 authenticator/verifier requirements and reauthentication, summary-of-requirements table)",
+      "scheme": "nist-sp-800-63",
+      "id": "NIST SP 800-63B-4 (Final 2025-07-31), HTML rendition from the official usnistgov/800-63-4 publication"
+    },
+    {
+      "digest": "sha256:02e96ed5ef1f31640c49f84f81948fced9c058def4c3708917c5176d8e5a2047",
+      "source_url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "SP 800-63B-4 Sec. 3.1.3 Out-of-Band Devices",
+      "scheme": "nist-sp-800-63",
+      "id": "NIST SP 800-63B-4 (Final 2025-07-31), HTML rendition from the official usnistgov/800-63-4 publication"
+    },
+    {
+      "digest": "sha256:bd0c3907537285c0186582e697db913e30a734ae2db66dacdde35edbce74ca00",
+      "source_url": "https://pages.nist.gov/800-63-4/sp800-63b.html",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "SP 800-63B-4 Sec. 3.2.5 Phishing Resistance (verifier-impersonation resistance)",
+      "scheme": "nist-sp-800-63",
+      "id": "NIST SP 800-63B-4 (Final 2025-07-31), HTML rendition from the official usnistgov/800-63-4 publication"
+    },
+    {
+      "digest": "sha256:85cfc18d958dfcdc7fcfa96f695b5bbda7be6a5917b2daa5f3ea95267cfa9542",
+      "source_url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32015R1502",
+      "retrieved_at": "2026-11-03",
+      "clause_path": "Annex section 2.3 Authentication (including 2.3.1 authentication mechanism per assurance level) with Annex section 1 definitions (authentication factor categories, dynamic authentication) and Article 1(2)(c)",
+      "scheme": "eu-regulation",
+      "id": "Commission Implementing Regulation (EU) 2015/1502, EUR-Lex CELEX:32015R1502"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-826-authenticator-assurance-level, scaffolded 2026-11-04 (KERNEL-SCAFFOLD-1) and implemented same row. No GPU prove has been run and none is proposed -- deferred per the section 18 steady-state rule (RIDER-KERNEL.md). Run GPU-CYCLE-PREFLIGHT-1's static pre-screen, then measure user_cycles with runq-cpu exec before booking."
 },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
@@ -59787,6 +60116,55 @@
         }
       ]
     },
+    {
+  "name": "agent-payment-compliance-trail",
+  "domain": "Agent Economy",
+  "title": "Agent Payment Compliance Trail",
+  "description": "A nine-stage agent payment workflow over caller-declared data. Step 1 validates the AP2 Intent, Cart and Payment mandate trio for signature-chain integrity, scope and limit consistency, expiry and over-spend (art-01). Step 2 then validates the on-behalf-of mandate the agent acts under, covering subject, scope, intent and validity window (art-151). Step 3 then cross-checks the declared KYA credential scope against the declared x402 payment payload (art-565). Step 4 then scores the declared transaction graph for laundering typologies (art-10). Step 5 then validates travel-rule field completeness across the declared transfer batch (art-104). Step 6 then binds the screening decision to the exact dataset version it was screened against (art-585). Step 7 then verifies the payment receipt against its mandate chain under the human-not-present guardrail (art-62). Step 8 then recomputes the Permit2 settlement digest for the declared payment (art-699). Step 9 aggregates the declared execution hashes of the session into one Merkle-root audit receipt (cry-05). Each step computes from its own declared inputs; the order is analytical, not a statutory sequence, and the workflow certifies nothing.",
+  "composer_url": "https://ainumbers.co/chaingraph/chains/agent-payment-compliance-trail.html",
+  "regulatory_basis_status": "not_assessed",
+  "regulatory_basis_decided_by": "AGENTDESK-W1-CHAIN-PAYMENT-TRAIL-1",
+  "regulatory_basis_decided_at": "2026-10-29",
+  "export_capability": ["json"],
+  "steps": [
+    {
+      "tool_id": "art-01-ap2-mandate-chain-validator",
+      "handoff": "Validates the caller-declared AP2 Intent, Cart and Payment mandate trio for signature-chain integrity, scope and limit consistency, expiry and over-spend detection. Step 2 then checks the on-behalf-of mandate the agent acts under. Stage 1 of 9."
+    },
+    {
+      "tool_id": "art-151-agent-obo-mandate-validator",
+      "handoff": "Validates the caller-declared on-behalf-of mandate, checking the represented subject, the bounded scope array, the intent string and the validity window, and refusing on mismatch or expiry. Step 3 then checks the payment against the credential's scope. Stage 2 of 9."
+    },
+    {
+      "tool_id": "art-565-kya-x402-scope-verifier",
+      "handoff": "Cross-checks the declared KYA credential scope against the declared x402 payment payload, comparing amount, network, asset, payee and validity window, and returning an in-scope, out-of-scope or indeterminate verdict. Step 4 then scores the declared transaction graph for laundering typologies. Stage 3 of 9."
+    },
+    {
+      "tool_id": "art-10-amla-transaction-typology-risk-scorer",
+      "handoff": "Scores the declared transaction graph against money-laundering typologies, returning a risk determination per account and cluster. Step 5 then validates travel-rule field completeness across the declared transfer batch. Stage 4 of 9."
+    },
+    {
+      "tool_id": "art-104-tfr-travel-rule-batch-validator",
+      "handoff": "Validates originator and beneficiary field completeness across the declared transfer batch branches and reports batch conformance with a Merkle root. Step 6 then binds the screening decision to its dataset version. Stage 5 of 9."
+    },
+    {
+      "tool_id": "art-585-sanctions-screening-evidence-pack",
+      "handoff": "Binds the caller-declared screening decision to the exact versioned dataset it was screened against, comparing the caller-computed artifact digest with the published digest for that version. Step 7 then verifies the payment receipt. Stage 6 of 9."
+    },
+    {
+      "tool_id": "art-62-ap2-payment-receipt-verifier",
+      "handoff": "Verifies the caller-declared payment receipt against its signed mandate chain, applying the human-not-present guardrail on amount, category, mandate age and cart freshness. Step 8 then recomputes the settlement evidence. Stage 7 of 9."
+    },
+    {
+      "tool_id": "art-699-x402-permit2-evidence-recomputer",
+      "handoff": "Recomputes the Permit2 typed-data digest the payer's wallet signs for the declared x402 payment, deriving the domain separator, struct hash and digest for each single-item message shape. Step 9 then aggregates the audit trail. Stage 8 of 9."
+    },
+    {
+      "tool_id": "cry-05-agent-action-audit-trail-aggregator",
+      "handoff": "Aggregates the caller-declared execution hashes of the agent session into one SHA-256 Merkle-root session receipt with per-leaf inclusion proofs and an ordered chain-depth map. Final stage."
+    }
+  ]
+},
     {
       "name": "agent-payment-dispute-evidence",
       "domain": "Fraud & Dispute",
