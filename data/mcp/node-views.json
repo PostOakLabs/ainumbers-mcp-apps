@@ -64,6 +64,14 @@
       "sha256": "77010b997730945b68c568c19e3570379ee036b7850949ea7a59e50bc98ccbee"
     },
     {
+      "tool_id": "808-lst-share-rate-reconciler",
+      "mcp_name": "reconcile_lst_share_rate",
+      "display_name": "Liquid-Staking Share Rate Reconciler",
+      "uri": "ui://ainumbers/node/808-lst-share-rate-reconciler",
+      "bytes": 35931,
+      "sha256": "0849337bae5ee33fd2ec23c31cf587e7761b4905817026051d977fe45b6066ae"
+    },
+    {
       "tool_id": "813-eth-staking-accounting",
       "mcp_name": "recompute_eth_epoch_accounting",
       "display_name": "Ethereum Epoch Accounting Recompute",
@@ -5160,6 +5168,14 @@
       "sha256": "e709650d2d3dc749fbba9fb1bdfdadb15ce42d4cdc5daf8b4f83b9c06e0b768d"
     },
     {
+      "tool_id": "art-761-caregiver-income-impact",
+      "mcp_name": "caregiver_income_impact",
+      "display_name": "Caregiver Income Impact & Lost Earnings Estimator",
+      "uri": "ui://ainumbers/node/art-761-caregiver-income-impact",
+      "bytes": 48677,
+      "sha256": "d907973e44a9ac91527206427b9518651888a9941250766bc5d00534cd72c971"
+    },
+    {
       "tool_id": "art-763-ai-displacement-risk-screener",
       "mcp_name": "ai_displacement_risk_screener",
       "display_name": "AI Displacement Risk Screener",
@@ -5262,6 +5278,14 @@
       "uri": "ui://ainumbers/node/art-807-erc3643-transfer-decision",
       "bytes": 63312,
       "sha256": "ff23b6efe203621f81b960956f6f10de1543f0593cba0ee3250920f63e4b9424"
+    },
+    {
+      "tool_id": "art-809-check-reserves-cover-outstanding-private",
+      "mcp_name": "check_reserves_cover_private",
+      "display_name": "Private-Input Reserves Cover Outstanding Check",
+      "uri": "ui://ainumbers/node/art-809-check-reserves-cover-outstanding-private",
+      "bytes": 45482,
+      "sha256": "c47a4a084b60953c2d90f8e51a329ffcdf2ee1ec731897de7d8d43db8148254b"
     },
     {
       "tool_id": "art-811-check-dti-within-policy-private",
