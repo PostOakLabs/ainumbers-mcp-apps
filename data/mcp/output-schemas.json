@@ -45686,6 +45686,24 @@
     "type": "object",
     "description": "output_payload: purchase_price, offering_price, current_price, shares_exercised, grant_date, purchase_date, ordinary_income, filing_status, marginal_rate, fmv_at_purchase, disq_ord_income, disq_ltcg_gain, disq_gross, disq_ord_tax, disq_ltcg_tax, disq_total_tax, disq_proceeds, disq_effective_rate, qual_ord_income, qual_ltcg_gain, qual_gross, qual_ord_tax, qual_ltcg_tax, qual_total_tax, qual_proceeds, qual_effective_rate, benefit, qualify_date, already_qualified."
   },
+  "caregiver_income_impact": {
+    "type": "object",
+    "description": "output_payload: as_of, vintage_year, ss_wage_base_usd, ss_average_annual_benefit_usd, ss_average_benefit_source (pinned_official_<vintage> | user_supplied); the echoed inputs including marginal_tax_rate_pct and marginal_tax_rate_used (always false, DIFFERS-D4); years_to_retirement, years_after_care and years_from_midcare (dead in the source, carried for parity); integer-cent annual_income_loss_cents, direct_income_loss_cents, annual_401k_lost_cents, retirement_savings_gap_cents, career_setback_cost_cents, setback_compounding_rate_bp, ss_reduction_fraction_micro, annual_ss_reduction_cents, ss_lifetime_reduction_cents, total_impact_cents (excl. SS) and total_impact_with_ss_cents; strategies (5 base rows plus one when career_setback_pct > 5); refusals, refusal_reason, domain_errors; caveats (the compliance-flag mirror); scope_note. On refusal every money member is null and refusal_reason names the code.",
+    "required": [
+      "as_of",
+      "vintage_year",
+      "ss_wage_base_usd",
+      "ss_average_annual_benefit_usd",
+      "direct_income_loss_cents",
+      "retirement_savings_gap_cents",
+      "career_setback_cost_cents",
+      "annual_ss_reduction_cents",
+      "ss_lifetime_reduction_cents",
+      "total_impact_cents",
+      "total_impact_with_ss_cents",
+      "refusal_reason"
+    ]
+  },
   "ai_displacement_risk_screener": {
     "type": "object",
     "properties": {
@@ -46794,6 +46812,35 @@
         ]
       }
     }
+  },
+  "check_reserves_cover_private": {
+    "type": "object",
+    "properties": {
+      "basis": {
+        "type": "string"
+      },
+      "not_legal_advice": {
+        "type": "string"
+      },
+      "privacy_note": {
+        "type": "string"
+      },
+      "reserves_cover_outstanding": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      }
+    },
+    "required": [
+      "basis",
+      "not_legal_advice",
+      "privacy_note",
+      "reserves_cover_outstanding"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
   },
   "eval_ucp_request_constraints": {
     "type": "object",
