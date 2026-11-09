@@ -40,6 +40,22 @@
       "sha256": "0fb1af42f5f4b3b09543dbea473b29b83d98b1cad0d1f8f1636162e879f24986"
     },
     {
+      "tool_id": "792-curator-vault-cap-auditor",
+      "mcp_name": "audit_curator_vault_caps",
+      "display_name": "Curator Vault Cap Auditor",
+      "uri": "ui://ainumbers/node/792-curator-vault-cap-auditor",
+      "bytes": 42726,
+      "sha256": "8207494aac8601af501d53f109d5056584b257a8405341aabcea513cc970d18f"
+    },
+    {
+      "tool_id": "795-stablecoin-refund-dispute",
+      "mcp_name": "check_stablecoin_refunds",
+      "display_name": "Stablecoin Refund Dispute Check",
+      "uri": "ui://ainumbers/node/795-stablecoin-refund-dispute",
+      "bytes": 53265,
+      "sha256": "c4ec44b1b024b91bc1945bd201a40ba012d002541071d7d097df003758bdf597"
+    },
+    {
       "tool_id": "806-event-contract-terms-lint",
       "mcp_name": "lint_event_contract_terms",
       "display_name": "Event Contract Terms Lint",
@@ -84,16 +100,16 @@
       "mcp_name": "compute_agent_cred_matrix",
       "display_name": "Agent Cred Class Matrix",
       "uri": "ui://ainumbers/node/827-agent-cred-class-matrix",
-      "bytes": 63191,
-      "sha256": "169a58669b88a6714413f92b3dc1d980bd7ec3c980d5a652b2f7517cf8837b08"
+      "bytes": 71717,
+      "sha256": "cfbaee4057c5b402c451c649bc6a193e4036c2e59aeb8b8f344bcbf1043cf31d"
     },
     {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
       "uri": "ui://ainumbers/node/art-01-ap2-mandate-chain-validator",
-      "bytes": 120983,
-      "sha256": "0354451dae72b3bf2a67ea74b687b554fe00350a825eff6121c49f8785467aa7"
+      "bytes": 154962,
+      "sha256": "0f6e79b6cd8f96075ba96a81e85ebcae08d3f789504ef84427240c2d785a5562"
     },
     {
       "tool_id": "art-02-agent-spend-policy-simulator",
@@ -164,8 +180,8 @@
       "mcp_name": "score_aml_typologies",
       "display_name": "AMLA Transaction-Typology Risk Scorer",
       "uri": "ui://ainumbers/node/art-10-amla-transaction-typology-risk-scorer",
-      "bytes": 92516,
-      "sha256": "10a73cdcda97ee728b1694d6cb7d1a6e64c5faaf8d463d88ac7b61a28e2a692b"
+      "bytes": 106409,
+      "sha256": "c249287025eb1d7d25a67452d58660afeac20dab1edd7c61d45afc82ab5e5a5f"
     },
     {
       "tool_id": "art-11-vop-batch-match-rate-analyser",
@@ -580,8 +596,8 @@
       "mcp_name": "verify_ap2_payment_receipt",
       "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
       "uri": "ui://ainumbers/node/art-62-ap2-payment-receipt-verifier",
-      "bytes": 91996,
-      "sha256": "68ce78ae59e1e92d46c7be7fa9441c4984840cd2845ead8a1f64262a00f1f7e3"
+      "bytes": 100631,
+      "sha256": "58dcc8cabf801449e8aee200e5ec462668842a1dc256f1059d51b885de08bae1"
     },
     {
       "tool_id": "art-63-agent-service-metering-modeler",
@@ -596,8 +612,8 @@
       "mcp_name": "run_ai_act_highrisk_fit",
       "display_name": "EU AI Act High-Risk Fit & Classification Diagnostic",
       "uri": "ui://ainumbers/node/art-64-ai-act-highrisk-fit-diagnostic",
-      "bytes": 56925,
-      "sha256": "a393ba49cd4c68b78f3f2760b2f722ed53a8921c251cea486d4d17a5422a8a5a"
+      "bytes": 57033,
+      "sha256": "749bc62f59da96417510b70f660b604baeb2235d36cef30efe403deca5ed3068"
     },
     {
       "tool_id": "art-65-ai-conformity-pack-builder",
@@ -908,8 +924,8 @@
       "mcp_name": "validate_tfr_travel_rule_batch",
       "display_name": "TFR Travel-Rule Batch Validator",
       "uri": "ui://ainumbers/node/art-104-tfr-travel-rule-batch-validator",
-      "bytes": 50846,
-      "sha256": "6d061d02af65a103754425d0fbf51e8eb9543571927052896325f799bdd5dd63"
+      "bytes": 56120,
+      "sha256": "5cace37e21d780919d0637ebdaeb2c7b458d761835ebe5618b97c4eefa26d67c"
     },
     {
       "tool_id": "art-105-mica-token-service-scoper",
@@ -4284,8 +4300,8 @@
       "mcp_name": "verify_kya_x402_scope",
       "display_name": "KYA Credential x x402 Payload Scope Verifier",
       "uri": "ui://ainumbers/node/art-565-kya-x402-scope-verifier",
-      "bytes": 48894,
-      "sha256": "bf67b2e4f3ab9291d9055af028db953f9b9b879c0c8cd99f9aac4c0b03f5135f"
+      "bytes": 55117,
+      "sha256": "70d158c33fad3f1ce13568f14258a38788286648bc58043b9e2f1a73f05ad89e"
     },
     {
       "tool_id": "art-566-iolta-three-way-reconciliation",
@@ -4444,8 +4460,8 @@
       "mcp_name": "build_sanctions_screening_evidence_pack",
       "display_name": "Sanctions Screening Evidence Pack",
       "uri": "ui://ainumbers/node/art-585-sanctions-screening-evidence-pack",
-      "bytes": 37445,
-      "sha256": "555c002c4476542beee37fdf30b38ebe0052a5ea33a28a472fb7151f5f6e2e6c"
+      "bytes": 44969,
+      "sha256": "9c2b158c9a063478b68073cb69beede3c4240abcbba7d064f262e7d2b9ec3e11"
     },
     {
       "tool_id": "art-587-finp2p-ledger-proof-verifier",
@@ -4948,8 +4964,8 @@
       "mcp_name": "recompute_x402_permit2_digest",
       "display_name": "X402 Permit2 Evidence Recomputer",
       "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
-      "bytes": 115897,
-      "sha256": "35f83f2d9f80b7449d211f7d094d35919ff182c2b1835742a9d9bcd7347edca5"
+      "bytes": 127313,
+      "sha256": "d7e13809a8c6dc34dd74a4b3b2967ffc003fb4b61cdb4752294389502a81c315"
     },
     {
       "tool_id": "art-700-authorization-payload-linter",
@@ -5096,12 +5112,28 @@
       "sha256": "99b42786b1d7e4739f70bb0e288bae2844e82479ce8f54d9e5ee613fa24c2240"
     },
     {
+      "tool_id": "art-750-diff-evidence-bundles",
+      "mcp_name": "compute_diff_evidence_bundles",
+      "display_name": "Diff Evidence Bundles",
+      "uri": "ui://ainumbers/node/art-750-diff-evidence-bundles",
+      "bytes": 44340,
+      "sha256": "390f60146a7fd633caccb408af6a39ba264dbbdc3bc16d6938a8964a22f98dac"
+    },
+    {
       "tool_id": "art-754-equity-exit-waterfall",
       "mcp_name": "calc_equity_exit_waterfall",
       "display_name": "Equity Exit Waterfall Modeler",
       "uri": "ui://ainumbers/node/art-754-equity-exit-waterfall",
       "bytes": 83763,
       "sha256": "0518bab539c125f5adc8f7bd5a3687d42707e941a1d46d07ecbeae93ae767cef"
+    },
+    {
+      "tool_id": "art-756-sales-ote-commission-analyzer",
+      "mcp_name": "analyze_sales_ote_commission",
+      "display_name": "Sales OTE & Commission Analyzer",
+      "uri": "ui://ainumbers/node/art-756-sales-ote-commission-analyzer",
+      "bytes": 55176,
+      "sha256": "38cb8d66f5b19addc2a0fdd541d9b70d7c60ada05def587e7a5f2c0572fcc749"
     },
     {
       "tool_id": "art-758-hdhp-ppo-break-even",
@@ -5216,12 +5248,28 @@
       "sha256": "56a43a08a8fb04836de4a89c849ec544bcc56fa606ba8bb8435585449b6e482e"
     },
     {
+      "tool_id": "art-793-government-stablecoin-acceptance",
+      "mcp_name": "assess_gov_stablecoin_accept",
+      "display_name": "Government Stablecoin Acceptance Audit",
+      "uri": "ui://ainumbers/node/art-793-government-stablecoin-acceptance",
+      "bytes": 57498,
+      "sha256": "885b25a992a92ad8707b7c354f5a2cb88110d269845c32e7f4f12caa1e57538a"
+    },
+    {
       "tool_id": "art-807-erc3643-transfer-decision",
       "mcp_name": "recompute_erc3643_transfer_decision",
       "display_name": "ERC-3643 Transfer Decision Recompute",
       "uri": "ui://ainumbers/node/art-807-erc3643-transfer-decision",
       "bytes": 63312,
       "sha256": "ff23b6efe203621f81b960956f6f10de1543f0593cba0ee3250920f63e4b9424"
+    },
+    {
+      "tool_id": "art-811-check-dti-within-policy-private",
+      "mcp_name": "check_dti_within_policy_private",
+      "display_name": "Private-Input Debt-to-Income Within Policy Check",
+      "uri": "ui://ainumbers/node/art-811-check-dti-within-policy-private",
+      "bytes": 39284,
+      "sha256": "058107de7545da1604d569db622eaf08baf2372333c7ec07c4c7b2968564cf51"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",
@@ -5238,6 +5286,22 @@
       "uri": "ui://ainumbers/node/art-818-zcash-reg-classifier",
       "bytes": 45306,
       "sha256": "66af57c5e908282c0f804f04c87eeb819e9bd22205a4c84b097e04411215fe41"
+    },
+    {
+      "tool_id": "art-820-negotiate-ucp-capabilities",
+      "mcp_name": "negotiate_ucp_capabilities",
+      "display_name": "UCP Capability Negotiation",
+      "uri": "ui://ainumbers/node/art-820-negotiate-ucp-capabilities",
+      "bytes": 40621,
+      "sha256": "81aad4afab22c3632ff65e86b28da4fbbb148aafc5d45be1ba4c9d6625c9dfc6"
+    },
+    {
+      "tool_id": "art-826-authenticator-assurance-level",
+      "mcp_name": "compute_authn_assurance_level",
+      "display_name": "Authenticator Assurance Level Evaluator",
+      "uri": "ui://ainumbers/node/art-826-authenticator-assurance-level",
+      "bytes": 54250,
+      "sha256": "865d6379b6f73bdbd14a0917cc640d59246d1cb1d2c0dc9246a37e5261b5fee7"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
