@@ -56,6 +56,14 @@
       "sha256": "c4ec44b1b024b91bc1945bd201a40ba012d002541071d7d097df003758bdf597"
     },
     {
+      "tool_id": "797-stablecoin-cash-equivalent-test",
+      "mcp_name": "check_stablecoin_cash_equiv",
+      "display_name": "Stablecoin Cash Equivalent Test (FASB Proposed 2026-08)",
+      "uri": "ui://ainumbers/node/797-stablecoin-cash-equivalent-test",
+      "bytes": 59270,
+      "sha256": "280d74b29249adb89fdcd0a39f4950c0ad5f126fa0c888a0980bb31912fe4fc4"
+    },
+    {
       "tool_id": "806-event-contract-terms-lint",
       "mcp_name": "lint_event_contract_terms",
       "display_name": "Event Contract Terms Lint",
@@ -96,6 +104,14 @@
       "sha256": "eaf06cb417ee757ee62f6532b0193782094c36ad2dfd8c10eaf33f5b4c0115c2"
     },
     {
+      "tool_id": "817-eth-l2-stage-classifier",
+      "mcp_name": "classify_l2_stage_criteria",
+      "display_name": "Ethereum L2 Stage Criteria Classifier",
+      "uri": "ui://ainumbers/node/817-eth-l2-stage-classifier",
+      "bytes": 38081,
+      "sha256": "921669b99bcfd3ba04f3076779736d7008e9d4b9d00ede23fb35e6cc4e54346b"
+    },
+    {
       "tool_id": "822-zcash-supply-check",
       "mcp_name": "audit_zcash_pool_supply",
       "display_name": "Zcash Supply Check",
@@ -112,12 +128,28 @@
       "sha256": "68a3272f0915461565b1e713732f5ab9b0ab61d2ec7aa77653935bde58e715c5"
     },
     {
+      "tool_id": "825-reconcile-ucp-checkout-totals",
+      "mcp_name": "reconcile_ucp_checkout_totals",
+      "display_name": "Reconcile UCP Checkout Totals",
+      "uri": "ui://ainumbers/node/825-reconcile-ucp-checkout-totals",
+      "bytes": 30618,
+      "sha256": "4b7d081618e8f45a55b852ba8942621a4291d00671a80787c273a3f231e06965"
+    },
+    {
       "tool_id": "827-agent-cred-class-matrix",
       "mcp_name": "compute_agent_cred_matrix",
       "display_name": "Agent Cred Class Matrix",
       "uri": "ui://ainumbers/node/827-agent-cred-class-matrix",
       "bytes": 71717,
       "sha256": "cfbaee4057c5b402c451c649bc6a193e4036c2e59aeb8b8f344bcbf1043cf31d"
+    },
+    {
+      "tool_id": "829-safe-tx-hash-recompute",
+      "mcp_name": "recompute_safe_tx_hash",
+      "display_name": "Safe Transaction Hash Recompute",
+      "uri": "ui://ainumbers/node/829-safe-tx-hash-recompute",
+      "bytes": 133438,
+      "sha256": "81446f0a6f07cf2d5b52ebaf77ef4a154a8748f2589c1092e3d94649e1d3e8c5"
     },
     {
       "tool_id": "art-01-ap2-mandate-chain-validator",
