@@ -24,14 +24,18 @@ import * as t784      from './784-cbr-data-return-validator.kernel.mjs';
 import * as t787      from './787-corridor-cost-averages.kernel.mjs';
 import * as t792      from './792-curator-vault-cap-auditor.kernel.mjs';
 import * as t795      from './795-stablecoin-refund-dispute.kernel.mjs';
+import * as t797      from './797-stablecoin-cash-equivalent-test.kernel.mjs';
 import * as t806      from './806-event-contract-terms-lint.kernel.mjs';
 import * as t808      from './808-lst-share-rate-reconciler.kernel.mjs';
 import * as t812      from './812-eth-staking-queue.kernel.mjs';
 import * as t813      from './813-eth-staking-accounting.kernel.mjs';
 import * as t815      from './815-eth-fee-market.kernel.mjs';
+import * as t817      from './817-eth-l2-stage-classifier.kernel.mjs';
 import * as t822      from './822-zcash-supply-check.kernel.mjs';
 import * as t824      from './824-zip317-transfer-fee.kernel.mjs';
+import * as t825      from './825-reconcile-ucp-checkout-totals.kernel.mjs';
 import * as t827      from './827-agent-cred-class-matrix.kernel.mjs';
+import * as t829      from './829-safe-tx-hash-recompute.kernel.mjs';
 import * as art01     from './art-01-ap2-mandate-chain-validator.kernel.mjs';
 import * as art02     from './art-02-agent-spend-policy-simulator.kernel.mjs';
 import * as art03     from './art-03-x402-settlement-modeler.kernel.mjs';
@@ -754,14 +758,18 @@ export const KERNELS = {
   '787-corridor-cost-averages':                                 t787,
   '792-curator-vault-cap-auditor':                              t792,
   '795-stablecoin-refund-dispute':                              t795,
+  '797-stablecoin-cash-equivalent-test':                        t797,
   '806-event-contract-terms-lint':                              t806,
   '808-lst-share-rate-reconciler':                              t808,
   '812-eth-staking-queue':                                      t812,
   '813-eth-staking-accounting':                                 t813,
   '815-eth-fee-market':                                         t815,
+  '817-eth-l2-stage-classifier':                                t817,
   '822-zcash-supply-check':                                     t822,
   '824-zip317-transfer-fee':                                    t824,
+  '825-reconcile-ucp-checkout-totals':                          t825,
   '827-agent-cred-class-matrix':                                t827,
+  '829-safe-tx-hash-recompute':                                 t829,
   'art-01-ap2-mandate-chain-validator':                         art01,
   'art-02-agent-spend-policy-simulator':                        art02,
   'art-03-x402-settlement-modeler':                             art03,
