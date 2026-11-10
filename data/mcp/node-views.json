@@ -72,6 +72,14 @@
       "sha256": "0849337bae5ee33fd2ec23c31cf587e7761b4905817026051d977fe45b6066ae"
     },
     {
+      "tool_id": "812-eth-staking-queue",
+      "mcp_name": "project_eth_validator_queue_wait",
+      "display_name": "Ethereum Validator Queue and Sweep Wait",
+      "uri": "ui://ainumbers/node/812-eth-staking-queue",
+      "bytes": 42630,
+      "sha256": "f789744b8a951575514edc99161bcac1f968165f0f8583413a19fd457c16380d"
+    },
+    {
       "tool_id": "813-eth-staking-accounting",
       "mcp_name": "recompute_eth_epoch_accounting",
       "display_name": "Ethereum Epoch Accounting Recompute",
@@ -836,8 +844,8 @@
       "mcp_name": "aggregate_ownership_50pct",
       "display_name": "Ownership 50%-Rule Aggregator",
       "uri": "ui://ainumbers/node/art-91-ownership-50pct-aggregator",
-      "bytes": 54653,
-      "sha256": "306dfc3881ed28e891cf568156089fc2854cbf2cdb0b5a90d10269d99e53d098"
+      "bytes": 54835,
+      "sha256": "31e793360472b3067151ef246345bb8f4520852cc5fccbbbe46c65cca64186ce"
     },
     {
       "tool_id": "art-92-screening-list-coverage-checker",
@@ -5190,6 +5198,14 @@
       "uri": "ui://ainumbers/node/art-764-solo-401k-vs-sep-ira",
       "bytes": 55506,
       "sha256": "af858b5b852e05bb0ecb21564dc4c8252d2bfc6e72cbfa3c354dbf38fe6e5e87"
+    },
+    {
+      "tool_id": "art-765-dependent-care-fsa-cdctc-optimizer",
+      "mcp_name": "estimate_dc_fsa_cdctc_split",
+      "display_name": "Dependent Care FSA vs. CDCTC Optimizer",
+      "uri": "ui://ainumbers/node/art-765-dependent-care-fsa-cdctc-optimizer",
+      "bytes": 49433,
+      "sha256": "cdbfe35bebbe944e747268d1cd24016b96fa6f90d6b3e617e571a7257d139cd8"
     },
     {
       "tool_id": "art-770-total-cost-of-homeownership",
