@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 780,
+  "tool_count": 781,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -750,6 +750,7 @@
     "verify_a2a_agent_card",
     "verify_acdc_delegation_chain",
     "verify_address_migration_batch",
+    "verify_agent_governance_audit_chain",
     "verify_anchored_extract",
     "verify_ap2_payment_receipt",
     "verify_close_posting_lineage",
