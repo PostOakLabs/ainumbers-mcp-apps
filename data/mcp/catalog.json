@@ -2,10 +2,10 @@
   "schema_version": "mcp-catalog-v1",
   "server_id": "ainumbers-fintech-suite",
   "name": "AINumbers Fintech Intelligence Suite",
-  "description": "1253 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
+  "description": "1256 client-side fintech tools covering ISO 20022, A2A payments, CFPB \u00a71033, EU AI Act, DORA, AML/KYC, BaaS, DLT, agentic payments (AP2, ACP, x402, Visa TAP, Mastercard Agent Pay), and MCP developer tooling. All tools run in the browser \u2014 execution_type is browser-reference: provide the URL and inputs to the user for interactive use.",
   "base_url": "https://ainumbers.co",
   "generated": "2026-11-11",
-  "tool_count": 1252,
+  "tool_count": 1255,
   "tools": [
     {
       "name": "calculate_a2a_fee_route",
@@ -53117,6 +53117,118 @@
       }
     },
     {
+      "name": "compute_sha256_hmac_digest",
+      "description": "Computes SHA-256 or HMAC-SHA256 over a UTF-8 string or hex bytes (at most 64 KiB) and echoes the algorithm id. Rejects bad input with a closed reason code and no digest.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "input": {
+            "type": "string"
+          },
+          "input_encoding": {
+            "type": "string"
+          },
+          "key_hex": {
+            "type": "string"
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-751-sha256-hmac-digest-demonstrator",
+        "category": "regulatory-compliance",
+        "tags": [
+          "compliance_control",
+          "sha-256",
+          "hmac",
+          "digest",
+          "shared-infrastructure",
+          "mcp:compute_sha256_hmac_digest"
+        ],
+        "ap2_export": false,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "estimate_quarterly_tax",
+      "description": "Quarterly IRS estimated tax for self-employed income: net SE income, SE tax (SS + Medicare), federal income tax on the 2026 brackets, an elective state bucket, equal quarterly installments with the 2026 due dates, and the 90%/100% safe-harbor amount. 2026 IRS constants. Full provenance in the manifest description.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "gross_income",
+          "business_expenses",
+          "other_income",
+          "filing_status",
+          "state",
+          "prior_year_tax",
+          "ytd_paid"
+        ],
+        "properties": {
+          "gross_income": {
+            "type": "number",
+            "description": "Annual gross freelance / self-employment income in USD (Apex input grossIncome, default 120000, min 1000, max 2000000)."
+          },
+          "business_expenses": {
+            "type": "number",
+            "description": "Business expenses in USD (Apex input expenses, default 15000, min 0, max 500000). Software, home office, equipment, professional fees, etc."
+          },
+          "other_income": {
+            "type": "number",
+            "description": "Other income in USD \u2014 W-2 wages, interest, dividends (Apex input otherIncome, default 0, min 0)."
+          },
+          "filing_status": {
+            "type": "string",
+            "enum": [
+              "single",
+              "mfj"
+            ],
+            "description": "Filing status (Apex select filingStatus). 'single' = Single / Married Filing Separately; 'mfj' = Married Filing Jointly."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "none",
+              "low",
+              "mid",
+              "high"
+            ],
+            "description": "State tax bucket (Apex select state). Illustrative elective rates: none=0, low=0.03, mid=0.05, high=0.093. An assumption, not a jurisdiction lookup."
+          },
+          "prior_year_tax": {
+            "type": "number",
+            "description": "Prior-year federal tax in USD (Form 1040 line 24; Apex priorYearTax, default 0). Drives the safe harbor; 0 selects the 90%-of-current fallback."
+          },
+          "ytd_paid": {
+            "type": "number",
+            "description": "Year-to-date estimated payments already made in USD (Apex input ytdPaid, default 0, min 0)."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-752-freelance-quarterly-estimated-tax",
+        "category": "personal-finance",
+        "tags": [
+          "freelance",
+          "self-employed",
+          "estimated-tax",
+          "quarterly",
+          "se-tax",
+          "safe-harbor",
+          "2026",
+          "mcp:estimate_quarterly_tax"
+        ],
+        "url": "https://ainumbers.co/chaingraph/art-752-freelance-quarterly-estimated-tax.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
       "name": "calc_equity_exit_waterfall",
       "description": "Model equity exit proceeds after liquidation preference waterfalls for startup employees and founders (NVCA model term sheet conventions; IRC \u00a71001 for the gain computation): the preference stack, non-participating conversion or capped participation, the common pool, your gross and net proceeds, taxable gain and the break-even exit. Deterministic, client-side, zero PII.",
       "inputSchema": {
@@ -54880,6 +54992,59 @@
           "compliance"
         ],
         "url": "https://ainumbers.co/chaingraph/art-826-authenticator-assurance-level.html",
+        "ap2_export": true,
+        "execution_type": "browser-reference",
+        "version": "1.0.0",
+        "prefill": false
+      }
+    },
+    {
+      "name": "reconcile_omnibus_position",
+      "description": "Reconciles a declared tokenized-securities omnibus token position against the sum of declared registered-wallet balances and a declared custodian book-entry position: exact integer deltas per leg, an inclusive tolerance, a SHA-256 chained head over declared mint, burn, forced-transfer and transfer events, and a RECONCILED / MISMATCH / UNDECIDABLE verdict. An unregistered wallet holding a balance forces MISMATCH under the DTS profile. Arithmetic only: reads no ledger, proves no balance real.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "type": "string",
+            "description": "dtc_dts applies the registered-wallet rule from the pinned no-action letter; generic_omnibus omits it. Absent defaults to generic_omnibus with a flag."
+          },
+          "as_of": {
+            "type": "string",
+            "description": "Caller-declared snapshot date label, YYYY-MM-DD. No clock is read."
+          },
+          "omnibus_balance": {
+            "type": "string",
+            "description": "The omnibus token position in integer base units as a decimal string. Numbers, fractional, signed, or malformed values are refused, never coerced."
+          },
+          "book_entry_position": {
+            "type": "string",
+            "description": "The custodian's book-entry position, integer base units as a decimal string, same refusal domain as omnibus_balance."
+          },
+          "tolerance_units": {
+            "type": "number",
+            "description": "Inclusive tolerance band in integer base units applied to both legs; 0 when absent. Negative or fractional values are refused."
+          },
+          "wallets": {
+            "type": "array",
+            "description": "Per-wallet declared balances under opaque labels: wallet_label (opaque, unique, PII-shaped refused), balance (decimal string), registered (boolean)."
+          },
+          "events": {
+            "type": "array",
+            "description": "Declared log entries chained in seq order: seq (unique integer), kind (mint, burn, forced_transfer, transfer), amount (decimal string), wallet_label."
+          }
+        }
+      },
+      "metadata": {
+        "tool_id": "art-828-reconcile-omnibus-token-position",
+        "category": "chaingraph",
+        "tags": [
+          "tokenization",
+          "omnibus-account",
+          "reconciliation",
+          "dtc",
+          "mcp:reconcile_omnibus_position"
+        ],
+        "url": "https://ainumbers.co/chaingraph/art-828-reconcile-omnibus-token-position.html",
         "ap2_export": true,
         "execution_type": "browser-reference",
         "version": "1.0.0",

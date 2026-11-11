@@ -3332,8 +3332,8 @@
       "mcp_name": "verify_witness_cosignatures",
       "display_name": "Witness Cosignature Verifier",
       "uri": "ui://ainumbers/node/art-424-witness-cosignature-verifier",
-      "bytes": 203868,
-      "sha256": "aa06bcd063e431ce28e44e6fa650d0a1c0baf01fc7c436a3ad94faff4952361f"
+      "bytes": 205890,
+      "sha256": "096ebd2b0436f1d1d69d170dac55460b1c413debc6978231768a0d2498039f0c"
     },
     {
       "tool_id": "art-425-large-exposures-limit-check",
@@ -5168,6 +5168,14 @@
       "sha256": "390f60146a7fd633caccb408af6a39ba264dbbdc3bc16d6938a8964a22f98dac"
     },
     {
+      "tool_id": "art-752-freelance-quarterly-estimated-tax",
+      "mcp_name": "estimate_quarterly_tax",
+      "display_name": "Freelance Quarterly Estimated Tax Calculator",
+      "uri": "ui://ainumbers/node/art-752-freelance-quarterly-estimated-tax",
+      "bytes": 36039,
+      "sha256": "201042af8c7d58b62e1859ae6ca0fa489c532c5db74e45da30189c25e35449fd"
+    },
+    {
       "tool_id": "art-754-equity-exit-waterfall",
       "mcp_name": "calc_equity_exit_waterfall",
       "display_name": "Equity Exit Waterfall Modeler",
@@ -5382,6 +5390,14 @@
       "uri": "ui://ainumbers/node/art-826-authenticator-assurance-level",
       "bytes": 54250,
       "sha256": "865d6379b6f73bdbd14a0917cc640d59246d1cb1d2c0dc9246a37e5261b5fee7"
+    },
+    {
+      "tool_id": "art-828-reconcile-omnibus-token-position",
+      "mcp_name": "reconcile_omnibus_position",
+      "display_name": "Omnibus Token Position Reconciliation",
+      "uri": "ui://ainumbers/node/art-828-reconcile-omnibus-token-position",
+      "bytes": 98363,
+      "sha256": "a3f47e538455d6a0e26aa292e81ac3cba0e02fa03f4c255baca89ffb254b876d"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
