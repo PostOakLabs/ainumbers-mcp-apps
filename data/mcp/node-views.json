@@ -5320,6 +5320,14 @@
       "sha256": "885b25a992a92ad8707b7c354f5a2cb88110d269845c32e7f4f12caa1e57538a"
     },
     {
+      "tool_id": "art-805-agt-audit-chain-verifier",
+      "mcp_name": "verify_agent_governance_audit_chain",
+      "display_name": "Open-Source Agent-Governance Audit-Chain Verifier",
+      "uri": "ui://ainumbers/node/art-805-agt-audit-chain-verifier",
+      "bytes": 32979,
+      "sha256": "3aea29490394df86d53cac93458ad2fb856d0093aed83a4b14b1a7a7465528b8"
+    },
+    {
       "tool_id": "art-807-erc3643-transfer-decision",
       "mcp_name": "recompute_erc3643_transfer_decision",
       "display_name": "ERC-3643 Transfer Decision Recompute",
