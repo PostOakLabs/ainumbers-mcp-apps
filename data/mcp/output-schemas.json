@@ -45688,6 +45688,153 @@
       }
     }
   },
+  "compute_sha256_hmac_digest": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "ok",
+          "rejected"
+        ]
+      },
+      "rejection_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "algorithm_id": {
+        "type": "string"
+      },
+      "mode": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "input_byte_length": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "key_byte_length": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "digest_hex": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    }
+  },
+  "estimate_quarterly_tax": {
+    "type": "object",
+    "properties": {
+      "net_se_income": {
+        "type": "number"
+      },
+      "se_tax": {
+        "type": "number"
+      },
+      "ss_tax": {
+        "type": "number"
+      },
+      "mc_tax": {
+        "type": "number"
+      },
+      "agi": {
+        "type": "number"
+      },
+      "taxable_income": {
+        "type": "number"
+      },
+      "federal_income_tax": {
+        "type": "number"
+      },
+      "effective_fed_rate": {
+        "type": "number"
+      },
+      "state_tax": {
+        "type": "number"
+      },
+      "total_federal_tax": {
+        "type": "number"
+      },
+      "total_annual_tax": {
+        "type": "number"
+      },
+      "effective_total_rate": {
+        "type": "number"
+      },
+      "per_quarter": {
+        "type": "number"
+      },
+      "remaining_after_ytd": {
+        "type": "number"
+      },
+      "safe_harbor_total": {
+        "type": "number"
+      },
+      "safe_harbor_quarterly": {
+        "type": "number"
+      },
+      "quarters": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "quarter": {
+              "type": "string"
+            },
+            "due": {
+              "type": "string"
+            },
+            "amount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "quarter",
+            "due",
+            "amount"
+          ]
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "net_se_income",
+      "se_tax",
+      "ss_tax",
+      "mc_tax",
+      "agi",
+      "taxable_income",
+      "federal_income_tax",
+      "effective_fed_rate",
+      "state_tax",
+      "total_federal_tax",
+      "total_annual_tax",
+      "effective_total_rate",
+      "per_quarter",
+      "remaining_after_ytd",
+      "safe_harbor_total",
+      "safe_harbor_quarterly",
+      "quarters",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
   "calc_equity_exit_waterfall": {
     "type": "object",
     "properties": {
@@ -47369,6 +47516,134 @@
       },
       "note": {
         "type": "string"
+      }
+    }
+  },
+  "reconcile_omnibus_position": {
+    "type": "object",
+    "properties": {
+      "verdict": {
+        "type": "string"
+      },
+      "profile": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "as_of": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "tolerance_units": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "omnibus_balance": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "book_entry_position": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "wallet_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "registered_wallet_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "unregistered_wallet_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "unregistered_wallets_holding_balance": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "sum_wallets": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "omnibus_vs_wallets_delta": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "omnibus_vs_book_delta": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "legs": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "event_log_head": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "events_counted": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "event_counts": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "forced_transfer_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "refused_because": {
+        "type": "string"
+      },
+      "refused_field": {
+        "type": "string"
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "evidence": {
+        "type": "object"
+      },
+      "manual_review_required": {
+        "type": "boolean"
       }
     }
   },

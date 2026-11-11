@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 781,
+  "tool_count": 784,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -373,6 +373,7 @@
     "compute_rwa_scenarios",
     "compute_scra_rate_cap",
     "compute_settlement_efficiency_kpi",
+    "compute_sha256_hmac_digest",
     "compute_short_sale_locate_ssr_checker",
     "compute_stock_token_collateral_haircut",
     "compute_stress_test_scenarios",
@@ -415,6 +416,7 @@
     "estimate_ficc_margin_netting",
     "estimate_hdhp_ppo_breakeven",
     "estimate_iso_amt_exposure",
+    "estimate_quarterly_tax",
     "eval_ucp_request_constraints",
     "evaluate_decision_tree",
     "evaluate_globe_de_minimis_exclusion",
@@ -557,6 +559,7 @@
     "reconcile_erc8056_multiplier",
     "reconcile_lst_share_rate",
     "reconcile_mpp_subscription",
+    "reconcile_omnibus_position",
     "reconcile_report_to_general_ledger",
     "reconcile_sii_ifrs17",
     "reconcile_token2022_transfer_fee",
