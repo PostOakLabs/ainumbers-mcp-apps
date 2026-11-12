@@ -5416,6 +5416,14 @@
       "sha256": "a3f47e538455d6a0e26aa292e81ac3cba0e02fa03f4c255baca89ffb254b876d"
     },
     {
+      "tool_id": "art-831-receipt-export-envelopes",
+      "mcp_name": "export_receipt_lineage_events",
+      "display_name": "Receipt Export Envelopes",
+      "uri": "ui://ainumbers/node/art-831-receipt-export-envelopes",
+      "bytes": 36433,
+      "sha256": "6d5b5381f383b26c2714ed4d854d97f51174cb0122c6f9b2ddd630e0979744ba"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
