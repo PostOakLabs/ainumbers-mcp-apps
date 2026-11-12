@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 785,
+  "tool_count": 787,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -535,6 +535,7 @@
     "recompute_erc7540_request_accounting",
     "recompute_eth_epoch_accounting",
     "recompute_eth_fee_market",
+    "recompute_event_contract_fee",
     "recompute_exchange_fee_tier_invoice",
     "recompute_fund_fees",
     "recompute_fund_nav",
@@ -759,6 +760,7 @@
     "verify_ap2_payment_receipt",
     "verify_close_posting_lineage",
     "verify_content_credential_signature",
+    "verify_contract_bytecode_identity",
     "verify_conversion_receipt",
     "verify_did_webvh_log",
     "verify_disclosure_inclusion",

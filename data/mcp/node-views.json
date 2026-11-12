@@ -48,6 +48,14 @@
       "sha256": "8207494aac8601af501d53f109d5056584b257a8405341aabcea513cc970d18f"
     },
     {
+      "tool_id": "794-event-fee-recompute",
+      "mcp_name": "recompute_event_contract_fee",
+      "display_name": "Event Fee Recompute",
+      "uri": "ui://ainumbers/node/794-event-fee-recompute",
+      "bytes": 47116,
+      "sha256": "5299cb2434ea1287d3675423bb2f58521528c3b0c608cf03026c2e01a4e759fa"
+    },
+    {
       "tool_id": "795-stablecoin-refund-dispute",
       "mcp_name": "check_stablecoin_refunds",
       "display_name": "Stablecoin Refund Dispute Check",
@@ -78,6 +86,14 @@
       "uri": "ui://ainumbers/node/808-lst-share-rate-reconciler",
       "bytes": 35931,
       "sha256": "0849337bae5ee33fd2ec23c31cf587e7761b4905817026051d977fe45b6066ae"
+    },
+    {
+      "tool_id": "810-contract-bytecode-identity-verifier",
+      "mcp_name": "verify_contract_bytecode_identity",
+      "display_name": "Contract Bytecode Identity Verifier",
+      "uri": "ui://ainumbers/node/810-contract-bytecode-identity-verifier",
+      "bytes": 81624,
+      "sha256": "0868fa25f6d632ada9a7b4d53798264de1d26aef172be711612f0907705b6020"
     },
     {
       "tool_id": "812-eth-staking-queue",
