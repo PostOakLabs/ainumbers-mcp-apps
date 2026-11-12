@@ -15,7 +15,12 @@
   },
   "routes": [{ "pattern": "mcp.ainumbers.co", "custom_domain": true }],
   "analytics_engine_datasets": [
-    { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" }
+    { "binding": "ANALYTICS", "dataset": "mcp_tool_calls" },
+    // WEBMCP-FEEDBACK-COLLECTOR-1 (2026-11-12): enum-only agent-feedback collector, ONE
+    // fire-and-forget datapoint per accepted report. Structural metadata only -- no IP, no
+    // user-agent string, no request headers, no raw body, no free text (spec R2). AE's bounded
+    // retention IS the storage; aggregate-only publication, never per-report.
+    { "binding": "FEEDBACK", "dataset": "feedback_reports" }
   ],
   "observability": {
     "enabled": false,
@@ -79,9 +84,10 @@
   //                                                        ~18 walks/min exhausted the 300/60 s
   //                                                        GLOBAL bucket for every other caller --
   //                                                        discovery starving compute.
-  // Namespace registry (checked 2026-09-25 on each repo's default branch): 2001 = anchor-suite
-  // (anchor-suite/wrangler.jsonc:24); 3001/3002 = this worker; 3003/3004 RESERVED by
-  // WEBMCP-FEEDBACK-LOOP-BUILD-SPEC-2026-09-23 row B; helm has no wrangler.* at all.
+  // Namespace registry (checked 2026-09-25 on each repo's default branch; 3003/3004 moved from
+  // RESERVED to OWNED 2026-11-12 by WEBMCP-FEEDBACK-COLLECTOR-1): 2001 = anchor-suite
+  // (anchor-suite/wrangler.jsonc:24); 3001/3002 = this worker; 3003/3004 = this worker
+  // (feedback limiters, spec row B [AF-5]); helm has no wrangler.* at all.
   "unsafe": {
     "bindings": [
       {
@@ -107,6 +113,28 @@
         "type": "ratelimit",
         "namespace_id": "3006",
         "simple": { "limit": 1200, "period": 60 }
+      },
+      // WEBMCP-FEEDBACK-COLLECTOR-1 (2026-11-12): feedback-only limiters, spec row B [AF-5].
+      // ⛔ NEVER route /feedback through the shared 3002 'global' bucket -- a feedback flood must
+      // not be able to starve /mcp (the spec's "feedback flood starving /mcp" mitigation row).
+      //   * 3003 FEEDBACK_IP_LIMITER     per-IP   5/60 s -- keys on the connection IP; nothing
+      //                                           about the IP is stored anywhere.
+      //   * 3004 FEEDBACK_GLOBAL_LIMITER global  60/60 s -- constant key. 60/min sustained is
+      //                                           86,400/day, deliberately UNDER the free-tier
+      //                                           AE budget of 100k writes/day, so even a
+      //                                           permanently-saturated ceiling cannot push
+      //                                           feedback writes past the AE write cap.
+      {
+        "name": "FEEDBACK_IP_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "3003",
+        "simple": { "limit": 5, "period": 60 }
+      },
+      {
+        "name": "FEEDBACK_GLOBAL_LIMITER",
+        "type": "ratelimit",
+        "namespace_id": "3004",
+        "simple": { "limit": 60, "period": 60 }
       }
     ]
   }
