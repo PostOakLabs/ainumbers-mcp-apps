@@ -46579,6 +46579,123 @@
       }
     }
   },
+  "money_primitives_demo": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "OK",
+          "REFUSED"
+        ]
+      },
+      "error_code": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "message": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mode": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mode_echo": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "ccy": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "exponent": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "places": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "currency_entry_echo": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "table_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "amount_echo": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "parsed_amount": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rounded_amount": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "weights_echo": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "allocations": {
+        "type": [
+          "array",
+          "null"
+        ]
+      },
+      "allocation_sum": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "truncate_excess_declared": {
+        "type": "boolean"
+      },
+      "closed_mode_set": {
+        "type": "array"
+      },
+      "bounds": {
+        "type": "object"
+      },
+      "float_sensitive": {
+        "type": "boolean"
+      },
+      "scope_note": {
+        "type": "string"
+      }
+    }
+  },
   "derive_beacon_fair_sample_v2": {
     "type": "object",
     "properties": {

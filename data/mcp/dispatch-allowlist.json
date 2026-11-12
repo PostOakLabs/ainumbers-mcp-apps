@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 784,
+  "tool_count": 785,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -498,6 +498,7 @@
     "model_tempo_gas_economics",
     "model_tempo_payment_economics",
     "model_x402_settlement",
+    "money_primitives_demo",
     "negotiate_ucp_capabilities",
     "optimize_settlement_capital",
     "optimize_social_security_claim_age",
