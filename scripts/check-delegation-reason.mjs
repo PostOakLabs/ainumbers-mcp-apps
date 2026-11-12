@@ -28,6 +28,11 @@
 //                wrong-shaped arguments).
 //   E. regression — a correctly-nested call is unchanged and still computes server-side with an
 //                execution_hash.
+//   F. privacy  — COMPUTE-CAPABILITY-PER-NODE-1: a gpu:true (delegate-only) call with a POPULATED
+//                input body neither LOGS nor ECHOES that body: the per-node delegation response and
+//                the emit_chaingraph_artifact delegation (artifact_template + prefill_url) carry no
+//                trace of it (raw OR base64url-encoded), no console sink sees it, and the node's
+//                tool description leads with a first-sentence delegate-only disclosure.
 //
 // SO #34c (a gate only ever observed green has not been observed): this gate goes RED against
 // pre-change worker.mjs — every assertion in A fails there because three of the four causes
@@ -223,6 +228,68 @@ check(typeof ok?.structuredContent?.artifact?.execution_hash === 'string' && ok.
   'nested policy_parameters → returns a 64-hex execution_hash',
   JSON.stringify(ok?.structuredContent?.artifact?.execution_hash));
 check(ok?.structuredContent?.hash_valid === true, 'nested policy_parameters → hash_valid true');
+
+// ── F. privacy: a delegate-only (gpu:true) call with a populated body is neither logged nor echoed ─
+// COMPUTE-CAPABILITY-PER-NODE-1. The body is synthetic probe data, but it stands in for exactly the
+// real-world case the row fixes: an agent that trusted the old "server" capability declaration and
+// sent genuine inputs to a node that only ever delegates. The response must carry the delegation,
+// not the body — in ANY surface (per-node structuredContent, artifact_template, prefill_url) and in
+// NO sink (console.*), raw or base64url-encoded.
+console.log('\nF. delegate-only privacy — populated input body is neither logged nor echoed');
+const PRIVACY_SENTINEL = 'ccpn1-do-not-echo-probe';
+const probeBody = { probe_marker: PRIVACY_SENTINEL, nested: { secret_note: PRIVACY_SENTINEL + '-nested' } };
+const probeEncoded = Buffer.from(JSON.stringify(probeBody)).toString('base64url');
+const bodyLeaksInto = (result) => {
+  const s = JSON.stringify(result) ?? '';
+  return s.includes(PRIVACY_SENTINEL) || s.includes(probeEncoded);
+};
+// Capture every console sink for the duration of one call (the "neither logs" half of the assertion).
+async function withConsoleCaptured(fn) {
+  const captured = [];
+  const originals = {};
+  for (const k of ['log', 'warn', 'error', 'info', 'debug']) {
+    originals[k] = console[k];
+    console[k] = (...parts) => captured.push(k + ': ' + parts.map((p) => String(p)).join(' '));
+  }
+  try { return { result: await fn(), captured }; }
+  finally { for (const k of Object.keys(originals)) console[k] = originals[k]; }
+}
+
+const gpuProbe = await withConsoleCaptured(() => callTool(gpuNode.mcp_name, { policy_parameters: probeBody }));
+check(gpuProbe.result?.isError !== true,
+  'gpu:true + populated body → still delegates (not an error)',
+  JSON.stringify(gpuProbe.result?.structuredContent?.delegation_reason ?? gpuProbe.result?._rpcError));
+check(gpuProbe.result?.structuredContent?.delegation_reason === 'gpu_node',
+  'gpu:true + populated body → delegation_reason stays "gpu_node"',
+  JSON.stringify(gpuProbe.result?.structuredContent?.delegation_reason ?? 'no result'));
+check(!bodyLeaksInto(gpuProbe.result),
+  'gpu:true + populated body → the body is NOT echoed in the per-node response (raw or base64url)');
+check(!gpuProbe.captured.some((line) => line.includes(PRIVACY_SENTINEL) || line.includes(probeEncoded)),
+  'gpu:true + populated body → no console sink logs the body',
+  gpuProbe.captured.filter((l) => l.includes(PRIVACY_SENTINEL)).join(' | ').slice(0, 160));
+
+// Description: the delegate-only disclosure must be the FIRST sentence the model reads.
+const gpuListServer = buildServer(data, { onlyTool: gpuNode.mcp_name, mrtr: { env, args: {}, requestState: null, inputResponses: null, clientCaps: null, principal: 'delegation-reason-gate' } });
+const [gpuListClientT, gpuListServerT] = InMemoryTransport.createLinkedPair();
+const gpuListClient = new Client({ name: 'delegation-reason-gate', version: '1.0.0' });
+await Promise.all([gpuListClient.connect(gpuListClientT), gpuListServer.connect(gpuListServerT)]);
+const gpuListed = await gpuListClient.listTools();
+await gpuListClient.close();
+const gpuDesc = String(gpuListed?.tools?.[0]?.description ?? '');
+const gpuFirstSentence = gpuDesc.split('. ')[0] ?? '';
+check(/not computed server-side/i.test(gpuFirstSentence) && /browser/i.test(gpuFirstSentence),
+  'gpu:true description FIRST sentence discloses no-server-side-compute + browser link',
+  JSON.stringify(gpuFirstSentence.slice(0, 160)));
+
+// emit_chaingraph_artifact: the other delegation surface must be equally silent about the body.
+const gpuEmit = await withConsoleCaptured(() => callTool('emit_chaingraph_artifact', { tool_id: gpuNode.tool_id, policy_parameters: probeBody }));
+check(gpuEmit.result?.structuredContent?.mode === 'browser_delegation_gpu',
+  'emit_chaingraph_artifact gpu:true → mode "browser_delegation_gpu"',
+  JSON.stringify(gpuEmit.result?.structuredContent?.mode ?? gpuEmit.result?._rpcError ?? textOf(gpuEmit.result).slice(0, 120)));
+check(!bodyLeaksInto(gpuEmit.result),
+  'emit_chaingraph_artifact gpu:true → the body is NOT echoed (artifact_template/prefill_url, raw or base64url)');
+check(!gpuEmit.captured.some((line) => line.includes(PRIVACY_SENTINEL) || line.includes(probeEncoded)),
+  'emit_chaingraph_artifact gpu:true → no console sink logs the body');
 
 if (failures.length) {
   console.error(`\n✗ check-delegation-reason: ${failures.length} assertion(s) failed:`);
