@@ -875,6 +875,298 @@
       }
     }
   },
+  "recompute_event_contract_fee": {
+    "type": "object",
+    "properties": {
+      "accumulator": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "as_of": {
+        "type": "string"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "combos",
+          "crypto"
+        ]
+      },
+      "conservation_ok": {
+        "type": "boolean"
+      },
+      "effective_date_pinned": {
+        "type": "boolean"
+      },
+      "effective_theta": {
+        "type": "object",
+        "properties": {
+          "maker": {
+            "type": "object",
+            "properties": {
+              "den": {
+                "type": "number"
+              },
+              "num": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "den",
+              "num"
+            ],
+            "additionalProperties": false
+          },
+          "taker": {
+            "type": "object",
+            "properties": {
+              "den": {
+                "type": "number"
+              },
+              "num": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "den",
+              "num"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "maker",
+          "taker"
+        ],
+        "additionalProperties": false
+      },
+      "evidence": {
+        "type": "object",
+        "properties": {
+          "record_type": {
+            "type": "string"
+          },
+          "refused": {
+            "type": "boolean"
+          },
+          "tool_id": {
+            "type": "string"
+          },
+          "tool_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_type",
+          "refused",
+          "tool_id",
+          "tool_version"
+        ],
+        "additionalProperties": false
+      },
+      "fee_family": {
+        "type": "string",
+        "enum": [
+          "flat",
+          "linear",
+          "multiplier",
+          "parabolic",
+          "rebate_share"
+        ]
+      },
+      "fill_rounding_unit_micro": {
+        "type": "number"
+      },
+      "fills_net_sum_micro": {
+        "type": "number"
+      },
+      "order_rounding_unit_micro": {
+        "type": "number"
+      },
+      "per_order": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "carry_micro": {
+              "type": "number"
+            },
+            "conservation_ok": {
+              "type": "boolean"
+            },
+            "fee_check": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "MATCH",
+                "OVERCHARGE",
+                "UNDERCHARGE",
+                null
+              ]
+            },
+            "fills_in": {
+              "type": "number"
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "combo",
+                "standard"
+              ]
+            },
+            "order_fee_micro": {
+              "type": "number"
+            },
+            "order_label": {
+              "type": "string"
+            },
+            "per_fill": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "contracts": {
+                    "type": "number"
+                  },
+                  "net_fee_micro": {
+                    "type": "number"
+                  },
+                  "price_micro": {
+                    "type": "number"
+                  },
+                  "rebate_micro": {
+                    "type": "number"
+                  },
+                  "rounding_fee_micro": {
+                    "type": "number"
+                  },
+                  "trade_fee_micro": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "contracts",
+                  "net_fee_micro",
+                  "price_micro",
+                  "rebate_micro",
+                  "rounding_fee_micro",
+                  "trade_fee_micro"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "rebate_total_micro": {
+              "type": "number"
+            },
+            "reported_fee_minor": {
+              "type": "number"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "maker",
+                "taker"
+              ]
+            },
+            "trade_fees_micro": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "carry_micro",
+            "conservation_ok",
+            "fee_check",
+            "fills_in",
+            "kind",
+            "order_fee_micro",
+            "order_label",
+            "per_fill",
+            "rebate_total_micro",
+            "role",
+            "trade_fees_micro"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "profile_id": {
+        "type": "string",
+        "enum": [
+          "generic",
+          "kalshi",
+          "polymarket_global",
+          "polymarket_us"
+        ]
+      },
+      "rebate_share_bp": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "rounding_mode": {
+        "type": "string",
+        "enum": [
+          "ceil",
+          "round_half_up"
+        ]
+      },
+      "series_multiplier": {
+        "type": "object",
+        "properties": {
+          "den": {
+            "type": "number"
+          },
+          "num": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "den",
+          "num"
+        ],
+        "additionalProperties": false
+      },
+      "source_pin": {
+        "type": "string"
+      },
+      "total_fee_micro": {
+        "type": "number"
+      },
+      "venue_label": {
+        "type": "string"
+      },
+      "verdict": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "accumulator",
+      "as_of",
+      "conservation_ok",
+      "effective_theta",
+      "evidence",
+      "fee_family",
+      "fill_rounding_unit_micro",
+      "fills_net_sum_micro",
+      "order_rounding_unit_micro",
+      "per_order",
+      "profile_id",
+      "rebate_share_bp",
+      "rounding_mode",
+      "series_multiplier",
+      "source_pin",
+      "total_fee_micro",
+      "venue_label",
+      "verdict"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
   "check_stablecoin_refunds": {
     "type": "object",
     "properties": {
