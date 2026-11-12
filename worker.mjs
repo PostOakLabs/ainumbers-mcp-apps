@@ -4291,6 +4291,10 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     }
 
     // --- Mode 2: tool_id + policy_parameters (browser delegation) ---
+    // COMPUTE-CAPABILITY-PER-NODE-1: for a gpu:true (delegate-only) node the submitted body is NOT
+    // read and NOT echoed — the template carries a null fill-me slot and no #in= prefill is built,
+    // so the plaintext inputs stop at the request boundary (the graph metadata used to declare
+    // compute_capability:"server"; the site now says "browser" for these 15 nodes).
     const artifact_template = {
       '@context': envelope_context,
       chaingraph_version: CHAINGRAPH_VERSION,
@@ -4301,12 +4305,12 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       execution_hash: null,
       chain: chain_block,
       ...(profile_conforms_to ? { 'dct:conformsTo': profile_conforms_to } : {}),
-      policy_parameters,
+      ...(gpu ? { policy_parameters: null } : { policy_parameters }),
       output_payload: null,
       compliance_flags: [],
       audit_signature: null,
     };
-    const prefill_url = browser_url + '#in=' + base64urlEncode(policy_parameters);
+    const prefill_url = gpu ? null : browser_url + '#in=' + base64urlEncode(policy_parameters);
     const out = {
       mode: gpu ? 'browser_delegation_gpu' : 'browser_delegation',
       tool_id,
@@ -4317,7 +4321,9 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       prefill_url,
       artifact_template,
       next_steps: [
-        '1. Open prefill_url in a browser (inputs pre-filled via AIN Bridge #in= fragment).',
+        gpu
+          ? '1. Open browser_url in a browser and configure inputs there (delegate-only node: submitted inputs are not computed server-side and are not echoed in this response).'
+          : '1. Open prefill_url in a browser (inputs pre-filled via AIN Bridge #in= fragment).',
         '2. Run the tool — all compute is client-side, zero egress.',
         '3. Click "Export Policy Mandate" to download the artifact JSON.',
         '4. Call emit_chaingraph_artifact({ pre_computed_artifact: <json> }) to validate schema and verify execution_hash.',
@@ -6106,6 +6112,9 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     server.registerTool(toolName, {
       title: node.display_name,
       description:
+        // COMPUTE-CAPABILITY-PER-NODE-1: delegate-only nodes lead with the disclosure the agent
+        // reads FIRST — inputs are not computed server-side; the call returns a browser link.
+        (node.gpu ? 'DELEGATE-ONLY NODE: inputs are not computed server-side for this tool; the call always returns a browser link for client-side execution instead of computing here. ' : '') +
         node.display_name + ': OpenChainGraph compute node (' + node.mandate_type + ').' + deadlineNote +
         ' Deterministic OpenChainGraph compute node. By default (compute:"auto") inputs are computed server-side on Cloudflare Workers for gpu:false nodes with a registered kernel; compute:"browser" forces client-side execution and returns a browser delegation URL instead. gpu:true nodes always delegate to the browser. Inputs are processed transiently to compute the response and are not stored, logged, or retained. Use synthetic or anonymised inputs only. Exports an AP2 artifact with execution_hash for chain provenance.' +
         (consumes.length ? ' Consumes upstream artifacts from: ' + consumes.join(', ') + '.' : '') +
@@ -6149,7 +6158,10 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       // 23 shipped chain fixtures pass keys absent from the manifest input_schema.properties
       // (scripts/measure-unknown-policy-keys.mjs), so a hard refusal needs a ruling first. The call
       // still executes and the result carries the UNKNOWN_POLICY_PARAMETER warning + did-you-mean.
-      const unknownKeys = unknownPolicyKeys(inputSpec, policy_parameters);
+      // COMPUTE-CAPABILITY-PER-NODE-1: a delegate-only (gpu:true) node never computes, so its
+      // submitted body is not read for unknown-key warnings either — the delegation answer does
+      // not depend on any input field beyond the node id.
+      const unknownKeys = (policy_parameters && !node.gpu) ? unknownPolicyKeys(inputSpec, policy_parameters) : [];
       const unknownWarnings = unknownKeys.length ? [{
         code: 'UNKNOWN_POLICY_PARAMETER',
         message: unknownPolicyKeyMessage(toolName, inputSpec, unknownKeys),
@@ -6252,6 +6264,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           // Same sentence as structuredContent.instruction — the text half of the result is what a
           // client without structured-output support reads, and it must not say something different.
           'Why this was delegated (' + delegation.reason + '): ' + delegation.instruction +
+          (node.gpu ? ' Delegate-only node: the input body sent with this call was not read and is not echoed back.' : '') +
           chainNote,
         }],
         structuredContent: {
@@ -6265,7 +6278,9 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           feeds,
           parent_hashes:   parent_hashes   ?? [],
           parent_tool_ids: parent_tool_ids ?? [],
-          policy_parameters: policy_parameters ?? {},
+          // COMPUTE-CAPABILITY-PER-NODE-1: delegate-only (gpu:true) nodes echo NOTHING — the
+          // submitted body is absent from the response entirely.
+          ...(node.gpu ? {} : { policy_parameters: policy_parameters ?? {} }),
           delegation_reason: delegation.reason,
           instruction: delegation.instruction,
         },
