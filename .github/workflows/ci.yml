@@ -147,6 +147,20 @@ jobs:
       - name: 🔗 Validate named chains
         run: node scripts/validate-chains.mjs
 
+      - name: 📮 Agent-feedback collector contract (WEBMCP-FEEDBACK-COLLECTOR-1)
+        # Drives the real worker over a local ASSETS stub: the full POST /feedback response
+        # matrix [AF-11], the two dedicated limiters (3003 per-IP, 3004 constant-key global —
+        # never the shared 3002 bucket) [AF-5], the no-PII shape of the FEEDBACK datapoint (R2),
+        # collector-derived tool_known [BF-5], the additive unknown-tool hint [BF-2], and all
+        # four R5 outcome classes incl. the escaping-soundness case [BF-1].
+        run: node scripts/test-agent-feedback.mjs
+
+      - name: 🧬 Agent-feedback schema twin byte-equality (WEBMCP-FEEDBACK-COLLECTOR-1)
+        # The vendored twin (data/mcp/agent-feedback.schema.json) must stay byte-equal to the
+        # site's published .well-known file (local site origin/main when present, else raw
+        # main). RED = re-run `node generate.mjs` and commit the refreshed twin.
+        run: node scripts/check-agent-feedback-vendor.mjs
+
       - name: 🧾 Input-attestations gate (§23)
         # SPEC.md §15 row: real rfc3161-snapshot verify (reuses the §20 rfc3161-tst verifier, no
         # second impl), real vc-2.0 Data Integrity verify, c2pa-manifest structural check, zktls

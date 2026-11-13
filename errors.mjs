@@ -175,6 +175,14 @@ export const PROTOCOL_ERRORS = {
   'protocol.tool_not_found.zero_tools': {
     code: -32602, status: 200,
     message: (vars) => 'Tool not found: ' + vars.toolName,
+    // WEBMCP-FEEDBACK-COLLECTOR-1: nearest_names + hint are ADDITIVE (code/message/status frozen;
+    // the envelope smoke and deprecation gates read the message, never the absence of data).
+    // The hint points at the out-of-band enum-only feedback collector -- the loop's bootstrap
+    // [BF-2], the nearest_names hint pattern reused from 'protocol.tool_not_found.nearest'.
+    data: (vars) => ({
+      ...(Array.isArray(vars.nearest) && vars.nearest.length ? { nearest_names: vars.nearest } : {}),
+      hint: vars.hint,
+    }),
     retryable: false,
   },
 

@@ -55,6 +55,8 @@ const gates = [
   { name: 'hot tools at page-1 positions 1-13 + initialize.instructions (MCP-REACH-DISPATCH-1 D2)', args: ['scripts/check-hot-tool-order.mjs'] },
   { name: 'call_tool dispatcher: allowlist, refusals, schema parity (MCP-REACH-DISPATCH-1 D1)', args: ['scripts/test-call-tool-dispatch.mjs'] },
   { name: 'limiter routing: ns 3005 pre-parse on every POST (MCP-REACH-DISPATCH-1 D3)', args: ['scripts/test-mcp-limiter-routing.mjs'] },
+  { name: 'agent-feedback collector contract (WEBMCP-FEEDBACK-COLLECTOR-1)', args: ['scripts/test-agent-feedback.mjs'] },
+  { name: 'agent-feedback schema twin byte-equality (WEBMCP-FEEDBACK-COLLECTOR-1)', args: ['scripts/check-agent-feedback-vendor.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
   { name: 'full-corpus chain E2E + schema conformance (audit E1/E3)', args: ['scripts/run-chain-corpus.mjs'] },
