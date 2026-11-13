@@ -172,32 +172,32 @@
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
       "uri": "ui://ainumbers/node/art-01-ap2-mandate-chain-validator",
-      "bytes": 154962,
-      "sha256": "0f6e79b6cd8f96075ba96a81e85ebcae08d3f789504ef84427240c2d785a5562"
+      "bytes": 156871,
+      "sha256": "07a33d5342af90d9b7de449dd137bab43bb32a8d6c0ff85c78aca8ac82c867bb"
     },
     {
       "tool_id": "art-02-agent-spend-policy-simulator",
       "mcp_name": "simulate_spend_policy",
       "display_name": "Agent Spend-Policy Simulator",
       "uri": "ui://ainumbers/node/art-02-agent-spend-policy-simulator",
-      "bytes": 124773,
-      "sha256": "932ae5b3019f116b1ef42e09b13be209a3735d93c9cd09297c751b313afc1ea9"
+      "bytes": 126682,
+      "sha256": "f20d0a45d38b1df75638ef9bccbce181e2a62b82ad0a90f274aa64b3b635c216"
     },
     {
       "tool_id": "art-03-x402-settlement-modeler",
       "mcp_name": "model_x402_settlement",
       "display_name": "x402 Settlement Cost & Finality Modeler",
       "uri": "ui://ainumbers/node/art-03-x402-settlement-modeler",
-      "bytes": 92530,
-      "sha256": "de3a538aea9b2b0e44927db4d5bb5f2ab28a13e32472f6bb565aec375a7cb308"
+      "bytes": 94439,
+      "sha256": "776a47e1ea97aa79c4db12c0e6077612014798b6aa9f69b952c9843f5d8dddbf"
     },
     {
       "tool_id": "art-04-agent-identity-attestation-checker",
       "mcp_name": "check_agent_attestation",
       "display_name": "Agent Identity & Authorization Attestation Checker",
       "uri": "ui://ainumbers/node/art-04-agent-identity-attestation-checker",
-      "bytes": 102884,
-      "sha256": "6250e2e08b750c87674b0fb8785f253aabb313f9a42c18c98d3e3a45a8adab6f"
+      "bytes": 104793,
+      "sha256": "d77a6dae22040b5264cf4090a05a22a6757009632175364ab4c75a31114ad956"
     },
     {
       "tool_id": "art-05-eu-ai-act-credit-scoring-conformity",
@@ -260,8 +260,8 @@
       "mcp_name": "validate_acp_checkout",
       "display_name": "ACP Checkout Conformance Validator",
       "uri": "ui://ainumbers/node/art-12-acp-checkout-conformance-validator",
-      "bytes": 143771,
-      "sha256": "0871d8fd9de2c5db06abeec8a36f4adc6280ffaf39cb573d705067adb90c866a"
+      "bytes": 145680,
+      "sha256": "a40de31151d6b06c8874a80c27eaf596a4f032aee218cc4eec9b0343f2f525e0"
     },
     {
       "tool_id": "art-13-eudi-wallet-credential-readiness-checker",
@@ -292,88 +292,88 @@
       "mcp_name": "draft_ap2_mandate_credential",
       "display_name": "Google AP2 Mandate Builder",
       "uri": "ui://ainumbers/node/art-16-google-ap2-mandate-builder",
-      "bytes": 94862,
-      "sha256": "4e11b3ce7857c8778abd9f487b195e8d4e5c6242ace2c7235dd635b3d6eceefe"
+      "bytes": 96771,
+      "sha256": "0443aa37b515a64b44d8341e262cec612def57040640a1c14e4383864242b769"
     },
     {
       "tool_id": "art-17-ap2-mcp-policy-validator",
       "mcp_name": "validate_ap2_mandate_credential",
       "display_name": "AP2/MCP Policy Validator",
       "uri": "ui://ainumbers/node/art-17-ap2-mcp-policy-validator",
-      "bytes": 124994,
-      "sha256": "89922e2f9487654dde53bb644090011585d5adf88b70a9285699036c694396a6"
+      "bytes": 126903,
+      "sha256": "d79f71f6bbfef2eedcc87425089fefadc7690daa02ac6f9c8fdcd3fb5be8de09"
     },
     {
       "tool_id": "art-18-mcp-developer-readiness-scorecard",
       "mcp_name": "score_mcp_server_readiness",
       "display_name": "MCP Developer Readiness Scorecard",
       "uri": "ui://ainumbers/node/art-18-mcp-developer-readiness-scorecard",
-      "bytes": 92034,
-      "sha256": "8c86a618fab1e4964f148de657035531b4a224ec9196c99d8ce1f8a243feb033"
+      "bytes": 93943,
+      "sha256": "89eacb94b7ef70e77bdbeeece201f92ec1cac8e2d14121d2e8299736e591c204"
     },
     {
       "tool_id": "art-19-agentic-checkout-protocol-selector",
       "mcp_name": "select_agentic_checkout_protocol",
       "display_name": "Agentic Checkout Protocol Selector",
       "uri": "ui://ainumbers/node/art-19-agentic-checkout-protocol-selector",
-      "bytes": 104131,
-      "sha256": "d3904c10c1a78db2fd8984059b5ebd365728de90c42b36e2a6a133912848b58b"
+      "bytes": 106040,
+      "sha256": "256858a187878c3f2e8085e0a1e6563d29fe77147cc44184c2ac5ac18d07cde6"
     },
     {
       "tool_id": "art-20-acp-ucp-product-feed-conformance-auditor",
       "mcp_name": "audit_acp_ucp_product_feed",
       "display_name": "ACP/UCP Product-Feed Conformance Auditor",
       "uri": "ui://ainumbers/node/art-20-acp-ucp-product-feed-conformance-auditor",
-      "bytes": 103782,
-      "sha256": "39762d8183fb0cadf3c9120be2be76561e97922edd09e9540dfa5759a3f876bd"
+      "bytes": 105691,
+      "sha256": "fc86fdeead6e76463996e1f22dbe7324294300ac20419c909d141a97bb409ecb"
     },
     {
       "tool_id": "art-21-agent-traffic-acceptance-policy-builder",
       "mcp_name": "build_agent_traffic_policy",
       "display_name": "Agent-Traffic Acceptance Policy Builder",
       "uri": "ui://ainumbers/node/art-21-agent-traffic-acceptance-policy-builder",
-      "bytes": 103563,
-      "sha256": "12b52aebb39a49b6b2106eea7b427906bd16fc88c5b3c356c1205f8c82a29a64"
+      "bytes": 105472,
+      "sha256": "069d71a360396f2665c7f26d1b0fab39e3dc3f7e5091c2a2ed57b7ef147d1ad8"
     },
     {
       "tool_id": "art-22-agentic-payments-protocol-comparator",
       "mcp_name": "compare_agentic_rail_protocols",
       "display_name": "Agentic Payments Protocol Comparator",
       "uri": "ui://ainumbers/node/art-22-agentic-payments-protocol-comparator",
-      "bytes": 95045,
-      "sha256": "2b57d113ca369fc7b6db37eda4db2e59e9ad9f39793ef92578e9dc3646865877"
+      "bytes": 96954,
+      "sha256": "dad9719a221f3719818f66544480bfcfef68b077cf03ca3f3faa07b21ef97540"
     },
     {
       "tool_id": "art-23-visa-trusted-agent-protocol-inspector",
       "mcp_name": "inspect_visa_trusted_agent_protocol",
       "display_name": "Visa Trusted Agent Protocol (TAP) Signature Inspector",
       "uri": "ui://ainumbers/node/art-23-visa-trusted-agent-protocol-inspector",
-      "bytes": 91185,
-      "sha256": "b1a9d5158e02dbe3f7e411f8f830e8c0ba5e062886f4070b42218a92aba431c9"
+      "bytes": 93094,
+      "sha256": "937f10a27aa29e3ea00d70baf26528fcbfbe3e23696a247bb73c911c56260edb"
     },
     {
       "tool_id": "art-24-mastercard-agentic-token-builder",
       "mcp_name": "build_mastercard_agentic_token",
       "display_name": "Mastercard Agentic Token Scope Builder",
       "uri": "ui://ainumbers/node/art-24-mastercard-agentic-token-builder",
-      "bytes": 86502,
-      "sha256": "a1f1e4db5a30b9a024d1ccf04f065dcc31578f281cd534976d3d5974517aa499"
+      "bytes": 88411,
+      "sha256": "c23a3819296de50adbb8e7af442d3d1fa2079fd8290f03b99a7baa10276865d9"
     },
     {
       "tool_id": "art-25-a2a-agent-card-validator",
       "mcp_name": "verify_a2a_agent_card",
       "display_name": "A2A Agent Card Validator & Extension Checker",
       "uri": "ui://ainumbers/node/art-25-a2a-agent-card-validator",
-      "bytes": 88360,
-      "sha256": "ea54cfa8824bb7626ff83c39dba0ad8b310ca25736beaf8eb312743c5d6d3829"
+      "bytes": 90269,
+      "sha256": "497f5b9e446cb59e2a2eb99ffeacb0644c3800eb542eb096d003b6024c8a29d0"
     },
     {
       "tool_id": "art-26-x402-payload-decoder-flow-simulator",
       "mcp_name": "simulate_x402_flow",
       "display_name": "x402 Header Decoder, Payload Linter & 402 Flow Simulator",
       "uri": "ui://ainumbers/node/art-26-x402-payload-decoder-flow-simulator",
-      "bytes": 95229,
-      "sha256": "8b9d54e69c8da2469a8e54339d48c32d8133b6704d1a6a99643751564eb6c4bd"
+      "bytes": 97138,
+      "sha256": "51e7097361152378786bf8d48bd8ea2cb34f8362175f04d69c5647547a7d2bc9"
     },
     {
       "tool_id": "art-27-agentic-readiness-diagnostic",
@@ -404,8 +404,8 @@
       "mcp_name": "validate_agent_commerce_conformance",
       "display_name": "Agent Commerce Cross-Protocol Conformance Validator",
       "uri": "ui://ainumbers/node/art-30-agent-commerce-conformance-validator",
-      "bytes": 144279,
-      "sha256": "a615320e998d460ae8bd7cc5d5831a8e91bdcfdc15e85b98e89062c3fea001e1"
+      "bytes": 146188,
+      "sha256": "c5a7157db62c9ddd52e02a452eb9af6842812d83d043909b743804fbf6ca7319"
     },
     {
       "tool_id": "art-31-a2a-x402-extension-mandate-validator",
@@ -420,8 +420,8 @@
       "mcp_name": "validate_a2a_trust_chain",
       "display_name": "A2A Agent-Card Trust-Chain Validator",
       "uri": "ui://ainumbers/node/art-32-a2a-agent-card-trust-chain-validator",
-      "bytes": 159662,
-      "sha256": "1df0c3092129d9f1184b5e123d777f922136920f79c60278f965fafbb74f2e48"
+      "bytes": 161571,
+      "sha256": "71e010efffd3252d6a427e13ee3c97e507fb73ad02871fadf674b4eb1484a861"
     },
     {
       "tool_id": "art-33-mcp-server-self-attestation-pack",
@@ -452,8 +452,8 @@
       "mcp_name": "decode_mpp_session",
       "display_name": "Tempo MPP Agent Mandate",
       "uri": "ui://ainumbers/node/art-36-tempo-mpp-agent-mandate",
-      "bytes": 99408,
-      "sha256": "f531154f67f886133e5bfde1a0e31e51474489bce4434f33f6040592ee1131ac"
+      "bytes": 101317,
+      "sha256": "8609822dc99faf0428bb9c5b60402d365a54539514b628fb0196f29a0d9a7128"
     },
     {
       "tool_id": "art-37-tempo-stablecoin-issuance",
@@ -652,16 +652,16 @@
       "mcp_name": "reconcile_x402_batch_settlement",
       "display_name": "x402 V2 Batch-Settlement Reconciler",
       "uri": "ui://ainumbers/node/art-61-x402-batch-settlement-reconciler",
-      "bytes": 87591,
-      "sha256": "43e25c014967aa87b476d4bce2b0244224dd3c6b8774bb9e2972125835fef602"
+      "bytes": 89500,
+      "sha256": "4adf332d956d9cbc37627add0a795432bd549856f5365b70c80d4c02266fa2d0"
     },
     {
       "tool_id": "art-62-ap2-payment-receipt-verifier",
       "mcp_name": "verify_ap2_payment_receipt",
       "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
       "uri": "ui://ainumbers/node/art-62-ap2-payment-receipt-verifier",
-      "bytes": 100631,
-      "sha256": "58dcc8cabf801449e8aee200e5ec462668842a1dc256f1059d51b885de08bae1"
+      "bytes": 102540,
+      "sha256": "ecd5acb8a2f4cd8b8a4f8c7d449ebb503effeed8061230bd087f06e414463c5e"
     },
     {
       "tool_id": "art-63-agent-service-metering-modeler",
@@ -684,8 +684,8 @@
       "mcp_name": "build_ai_conformity_pack",
       "display_name": "AI Act Conformity Pack Builder",
       "uri": "ui://ainumbers/node/art-65-ai-conformity-pack-builder",
-      "bytes": 47714,
-      "sha256": "9231a978f169ba156b84783dbac1d0ae238fde240fb3099a4a5b9bd3e97a4e45"
+      "bytes": 55215,
+      "sha256": "8a6122fa44b598ad136c4cbd1e86ca2edef65c67c5e486e5d3a59ceebc6d987d"
     },
     {
       "tool_id": "art-66-fria-postmarket-monitoring-builder",
@@ -1140,24 +1140,24 @@
       "mcp_name": "validate_c2pa_manifest",
       "display_name": "C2PA Content Credential Manifest Validator",
       "uri": "ui://ainumbers/node/art-123-c2pa-manifest-validator",
-      "bytes": 110769,
-      "sha256": "766e1aa2ffe6269a79462321b5ed800f6755e7f30d6ddc2443d0de55199afae1"
+      "bytes": 112678,
+      "sha256": "b47aaf0f3f091615e1e58f0156c203dc275c8f70896dd2b5382f675965d9c035"
     },
     {
       "tool_id": "art-124-content-credential-signature-verifier",
       "mcp_name": "verify_content_credential_signature",
       "display_name": "Content Credential Signature Verifier",
       "uri": "ui://ainumbers/node/art-124-content-credential-signature-verifier",
-      "bytes": 118987,
-      "sha256": "458871384ed189fd15b4ce0292272ef27df1e75173b5668a3789dc8da2bcd988"
+      "bytes": 120896,
+      "sha256": "46cac4b25fa96f17778083ba5765a34ae574d417beb5a4a5ca1ab66604da0594"
     },
     {
       "tool_id": "art-125-provenance-ingredient-tree-resolver",
       "mcp_name": "resolve_provenance_ingredient_tree",
       "display_name": "Provenance Ingredient Tree Resolver",
       "uri": "ui://ainumbers/node/art-125-provenance-ingredient-tree-resolver",
-      "bytes": 109450,
-      "sha256": "161e85345f53df8ceec8e6c99ce357f756befe486e2888fe5a38abe8b5ba5b9d"
+      "bytes": 111359,
+      "sha256": "28c3c8bfaa611ce88e5ce26f0cf1caba0ee814eac2a7bdbfa142fd011d7aabb4"
     },
     {
       "tool_id": "art-126-ai-act-art50-marking-checker",
@@ -1580,8 +1580,8 @@
       "mcp_name": "validate_ifrs17_csm_rollforward",
       "display_name": "IFRS 17 CSM Roll-Forward Validator",
       "uri": "ui://ainumbers/node/art-178-ifrs17-csm-rollforward-validator",
-      "bytes": 40462,
-      "sha256": "220333ff0562a0ff7a80bb671f5de58d0b94cb6f82872cf0b36797064c686629"
+      "bytes": 40957,
+      "sha256": "737afba9350f6c2d189d06ce7a43fa05b5783354a338eebf490a9407ccf1ba96"
     },
     {
       "tool_id": "art-179-ifrs17-risk-adjustment-checker",
@@ -2188,8 +2188,8 @@
       "mcp_name": "compute_rbc_action_level",
       "display_name": "NAIC RBC Action Level Calculator",
       "uri": "ui://ainumbers/node/art-254-compute-rbc-action-level",
-      "bytes": 34879,
-      "sha256": "8c2f8255ef2a2f7a8558ce355166c378ea66272054607c5b77df77828cad478f"
+      "bytes": 39575,
+      "sha256": "738d724afbdf2f4aacfc283096a4bfae9a50a7313ac8a21d3cd3b927dcd2b353"
     },
     {
       "tool_id": "art-255-compute-lcm-rate-derivation",
@@ -2236,8 +2236,8 @@
       "mcp_name": "allocate_ihb_interest",
       "display_name": "IHB Interest Allocation",
       "uri": "ui://ainumbers/node/art-260-allocate-ihb-interest",
-      "bytes": 34273,
-      "sha256": "5a43f5f08ae6a625e685eb25a55ecf26b99197912e642a44362d42f9f9a522b1"
+      "bytes": 36864,
+      "sha256": "8def2e1c98295135898c8c465b7e897c7fd669cd5db45d0a3eec9b1939871a87"
     },
     {
       "tool_id": "art-261-test-hedge-effectiveness",
@@ -3100,8 +3100,8 @@
       "mcp_name": "check_agent_token_scope",
       "display_name": "Agent Token Scope Checker",
       "uri": "ui://ainumbers/node/art-385-agent-token-scope-checker",
-      "bytes": 91519,
-      "sha256": "823f89df71f4bf12a33b4f2f08f9c4ee5c365604573eaed9d145fe1e673aac1f"
+      "bytes": 93428,
+      "sha256": "e2e7976bc4dd636266711afb55a87bfbaff41d16668aadf6a9cfff50e8eb2639"
     },
     {
       "tool_id": "art-386-lint-cbom-structure",
@@ -3164,16 +3164,16 @@
       "mcp_name": "lint_x402_v2_migration",
       "display_name": "x402 v2 Wire-Format Migration Linter",
       "uri": "ui://ainumbers/node/art-393-x402-v2-migration-linter",
-      "bytes": 88561,
-      "sha256": "4cf15a1480837ad35ae949af171defbb8b6b1c0e67b9a6e9b70115240cacf51f"
+      "bytes": 90470,
+      "sha256": "ae8464cecd6bc7b2cc5c595f9dee6e0da5496800829778f06f3defc85ad946c0"
     },
     {
       "tool_id": "art-394-x402-deferred-handshake-validator",
       "mcp_name": "validate_x402_deferred_handshake",
       "display_name": "x402 Deferred-Scheme Handshake Validator",
       "uri": "ui://ainumbers/node/art-394-x402-deferred-handshake-validator",
-      "bytes": 87216,
-      "sha256": "40e2e66241431e08daacb2af4cebb758245fde3bd76e77d0a8bb34dc7185b488"
+      "bytes": 89125,
+      "sha256": "db0c82969a66b1f5d2a1ec34681f56a48b4809189ac4c3798ee8e7e024017ae7"
     },
     {
       "tool_id": "art-396-compute-15c3-3-reserve",
@@ -3356,8 +3356,8 @@
       "mcp_name": "compute_large_exposures_limit",
       "display_name": "Large Exposures Limit Check",
       "uri": "ui://ainumbers/node/art-425-large-exposures-limit-check",
-      "bytes": 39750,
-      "sha256": "267d2c001999a10abc2108e24d0dcf767d4e743399937c8e8ae3f8ddb8c6c12c"
+      "bytes": 42609,
+      "sha256": "dd8a180d74fa3c8ece23d0e11252117d5ef8296b852c33f9354611b5198132ab"
     },
     {
       "tool_id": "art-426-cecl-ecl-calculator",
@@ -4356,8 +4356,8 @@
       "mcp_name": "lint_ucp_checkout_payload",
       "display_name": "UCP Checkout Payload Lint",
       "uri": "ui://ainumbers/node/art-564-ucp-checkout-payload-lint",
-      "bytes": 82024,
-      "sha256": "35700161682b6dcffbb7109bbabe1d502bac26eb82213f2c2ebeb173a0084721"
+      "bytes": 83933,
+      "sha256": "730d09731e4e977521b82cb5748b303bda43d45e9f02d56c920fabd42387c49f"
     },
     {
       "tool_id": "art-565-kya-x402-scope-verifier",
@@ -5414,6 +5414,14 @@
       "uri": "ui://ainumbers/node/art-828-reconcile-omnibus-token-position",
       "bytes": 98363,
       "sha256": "a3f47e538455d6a0e26aa292e81ac3cba0e02fa03f4c255baca89ffb254b876d"
+    },
+    {
+      "tool_id": "art-831-receipt-export-envelopes",
+      "mcp_name": "export_receipt_lineage_events",
+      "display_name": "Receipt Export Envelopes",
+      "uri": "ui://ainumbers/node/art-831-receipt-export-envelopes",
+      "bytes": 36433,
+      "sha256": "6d5b5381f383b26c2714ed4d854d97f51174cb0122c6f9b2ddd630e0979744ba"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
