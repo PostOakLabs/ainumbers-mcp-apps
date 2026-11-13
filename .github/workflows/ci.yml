@@ -327,7 +327,34 @@ jobs:
         # COMMITTED vendored data/chaingraph.json + bundled kernels/ match the site source, so a
         # "edited chaingraph.json but forgot to re-vendor" can never deploy a stale catalog.
         # Semantic compare (parsed-JSON / \r-normalized) — robust to line-ending + formatting noise.
-        run: SITE_REPO=_site node scripts/check-vendor-fresh.mjs
+        #
+        # WORKER-VENDOR-ON-SITE-REGEN-1: ADVISORY on a non-vendor PR that touches no vendored file
+        # (data/, kernels/, server.json) — unrelated site drift must not fail it. Still BLOCKING on
+        # master pushes and on vendor/* PRs, and on any PR that edits a vendored file.
+        env:
+          EVENT: ${{ github.event_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -uo pipefail
+          ADVISORY=false
+          if [ "$EVENT" = "pull_request" ] && [ "${HEAD_REF#vendor/}" = "$HEAD_REF" ]; then
+            git fetch --quiet --depth=1 origin "$BASE_REF"
+            # HEAD is the PR merge ref, so a two-dot diff vs base is exactly the PR's change set.
+            if CHANGED=$(git diff --name-only "origin/$BASE_REF" HEAD); then
+              if printf '%s\n' "$CHANGED" | grep -qE '^(data/|kernels/|server\.json$)'; then
+                echo "PR touches a vendored file — blocking."
+              else
+                ADVISORY=true
+              fi
+            fi
+          fi
+          SITE_REPO=_site node scripts/check-vendor-fresh.mjs && exit 0
+          if [ "$ADVISORY" = "true" ]; then
+            echo "::warning title=Vendor freshness (advisory)::vendored tree is stale vs site, but this PR touches no vendored file; the vendor refresh PR owns it."
+            exit 0
+          fi
+          exit 1
 
       - name: 🔢 utility-tools count parity vs site (MCPCOUNTS-FIX-1)
         # Compares this worker's own UTILITY_TOOL_COUNT (utility-tools.mjs, the actual
