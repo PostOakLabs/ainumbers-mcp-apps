@@ -168,6 +168,30 @@
       "sha256": "779c3663dcd545bbcd2b4d0f22238cde5b9fbd961fbe9cdf4322cbb8f60e9b37"
     },
     {
+      "tool_id": "836-payment-services-activity-classifier",
+      "mcp_name": "classify_payment_services",
+      "display_name": "Payment Services Activity Classifier",
+      "uri": "ui://ainumbers/node/836-payment-services-activity-classifier",
+      "bytes": 73030,
+      "sha256": "76b536ceb802dbca2494a9f9609c26ffd0114858cdd62a702e20daddd5de7e57"
+    },
+    {
+      "tool_id": "837-issuer-yield-share",
+      "mcp_name": "check_issuer_reserve_yield_share",
+      "display_name": "Issuer Reserve Yield Share Check",
+      "uri": "ui://ainumbers/node/837-issuer-yield-share",
+      "bytes": 59541,
+      "sha256": "2ecf895ad0c7961302c3f3ba18a30adb94b0887cafea19bec52a7ce23c4716ed"
+    },
+    {
+      "tool_id": "838-control-frequency-sample",
+      "mcp_name": "plan_control_frequency_sample",
+      "display_name": "Control Frequency Sample",
+      "uri": "ui://ainumbers/node/838-control-frequency-sample",
+      "bytes": 28057,
+      "sha256": "e76fd7d9b022359e74ae4e1cf262af90d7bef734a95b1cbbeeb965b92122e209"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
@@ -4580,8 +4604,8 @@
       "mcp_name": "check_webbotauth_nonce_replay",
       "display_name": "Web Bot Auth Nonce & Replay-Window Checker",
       "uri": "ui://ainumbers/node/art-593-webbotauth-nonce-replay-check",
-      "bytes": 70554,
-      "sha256": "b61a597a89c03f127f5f2f6812a0c2a2289c4445f32e206bb99782e8b178a37c"
+      "bytes": 71268,
+      "sha256": "1207f5143a9fc2600ebbe41caf95fd0eaf2863755ef783d717496955caf22542"
     },
     {
       "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -5264,6 +5288,14 @@
       "sha256": "cdbfe35bebbe944e747268d1cd24016b96fa6f90d6b3e617e571a7257d139cd8"
     },
     {
+      "tool_id": "art-766-parental-leave-income-gap",
+      "mcp_name": "parental_leave_income_gap",
+      "display_name": "Parental Leave Income Gap",
+      "uri": "ui://ainumbers/node/art-766-parental-leave-income-gap",
+      "bytes": 42138,
+      "sha256": "5d271201c83e454a7753880b488f5f3fc408450004581c9260bf13be0984cf65"
+    },
+    {
       "tool_id": "art-770-total-cost-of-homeownership",
       "mcp_name": "total_cost_of_homeownership",
       "display_name": "Total Cost of Homeownership",
@@ -5356,8 +5388,8 @@
       "mcp_name": "recompute_erc3643_transfer_decision",
       "display_name": "ERC-3643 Transfer Decision Recompute",
       "uri": "ui://ainumbers/node/art-807-erc3643-transfer-decision",
-      "bytes": 63312,
-      "sha256": "ff23b6efe203621f81b960956f6f10de1543f0593cba0ee3250920f63e4b9424"
+      "bytes": 64239,
+      "sha256": "903d396d2730011092b57486fd492384a664f4176ec86c9fa48d71178634ef22"
     },
     {
       "tool_id": "art-809-check-reserves-cover-outstanding-private",
@@ -5382,6 +5414,14 @@
       "uri": "ui://ainumbers/node/art-814-qf-pairwise-recompute",
       "bytes": 44357,
       "sha256": "105f2240216375f2b47c864f024d1902a6cdc74cf3c77fc2e3fb7ca4fae11f4a"
+    },
+    {
+      "tool_id": "art-816-eip3009-agent-spend-gate",
+      "mcp_name": "decide_eip3009_agent_spend",
+      "display_name": "EIP-3009 Agent Spend Gate",
+      "uri": "ui://ainumbers/node/art-816-eip3009-agent-spend-gate",
+      "bytes": 94910,
+      "sha256": "dadf6ff86385aeb2186742c4f77b9a16962ecb270c4e4393952afee50fa1bd4c"
     },
     {
       "tool_id": "art-818-zcash-reg-classifier",
@@ -5416,12 +5456,52 @@
       "sha256": "a3f47e538455d6a0e26aa292e81ac3cba0e02fa03f4c255baca89ffb254b876d"
     },
     {
+      "tool_id": "art-830-eip3009-spend-exposure-reconciler",
+      "mcp_name": "reconcile_eip3009_spend_exposure",
+      "display_name": "EIP-3009 Spend Exposure Reconciler",
+      "uri": "ui://ainumbers/node/art-830-eip3009-spend-exposure-reconciler",
+      "bytes": 72592,
+      "sha256": "a5d6f1fc63ba7b0a9f224969ee05c957185e28f2db17cebbd59a6e9f20439e7a"
+    },
+    {
       "tool_id": "art-831-receipt-export-envelopes",
       "mcp_name": "export_receipt_lineage_events",
       "display_name": "Receipt Export Envelopes",
       "uri": "ui://ainumbers/node/art-831-receipt-export-envelopes",
       "bytes": 36433,
       "sha256": "6d5b5381f383b26c2714ed4d854d97f51174cb0122c6f9b2ddd630e0979744ba"
+    },
+    {
+      "tool_id": "art-832-card-data-flow-scope",
+      "mcp_name": "map_card_data_flow_scope",
+      "display_name": "Card Data Flow Worksheet",
+      "uri": "ui://ainumbers/node/art-832-card-data-flow-scope",
+      "bytes": 34413,
+      "sha256": "362eaf1a5dcd56cf1e8ed4035b7f80a3f069ac75a899e0d24f2aa9078f5b7f90"
+    },
+    {
+      "tool_id": "art-834-asc606-transaction-price-allocator",
+      "mcp_name": "allocate_asc606_transaction_price",
+      "display_name": "ASC 606 Transaction Price Allocator",
+      "uri": "ui://ainumbers/node/art-834-asc606-transaction-price-allocator",
+      "bytes": 37309,
+      "sha256": "1ec0529e022e55bcce3c9d70b4cd0b1bc40d6be0dd47ded80a8ab6fb621a7cc4"
+    },
+    {
+      "tool_id": "art-839-statement-footing-crossfoot",
+      "mcp_name": "check_statement_footing_crossfoot",
+      "display_name": "Statement Footing and Cross-Footing Check",
+      "uri": "ui://ainumbers/node/art-839-statement-footing-crossfoot",
+      "bytes": 43775,
+      "sha256": "83c4bd12e28208fc1e57cc201c549144620268716419ace130b1284feea36e35"
+    },
+    {
+      "tool_id": "art-842-soc-report-coverage-gap",
+      "mcp_name": "compute_soc_report_coverage_gap",
+      "display_name": "SOC Report Coverage and Bridge Gap",
+      "uri": "ui://ainumbers/node/art-842-soc-report-coverage-gap",
+      "bytes": 35769,
+      "sha256": "33f3c07aa2b883d164d4d03e5783b69e37cdf31e4debf3190d34138a080a6a9c"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
