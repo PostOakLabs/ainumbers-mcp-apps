@@ -1600,6 +1600,135 @@
       }
     }
   },
+  "classify_payment_services": {
+    "type": "object",
+    "properties": {
+      "refused": {
+        "type": "boolean"
+      },
+      "rejected_inputs": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "profile": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "classes_triggered": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "exclusions_applied": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "conflicts": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "transition_note": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "regime_status": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "not_legal_advice": {
+        "type": "boolean"
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "plan_control_frequency_sample": {
+    "type": "object",
+    "properties": {
+      "outcome": {
+        "description": "planned, or refused when the input cannot be planned",
+        "type": "string"
+      },
+      "refusal_reasons": {
+        "description": "Explicit refusal codes, empty when planned",
+        "type": "array"
+      },
+      "control_frequency": {
+        "description": "The declared frequency, null when none was given",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "population_size": {
+        "description": "The declared population size, null when not a valid integer",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "period_days": {
+        "description": "The declared period in days, null when not a valid integer",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "frequency_row": {
+        "description": "The policy table row used, null when refused",
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "sample_size": {
+        "description": "Sample size taken from the table row, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "within_expected_range": {
+        "description": "Whether the population lies inside the row's expected range, null when refused",
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "start_offset": {
+        "description": "fold(population_hash) mod population_size, in 0..population_size-1, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "selected_indices": {
+        "description": "Zero-based indices floor((start_offset + i * population_size) / sample_size), unique and in range, empty when refused",
+        "type": "array"
+      },
+      "warnings": {
+        "description": "Conditional flags raised, mirroring compliance_flags",
+        "type": "array"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {

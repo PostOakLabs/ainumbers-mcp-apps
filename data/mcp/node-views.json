@@ -168,6 +168,30 @@
       "sha256": "779c3663dcd545bbcd2b4d0f22238cde5b9fbd961fbe9cdf4322cbb8f60e9b37"
     },
     {
+      "tool_id": "836-payment-services-activity-classifier",
+      "mcp_name": "classify_payment_services",
+      "display_name": "Payment Services Activity Classifier",
+      "uri": "ui://ainumbers/node/836-payment-services-activity-classifier",
+      "bytes": 73030,
+      "sha256": "76b536ceb802dbca2494a9f9609c26ffd0114858cdd62a702e20daddd5de7e57"
+    },
+    {
+      "tool_id": "837-issuer-yield-share",
+      "mcp_name": "check_issuer_reserve_yield_share",
+      "display_name": "Issuer Reserve Yield Share Check",
+      "uri": "ui://ainumbers/node/837-issuer-yield-share",
+      "bytes": 59541,
+      "sha256": "2ecf895ad0c7961302c3f3ba18a30adb94b0887cafea19bec52a7ce23c4716ed"
+    },
+    {
+      "tool_id": "838-control-frequency-sample",
+      "mcp_name": "plan_control_frequency_sample",
+      "display_name": "Control Frequency Sample",
+      "uri": "ui://ainumbers/node/838-control-frequency-sample",
+      "bytes": 28057,
+      "sha256": "e76fd7d9b022359e74ae4e1cf262af90d7bef734a95b1cbbeeb965b92122e209"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
@@ -5384,6 +5408,14 @@
       "sha256": "105f2240216375f2b47c864f024d1902a6cdc74cf3c77fc2e3fb7ca4fae11f4a"
     },
     {
+      "tool_id": "art-816-eip3009-agent-spend-gate",
+      "mcp_name": "decide_eip3009_agent_spend",
+      "display_name": "EIP-3009 Agent Spend Gate",
+      "uri": "ui://ainumbers/node/art-816-eip3009-agent-spend-gate",
+      "bytes": 94910,
+      "sha256": "dadf6ff86385aeb2186742c4f77b9a16962ecb270c4e4393952afee50fa1bd4c"
+    },
+    {
       "tool_id": "art-818-zcash-reg-classifier",
       "mcp_name": "classify_privacy_coin_regulatory_treatment",
       "display_name": "Privacy Coin Regulatory Classifier (MiCA and AMLR)",
@@ -5416,12 +5448,36 @@
       "sha256": "a3f47e538455d6a0e26aa292e81ac3cba0e02fa03f4c255baca89ffb254b876d"
     },
     {
+      "tool_id": "art-830-eip3009-spend-exposure-reconciler",
+      "mcp_name": "reconcile_eip3009_spend_exposure",
+      "display_name": "EIP-3009 Spend Exposure Reconciler",
+      "uri": "ui://ainumbers/node/art-830-eip3009-spend-exposure-reconciler",
+      "bytes": 72592,
+      "sha256": "a5d6f1fc63ba7b0a9f224969ee05c957185e28f2db17cebbd59a6e9f20439e7a"
+    },
+    {
       "tool_id": "art-831-receipt-export-envelopes",
       "mcp_name": "export_receipt_lineage_events",
       "display_name": "Receipt Export Envelopes",
       "uri": "ui://ainumbers/node/art-831-receipt-export-envelopes",
       "bytes": 36433,
       "sha256": "6d5b5381f383b26c2714ed4d854d97f51174cb0122c6f9b2ddd630e0979744ba"
+    },
+    {
+      "tool_id": "art-832-card-data-flow-scope",
+      "mcp_name": "map_card_data_flow_scope",
+      "display_name": "Card Data Flow Worksheet",
+      "uri": "ui://ainumbers/node/art-832-card-data-flow-scope",
+      "bytes": 34413,
+      "sha256": "362eaf1a5dcd56cf1e8ed4035b7f80a3f069ac75a899e0d24f2aa9078f5b7f90"
+    },
+    {
+      "tool_id": "art-834-asc606-transaction-price-allocator",
+      "mcp_name": "allocate_asc606_transaction_price",
+      "display_name": "ASC 606 Transaction Price Allocator",
+      "uri": "ui://ainumbers/node/art-834-asc606-transaction-price-allocator",
+      "bytes": 37309,
+      "sha256": "1ec0529e022e55bcce3c9d70b4cd0b1bc40d6be0dd47ded80a8ab6fb621a7cc4"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
