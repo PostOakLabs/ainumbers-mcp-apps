@@ -85,6 +85,11 @@ for (const slug of PILOT) {
 }
 writeFileSync(resolve(DATA,'mcp','catalog.json'), readFileSync(resolve(REPO,'mcp','catalog.json')));
 writeFileSync(resolve(DATA,'chaingraph','chaingraph.json'), readFileSync(resolve(REPO,'chaingraph','chaingraph.json')));
+// WEBMCP-FEEDBACK-COLLECTOR-1: the agent-feedback schema twin (site .well-known is the single
+// source; C1 WEBMCP-FEEDBACK-SCHEMA-1 landed it on origin/main). Vendored so the /feedback route
+// validates against the exact published bytes; scripts/check-agent-feedback-vendor.mjs asserts the
+// vendored copy stays byte-equal to the site file (worker CI runs it on every push).
+writeFileSync(resolve(DATA,'mcp','agent-feedback.schema.json'), readFileSync(resolve(REPO,'.well-known','agent-feedback.schema.json')));
 
 // ---------------------------------------------------------------------------
 // WORKER-NULLPARITY-LIVE-FEED-1 — the per-tool x_null_distinct exemption registry.

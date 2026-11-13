@@ -4604,8 +4604,8 @@
       "mcp_name": "check_webbotauth_nonce_replay",
       "display_name": "Web Bot Auth Nonce & Replay-Window Checker",
       "uri": "ui://ainumbers/node/art-593-webbotauth-nonce-replay-check",
-      "bytes": 70554,
-      "sha256": "b61a597a89c03f127f5f2f6812a0c2a2289c4445f32e206bb99782e8b178a37c"
+      "bytes": 71268,
+      "sha256": "1207f5143a9fc2600ebbe41caf95fd0eaf2863755ef783d717496955caf22542"
     },
     {
       "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -5288,6 +5288,14 @@
       "sha256": "cdbfe35bebbe944e747268d1cd24016b96fa6f90d6b3e617e571a7257d139cd8"
     },
     {
+      "tool_id": "art-766-parental-leave-income-gap",
+      "mcp_name": "parental_leave_income_gap",
+      "display_name": "Parental Leave Income Gap",
+      "uri": "ui://ainumbers/node/art-766-parental-leave-income-gap",
+      "bytes": 42138,
+      "sha256": "5d271201c83e454a7753880b488f5f3fc408450004581c9260bf13be0984cf65"
+    },
+    {
       "tool_id": "art-770-total-cost-of-homeownership",
       "mcp_name": "total_cost_of_homeownership",
       "display_name": "Total Cost of Homeownership",
@@ -5380,8 +5388,8 @@
       "mcp_name": "recompute_erc3643_transfer_decision",
       "display_name": "ERC-3643 Transfer Decision Recompute",
       "uri": "ui://ainumbers/node/art-807-erc3643-transfer-decision",
-      "bytes": 63312,
-      "sha256": "ff23b6efe203621f81b960956f6f10de1543f0593cba0ee3250920f63e4b9424"
+      "bytes": 64239,
+      "sha256": "903d396d2730011092b57486fd492384a664f4176ec86c9fa48d71178634ef22"
     },
     {
       "tool_id": "art-809-check-reserves-cover-outstanding-private",
@@ -5478,6 +5486,22 @@
       "uri": "ui://ainumbers/node/art-834-asc606-transaction-price-allocator",
       "bytes": 37309,
       "sha256": "1ec0529e022e55bcce3c9d70b4cd0b1bc40d6be0dd47ded80a8ab6fb621a7cc4"
+    },
+    {
+      "tool_id": "art-839-statement-footing-crossfoot",
+      "mcp_name": "check_statement_footing_crossfoot",
+      "display_name": "Statement Footing and Cross-Footing Check",
+      "uri": "ui://ainumbers/node/art-839-statement-footing-crossfoot",
+      "bytes": 43775,
+      "sha256": "83c4bd12e28208fc1e57cc201c549144620268716419ace130b1284feea36e35"
+    },
+    {
+      "tool_id": "art-842-soc-report-coverage-gap",
+      "mcp_name": "compute_soc_report_coverage_gap",
+      "display_name": "SOC Report Coverage and Bridge Gap",
+      "uri": "ui://ainumbers/node/art-842-soc-report-coverage-gap",
+      "bytes": 35769,
+      "sha256": "33f3c07aa2b883d164d4d03e5783b69e37cdf31e4debf3190d34138a080a6a9c"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",

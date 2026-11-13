@@ -46643,6 +46643,96 @@
     "type": "object",
     "description": "output_payload: as_of, tax_year, ruleset, filing_status, agi, marginal_rate_pct, state_rate_pct, num_children, childcare_cost, fsa_available, fsa_contrib_input, fsa_limit, cdctc_expense_cap, cdctc_rate, rate_schedule, credit_base_rule, strategies{fsa_only,cdctc_only,optimal_combo}{fsa_contrib,fsa_tax_savings,fica_savings,cdctc_credit,total_savings,net_cost,effective_rate,credit_base,expense_cap}, optimal_fsa_contribution, fica_savings_on_fsa, effective_rate, effective_subsidy_pct, best_strategy, verdict, refusals[], refusal_reason, domain_errors[], scope_note."
   },
+  "parental_leave_income_gap": {
+    "type": "object",
+    "properties": {
+      "total_gap": {
+        "type": "number",
+        "description": "Total income gap: sum of |net| over weeks with negative net (Apex L376/L384)."
+      },
+      "avg_leave_monthly": {
+        "type": "number",
+        "description": "Average monthly income during leave: (total income / leave weeks) x 4.333 (Apex L382)."
+      },
+      "shortfall_monthly": {
+        "type": "number",
+        "description": "max(0, monthly_expenses + baby_expense - avg_leave_monthly) (Apex L383)."
+      },
+      "savings_needed": {
+        "type": "number",
+        "description": "Savings needed to cover the gap; equals total_gap (Apex L384)."
+      },
+      "recovery_months": {
+        "type": "number",
+        "description": "ceil(savings_needed / surplus_per_month) when surplus is positive, else the 999 display sentinel (Apex L390)."
+      },
+      "recovery_finite": {
+        "type": "boolean",
+        "description": "True when post-return surplus per month is positive; distinguishes the 999 sentinel from a duration."
+      },
+      "is_fully_covered": {
+        "type": "boolean",
+        "description": "savings >= savings_needed (Apex L385)."
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "positive",
+          "warn",
+          "danger"
+        ],
+        "description": "Covered reads positive; above half the gap reads warn; at or below half reads danger (Apex L411-414)."
+      },
+      "weekly_gross": {
+        "type": "number",
+        "description": "base_salary / 52 (Apex L344)."
+      },
+      "weekly_net": {
+        "type": "number",
+        "description": "weekly_gross x (1 - tax_rate) (Apex L345)."
+      },
+      "weekly_expenses": {
+        "type": "number",
+        "description": "(monthly_expenses + baby_expense) / 4.333 (Apex L346)."
+      },
+      "weekly_partner": {
+        "type": "number",
+        "description": "partner_income / 4.333 (Apex L347)."
+      },
+      "state_pfl_rate": {
+        "type": "number",
+        "description": "Applied PFL wage-replacement rate (custom rate or the 2025-vintage state row, Apex L349)."
+      },
+      "state_pfl_weekly": {
+        "type": "number",
+        "description": "min(gross x rate, cap) x (1 - tax_rate x 0.5) (Apex L351; UNGROUNDED haircut)."
+      },
+      "state_cap": {
+        "type": "number",
+        "description": "Applied weekly benefit cap, 99999 fallback for the none row (Apex L350)."
+      },
+      "state_cap_binds": {
+        "type": "boolean",
+        "description": "Diagnostic: gross x rate >= cap (Apex L351)."
+      },
+      "return_monthly_net": {
+        "type": "number",
+        "description": "Post-return monthly net: (base_salary / 12) x (1 - tax_rate) (Apex L388)."
+      },
+      "surplus_per_month": {
+        "type": "number",
+        "description": "max(0, return net + partner income - expenses - baby expense) (Apex L389)."
+      },
+      "rows": {
+        "type": "array",
+        "description": "Week-by-week schedule: week, phase, emp_pay, state_pfl, partner, total_in, expenses, net, windfall_capped."
+      },
+      "compliance_flags": {
+        "type": "array",
+        "description": "Vintage, grounding, cap-binding and sentinel flags carried on every output."
+      }
+    }
+  },
   "total_cost_of_homeownership": {
     "type": "object",
     "properties": {

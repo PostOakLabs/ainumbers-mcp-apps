@@ -20,6 +20,11 @@ import { PILOT } from './pilot.mjs';
 // cross-checks. Hand-typed totals went stale here — the same class MCPCOUNTS-DRIFT-CAUSE
 // -2026-07-25 documented for utility counts.
 import counts from './data/counts.json' with { type: 'json' };
+// WEBMCP-FEEDBACK-COLLECTOR-1: the vendored agent-feedback schema twin (generate.mjs copies it
+// byte-for-byte from the site's published .well-known file; scripts/check-agent-feedback-vendor.mjs
+// asserts the byte equality in CI). The /feedback route validates against THESE bytes, so the
+// schema agents read and the schema the collector enforces can never drift apart.
+import AGENT_FEEDBACK_SCHEMA from './data/mcp/agent-feedback.schema.json' with { type: 'json' };
 import { getKernel } from './kernels/index.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './kernels/_gateval.mjs';
 import { isConformantEvidence as haIsConformantEvidence, evaluateHaGate } from './kernels/_hagate.mjs';
@@ -898,7 +903,15 @@ const SERVER_INSTRUCTIONS =
   + 'tools/list is PAGINATED — page via nextCursor; the full set is ' + counts.mcp_tools_total + ' tools. '
   + 'Find: find_tool(query) for one calculator, find_chain(query) for a multi-step workflow, describe_tool(name) for the exact schema. '
   + 'Run: the tools in your list directly; ANY other tool with call_tool({ name, arguments }) — same execution, same hash. '
-  + 'Verify with verify_execution_hash; aggregate a session with build_session_receipt.';
+  + 'Verify with verify_execution_hash; aggregate a session with build_session_receipt. '
+  // WEBMCP-FEEDBACK-COLLECTOR-1 [BF-2] (i): the one feedback line in the MCP instructions — the
+  // loop's bootstrap. Kept to a single terse pointer: precompute-discovery.mjs pins the WHOLE
+  // instructions string at 600 chars (D2: it is prepended to model context every session), and
+  // that pin is NOT raised here — the enum-only contract and the schema URL live on the fuller
+  // discovery surfaces (the unknown-tool hint, the server-card pointer, the published twin).
+  // Regenerated into the static initialize capture by generate.mjs (precomputeDiscovery), so
+  // the capture and this string move in the same commit.
+  + 'Tool broken/missing? POST https://mcp.ainumbers.co/feedback';
 const dispatchSteerFor = (name) => 'If ' + name + ' is not in your tool list, call ' + CALL_TOOL_NAME + ' with { name, arguments } to run it.';
 
 // MCP-REACH-DISPATCH-1 D2 — THE ONE ordering function, used by BOTH the build-time precompute
@@ -6747,6 +6760,212 @@ async function rateLimitExceeded(request, env) {
 }
 
 // ---------------------------------------------------------------------------
+// WEBMCP-FEEDBACK-COLLECTOR-1 (2026-11-12) — POST /feedback, the out-of-band enum-only
+// agent-feedback collector (WEBMCP-FEEDBACK-LOOP-BUILD-SPEC §S row B; rulings R1-R3, R5).
+//
+// Posture, all row-mandated:
+//   * An HTTP ROUTE, never an MCP tool and never an mcp_name (R1; P4 — check-tool-names stays
+//     green). Unauthenticated, exactly like /mcp and /access/v1 (§X: no caller authentication).
+//   * ENUM-ONLY v1 (R2): the request is validated against the VENDORED schema twin
+//     (data/mcp/agent-feedback.schema.json, byte-equal to the site's published
+//     .well-known/agent-feedback.schema.json). No free text anywhere; unknown members are
+//     ignored and never stored (the twin is pre-stable v0 and instructs consumers to ignore
+//     them, so a v0.x field addition can never widen what this collector keeps).
+//   * PRIVACY (R2 + the MCPUSAGE-ATTRIB-LOG-1 regime): the datapoint carries structural
+//     metadata + the network ASN blob only. NEVER stored or logged: the IP address, the
+//     User-Agent string, any request header, the raw body, or reporter free text (there is
+//     no free-text field to store). agent_label arrives capped+charset-restricted by
+//     validation and is never republished per-report.
+//   * LIMITERS [AF-5]: FEEDBACK_IP_LIMITER (ns 3003, 5/60 s per IP) + FEEDBACK_GLOBAL_LIMITER
+//     (ns 3004, constant key). NEVER the shared 3002 'global' bucket — a feedback flood must
+//     not be able to starve /mcp. The limiter keys on the connection IP; nothing about the
+//     IP is stored anywhere.
+//   * RESPONSE MATRIX [AF-11]: 202 accepted (after validation) · 400 schema violation with
+//     CONSTANT validator strings that never echo body content · 413 over the 2048-byte cap ·
+//     405 non-POST with Allow: POST · 429 limited. NO CORS surface added. No KV/R2/D1/DO
+//     binding is added — AE's bounded retention is the storage.
+//   * The AE write is fire-and-forget (ctx.waitUntil) and drop-on-error, exactly like the
+//     existing telemetry writes — it can never block or fail the response.
+// ---------------------------------------------------------------------------
+const FEEDBACK_MAX_BYTES = 2048;   // spec: the body is at most 2048 bytes
+const FEEDBACK_ENDPOINT = 'https://mcp.ainumbers.co/feedback';
+const FEEDBACK_SCHEMA_URL = 'https://ainumbers.co/.well-known/agent-feedback.schema.json';
+// Constant response bodies — the C2 posture: validator strings never carry body content, not
+// even a fragment of a malformed-JSON message (JSON.parse's own error text can quote the input,
+// so it is discarded wholesale, never surfaced).
+const FEEDBACK_RESP = {
+  accepted: { status: 'accepted', schema_version: 'ain-agent-feedback-v0' },
+  methodNotAllowed: { error: 'feedback.method_not_allowed' },
+  rateLimited: { error: 'feedback.rate_limited' },
+  overCap: { error: 'feedback.payload_too_large', max_bytes: FEEDBACK_MAX_BYTES },
+  invalidJson: { error: 'feedback.invalid_json' },
+  schemaViolation: (violations) => ({ error: 'feedback.schema_violation', violations }),
+};
+
+// Minimal JSON-Schema validator over EXACTLY the keyword subset the vendored v0 twin uses
+// (type / required / properties / const / oneOf-of-consts / pattern / maxLength). Deliberately
+// NOT a general validator: the twin is the only schema this route will ever enforce, and any
+// keyword a future schema version adds must be added HERE, consciously. Returns
+// [{ path, rule }] pairs built from CONSTANT strings — never values — so a violation can be
+// reported to the caller without echoing any body content back to it.
+function validateFeedbackAgainstSchema(root) {
+  const violations = [];
+  const typeOk = (t, v) =>
+    t === 'object' ? v !== null && typeof v === 'object' && !Array.isArray(v)
+    : t === 'string' ? typeof v === 'string'
+    : false;
+  const check = (schema, value, path) => {
+    if (schema === undefined) return;
+    if (schema.type && !typeOk(schema.type, value)) { violations.push({ path, rule: 'type' }); return; }
+    if (schema.const !== undefined && value !== schema.const) { violations.push({ path, rule: 'const' }); return; }
+    if (Array.isArray(schema.oneOf) && !schema.oneOf.some((s) => s.const === value)) { violations.push({ path, rule: 'enum' }); return; }
+    if (typeof value === 'string') {
+      if (schema.maxLength !== undefined && value.length > schema.maxLength) violations.push({ path, rule: 'maxLength' });
+      if (schema.pattern !== undefined && !new RegExp(schema.pattern).test(value)) violations.push({ path, rule: 'pattern' });
+    }
+    if (typeOk('object', value)) {
+      for (const req of schema.required ?? []) {
+        if (!(req in value)) violations.push({ path: path ? path + '.' + req : req, rule: 'required' });
+      }
+      for (const [key, sub] of Object.entries(schema.properties ?? {})) {
+        if (key in value) check(sub, value[key], path ? path + '.' + key : key);
+      }
+    }
+  };
+  check(AGENT_FEEDBACK_SCHEMA, root, '');
+  return violations;
+}
+
+// The registered-mcp_name set, for the collector-derived tool_known enrichment [BF-5]: the
+// agent never asserts whether a tool exists — the collector derives it (tool_name integrity is
+// collector-side). Mirrors the known-set derivation in the /mcp dispatch (the three
+// registration legs: PILOT manifests, the fixed utility tools, non-deprecated ChainGraph node
+// mcp_names) and SHARES its per-isolate cache, so the two can never disagree. Aliases resolve
+// FIRST (the same table dispatch applies), because an old-name report describes the tool that
+// actually answers today.
+function feedbackToolKnown(data, rawName) {
+  const known = (data.__toolNames ||= new Set([
+    ...PILOT.map((s) => data.manifests[s]?.mcp_tool_definition?.name ?? s.replace(/-/g, '_')),
+    ...UTILITY_TOOL_NAMES,   // single source of truth — see utility-tools.mjs
+    ...(data.chaingraph?.nodes ?? []).filter((n) => n.mcp_name && n.status !== 'deprecated').map((n) => n.mcp_name),
+  ]));
+  return known.has(MCP_NAME_ALIASES[rawName] ?? rawName);
+}
+
+// WEBMCP-FEEDBACK-COLLECTOR-1 R5 [BF-1]: the unknown-tool and removed-tool early returns
+// answered WITHOUT writing any datapoint before this row — the stream was blind to exactly the
+// MCP-level failure class it exists to see. These writes keep the SDK-path datum's POSITIONAL
+// layout byte-for-byte (blobs 1-5, both doubles, the index) so every existing positional reader
+// (the external archiver, prior digests, ae-baseline-measure.yml) parses them unchanged; blob 6
+// carries the R5 classification. Blob 3 keeps its infrastructure meaning ('ok' — these ARE
+// HTTP 200 answers, the exact blindness R5 fixes); the MCP-level truth rides blob 6.
+// Classification is 'unknown_tool' for BOTH paths (the R5 enum has no removed_tool class; a
+// removed tool IS an unregistered one — the report-side analogue is failure_class
+// 'tool_missing', which the schema defines as "does not exist, has been removed, or is not
+// visible to the caller").
+function writeToolCallEarlyReturnDatum(ctx, env, d) {
+  if (!env.ANALYTICS) return;
+  ctx.waitUntil(Promise.resolve().then(() => {
+    try {
+      env.ANALYTICS.writeDataPoint({
+        blobs: [d.toolName, d.asn, 'ok', 'ainumbers-mcp', d.requestId, d.classification],
+        doubles: [d.latencyMs, d.chainDepth ?? 0],
+        indexes: [d.toolName],
+      });
+    } catch (_) { /* telemetry is best-effort; never affect the response */ }
+  }));
+}
+
+// WEBMCP-FEEDBACK-COLLECTOR-1 R5 [BF-1]: the MCP-level outcome class of ONE tools/call answer,
+// from its HTTP status + result envelope text. Exported for the offline contract test
+// (scripts/test-agent-feedback.mjs) — the SDK dispatch path itself needs the Node transport
+// shim, so the ok/tool_error legs are proven against this function directly. The scan is
+// structurally sound: inside a JSON string value the quotes are escaped, so the byte sequence
+// `"isError":true` can only be the real result member, never a payload echo. A non-string
+// envelope (failed clone/read) yields null — an honest unknown, never a guessed class.
+export function classifyToolCallEnvelope(status, bodyText) {
+  if (status >= 500) return 'infrastructure_error';
+  if (typeof bodyText !== 'string') return null;
+  return /"isError":true/.test(bodyText) ? 'tool_error' : 'ok';
+}
+
+async function handleFeedbackRoute(request, env, ctx) {
+  // 405 first: every non-POST answer, with the matrix-mandated Allow header. No CORS surface
+  // on any /feedback response (spec: no CORS surface added).
+  if (request.method !== 'POST') {
+    return new Response(JSON.stringify(FEEDBACK_RESP.methodNotAllowed), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json', Allow: 'POST' },
+    });
+  }
+  // Limiters BEFORE any body read (cheapest rejection, bounds abuse): per-IP ns 3003, then the
+  // constant-key global ns 3004. Unconfigured bindings (local dev / pre-provisioning) read as
+  // undefined and never block — the same fail-open contract rateLimitExceeded() documents.
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const limiterChecks = [];
+  if (env.FEEDBACK_IP_LIMITER) limiterChecks.push(env.FEEDBACK_IP_LIMITER.limit({ key: ip }));
+  if (env.FEEDBACK_GLOBAL_LIMITER) limiterChecks.push(env.FEEDBACK_GLOBAL_LIMITER.limit({ key: 'feedback-global' }));
+  if (limiterChecks.length && (await Promise.all(limiterChecks)).some((r) => r && r.success === false)) {
+    return new Response(JSON.stringify(FEEDBACK_RESP.rateLimited), { status: 429, headers: { 'Content-Type': 'application/json' } });
+  }
+  // Size cap: 2048 bytes of ACTUAL body (Content-Length is advisory and can lie).
+  let raw = null;
+  try { raw = await request.arrayBuffer(); } catch { raw = null; }
+  if (raw === null || raw.byteLength > FEEDBACK_MAX_BYTES) {
+    return new Response(JSON.stringify(FEEDBACK_RESP.overCap), { status: 413, headers: { 'Content-Type': 'application/json' } });
+  }
+  // Parse + validate. Both 400 bodies are constant (or constant-structured); the JSON.parse
+  // failure message is discarded precisely because it can quote a fragment of the input.
+  let parsed;
+  try { parsed = JSON.parse(new TextDecoder().decode(raw)); } catch { parsed = undefined; }
+  if (parsed === undefined) {
+    return new Response(JSON.stringify(FEEDBACK_RESP.invalidJson), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
+  const violations = validateFeedbackAgainstSchema(parsed);
+  if (violations.length) {
+    return new Response(JSON.stringify(FEEDBACK_RESP.schemaViolation(violations)), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
+  // Accepted. Fire-and-forget AE write — never blocks the 202, drop-on-error. The fields below
+  // are ALL the collector keeps: the enum fields, tool_name, the optional hashes, the optional
+  // capped agent_label, the optional occurred_at, the collector-derived tool_known, the network
+  // ASN, and the request size. Nothing else from the body is read; nothing about the caller is
+  // kept but the ASN. If the registered-name set cannot be derived (loadData failed), the
+  // datapoint is DROPPED rather than written with a guessed tool_known — a false 'false' would
+  // poison the digest's unmet-intent counter [BF-5].
+  const report = parsed.report ?? {};
+  const toolName = String(report.tool_name ?? '').slice(0, 128);
+  let data = null;
+  try { data = await loadData(env); } catch { data = null; }   // per-isolate cached
+  if (data && env.FEEDBACK) {
+    const toolKnown = feedbackToolKnown(data, toolName);
+    const asn = String(request.cf?.asn ?? 'unknown');
+    const byteLength = raw.byteLength;
+    ctx.waitUntil(Promise.resolve().then(() => {
+      try {
+        env.FEEDBACK.writeDataPoint({
+          // Blob order is FIXED (the digest joins positionally): tool, doorway, class,
+          // expected hash, observed hash, agent_label, occurred_at, ASN, tool_known.
+          blobs: [
+            toolName,
+            String(report.doorway),
+            String(report.failure_class),
+            typeof report.expected_hash === 'string' ? report.expected_hash : '',
+            typeof report.observed_hash === 'string' ? report.observed_hash : '',
+            typeof report.agent_label === 'string' ? report.agent_label : '',
+            typeof report.occurred_at === 'string' ? report.occurred_at : '',
+            asn,
+            toolKnown ? 'true' : 'false',
+          ],
+          doubles: [byteLength],
+          indexes: [String(report.failure_class)],   // the digest's primary aggregate key
+        });
+      } catch (_) { /* telemetry is best-effort; never affect the response */ }
+    }));
+  }
+  return new Response(JSON.stringify(FEEDBACK_RESP.accepted), { status: 202, headers: { 'Content-Type': 'application/json' } });
+}
+
+// ---------------------------------------------------------------------------
 // SPEC.md §13.11.2 — KYA-OS/Checkpoint response-proof rider (NORMATIVE, OPTIONAL, additive;
 // CHECKPOINT-WORKER-1). Default OFF, on-demand rider only. Emitted at
 // `result._meta["org.kya-os/response-proof"]` as `{jws, meta}` ONLY when BOTH hold:
@@ -6919,6 +7138,13 @@ export default {
         ...(cardCapabilities ? { capabilities: cardCapabilities } : {}),
         registry: 'co.ainumbers/tools',
         documentation: 'https://ainumbers.co/mcp.html',
+        // WEBMCP-FEEDBACK-COLLECTOR-1 [BF-2] (iii): the feedback pointer in the served server
+        // card — one of the four in-band discovery surfaces. The schema URL is the SITE-published
+        // twin; the worker-served .well-known descriptor is row C2's deliverable, not this row's.
+        feedback: {
+          endpoint: 'https://mcp.ainumbers.co/feedback',
+          schema: 'https://ainumbers.co/.well-known/agent-feedback.schema.json',
+        },
         standard: 'https://ainumbers.co/chaingraph/openchain-graph-spec.html',
         llms_txt: 'https://ainumbers.co/llms.txt',
         links: SIBLING_SERVERS,
@@ -7060,6 +7286,13 @@ export default {
       if (searchRead.overCap) return accessV1BodyCapResponse(corsHeaders, requestId);
       const kind = url.pathname.slice('/access/v1/search/'.length);
       return new Response(JSON.stringify(authzenSearch(kind)), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // WEBMCP-FEEDBACK-COLLECTOR-1: the out-of-band enum-only agent-feedback collector
+    // (WEBMCP-FEEDBACK-LOOP-BUILD-SPEC row B). An HTTP route, never an MCP tool (R1/P4); the
+    // response matrix, limiters and privacy posture live in handleFeedbackRoute above.
+    if (url.pathname === '/feedback' || url.pathname === '/feedback/') {
+      return handleFeedbackRoute(request, env, ctx);
     }
 
     // MCP endpoint
@@ -7603,6 +7836,17 @@ export default {
             // asserts result.isError + no thrown JSON-RPC error, HTTP 200, never a 500).
             // Registry-built since MCP-TOOL-ERROR-REGISTRY-1 (stable name tool.removed); the
             // text stays byte-identical and structuredContent is additive.
+            // WEBMCP-FEEDBACK-COLLECTOR-1 R5 [BF-1]: this early return wrote NO datapoint
+            // before this row — the stream was blind to it. Fire-and-forget write with the
+            // SDK-path datum's exact positional layout + the R5 classification in blob 6.
+            writeToolCallEarlyReturnDatum(ctx, env, {
+              toolName,
+              asn: String(request.cf?.asn ?? 'unknown'),
+              requestId,
+              latencyMs: Date.now() - t0,
+              chainDepth,
+              classification: 'unknown_tool',
+            });
             const result = { resultType: 'complete', ...toolErrorResult('tool.removed', { requestId, vars: { toolName } }) };
             const sse = 'event: message\ndata: ' + JSON.stringify({ jsonrpc: '2.0', id: body.id, result }) + '\n\n';
             return frameResponse(sse, request, corsHeaders);
@@ -7617,9 +7861,30 @@ export default {
             // (-32700 parse error, -32020 header mismatch) and the anchor worker's shape.
             // ERROR-REGISTRY-REQUEST-ID-SPEC §2.1: `protocol.tool_not_found.zero_tools` — the
             // dispatch-layer unknown-tool refusal, HTTP 200, registry status.
+            // WEBMCP-FEEDBACK-COLLECTOR-1 R5 [BF-1]: datapoint added where none was written —
+            // same positional layout as the SDK-path datum, classified 'unknown_tool'.
+            writeToolCallEarlyReturnDatum(ctx, env, {
+              toolName,
+              asn: String(request.cf?.asn ?? 'unknown'),
+              requestId,
+              latencyMs: Date.now() - t0,
+              chainDepth,
+              classification: 'unknown_tool',
+            });
+            // WEBMCP-FEEDBACK-COLLECTOR-1 [BF-2] (ii): the unknown-tool hint pointing at the
+            // collector, reusing the nearest_names hint pattern from the describe_tool refusal
+            // above. Edit-distance only — this path exists to AVOID the heavy build and the
+            // search-index load (the 1102 budget), so BM25 is deliberately NOT consulted here.
+            const nearest = [...known].filter((n) => n !== toolName)
+              .map((n) => [n, levenshtein(toolName, n)])
+              .sort((a, b) => a[1] - b[1])
+              .slice(0, 5)
+              .map(([n]) => n);
+            const hint = 'To report this missing tool, POST an enum-only report to ' + FEEDBACK_ENDPOINT +
+              ' (schema: ' + FEEDBACK_SCHEMA_URL + ') — structural metadata only, never conversation content.';
             return protocolErrorResponse('protocol.tool_not_found.zero_tools', {
               id: body.id,
-              vars: { toolName },
+              vars: { toolName, nearest, hint },
               requestId,
               headers: corsHeaders,
             });
@@ -7864,7 +8129,19 @@ export default {
           const success   = response.status < 500;
           const asn       = String(request.cf?.asn ?? 'unknown');
 
-          ctx.waitUntil(Promise.resolve().then(() => {
+          // WEBMCP-FEEDBACK-COLLECTOR-1 R5 [BF-1]: MCP-level outcome classification, APPENDED as
+          // blob 6. Position 6 is new; blobs 1-5 keep their exact positions and meanings, so
+          // every positional reader (the external archiver, prior digests,
+          // ae-baseline-measure.yml) parses unchanged; the Engine allows 20 blobs. The
+          // ok/tool_error split needs the result envelope: clone (never touching the served
+          // body) and classify INSIDE waitUntil via classifyToolCallEnvelope (above). A failed
+          // clone/read OMITS blob 6 (a 5-blob datum, positions intact) — an honest unknown,
+          // never a guessed class. status >= 500 needs no scan: infrastructure_error directly.
+          const classify = response.clone().text()
+            .then((t) => classifyToolCallEnvelope(response.status, t))
+            .catch(() => null);
+
+          ctx.waitUntil(Promise.resolve().then(() => classify).then((classification) => {
             try {
               env.ANALYTICS.writeDataPoint({
                 // 4th blob = worker identity, matching apexlogics-mcp/ocs-mcp's
@@ -7873,7 +8150,12 @@ export default {
                 // 5th blob = the per-request correlation id (ERROR-REGISTRY-REQUEST-ID-SPEC §3:
                 // 4 blobs → 5; the Engine allows 20; doubles/indexes unchanged). The initialize
                 // datum is deliberately NOT extended (spec §3: initialize datum unchanged).
-                blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp', requestId],
+                // 6th blob = the R5 MCP-level class: ok / tool_error (HTTP 200 isError) /
+                // infrastructure_error (5xx). The unknown-tool and removed-tool early returns
+                // above write their own datums classified 'unknown_tool'. Omitted when the
+                // envelope scan fails (honest unknown, never a guessed class).
+                blobs:   [toolName, asn, success ? 'ok' : 'error', 'ainumbers-mcp', requestId,
+                          ...(classification ? [classification] : [])],
                 doubles: [latencyMs, chainDepth ?? 0],
                 indexes: [toolName],
               });

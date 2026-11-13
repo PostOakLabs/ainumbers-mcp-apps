@@ -683,6 +683,7 @@ import * as art761    from './art-761-caregiver-income-impact.kernel.mjs';
 import * as art763    from './art-763-ai-displacement-risk-screener.kernel.mjs';
 import * as art764    from './art-764-solo-401k-vs-sep-ira.kernel.mjs';
 import * as art765    from './art-765-dependent-care-fsa-cdctc-optimizer.kernel.mjs';
+import * as art766    from './art-766-parental-leave-income-gap.kernel.mjs';
 import * as art77     from './art-77-t1-settlement-readiness-diagnostic.kernel.mjs';
 import * as art770    from './art-770-total-cost-of-homeownership.kernel.mjs';
 import * as art771    from './art-771-automation-payback.kernel.mjs';
@@ -719,7 +720,9 @@ import * as art831    from './art-831-receipt-export-envelopes.kernel.mjs';
 import * as art832    from './art-832-card-data-flow-scope.kernel.mjs';
 import * as art833    from './art-833-lint-pan-sad-exposure.kernel.mjs';
 import * as art834    from './art-834-asc606-transaction-price-allocator.kernel.mjs';
+import * as art839    from './art-839-statement-footing-crossfoot.kernel.mjs';
 import * as art84     from './art-84-settlement-efficiency-kpi.kernel.mjs';
+import * as art842    from './art-842-soc-report-coverage-gap.kernel.mjs';
 import * as art85     from './art-85-pqc-timeline-fit-diagnostic.kernel.mjs';
 import * as art86     from './art-86-tls-pki-migration-planner.kernel.mjs';
 import * as art87     from './art-87-iso20022-pqc-readiness-checker.kernel.mjs';
@@ -1434,6 +1437,7 @@ export const KERNELS = {
   'art-763-ai-displacement-risk-screener':                      art763,
   'art-764-solo-401k-vs-sep-ira':                               art764,
   'art-765-dependent-care-fsa-cdctc-optimizer':                 art765,
+  'art-766-parental-leave-income-gap':                          art766,
   'art-77-t1-settlement-readiness-diagnostic':                  art77,
   'art-770-total-cost-of-homeownership':                        art770,
   'art-771-automation-payback':                                 art771,
@@ -1470,7 +1474,9 @@ export const KERNELS = {
   'art-832-card-data-flow-scope':                               art832,
   'art-833-lint-pan-sad-exposure':                              art833,
   'art-834-asc606-transaction-price-allocator':                 art834,
+  'art-839-statement-footing-crossfoot':                        art839,
   'art-84-settlement-efficiency-kpi':                           art84,
+  'art-842-soc-report-coverage-gap':                            art842,
   'art-85-pqc-timeline-fit-diagnostic':                         art85,
   'art-86-tls-pki-migration-planner':                           art86,
   'art-87-iso20022-pqc-readiness-checker':                      art87,
