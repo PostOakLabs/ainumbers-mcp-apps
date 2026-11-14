@@ -1198,6 +1198,267 @@
       }
     }
   },
+  "assess_sandbox_readiness": {
+    "type": "object",
+    "properties": {
+      "exit_plan_declared": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "exit_plan_note": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "gaps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cite": {
+              "type": "string"
+            },
+            "criterion_id": {
+              "type": "string",
+              "enum": [
+                "benchmarking_viability",
+                "legal_compatibility"
+              ]
+            },
+            "evidence_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mandatory": {
+              "type": "boolean",
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "not_met",
+                "partially_met"
+              ]
+            }
+          },
+          "required": [
+            "cite",
+            "criterion_id",
+            "evidence_ref",
+            "mandatory",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "parameter_breaches": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cap": {
+              "type": "number"
+            },
+            "cite": {
+              "type": "string"
+            },
+            "declared": {
+              "type": "number"
+            },
+            "parameter": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cap",
+            "cite",
+            "declared",
+            "parameter"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "profile_cites": {
+        "type": "object",
+        "properties": {
+          "caps": {
+            "type": "object",
+            "properties": {
+              "aggregate_value_cap": {
+                "type": "string"
+              },
+              "customer_cap": {
+                "type": "string"
+              },
+              "duration_months": {
+                "type": "string"
+              },
+              "value_cap_per_customer": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "aggregate_value_cap",
+              "customer_cap",
+              "duration_months",
+              "value_cap_per_customer"
+            ],
+            "additionalProperties": false
+          },
+          "criteria": {
+            "type": "object",
+            "properties": {
+              "benchmarking_viability": {
+                "type": "string"
+              },
+              "consumer_benefit": {
+                "type": "string"
+              },
+              "customer_risk": {
+                "type": "string"
+              },
+              "innovation": {
+                "type": "string"
+              },
+              "legal_compatibility": {
+                "type": "string"
+              },
+              "resources": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "benchmarking_viability",
+              "consumer_benefit",
+              "customer_risk",
+              "innovation",
+              "legal_compatibility",
+              "resources"
+            ],
+            "additionalProperties": false
+          },
+          "exit_plan": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "cbob",
+              "generic"
+            ]
+          },
+          "safeguards": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "refusal": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "invalid_input",
+              "unknown_criterion"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "invalid_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "invalid_status": {
+            "type": "array"
+          },
+          "known_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "benchmarking_viability",
+                "consumer_benefit",
+                "customer_risk",
+                "innovation",
+                "legal_compatibility",
+                "resources"
+              ]
+            }
+          },
+          "unknown_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "constructor",
+                "tax_good_standing"
+              ]
+            }
+          }
+        },
+        "required": [
+          "code",
+          "detail"
+        ],
+        "additionalProperties": false
+      },
+      "safeguards_missing": {
+        "type": "array"
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "NOT_ELIGIBLE",
+          "READY",
+          "READY_WITH_GAPS",
+          null
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "EXIT_PLAN_MISSING",
+            "MANDATORY_CRITERION_NOT_MET",
+            "PARAMETER_CAP_BREACHED",
+            "REFUSED_INVALID_INPUT",
+            "REFUSED_UNKNOWN_CRITERION"
+          ]
+        }
+      }
+    },
+    "required": [
+      "gaps",
+      "parameter_breaches",
+      "profile_cites",
+      "safeguards_missing",
+      "verdict",
+      "warnings"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
   "lint_event_contract_terms": {
     "type": "object",
     "properties": {
@@ -46255,6 +46516,10 @@
       "warnings"
     ],
     "additionalProperties": false
+  },
+  "calculate_home_office_augusta": {
+    "type": "object",
+    "description": "output_payload: refusal_reason (null unless refused), echoes office_sq_ft, home_sq_ft, business_use_fraction, gross_business_income_usd, entity_type_ho, rental_days, daily_rental_rate_usd, corp_tax_rate, owner_marginal_rate, entity_type_aug; home office total_home_expenses_usd, regular_deduction_before_gross_income_cap_usd, regular_deduction_usd, simplified_deduction_before_gross_income_cap_usd, simplified_deduction_usd, simplified_method_selectable, simplified_wins_on_amounts, best_home_office_deduction_usd, best_home_office_method ('Regular'|'Simplified'), gross_income_cap_applied_to ('regular'|'both'); Augusta rule total_rental_income_usd, qualifies_280a_g_day_test, augusta_tax_free_income_usd, augusta_corp_deduction_usd, augusta_tax_benefit_usd, augusta_tax_benefit_at_owner_rate_usd; benefits home_office_tax_benefit_usd, combined_tax_benefit_usd, combined_tax_benefit_at_owner_rate_basis_usd; provenance switches{}, fallback_fields[] (objects with field, apex_fallback, raw_input), compliance_flags[], notes[]. On a refusal, output_payload carries refusal_reason 'REFUSED_NON_FINITE_INPUT', every computed field null, and compliance_flags ['ART753_INPUT_REFUSED']."
   },
   "calc_equity_exit_waterfall": {
     "type": "object",

@@ -72,6 +72,14 @@
       "sha256": "3fb75c67453c1d3863b18dc500fca8da1f279656c9c8012a8a1eceb58f69662f"
     },
     {
+      "tool_id": "798-assess-sandbox-application-readiness",
+      "mcp_name": "assess_sandbox_readiness",
+      "display_name": "Assess Sandbox Application Readiness",
+      "uri": "ui://ainumbers/node/798-assess-sandbox-application-readiness",
+      "bytes": 61565,
+      "sha256": "ca087e92180e91c112050ccb2632737085fecd700b87577c37a5d15f0f005328"
+    },
+    {
       "tool_id": "806-event-contract-terms-lint",
       "mcp_name": "lint_event_contract_terms",
       "display_name": "Event Contract Terms Lint",
@@ -5222,6 +5230,14 @@
       "uri": "ui://ainumbers/node/art-752-freelance-quarterly-estimated-tax",
       "bytes": 36621,
       "sha256": "cc70c38867a6bc7d85b43ad01c331a0764f4575376aadccd6e7d4f9ca15c2573"
+    },
+    {
+      "tool_id": "art-753-home-office-augusta",
+      "mcp_name": "calculate_home_office_augusta",
+      "display_name": "Home Office and Augusta Rule",
+      "uri": "ui://ainumbers/node/art-753-home-office-augusta",
+      "bytes": 70244,
+      "sha256": "7d086608458baf01481a0b3e1de3d6ee98cf378601434283de736d5af14b7fa6"
     },
     {
       "tool_id": "art-754-equity-exit-waterfall",
