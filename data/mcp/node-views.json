@@ -5496,6 +5496,14 @@
       "sha256": "83c4bd12e28208fc1e57cc201c549144620268716419ace130b1284feea36e35"
     },
     {
+      "tool_id": "art-840-gl-flux-explainer",
+      "mcp_name": "explain_gl_flux_with_gate",
+      "display_name": "GL Flux Explainer with Gate",
+      "uri": "ui://ainumbers/node/art-840-gl-flux-explainer",
+      "bytes": 50903,
+      "sha256": "dd6e7f6fb5ccad8d0aeb4d5fee94827c981ad763baaadd22c00707440d5d9c49"
+    },
+    {
       "tool_id": "art-842-soc-report-coverage-gap",
       "mcp_name": "compute_soc_report_coverage_gap",
       "display_name": "SOC Report Coverage and Bridge Gap",
