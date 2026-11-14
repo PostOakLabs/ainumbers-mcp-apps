@@ -192,6 +192,14 @@
       "sha256": "e76fd7d9b022359e74ae4e1cf262af90d7bef734a95b1cbbeeb965b92122e209"
     },
     {
+      "tool_id": "844-workload-identity-claims",
+      "mcp_name": "lint_workload_identity_token_claims",
+      "display_name": "Workload Identity Claims Lint",
+      "uri": "ui://ainumbers/node/844-workload-identity-claims",
+      "bytes": 35154,
+      "sha256": "6711d62c302f3290a9a60d04641f03ab985ca24b88f412c6393aaffe4f3528b8"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
