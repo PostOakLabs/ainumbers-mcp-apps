@@ -50,7 +50,8 @@ name: Vendor Freshness (scheduled)
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # every 6 hours — the freshness window (N) for this gate
+    - cron: '0 */6 * * *'   # every 6 hours — the freshness window (N) for this gate; the clock FALLBACK, never waits
+    - cron: '*/20 * * * *'  # WORKER-VENDOR-ON-SITE-REGEN-1: poll — refreshes once the site's Derived Artifacts Regen has settled on main
   workflow_dispatch:
     inputs:
       dry_run:
@@ -68,8 +69,55 @@ env:
   ESCALATION_LABEL: vendor-drift-escalated
 
 jobs:
+  pin:
+    name: Pin one site sha (poll waits for the site regen to settle)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      site_sha: ${{ steps.pin.outputs.site_sha }}
+      proceed: ${{ steps.pin.outputs.proceed }}
+    steps:
+      # WORKER-VENDOR-ON-SITE-REGEN-1: pin ONE site sha and, on the frequent
+      # poll, wait for the site's Derived Artifacts Regen to settle first.
+      # The site is PUBLIC, so the read-only default token is enough.
+      - name: 📌 Pin one site sha — wait for the site regen to settle
+        id: pin
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          set -euo pipefail
+          SHA=$(gh api repos/PostOakLabs/ainumbers/commits/main --jq .sha)
+          echo "site_sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "pinned site main $SHA"
+          # Poll cron only: refresh when the regen has finished on main. The
+          # 6-hourly clock cron and manual dispatch never wait (fallback).
+          if [ "$EVENT_SCHEDULE" != '*/20 * * * *' ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          RUNS=$(gh api "repos/PostOakLabs/ainumbers/actions/workflows/derived-artifacts-regen.yml/runs?branch=main&per_page=5" \
+            --jq '[.workflow_runs[] | "\(.status):\(.conclusion // "-")"] | join(",")')
+          echo "site regen runs (newest first): $RUNS"
+          LATEST=${RUNS%%,*}
+          case ",$RUNS," in
+            *",in_progress:"*|*",queued:"*|*",waiting:"*|*",pending:"*)
+              echo "proceed=false" >> "$GITHUB_OUTPUT"
+              echo "Site regen still running — deferring the refresh until it completes."
+              exit 0 ;;
+          esac
+          if [ "$LATEST" = "completed:failure" ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Site regen red::latest Derived Artifacts Regen on site main failed; not vendoring mid-skew. The 6-hourly clock still runs."
+            exit 0
+          fi
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+
   self-heal:
     name: Compare vendored data/ vs site main — open the vendor PR when stale
+    needs: pin
+    if: needs.pin.outputs.proceed == 'true'
     runs-on: ubuntu-latest
     # GITHUB_TOKEN stays read-only: reads of PR state only. Every irreversible
     # surface (branch push, PR open/update/label) is done by the App token minted
@@ -91,10 +139,11 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: 📥 Checkout site repo (comparison source)
+      - name: 📥 Checkout site repo (comparison source, pinned sha)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: PostOakLabs/ainumbers
+          ref: ${{ needs.pin.outputs.site_sha }}
           path: _site
           fetch-depth: 1
           persist-credentials: false
