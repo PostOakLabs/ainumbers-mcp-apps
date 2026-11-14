@@ -46733,6 +46733,10 @@
       }
     }
   },
+  "compute_medicare_oop_exposure": {
+    "type": "object",
+    "description": "output_payload: plan_year, coverage_structure, irmaa_tier, valid_input, domain_errors[], routine/rough/worst each {part_a_inpatient_cents, part_a_snf_cents, part_b_total_cents, part_d_total_cents, medical_oop_cents, annual_ceiling_cents (number|null), premiums_cents, total_oop_excluding_premiums_cents, total_with_premiums_cents, monthly_budget_cents, reserve_days_consumed, reserve_days_beyond_pool, unlimited_days_flag, snf_beyond_max_flag, moop_fallback_flag}, exposure_spread_cents, unlimited_exposure, part_d_deductible_input_cents, part_d_deductible_effective_cents, part_d_deductible_clamped, parameters_used (the plan-year parameter block actually applied), model_assumptions_used, regulatory_basis, scope_note, and warnings[] (mirror of compliance flags), usd_view{...} for display. All *_cents members are integer US cents."
+  },
   "total_cost_of_homeownership": {
     "type": "object",
     "properties": {

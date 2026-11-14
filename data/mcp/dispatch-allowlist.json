@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 802,
+  "tool_count": 804,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -344,6 +344,7 @@
     "compute_ltc_funding_comparator",
     "compute_ltv_ratios",
     "compute_m3p_monthly_cap",
+    "compute_medicare_oop_exposure",
     "compute_mla_mapr",
     "compute_mlr_rebate",
     "compute_modified_premium",
@@ -759,6 +760,7 @@
     "validate_signature_directory",
     "validate_slate_report_fields",
     "validate_spdx_sbom",
+    "validate_tap_message",
     "validate_tempo_token_compliance",
     "validate_tempo_zone_disclosure",
     "validate_tfr_travel_rule_batch",
