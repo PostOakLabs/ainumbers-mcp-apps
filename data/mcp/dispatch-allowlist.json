@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 800,
+  "tool_count": 801,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -431,6 +431,7 @@
     "evaluate_irrbb_sot_eve",
     "evaluate_irrbb_sot_nii",
     "examine_lc_document_presentation",
+    "explain_gl_flux_with_gate",
     "explain_regrpt_variance",
     "export_artifact",
     "export_receipt_lineage_events",
