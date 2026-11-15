@@ -40,6 +40,14 @@
       "sha256": "6ff8f429f9fbbf2dae8adbdd154f794f29fefcfb5e7c5e2b5e5e9e1944e92ed1"
     },
     {
+      "tool_id": "785-qr-golive-readiness",
+      "mcp_name": "assess_qr_golive_readiness",
+      "display_name": "QR Go-Live Readiness Assessor",
+      "uri": "ui://ainumbers/node/785-qr-golive-readiness",
+      "bytes": 60051,
+      "sha256": "e1ebda19aad9e917ee06e316d8280208452505760c89be717cbea3080270eec3"
+    },
+    {
       "tool_id": "787-corridor-cost-averages",
       "mcp_name": "compute_corridor_cost_averages",
       "display_name": "Corridor Cost Averages",
@@ -3932,8 +3940,8 @@
       "mcp_name": "build_validator_change_control_receipt",
       "display_name": "Validator Change-Control Receipt",
       "uri": "ui://ainumbers/node/art-497-validator-change-control-receipt",
-      "bytes": 41370,
-      "sha256": "0edbb3a94ff7fb087a1dc2737a23dffb2cce453312cd75f6078960663bf7500f"
+      "bytes": 46536,
+      "sha256": "3d438d7e74a5e419cef4b969a8e716a9110ed6783fc340f938506852296d0b49"
     },
     {
       "tool_id": "art-498-reward-flow-related-party",
@@ -5326,6 +5334,14 @@
       "uri": "ui://ainumbers/node/art-766-parental-leave-income-gap",
       "bytes": 42720,
       "sha256": "ee16ceb157abc0149bdb50582068a97c09d04aca4964237680cee6763a457ae7"
+    },
+    {
+      "tool_id": "art-768-medicare-plan-comparison",
+      "mcp_name": "compare_medicare_plans",
+      "display_name": "Medicare Plan Comparison",
+      "uri": "ui://ainumbers/node/art-768-medicare-plan-comparison",
+      "bytes": 105949,
+      "sha256": "602a89200e764d0a8e8666c7e6efa506ec1adaeeb48e586a4927c88da98441d3"
     },
     {
       "tool_id": "art-769-medicare-oop-exposure",
