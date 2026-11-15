@@ -48885,6 +48885,52 @@
       }
     }
   },
+  "assess_pfmi_proportional": {
+    "type": "object",
+    "properties": {
+      "principles_in_scope": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "rated_count": {
+        "type": "number"
+      },
+      "gap_register": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "rating": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "action_plan": {
+        "type": "array"
+      },
+      "summary_by_rating": {
+        "type": "object"
+      },
+      "coverage_pct": {
+        "type": "number"
+      },
+      "tier_note": {
+        "type": "string"
+      }
+    }
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
