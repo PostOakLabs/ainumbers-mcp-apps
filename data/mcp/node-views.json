@@ -5560,6 +5560,14 @@
       "sha256": "3808bd48325db94b7cc345c5cd315123a993236a8a3e06ad8ec9b44ee985fedf"
     },
     {
+      "tool_id": "art-846-assess-pfmi-proportional",
+      "mcp_name": "assess_pfmi_proportional",
+      "display_name": "PFMI proportional self-assessment scorer",
+      "uri": "ui://ainumbers/node/art-846-assess-pfmi-proportional",
+      "bytes": 100357,
+      "sha256": "adc89708612b0f1512deca737b21567f509928ca0d1a272a9f0b264a4b98c4b9"
+    },
+    {
       "tool_id": "cry-01-zk-compliance-proof-generator",
       "mcp_name": "generate_zk_compliance_proof",
       "display_name": "ZK Compliance Proof Generator",
