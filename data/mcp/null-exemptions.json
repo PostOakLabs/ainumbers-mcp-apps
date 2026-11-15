@@ -6,6 +6,13 @@
       }
     }
   },
+  "783-emv-mpm-qr-validator": {
+    "properties": {
+      "expect": {
+        "x_null_distinct": true
+      }
+    }
+  },
   "art-116-product-lineage-builder": {
     "properties": {
       "stages": {

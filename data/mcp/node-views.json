@@ -24,6 +24,14 @@
       "sha256": "967a44972078286150002f9aaba4bc78fe00b933d747e2eaff4a33365fd0f2e9"
     },
     {
+      "tool_id": "783-emv-mpm-qr-validator",
+      "mcp_name": "validate_emv_mpm_qr_payload",
+      "display_name": "EMV MPM QR Payload Validator",
+      "uri": "ui://ainumbers/node/783-emv-mpm-qr-validator",
+      "bytes": 79759,
+      "sha256": "4155cfc719a7dfea3ea778d3a173f3147039894da1397b1ef270b0cc4ce2411b"
+    },
+    {
       "tool_id": "784-cbr-data-return-validator",
       "mcp_name": "validate_cbr_data_return",
       "display_name": "CBR Data Return Validator",
@@ -1188,8 +1196,8 @@
       "mcp_name": "verify_content_credential_signature",
       "display_name": "Content Credential Signature Verifier",
       "uri": "ui://ainumbers/node/art-124-content-credential-signature-verifier",
-      "bytes": 121478,
-      "sha256": "7d193c6b87c846583661d9ff07d25d86dd1a24ad823541656de65b3a2a2f4a62"
+      "bytes": 123944,
+      "sha256": "2c1e0c683cca57d2360667870f081ce38c6d03747d9f2f616c03fe912f667411"
     },
     {
       "tool_id": "art-125-provenance-ingredient-tree-resolver",

@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 806,
+  "tool_count": 807,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -734,6 +734,7 @@
     "validate_emir_lifecycle_event",
     "validate_emir_trade_report",
     "validate_emir_upi",
+    "validate_emv_mpm_qr_payload",
     "validate_eudr_due_diligence_statement",
     "validate_eudr_geolocation",
     "validate_eugb_factsheet",
