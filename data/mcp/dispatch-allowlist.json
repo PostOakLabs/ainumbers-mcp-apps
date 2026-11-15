@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 808,
+  "tool_count": 810,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -57,6 +57,7 @@
     "assess_naic_ais_program_readiness",
     "assess_pfmi_proportional",
     "assess_psd3_readiness",
+    "assess_qr_golive_readiness",
     "assess_restaking_risk",
     "assess_sandbox_readiness",
     "assess_suspect_product_status",
@@ -257,6 +258,7 @@
     "compare_bnpl_plans",
     "compare_corridor_cost",
     "compare_cross_ccp_pqd_fields",
+    "compare_medicare_plans",
     "compare_model_outcome_analysis",
     "compare_pension_lump_sum_annuity",
     "compare_receivables_finance_economics",

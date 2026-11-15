@@ -965,6 +965,59 @@
       }
     }
   },
+  "assess_qr_golive_readiness": {
+    "type": "object",
+    "properties": {
+      "refusal": {
+        "type": "boolean"
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "score_bp": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "go_threshold_bp": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "phase": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "blocking_failures": {
+        "type": "array"
+      },
+      "conditions": {
+        "type": "array"
+      },
+      "principles_summary": {
+        "type": "array"
+      },
+      "warn_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "phase_next": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    }
+  },
   "compute_corridor_cost_averages": {
     "type": "object",
     "properties": {
@@ -47194,6 +47247,214 @@
         "description": "Vintage, grounding, cap-binding and sentinel flags carried on every output."
       }
     }
+  },
+  "compare_medicare_plans": {
+    "type": "object",
+    "properties": {
+      "data_vintage": {
+        "type": "string",
+        "description": "Benefit-parameter vintage used. Currently 2026."
+      },
+      "valid_input": {
+        "type": "boolean",
+        "description": "False when any input fell outside the declared domain; no money figure is produced in that case."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        },
+        "description": "Named reasons the input was refused."
+      },
+      "medigap_plan_type": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "irmaa_tier": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "typical_year": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Both paths priced for the declared scenario.",
+        "properties": {
+          "part_b_annual_premium_usd": {
+            "type": "number"
+          },
+          "part_d_irmaa_surcharge_annual_usd": {
+            "type": "number"
+          },
+          "path_a": {
+            "type": "object",
+            "properties": {
+              "premiums_usd": {
+                "type": "number"
+              },
+              "medical_usd": {
+                "type": "number"
+              },
+              "drugs_usd": {
+                "type": "number"
+              },
+              "total_usd": {
+                "type": "number"
+              },
+              "lifetime_reserve_days_exhausted": {
+                "type": "boolean"
+              }
+            }
+          },
+          "path_b": {
+            "type": "object",
+            "properties": {
+              "premiums_usd": {
+                "type": "number"
+              },
+              "premiums_before_zero_floor_usd": {
+                "type": "number"
+              },
+              "premiums_floored_at_zero": {
+                "type": "boolean"
+              },
+              "medical_before_moop_usd": {
+                "type": "number"
+              },
+              "medical_usd": {
+                "type": "number"
+              },
+              "moop_reached": {
+                "type": "boolean"
+              },
+              "ma_moop_not_entered": {
+                "type": "boolean"
+              },
+              "drugs_usd": {
+                "type": "number"
+              },
+              "drugs_uncovered": {
+                "type": "boolean"
+              },
+              "total_usd": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "bad_year": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The same shape as typical_year, priced with the stress-test scenario."
+      },
+      "bad_year_scenario": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The resolved stress-test assumptions actually used, including whether defaults were applied."
+      },
+      "comparison": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "annual_difference_usd": {
+            "type": "number",
+            "description": "Path A total minus Path B total."
+          },
+          "lower_cost_path": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "tie"
+            ]
+          },
+          "bad_year_difference_usd": {
+            "type": "number"
+          },
+          "bad_year_lower_cost_path": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "tie"
+            ]
+          },
+          "path_a_worst_case_ceiling_usd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Null means no annual maximum (Original Medicare with no supplement)."
+          },
+          "path_a_worst_case_ceiling_basis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "path_b_worst_case_ceiling_usd": {
+            "type": "number"
+          }
+        }
+      },
+      "constants_used": {
+        "type": "object",
+        "description": "Every 2026 parameter the run actually used."
+      },
+      "constant_overrides": {
+        "type": "array",
+        "description": "Caller-declared constant overrides with the official 2026 value beside each one."
+      },
+      "part_d_deductible_a_applied_usd": {
+        "type": "number",
+        "maximum": 1000000000
+      },
+      "part_d_deductible_a_clamped": {
+        "type": "boolean"
+      },
+      "ma_plan_drug_deductible_applied_usd": {
+        "type": "number",
+        "maximum": 1000000000
+      },
+      "ma_plan_drug_deductible_clamped": {
+        "type": "boolean"
+      },
+      "regulatory_basis": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        }
+      },
+      "rounding_mode": {
+        "type": "string"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "cites": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        },
+        "description": "CITES.md ids grounding every premise in this run."
+      }
+    },
+    "additionalProperties": false
   },
   "compute_medicare_oop_exposure": {
     "type": "object",
