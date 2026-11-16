@@ -57,6 +57,7 @@ const gates = [
   { name: 'limiter routing: ns 3005 pre-parse on every POST (MCP-REACH-DISPATCH-1 D3)', args: ['scripts/test-mcp-limiter-routing.mjs'] },
   { name: 'agent-feedback collector contract (WEBMCP-FEEDBACK-COLLECTOR-1)', args: ['scripts/test-agent-feedback.mjs'] },
   { name: 'agent-feedback schema twin byte-equality (WEBMCP-FEEDBACK-COLLECTOR-1)', args: ['scripts/check-agent-feedback-vendor.mjs'] },
+  { name: 'anchor hand-off outside the hash preimage (ANCHOR-WAVE-B-HANDOFF-1)', args: ['scripts/test-anchor-handoff.mjs'] },
   { name: 'kernel coverage (strict)',             args: ['scripts/kernel-coverage.mjs', '--strict'] },
   { name: 'validate named chains',                args: ['scripts/validate-chains.mjs'] },
   { name: 'full-corpus chain E2E + schema conformance (audit E1/E3)', args: ['scripts/run-chain-corpus.mjs'] },
