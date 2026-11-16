@@ -13,15 +13,15 @@
       "display_name": "Borrower Escrow Auditor",
       "uri": "ui://ainumbers/node/732-borrower-escrow-auditor",
       "bytes": 94183,
-      "sha256": "d10cec7e83f430318fd281fbd396475b68dbec574b3d54828ce5a1159cc59461"
+      "sha256": "0d4072d6a4326b9fd2dbafecb169d14a082b51fa64e0662130c7de7eac83fa35"
     },
     {
       "tool_id": "733-servicing-compliance-clock",
       "mcp_name": "servicing_compliance_clock",
       "display_name": "Servicing Compliance Clock",
       "uri": "ui://ainumbers/node/733-servicing-compliance-clock",
-      "bytes": 110323,
-      "sha256": "967a44972078286150002f9aaba4bc78fe00b933d747e2eaff4a33365fd0f2e9"
+      "bytes": 110728,
+      "sha256": "1889be3a528d38c9be0a39dd3e1e552ce2e99284c6efcf6a1d1c461275e27a1c"
     },
     {
       "tool_id": "783-emv-mpm-qr-validator",
@@ -52,8 +52,8 @@
       "mcp_name": "compute_corridor_cost_averages",
       "display_name": "Corridor Cost Averages",
       "uri": "ui://ainumbers/node/787-corridor-cost-averages",
-      "bytes": 64938,
-      "sha256": "00d0005e3fb9cad8193e3c9e9faffe35145b02504494ec493af8bca61c70aa41"
+      "bytes": 64832,
+      "sha256": "2218cc86f634eae2abe12c66f080550f5f3cb72e95a1ae59b893686a3d2b1ab1"
     },
     {
       "tool_id": "792-curator-vault-cap-auditor",
@@ -133,7 +133,7 @@
       "display_name": "Ethereum Epoch Accounting Recompute",
       "uri": "ui://ainumbers/node/813-eth-staking-accounting",
       "bytes": 40135,
-      "sha256": "6aa835a9b21f4a982af8fdb5cae2cdef02030871d1e7c80d067e9628b655fffb"
+      "sha256": "a39ded051cd01b52a161a53f21357d955ff265b30fca452e9e443d4b7e1cc02a"
     },
     {
       "tool_id": "815-eth-fee-market",
@@ -157,7 +157,7 @@
       "display_name": "Zcash Supply Check",
       "uri": "ui://ainumbers/node/822-zcash-supply-check",
       "bytes": 82463,
-      "sha256": "7e8e757f25181318fa2cc20f35b74790af58d591d987b10c959d1970b54dbae2"
+      "sha256": "bb26107dd59d8fdadda707a04d587de72d31d3c85d3cb0a44c6648e5da3dc754"
     },
     {
       "tool_id": "824-zip317-transfer-fee",
@@ -5260,8 +5260,8 @@
       "mcp_name": "calculate_home_office_augusta",
       "display_name": "Home Office and Augusta Rule",
       "uri": "ui://ainumbers/node/art-753-home-office-augusta",
-      "bytes": 70244,
-      "sha256": "7d086608458baf01481a0b3e1de3d6ee98cf378601434283de736d5af14b7fa6"
+      "bytes": 106493,
+      "sha256": "28f7f7eb00eb21389c5810240230a9b00802a286670e4703b595986ea796bb25"
     },
     {
       "tool_id": "art-754-equity-exit-waterfall",
@@ -5341,7 +5341,7 @@
       "display_name": "Parental Leave Income Gap",
       "uri": "ui://ainumbers/node/art-766-parental-leave-income-gap",
       "bytes": 42720,
-      "sha256": "ee16ceb157abc0149bdb50582068a97c09d04aca4964237680cee6763a457ae7"
+      "sha256": "939f35a76ac00ca3eb0e6fe084292dff28f5735aaf817591d29e0af712b65e86"
     },
     {
       "tool_id": "art-768-medicare-plan-comparison",
@@ -5525,7 +5525,7 @@
       "display_name": "EIP-3009 Spend Exposure Reconciler",
       "uri": "ui://ainumbers/node/art-830-eip3009-spend-exposure-reconciler",
       "bytes": 73174,
-      "sha256": "0e66793ab9db87049f21b792c38c565e3225494526edfdffe228eb475e791816"
+      "sha256": "0ef253cf2d074ffe0ae146187105f98b89d1f0daace76a371414c44a3b945778"
     },
     {
       "tool_id": "art-831-receipt-export-envelopes",
