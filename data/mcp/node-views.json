@@ -216,6 +216,14 @@
       "sha256": "d6bdcbeee0e5650c888a771e1a8d1139c1c04c3bee28aa79e445dbcab4f124df"
     },
     {
+      "tool_id": "841-planning-materiality",
+      "mcp_name": "compute_planning_materiality",
+      "display_name": "Planning Materiality",
+      "uri": "ui://ainumbers/node/841-planning-materiality",
+      "bytes": 27506,
+      "sha256": "4d9f6128fbb917e0a3e4a00486172ebbf8d6758c75b02e69aaee369c45916f04"
+    },
+    {
       "tool_id": "844-workload-identity-claims",
       "mcp_name": "lint_workload_identity_token_claims",
       "display_name": "Workload Identity Claims Lint",
@@ -5076,8 +5084,8 @@
       "mcp_name": "compute_isa530_audit_sampling_mus",
       "display_name": "ISA 530 Audit Sampling + MUS",
       "uri": "ui://ainumbers/node/art-693-isa530-audit-sampling-mus",
-      "bytes": 49675,
-      "sha256": "dba5ccc7f97e69fa92d21b9c76b5cdb682f1b039ae7bf78a843196cdd092615c"
+      "bytes": 52984,
+      "sha256": "d0dd0a42f1dbe5d45e8153e33141fe041886f3d0a04f735c111c69ae62ec5d38"
     },
     {
       "tool_id": "art-699-x402-permit2-evidence-recomputer",
@@ -5524,8 +5532,8 @@
       "mcp_name": "export_receipt_lineage_events",
       "display_name": "Receipt Export Envelopes",
       "uri": "ui://ainumbers/node/art-831-receipt-export-envelopes",
-      "bytes": 37015,
-      "sha256": "de467beb8861fac9a500f70980f85fe11ff77508dd6a8302127403cde20b2140"
+      "bytes": 39896,
+      "sha256": "bd1c3e13847e7e402feae142fdb81644bb8432f57d4c8fbc7759ea80ac97dcc6"
     },
     {
       "tool_id": "art-832-card-data-flow-scope",
@@ -5542,6 +5550,14 @@
       "uri": "ui://ainumbers/node/art-834-asc606-transaction-price-allocator",
       "bytes": 37891,
       "sha256": "53d7d69a4befc8f3873d4650d708a7bd0a67caf34b3cc5a92e67933f01c9d8b2"
+    },
+    {
+      "tool_id": "art-835-bank-reconciliation-recompute",
+      "mcp_name": "recompute_bank_reconciliation",
+      "display_name": "Bank Reconciliation Recompute",
+      "uri": "ui://ainumbers/node/art-835-bank-reconciliation-recompute",
+      "bytes": 43834,
+      "sha256": "7d85beabd009369e6eccb550fae4ee9f965aafe4e586d5c0bcb16de146047480"
     },
     {
       "tool_id": "art-839-statement-footing-crossfoot",

@@ -2240,6 +2240,107 @@
       }
     }
   },
+  "compute_planning_materiality": {
+    "type": "object",
+    "properties": {
+      "outcome": {
+        "description": "computed, or refused when the input cannot be computed",
+        "type": "string"
+      },
+      "refusal_reasons": {
+        "description": "Explicit refusal codes, empty when computed",
+        "type": "array"
+      },
+      "benchmark_id": {
+        "description": "The declared benchmark id, null when none was given",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rationale_id": {
+        "description": "The declared rationale id, null when none was given",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rounding_rule": {
+        "description": "The declared rounding rule, null when invalid",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "benchmark_amount": {
+        "description": "The declared benchmark amount, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "overall_bps": {
+        "description": "The declared overall percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_bps": {
+        "description": "The declared performance percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "trivial_bps": {
+        "description": "The declared clearly-trivial percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "overall_materiality": {
+        "description": "Benchmark times overall_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_materiality": {
+        "description": "Overall materiality times performance_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "clearly_trivial_threshold": {
+        "description": "Overall materiality times trivial_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_not_above_overall": {
+        "description": "Whether performance materiality is at or below overall, null when refused",
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "trivial_not_above_performance": {
+        "description": "Whether the clearly-trivial threshold is at or below performance, null when refused",
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "warnings": {
+        "description": "Conditional flags raised, mirroring compliance_flags",
+        "type": "array"
+      }
+    }
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
@@ -44403,6 +44504,38 @@
           "boolean",
           "null"
         ]
+      },
+      "mad": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mad_band": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "CLOSE_CONFORMITY",
+          "ACCEPTABLE_CONFORMITY",
+          "MARGINALLY_ACCEPTABLE",
+          "NONCONFORMITY",
+          "NOT_EVALUATED",
+          null
+        ]
+      },
+      "mad_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mad_min_count": {
+        "type": "integer"
+      },
+      "mad_applicability": {
+        "type": "string"
       },
       "trace": {
         "type": "string"

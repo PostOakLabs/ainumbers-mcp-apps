@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 810,
+  "tool_count": 812,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -366,6 +366,7 @@
     "compute_perp_funding",
     "compute_perp_funding_implied_yield",
     "compute_perp_margin",
+    "compute_planning_materiality",
     "compute_por_liabilities_composite",
     "compute_portfolio_var",
     "compute_pqc_deadline_ladder",
@@ -542,6 +543,7 @@
     "publish_model_risk_head",
     "rdarr_aggregation_recompute",
     "rdarr_quality_scorecard",
+    "recompute_bank_reconciliation",
     "recompute_best_execution",
     "recompute_bordereau",
     "recompute_ccd2_aprc_annex3",
