@@ -55,6 +55,8 @@ export const UTILITY_TOOL_NAMES = [
   'build_evidence_pack',
   'anchor_stamp',
   'suite_howto',
+  // HEADROOM-MCP-1: distance to the nearest verdict change on a declared grid (headroom-probe.mjs).
+  'probe_headroom',
 ];
 
 export const UTILITY_TOOL_COUNT = UTILITY_TOOL_NAMES.length;

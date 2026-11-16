@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 812,
+  "tool_count": 813,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -535,6 +535,7 @@
     "predict_settlement_fail",
     "prevalidation_readiness_scorer",
     "price_embedded_insurance",
+    "probe_headroom",
     "project_eth_validator_queue_wait",
     "prove_metadata_sanitization",
     "publish_fund_nav_head",
