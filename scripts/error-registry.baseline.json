@@ -8,6 +8,6 @@
     { "file": "server.mjs", "line": 239, "code": -32603, "note": "dev server: express error handler internal error" }
   ],
   "tool_sites": [
-    { "file": "worker.mjs", "line": 2547, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required)" }
+    { "file": "worker.mjs", "line": 2548, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required). Line re-anchored 2547->2548 by KERNEL-ERRATA-MCP-1: the errata_check import above it moved the site one line; the site itself is unchanged" }
   ]
 }

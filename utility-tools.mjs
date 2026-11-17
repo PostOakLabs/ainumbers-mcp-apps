@@ -40,6 +40,8 @@ export const UTILITY_TOOL_NAMES = [
   'redline_verify',
   'lei_kyb_check',
   'acdc_said_check',
+  // KERNEL-ERRATA-MCP-1: receipt-vs-errata-log classifier (errata-check-tool.mjs).
+  'errata_check',
   'workbook_evaluate',
   'workbook_range_digest',
   'workbook_csv_parse',

@@ -367,6 +367,31 @@ mkdirSync(WORKBOOK_BUNDLE_DIR, { recursive: true });
 }
 
 // ---------------------------------------------------------------------------
+// KERNEL-ERRATA-MCP-1: vendor the shared kernel-errata reader + the generated
+// page-load snapshot (both written by the site's KERNEL-ERRATA-READER-1 row,
+// scripts/gen-errata-snapshot.mjs) — same two targets as kernels/exporters/
+// workbook: data/errata/ (ASSETS) + ./errata/ (bundled into the Worker by the
+// static import in errata-check-tool.mjs). Both site files are import-free by
+// construction (errata-check.mjs import discipline header), so verbatim copies
+// need no path rewiring. The snapshot carries the checkpoint verbatim plus the
+// recorded module errata with their embedded predicates; it changes only when
+// the site log does, so re-running this vendor step after a site errata merge
+// is the whole refresh.
+// ---------------------------------------------------------------------------
+const ERRATA_DATA_DIR = resolve(DATA, 'errata');
+const ERRATA_BUNDLE_DIR = resolve(ROOT, 'errata');
+mkdirSync(ERRATA_DATA_DIR, { recursive: true });
+mkdirSync(ERRATA_BUNDLE_DIR, { recursive: true });
+for (const [src, dest] of [
+  [resolve(REPO, 'chaingraph', 'errata-check.mjs'), 'errata-check.mjs'],
+  [resolve(REPO, 'chaingraph', 'errata', 'errata-snapshot.mjs'), 'errata-snapshot.mjs'],
+]) {
+  const bytes = readFileSync(src);
+  writeFileSync(resolve(ERRATA_DATA_DIR, dest), bytes);
+  writeFileSync(resolve(ERRATA_BUNDLE_DIR, dest), bytes);
+}
+
+// ---------------------------------------------------------------------------
 // Emit data/counts.json — single source of truth for all numeric stats used
 // in mcp.html, chaingraph-hub.html, JSON-LD, og:description, i18n strings.
 // build_workflow_links chain names are read from chaingraph.json.chains (after F).

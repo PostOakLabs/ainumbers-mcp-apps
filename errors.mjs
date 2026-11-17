@@ -405,6 +405,13 @@ export const TOOL_ERRORS = {
     reason: 'invalid_args.acdc_credential',
     retryable: false,
   },
+  // Forwarded errata_check receipt-shape message (KERNEL-ERRATA-MCP-1).
+  'tool.invalid_args.errata_receipt': {
+    code: -32602,
+    message: null,
+    reason: 'invalid_args.errata_receipt',
+    retryable: false,
+  },
   // Forwarded workbook evaluator/parser message (WorkbookError text).
   'tool.invalid_args.workbook': {
     code: -32602,
