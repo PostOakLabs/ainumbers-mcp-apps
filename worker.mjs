@@ -54,6 +54,7 @@ import { authzenEvaluateWithReceipt, authzenEvaluateBatch, authzenSearch } from 
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { runAcdcSaidCheck } from './acdc-said-check.mjs';
+import { registerErrataCheck } from './errata-check-tool.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError, exportArtifact as wbExportArtifact } from './workbook/workbook.mjs';
 import { verifyRoundtrip } from './workbook/roundtrip-verify.mjs';
 import { validatePain001, parseCamt053, reconMatch, XmlParseError } from './iso20022-wb.mjs';
@@ -5426,6 +5427,13 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
   });
 
+  // errata_check (KERNEL-ERRATA-MCP-1) — agent-facing mirror of the verify pages' errata
+  // line: one receipt in, one of three verdict states out (NOT-LISTED / LISTED-UNAFFECTED /
+  // LISTED-AFFECTED), with the erratum id, the fixed digest and the tree size it was checked
+  // against. Registration, classification and the vendored snapshot live in
+  // errata-check-tool.mjs (+ ./errata/, vendored verbatim by generate.mjs).
+  registerErrataCheck(server, z, { requestId });
+
   // -------------------------------------------------------------------------
   // Workbook tools (WB-4) -- agent-facing parity with the browser workbook
   // (tools/554-workbook-table-editor.html, WB-1/2/3). Reuses WB-1's headless
@@ -6061,7 +6069,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     'build_chaingraph', 'emit_chaingraph_artifact', 'build_session_receipt',
     'find_chain', 'find_tool', 'describe_tool', 'run_chain', 'suggest_tool_idea',
     'build_disclosure_manifest', 'verify_disclosure_inclusion', 'build_evidence_pack', 'anchor_stamp',
-    'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check',
+    'redline_diff', 'redline_verify', 'lei_kyb_check', 'acdc_said_check', 'errata_check',
     'workbook_evaluate', 'workbook_range_digest', 'workbook_csv_parse', 'workbook_roundtrip_verify',
     'pain001_validate', 'camt053_parse', 'recon_match',
   ]);
