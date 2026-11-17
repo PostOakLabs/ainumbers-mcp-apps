@@ -3146,7 +3146,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:69c6709ef19686ddf6b3eec36c3570e777cdbd10233d35ce3a18fcf468035ee0","valid_from":"2026-11-13"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:ef38f2b9c6edc9bb0965709b8f01de02b4c97a3e799a68b68c5dd88fa5c27d8a","valid_from":"2026-11-15"}],
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "cited_clause_digest": [],
@@ -61276,7 +61276,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:550d986913d180078e27e7c0fdd3b9369c307fdc8442fc3028359a85bbaf40be","valid_from":"2026-11-13"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:b2e2101d8a5aa0fb8ae96aaba936355c6d614eae9d1a5c7c2618b20c977893c8","valid_from":"2026-11-16"}],
   "export_capability": [
     "json"
   ],
@@ -61301,7 +61301,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:7c48e57354229f5ef96cf3591d3c7aad4260ce5d1aefecb61e9ab06bd3607e4e","valid_from":"2026-11-13"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:70dae3c060496b0689c16134963d1f8f9605e75feff806df2770c420d7d10542","valid_from":"2026-11-16"}],
   "export_capability": ["json"],
   "standards_basis": "not_applicable",
   "compute_proof_ready": "deferred",
