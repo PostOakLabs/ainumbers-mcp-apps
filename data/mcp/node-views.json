@@ -213,7 +213,7 @@
       "display_name": "Control Frequency Sample",
       "uri": "ui://ainumbers/node/838-control-frequency-sample",
       "bytes": 28639,
-      "sha256": "d6bdcbeee0e5650c888a771e1a8d1139c1c04c3bee28aa79e445dbcab4f124df"
+      "sha256": "8ef5c7f332f22a835a3166665d5f974a668c71641a34e4d2cd1cfb15ec343188"
     },
     {
       "tool_id": "841-planning-materiality",
@@ -956,8 +956,8 @@
       "mcp_name": "aggregate_ownership_50pct",
       "display_name": "Ownership 50%-Rule Aggregator",
       "uri": "ui://ainumbers/node/art-91-ownership-50pct-aggregator",
-      "bytes": 55417,
-      "sha256": "39ea66eef4a0dc530cd609c43726b27600b861af51d3d16a4387f694a70b1bf6"
+      "bytes": 58687,
+      "sha256": "8bbabe613d89d4c7986710b09f0078a7dd8776fe894c9f070fbdd53860dd23be"
     },
     {
       "tool_id": "art-92-screening-list-coverage-checker",
@@ -1660,8 +1660,8 @@
       "mcp_name": "calculate_solvency2_scr_ratio",
       "display_name": "Solvency II SCR Ratio Calculator",
       "uri": "ui://ainumbers/node/art-180-solvency2-scr-ratio-calculator",
-      "bytes": 44611,
-      "sha256": "d36e6fa992555484cb04dea47a3fb1f652b86ced0356876a4350a58d660a8060"
+      "bytes": 44849,
+      "sha256": "8af073e714e56881c098b860a8d32c1a2355f692e30f21acd9abc9c7a17d5c4b"
     },
     {
       "tool_id": "art-181-sii-ifrs17-reconciliation-bridger",
@@ -2276,8 +2276,8 @@
       "mcp_name": "calculate_claims_stp_economics",
       "display_name": "Claims STP Economics Calculator",
       "uri": "ui://ainumbers/node/art-257-calculate-claims-stp-economics",
-      "bytes": 41877,
-      "sha256": "d3f15bd290a7c4b62ca65e4f7c2a1f066818153757d95741364580314918a8a5"
+      "bytes": 43390,
+      "sha256": "d5038e56659a2df158053d0749569842cd5616165683474d79a0d6f00ba0e410"
     },
     {
       "tool_id": "art-258-parse-camt053-reconciliation",
@@ -2324,8 +2324,8 @@
       "mcp_name": "score_cash_forecast_accuracy",
       "display_name": "Cash Forecast Accuracy Scoring",
       "uri": "ui://ainumbers/node/art-263-score-cash-forecast-accuracy",
-      "bytes": 62442,
-      "sha256": "0633b93cdf88a74f036a33dd9551c3cdae3054b0a28c880405da483b77b8ddb5"
+      "bytes": 63910,
+      "sha256": "6ca365a33281bb6e6b5e5e601d46d0d42129b1dc42aba7640411fa276a24e543"
     },
     {
       "tool_id": "art-264-validate-commission-hierarchy",
@@ -5292,8 +5292,8 @@
       "mcp_name": "estimate_iso_amt_exposure",
       "display_name": "ISO AMT Exposure Modeler",
       "uri": "ui://ainumbers/node/art-759-iso-amt-exposure-modeler",
-      "bytes": 42724,
-      "sha256": "62d9440dfca9d6454fe4cf94f10ae1bd81b28f66d1dcb1635fd3d60cac299b71"
+      "bytes": 45965,
+      "sha256": "71519da876f46e32fbec84703b55688cef0801ec34017e30b24963c477508e17"
     },
     {
       "tool_id": "art-760-espp-break-even-optimal-sell",
@@ -5565,7 +5565,7 @@
       "display_name": "Statement Footing and Cross-Footing Check",
       "uri": "ui://ainumbers/node/art-839-statement-footing-crossfoot",
       "bytes": 44357,
-      "sha256": "aec34e79e5bf6feb258553fb4d1cef691261d4525e33c60a187a61d8c356ce81"
+      "sha256": "dbe26d9afa75a328944e79a8d02dcefd454c5c066e84b922e5ca2b07d7fbf436"
     },
     {
       "tool_id": "art-840-gl-flux-explainer",
@@ -5573,7 +5573,7 @@
       "display_name": "GL Flux Explainer with Gate",
       "uri": "ui://ainumbers/node/art-840-gl-flux-explainer",
       "bytes": 51485,
-      "sha256": "0dc32172821bbac99a7195de86247ab9cf0c7ca0091be332d93fb3e29569bf77"
+      "sha256": "118857275c65e1619d3a9bca46a1c514c4e62f06add56ab9c42dcc3bf8853416"
     },
     {
       "tool_id": "art-842-soc-report-coverage-gap",
