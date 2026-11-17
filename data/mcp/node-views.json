@@ -1964,8 +1964,8 @@
       "mcp_name": "check_qm_points_and_fees",
       "display_name": "QM Points and Fees Test",
       "uri": "ui://ainumbers/node/art-218-qm-points-and-fees",
-      "bytes": 41578,
-      "sha256": "2318ec4ca6d62084efdc0e9283b493336d75ef0caf57f0f9afeadf27c4e5a78e"
+      "bytes": 44097,
+      "sha256": "66ea499cee8d5b347748d507d6d0c12671c74a62fece0d00ef7c8c43112d04f6"
     },
     {
       "tool_id": "art-219-qm-apr-apor-spread",
@@ -2092,8 +2092,8 @@
       "mcp_name": "test_hoepa_high_cost",
       "display_name": "HOEPA High-Cost Mortgage Trigger Test",
       "uri": "ui://ainumbers/node/art-234-test-hoepa-high-cost",
-      "bytes": 41781,
-      "sha256": "10ee14b67ab08c1791d0ad68662eb17b06020acaa4b1dfb374686c714db7933d"
+      "bytes": 41943,
+      "sha256": "ab9f42882397c22f460aaf1e0aebf82e50bad6059ecd59fcad1e4c27fa26dc88"
     },
     {
       "tool_id": "art-235-test-hpml-escrow",
@@ -5260,8 +5260,8 @@
       "mcp_name": "calculate_home_office_augusta",
       "display_name": "Home Office and Augusta Rule",
       "uri": "ui://ainumbers/node/art-753-home-office-augusta",
-      "bytes": 106493,
-      "sha256": "28f7f7eb00eb21389c5810240230a9b00802a286670e4703b595986ea796bb25"
+      "bytes": 126417,
+      "sha256": "9ea4097df7d87b7d0e9b0220c74c6033cca3bf954b70d1c8b05bed62e58377cf"
     },
     {
       "tool_id": "art-754-equity-exit-waterfall",
