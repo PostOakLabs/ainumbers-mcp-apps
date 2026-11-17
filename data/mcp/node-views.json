@@ -196,16 +196,16 @@
       "mcp_name": "classify_payment_services",
       "display_name": "Payment Services Activity Classifier",
       "uri": "ui://ainumbers/node/836-payment-services-activity-classifier",
-      "bytes": 73612,
-      "sha256": "45882316bde3ecbbf3203b2f1ac2dfaebf0f126545e5d69135e92f816ec2874d"
+      "bytes": 74070,
+      "sha256": "65cd69b262efdaafb0e478ce973afe47804f89883bc652613dc99dbd7f37c155"
     },
     {
       "tool_id": "837-issuer-yield-share",
       "mcp_name": "check_issuer_reserve_yield_share",
       "display_name": "Issuer Reserve Yield Share Check",
       "uri": "ui://ainumbers/node/837-issuer-yield-share",
-      "bytes": 60123,
-      "sha256": "85ee510621b971abdc21d8777941d8682031ce3eca0027ade3ce0c362072f177"
+      "bytes": 60343,
+      "sha256": "e8ff7f036c5ff6ceab950cbbadae8916abc9fb230306b8dd3bb37af9ef09d0e8"
     },
     {
       "tool_id": "838-control-frequency-sample",
@@ -5484,8 +5484,8 @@
       "mcp_name": "decide_eip3009_agent_spend",
       "display_name": "EIP-3009 Agent Spend Gate",
       "uri": "ui://ainumbers/node/art-816-eip3009-agent-spend-gate",
-      "bytes": 95492,
-      "sha256": "30e39d3749fefa5ac23891d78d3011a666c14995f3f0b5beffafda12f2b0ddbb"
+      "bytes": 95567,
+      "sha256": "c3e654bb387617cacb4d4784ca951d351d73cf9fde486c2eeec990c5da71dc18"
     },
     {
       "tool_id": "art-818-zcash-reg-classifier",
