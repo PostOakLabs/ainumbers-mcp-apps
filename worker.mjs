@@ -52,6 +52,7 @@ import { runAiActEvidenceExport, SAMPLE_DECISION } from './_aiact_cron.mjs';
 import { runEthProofSnapshotCheck, SAMPLE_ETH_PROOF } from './_ethproof_cron.mjs';
 import { authzenEvaluateWithReceipt, authzenEvaluateBatch, authzenSearch } from './_authzen.mjs';
 import { runAgentDiff, verifyBundle as redlineVerifyBundle } from './redline.mjs';
+import { probeHeadroomCore } from './headroom-probe.mjs';
 import { runLeiKybCheck } from './lei-kyb.mjs';
 import { runAcdcSaidCheck } from './acdc-said-check.mjs';
 import { createWorkbook, setCell, recalc, rangeDigest as wbRangeDigest, csvToWorkbook, WorkbookError, exportArtifact as wbExportArtifact } from './workbook/workbook.mjs';
@@ -827,7 +828,15 @@ async function loadData(env) {
   let _completionIndexP = null;
   const loadCompletionIndex = () => (_completionIndexP ??= get('mcp/completion-index.json')
     .then((r) => r.json()).catch(() => null));
-  dataCache = { manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex: null, loadSearchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, nodeViews };
+  // HEADROOM-MCP-1: the per-node probe declarations (verdict reader + probe grid + §25 private
+  // pointers), projected by generate.mjs from the site's chaingraph/kernels/__headroom__/. LAZY like
+  // the prompt context: only probe_headroom pays the one-asset fetch, the cold isolate does not.
+  // Tolerant like the prompt context: a missing file means the deploy predates the row and every
+  // probe returns the no-declaration skip, never an asset-miss throw.
+  let _headroomDeclsP = null;
+  const loadHeadroomDecls = () => (_headroomDeclsP ??= get('mcp/headroom-declarations.json')
+    .then((r) => r.json()).catch(() => null));
+  dataCache = { manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex: null, loadSearchIndex, chainFixtures, lifecycle, fvStatusIndex, recipes, showcasePrompts, utilityIndex, loadPromptContext, loadCompletionIndex, loadHeadroomDecls, nodeViews };
   return dataCache;
 }
 
@@ -2097,7 +2106,7 @@ function policyParamsSchema(spec) {
   return z.object(shape).catchall(z.any()).optional();
 }
 
-function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, nodeViews }, { onlyTool = null, onlyPrompts = false, mrtr = null, requestId = null } = {}) {
+function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidget, loadNodeView, catalog, chaingraph, searchIndex, chainFixtures, fvStatusIndex, recipes, showcasePrompts, describeMap, lifecycle, utilityIndex, promptContext, completionIndex, loadPromptContext, loadCompletionIndex, loadHeadroomDecls, nodeViews }, { onlyTool = null, onlyPrompts = false, mrtr = null, requestId = null } = {}) {
   // WORKER-NULLPARITY-LIVE-FEED-1: the schema argument both kernel-dispatch sites hand to
   // normalizeNullMembers. PILOT widgets resolve their vendored manifest's input_schema exactly as
   // before; every OTHER servable tool falls back to its generated exemption skeleton (the projected
@@ -5652,6 +5661,44 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     const result = await reconMatch({ statement_xml, expectations_csv, amount_tolerance, date_tolerance_days });
     if (result.isError) return toolErrorResult('tool.invalid_args.recon_inputs', { requestId, text: result.error });
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }], structuredContent: result };
+  });
+
+  // -------------------------------------------------------------------------
+  // probe_headroom (HEADROOM-MCP-1) —
+  // distance to the nearest verdict change found on a declared grid. The search
+  // is the vendored site library kernels/_headroom.mjs via headroom-probe.mjs;
+  // probe declarations + §25 private-input pointers travel in
+  // data/mcp/headroom-declarations.json (generate.mjs projection of the site's
+  // chaingraph/kernels/__headroom__/). H5: a probe on a pointer declared private
+  // under SPEC §25 is refused with a structured { status: 'refused',
+  // code: 'private-input' } entry, never evaluated — a distance-to-threshold on
+  // a hidden input is the §25 leak on demand. PRIVACY copy: this tool evaluates
+  // on the worker and the worker sees the policy_parameters it is sent (the
+  // same wording rule as every MCP-path tool).
+  // -------------------------------------------------------------------------
+  server.registerTool('probe_headroom', {
+    title: 'Probe distance to the nearest verdict change (headroom)',
+    description:
+      'For one ChainGraph node, runs the node\'s DECLARED headroom probes over the policy_parameters you send and reports, per probe and direction, the distance to the nearest verdict change found on the declared grid: ' +
+      'the witness pair of grid points one step apart whose verdict classes differ, with both witness hashes (policy_parameters_hash, execution_hash) recomputable from kernels/_hash.mjs. ' +
+      'PRIVACY: this tool computes on the worker, and the worker sees the inputs it is sent; probing is a plain compute loop over your policy_parameters, so send synthetic or otherwise disclosable values only. ' +
+      'A probe pointer declared private under ChainGraph Standard §25 private_inputs is refused with a structured { status: "refused", code: "private-input" } entry and is never evaluated. ' +
+      'Only probes declared for the node run; pass pointers to select among them. Basis honesty: "scanned" means every grid point up to the flip was evaluated; "declared-monotone" rests on the node\'s declaration; ' +
+      '"bracketed" means only that a verdict change exists at this distance. This is a distance to a threshold on the declared grid: never a safe margin, never a guarantee, never "compliant up to". ' +
+      'Example: probe_headroom({ tool_id: "art-816-eip3009-agent-spend-gate", policy_parameters: <the spend gate input> }) returns how much larger the authorization value can get before the gate denies.',
+    inputSchema: {
+      tool_id: z.string().describe('ChainGraph node tool_id to probe, e.g. "art-218-qm-points-and-fees" or "art-816-eip3009-agent-spend-gate".'),
+      policy_parameters: z.record(z.string(), z.unknown()).describe('The node policy_parameters to probe. NOTE: these inputs are processed by the worker, not kept client-side.'),
+      pointers: z.array(z.string()).optional().describe('Optional RFC 6901 pointer list selecting which declared probes to run (e.g. ["/authorization/value"]). Default: every declared probe of the node.'),
+    },
+    annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  }, async ({ tool_id, policy_parameters, pointers }) => {
+    if (!getKernel(tool_id)) {
+      return toolErrorResult('tool.unknown_name.chaingraph_tool_id', { requestId, toolId: String(tool_id) });
+    }
+    const declarations = loadHeadroomDecls ? await loadHeadroomDecls() : null;
+    const report = await probeHeadroomCore({ tool_id, policy_parameters, pointers, declarations, getKernel });
+    return { content: [{ type: 'text', text: JSON.stringify(report, null, 2) }], structuredContent: report };
   });
 
   // -------------------------------------------------------------------------

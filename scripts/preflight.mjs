@@ -63,6 +63,7 @@ const gates = [
   { name: 'run_chain_batch estimate-first + small-N sync batch (RUN-2-1)', args: ['scripts/test-run-chain-batch.mjs'] },
   { name: 'input-attestations gate (§23)',        args: ['scripts/validate-input-attestations.test.mjs'] },
   { name: 'private-inputs gate (§25)',            args: ['scripts/validate-private-inputs.test.mjs'] },
+  { name: 'probe_headroom core: H5 private refusal + witness-hash acceptance (HEADROOM-MCP-1)', args: ['scripts/test-probe-headroom.mjs'] },
   { name: 'AuthZEN mapping (§21.4)',              args: ['scripts/authzen-mapping.test.mjs'] },
   { name: 'AuthZEN certification fixtures',       args: ['scripts/authzen-cert.test.mjs'] },
   { name: 'cross-tool artifact round-trip (AUD-C1)', args: ['scripts/gate-crosstool-roundtrip.mjs'] },
