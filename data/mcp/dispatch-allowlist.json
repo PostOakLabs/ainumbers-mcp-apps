@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 812,
+  "tool_count": 813,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -446,6 +446,7 @@
     "find_prediction_arbitrage",
     "find_runway_goal_path",
     "find_tool",
+    "gate_je_period_lock",
     "generate_attribution_string",
     "generate_iscc_code",
     "generate_zk_compliance_proof",

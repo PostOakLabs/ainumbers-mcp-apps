@@ -2341,6 +2341,376 @@
       }
     }
   },
+  "gate_je_period_lock": {
+    "type": "object",
+    "properties": {
+      "entries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "allow_exempt",
+                "refuse"
+              ]
+            },
+            "entry_id": {
+              "type": "string"
+            },
+            "exempt_role_used": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lock_state_at_entry": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "hard_closed",
+                "open",
+                "soft_locked",
+                null
+              ]
+            },
+            "period_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "refusal_code": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "enum": [
+                "BAD_DATE",
+                "HARD_CLOSED",
+                "MISSING_ENTERED_ON_AND_AS_OF",
+                "NO_OPEN_PERIOD_FOR_REVERSAL",
+                "NO_PERIOD_FOR_DATE",
+                "SOFT_LOCKED",
+                null
+              ]
+            },
+            "resolved_effective_date": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "self_approval": {
+              "type": [
+                "null",
+                "boolean"
+              ],
+              "enum": [
+                false,
+                true,
+                null
+              ]
+            }
+          },
+          "required": [
+            "decision",
+            "entry_id",
+            "exempt_role_used",
+            "lock_state_at_entry",
+            "period_id",
+            "refusal_code",
+            "resolved_effective_date",
+            "self_approval"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "entry_count": {
+        "type": "number"
+      },
+      "execution_state": {
+        "type": "string",
+        "enum": [
+          "did_not_run",
+          "ran"
+        ]
+      },
+      "policy_digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "policy_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "reason": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "totals_by_decision": {
+        "type": "object",
+        "properties": {
+          "allow": {
+            "type": "number"
+          },
+          "allow_exempt": {
+            "type": "number"
+          },
+          "refuse": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "allow",
+          "allow_exempt",
+          "refuse"
+        ],
+        "additionalProperties": false
+      },
+      "totals_by_period": {
+        "type": "object",
+        "properties": {
+          "FY26-01": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-02": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-03": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-12": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY27-01": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY27-01B": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY28-02": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "constructor": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "hasOwnProperty": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "toString": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "PERIOD_LOCK_ENTRIES_REFUSED",
+            "PERIOD_LOCK_EXEMPT_USED",
+            "PERIOD_LOCK_POLICY_FAULT"
+          ]
+        }
+      }
+    },
+    "required": [
+      "entries",
+      "entry_count",
+      "execution_state",
+      "policy_digest",
+      "policy_version",
+      "reason",
+      "totals_by_decision",
+      "totals_by_period",
+      "warnings"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
+  },
   "validate_ap2_mandate_chain": {
     "type": "object",
     "properties": {
