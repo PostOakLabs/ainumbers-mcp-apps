@@ -13,6 +13,16 @@
       }
     }
   },
+  "845-je-period-lock-gate": {
+    "properties": {
+      "soft_lock_exempt_roles": {
+        "x_null_distinct": true
+      },
+      "entries": {
+        "x_null_distinct": true
+      }
+    }
+  },
   "art-116-product-lineage-builder": {
     "properties": {
       "stages": {

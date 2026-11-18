@@ -232,6 +232,14 @@
       "sha256": "a49296ec185f2baaf6cbf0fb32d89fcc23084cdbf86858973e17ddf49be62819"
     },
     {
+      "tool_id": "845-je-period-lock-gate",
+      "mcp_name": "gate_je_period_lock",
+      "display_name": "Je Period Lock Gate",
+      "uri": "ui://ainumbers/node/845-je-period-lock-gate",
+      "bytes": 104390,
+      "sha256": "f0127918243ebc1ee5e4a50ef452e446a1eec2cdac196c0d0c7e54dc91c6a676"
+    },
+    {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
