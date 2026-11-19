@@ -76,7 +76,7 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      site_sha:${{ steps.pin.outputs.site_sha }}
+      site_sha: ${{ steps.pin.outputs.site_sha }}
       proceed: ${{ steps.pin.outputs.proceed }}
     steps:
       # WORKER-VENDOR-ON-SITE-REGEN-1: pin ONE site sha and, on the frequent
