@@ -24,9 +24,11 @@ import * as t783      from './783-emv-mpm-qr-validator.kernel.mjs';
 import * as t784      from './784-cbr-data-return-validator.kernel.mjs';
 import * as t785      from './785-qr-golive-readiness.kernel.mjs';
 import * as t787      from './787-corridor-cost-averages.kernel.mjs';
+import * as t790      from './790-event-position-limit-check.kernel.mjs';
 import * as t792      from './792-curator-vault-cap-auditor.kernel.mjs';
 import * as t794      from './794-event-fee-recompute.kernel.mjs';
 import * as t795      from './795-stablecoin-refund-dispute.kernel.mjs';
+import * as t796      from './796-payment-system-mi-pack.kernel.mjs';
 import * as t797      from './797-stablecoin-cash-equivalent-test.kernel.mjs';
 import * as t798      from './798-assess-sandbox-application-readiness.kernel.mjs';
 import * as t806      from './806-event-contract-terms-lint.kernel.mjs';
@@ -791,9 +793,11 @@ export const KERNELS = {
   '784-cbr-data-return-validator':                              t784,
   '785-qr-golive-readiness':                                    t785,
   '787-corridor-cost-averages':                                 t787,
+  '790-event-position-limit-check':                             t790,
   '792-curator-vault-cap-auditor':                              t792,
   '794-event-fee-recompute':                                    t794,
   '795-stablecoin-refund-dispute':                              t795,
+  '796-payment-system-mi-pack':                                 t796,
   '797-stablecoin-cash-equivalent-test':                        t797,
   '798-assess-sandbox-application-readiness':                   t798,
   '806-event-contract-terms-lint':                              t806,
