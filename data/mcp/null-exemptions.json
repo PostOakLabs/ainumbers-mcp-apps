@@ -354,5 +354,24 @@
         "x_null_distinct": true
       }
     }
+  },
+  "art-847-cashleg-window-exposure": {
+    "properties": {
+      "funding_rate_bp": {
+        "x_null_distinct": true
+      },
+      "horizon_days": {
+        "x_null_distinct": true
+      },
+      "cash_instrument": {
+        "x_null_distinct": true
+      },
+      "cash_leg_open_windows": {
+        "x_null_distinct": true
+      },
+      "rail_calendar": {
+        "x_null_distinct": true
+      }
+    }
   }
 }

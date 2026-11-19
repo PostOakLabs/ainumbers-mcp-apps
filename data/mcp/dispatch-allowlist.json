@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 815,
+  "tool_count": 816,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -143,6 +143,7 @@
     "calculate_xva",
     "camt053_parse",
     "caregiver_income_impact",
+    "cashleg_window_exposure",
     "certify_license_election",
     "check_agency_eligibility_matrix",
     "check_agent_attestation",
