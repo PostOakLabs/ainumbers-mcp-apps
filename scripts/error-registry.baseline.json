@@ -8,6 +8,6 @@
     { "file": "server.mjs", "line": 239, "code": -32603, "note": "dev server: express error handler internal error" }
   ],
   "tool_sites": [
-    { "file": "worker.mjs", "line": 2547, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required)" }
+    { "file": "worker.mjs", "line": 2558, "note": "the resident ijsonErrorResult builder (TOOL_ERRORS['tool.ijson_violation'] construction; gate-hash-ssot pins the reason literal there; content[].text byte-identity required). Line re-anchored 2547->2558 by ANCHOR-WAVE-B-HANDOFF-1: the ANCHOR_MCP_URL-adjacent anchorHandoff helper insert shifted the builder down 11 lines; same single site, never grew." }
   ]
 }

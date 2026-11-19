@@ -1843,6 +1843,17 @@ async function fragmentLink(artifact) {
 const MRTR_STATE_TTL_MS = 15 * 60 * 1000; // short expiry (spec item 5)
 // The ML-2 closure endpoint lives on the anchor worker (8 tools incl. verify_escalation_closure).
 const ANCHOR_MCP_URL = 'https://anchor.ainumbers.co/mcp';
+// ANCHOR-WAVE-B-HANDOFF-1: successful server-compute results carry a hand-off telling the caller's
+// OWN agent how to timestamp the execution_hash it just received (the anchor worker's anchor_hash
+// tool takes a 64-hex SHA-256, optionally sha256:-prefixed — exactly what an execution_hash is).
+// Same {endpoint, tool, ...} pointer shape as the sign_with/verify_with blocks below. AINumbers
+// never calls the endpoint on a caller's behalf — the field is a pointer only, no fetch, no
+// storage. It sits at the RESULT-envelope level, never inside the artifact, so the
+// {policy_parameters, output_payload} hash preimage (and every execution_hash and golden) is
+// byte-identical with and without it. Exported for scripts/test-anchor-handoff.mjs.
+export function anchorHandoff(executionHash) {
+  return { endpoint: ANCHOR_MCP_URL, tool: 'anchor_hash', hash: executionHash };
+}
 let _mrtrEphemeralKeyPromise = null;      // per-isolate fallback, generated at most once
 
 function mrtrB64uEncode(bytes) {
@@ -4292,6 +4303,10 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
             hash_valid,
             computed_hash: recomputed,
             artifact,
+            // ANCHOR-WAVE-B-HANDOFF-1: envelope-level pointer, outside the hashed preimage —
+            // successful VERIFIED computes only (hash_valid gates it); never on error or
+            // browser-delegation results, which carry no execution_hash of their own.
+            ...(hash_valid ? { anchor: anchorHandoff(artifact.execution_hash) } : {}),
             note: 'Kernel computed server-side. execution_hash verified. Pass artifact.execution_hash as parent_hashes to downstream ChainGraph tools. Use verify_execution_hash for independent third-party verification.',
             spec: 'ChainGraph Standard v0.4 §3 Compute Binding',
           };
@@ -6235,6 +6250,10 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
                 hash_valid,
                 computed_hash: recomputed,
                 artifact,
+                // ANCHOR-WAVE-B-HANDOFF-1: envelope-level pointer, outside the hashed preimage —
+                // successful VERIFIED computes only (hash_valid gates it); never on error or
+                // browser-delegation results.
+                ...(hash_valid ? { anchor: anchorHandoff(artifact.execution_hash) } : {}),
                 note: 'Kernel computed server-side. Pass artifact.execution_hash as parent_hashes to downstream tools.',
               },
             });
