@@ -56,6 +56,14 @@
       "sha256": "2218cc86f634eae2abe12c66f080550f5f3cb72e95a1ae59b893686a3d2b1ab1"
     },
     {
+      "tool_id": "790-event-position-limit-check",
+      "mcp_name": "check_event_contract_position_limits",
+      "display_name": "Event Contract Position Limit Check",
+      "uri": "ui://ainumbers/node/790-event-position-limit-check",
+      "bytes": 69459,
+      "sha256": "a60d8d60faaf4e047934c142907d3c19950df4a45860ebc420dea8c8c02b1a4d"
+    },
+    {
       "tool_id": "792-curator-vault-cap-auditor",
       "mcp_name": "audit_curator_vault_caps",
       "display_name": "Curator Vault Cap Auditor",
@@ -78,6 +86,14 @@
       "uri": "ui://ainumbers/node/795-stablecoin-refund-dispute",
       "bytes": 53847,
       "sha256": "97d6a128560bf2c1722005d153c16d1bdb9c71390957bc4bed047c45c378869a"
+    },
+    {
+      "tool_id": "796-payment-system-mi-pack",
+      "mcp_name": "compute_payment_system_mi_pack",
+      "display_name": "Payment System MI Pack",
+      "uri": "ui://ainumbers/node/796-payment-system-mi-pack",
+      "bytes": 61825,
+      "sha256": "bd883b18f29a6fca62be10466d18d36a4c8371a4bdf6acbd7a6a157a10ab1e4e"
     },
     {
       "tool_id": "797-stablecoin-cash-equivalent-test",
