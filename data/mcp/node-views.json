@@ -636,16 +636,16 @@
       "mcp_name": "run_treasury_clearing_fit",
       "display_name": "Treasury Clearing Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-48-treasury-clearing-fit-diagnostic",
-      "bytes": 45531,
-      "sha256": "710326bd662df08910aaa39a08d0af51e49f20b88ba8d376fd3fd205f5df8646"
+      "bytes": 47257,
+      "sha256": "9a9a4e873327edbb2d9188d904047823043d2a7f6b7ae2a86dd3d37ac9603911"
     },
     {
       "tool_id": "art-49-clearing-access-model-selector",
       "mcp_name": "model_clearing_access_economics",
       "display_name": "Clearing Access Model Selector",
       "uri": "ui://ainumbers/node/art-49-clearing-access-model-selector",
-      "bytes": 41991,
-      "sha256": "161aae35fe5dd1fc755d98ec10b1e3c558e5e84291d91545c02342e1145b3e6d"
+      "bytes": 43634,
+      "sha256": "2dcf3b89671d4a3456a730e7f800bf484542d3e84924c547e197ff0ba5def94c"
     },
     {
       "tool_id": "art-50-ficc-margin-netting-estimator",
@@ -1116,8 +1116,8 @@
       "mcp_name": "validate_dtc_tokenized_treasury",
       "display_name": "DTC-Custodied Tokenized U.S. Treasury Issuance & DvP",
       "uri": "ui://ainumbers/node/art-109-dtc-tokenized-treasury",
-      "bytes": 62201,
-      "sha256": "c8f1c47b2186171cd1ba7c3269912ef1266b3be53c24a4e3873093f75c671027"
+      "bytes": 62822,
+      "sha256": "ec1da53894a0a3f19deed4f36b04d1ec712d8be6032a406c48756eccde5ce90c"
     },
     {
       "tool_id": "art-110-arc-partner-stablecoin-onboarding",
@@ -1620,8 +1620,8 @@
       "mcp_name": "validate_ai_impact_assessment",
       "display_name": "AI Risk Impact Assessment Validator",
       "uri": "ui://ainumbers/node/art-172-ai-risk-impact-assessment-validator",
-      "bytes": 45396,
-      "sha256": "951cfd2066cab82725f44a0e50c7357946b2cbc15486c74b6f4a464f74f13780"
+      "bytes": 46012,
+      "sha256": "0c23599d57c9bbc2178d10be7157c6520672bf5889494ad1a056a53077313e4a"
     },
     {
       "tool_id": "art-173-ai-system-governance-classifier",
@@ -5492,8 +5492,8 @@
       "mcp_name": "check_dti_within_policy_private",
       "display_name": "Private-Input Debt-to-Income Within Policy Check",
       "uri": "ui://ainumbers/node/art-811-check-dti-within-policy-private",
-      "bytes": 39866,
-      "sha256": "0acfde29157c98d80760b5a4661c729bd26997e91cd69f7fb86f0f93a3319a51"
+      "bytes": 39942,
+      "sha256": "6e631467294010a0bc380ae380f971de92159615ebe0704038c68fc77b7ae935"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",
