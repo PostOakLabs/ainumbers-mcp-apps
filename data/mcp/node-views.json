@@ -188,8 +188,8 @@
       "mcp_name": "reconcile_ucp_checkout_totals",
       "display_name": "Reconcile UCP Checkout Totals",
       "uri": "ui://ainumbers/node/825-reconcile-ucp-checkout-totals",
-      "bytes": 31200,
-      "sha256": "d7e93f7cf3ca250150c153ab97d2ba1a7844b10441f895ec993b9a0ee3e7e977"
+      "bytes": 31483,
+      "sha256": "29a8e34f115c47a2426197220f68d1e8e73a8c7b8c50053e78a355b6abcdda21"
     },
     {
       "tool_id": "827-agent-cred-class-matrix",
@@ -5622,6 +5622,14 @@
       "uri": "ui://ainumbers/node/art-846-assess-pfmi-proportional",
       "bytes": 100357,
       "sha256": "adc89708612b0f1512deca737b21567f509928ca0d1a272a9f0b264a4b98c4b9"
+    },
+    {
+      "tool_id": "art-847-cashleg-window-exposure",
+      "mcp_name": "cashleg_window_exposure",
+      "display_name": "Cash-Leg Window Exposure",
+      "uri": "ui://ainumbers/node/art-847-cashleg-window-exposure",
+      "bytes": 63085,
+      "sha256": "ce4ffd5aec89532f75285ef4d3f270dac1bc1c1e83b2991c7c17eec7bd65a84f"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",

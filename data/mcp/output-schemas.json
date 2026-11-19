@@ -1836,8 +1836,11 @@
         "type": "string"
       },
       "currency": {
-        "description": "The document currency when a string of 16 characters or fewer",
-        "type": "string"
+        "description": "The document currency when a string of 16 characters or fewer, null when the call is refused",
+        "type": [
+          "string",
+          "null"
+        ]
       },
       "rounding_applied": {
         "description": "The rounding rule applied to lines",
@@ -1848,16 +1851,25 @@
         "type": "boolean"
       },
       "totals_identity_ok": {
-        "description": "True when the declared breakdown entries sum to the declared total",
-        "type": "boolean"
+        "description": "True when the declared breakdown entries sum to the declared total, null when not evaluated",
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "declared_total": {
-        "description": "The declared total entry amount in minor units",
-        "type": "integer"
+        "description": "The declared total entry amount in minor units, null when not evaluated",
+        "type": [
+          "integer",
+          "null"
+        ]
       },
       "computed_total": {
         "description": "The recomputed breakdown sum in minor units, null when not evaluated",
-        "type": "integer"
+        "type": [
+          "integer",
+          "null"
+        ]
       },
       "negative_total": {
         "description": "True when the declared total is negative, reported informationally per UCP issue #1025",
@@ -50007,6 +50019,192 @@
         "type": "string"
       }
     }
+  },
+  "cashleg_window_exposure": {
+    "type": "object",
+    "properties": {
+      "as_of": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "calendar_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "carry_cost_minor_units": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "carry_rounding": {
+        "type": "string"
+      },
+      "cash_instrument": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "fiat_bank_money",
+          "future_instrument",
+          null
+        ]
+      },
+      "crosses_weekend": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "enum": [
+          false,
+          true,
+          null
+        ]
+      },
+      "day_count": {
+        "type": "string"
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "exposure_principal_seconds": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "exposure_seconds": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "funding_rate_bp": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "horizon_days": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "next_cash_window_close": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "next_cash_window_open": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "principal_minor_units": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rail_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "fednow-service",
+          "fedwire-funds-service",
+          null
+        ]
+      },
+      "refusal_code": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "source_pin": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "token_leg_time": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "valid_input": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "ATOMIC_POSSIBLE",
+          "NO_WINDOW_IN_HORIZON",
+          "WINDOWED",
+          null
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "CASH_LEG_LAGS_TOKEN_LEG",
+            "EXPOSURE_CROSSES_WEEKEND",
+            "INPUT_REFUSED",
+            "NO_CASH_WINDOW_IN_HORIZON",
+            "TOKEN_LEG_AFTER_AS_OF"
+          ]
+        }
+      }
+    },
+    "required": [
+      "as_of",
+      "calendar_version",
+      "carry_cost_minor_units",
+      "carry_rounding",
+      "cash_instrument",
+      "crosses_weekend",
+      "day_count",
+      "domain_errors",
+      "exposure_principal_seconds",
+      "exposure_seconds",
+      "funding_rate_bp",
+      "horizon_days",
+      "next_cash_window_close",
+      "next_cash_window_open",
+      "principal_minor_units",
+      "rail_id",
+      "refusal_code",
+      "source_pin",
+      "token_leg_time",
+      "valid_input",
+      "verdict",
+      "warnings"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
   },
   "generate_zk_compliance_proof": {
     "type": "object",
