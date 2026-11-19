@@ -21,8 +21,8 @@ ok(result.artifact.output_payload.art12_fields_present === true, 'art-236 Art 12
 // OSCAL export (§E1.a) — pure re-expression, no new claim
 ok(result.oscal['assessment-results'].metadata.props.some((p) => p.name === 'ocg-execution-hash' && p.value === result.artifact.execution_hash),
   'OSCAL metadata props carry the exact art-236 execution_hash (re-expression, not a new claim)');
-ok(result.oscal['assessment-results'].results[0].observations.length === (result.artifact.output_payload.checks?.length ?? 0),
-  'OSCAL observations count matches artifact checks (art-236 has no .checks field, so 0 is correct here)');
+ok(!('observations' in result.oscal['assessment-results'].results[0]) && (result.artifact.output_payload.checks?.length ?? 0) === 0,
+  'OSCAL observations OMITTED for an artifact with no checks (art-236 has none; schema minItems 1 forbids an empty array)');
 ok(result.oscal['assessment-results'].results[0]['reviewed-controls'].remarks.includes('No control-catalog mapping is asserted'),
   'OSCAL export carries the no-control-mapping disclaimer verbatim');
 
