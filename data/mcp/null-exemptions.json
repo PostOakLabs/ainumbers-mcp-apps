@@ -6,6 +6,23 @@
       }
     }
   },
+  "783-emv-mpm-qr-validator": {
+    "properties": {
+      "expect": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "845-je-period-lock-gate": {
+    "properties": {
+      "soft_lock_exempt_roles": {
+        "x_null_distinct": true
+      },
+      "entries": {
+        "x_null_distinct": true
+      }
+    }
+  },
   "art-116-product-lineage-builder": {
     "properties": {
       "stages": {
@@ -285,6 +302,56 @@
             }
           }
         }
+      }
+    }
+  },
+  "art-768-medicare-plan-comparison": {
+    "properties": {
+      "bad_year_admissions": {
+        "x_null_distinct": true
+      },
+      "bad_year_length_of_stay_days": {
+        "x_null_distinct": true
+      },
+      "bad_year_charge_multiplier": {
+        "x_null_distinct": true
+      },
+      "part_b_premium_by_irmaa_tier_usd": {
+        "x_null_distinct": true
+      },
+      "part_d_irmaa_surcharge_by_tier_usd": {
+        "x_null_distinct": true
+      },
+      "part_b_deductible_usd": {
+        "x_null_distinct": true
+      },
+      "part_a_deductible_usd": {
+        "x_null_distinct": true
+      },
+      "part_a_days_61_to_90_coinsurance_usd": {
+        "x_null_distinct": true
+      },
+      "part_a_lifetime_reserve_coinsurance_usd": {
+        "x_null_distinct": true
+      },
+      "part_d_max_deductible_usd": {
+        "x_null_distinct": true
+      },
+      "part_d_out_of_pocket_cap_usd": {
+        "x_null_distinct": true
+      },
+      "plan_n_office_visit_copay_usd": {
+        "x_null_distinct": true
+      },
+      "high_deductible_plan_g_deductible_usd": {
+        "x_null_distinct": true
+      }
+    }
+  },
+  "art-846-assess-pfmi-proportional": {
+    "properties": {
+      "linked_system": {
+        "x_null_distinct": true
       }
     }
   }

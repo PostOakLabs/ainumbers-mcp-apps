@@ -721,6 +721,203 @@
       }
     }
   },
+  "validate_emv_mpm_qr_payload": {
+    "type": "object",
+    "properties": {
+      "crc": {
+        "type": "object",
+        "properties": {
+          "expected": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "found": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "expected",
+          "found"
+        ],
+        "additionalProperties": false
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule_id": {
+              "type": "string"
+            },
+            "tag_path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule_id",
+            "tag_path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "mode": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "dynamic",
+          "static",
+          null
+        ]
+      },
+      "profile": {
+        "type": "string",
+        "enum": [
+          "fjqr",
+          "generic",
+          "pix_brcode",
+          "promptpay"
+        ]
+      },
+      "refused": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          },
+          "refused": {
+            "type": "boolean"
+          },
+          "refused_because": {
+            "type": "string",
+            "enum": [
+              "dynamic_envelope_not_object",
+              "expect_invalid",
+              "payload_bound_exceeded",
+              "payload_empty",
+              "payload_not_string",
+              "profile_unknown"
+            ]
+          }
+        },
+        "required": [
+          "detail",
+          "refused",
+          "refused_because"
+        ],
+        "additionalProperties": false
+      },
+      "rules_checked": {
+        "type": "number"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "length": {
+              "type": "number"
+            },
+            "tag": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "advisory",
+                "fail",
+                "pass"
+              ]
+            }
+          },
+          "required": [
+            "length",
+            "tag",
+            "verdict"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "valid": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "violations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule_id": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string",
+              "enum": [
+                "advisory",
+                "error"
+              ]
+            },
+            "source": {
+              "type": "string"
+            },
+            "tag_path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule_id",
+            "severity",
+            "source",
+            "tag_path"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "rule_id": {
+              "type": "string"
+            },
+            "tag_path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule_id",
+            "tag_path"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "crc",
+      "errors",
+      "mode",
+      "profile",
+      "rules_checked",
+      "tags",
+      "valid",
+      "violations",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
   "validate_cbr_data_return": {
     "type": "object",
     "properties": {
@@ -765,6 +962,59 @@
       },
       "disambiguation": {
         "type": "string"
+      }
+    }
+  },
+  "assess_qr_golive_readiness": {
+    "type": "object",
+    "properties": {
+      "refusal": {
+        "type": "boolean"
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "score_bp": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "go_threshold_bp": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "phase": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "blocking_failures": {
+        "type": "array"
+      },
+      "conditions": {
+        "type": "array"
+      },
+      "principles_summary": {
+        "type": "array"
+      },
+      "warn_count": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "phase_next": {
+        "type": [
+          "string",
+          "null"
+        ]
       }
     }
   },
@@ -1197,6 +1447,267 @@
         ]
       }
     }
+  },
+  "assess_sandbox_readiness": {
+    "type": "object",
+    "properties": {
+      "exit_plan_declared": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "exit_plan_note": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "gaps": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cite": {
+              "type": "string"
+            },
+            "criterion_id": {
+              "type": "string",
+              "enum": [
+                "benchmarking_viability",
+                "legal_compatibility"
+              ]
+            },
+            "evidence_ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mandatory": {
+              "type": "boolean",
+              "enum": [
+                false,
+                true
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "not_met",
+                "partially_met"
+              ]
+            }
+          },
+          "required": [
+            "cite",
+            "criterion_id",
+            "evidence_ref",
+            "mandatory",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "parameter_breaches": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cap": {
+              "type": "number"
+            },
+            "cite": {
+              "type": "string"
+            },
+            "declared": {
+              "type": "number"
+            },
+            "parameter": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cap",
+            "cite",
+            "declared",
+            "parameter"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "profile_cites": {
+        "type": "object",
+        "properties": {
+          "caps": {
+            "type": "object",
+            "properties": {
+              "aggregate_value_cap": {
+                "type": "string"
+              },
+              "customer_cap": {
+                "type": "string"
+              },
+              "duration_months": {
+                "type": "string"
+              },
+              "value_cap_per_customer": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "aggregate_value_cap",
+              "customer_cap",
+              "duration_months",
+              "value_cap_per_customer"
+            ],
+            "additionalProperties": false
+          },
+          "criteria": {
+            "type": "object",
+            "properties": {
+              "benchmarking_viability": {
+                "type": "string"
+              },
+              "consumer_benefit": {
+                "type": "string"
+              },
+              "customer_risk": {
+                "type": "string"
+              },
+              "innovation": {
+                "type": "string"
+              },
+              "legal_compatibility": {
+                "type": "string"
+              },
+              "resources": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "benchmarking_viability",
+              "consumer_benefit",
+              "customer_risk",
+              "innovation",
+              "legal_compatibility",
+              "resources"
+            ],
+            "additionalProperties": false
+          },
+          "exit_plan": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string",
+            "enum": [
+              "cbob",
+              "generic"
+            ]
+          },
+          "safeguards": {
+            "type": "string"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "refusal": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "invalid_input",
+              "unknown_criterion"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "invalid_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "invalid_status": {
+            "type": "array"
+          },
+          "known_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "benchmarking_viability",
+                "consumer_benefit",
+                "customer_risk",
+                "innovation",
+                "legal_compatibility",
+                "resources"
+              ]
+            }
+          },
+          "unknown_criteria": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "constructor",
+                "tax_good_standing"
+              ]
+            }
+          }
+        },
+        "required": [
+          "code",
+          "detail"
+        ],
+        "additionalProperties": false
+      },
+      "safeguards_missing": {
+        "type": "array"
+      },
+      "verdict": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "NOT_ELIGIBLE",
+          "READY",
+          "READY_WITH_GAPS",
+          null
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "EXIT_PLAN_MISSING",
+            "MANDATORY_CRITERION_NOT_MET",
+            "PARAMETER_CAP_BREACHED",
+            "REFUSED_INVALID_INPUT",
+            "REFUSED_UNKNOWN_CRITERION"
+          ]
+        }
+      }
+    },
+    "required": [
+      "gaps",
+      "parameter_breaches",
+      "profile_cites",
+      "safeguards_missing",
+      "verdict",
+      "warnings"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
   },
   "lint_event_contract_terms": {
     "type": "object",
@@ -1728,6 +2239,477 @@
         "type": "array"
       }
     }
+  },
+  "compute_planning_materiality": {
+    "type": "object",
+    "properties": {
+      "outcome": {
+        "description": "computed, or refused when the input cannot be computed",
+        "type": "string"
+      },
+      "refusal_reasons": {
+        "description": "Explicit refusal codes, empty when computed",
+        "type": "array"
+      },
+      "benchmark_id": {
+        "description": "The declared benchmark id, null when none was given",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rationale_id": {
+        "description": "The declared rationale id, null when none was given",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "rounding_rule": {
+        "description": "The declared rounding rule, null when invalid",
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "benchmark_amount": {
+        "description": "The declared benchmark amount, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "overall_bps": {
+        "description": "The declared overall percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_bps": {
+        "description": "The declared performance percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "trivial_bps": {
+        "description": "The declared clearly-trivial percentage in basis points, null when invalid",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "overall_materiality": {
+        "description": "Benchmark times overall_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_materiality": {
+        "description": "Overall materiality times performance_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "clearly_trivial_threshold": {
+        "description": "Overall materiality times trivial_bps under the rounding rule, null when refused",
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "performance_not_above_overall": {
+        "description": "Whether performance materiality is at or below overall, null when refused",
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "trivial_not_above_performance": {
+        "description": "Whether the clearly-trivial threshold is at or below performance, null when refused",
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "warnings": {
+        "description": "Conditional flags raised, mirroring compliance_flags",
+        "type": "array"
+      }
+    }
+  },
+  "gate_je_period_lock": {
+    "type": "object",
+    "properties": {
+      "entries": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "type": "string",
+              "enum": [
+                "allow",
+                "allow_exempt",
+                "refuse"
+              ]
+            },
+            "entry_id": {
+              "type": "string"
+            },
+            "exempt_role_used": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "lock_state_at_entry": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "hard_closed",
+                "open",
+                "soft_locked",
+                null
+              ]
+            },
+            "period_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "refusal_code": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "enum": [
+                "BAD_DATE",
+                "HARD_CLOSED",
+                "MISSING_ENTERED_ON_AND_AS_OF",
+                "NO_OPEN_PERIOD_FOR_REVERSAL",
+                "NO_PERIOD_FOR_DATE",
+                "SOFT_LOCKED",
+                null
+              ]
+            },
+            "resolved_effective_date": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "self_approval": {
+              "type": [
+                "null",
+                "boolean"
+              ],
+              "enum": [
+                false,
+                true,
+                null
+              ]
+            }
+          },
+          "required": [
+            "decision",
+            "entry_id",
+            "exempt_role_used",
+            "lock_state_at_entry",
+            "period_id",
+            "refusal_code",
+            "resolved_effective_date",
+            "self_approval"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "entry_count": {
+        "type": "number"
+      },
+      "execution_state": {
+        "type": "string",
+        "enum": [
+          "did_not_run",
+          "ran"
+        ]
+      },
+      "policy_digest": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "policy_version": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "reason": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "totals_by_decision": {
+        "type": "object",
+        "properties": {
+          "allow": {
+            "type": "number"
+          },
+          "allow_exempt": {
+            "type": "number"
+          },
+          "refuse": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "allow",
+          "allow_exempt",
+          "refuse"
+        ],
+        "additionalProperties": false
+      },
+      "totals_by_period": {
+        "type": "object",
+        "properties": {
+          "FY26-01": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-02": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-03": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY26-12": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY27-01": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY27-01B": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "FY28-02": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "constructor": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "hasOwnProperty": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          },
+          "toString": {
+            "type": "object",
+            "properties": {
+              "allow": {
+                "type": "number"
+              },
+              "allow_exempt": {
+                "type": "number"
+              },
+              "refuse": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "allow",
+              "allow_exempt",
+              "refuse"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "PERIOD_LOCK_ENTRIES_REFUSED",
+            "PERIOD_LOCK_EXEMPT_USED",
+            "PERIOD_LOCK_POLICY_FAULT"
+          ]
+        }
+      }
+    },
+    "required": [
+      "entries",
+      "entry_count",
+      "execution_state",
+      "policy_digest",
+      "policy_version",
+      "reason",
+      "totals_by_decision",
+      "totals_by_period",
+      "warnings"
+    ],
+    "additionalProperties": false,
+    "x-derived-from": "fixture"
   },
   "validate_ap2_mandate_chain": {
     "type": "object",
@@ -43893,6 +44875,38 @@
           "null"
         ]
       },
+      "mad": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mad_band": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "CLOSE_CONFORMITY",
+          "ACCEPTABLE_CONFORMITY",
+          "MARGINALLY_ACCEPTABLE",
+          "NONCONFORMITY",
+          "NOT_EVALUATED",
+          null
+        ]
+      },
+      "mad_reason": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "mad_min_count": {
+        "type": "integer"
+      },
+      "mad_applicability": {
+        "type": "string"
+      },
       "trace": {
         "type": "string"
       },
@@ -46256,6 +47270,323 @@
     ],
     "additionalProperties": false
   },
+  "calculate_home_office_augusta": {
+    "type": "object",
+    "description": "output_payload: refusal_reason (null unless refused), echoes office_sq_ft, home_sq_ft, business_use_fraction, gross_business_income_usd, entity_type_ho, rental_days, daily_rental_rate_usd, corp_tax_rate, owner_marginal_rate, entity_type_aug; home office total_home_expenses_usd, regular_deduction_before_gross_income_cap_usd, regular_deduction_usd, simplified_deduction_before_gross_income_cap_usd, simplified_deduction_usd, simplified_method_selectable, simplified_wins_on_amounts, best_home_office_deduction_usd, best_home_office_method ('Regular'|'Simplified'), gross_income_cap_applied_to ('regular'|'both'); Augusta rule total_rental_income_usd, qualifies_280a_g_day_test, augusta_tax_free_income_usd, augusta_corp_deduction_usd, augusta_tax_benefit_usd, augusta_tax_benefit_at_owner_rate_usd; benefits home_office_tax_benefit_usd, combined_tax_benefit_usd, combined_tax_benefit_at_owner_rate_basis_usd; provenance switches{}, fallback_fields[] (objects with field, apex_fallback, raw_input), compliance_flags[], notes[]. On a refusal (non-finite input, a wrong-typed numeric, an unlisted entity_type_ho or entity_type_aug, or a non-object input), output_payload carries a refusal_reason code, every computed field null, and compliance_flags ['ART753_INPUT_REFUSED'].",
+    "properties": {
+      "refusal_reason": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Null on a computed result; otherwise a refusal code (REFUSED_NON_FINITE_INPUT, REFUSED_INPUT_NOT_OBJECT, REFUSED_WRONG_TYPE_<FIELD>, REFUSED_ENTITY_TYPE_HO_NOT_ALLOWED, REFUSED_ENTITY_TYPE_AUG_NOT_ALLOWED)."
+      },
+      "office_sq_ft": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "home_sq_ft": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "business_use_fraction": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "gross_business_income_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "entity_type_ho": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "soleProp",
+          "scorp",
+          null
+        ]
+      },
+      "rental_days": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "daily_rental_rate_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "corp_tax_rate": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "owner_marginal_rate": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "entity_type_aug": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "soleProp",
+          "scorp",
+          null
+        ]
+      },
+      "total_home_expenses_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "regular_deduction_before_gross_income_cap_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "regular_deduction_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "simplified_deduction_before_gross_income_cap_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "simplified_deduction_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "simplified_method_selectable": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "simplified_wins_on_amounts": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "best_home_office_deduction_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "best_home_office_method": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "Regular",
+          "Simplified",
+          null
+        ]
+      },
+      "gross_income_cap_applied_to": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "regular",
+          "both",
+          null
+        ]
+      },
+      "total_rental_income_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "qualifies_280a_g_day_test": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "augusta_tax_free_income_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "augusta_corp_deduction_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "augusta_tax_benefit_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "augusta_tax_benefit_at_owner_rate_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "home_office_tax_benefit_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "combined_tax_benefit_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "combined_tax_benefit_at_owner_rate_basis_usd": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "switches": {
+        "type": "object",
+        "properties": {
+          "apex_faithful_mode": {
+            "type": "boolean"
+          },
+          "gross_income_cap_applies_to_simplified_method": {
+            "type": "boolean"
+          },
+          "simplified_method_available_to_s_corp_employee": {
+            "type": "boolean"
+          },
+          "effective_cap_applied": {
+            "type": "boolean"
+          },
+          "effective_gate_applied": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "apex_faithful_mode",
+          "gross_income_cap_applies_to_simplified_method",
+          "simplified_method_available_to_s_corp_employee",
+          "effective_cap_applied",
+          "effective_gate_applied"
+        ]
+      },
+      "fallback_fields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "field": {
+              "type": "string"
+            },
+            "apex_fallback": {
+              "type": [
+                "number",
+                "string"
+              ]
+            },
+            "raw_input": {
+              "type": [
+                "number",
+                "string"
+              ]
+            }
+          },
+          "required": [
+            "field",
+            "apex_fallback",
+            "raw_input"
+          ]
+        }
+      },
+      "compliance_flags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "notes": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "refusal_reason",
+      "office_sq_ft",
+      "home_sq_ft",
+      "business_use_fraction",
+      "gross_business_income_usd",
+      "entity_type_ho",
+      "rental_days",
+      "daily_rental_rate_usd",
+      "corp_tax_rate",
+      "owner_marginal_rate",
+      "entity_type_aug",
+      "total_home_expenses_usd",
+      "regular_deduction_before_gross_income_cap_usd",
+      "regular_deduction_usd",
+      "simplified_deduction_before_gross_income_cap_usd",
+      "simplified_deduction_usd",
+      "simplified_method_selectable",
+      "simplified_wins_on_amounts",
+      "best_home_office_deduction_usd",
+      "best_home_office_method",
+      "gross_income_cap_applied_to",
+      "total_rental_income_usd",
+      "qualifies_280a_g_day_test",
+      "augusta_tax_free_income_usd",
+      "augusta_corp_deduction_usd",
+      "augusta_tax_benefit_usd",
+      "augusta_tax_benefit_at_owner_rate_usd",
+      "home_office_tax_benefit_usd",
+      "combined_tax_benefit_usd",
+      "combined_tax_benefit_at_owner_rate_basis_usd",
+      "switches",
+      "fallback_fields",
+      "compliance_flags",
+      "warnings",
+      "notes"
+    ]
+  },
   "calc_equity_exit_waterfall": {
     "type": "object",
     "properties": {
@@ -46732,6 +48063,218 @@
         "description": "Vintage, grounding, cap-binding and sentinel flags carried on every output."
       }
     }
+  },
+  "compare_medicare_plans": {
+    "type": "object",
+    "properties": {
+      "data_vintage": {
+        "type": "string",
+        "description": "Benefit-parameter vintage used. Currently 2026."
+      },
+      "valid_input": {
+        "type": "boolean",
+        "description": "False when any input fell outside the declared domain; no money figure is produced in that case."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        },
+        "description": "Named reasons the input was refused."
+      },
+      "medigap_plan_type": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "irmaa_tier": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "typical_year": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Both paths priced for the declared scenario.",
+        "properties": {
+          "part_b_annual_premium_usd": {
+            "type": "number"
+          },
+          "part_d_irmaa_surcharge_annual_usd": {
+            "type": "number"
+          },
+          "path_a": {
+            "type": "object",
+            "properties": {
+              "premiums_usd": {
+                "type": "number"
+              },
+              "medical_usd": {
+                "type": "number"
+              },
+              "drugs_usd": {
+                "type": "number"
+              },
+              "total_usd": {
+                "type": "number"
+              },
+              "lifetime_reserve_days_exhausted": {
+                "type": "boolean"
+              }
+            }
+          },
+          "path_b": {
+            "type": "object",
+            "properties": {
+              "premiums_usd": {
+                "type": "number"
+              },
+              "premiums_before_zero_floor_usd": {
+                "type": "number"
+              },
+              "premiums_floored_at_zero": {
+                "type": "boolean"
+              },
+              "medical_before_moop_usd": {
+                "type": "number"
+              },
+              "medical_usd": {
+                "type": "number"
+              },
+              "moop_reached": {
+                "type": "boolean"
+              },
+              "ma_moop_not_entered": {
+                "type": "boolean"
+              },
+              "drugs_usd": {
+                "type": "number"
+              },
+              "drugs_uncovered": {
+                "type": "boolean"
+              },
+              "total_usd": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "bad_year": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The same shape as typical_year, priced with the stress-test scenario."
+      },
+      "bad_year_scenario": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The resolved stress-test assumptions actually used, including whether defaults were applied."
+      },
+      "comparison": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "annual_difference_usd": {
+            "type": "number",
+            "description": "Path A total minus Path B total."
+          },
+          "lower_cost_path": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "tie"
+            ]
+          },
+          "bad_year_difference_usd": {
+            "type": "number"
+          },
+          "bad_year_lower_cost_path": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "tie"
+            ]
+          },
+          "path_a_worst_case_ceiling_usd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Null means no annual maximum (Original Medicare with no supplement)."
+          },
+          "path_a_worst_case_ceiling_basis": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "path_b_worst_case_ceiling_usd": {
+            "type": "number"
+          }
+        }
+      },
+      "constants_used": {
+        "type": "object",
+        "description": "Every 2026 parameter the run actually used."
+      },
+      "constant_overrides": {
+        "type": "array",
+        "description": "Caller-declared constant overrides with the official 2026 value beside each one."
+      },
+      "part_d_deductible_a_applied_usd": {
+        "type": "number",
+        "maximum": 1000000000
+      },
+      "part_d_deductible_a_clamped": {
+        "type": "boolean"
+      },
+      "ma_plan_drug_deductible_applied_usd": {
+        "type": "number",
+        "maximum": 1000000000
+      },
+      "ma_plan_drug_deductible_clamped": {
+        "type": "boolean"
+      },
+      "regulatory_basis": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        }
+      },
+      "rounding_mode": {
+        "type": "string"
+      },
+      "scope_note": {
+        "type": "string"
+      },
+      "cites": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "maximum": 1000000000
+        },
+        "description": "CITES.md ids grounding every premise in this run."
+      }
+    },
+    "additionalProperties": false
+  },
+  "compute_medicare_oop_exposure": {
+    "type": "object",
+    "description": "output_payload: plan_year, coverage_structure, irmaa_tier, valid_input, domain_errors[], routine/rough/worst each {part_a_inpatient_cents, part_a_snf_cents, part_b_total_cents, part_d_total_cents, medical_oop_cents, annual_ceiling_cents (number|null), premiums_cents, total_oop_excluding_premiums_cents, total_with_premiums_cents, monthly_budget_cents, reserve_days_consumed, reserve_days_beyond_pool, unlimited_days_flag, snf_beyond_max_flag, moop_fallback_flag}, exposure_spread_cents, unlimited_exposure, part_d_deductible_input_cents, part_d_deductible_effective_cents, part_d_deductible_clamped, parameters_used (the plan-year parameter block actually applied), model_assumptions_used, regulatory_basis, scope_note, and warnings[] (mirror of compliance flags), usd_view{...} for display. All *_cents members are integer US cents."
   },
   "total_cost_of_homeownership": {
     "type": "object",
@@ -48416,6 +49959,52 @@
           "object",
           "null"
         ]
+      }
+    }
+  },
+  "assess_pfmi_proportional": {
+    "type": "object",
+    "properties": {
+      "principles_in_scope": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "rated_count": {
+        "type": "number"
+      },
+      "gap_register": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "rating": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "action_plan": {
+        "type": "array"
+      },
+      "summary_by_rating": {
+        "type": "object"
+      },
+      "coverage_pct": {
+        "type": "number"
+      },
+      "tier_note": {
+        "type": "string"
       }
     }
   },
