@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 817,
+  "tool_count": 818,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -480,6 +480,7 @@
     "lint_pan_sad_exposure",
     "lint_securities_settlement_message",
     "lint_settlement_orchestrator_conformance",
+    "lint_stablecoin_admin_roles",
     "lint_stock_token_valuation",
     "lint_trace_cat_reports",
     "lint_ucp_checkout_payload",
