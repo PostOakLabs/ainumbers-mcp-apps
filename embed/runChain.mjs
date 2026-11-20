@@ -18,6 +18,7 @@
 // see README.md "Packaging a standalone distributable".
 
 import { executionHash, jcsStringify } from './lib/_hash.mjs';
+import { invokeKernel } from '../kernel-invoke.mjs';
 import { evaluateGate as gvEvaluateGate, stepId as gvStepId, isEscalationTarget, isTerminalTarget } from './lib/_gateval.mjs';
 
 // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
@@ -113,12 +114,19 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
           // are excluded below), so a fixed value keeps the run reproducible. The Worker passes the
           // wall clock here; the composite hash is identical either way.
           const now = '1970-01-01T00:00:00.000Z';
-          const artifact = await kernel.buildArtifact(pp, {
+          const invoked = await invokeKernel(kernel, pp, {
             now,
             parent_hashes: prevHash ? [prevHash] : [],
             parent_tool_ids: prevId ? [prevId] : [],
             chain_depth: idx,
           });
+          if (invoked.refused) {
+            // Mirror worker.mjs: a hash refusal is refused_input, not a missing input.
+            results[idx] = { order: idx + 1, tool_id: tid, status: 'refused_input', inputs_source, hash_refusal: invoked.hash_refusal };
+            idx++;
+            continue;
+          }
+          const artifact = invoked;
           // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror worker.mjs.
           const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
           if (srcImg && srcImg.image_id) {
@@ -267,7 +275,7 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
     steps_ran: ran.length,
     // FB-04: per-step compliance_flags on the result. Response-only, zero preimage impact.
     // null (not []) for steps that never produced an artifact.
-    steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null })),
+    steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null, ...(r.hash_refusal ? { hash_refusal: r.hash_refusal } : {}) })),
     composite_execution_hash: composite_hash,
     composite_artifact,
     spec: hasGates

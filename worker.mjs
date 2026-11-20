@@ -44,6 +44,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 import { mintRequestId, protocolErrorResponse, toolDomainErrorResult, toolErrorResult, TOOL_ERRORS } from './errors.mjs';
 import { assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash, jcsStringify } from './kernels/_hash.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
+import { invokeKernel } from './kernel-invoke.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
 import { dueForRenewal, verifyAllBindings } from './_blta.mjs';
@@ -2546,6 +2547,26 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     const structuredContent = requestId != null ? { ...out, error: { ...out.error, retryable: TOOL_ERRORS['tool.ijson_violation'].retryable, request_id: requestId } } : out;
     return { isError: true, content: [{ type: 'text', text: JSON.stringify(out, null, 2) }], structuredContent };
   }
+
+  // The ONE tools/call result for a kernel-invoke refusal. Built here (not in kernel-invoke.mjs)
+  // so the helper stays a pure kernel invoker; the wire shape is the same on both handlers.
+  // The error itself comes from the errors.mjs TOOL_ERRORS registry (single construction site);
+  // the stable name is emitted additively as error.name, alongside the numeric wire code and
+  // data.reason. No execution_hash anywhere — a refused input has no canonical form to hash.
+  function refusedInputResult(tool_id, hash_refusal) {
+    const r = toolErrorResult('tool.input_refused', {
+      requestId,
+      vars: { reason: hash_refusal.reason, detail: hash_refusal.detail },
+      data: { tool_id, hash_refusal },
+    });
+    const sc = r.structuredContent;
+    sc.error.name = 'tool.input_refused';
+    sc.tool_id = tool_id;
+    sc.execution_hash = null;
+    sc.hash_refusal = hash_refusal;
+    return r;
+  }
+
   // OCG §21.4 route_plan_digest — bare-hex SHA-256 over the JCS-canonical chain
   // steps[] definition (the decision policy). Same canonicalizer as §4; no new
   // hash path. Mirrors embed/runChain.mjs cgSha256Hex byte-for-byte.
@@ -3322,12 +3343,20 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           const pp = (hasMandate && mandateHash) ? { ...basePp, mandate_hash: mandateHash } : basePp;
           try {
             const now = new Date().toISOString();
-            const artifact = await kernel.buildArtifact(pp, {
+            const invoked = await invokeKernel(kernel, pp, {
               now,
               parent_hashes: prevHash ? [prevHash] : [],
               parent_tool_ids: prevId ? [prevId] : [],
               chain_depth: idx,
             });
+            if (invoked.refused) {
+              // Junk input: the kernel was never called. Distinct from a missing field, which
+              // still throws below and stays input_required. No artifact -> no gate, no hash.
+              results[idx] = { order: idx + 1, tool_id: tid, status: 'refused_input', inputs_source, hash_refusal: invoked.hash_refusal };
+              idx++;
+              continue;
+            }
+            const artifact = invoked;
             // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror Mode 4.
             const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
             if (srcImg && srcImg.image_id) {
@@ -3498,7 +3527,14 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     };
     if (hasMandate && mandateHash) run_input_preimage.mandate_hash = mandateHash;
     const inputIjsonBad = ijsonViolation(run_input_preimage);
-    const input_hash = inputIjsonBad ? null : await sharedPolicyParametersHash(run_input_preimage);
+    // A refused step's junk input can still sit in `inputs`; assertIJson() does not reject a
+    // BigInt (jcsStringify does), so the advisory dedupe hash needs the same safe state as an
+    // I-JSON violation: null plus the note below, never a thrown error or an unstable digest.
+    let input_hash = null;
+    if (!inputIjsonBad) {
+      try { input_hash = await sharedPolicyParametersHash(run_input_preimage); }
+      catch { input_hash = null; }
+    }
     const dedupe_echo = {
       input_hash,
       composite_execution_hash: composite_hash,
@@ -3604,7 +3640,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       // FB-04 (COMPOSITE-FLAG-AGGREGATE-1): per-step compliance_flags on the response. Response-only
       // field, zero preimage impact — an MCP agent previously had NO path to any step's caveats.
       // null (not []) for steps that never produced an artifact, so "no flags" and "never ran" differ.
-      steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null })),
+      steps: resultsList.map((r) => ({ order: r.order, tool_id: r.tool_id, status: r.status, inputs_source: r.inputs_source ?? null, execution_hash: r.execution_hash ?? null, compliance_flags: Array.isArray(r.artifact?.compliance_flags) ? r.artifact.compliance_flags : null, error: r.error ?? null, hint: r.hint ?? null, ...(r.hash_refusal ? { hash_refusal: r.hash_refusal } : {}) })),
       composite_execution_hash: composite_hash,
       // RUN-1-1 IDEMPOTENCY-ECHO-1 — stable client-dedupe echo (see the block above; docs/IDEMPOTENCY.md).
       // Response-only: identical effective inputs repeat input_hash AND composite_execution_hash
@@ -4241,12 +4277,14 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           // a hash-only fold would give a null-carrying call and a null-free call identical receipts
           // while they still answer differently.
           const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(tool_id));
-          const artifact = await kernel.buildArtifact(pp_input, {
+          const invoked = await invokeKernel(kernel, pp_input, {
             now,
             parent_hashes: parent_hashes ?? [],
             parent_tool_ids: parent_tool_ids ?? [],
             chain_depth: node.chain_depth ?? 0,
           });
+          if (invoked.refused) return refusedInputResult(tool_id, invoked.hash_refusal);
+          const artifact = invoked;
           // Verify the hash we just produced (round-trip self-check).
           const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
           if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
@@ -6189,12 +6227,14 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
             // a hash-only fold would give a null-carrying call and a null-free call identical receipts
             // while they still answer differently.
             const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(node.tool_id));
-            const artifact = await kernel.buildArtifact(pp_input, {
+            const invoked = await invokeKernel(kernel, pp_input, {
               now,
               parent_hashes: parent_hashes ?? [],
               parent_tool_ids: parent_tool_ids ?? [],
               chain_depth: node.chain_depth ?? 0,
             });
+            if (invoked.refused) return refusedInputResult(node.tool_id, invoked.hash_refusal);
+            const artifact = invoked;
             // Round-trip self-check through the SSOT hasher (./kernels/_hash.mjs) — no local copy.
             const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
             if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');

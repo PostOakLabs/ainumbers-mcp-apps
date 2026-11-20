@@ -309,6 +309,16 @@ export const TOOL_ERRORS = {
     reason: 'compute_error',
     retryable: false,
   },
+  // KERNEL-REFUSAL-BOUNDARY-WORKER-1: unhashable INPUT refused at the kernel-invoke boundary,
+  // before the kernel runs. Deterministic validation, so retryable:false and code -32602.
+  // The caller adds the additive top-level tool_id / execution_hash:null / hash_refusal members
+  // to structuredContent (BUILD-SPEC A1 discipline: content[].text is the registry-built message).
+  'tool.input_refused': {
+    code: -32602,
+    message: (vars) => 'Input refused before kernel execution: ' + vars.reason + ' (' + vars.detail + ').',
+    reason: 'input_refused',
+    retryable: false,
+  },
   // Forwarded core-builder validation message (buildSessionReceiptCore throw text).
   'tool.invalid_args.receipt_core': {
     code: -32602,
