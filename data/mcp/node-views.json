@@ -44,8 +44,8 @@
       "mcp_name": "assess_qr_golive_readiness",
       "display_name": "QR Go-Live Readiness Assessor",
       "uri": "ui://ainumbers/node/785-qr-golive-readiness",
-      "bytes": 60051,
-      "sha256": "e1ebda19aad9e917ee06e316d8280208452505760c89be717cbea3080270eec3"
+      "bytes": 65027,
+      "sha256": "be0bb32780fb326bc39e76947316171c99c45b1e9e974879bc35735a0483581f"
     },
     {
       "tool_id": "787-corridor-cost-averages",
@@ -100,8 +100,8 @@
       "mcp_name": "check_stablecoin_cash_equiv",
       "display_name": "Stablecoin Cash Equivalent Test (FASB Proposed 2026-08)",
       "uri": "ui://ainumbers/node/797-stablecoin-cash-equivalent-test",
-      "bytes": 59852,
-      "sha256": "3fb75c67453c1d3863b18dc500fca8da1f279656c9c8012a8a1eceb58f69662f"
+      "bytes": 59204,
+      "sha256": "bea859f75227110496089fac1576058f77665db23f98bcb9ea1ab74d603d7039"
     },
     {
       "tool_id": "798-assess-sandbox-application-readiness",
@@ -148,8 +148,8 @@
       "mcp_name": "recompute_eth_epoch_accounting",
       "display_name": "Ethereum Epoch Accounting Recompute",
       "uri": "ui://ainumbers/node/813-eth-staking-accounting",
-      "bytes": 40135,
-      "sha256": "a39ded051cd01b52a161a53f21357d955ff265b30fca452e9e443d4b7e1cc02a"
+      "bytes": 40325,
+      "sha256": "a69dfff0098683b9ab8606148317988d5e8cdfc80205fc2f3271f03fa83e90a7"
     },
     {
       "tool_id": "815-eth-fee-market",
@@ -4204,8 +4204,8 @@
       "mcp_name": "classify_ledger_consensus_finality",
       "display_name": "Ledger Consensus Finality Classifier",
       "uri": "ui://ainumbers/node/art-527-classify-ledger-consensus-finality",
-      "bytes": 49856,
-      "sha256": "ab09469e070a7df5d1694376d6d602bb12a46c67802adc640422b88a65115e7b"
+      "bytes": 60628,
+      "sha256": "5591c762aa106a92355e94995750b887f2d2d3288db09c5c0d39efdadbefdf5d"
     },
     {
       "tool_id": "art-528-cross-ccp-pqd-comparator",
@@ -4668,8 +4668,8 @@
       "mcp_name": "check_webbotauth_nonce_replay",
       "display_name": "Web Bot Auth Nonce & Replay-Window Checker",
       "uri": "ui://ainumbers/node/art-593-webbotauth-nonce-replay-check",
-      "bytes": 71850,
-      "sha256": "fdc6bb880813f41b2a9a6b738d02922adbe59d9481d4881543a76ea6305a9c07"
+      "bytes": 72501,
+      "sha256": "fda79843258099a84aadbee422ab0c67003abf9755194076a698c2bea4516a8e"
     },
     {
       "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -5356,8 +5356,8 @@
       "mcp_name": "estimate_dc_fsa_cdctc_split",
       "display_name": "Dependent Care FSA vs. CDCTC Optimizer",
       "uri": "ui://ainumbers/node/art-765-dependent-care-fsa-cdctc-optimizer",
-      "bytes": 50015,
-      "sha256": "4f3cc00f69d8746b7e50e376d1e9fa6cfdc338b1a9120157f55ac516e996f336"
+      "bytes": 50236,
+      "sha256": "d80d826b21d5041500fc4a53de39ae38a66f9d1f07d6a702be63e08d354b32fd"
     },
     {
       "tool_id": "art-766-parental-leave-income-gap",
@@ -5464,20 +5464,28 @@
       "sha256": "ebe6e5cba22c564e4f0e6f1543294613c74cb2907153d5eb81aea97b3285d78a"
     },
     {
+      "tool_id": "art-789-stablecoin-admin-role-lint",
+      "mcp_name": "lint_stablecoin_admin_roles",
+      "display_name": "Stablecoin Admin Role Lint",
+      "uri": "ui://ainumbers/node/art-789-stablecoin-admin-role-lint",
+      "bytes": 55876,
+      "sha256": "45323ef556b6d85ebfd56ee69a35f9affa1ad293bd73259e9dc5e6336262110f"
+    },
+    {
       "tool_id": "art-793-government-stablecoin-acceptance",
       "mcp_name": "assess_gov_stablecoin_accept",
       "display_name": "Government Stablecoin Acceptance Audit",
       "uri": "ui://ainumbers/node/art-793-government-stablecoin-acceptance",
-      "bytes": 58080,
-      "sha256": "22bcfaeeb3f1c937ba20c40113c2b43f71ea842ee73598cbbc50fa70ebb7733a"
+      "bytes": 59033,
+      "sha256": "7e40b1b6209e523acbcfcf4a89654e18b2a0fd861b06c4b8b430c1062fe37d24"
     },
     {
       "tool_id": "art-805-agt-audit-chain-verifier",
       "mcp_name": "verify_agent_governance_audit_chain",
       "display_name": "Open-Source Agent-Governance Audit-Chain Verifier",
       "uri": "ui://ainumbers/node/art-805-agt-audit-chain-verifier",
-      "bytes": 33561,
-      "sha256": "a0522d0b24ba4d2d0cc3ff2bb2bbbe89d320fe11947e78d25bb0d3580810cb3f"
+      "bytes": 36140,
+      "sha256": "f96b24a504483bcf63173d2057f030adceb994714b237a499cdca8752c8e4eca"
     },
     {
       "tool_id": "art-807-erc3643-transfer-decision",
@@ -5492,8 +5500,8 @@
       "mcp_name": "check_reserves_cover_private",
       "display_name": "Private-Input Reserves Cover Outstanding Check",
       "uri": "ui://ainumbers/node/art-809-check-reserves-cover-outstanding-private",
-      "bytes": 46064,
-      "sha256": "74f795d08cc9d80fa25e23a4f562242fc0be6aaecd936a62617a81cb4f1dec35"
+      "bytes": 46106,
+      "sha256": "a2ead36e46985295bd41b4fb1353c98b84fabc9f2bb8ab812b8a7c593483a670"
     },
     {
       "tool_id": "art-811-check-dti-within-policy-private",
@@ -5501,7 +5509,7 @@
       "display_name": "Private-Input Debt-to-Income Within Policy Check",
       "uri": "ui://ainumbers/node/art-811-check-dti-within-policy-private",
       "bytes": 39942,
-      "sha256": "6e631467294010a0bc380ae380f971de92159615ebe0704038c68fc77b7ae935"
+      "sha256": "9ae3d84ae460854970e9e947400021c511cf36d37d0038289c268b7680f4c0a3"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",

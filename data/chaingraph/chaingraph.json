@@ -1233,7 +1233,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:5f6d4f0dabd1435299ed3c56a8e3237a7991da822543467c1813a0a1cec44676","valid_from":"2026-11-14"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:b58f3a1db322c0acaf1938fc79d763d616f6143c5806a4cfa456fbf285cd2ecc","valid_from":"2026-11-19"}],
   "export_capability": ["json"],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
@@ -1708,13 +1708,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [
-    {
-      "system": "sha256-source",
-      "image_id": "sha256:643f5a36069f70daa86c7d7bbee6a65e227f4de5813fe2974819c3e8899de17d",
-      "valid_from": "2026-11-10"
-    }
-  ],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:de6a5d338d3e22fb37b68a9ee9707fc38c51ffe8839c61331e1db4f69579f3c0","valid_from":"2026-11-20"}],
   "export_capability": [
     "json"
   ],
@@ -2190,8 +2184,21 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:3c67f800389a0cc0ff46a484c2793943fdc886a2d2f941562eb9eae23c90e52d","valid_from":"2026-11-06"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
-  "export_capability": ["json"],
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:15729396060f993d9a831853089bc5cc992ffb1d1ad17e7021e73ef3be271689",
+      "valid_from": "2026-11-20"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-09-12"
+    }
+  ],
+  "export_capability": [
+    "json"
+  ],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
     {
@@ -2256,10 +2263,10 @@
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "HuUd8VDQccWF5oa94STzLZleUrsYk2fx5tJetmN6GRgJabQJuI7Oav53WVnGaokVmB4r3IGhTBdooxPbOqBucRk3Sv8oob0dq6D+1HdmB9Cxt2l/VRptC383KkFx2Yt3HdA5arWSR0n/BwufVSsVw+mOOoP5CDo2qnv1eVe3hc8Y+MK5t2QbDtMq2R85NT/ahb403ReHrVcp3/1Z/AHLHClKmxqiMMyYpV/nU0LY1MOhWidp8Qu4a4ITh4EsQbTgEAZyPyEKpzcSEm0UFGz40hEw8pRBvQFkqiLfmpPaGxkWCxhD5deL6shuPR25H50+uNPQUN+R+kj2UXoDkEjISw==",
+    "seal": "KC5y/ArDI6UjHbT6lYCUTvsTGDCpmLjNnKd5swttub0oDk+coCIwpEGkjyaqSdCjugs3M6AZZTUAGwmr63QZ7RBfuDXggOLW5A5FKmem7YpOaa92Tdxe/Kd0d8LzP9+REwPfUGIZTaFlhYm0o8POt6EXCSkB/oWvqPIihWsvPJgaLlBb4bioP6sW9C9fXxZhNRTVzYapxl7VnfOCR7Pt6A1OCTOsowPLXNfoKvqFyyIO7jQ3Ot7/gM5cJG8l93Z0EKt9QFaqDZPc1Mr4iTO3zuvcyptJ8fftTh+FjYREaNQOO3eXv66GxuFD92Np4O1MjI44v5BQfnFDbxLGKqYNDQ==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:3c67f800389a0cc0ff46a484c2793943fdc886a2d2f941562eb9eae23c90e52d",
+      "kernel_digest": "sha256:15729396060f993d9a831853089bc5cc992ffb1d1ad17e7021e73ef3be271689",
       "output": {
         "base_reward_gwei": "11360",
         "base_reward_per_increment_gwei": "355",
@@ -19872,8 +19879,8 @@
   "compute_images": [
     {
       "system": "sha256-source",
-      "image_id": "sha256:2aac07c9bd6463db4571c1800f17c85d5c09ee00b62151b485113a1ddb02de8a",
-      "valid_from": "2026-10-08"
+      "image_id": "sha256:1992eefa054bfeb91ddb3725101be07b62a8db02cbbcd092c2096d8c47b09a5a",
+      "valid_from": "2026-11-20"
     },
     {
       "system": "risc0",
@@ -19889,10 +19896,10 @@
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "JhlQRWlkS+73UW/800COF2tWxEt78NIaU6sFJQHUVj8ov1AQ3uiY4OBrb0U8jwnTpWU5GkiHSHlmPQC+DSRneRRv/bR+c2/HAPvE2lWWF7uUat0YA0BsEHK8FRR711AFK0Whv76Abu0cPWZDdnBuHURV5UAzFByIDkTiuwwrN7IjJ3o0+m5KaF6xgbrDYgBznXxWTcD4B0wieFXlsvfgKgwtpbCB0RDXOn3mgM0P2BZeYZAtU8JdMomD2qqiXhjkDCZM/ItUsq2pnkB6Mx/06mYPQF+ft81dzYGdvamBavoEXWRFdqWJAVGYCTcFajTytd3BmswpxIKI0Q6tDKJzlQ==",
+    "seal": "HDFr69Sj3dMQZ47w4iuP2MN20IFpqyzL5zikpn/1yhQsHjs6Px+WeKTdIu/H5KSgzLgp6OYZ1Af4yF9h5wDzwABYubqTQRKf97NOGgYGtwbjNyNZoLX/GkM/0fWzqD7kJttUOLDaoVaVZyH6b3wgTHXc7w15iuAFOPPOWEeRCngXao4TdCAbwPN+D9L8L77bStBDiD0ra4kPjHwdce7p7hwE4qgW3LWx9XpER46HqeeZU/EJV4ZtQPnkVXnDuuMdEPnuq6h884964aJ3833TQe1RqAvgzPabO6l4w6pNvW8fEgjmL+uuzYIg7FQFdOGSQTG30XgzeGIhgpTG+xy1Jw==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:2aac07c9bd6463db4571c1800f17c85d5c09ee00b62151b485113a1ddb02de8a",
+      "kernel_digest": "sha256:1992eefa054bfeb91ddb3725101be07b62a8db02cbbcd092c2096d8c47b09a5a",
       "output": {
         "compliant": true,
         "cpmi_d218_score": 100,
@@ -47595,7 +47602,7 @@
   "wave": 99,
   "gpu": false,
   "url": "https://ainumbers.co/chaingraph/art-593-webbotauth-nonce-replay-check.html",
-  "description": "Checks a Visa TAP-shaped nonce for format (minimum entropy, base64url), freshness against a caller-supplied now_unix (created/expires spread capped at TAP's 8-minute limit), and an optional caller-supplied seen-nonce record. Fail-closed on required inputs: nonce, created, expires and now_unix are required, and a created/expires spread that cannot be evaluated (expires absent, null or non-numeric) never reads as satisfied, so the nonce is REFUSED rather than the 8-minute spread rule being bypassed. This kernel is a pure function invoked fresh per call with zero persistent storage -- it cannot itself remember whether a nonce was seen on a prior invocation. Replay prevention depends entirely on the caller supplying an accurate seen-nonce record from its own storage; this verifier is stateless and cannot detect replay on its own. Zero network calls; never a facilitator, proxy, or settlement relay. Feeds the signatures-directory validator (art-130) in the visa-tap-agent-verification chain.",
+  "description": "Checks a Visa TAP-shaped nonce for format (minimum entropy, base64url), freshness against a caller-supplied now_unix (created/expires spread capped at TAP's 8-minute limit), and an optional caller-supplied seen-nonce record. Fail-closed on required inputs: nonce, created, expires and now_unix are required, and a created/expires spread that cannot be evaluated (expires absent, null or non-numeric) never reads as satisfied, so the nonce is REFUSED rather than the 8-minute spread rule being bypassed. This kernel is a pure function invoked fresh per call with zero persistent storage -- it cannot itself remember whether a nonce was seen on a prior invocation. Replay prevention depends entirely on the caller supplying an accurate seen-nonce record from its own storage; this verifier is stateless and cannot detect replay on its own. When neither seen_nonces nor nonce_already_used is supplied the replay check is not evaluated: otherwise-valid input returns REPLAY_CHECK_NOT_EVALUATED with the NONCE_REPLAY_STORE_ABSENT flag, never ACCEPT (an empty seen_nonces list is a supplied, empty store). This node is a replay check, not a freshness verifier: it does not require now_unix to be at or before expires; freshness is bounded by created, max_age_s and the 8-minute spread. Zero network calls; never a facilitator, proxy, or settlement relay. Feeds the signatures-directory validator (art-130) in the visa-tap-agent-verification chain.",
   "input_schema_ref": "chaingraph/art-593-webbotauth-nonce-replay-check.html#manifest",
   "consumes": [],
   "feeds": [
@@ -47605,30 +47612,41 @@
   "standards_basis": "not_applicable",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:138c2f487a173ef2bd8b97435481bbacafd2c216a9a9a9663f7526c835d8f57c","valid_from":"2026-11-13"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-07-10"}],
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:f3470256d6053732a98911c95987c2019b957f73ecb8bce762ad0013b48063c1",
+      "valid_from": "2026-11-19"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-07-10"
+    }
+  ],
   "export_capability": [
     "json"
   ],
   "compute_proof_ready": "ready",
   "compute_proof": {
-      "type": "ZkVmReceipt",
-      "system": "risc0",
-      "receiptFormat": "groth16-bn254",
-      "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-      "seal": "Ge6IYL/7bVIrqY666YILzJiQIkPiXUfw76PhPEsfZAooNr5wLaZ86sMMNKwj3CWHCgiyfBuhUn2S8iqUPqPzASt7uu+UdR3HPMH+ysRcrwPVrNe0tScBsKFQzqlshQXFCyurSQdz0Hrfa85/BHOUkzPjSygQNZdPL/+hjg4I/l4tms3tdQOzRGArAMFLJALET/TueAU9+I1KPvYjiuNSKA64DCfhBNklUBayjo8eldiO/582exwmvhQVX27oah+eIgMGo7ysLrFGVHjvP63Vne6RzJyl/VPZTcmUnJnJPJEV+FAkH/rZvcZ/9gpvX/wsaibS0OuTDUvgMKUA1wpLbw==",
-      "journal": {
-        "chaingraph_version": "0.4.0",
-        "kernel_digest": "sha256:138c2f487a173ef2bd8b97435481bbacafd2c216a9a9a9663f7526c835d8f57c",
-        "output": {
-          "already_used": false,
-          "format_ok": true,
-          "fresh": true,
-          "nonce_valid": true,
-          "spread_ok": true,
-          "verdict": "ACCEPT"
-        }
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+    "seal": "EBJy1yCCft7p6txouIoEVGGK+6EKSIZ66K8Lpwg0/nAAeSqNpxsfzp+hWLZzeKC66KbQZd7fDsfMHJWKPgzASy3ymN8igtzzKoUKuZ8pAb3B9xTVCFqC/dwXt89x/LiiEYO7e8YsNLy3B/i1fR/qVWg3qp8xAXCwhu1XKqK/MOsIyExPycGOf6m/O3d5oZVHDp0LypNpIymEq+PBTYNFlQ9oN9ZNYkvdPxVq4eTrqAlcTAd5f615AhTjp9b2yfDMLlCG82Ywj3bKZC5p/o6jlYWYc8wp5XEnZX4eRUcW30oGXWgM+2N5UiGVBQrfqU+f+B62P1VO9AzQLL3zDhVojw==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:f3470256d6053732a98911c95987c2019b957f73ecb8bce762ad0013b48063c1",
+      "output": {
+        "already_used": false,
+        "format_ok": true,
+        "fresh": true,
+        "nonce_valid": true,
+        "spread_ok": true,
+        "verdict": "ACCEPT"
       }
     }
+  }
 },
     {
   "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -58466,8 +58484,8 @@
   "compute_images": [
     {
       "system": "sha256-source",
-      "image_id": "sha256:96cb71d2b11c805572ba28f74fbbf54b7f78610048317107148f162d394ddf90",
-      "valid_from": "2026-10-20"
+      "image_id": "sha256:49ff910047ac0cb8468390e069089a20c1f5637f956b1e223cc23c9c10ac77f5",
+      "valid_from": "2026-11-20"
     },
     {
       "system": "risc0",
@@ -58487,10 +58505,10 @@
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "FYQnDj1GS7uWBZEHlrFSPZYkuRrceOYxs5fl9nTgYWYSpiOmbuSl1jQdhfo44ZV878X55hATGZKajunXVtQUSi36c2znDAO+0z0nsV1lQqRCWx+R+ua9SaLWXg1/DYr0BHc4JPD3JFCSCZErgbaGK+zKWYWiWzWOdhnB4OK8BTMTHLzcQuDUseiKa/XtQLQ4uGO3SYf3lgJ76eRh8v883ALhqv+AKlzkkd5sxONAC5bSsjPZeuZoa59XX08XxFkhLFXonGLz1i6qr1pQhIkwvG7nImYU20FY6Uq3zmEuNPoZ6Of+upRTAjyRFQL0ysF6Uh/u5LzjVuomC7f9VgZPHQ==",
+    "seal": "L5XbjqTXDqcvfwhclXAYgsiFxgPI4Jq0QKGhsIVZV3wZfGZdLWKc9MTbc65qq6BxmDyvn+aW9X+Ujb0v0SnpmSmWbDqjSG3SNibvHjt4LN0QDcpG9N20ujmIbQUWouuzLm9RcYwuNBa0WN/AcRWg478RsMkGD4Gg+49ODl7yUZoP14NJfUpFpJtxKCKRylwLLC9+jeOY634wcRRA9bwCLycl73dklpQpwv9Oun12Y3IhEWPvCeBFX1l9/RilM477HI5rTGm1pcDwdhm7dgDHUnbiPOl/XKdelH4dEpL+i20QDgbTQlGFFiGp1B6uOMhsQMm/9bEoyjz2TiBcjCyY0Q==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:96cb71d2b11c805572ba28f74fbbf54b7f78610048317107148f162d394ddf90",
+      "kernel_digest": "sha256:49ff910047ac0cb8468390e069089a20c1f5637f956b1e223cc23c9c10ac77f5",
       "output": {
         "agi": 95000,
         "as_of": "2026-10-13",
@@ -60176,6 +60194,78 @@
   }
 },
     {
+  "tool_id": "art-789-stablecoin-admin-role-lint",
+  "tool_version": "1.0.0",
+  "display_name": "Stablecoin Admin Role Lint",
+  "mcp_name": "lint_stablecoin_admin_roles",
+  "mandate_type": "compliance_control",
+  "wave": 140,
+  "gpu": false,
+  "url": "https://ainumbers.co/chaingraph/art-789-stablecoin-admin-role-lint.html",
+  "description": "Lints a stablecoin token's declared admin-role configuration for separation of duties, key concentration and issuance-policy fit, over ROLE LABELS ONLY (never addresses or key material). Given a profile (Circle FiatToken, Paxos USDP, or generic caller-declared), holder kinds (eoa, multisig, timelock, hsm_service), a role-to-holder map (owner, proxy_admin, master_minter, pauser, blacklister, rescuer, supply_controller, asset_protection as the profile defines), minter allowances and an issuance policy, it reports: distinctness pairs held by the same label; labels holding multiple critical roles and single-signer holders of critical roles; per-minter and total allowance breaches against the declared ceilings; and whether pause, freeze and upgrade capabilities exist and who holds them. Verdict is PASS, PASS_WITH_FINDINGS or FAIL, each finding cited to the pinned source or marked caller-declared policy. Scope limits: configuration lint only: no live-chain reads, no key custody advice, no statutory claims (no lawful-order or GENIUS Act obligations are asserted); reserve-evidence questions are out of scope (art-06, art-275 cover reserve evidence; art-45 is the sibling linter for Arc xReserve bridge configuration). Any label resembling an address, public key or private key is refused.",
+  "input_schema_ref": "chaingraph/art-789-stablecoin-admin-role-lint.html#manifest",
+  "consumes": [],
+  "feeds": [],
+  "status": "live",
+  "conformance_fixtures": true,
+  "compute_capability": "server",
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:22d832cff748eca7ef540907fb54fbdd43fde383ceecfdb64b62797b06fbb4e8","valid_from":"2026-11-19"}],
+  "export_capability": ["json"],
+  "standards_basis": "implements_standard",
+  "cited_clause_digest": [
+    {
+      "digest": "sha256:9a4e5bdc803713d7b6c8c892ad750225a2a06e2704c2d764295b15af1aa75a8d",
+      "source_url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/Pausable.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "pauser role declaration (line 48), onlyPauser guard (line 63), pause() (line 70), unpause() (line 78)",
+      "scheme": "github-blob",
+      "id": "Circle stablecoin-evm Pausable.sol (fiattoken pauser)"
+    },
+    {
+      "digest": "sha256:40f152eed99d0147ad9b9daf32cb8b8a525aa09696b005f1ecb85e29abce5fa8",
+      "source_url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1/Blacklistable.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "blacklister role declaration (line 28), onlyBlacklister guard (lines 36-41), blacklist() (line 71)",
+      "scheme": "github-blob",
+      "id": "Circle stablecoin-evm Blacklistable.sol (fiattoken blacklister / freeze)"
+    },
+    {
+      "digest": "sha256:a986f9230cc02529ce97cbbc49117fb874ed4d11478fddd3e7dc7f61eeaadf5c",
+      "source_url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/v1.1/Rescuable.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "rescuer role storage (line 28) and rescuer() accessor (lines 33-37)",
+      "scheme": "github-blob",
+      "id": "Circle stablecoin-evm Rescuable.sol (fiattoken rescuer)"
+    },
+    {
+      "digest": "sha256:39e8029115c09b8593b91823d9d07d0cc16c84a1d78fd725e14d98ea3b5b4eb9",
+      "source_url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/minting/MasterMinter.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "masterMinter role, configureMinter / minterAllowance / onlyMasterMinter minting-allowance surface",
+      "scheme": "github-blob",
+      "id": "Circle stablecoin-evm MasterMinter.sol (fiattoken master_minter)"
+    },
+    {
+      "digest": "sha256:2e3e65191916aa5e2f5da1f70e1b257894575377e6f7e74589d49c998546afec",
+      "source_url": "https://github.com/circlefin/stablecoin-evm/blob/fc85788bc7c23cefe3df1a757133048bfddadeaa/contracts/upgradeability/AdminUpgradeabilityProxy.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "proxy admin mechanism — administration transfer event and ifAdmin-guarded admin()/implementation()/upgradeTo surface (comment block lines 25-33)",
+      "scheme": "github-blob",
+      "id": "Circle stablecoin-evm AdminUpgradeabilityProxy.sol (fiattoken proxy_admin / upgrade)"
+    },
+    {
+      "digest": "sha256:5348ec30390305eaacbbfaf6bb5740fb848377f0331012d012fa3beaff89385d",
+      "source_url": "https://github.com/paxosglobal/paxos-token-contracts/blob/674ac1046a0a40bfd2b6b892192998af9ac3b171/contracts/PaxosTokenV2.sol",
+      "retrieved_at": "2026-10-30",
+      "clause_path": "setSupplyControl under DEFAULT_ADMIN_ROLE with initialDelay timelock (lines 85-91), pause() under PAUSE_ROLE (line 267), freeze()/freezeBatch() under ASSET_PROTECTION_ROLE (lines 303-311), increaseSupply / increaseSupplyToAddress under supplyController (lines 348-364), admin-actions-as-owner-or-supplyController comment (line 18)",
+      "scheme": "github-blob",
+      "id": "Paxos paxos-token-contracts PaxosTokenV2.sol (usdp owner, pauser, asset_protection, supply_controller)"
+    }
+  ],
+  "compute_proof_ready": "deferred",
+  "deferred_reason": "New gpu:false node, art-789-stablecoin-admin-role-lint, implemented 2026-10-30 (STABLECOIN-ADMIN-ROLE-LINT-1). Deferred per the section 18 steady-state rule; static pre-screen clean (no signature/hash loops, no policy-bounded iteration counts, no non-sqrt transcendentals — pure comparison/set logic over role labels). GPU-CYCLE-PREFLIGHT-1 exec measurement and prove land via the async GPU queue."
+},
+    {
   "tool_id": "art-793-government-stablecoin-acceptance",
   "tool_version": "1.0.0",
   "display_name": "Government Stablecoin Acceptance Audit",
@@ -60191,7 +60281,18 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:d44f492e6dce3ac9d6b9ea5064405ca5b994b83c4df9fa45ed2ca8732a00f812","valid_from":"2026-11-08"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
+  "compute_images": [
+    {
+      "system": "sha256-source",
+      "image_id": "sha256:d35efd76b9c97ae13a71db844e350570fc1a1748624f040938d56a4ecf39ba64",
+      "valid_from": "2026-11-20"
+    },
+    {
+      "system": "risc0",
+      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
+      "valid_from": "2026-09-12"
+    }
+  ],
   "export_capability": [
     "json"
   ],
@@ -60204,10 +60305,10 @@
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
     "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "B1AzK478zgg8eHY973ishZucJrxZMDp9vc1vPGEpLwkKhi/Z0O/msMEl8uYh5wxu4dSEcAqVb2+BLTiHR522IBNj3oaQrvhr+KCkJSFJVmvo7+IYbpzS2neDVk2Ii6yJBCiaZC8NFm9AN4A9QNd9Ptv3FeHpCU3IFgoOiBdLaRcd5y+dbDxiFax+4UNpS1T9NK3kgoWS2Kt8ijXM9xaseCDms/YBIk9GAkGrm70FxgUR0rev0MA5g4G9CPhgGJvHII9jsIg7qDk+T5Wz44uR3PISUVtXZNQrZYo//MtL4JAKRLviYRS4cD6lLgMK5ummW14+9SCHIwS6mHuXIXfbSA==",
+    "seal": "CuT5ACVq6II5X7i6BKj1hW/OTZWjtovYGbjyluWWNFotuyjbskAZD19Gi2JOjDL2uBcleDniWYgqcHr8XvbOQQJ8pkLbzWIZObTHJz0wFoVqjNajrEo9bU0+2liuinB6Bf8IOXcEUcmImV7dhfPc6JmzqYXGRiJHjULQcXujaDkdGj5nvH4Dvfog+n335fvKkZ+bh0bqOS0DE0ctVaHpzQWkIsjStVnRZmNSRR7VZSsXmfYJZ5zQo8gqsaUlJ/BRJN1FoU2MMxZQ8pxU2EdHdcJyMQvxbFT2LAtxNKXPQtwkGSljSn8EvqlxtxweqjiZErVJtGHjOqz25xWSmTZRzA==",
     "journal": {
       "chaingraph_version": "0.4.0",
-      "kernel_digest": "sha256:d44f492e6dce3ac9d6b9ea5064405ca5b994b83c4df9fa45ed2ca8732a00f812",
+      "kernel_digest": "sha256:d35efd76b9c97ae13a71db844e350570fc1a1748624f040938d56a4ecf39ba64",
       "output": {
         "exposure": {
           "peak_unconverted_value": 0,
@@ -60263,14 +60364,14 @@
   "wave": 142,
   "gpu": false,
   "url": "https://ainumbers.co/chaingraph/art-805-agt-audit-chain-verifier.html",
-  "description": "Recomputes the hash chain of an exported agent-governance audit log offline, from the exported entries alone, and reports exactly where it breaks. Subject format: the open-source agent-governance-toolkit audit-log format (MIT), pinned at upstream commit 3433fa7: each link hash is sha256 over a Python json.dumps(sort_keys=True) serialisation of the entry (default separators, ensure_ascii=True, parent_hash null coalesced to empty string) , deliberately not RFC 8785; the chain root is the last link hash, not a Merkle root. Input: the exported entries (values only) plus an optional claimed root. Output: entry_count, chain_intact, first_break_index, per-break reason codes (HASH_MISMATCH, CHAIN_BROKEN), recomputed_root, and claimed_root_match. Fail-closed: any field outside the pinned entry schema (including free-form payloads, floats, or unknown keys) rejects the whole input, naming each rejected field; entry content is never echoed , the output carries hashes and indices only. The format carries no keyed signature field, so signature_status is reported as not checkable. Scope limits: verifies structural hash integrity and linkage only; it does not attribute blame, interpret change semantics, or validate timestamps against wall-clock time.",
+  "description": "Recomputes the hash chain of an exported agent-governance audit log offline, from the exported entries alone, and reports exactly where it breaks. Subject format: the open-source agent-governance-toolkit audit-log format (MIT), pinned at upstream commit 3433fa7: each link hash is sha256 over a Python json.dumps(sort_keys=True) serialisation of the entry (default separators, ensure_ascii=True, parent_hash null coalesced to empty string) , deliberately not RFC 8785; the chain root is the last link hash, not a Merkle root. Input: the exported entries (values only) plus an optional claimed root. Output: entry_count, chain_intact, first_break_index, per-break reason codes (HASH_MISMATCH, CHAIN_BROKEN), recomputed_root, and claimed_root_match. Fail-closed: any field outside the pinned entry schema (including free-form payloads, floats, or unknown keys) rejects the whole input, naming each rejected field; entry content is never echoed , the output carries hashes and indices only. The format carries no keyed signature field, so signature_status is reported as not checkable. Scope limits: verifies structural hash integrity and linkage only; it does not attribute blame, interpret change semantics, or validate timestamps against wall-clock time. An intact verdict attests only to the entries presented, not to chain completeness; an empty entry list is reported as EMPTY_CHAIN and never as intact.",
   "input_schema_ref": "chaingraph/art-805-agt-audit-chain-verifier.html#manifest",
   "consumes": [],
   "feeds": [],
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:d3a96683e60729156f0ca539f5eec22cd1d4facd9f5a4b397b7262bdad3e54fc","valid_from":"2026-11-02"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:1b0aa1972e5c2e7936f07c6d4f263ac42c13cb7225e06f7ae794654ed5780156","valid_from":"2026-11-19"}],
   "export_capability": [
     "json"
   ],
@@ -60477,7 +60578,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:dab6040704081c505af95dc176902c11f171b0199cd4b8b53dcaa11e4e429936","valid_from":"2026-11-08"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:7d26c1807e88bd5c3368722638e1ba801d2c7df098232731cf81f08af42cfa8c","valid_from":"2026-11-20"}],
   "export_capability": ["json"],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
@@ -60509,7 +60610,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:09e9f68d93b69dfde091d9432376641f8e8c789d9e615e9a9e2851e9016ef3dd","valid_from":"2026-11-19"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:d4ecee284d8ad62222b32930df8b63868e33c22fe24da484f14365355bb584b2","valid_from":"2026-11-20"}],
   "export_capability": ["json"],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
