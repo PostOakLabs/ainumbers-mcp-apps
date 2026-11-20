@@ -49374,6 +49374,117 @@
       }
     }
   },
+  "verify_x402_svm_outcome": {
+    "type": "object",
+    "properties": {
+      "requirements_echo": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of requirements_echo."
+      },
+      "transaction_version": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of transaction_version."
+      },
+      "instruction_summary": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of instruction_summary."
+      },
+      "recipient_atas": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of recipient_atas."
+      },
+      "matching_transfers": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of matching_transfers."
+      },
+      "net_received": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of net_received."
+      },
+      "signature_checks": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of signature_checks."
+      },
+      "verdicts": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of verdicts."
+      },
+      "clause_summary": {
+        "type": [
+          "object",
+          "array",
+          "null"
+        ],
+        "description": "See the tool page output table for the shape of clause_summary."
+      },
+      "error": {
+        "type": "string",
+        "description": "Lowercase refusal code when the input is refused."
+      },
+      "detail": {
+        "type": "string",
+        "description": "Human-readable refusal detail."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "text"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "note": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Pins and limits, restated with every output."
+      }
+    }
+  },
   "compute_modified_premium": {
     "type": "object",
     "properties": {

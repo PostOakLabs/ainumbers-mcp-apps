@@ -1356,16 +1356,16 @@
       "mcp_name": "check_cra_annex1_completeness",
       "display_name": "CRA Annex I Completeness Checker",
       "uri": "ui://ainumbers/node/art-139-cra-annex1-completeness-checker",
-      "bytes": 80115,
-      "sha256": "5a83c7719d57ff91be8a09a381d496712ad06e306a7524df67bca794f0554d67"
+      "bytes": 87109,
+      "sha256": "89eafaadaea4f70412ebde8976d0462dafa0b146e8caf615fd76aa2d138cb628"
     },
     {
       "tool_id": "art-140-cra-vuln-reporting-readiness",
       "mcp_name": "assess_cra_vuln_reporting_readiness",
       "display_name": "CRA Vulnerability Reporting Readiness (Art. 14)",
       "uri": "ui://ainumbers/node/art-140-cra-vuln-reporting-readiness",
-      "bytes": 79007,
-      "sha256": "d77b8df98014f509d5cb0d7b7663c46db4a7e9aa91309420d40cfe93a8da5c8f"
+      "bytes": 86001,
+      "sha256": "82897af16d3f352c65b1373ab224712f57b63298e6deed8cc4a29faece68d963"
     },
     {
       "tool_id": "art-141-nis2-entity-scope-classifier",
@@ -1380,16 +1380,16 @@
       "mcp_name": "check_nis2_art21_measures",
       "display_name": "NIS2 Article 21 Gap Checker (Ten Cybersecurity Risk-Management Measures)",
       "uri": "ui://ainumbers/node/art-142-nis2-art21-gap-checker",
-      "bytes": 49101,
-      "sha256": "e31b59dab45108a26041ef7c86ecd9c9addf42ee6cea4bbc9c090a554c09b97c"
+      "bytes": 56095,
+      "sha256": "283476776ded4f107baa52b6fc67d2034b58f43f7006e69250ad45838a479425"
     },
     {
       "tool_id": "art-143-nis2-penalty-exposure-calculator",
       "mcp_name": "calculate_nis2_penalty_exposure",
       "display_name": "NIS2 Penalty Exposure Calculator (Art. 34)",
       "uri": "ui://ainumbers/node/art-143-nis2-penalty-exposure-calculator",
-      "bytes": 50890,
-      "sha256": "1a8b13f5da5a7a1af332d696f654bd8b73a062f615d602f182c0f52934850813"
+      "bytes": 57884,
+      "sha256": "f4d9675c1e70739c82be51ea5c59b224386230b5718e5c6e200ae40f0b582e38"
     },
     {
       "tool_id": "art-144-nis2-incident-significance-scorer",
@@ -1412,8 +1412,8 @@
       "mcp_name": "check_nis2_governance_readiness",
       "display_name": "NIS2 Governance Readiness Checker (Art. 20 — Management Body Accountability)",
       "uri": "ui://ainumbers/node/art-146-nis2-governance-readiness-checker",
-      "bytes": 48610,
-      "sha256": "1d2cdc5068aa046b498da0ca1234fa7dd11e3b8be31003b6046317e63b5e6452"
+      "bytes": 55605,
+      "sha256": "0dcbd7d8cffcf181485c3b8347fd976b2b9e530571599330fec98128852baba9"
     },
     {
       "tool_id": "art-147-mcp-server-identity-attestation-validator",
@@ -5332,8 +5332,8 @@
       "mcp_name": "caregiver_income_impact",
       "display_name": "Caregiver Income Impact & Lost Earnings Estimator",
       "uri": "ui://ainumbers/node/art-761-caregiver-income-impact",
-      "bytes": 49259,
-      "sha256": "5d9f507ce6cd2fdf603f8963dc0c9ff606cbe40ff7b29a5384c350755acaff5a"
+      "bytes": 51606,
+      "sha256": "5d1af15a90bb19a9ae9572874f9960eea8518d01287648f368c4d37e74f94210"
     },
     {
       "tool_id": "art-763-ai-displacement-risk-screener",
@@ -5446,6 +5446,14 @@
       "uri": "ui://ainumbers/node/art-780-solana-pda-ata-audit",
       "bytes": 64486,
       "sha256": "7970ec0a13ed2a855c4d194fd6862fbca573766b5cf78fba3c1dd082b654c64f"
+    },
+    {
+      "tool_id": "art-781-x402-svm-payment-outcome",
+      "mcp_name": "verify_x402_svm_outcome",
+      "display_name": "x402 Exact Solana Payment Outcome Recompute",
+      "uri": "ui://ainumbers/node/art-781-x402-svm-payment-outcome",
+      "bytes": 65821,
+      "sha256": "090a15776428c8e2780a8affdf2006cd263d214bab78e51b60eb4424ca3e2878"
     },
     {
       "tool_id": "art-782-modified-premium",
