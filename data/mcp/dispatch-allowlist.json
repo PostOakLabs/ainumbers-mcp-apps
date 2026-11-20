@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 816,
+  "tool_count": 817,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -827,6 +827,7 @@
     "verify_webbotauth_signature",
     "verify_witness_cosignatures",
     "verify_x402_signer_recovery",
+    "verify_x402_svm_outcome",
     "workbook_csv_parse",
     "workbook_evaluate",
     "workbook_range_digest",
