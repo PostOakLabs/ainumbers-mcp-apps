@@ -12344,7 +12344,8 @@
       "created": 1750000000,
       "expires": 1750000300,
       "now_unix": 1750000060,
-      "max_age_s": 3600
+      "max_age_s": 3600,
+      "seen_nonces": []
     },
     "art-609-jwks-pinned-directory-check": {
       "directory_jwks": {
