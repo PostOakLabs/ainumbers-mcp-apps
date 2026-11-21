@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 817,
+  "tool_count": 819,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -181,6 +181,7 @@
     "check_irrbb_csrbb_scope",
     "check_iso20022_pqc_readiness",
     "check_issuer_reserve_yield_share",
+    "check_je_multicurrency_balance",
     "check_jwks_pinned_directory",
     "check_lei_relationship_consistency",
     "check_license_compatibility",
@@ -480,6 +481,7 @@
     "lint_pan_sad_exposure",
     "lint_securities_settlement_message",
     "lint_settlement_orchestrator_conformance",
+    "lint_stablecoin_admin_roles",
     "lint_stock_token_valuation",
     "lint_trace_cat_reports",
     "lint_ucp_checkout_payload",
