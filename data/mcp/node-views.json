@@ -3124,24 +3124,24 @@
       "mcp_name": "recompute_fund_nav",
       "display_name": "Recompute Fund NAV",
       "uri": "ui://ainumbers/node/art-373-recompute-fund-nav",
-      "bytes": 58039,
-      "sha256": "54935560af54cf84145bce3911f420fb704c93b2e9b4cebf9d18f52c90c61b1c"
+      "bytes": 58257,
+      "sha256": "35230e5b49494c19b6372fca09c47374cb696d44fec11369a8988329c252e5d4"
     },
     {
       "tool_id": "art-374-test-nav-error-materiality",
       "mcp_name": "test_nav_error_materiality",
       "display_name": "Test NAV-Error Materiality",
       "uri": "ui://ainumbers/node/art-374-test-nav-error-materiality",
-      "bytes": 53436,
-      "sha256": "317103d3f47cca5f36091aee6ee233a58cba43c8e5d18959428f3c8569b86f94"
+      "bytes": 53757,
+      "sha256": "164a22d92681f266e3032bd55c45925638af6fb09c24592b4a577fe27c14908d"
     },
     {
       "tool_id": "art-375-compute-fund-expense-ratios",
       "mcp_name": "compute_fund_expense_ratios",
       "display_name": "Compute Fund Expense Ratios",
       "uri": "ui://ainumbers/node/art-375-compute-fund-expense-ratios",
-      "bytes": 56358,
-      "sha256": "ae784157cb9d518bbc3b80f89e4db40e95cd44139206d0ee9972d5246c14c3b2"
+      "bytes": 56786,
+      "sha256": "5d4cbaef89e96ae8ed7cbf5571c56f727991fe0172fe25bb2d7a2a9821f753fe"
     },
     {
       "tool_id": "art-376-score-payee-name-match",
@@ -4084,8 +4084,8 @@
       "mcp_name": "recompute_fund_fees",
       "display_name": "Recompute Fund Fees",
       "uri": "ui://ainumbers/node/art-511-recompute-fund-fees",
-      "bytes": 67486,
-      "sha256": "807e8d949032993bb13629d92572b209e74f89cb0cd6244364b193c53ccf0b97"
+      "bytes": 69436,
+      "sha256": "bdd3dc37750977e847a2ba95c938b3bf33eb4515f179c7077cac31cfa07fcdd9"
     },
     {
       "tool_id": "art-512-check-mica-reserve-disclosure",
@@ -4428,8 +4428,8 @@
       "mcp_name": "compile_model_risk_lineage_pack",
       "display_name": "Compile Model Risk Lineage Pack",
       "uri": "ui://ainumbers/node/art-562-compile-model-risk-lineage-pack",
-      "bytes": 42611,
-      "sha256": "cba42d382cdb3eb197e739a2a81cbc7223c3a738d6e9f155c6e5bc1012c74752"
+      "bytes": 42598,
+      "sha256": "162df7c8b4bedb11cfe194c5e27414c975cb8052e3428b1e2910662b4bb6e948"
     },
     {
       "tool_id": "art-563-mt9xx-camt-statement-migration-mapper",
@@ -5028,24 +5028,24 @@
       "mcp_name": "publish_index_head",
       "display_name": "Publish Index Head",
       "uri": "ui://ainumbers/node/art-658-publish-index-head",
-      "bytes": 41795,
-      "sha256": "a9588e9cc67573213c105a8809dd1f3661cd345e86a222421e9e824094bf0e6a"
+      "bytes": 42296,
+      "sha256": "29f0224a83939f2a62754851a6a3cdd46dc392574d6bda42a5553d672609abdd"
     },
     {
       "tool_id": "art-659-publish-fund-nav-head",
       "mcp_name": "publish_fund_nav_head",
       "display_name": "Publish Fund NAV Head",
       "uri": "ui://ainumbers/node/art-659-publish-fund-nav-head",
-      "bytes": 42008,
-      "sha256": "92c7036e95dec1ce33f88c6bea92d8f7dfcdb8c87792416b5b549324331fc588"
+      "bytes": 42549,
+      "sha256": "097c5b6a9d07f9b8f6e1b4c56d9f10549f3c7c7caeab27a6f2aa7db90c85d47c"
     },
     {
       "tool_id": "art-660-compile-nav-error-evidence-pack",
       "mcp_name": "compile_nav_error_evidence_pack",
       "display_name": "Compile NAV-Error Evidence Pack",
       "uri": "ui://ainumbers/node/art-660-compile-nav-error-evidence-pack",
-      "bytes": 44299,
-      "sha256": "5b3abfa35f9258f7d108c3e46c4cb8b10f0cf3a7e69ef75952a6428ad14db14b"
+      "bytes": 44594,
+      "sha256": "3db3b506cf2eb1c951151f4ebdfc3e3c6c37b16c14996a31465128ab786569ae"
     },
     {
       "tool_id": "art-670-examination-readiness-pack",
