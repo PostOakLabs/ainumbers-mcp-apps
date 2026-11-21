@@ -41,46 +41,51 @@ function checkAmount(v) {
 export function compute(pp) {
   pp = pp || {};
   const compliance_flags = [];
+  // Declared optional string (manifest input_schema): echoed through to the ran
+  // artifact's output_payload; null when absent or not a string. No refusal is
+  // attached to it — it is provenance echo, not a decision input.
+  const policy_version = typeof pp.policy_version === 'string' && pp.policy_version.length > 0 ? pp.policy_version : null;
 
   // ---- batch-level validation (deterministic order) ----
   const basis = pp.balance_basis;
   if (basis !== 'functional' && basis !== 'per_currency') {
     compliance_flags.push('BASIS_NOT_DECLARED');
-    return { output_payload: { execution_state: 'did_not_run', reason: 'BASIS_NOT_DECLARED' }, compliance_flags };
+    return { output_payload: { execution_state: 'did_not_run', reason: 'BASIS_NOT_DECLARED', domain_errors: compliance_flags.slice() }, compliance_flags };
   }
   const fnCcy = pp.functional_currency;
   if (basis === 'functional' && (typeof fnCcy !== 'string' || fnCcy.length === 0)) {
     compliance_flags.push('BASIS_NOT_DECLARED');
-    return { output_payload: { execution_state: 'did_not_run', reason: 'BASIS_NOT_DECLARED_FUNCTIONAL_CURRENCY_REQUIRED' }, compliance_flags };
+    return { output_payload: { execution_state: 'did_not_run', reason: 'BASIS_NOT_DECLARED_FUNCTIONAL_CURRENCY_REQUIRED', domain_errors: compliance_flags.slice() }, compliance_flags };
   }
   const exponents = pp.currency_exponents;
   if (!isPlainObject(exponents) || Object.keys(exponents).length === 0) {
     compliance_flags.push('UNKNOWN_CURRENCY');
-    return { output_payload: { execution_state: 'did_not_run', reason: 'UNKNOWN_CURRENCY_CURRENCY_EXPONENTS_REQUIRED' }, compliance_flags };
+    return { output_payload: { execution_state: 'did_not_run', reason: 'UNKNOWN_CURRENCY_CURRENCY_EXPONENTS_REQUIRED', domain_errors: compliance_flags.slice() }, compliance_flags };
   }
   const tolIn = pp.tolerance_minor;
-  const tolerance = {};
+  const tolerancePairs = [];
   if (tolIn !== undefined && tolIn !== null) {
     if (!isPlainObject(tolIn)) {
       compliance_flags.push('NEGATIVE_TOLERANCE');
-      return { output_payload: { execution_state: 'did_not_run', reason: 'NEGATIVE_TOLERANCE' }, compliance_flags };
+      return { output_payload: { execution_state: 'did_not_run', reason: 'NEGATIVE_TOLERANCE', domain_errors: compliance_flags.slice() }, compliance_flags };
     }
     for (const ccy of Object.keys(tolIn)) {
       if (!isValidTolerance(tolIn[ccy])) {
         compliance_flags.push('NEGATIVE_TOLERANCE');
-        return { output_payload: { execution_state: 'did_not_run', reason: 'NEGATIVE_TOLERANCE', currency: ccy }, compliance_flags };
+        return { output_payload: { execution_state: 'did_not_run', reason: 'NEGATIVE_TOLERANCE', currency: ccy, domain_errors: compliance_flags.slice() }, compliance_flags };
       }
-      tolerance[ccy] = tolIn[ccy];
+      tolerancePairs.push([ccy, tolIn[ccy]]);
     }
   }
+  const tolerance = Object.fromEntries(tolerancePairs);
   const entriesIn = pp.entries;
   if (!Array.isArray(entriesIn) || entriesIn.length === 0) {
     compliance_flags.push('ENTRY_TOO_FEW_LINES');
-    return { output_payload: { execution_state: 'did_not_run', reason: 'ENTRY_TOO_FEW_LINES' }, compliance_flags };
+    return { output_payload: { execution_state: 'did_not_run', reason: 'ENTRY_TOO_FEW_LINES', domain_errors: compliance_flags.slice() }, compliance_flags };
   }
   if (entriesIn.length > MAX_ENTRIES) {
     compliance_flags.push('ENTRY_CAP_EXCEEDED');
-    return { output_payload: { execution_state: 'did_not_run', reason: 'ENTRY_CAP_EXCEEDED', cap: MAX_ENTRIES }, compliance_flags };
+    return { output_payload: { execution_state: 'did_not_run', reason: 'ENTRY_CAP_EXCEEDED', cap: MAX_ENTRIES, domain_errors: compliance_flags.slice() }, compliance_flags };
   }
 
   // ---- per-entry evaluation (input order preserved; deterministic) ----
@@ -91,6 +96,7 @@ export function compute(pp) {
 
   for (const e of entriesIn) {
     const entryResult = evaluateEntry(e, { basis, fnCcy, exponents, tolerance, seenEntryIds, seenLineIds });
+    if (!Object.hasOwn(totals, entryResult.status)) totals[entryResult.status] = 0;
     totals[entryResult.status] += 1;
     results.push(entryResult);
   }
@@ -98,12 +104,14 @@ export function compute(pp) {
   return {
     output_payload: {
       execution_state: 'ran',
+      policy_version: policy_version,
       basis: basis,
       functional_currency: basis === 'functional' ? fnCcy : null,
       tolerance_used: tolerance,
       entry_cap: MAX_ENTRIES,
       entries: results,
       totals: totals,
+      domain_errors: compliance_flags.slice(),
     },
     compliance_flags,
   };
@@ -126,8 +134,8 @@ function evaluateEntry(e, ctx) {
   }
 
   const warnings = [];
-  const residualByCcy = {};
-  let fnResidual = 0;
+  const residualByCcy = new Map();
+  let fnResidual = 0n;
   let firstRefusal = null;
 
   for (const ln of lines) {
@@ -138,7 +146,7 @@ function evaluateEntry(e, ctx) {
       seenLineIds.add(lineId);
     }
     const ccy = ln.currency;
-    if (typeof ccy !== 'string' || !(ccy in exponents)) {
+    if (typeof ccy !== 'string' || !Object.hasOwn(exponents, ccy)) {
       firstRefusal = firstRefusal || 'UNKNOWN_CURRENCY';
       continue;
     }
@@ -166,41 +174,40 @@ function evaluateEntry(e, ctx) {
     }
 
     if (basis === 'per_currency') {
-      residualByCcy[ccy] = (residualByCcy[ccy] || 0) + ln.amount_minor;
+      residualByCcy.set(ccy, (residualByCcy.get(ccy) || 0n) + BigInt(ln.amount_minor));
     } else {
-      fnResidual += fnAmt;
+      fnResidual += BigInt(fnAmt);
     }
   }
 
   if (firstRefusal) return refused(firstRefusal, warnings, entryId);
 
   let residualMinor;
-  let maxResidual;
   if (basis === 'per_currency') {
-    residualMinor = residualByCcy;
-    maxResidual = 0;
-    for (const ccy of Object.keys(residualByCcy)) {
-      const r = Math.abs(residualByCcy[ccy]);
-      if (r > maxResidual) maxResidual = r;
-    }
+    residualMinor = Object.fromEntries([...residualByCcy].map(([ccy, res]) => [ccy, Number(res)]));
   } else {
-    residualMinor = {};
-    residualMinor[fnCcy] = fnResidual;
-    maxResidual = Math.abs(fnResidual);
+    residualMinor = { [fnCcy]: Number(fnResidual) };
   }
 
   // Status: the largest absolute residual across the relevant currency set is compared
   // against the declared tolerance for that currency; any currency over its own
   // tolerance tips the entry to imbalanced.
   let status = 'balanced';
-  const ccySet = basis === 'per_currency' ? Object.keys(residualByCcy) : [fnCcy];
-  const amounts = basis === 'per_currency' ? residualByCcy : residualMinor;
-  for (const ccy of ccySet) {
-    const r = Math.abs(amounts[ccy]);
-    const t = tolerance[ccy] !== undefined ? tolerance[ccy] : 0;
-    if (r === 0) continue;
-    if (r <= t) { if (status === 'balanced') status = 'within_tolerance'; }
-    else status = 'imbalanced';
+  if (basis === 'per_currency') {
+    for (const [ccy, res] of residualByCcy) {
+      const r = res < 0n ? -res : res;
+      const t = BigInt(Object.hasOwn(tolerance, ccy) ? tolerance[ccy] : 0);
+      if (r === 0n) continue;
+      if (r <= t) { if (status === 'balanced') status = 'within_tolerance'; }
+      else status = 'imbalanced';
+    }
+  } else {
+    const r = fnResidual < 0n ? -fnResidual : fnResidual;
+    const t = BigInt(Object.hasOwn(tolerance, fnCcy) ? tolerance[fnCcy] : 0);
+    if (r !== 0n) {
+      if (r <= t) status = 'within_tolerance';
+      else status = 'imbalanced';
+    }
   }
 
   return {
@@ -223,10 +230,49 @@ function refused(code, warnings, entryId) {
   };
 }
 
+// ── hashability walk (D6) ────────────────────────────────────────────────────────
+// Mirrors the classes _hash.mjs assertIJson() refuses before canonicalizing: a non-finite
+// number or an integer outside the 2^53 safe range, a BigInt, nesting past its MAX_DEPTH,
+// more values than its MAX_ELEMENTS. Reports { reason, detail } with the path and kind
+// only, never the value; null when the subtree is safe to hash. _hash.mjs stays untouched.
+const HASH_MAX_DEPTH = 512;        // _hash.mjs MAX_DEPTH
+const HASH_MAX_ELEMENTS = 1000000; // _hash.mjs MAX_ELEMENTS
+
+function findHashRefusal(v, path, depth, budget) {
+  if (depth > budget.maxDepth) return { reason: 'REFUSED_INPUT_HASH_LIMIT', detail: path + ': too_deep' };
+  if (++budget.n > budget.maxElements) return { reason: 'REFUSED_INPUT_HASH_LIMIT', detail: path + ': too_many_values' };
+  if (typeof v === 'number') {
+    if (!Number.isFinite(v)) return { reason: 'REFUSED_INPUT_UNSAFE_NUMBER', detail: path + ': non_finite' };
+    if (Number.isInteger(v) && !Number.isSafeInteger(v)) return { reason: 'REFUSED_INPUT_UNSAFE_NUMBER', detail: path + ': unsafe_integer' };
+    return null;
+  }
+  if (typeof v === 'bigint') return { reason: 'REFUSED_INPUT_UNSAFE_NUMBER', detail: path + ': bigint' };
+  if (Array.isArray(v)) {
+    for (let i = 0; i < v.length; i++) {
+      const r = findHashRefusal(v[i], path + '[' + i + ']', depth + 1, budget);
+      if (r !== null) return r;
+    }
+    return null;
+  }
+  if (v !== null && typeof v === 'object') {
+    const ks = Object.keys(v).sort();
+    for (let i = 0; i < ks.length; i++) {
+      const r = findHashRefusal(v[ks[i]], path + '.' + ks[i], depth + 1, budget);
+      if (r !== null) return r;
+    }
+    return null;
+  }
+  return null;
+}
+
 export async function buildArtifact(pp, { now = null, parent_hashes = [], parent_tool_ids = [], chain_depth = 0 } = {}) {
   const { output_payload, compliance_flags } = compute(pp);
-  const hash = await executionHash(pp, output_payload);
-  return {
+  // The object walked below is the execution_hash preimage. When the shared canonicalizer
+  // would refuse it, mint the artifact with a null execution_hash and the reason beside it
+  // instead of letting the hash throw (D6).
+  const unhashable = findHashRefusal({ policy_parameters: pp, output_payload }, 'pp', 1, { maxDepth: HASH_MAX_DEPTH, maxElements: HASH_MAX_ELEMENTS, n: 0 });
+  const hash = unhashable === null ? await executionHash(pp, output_payload) : null;
+  const artifact = {
     '@context': 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld',
     chaingraph_version: '0.4.0',
     mandate_type: meta.mandate_type,
@@ -242,4 +288,6 @@ export async function buildArtifact(pp, { now = null, parent_hashes = [], parent
     compute_proof_ready: 'deferred',
     audit_signature: { payloadType: 'application/vnd.openchain.graph+json;version=0.4', payload: '', signatures: [] },
   };
+  if (unhashable !== null) artifact.hash_refusal = { reason: unhashable.reason, detail: unhashable.detail };
+  return artifact;
 }
