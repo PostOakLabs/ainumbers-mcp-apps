@@ -36,16 +36,16 @@
       "mcp_name": "validate_cbr_data_return",
       "display_name": "CBR Data Return Validator",
       "uri": "ui://ainumbers/node/784-cbr-data-return-validator",
-      "bytes": 71535,
-      "sha256": "6ff8f429f9fbbf2dae8adbdd154f794f29fefcfb5e7c5e2b5e5e9e1944e92ed1"
+      "bytes": 74503,
+      "sha256": "ffc1ac1ae626410918130c366d97bec9c56c00abe7801afa6311b3866ae56533"
     },
     {
       "tool_id": "785-qr-golive-readiness",
       "mcp_name": "assess_qr_golive_readiness",
       "display_name": "QR Go-Live Readiness Assessor",
       "uri": "ui://ainumbers/node/785-qr-golive-readiness",
-      "bytes": 60051,
-      "sha256": "e1ebda19aad9e917ee06e316d8280208452505760c89be717cbea3080270eec3"
+      "bytes": 65027,
+      "sha256": "be0bb32780fb326bc39e76947316171c99c45b1e9e974879bc35735a0483581f"
     },
     {
       "tool_id": "787-corridor-cost-averages",
@@ -100,8 +100,8 @@
       "mcp_name": "check_stablecoin_cash_equiv",
       "display_name": "Stablecoin Cash Equivalent Test (FASB Proposed 2026-08)",
       "uri": "ui://ainumbers/node/797-stablecoin-cash-equivalent-test",
-      "bytes": 59852,
-      "sha256": "3fb75c67453c1d3863b18dc500fca8da1f279656c9c8012a8a1eceb58f69662f"
+      "bytes": 59204,
+      "sha256": "bea859f75227110496089fac1576058f77665db23f98bcb9ea1ab74d603d7039"
     },
     {
       "tool_id": "798-assess-sandbox-application-readiness",
@@ -148,8 +148,8 @@
       "mcp_name": "recompute_eth_epoch_accounting",
       "display_name": "Ethereum Epoch Accounting Recompute",
       "uri": "ui://ainumbers/node/813-eth-staking-accounting",
-      "bytes": 40135,
-      "sha256": "a39ded051cd01b52a161a53f21357d955ff265b30fca452e9e443d4b7e1cc02a"
+      "bytes": 40325,
+      "sha256": "a69dfff0098683b9ab8606148317988d5e8cdfc80205fc2f3271f03fa83e90a7"
     },
     {
       "tool_id": "815-eth-fee-market",
@@ -188,8 +188,8 @@
       "mcp_name": "reconcile_ucp_checkout_totals",
       "display_name": "Reconcile UCP Checkout Totals",
       "uri": "ui://ainumbers/node/825-reconcile-ucp-checkout-totals",
-      "bytes": 31483,
-      "sha256": "29a8e34f115c47a2426197220f68d1e8e73a8c7b8c50053e78a355b6abcdda21"
+      "bytes": 31828,
+      "sha256": "40343d8c131252a1bbacbf1387693d11e0ab0939dfdc63d8622b503387de4a35"
     },
     {
       "tool_id": "827-agent-cred-class-matrix",
@@ -684,8 +684,8 @@
       "mcp_name": "check_digital_trade_rules",
       "display_name": "Digital Trade Rules Compliance Checker",
       "uri": "ui://ainumbers/node/art-54-digital-trade-rules-checker",
-      "bytes": 52078,
-      "sha256": "2130a46faccbac4ec59eb54fb810614e2303514b087509573189ffec6440cdf8"
+      "bytes": 56179,
+      "sha256": "ec33c6df35dbc67007888fc6c63568c1c8297bfad82f93499cbc84665121b6d3"
     },
     {
       "tool_id": "art-55-trade-document-provenance-verifier",
@@ -708,8 +708,8 @@
       "mcp_name": "validate_deposit_token_compliance",
       "display_name": "Deposit-Token Compliance Validator",
       "uri": "ui://ainumbers/node/art-57-deposit-token-compliance-validator",
-      "bytes": 49346,
-      "sha256": "469500f04c268a5784b4a94024e334dcb1582ba1338883f98aa9349db8736acc"
+      "bytes": 50244,
+      "sha256": "b832506ad2bb80922eb510545f3b9875e63f3c0b040b9e33e9fde0363ce930df"
     },
     {
       "tool_id": "art-58-cross-network-settlement-validator",
@@ -724,8 +724,8 @@
       "mcp_name": "classify_settlement_asset_finality",
       "display_name": "Settlement-Asset & Legal-Finality Classifier",
       "uri": "ui://ainumbers/node/art-59-settlement-asset-finality-classifier",
-      "bytes": 48503,
-      "sha256": "21e52aae7dbda3d0023b47c0f83d076b72e26aa141aa9b97149f3c2f57da25d0"
+      "bytes": 49437,
+      "sha256": "5afb957469ba799d52a9d3a225df419cab943d1bc9a9453c90843e2449d4d7c2"
     },
     {
       "tool_id": "art-60-agent-economy-runtime-fit-diagnostic",
@@ -1084,8 +1084,8 @@
       "mcp_name": "scope_mica_token_and_service",
       "display_name": "MiCA Token & Service Scoper",
       "uri": "ui://ainumbers/node/art-105-mica-token-service-scoper",
-      "bytes": 50026,
-      "sha256": "2edc2489deaf488574e13a53f529639abee726c0ed3b078945f9f0ec3e91382b"
+      "bytes": 50743,
+      "sha256": "ea769e476c25f7b02aaf677756e4db7b193db018b072e122124f4e607bc9ff13"
     },
     {
       "tool_id": "art-106-tempo-subscription-reconciler",
@@ -1332,8 +1332,8 @@
       "mcp_name": "verify_slsa_provenance",
       "display_name": "SLSA Provenance Verifier",
       "uri": "ui://ainumbers/node/art-136-slsa-provenance-verifier",
-      "bytes": 48271,
-      "sha256": "116f9a4db78c80bfb5c389832814f7a224736cebbeefadeea16e3046fc9b5d15"
+      "bytes": 48399,
+      "sha256": "f6a00d84410e9635376344256119c729e48321f858b17868e13e6ec2a98de250"
     },
     {
       "tool_id": "art-137-openvex-statement-validator",
@@ -1380,16 +1380,16 @@
       "mcp_name": "check_nis2_art21_measures",
       "display_name": "NIS2 Article 21 Gap Checker (Ten Cybersecurity Risk-Management Measures)",
       "uri": "ui://ainumbers/node/art-142-nis2-art21-gap-checker",
-      "bytes": 56095,
-      "sha256": "283476776ded4f107baa52b6fc67d2034b58f43f7006e69250ad45838a479425"
+      "bytes": 56408,
+      "sha256": "738c192cbcfa9bdc6dedfe3d74a57fb4b8e351b16ca519cc548b177e0018f50e"
     },
     {
       "tool_id": "art-143-nis2-penalty-exposure-calculator",
       "mcp_name": "calculate_nis2_penalty_exposure",
       "display_name": "NIS2 Penalty Exposure Calculator (Art. 34)",
       "uri": "ui://ainumbers/node/art-143-nis2-penalty-exposure-calculator",
-      "bytes": 57884,
-      "sha256": "f4d9675c1e70739c82be51ea5c59b224386230b5718e5c6e200ae40f0b582e38"
+      "bytes": 58157,
+      "sha256": "5b5d218a00dd5633601fb157041a5cfb1a3d5d28e66d52dc267df7034b6ed8d1"
     },
     {
       "tool_id": "art-144-nis2-incident-significance-scorer",
@@ -1412,8 +1412,8 @@
       "mcp_name": "check_nis2_governance_readiness",
       "display_name": "NIS2 Governance Readiness Checker (Art. 20 — Management Body Accountability)",
       "uri": "ui://ainumbers/node/art-146-nis2-governance-readiness-checker",
-      "bytes": 55605,
-      "sha256": "0dcbd7d8cffcf181485c3b8347fd976b2b9e530571599330fec98128852baba9"
+      "bytes": 55996,
+      "sha256": "c82281a232bbdf69be637a694d250630a9a79b09a02a950304e4aa3c6ad1e125"
     },
     {
       "tool_id": "art-147-mcp-server-identity-attestation-validator",
@@ -1828,8 +1828,8 @@
       "mcp_name": "compare_rights_matrix",
       "display_name": "Cross-License Rights Comparator",
       "uri": "ui://ainumbers/node/art-198-cross-license-rights-comparator",
-      "bytes": 42915,
-      "sha256": "9f7349fc2372fef74985325a95d71a8b0fbd3b54308d4e8f2b1815bf656a9e43"
+      "bytes": 43608,
+      "sha256": "12463404ea3670d63c86a4fec171784c1107d341937b1972120f8d09daf978ff"
     },
     {
       "tool_id": "art-199-license-election-certifier",
@@ -2284,8 +2284,8 @@
       "mcp_name": "compute_lcm_rate_derivation",
       "display_name": "LCM Rate Derivation Calculator",
       "uri": "ui://ainumbers/node/art-255-compute-lcm-rate-derivation",
-      "bytes": 38206,
-      "sha256": "65bde9924cbfc51b7a379a8cd3c9ee3ea3c0a251422eed410330e09cfb08de77"
+      "bytes": 39716,
+      "sha256": "2c3f3dc05ebc24a9eccfd1c3c8f655c18068b6133fb85943306cccfc60180c4b"
     },
     {
       "tool_id": "art-256-validate-openids-homeowners-record",
@@ -2444,8 +2444,8 @@
       "mcp_name": "check_genius_reserve_disclosure",
       "display_name": "GENIUS Act Monthly Reserve Disclosure Checker",
       "uri": "ui://ainumbers/node/art-275-genius-reserve-disclosure-checker",
-      "bytes": 70095,
-      "sha256": "449562b7e31712cda56c91d69fd611f6403cc7886fe3ad445f3ad1ea84ddef0b"
+      "bytes": 70785,
+      "sha256": "37f19d9a3a07fef73e3dd06afed575042db8491e1c58c0b7298f8bc894696f4c"
     },
     {
       "tool_id": "art-276-mutual-nda-composer",
@@ -2812,8 +2812,8 @@
       "mcp_name": "compute_npv",
       "display_name": "Net Present Value (NPV)",
       "uri": "ui://ainumbers/node/art-324-tvm-npv",
-      "bytes": 40558,
-      "sha256": "73c253a0f36b0b7e01737b6b89d6a5f4b70e3a37e7f3e2c57821a1cfddfcad35"
+      "bytes": 41279,
+      "sha256": "ed031784513d17110e7d43fde1fc517082fb026f6ce1a54e9b17daaa3c6e4c37"
     },
     {
       "tool_id": "art-325-tvm-irr",
@@ -3124,24 +3124,24 @@
       "mcp_name": "recompute_fund_nav",
       "display_name": "Recompute Fund NAV",
       "uri": "ui://ainumbers/node/art-373-recompute-fund-nav",
-      "bytes": 58039,
-      "sha256": "54935560af54cf84145bce3911f420fb704c93b2e9b4cebf9d18f52c90c61b1c"
+      "bytes": 58257,
+      "sha256": "35230e5b49494c19b6372fca09c47374cb696d44fec11369a8988329c252e5d4"
     },
     {
       "tool_id": "art-374-test-nav-error-materiality",
       "mcp_name": "test_nav_error_materiality",
       "display_name": "Test NAV-Error Materiality",
       "uri": "ui://ainumbers/node/art-374-test-nav-error-materiality",
-      "bytes": 53436,
-      "sha256": "317103d3f47cca5f36091aee6ee233a58cba43c8e5d18959428f3c8569b86f94"
+      "bytes": 53757,
+      "sha256": "164a22d92681f266e3032bd55c45925638af6fb09c24592b4a577fe27c14908d"
     },
     {
       "tool_id": "art-375-compute-fund-expense-ratios",
       "mcp_name": "compute_fund_expense_ratios",
       "display_name": "Compute Fund Expense Ratios",
       "uri": "ui://ainumbers/node/art-375-compute-fund-expense-ratios",
-      "bytes": 56358,
-      "sha256": "ae784157cb9d518bbc3b80f89e4db40e95cd44139206d0ee9972d5246c14c3b2"
+      "bytes": 56786,
+      "sha256": "5d4cbaef89e96ae8ed7cbf5571c56f727991fe0172fe25bb2d7a2a9821f753fe"
     },
     {
       "tool_id": "art-376-score-payee-name-match",
@@ -3476,16 +3476,16 @@
       "mcp_name": "compute_var_backtest_traffic_light",
       "display_name": "VaR Backtesting Traffic-Light Zone Calculator",
       "uri": "ui://ainumbers/node/art-429-var-backtest-traffic-light",
-      "bytes": 70452,
-      "sha256": "4d0412d189c03157cc8818690ea6807bd7bb444fd04ee252735ec190dc9a2c6a"
+      "bytes": 70639,
+      "sha256": "695f682614108c55a079e50bfdeb55fb0fee26691bc04359324e5b8ed688af3b"
     },
     {
       "tool_id": "art-431-fdic-assessment-rate-calculator",
       "mcp_name": "compute_fdic_assessment_rate",
       "display_name": "FDIC Deposit-Insurance Assessment Rate Calculator",
       "uri": "ui://ainumbers/node/art-431-fdic-assessment-rate-calculator",
-      "bytes": 41380,
-      "sha256": "7791206aa7823a5c616a5cefe53dc3643f39d867a8eef452d2433e8f538c8eef"
+      "bytes": 41853,
+      "sha256": "38eb7e89657a0600b35720bfe28d2ef638746f05a8577ede4305abf9a28639c8"
     },
     {
       "tool_id": "art-432-call-report-rc-balance-sheet",
@@ -4084,8 +4084,8 @@
       "mcp_name": "recompute_fund_fees",
       "display_name": "Recompute Fund Fees",
       "uri": "ui://ainumbers/node/art-511-recompute-fund-fees",
-      "bytes": 67486,
-      "sha256": "807e8d949032993bb13629d92572b209e74f89cb0cd6244364b193c53ccf0b97"
+      "bytes": 69436,
+      "sha256": "bdd3dc37750977e847a2ba95c938b3bf33eb4515f179c7077cac31cfa07fcdd9"
     },
     {
       "tool_id": "art-512-check-mica-reserve-disclosure",
@@ -4252,16 +4252,16 @@
       "mcp_name": "register_mra_remediation_closure",
       "display_name": "Consent-Order / MRA Remediation Closure Register",
       "uri": "ui://ainumbers/node/art-533-mra-remediation-closure-register",
-      "bytes": 47169,
-      "sha256": "49e564467de1564e3c5758b3b4c4a0540d9adc9a5968a1b800ac00aaf144f207"
+      "bytes": 47400,
+      "sha256": "776b413710e42416db575582b90e40f2bec3dcddd33b1d18bc7a1a1230944859"
     },
     {
       "tool_id": "art-534-aml-lookback-disposition-rollup",
       "mcp_name": "roll_up_aml_lookback_disposition",
       "display_name": "AML Lookback Disposition Rollup",
       "uri": "ui://ainumbers/node/art-534-aml-lookback-disposition-rollup",
-      "bytes": 48307,
-      "sha256": "0746fee671ddc38c5ff87669579851065f210e94423d38488dde17f2ae6e19a9"
+      "bytes": 48446,
+      "sha256": "d7f4e94db5b4a1c9338ecf51e9ef1a5b7cef27786975916e746217e80223c676"
     },
     {
       "tool_id": "art-535-fdic370-output-file-validator",
@@ -4308,8 +4308,8 @@
       "mcp_name": "compute_por_liabilities_composite",
       "display_name": "PoR Liabilities Composer",
       "uri": "ui://ainumbers/node/art-540-por-liabilities-composer",
-      "bytes": 38897,
-      "sha256": "042b94784fd15a1044c04e49c83b943ef09b287ffc3b683ab4c5de88579dad3c"
+      "bytes": 38899,
+      "sha256": "55e4bc44cb1fd0b490bbaf05a3ea20169fc18c796907647f8525a746e68bd45b"
     },
     {
       "tool_id": "art-541-best-execution-recompute",
@@ -4324,8 +4324,8 @@
       "mcp_name": "recompute_csdr_penalty",
       "display_name": "CSDR Penalty Recompute (Caller Reference Price)",
       "uri": "ui://ainumbers/node/art-543-csdr-penalty-recompute",
-      "bytes": 40164,
-      "sha256": "0d6797189ef36a190060b446dd6c4ce6af642b430bfd05a31987a0d35f4af6d4"
+      "bytes": 40632,
+      "sha256": "c602aa747ddd9781a7feb987fb8bbfaa6be8acad0fc827ef9379e346403d1bf8"
     },
     {
       "tool_id": "art-544-slate-report-validator",
@@ -4404,8 +4404,8 @@
       "mcp_name": "attest_calc_agent_independence",
       "display_name": "Calculation-Agent Independence Attestation",
       "uri": "ui://ainumbers/node/art-559-attest-calc-agent-independence",
-      "bytes": 51765,
-      "sha256": "23b097e95783d7d65a523fd811c910ff30d8276a9f02e8e7c1319e89feca79b9"
+      "bytes": 51907,
+      "sha256": "424c4576b1b52d1e6b82268ce8a009622f50785938e00f418dbed57bb92a4c7f"
     },
     {
       "tool_id": "art-560-oracle-price-aggregation",
@@ -4428,8 +4428,8 @@
       "mcp_name": "compile_model_risk_lineage_pack",
       "display_name": "Compile Model Risk Lineage Pack",
       "uri": "ui://ainumbers/node/art-562-compile-model-risk-lineage-pack",
-      "bytes": 42611,
-      "sha256": "cba42d382cdb3eb197e739a2a81cbc7223c3a738d6e9f155c6e5bc1012c74752"
+      "bytes": 42598,
+      "sha256": "162df7c8b4bedb11cfe194c5e27414c975cb8052e3428b1e2910662b4bb6e948"
     },
     {
       "tool_id": "art-563-mt9xx-camt-statement-migration-mapper",
@@ -4508,8 +4508,8 @@
       "mcp_name": "recompute_garnishment_stack",
       "display_name": "Multi-Garnishment Stacking Recomputation",
       "uri": "ui://ainumbers/node/art-572-multi-garnishment-stacking-recompute",
-      "bytes": 65971,
-      "sha256": "5973a2af75da8032c1c7b7cfc1636999c3066858b5d4c28b503e244905619900"
+      "bytes": 66602,
+      "sha256": "5680ab2bc070c97fa9ef5ef7e0a809821d79db1b605f2b84aaca3ca51c665485"
     },
     {
       "tool_id": "art-573-section16b-short-swing-profit-recompute",
@@ -4580,8 +4580,8 @@
       "mcp_name": "classify_emir3_simm_approval_scope",
       "display_name": "EMIR 3 SIMM Approval-Scope Classifier",
       "uri": "ui://ainumbers/node/art-581-emir3-simm-approval-scope-classifier",
-      "bytes": 83684,
-      "sha256": "7e17dbdcca11836b3046b71921c32d325aa9a940a128b2323fc37c8db7eec2df"
+      "bytes": 84862,
+      "sha256": "9e521b3d439accb2a0b8c8ffddea3315e80a137e1f784bdfcdfc1d2d48359c97"
     },
     {
       "tool_id": "art-582-genius-reserve-disclosure-conformance-monitor",
@@ -4604,8 +4604,8 @@
       "mcp_name": "verify_proof_of_reserves_consistency",
       "display_name": "Proof-of-Reserves Verifier",
       "uri": "ui://ainumbers/node/art-584-proof-of-reserves-verifier",
-      "bytes": 57834,
-      "sha256": "67666e6f6d8162add9fd97b85da5d5dcad687bed5bd80056749107001e5b8f68"
+      "bytes": 58715,
+      "sha256": "f0b3f4e86e84ad3cb838eb0514133676d6dd0d45c62d4d4894da8991f0cf033f"
     },
     {
       "tool_id": "art-585-sanctions-screening-evidence-pack",
@@ -4652,24 +4652,24 @@
       "mcp_name": "verify_x402_signer_recovery",
       "display_name": "x402 Signer Recovery Verifier",
       "uri": "ui://ainumbers/node/art-591-x402-signer-recovery-verifier",
-      "bytes": 289145,
-      "sha256": "004fec56722e614ad3db7b1791f60b4d0cc13b92d1c287433876df7b6b82ba1d"
+      "bytes": 289649,
+      "sha256": "d99a90ef49e39d4678fe08e208bd77128457cd5dfac795ae0e65bb464b33fde5"
     },
     {
       "tool_id": "art-592-x402-domain-nonce-window-checker",
       "mcp_name": "check_x402_domain_nonce_window",
       "display_name": "x402 Domain & Nonce Window Checker",
       "uri": "ui://ainumbers/node/art-592-x402-domain-nonce-window-checker",
-      "bytes": 75373,
-      "sha256": "b92a4787190d6e44659b3a3323afcdbad984fdd94833896e25526cd2d2012547"
+      "bytes": 80402,
+      "sha256": "bfc9e40855455b7e090c543e234bafc039eeba4ef276cb6c0628c7f915eea7c1"
     },
     {
       "tool_id": "art-593-webbotauth-nonce-replay-check",
       "mcp_name": "check_webbotauth_nonce_replay",
       "display_name": "Web Bot Auth Nonce & Replay-Window Checker",
       "uri": "ui://ainumbers/node/art-593-webbotauth-nonce-replay-check",
-      "bytes": 71850,
-      "sha256": "fdc6bb880813f41b2a9a6b738d02922adbe59d9481d4881543a76ea6305a9c07"
+      "bytes": 72501,
+      "sha256": "fda79843258099a84aadbee422ab0c67003abf9755194076a698c2bea4516a8e"
     },
     {
       "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -4852,8 +4852,8 @@
       "mcp_name": "recompute_mla_mapr_actuarial",
       "display_name": "MLA MAPR Actuarial Recompute",
       "uri": "ui://ainumbers/node/art-616-mla-mapr-actuarial-recompute",
-      "bytes": 66729,
-      "sha256": "9fac47dfe71298f15cfb563d9d4aca19b5ca651adb406c6bf0541de55ad78285"
+      "bytes": 70128,
+      "sha256": "42158974396b2f7b1ec1a028d4def1dd06757ab9c16bfc28aa82867cb3033295"
     },
     {
       "tool_id": "art-618-naic-clo-rbc-factor-calculator",
@@ -4916,8 +4916,8 @@
       "mcp_name": "test_asc280_reportable_segment",
       "display_name": "ASC 280 Reportable Segment Tester",
       "uri": "ui://ainumbers/node/art-633-asc280-reportable-segment-tester",
-      "bytes": 43882,
-      "sha256": "8c6407a88fe9985e70b5e6d0e907a87cef564ea7c86e6a68e95ed7516310c200"
+      "bytes": 50272,
+      "sha256": "14fda6bc5ccb97482779bf52c5000e27de88e779dc2793397d528f1c0b4a7e88"
     },
     {
       "tool_id": "art-634-codm-expense-significance-classifier",
@@ -4948,8 +4948,8 @@
       "mcp_name": "evaluate_globe_de_minimis_exclusion",
       "display_name": "GloBE Permanent De Minimis Exclusion Evaluator",
       "uri": "ui://ainumbers/node/art-637-globe-de-minimis-exclusion",
-      "bytes": 48305,
-      "sha256": "60e5078203814797d52fc711fc5c4a800141f45655489944fd00690ccb2f5ab8"
+      "bytes": 54172,
+      "sha256": "c8606a638f9aeea40e3ef828052b9ffd4704dc32deadbd526ff4ad796a09e8f0"
     },
     {
       "tool_id": "art-645-compute-index-weights",
@@ -5012,8 +5012,8 @@
       "mcp_name": "compute_perp_funding_implied_yield",
       "display_name": "Perp Funding Implied Yield",
       "uri": "ui://ainumbers/node/art-654-perp-funding-implied-yield",
-      "bytes": 41319,
-      "sha256": "430eee41f6fd4af5623559939c4febec249c52a8ae9c2f08ff5436145041852b"
+      "bytes": 41872,
+      "sha256": "d32a493648b4f790cc56837f2d146402571657949457d4f52aa0a1999341b47e"
     },
     {
       "tool_id": "art-657-forecast-accuracy-scorer",
@@ -5028,24 +5028,24 @@
       "mcp_name": "publish_index_head",
       "display_name": "Publish Index Head",
       "uri": "ui://ainumbers/node/art-658-publish-index-head",
-      "bytes": 41795,
-      "sha256": "a9588e9cc67573213c105a8809dd1f3661cd345e86a222421e9e824094bf0e6a"
+      "bytes": 42296,
+      "sha256": "29f0224a83939f2a62754851a6a3cdd46dc392574d6bda42a5553d672609abdd"
     },
     {
       "tool_id": "art-659-publish-fund-nav-head",
       "mcp_name": "publish_fund_nav_head",
       "display_name": "Publish Fund NAV Head",
       "uri": "ui://ainumbers/node/art-659-publish-fund-nav-head",
-      "bytes": 42008,
-      "sha256": "92c7036e95dec1ce33f88c6bea92d8f7dfcdb8c87792416b5b549324331fc588"
+      "bytes": 42549,
+      "sha256": "097c5b6a9d07f9b8f6e1b4c56d9f10549f3c7c7caeab27a6f2aa7db90c85d47c"
     },
     {
       "tool_id": "art-660-compile-nav-error-evidence-pack",
       "mcp_name": "compile_nav_error_evidence_pack",
       "display_name": "Compile NAV-Error Evidence Pack",
       "uri": "ui://ainumbers/node/art-660-compile-nav-error-evidence-pack",
-      "bytes": 44299,
-      "sha256": "5b3abfa35f9258f7d108c3e46c4cb8b10f0cf3a7e69ef75952a6428ad14db14b"
+      "bytes": 44594,
+      "sha256": "3db3b506cf2eb1c951151f4ebdfc3e3c6c37b16c14996a31465128ab786569ae"
     },
     {
       "tool_id": "art-670-examination-readiness-pack",
@@ -5220,8 +5220,8 @@
       "mcp_name": "workforce_board_roi_report",
       "display_name": "Workforce Board ROI Report",
       "uri": "ui://ainumbers/node/art-712-workforce-board-roi",
-      "bytes": 53519,
-      "sha256": "9ab4ec4a02561c11f74f936b342204433f9ea6c20ef695c632f9f39100a8625b"
+      "bytes": 57692,
+      "sha256": "7e3246c00f5bfafa1196cd7645696365eb7da2556a75474c2c3a2adb8ce222b6"
     },
     {
       "tool_id": "art-713-scorp-election-break-even",
@@ -5324,8 +5324,8 @@
       "mcp_name": "analyze_espp_disposition",
       "display_name": "ESPP Break-Even & Optimal Sell",
       "uri": "ui://ainumbers/node/art-760-espp-break-even-optimal-sell",
-      "bytes": 46580,
-      "sha256": "7fdb9affc12b4b0fd26ac3ec7a6088bec41d4e37821272b7ad78191d70435607"
+      "bytes": 49156,
+      "sha256": "d712b729a671d35cc920d7e40891843a73d0c1525396724973b05bfe8dd629ec"
     },
     {
       "tool_id": "art-761-caregiver-income-impact",
@@ -5348,16 +5348,16 @@
       "mcp_name": "compare_solo401k_sep_simple",
       "display_name": "Solo 401(k) vs. SEP-IRA Optimizer",
       "uri": "ui://ainumbers/node/art-764-solo-401k-vs-sep-ira",
-      "bytes": 56088,
-      "sha256": "6d25e4a4864c742ca0364d7eea6ce517875f2c179fc39a3185c7f33a2f72fca1"
+      "bytes": 58919,
+      "sha256": "f245679d05211500724db753357af0312d3ce008e8d5dec04a0d4c9f76099516"
     },
     {
       "tool_id": "art-765-dependent-care-fsa-cdctc-optimizer",
       "mcp_name": "estimate_dc_fsa_cdctc_split",
       "display_name": "Dependent Care FSA vs. CDCTC Optimizer",
       "uri": "ui://ainumbers/node/art-765-dependent-care-fsa-cdctc-optimizer",
-      "bytes": 50015,
-      "sha256": "4f3cc00f69d8746b7e50e376d1e9fa6cfdc338b1a9120157f55ac516e996f336"
+      "bytes": 50236,
+      "sha256": "d80d826b21d5041500fc4a53de39ae38a66f9d1f07d6a702be63e08d354b32fd"
     },
     {
       "tool_id": "art-766-parental-leave-income-gap",
@@ -5464,20 +5464,36 @@
       "sha256": "ebe6e5cba22c564e4f0e6f1543294613c74cb2907153d5eb81aea97b3285d78a"
     },
     {
+      "tool_id": "art-789-stablecoin-admin-role-lint",
+      "mcp_name": "lint_stablecoin_admin_roles",
+      "display_name": "Stablecoin Admin Role Lint",
+      "uri": "ui://ainumbers/node/art-789-stablecoin-admin-role-lint",
+      "bytes": 55876,
+      "sha256": "45323ef556b6d85ebfd56ee69a35f9affa1ad293bd73259e9dc5e6336262110f"
+    },
+    {
+      "tool_id": "art-791-check-je-multicurrency-balance",
+      "mcp_name": "check_je_multicurrency_balance",
+      "display_name": "Multicurrency JE Balance Check",
+      "uri": "ui://ainumbers/node/art-791-check-je-multicurrency-balance",
+      "bytes": 69801,
+      "sha256": "553678c3ae48ad3fe61b46f4a72a80cba871143026159d790e965bfcce638a48"
+    },
+    {
       "tool_id": "art-793-government-stablecoin-acceptance",
       "mcp_name": "assess_gov_stablecoin_accept",
       "display_name": "Government Stablecoin Acceptance Audit",
       "uri": "ui://ainumbers/node/art-793-government-stablecoin-acceptance",
-      "bytes": 58080,
-      "sha256": "22bcfaeeb3f1c937ba20c40113c2b43f71ea842ee73598cbbc50fa70ebb7733a"
+      "bytes": 59033,
+      "sha256": "7e40b1b6209e523acbcfcf4a89654e18b2a0fd861b06c4b8b430c1062fe37d24"
     },
     {
       "tool_id": "art-805-agt-audit-chain-verifier",
       "mcp_name": "verify_agent_governance_audit_chain",
       "display_name": "Open-Source Agent-Governance Audit-Chain Verifier",
       "uri": "ui://ainumbers/node/art-805-agt-audit-chain-verifier",
-      "bytes": 33561,
-      "sha256": "a0522d0b24ba4d2d0cc3ff2bb2bbbe89d320fe11947e78d25bb0d3580810cb3f"
+      "bytes": 36140,
+      "sha256": "f96b24a504483bcf63173d2057f030adceb994714b237a499cdca8752c8e4eca"
     },
     {
       "tool_id": "art-807-erc3643-transfer-decision",
@@ -5492,8 +5508,8 @@
       "mcp_name": "check_reserves_cover_private",
       "display_name": "Private-Input Reserves Cover Outstanding Check",
       "uri": "ui://ainumbers/node/art-809-check-reserves-cover-outstanding-private",
-      "bytes": 46064,
-      "sha256": "74f795d08cc9d80fa25e23a4f562242fc0be6aaecd936a62617a81cb4f1dec35"
+      "bytes": 46106,
+      "sha256": "a2ead36e46985295bd41b4fb1353c98b84fabc9f2bb8ab812b8a7c593483a670"
     },
     {
       "tool_id": "art-811-check-dti-within-policy-private",
@@ -5501,7 +5517,7 @@
       "display_name": "Private-Input Debt-to-Income Within Policy Check",
       "uri": "ui://ainumbers/node/art-811-check-dti-within-policy-private",
       "bytes": 39942,
-      "sha256": "6e631467294010a0bc380ae380f971de92159615ebe0704038c68fc77b7ae935"
+      "sha256": "9ae3d84ae460854970e9e947400021c511cf36d37d0038289c268b7680f4c0a3"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",
@@ -5638,6 +5654,14 @@
       "uri": "ui://ainumbers/node/art-847-cashleg-window-exposure",
       "bytes": 63085,
       "sha256": "ce4ffd5aec89532f75285ef4d3f270dac1bc1c1e83b2991c7c17eec7bd65a84f"
+    },
+    {
+      "tool_id": "art-851-islamic-mmf-placement-limits",
+      "mcp_name": "check_islamic_mmf_placement_limits",
+      "display_name": "Islamic MMF Placement Limits",
+      "uri": "ui://ainumbers/node/art-851-islamic-mmf-placement-limits",
+      "bytes": 39108,
+      "sha256": "e1d787e8d8669c2467fea8edb8f9c8c1b176a8d172b4dd4503c993fde3904fca"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
