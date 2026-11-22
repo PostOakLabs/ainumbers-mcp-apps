@@ -31,15 +31,24 @@
 //     # override the fixtures file (used to prove the gate catches a corrupted
 //     # fixture — see the defect-injection demo in the audit report; never point
 //     # this at anything but a scratch file)
+//   node scripts/run-chain-corpus.mjs --chaingraph=<path>
+//     # override the chaingraph.json SSOT the schema validator is pointed at
+//     # (default: this repo's vendored data/chaingraph/chaingraph.json, then the
+//     # site sibling <schemaDir>/../chaingraph.json). Pointing it at an absent
+//     # path rehearses the UNVALIDATED fail-closed path (WORKER-CHAIN-CORPUS-
+//     # DENOMINATOR-1); never point it at anything but a scratch or the real SSOT.
 //
-// Exit code: 1 if any chain fails to run/validate, or the schema validator
-// cannot be located; 0 otherwise.
+// Exit code: 1 if any chain fails to run/validate, if the schema validator cannot
+// be located or exits non-zero, or if fewer artifacts were schema-validated than
+// were emitted (reported as "UNVALIDATED n/N" — validating nothing must never read
+// as a pass); 0 only when every emitted composite artifact was validated against
+// the resolved v0.4 schema.
 
 import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
@@ -131,6 +140,7 @@ async function main() {
 
   const scratchDir = mkdtempSync(join(tmpdir(), 'ocg-run-chain-corpus-'));
   const results = [];
+  let artifactsWritten = 0; // composite artifacts written for schema validation (Suite E3 denominator)
 
   for (const name of targets) {
     const chain = chainsByName.get(name);
@@ -174,6 +184,7 @@ async function main() {
 
     if (r1.composite_artifact) {
       writeFileSync(join(scratchDir, `${name}.json`), JSON.stringify({ artifact: r1.composite_artifact }));
+      artifactsWritten++;
     } else if (r1.steps_ran > 0) {
       reasons.push('steps_ran > 0 but composite_artifact is null');
     }
@@ -182,44 +193,80 @@ async function main() {
   }
 
   // ── Suite E3 — schema conformance. Reuse the SSOT validator (no reimplemented AJV logic). ──
+  // WORKER-CHAIN-CORPUS-DENOMINATOR-1: this suite used to point CHAINGRAPH at a
+  // deliberately-absent scratch file ("intentionally absent — we're only validating
+  // fixtures[]"), written before the site's DENOMINATOR-SENTINEL-1 hardening made
+  // schema-validate refuse a missing SSOT with a hard exit. The corpus caught that
+  // exit, parsed zero per-chain failures out of it, and still closed
+  // "N/N fixture-backed chains … v0.4.0 schema-valid" with ZERO fixtures validated.
+  // Its attribution regex also demanded a "#N" suffix the validator never prints,
+  // so even genuine fixture failures could not attribute. Now: CHAINGRAPH resolves
+  // to the real SSOT, the validator's exit status is honored, per-chain failures
+  // come from its actual "✗ fixture <name>.json" labels, and the "schema-valid"
+  // claim requires the number of fixtures ACTUALLY validated (its "✓ fixture"
+  // lines) to equal the number of artifacts emitted — otherwise the run reports
+  // UNVALIDATED n/N and exits 1 (the CI step is blocking, not advisory).
   const schemaDir = firstExisting([
     resolve(ROOT, '..', 'repo', 'chaingraph', 'standard'),   // local sibling checkout (this worktree layout)
     resolve(ROOT, '_site', 'chaingraph', 'standard'),        // CI: site repo checked out to _site
   ]);
 
-  let schemaSkipped = false;
+  let schemaValidated = 0;        // fixtures the validator actually checked (its "✓ fixture" lines)
   const schemaFailuresByChain = new Map();
+  let unvalidatedReason = null;   // non-null ⇒ validation did not fully run ⇒ the run must not pass
+  let validatorStatus = null;
 
   if (!schemaDir) {
-    schemaSkipped = true;
-    console.log('⚠ Could not locate chaingraph/standard/schema-validate.mjs (no sibling ../repo and no ./_site checkout).');
+    unvalidatedReason = 'chaingraph/standard/schema-validate.mjs not located (no sibling ../repo and no ./_site checkout) — no fixture can be validated against the v0.4 schema';
   } else {
     const script = join(schemaDir, 'schema-validate.mjs');
-    let out = '';
-    try {
-      out = execFileSync(process.execPath, [script], {
-        env: {
-          ...process.env,
-          SCHEMA: join(schemaDir, 'openchain-graph-v0.4.schema.json'),
-          CHAINGRAPH: join(scratchDir, '__no_chaingraph_here__.json'), // intentionally absent — we're only validating fixtures[]
-          FIXTURES_DIR: scratchDir,
-        },
-        encoding: 'utf8',
-      });
-    } catch (err) {
-      out = String(err.stdout || '') + String(err.stderr || '');
-    }
-    console.log('— schema-validate.mjs output —');
-    console.log(out.trim());
-    console.log('— end schema-validate.mjs output —\n');
+    const chaingraphArg = rawArgs.find((a) => a.startsWith('--chaingraph='));
+    const CHAINGRAPH_OVERRIDE = (chaingraphArg && chaingraphArg.slice('--chaingraph='.length)) || process.env.CORPUS_CHAINGRAPH || null;
+    const chaingraphPath = CHAINGRAPH_OVERRIDE || firstExisting([
+      resolve(ROOT, 'data', 'chaingraph', 'chaingraph.json'),  // worker: vendored SSOT (committed, present in CI)
+      resolve(schemaDir, '..', 'chaingraph.json'),             // site sibling checkout layout
+    ]);
+    if (!chaingraphPath) {
+      unvalidatedReason = 'chaingraph.json SSOT not found (vendored data/chaingraph/chaingraph.json and <site>/chaingraph/chaingraph.json both absent)';
+    } else {
+      let out = '';
+      try {
+        const r = spawnSync(process.execPath, [script], {
+          env: {
+            ...process.env,
+            SCHEMA: join(schemaDir, 'openchain-graph-v0.4.schema.json'),
+            CHAINGRAPH: chaingraphPath, // the REAL SSOT — the sentinel now fires only when it is genuinely gone
+            FIXTURES_DIR: scratchDir,
+          },
+          encoding: 'utf8',
+        });
+        validatorStatus = r.status;
+        out = (r.stdout || '') + (r.stderr || '');
+      } catch (err) {
+        unvalidatedReason = 'schema-validate.mjs could not be executed: ' + err.message;
+        out = String(err.stdout || '') + String(err.stderr || '');
+      }
+      console.log('— schema-validate.mjs output —');
+      console.log(out.trim());
+      console.log('— end schema-validate.mjs output —\n');
 
-    // Attribute "✗ fixture <chainName>.json#0" blocks back to the owning chain.
-    let current = null;
-    for (const line of out.split('\n')) {
-      const m = line.match(/^✗ fixture (.+)\.json#\d+/);
-      if (m) { current = m[1]; schemaFailuresByChain.set(current, []); continue; }
-      if (current && /^\s{4}\S/.test(line)) { schemaFailuresByChain.get(current).push(line.trim()); continue; }
-      current = null;
+      // Attribute "✗ fixture <chainName>.json" blocks back to the owning chain and
+      // count the fixtures the validator actually validated ("✓ fixture" lines).
+      let current = null;
+      for (const line of out.split('\n')) {
+        const bad = line.match(/^✗ fixture (.+)\.json(?:#\d+)?$/);
+        if (bad) { current = bad[1]; if (!schemaFailuresByChain.has(current)) schemaFailuresByChain.set(current, []); continue; }
+        const good = line.match(/^✓ fixture (.+)\.json(?:#\d+)?$/);
+        if (good) { schemaValidated++; current = null; continue; }
+        if (current && /^\s{4}\S/.test(line)) { schemaFailuresByChain.get(current).push(line.trim()); continue; }
+        current = null;
+      }
+      if (unvalidatedReason === null && validatorStatus !== 0 && schemaFailuresByChain.size === 0) {
+        // The validator ran red on something other than a corpus fixture (the SSOT
+        // graph itself, the well-known catalogs). Never paper over it: Suite E3
+        // cannot claim a clean schema sweep past a non-zero validator exit.
+        unvalidatedReason = `schema-validate.mjs exited ${validatorStatus} with no per-chain fixture failures (see its output above) — the red is outside the corpus fixtures, but the run cannot claim schema-valid past it`;
+      }
     }
   }
 
@@ -239,6 +286,7 @@ async function main() {
   console.log(`  fixture-backed chains attempted : ${results.length}`);
   console.log(`  passed                          : ${passed.length}`);
   console.log(`  failed                          : ${failed.length}`);
+  console.log(`  artifacts schema-validated      : ${schemaValidated}/${artifactsWritten}`);
   if (failed.length) {
     console.log('\n  FAILURES:');
     for (const f of failed) {
@@ -248,12 +296,14 @@ async function main() {
   }
   console.log('');
 
-  if (schemaSkipped) {
-    console.error('✗ schema-validate.mjs could not be located — treating as FAIL (Suite E3 requires schema conformance for every artifact).');
+  if (unvalidatedReason) {
+    console.error(`✗ UNVALIDATED ${schemaValidated}/${results.length} — ${unvalidatedReason}`);
+    console.error('  Suite E3 requires v0.4 schema conformance for EVERY emitted composite artifact:');
+    console.error('  a run that validated nothing (or less than it emitted) is not a pass.');
   }
-  if (failed.length || schemaSkipped) process.exit(1);
+  if (failed.length || unvalidatedReason || schemaValidated !== artifactsWritten) process.exit(1);
 
-  console.log(`✅ run-chain-corpus: ${passed.length}/${results.length} fixture-backed chains ran E2E, deterministic, and v0.4.0 schema-valid.`);
+  console.log(`✅ run-chain-corpus: ${passed.length}/${results.length} fixture-backed chains ran E2E, deterministic, and v0.4.0 schema-valid (${schemaValidated} composite artifact(s) validated against the resolved schema).`);
 }
 
 main().catch((err) => {
