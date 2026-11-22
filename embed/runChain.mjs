@@ -126,6 +126,16 @@ export async function runChain(chainNameOrConfig, inputs = undefined, deps = und
             idx++;
             continue;
           }
+          // Mirror worker.mjs (HASH-REFUSAL-WORKER-GUARDS-1): a kernel that ran but could not hash
+          // its own OUTPUT (execution_hash === null — the hasher returns null on an unhashable
+          // payload instead of throwing) is a refusal, never an ok step: the null hash must not be
+          // recorded ok, join the composite (or its parent_hashes), or thread to the next step.
+          if (invoked.execution_hash === null) {
+            results[idx] = { order: idx + 1, tool_id: tid, status: 'refused_input', inputs_source,
+              ...(invoked.hash_refusal ? { hash_refusal: invoked.hash_refusal } : {}) };
+            idx++;
+            continue;
+          }
           const artifact = invoked;
           // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror worker.mjs.
           const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
