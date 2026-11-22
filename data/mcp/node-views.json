@@ -2588,8 +2588,8 @@
       "mcp_name": "validate_einvoice_format",
       "display_name": "E-Invoice Format Validator",
       "uri": "ui://ainumbers/node/art-293-einvoice-format-validator",
-      "bytes": 52672,
-      "sha256": "3a8fa3fb20424f6845bd8c6503d036043bcf35e3db301d487a2f1129decd9553"
+      "bytes": 52684,
+      "sha256": "3bd5d591ea743f0eef0e11985e86139b72c601d419cc5efa63bc172a62c82a69"
     },
     {
       "tool_id": "art-294-einvoice-vat-calc-verifier",
@@ -2604,8 +2604,8 @@
       "mcp_name": "route_einvoice_jurisdiction_mandate",
       "display_name": "E-Invoice Jurisdiction Mandate Router",
       "uri": "ui://ainumbers/node/art-295-einvoice-jurisdiction-mandate-router",
-      "bytes": 77972,
-      "sha256": "a0b390903a0bd64f8be883aac7c6b7282a3814925c3a36a3fda4754418f20ca6"
+      "bytes": 77984,
+      "sha256": "af201195c7603a3dad7286602232886119ce23728542f742ffac0721c8f8af91"
     },
     {
       "tool_id": "art-296-einvoice-transmission-receipt-builder",
@@ -3461,7 +3461,7 @@
       "display_name": "Discount Window Borrowing-Capacity Calculator",
       "uri": "ui://ainumbers/node/art-427-discount-window-capacity",
       "bytes": 38035,
-      "sha256": "33137ed23c9f18d9e5a5f37ec7372d3500bf79afb00227377022803632572602"
+      "sha256": "bf47771d886a4ba05a139c3dc5e4bf50c77075c19e6e09397c4da610862d5f59"
     },
     {
       "tool_id": "art-428-cyber-incident-clock",
@@ -3469,7 +3469,7 @@
       "display_name": "Cyber Incident Notification Clock",
       "uri": "ui://ainumbers/node/art-428-cyber-incident-clock",
       "bytes": 88661,
-      "sha256": "5039262608a3a9fc2d09b0229e7072667b03ba811b435bc7065054efe41e55c3"
+      "sha256": "b6bc16877f7dde1c40a000bff7851b0ac0680811c15c49a6c5ca93bca8d0b119"
     },
     {
       "tool_id": "art-429-var-backtest-traffic-light",
@@ -3517,7 +3517,7 @@
       "display_name": "FR Y-9C Schedule HC (Consolidated Balance Sheet) Mapper",
       "uri": "ui://ainumbers/node/art-435-bhc-schedule-hc-balance-sheet",
       "bytes": 41663,
-      "sha256": "a6de9d719044b5178557e18d3dcca9470514371a54b58aaf17bc6ba0224c2b71"
+      "sha256": "cc7ee8ef2183bd83ece5d9d94d251ba5952f9bc48da19a0795e652d520fcf3ef"
     },
     {
       "tool_id": "art-436-bhc-schedule-hcr-capital",
@@ -3525,7 +3525,7 @@
       "display_name": "FR Y-9C Schedule HC-R (Regulatory Capital) Calculator",
       "uri": "ui://ainumbers/node/art-436-bhc-schedule-hcr-capital",
       "bytes": 41005,
-      "sha256": "b2d58e9dcb0aee836d041acd63635ecdbe44f458b8b7e1f227ddb3e5df8103d7"
+      "sha256": "81b3c6401c9788a71a7eb3dd63fd826d0489f24f973ab3a6e29cff7b1bc148ad"
     },
     {
       "tool_id": "art-437-fr2052a-inflow-outflow-classifier",
@@ -5662,6 +5662,14 @@
       "uri": "ui://ainumbers/node/art-851-islamic-mmf-placement-limits",
       "bytes": 39108,
       "sha256": "e1d787e8d8669c2467fea8edb8f9c8c1b176a8d172b4dd4503c993fde3904fca"
+    },
+    {
+      "tool_id": "art-856-ijarah-imbt-schedule",
+      "mcp_name": "compute_ijarah_imbt_schedule",
+      "display_name": "Ijarah IMBT Rental Schedule",
+      "uri": "ui://ainumbers/node/art-856-ijarah-imbt-schedule",
+      "bytes": 46228,
+      "sha256": "eec363a7f21de3d3eca93411bec5eb33e1c9e0b368ba2e9393685c2d8b77e252"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
