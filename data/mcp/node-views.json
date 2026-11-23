@@ -12,16 +12,16 @@
       "mcp_name": "audit_borrower_escrow_stmt",
       "display_name": "Borrower Escrow Auditor",
       "uri": "ui://ainumbers/node/732-borrower-escrow-auditor",
-      "bytes": 94183,
-      "sha256": "0d4072d6a4326b9fd2dbafecb169d14a082b51fa64e0662130c7de7eac83fa35"
+      "bytes": 94149,
+      "sha256": "8b74fac3e6ed8d3829e46cf74ad4921f8f8fab8a36d2989d188dd7dfc7fafad1"
     },
     {
       "tool_id": "733-servicing-compliance-clock",
       "mcp_name": "servicing_compliance_clock",
       "display_name": "Servicing Compliance Clock",
       "uri": "ui://ainumbers/node/733-servicing-compliance-clock",
-      "bytes": 110728,
-      "sha256": "1889be3a528d38c9be0a39dd3e1e552ce2e99284c6efcf6a1d1c461275e27a1c"
+      "bytes": 110694,
+      "sha256": "08f3a633215ddaa9e4088a2fd9bd47573d9fc93fa8d6e868ab369d8fa00eb832"
     },
     {
       "tool_id": "783-emv-mpm-qr-validator",
@@ -116,8 +116,8 @@
       "mcp_name": "lint_event_contract_terms",
       "display_name": "Event Contract Terms Lint",
       "uri": "ui://ainumbers/node/806-event-contract-terms-lint",
-      "bytes": 102646,
-      "sha256": "d7a7ab758bb7d2e9b270f01e7fe2d091c41427e46990f49f9b03b8929628aa4d"
+      "bytes": 102612,
+      "sha256": "cae35a606dee6e6298c9c3b7ffd9daf47e71cb3fd2dddf2d9cccea9599399409"
     },
     {
       "tool_id": "808-lst-share-rate-reconciler",
@@ -172,8 +172,8 @@
       "mcp_name": "audit_zcash_pool_supply",
       "display_name": "Zcash Supply Check",
       "uri": "ui://ainumbers/node/822-zcash-supply-check",
-      "bytes": 82463,
-      "sha256": "bb26107dd59d8fdadda707a04d587de72d31d3c85d3cb0a44c6648e5da3dc754"
+      "bytes": 82429,
+      "sha256": "3a4036aa05410f89a031fdb83a3005be232bdb4da34936716e4c8eb7504d71a2"
     },
     {
       "tool_id": "824-zip317-transfer-fee",
@@ -204,8 +204,8 @@
       "mcp_name": "recompute_safe_tx_hash",
       "display_name": "Safe Transaction Hash Recompute",
       "uri": "ui://ainumbers/node/829-safe-tx-hash-recompute",
-      "bytes": 135637,
-      "sha256": "3ff167966fee151537c2a7727ed9ed85076d8b507fb3eab2ef8733ae5ed1f364"
+      "bytes": 135603,
+      "sha256": "61493a723e1f640cb1de3d5e3f2a85da2247f05c707e17de83e3b723c8eb5cb5"
     },
     {
       "tool_id": "836-payment-services-activity-classifier",
@@ -252,16 +252,16 @@
       "mcp_name": "gate_je_period_lock",
       "display_name": "Je Period Lock Gate",
       "uri": "ui://ainumbers/node/845-je-period-lock-gate",
-      "bytes": 104390,
-      "sha256": "f0127918243ebc1ee5e4a50ef452e446a1eec2cdac196c0d0c7e54dc91c6a676"
+      "bytes": 104356,
+      "sha256": "d8fc2b2522d9c09f0f0bd1fa0a85c998bdff731607d5bf634dc5c8659bfd731d"
     },
     {
       "tool_id": "art-01-ap2-mandate-chain-validator",
       "mcp_name": "validate_ap2_mandate_chain",
       "display_name": "AP2 Mandate-Chain Validator",
       "uri": "ui://ainumbers/node/art-01-ap2-mandate-chain-validator",
-      "bytes": 157453,
-      "sha256": "c77591b8e3892ed2392758a08666821e42eccfd9d8b25897ebf17932303c3b25"
+      "bytes": 157419,
+      "sha256": "14f8ef13b1911862bebf9222db813fcb98fcccd92cdc71aba561a3be64c25515"
     },
     {
       "tool_id": "art-02-agent-spend-policy-simulator",
@@ -332,8 +332,8 @@
       "mcp_name": "score_aml_typologies",
       "display_name": "AMLA Transaction-Typology Risk Scorer",
       "uri": "ui://ainumbers/node/art-10-amla-transaction-typology-risk-scorer",
-      "bytes": 106991,
-      "sha256": "f1de745b02193c465266e7e777559bb57173d290a613176c8651652aa4436d10"
+      "bytes": 106957,
+      "sha256": "362bc4038df6af3d795a425b3532b8f447e856eee1ab7e8ce79720765ebb2c22"
     },
     {
       "tool_id": "art-11-vop-batch-match-rate-analyser",
@@ -348,8 +348,8 @@
       "mcp_name": "validate_acp_checkout",
       "display_name": "ACP Checkout Conformance Validator",
       "uri": "ui://ainumbers/node/art-12-acp-checkout-conformance-validator",
-      "bytes": 146262,
-      "sha256": "566bcfa9345adfb89428dd51973d0929ecd02261cf16923f72c5b3d446472a4e"
+      "bytes": 146228,
+      "sha256": "0a35bc64570d49ee91da7392d705664014549ef5f221d6df324922d2329a75dd"
     },
     {
       "tool_id": "art-13-eudi-wallet-credential-readiness-checker",
@@ -508,8 +508,8 @@
       "mcp_name": "validate_a2a_trust_chain",
       "display_name": "A2A Agent-Card Trust-Chain Validator",
       "uri": "ui://ainumbers/node/art-32-a2a-agent-card-trust-chain-validator",
-      "bytes": 162153,
-      "sha256": "c287e7fd3719fa8a2409459ac3ddaf1fffbae87ad0ad6404505cb1370106de87"
+      "bytes": 162119,
+      "sha256": "ef9a0f050da4372af6cbdfc263409236ef0e32e6f40f0c01f4b9df4e426aa223"
     },
     {
       "tool_id": "art-33-mcp-server-self-attestation-pack",
@@ -564,8 +564,8 @@
       "mcp_name": "validate_tempo_zone_disclosure",
       "display_name": "Tempo Zone Selective-Disclosure Attestation",
       "uri": "ui://ainumbers/node/art-39-tempo-zone-disclosure",
-      "bytes": 92244,
-      "sha256": "eaf65480fbac82ae5cfd73b86bdc7b57454d114af085fd62b0fd96df3d07a5f3"
+      "bytes": 92210,
+      "sha256": "8a6e220025ebfb16b56dc549a07aafcc6819c8525f6d6f805bcc5117654866b5"
     },
     {
       "tool_id": "art-40-tempo-agentic-checkout",
@@ -652,32 +652,32 @@
       "mcp_name": "estimate_ficc_margin_netting",
       "display_name": "FICC Margin & Netting Estimator",
       "uri": "ui://ainumbers/node/art-50-ficc-margin-netting-estimator",
-      "bytes": 70592,
-      "sha256": "1e3df20dd2a0241ab9fc2ba19ea1588ae67b031869d845d2183553bb0d307b0f"
+      "bytes": 70558,
+      "sha256": "f52015cdc611d8735cd21789aaae68ded5c91c265c25276f5a6aed0381ab0a86"
     },
     {
       "tool_id": "art-51-cross-margining-benefit-estimator",
       "mcp_name": "estimate_cross_margin_benefit",
       "display_name": "FICC-CME Cross-Margining Estimator",
       "uri": "ui://ainumbers/node/art-51-cross-margining-benefit-estimator",
-      "bytes": 72426,
-      "sha256": "6ee03e510b4b2e15164805699ba6fb99a0be44ade3cb261302c985e28a01ae2f"
+      "bytes": 72392,
+      "sha256": "790e35a5eb6a80673aa8b3cd35be40395f445c5533282af511d934815137c11b"
     },
     {
       "tool_id": "art-52-digital-trade-fit-diagnostic",
       "mcp_name": "run_digital_trade_fit",
       "display_name": "Digital Trade Corridor Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-52-digital-trade-fit-diagnostic",
-      "bytes": 83531,
-      "sha256": "d0db5afcf53709ab6f0d4835243fdf2332b11372d024b4d4941385e45fc49334"
+      "bytes": 83497,
+      "sha256": "0a45ff261bfedbb31ced23ff7de7da3844f53bb5813de7f5dc69a8cc6bc351d3"
     },
     {
       "tool_id": "art-53-mletr-ebl-conformance-validator",
       "mcp_name": "validate_mletr_record",
       "display_name": "MLETR / eBL Conformance & Enforceability Validator",
       "uri": "ui://ainumbers/node/art-53-mletr-ebl-conformance-validator",
-      "bytes": 81966,
-      "sha256": "98368f7660294bd43e6c13dbb39ebb428f08ebd96edee056803da6dced545e3f"
+      "bytes": 81932,
+      "sha256": "539f099bf3da43a7eaf1cc0dbf6438a85f5b74389aeb946d4a4da16ad95e0dfc"
     },
     {
       "tool_id": "art-54-digital-trade-rules-checker",
@@ -700,8 +700,8 @@
       "mcp_name": "run_tokenized_settlement_fit",
       "display_name": "Wholesale Tokenized Settlement Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-56-tokenized-settlement-fit-diagnostic",
-      "bytes": 92150,
-      "sha256": "6fd095c1f12ba674cc79db21525bccfb7d678778e5e6a73881b4dd79a769051d"
+      "bytes": 92116,
+      "sha256": "327a4f74f6ca359ad255c51871e9aa10746df933a6350194d7b80ee2be9cd779"
     },
     {
       "tool_id": "art-57-deposit-token-compliance-validator",
@@ -732,8 +732,8 @@
       "mcp_name": "run_agent_economy_fit",
       "display_name": "Agent Economy Runtime Fit Diagnostic",
       "uri": "ui://ainumbers/node/art-60-agent-economy-runtime-fit-diagnostic",
-      "bytes": 88134,
-      "sha256": "f90bf57c940233679bf2b95ec132553fced3e6d381bd8dbfc3800420f30d4ca4"
+      "bytes": 88100,
+      "sha256": "7eb3fee4f4a4df7b1b79c7aede1f7bcdbfcf7f40832f6ffc9228860124e6e405"
     },
     {
       "tool_id": "art-61-x402-batch-settlement-reconciler",
@@ -748,8 +748,8 @@
       "mcp_name": "verify_ap2_payment_receipt",
       "display_name": "AP2 PaymentReceipt Verifier & HNP Guardrail",
       "uri": "ui://ainumbers/node/art-62-ap2-payment-receipt-verifier",
-      "bytes": 103122,
-      "sha256": "a90310c0ce01c07cfd1d466aec8533ff9fd9b4afc2e204514b3f4f886179da93"
+      "bytes": 103088,
+      "sha256": "58f305b8655b84cd7da2c074179cbfa10b7efcbf8d2a77730754b791ede59c07"
     },
     {
       "tool_id": "art-63-agent-service-metering-modeler",
@@ -1076,8 +1076,8 @@
       "mcp_name": "validate_tfr_travel_rule_batch",
       "display_name": "TFR Travel-Rule Batch Validator",
       "uri": "ui://ainumbers/node/art-104-tfr-travel-rule-batch-validator",
-      "bytes": 56702,
-      "sha256": "21f14d29aa35546a520559675826f50558e7599c394e3b73e0b9e166d3fb11db"
+      "bytes": 56668,
+      "sha256": "864f57e30ccd091be2925efeee51aa852144707795c5407423b2d70e13f4ab7f"
     },
     {
       "tool_id": "art-105-mica-token-service-scoper",
@@ -1108,8 +1108,8 @@
       "mcp_name": "validate_canton_selective_disclosure",
       "display_name": "Canton Selective-Disclosure DvP Reconciliation Attestation",
       "uri": "ui://ainumbers/node/art-108-canton-selective-disclosure",
-      "bytes": 79779,
-      "sha256": "2a28a3e50cd67e5b3e8768f9283555b31a0d79a6d00e7760b14f7dc14c035608"
+      "bytes": 79745,
+      "sha256": "064fba7ece2536d736e0c7bb411654b1438eaa77383a1ac733d595636e181db1"
     },
     {
       "tool_id": "art-109-dtc-tokenized-treasury",
@@ -1124,8 +1124,8 @@
       "mcp_name": "score_partner_stablecoin_readiness",
       "display_name": "Arc Partner Stablecoin Onboarding Conformance",
       "uri": "ui://ainumbers/node/art-110-arc-partner-stablecoin-onboarding",
-      "bytes": 85163,
-      "sha256": "42be1bc842109baed27856c5ebc4a9a5a3f9d20e49e0d3bf059c54abdf2ad07d"
+      "bytes": 85129,
+      "sha256": "29713dbff2f9d27289c92b8129b4e0e58dee6ce1ee7999db17d1c79824cdf1ec"
     },
     {
       "tool_id": "art-111-arc-corridor-jurisdiction-router",
@@ -1172,8 +1172,8 @@
       "mcp_name": "build_product_lineage",
       "display_name": "Digital Product Passport Cradle-to-Gate Lineage Builder",
       "uri": "ui://ainumbers/node/art-116-product-lineage-builder",
-      "bytes": 75650,
-      "sha256": "777611281c01c1d01b60c0b87da44fb97d1de82e34971414a22a735817d77c46"
+      "bytes": 75616,
+      "sha256": "fa62a77439d416af3cbbeb51dadb5cbdc7565d3d859ce76f29202c9f35bd474f"
     },
     {
       "tool_id": "art-117-product-authenticity-verifier",
@@ -1188,144 +1188,144 @@
       "mcp_name": "validate_fsma204_cte",
       "display_name": "FSMA 204 Critical Tracking Event (CTE) Validator",
       "uri": "ui://ainumbers/node/art-118-fsma204-cte-validator",
-      "bytes": 73358,
-      "sha256": "7d87b5f53df296012faae053aab8eaaa11761f1344194f1395995d4a0c483fbe"
+      "bytes": 73324,
+      "sha256": "954fd60c87893f95f53a1601f93b40218a01b365fd4bdd012b013145bdb6df76"
     },
     {
       "tool_id": "art-119-traceability-lot-code-linker",
       "mcp_name": "link_traceability_lot_code",
       "display_name": "FSMA 204 Traceability Lot Code Chain Linker",
       "uri": "ui://ainumbers/node/art-119-traceability-lot-code-linker",
-      "bytes": 72242,
-      "sha256": "0d93cc3fea2a4670f8284dcedf385ae5c8ed008e24af37e71abb07f75fb3072e"
+      "bytes": 72208,
+      "sha256": "11d76f6468d9f78e6bfd302f8b6a7a6b5db70d887648883b7580c56197730d9e"
     },
     {
       "tool_id": "art-120-recall-trace-resolver",
       "mcp_name": "resolve_recall_trace",
       "display_name": "FSMA 204 Recall Trace Resolver (24-Hour FDA List)",
       "uri": "ui://ainumbers/node/art-120-recall-trace-resolver",
-      "bytes": 75342,
-      "sha256": "ed3650af815c61d2797908653ed80de67fb6abc6327d123d5113c734f0a091da"
+      "bytes": 75308,
+      "sha256": "20498cf43dc363a691ac3a14f04e117d4a904bd1db596f320417af3b2a616737"
     },
     {
       "tool_id": "art-121-document-integrity-anchor",
       "mcp_name": "anchor_document_integrity",
       "display_name": "Document Integrity & eIDAS Electronic Timestamp Anchor",
       "uri": "ui://ainumbers/node/art-121-document-integrity-anchor",
-      "bytes": 75537,
-      "sha256": "da233dd1cd58f1fdc971ce90ad7f5f0fa6ca5ebdeda2dcef48dbb4f3e86d0832"
+      "bytes": 75503,
+      "sha256": "572bef4db7cb74f9d1a0b8dc0d6ec15d23f104bdaf4bc3a5fad29e788a523e90"
     },
     {
       "tool_id": "art-122-timestamp-attestation-verifier",
       "mcp_name": "verify_timestamp_attestation",
       "display_name": "Timestamp Attestation Verifier",
       "uri": "ui://ainumbers/node/art-122-timestamp-attestation-verifier",
-      "bytes": 77063,
-      "sha256": "279e3f5b8f2f3708bc803c1e737e522aa9cfe33f0a846ec76d50b302ca00b5e4"
+      "bytes": 77029,
+      "sha256": "57a9a458fd522cd1d3d8580e5a339689ca80d7d67948929c8f8d1183ce363dde"
     },
     {
       "tool_id": "art-123-c2pa-manifest-validator",
       "mcp_name": "validate_c2pa_manifest",
       "display_name": "C2PA Content Credential Manifest Validator",
       "uri": "ui://ainumbers/node/art-123-c2pa-manifest-validator",
-      "bytes": 113260,
-      "sha256": "a45ceedbc4066d84a4f939dd3e0fc9d4821b12ee709cc718ae770aaf3a8ba8d2"
+      "bytes": 113226,
+      "sha256": "55dac472b01a1efed4ee8d92b5740c4dac684f68684fcbaca5fbf82d37be93d4"
     },
     {
       "tool_id": "art-124-content-credential-signature-verifier",
       "mcp_name": "verify_content_credential_signature",
       "display_name": "Content Credential Signature Verifier",
       "uri": "ui://ainumbers/node/art-124-content-credential-signature-verifier",
-      "bytes": 123944,
-      "sha256": "2c1e0c683cca57d2360667870f081ce38c6d03747d9f2f616c03fe912f667411"
+      "bytes": 123910,
+      "sha256": "2529800e8be2074f0635550fde00a61ce7e3018e40e95a249412a1d9d05f35dd"
     },
     {
       "tool_id": "art-125-provenance-ingredient-tree-resolver",
       "mcp_name": "resolve_provenance_ingredient_tree",
       "display_name": "Provenance Ingredient Tree Resolver",
       "uri": "ui://ainumbers/node/art-125-provenance-ingredient-tree-resolver",
-      "bytes": 111941,
-      "sha256": "225dc1de5060669c741b81098714ad4f0f5576748009f3229b240408cc308991"
+      "bytes": 111907,
+      "sha256": "5023a38bc1b082011858d1e3f4f963134e4ed0bddc7628966187fa67baea2442"
     },
     {
       "tool_id": "art-126-ai-act-art50-marking-checker",
       "mcp_name": "check_ai_act_art50_marking",
       "display_name": "EU AI Act Art. 50 Marking Checker",
       "uri": "ui://ainumbers/node/art-126-ai-act-art50-marking-checker",
-      "bytes": 75033,
-      "sha256": "7eadba62becc75cb98cd37b42e0c3c2278040313d4d340868aa66ce2c24b270c"
+      "bytes": 74999,
+      "sha256": "5bc5e84b4cc6ee949dd41c4aecf6d51ec76dc8f48cd36203ac32904e858b16f5"
     },
     {
       "tool_id": "art-127-dual-layer-disclosure-verifier",
       "mcp_name": "verify_dual_layer_disclosure",
       "display_name": "Dual-Layer Disclosure Verifier",
       "uri": "ui://ainumbers/node/art-127-dual-layer-disclosure-verifier",
-      "bytes": 72189,
-      "sha256": "0fb8229cf1d7cbc3e46d77947e6396e27bd0cf6a0613c26d85a402f282325a70"
+      "bytes": 72155,
+      "sha256": "80548b63b4ed9f329e092c745ecd5e359ccbe1403554660509838f898bd2232c"
     },
     {
       "tool_id": "art-128-content-binding-assertion-validator",
       "mcp_name": "validate_content_binding_assertion",
       "display_name": "Content Binding Assertion Validator",
       "uri": "ui://ainumbers/node/art-128-content-binding-assertion-validator",
-      "bytes": 74131,
-      "sha256": "e0a74b5b79a2d848f2ed2cf83abf5d54ee604c4b92d1d81ee44e5fada8af1cca"
+      "bytes": 74097,
+      "sha256": "84b28de2e1ca24243ca13d8c2487cb735824a8aa2acdc57ffedd4abc91838bad"
     },
     {
       "tool_id": "art-129-webbotauth-signature-verifier",
       "mcp_name": "verify_webbotauth_signature",
       "display_name": "Web Bot Auth Signature Verifier (RFC 9421)",
       "uri": "ui://ainumbers/node/art-129-webbotauth-signature-verifier",
-      "bytes": 78982,
-      "sha256": "75b05d74897122e8ebec04f803c3b5e36dec03c8cef4c315b056d302ec86e7cb"
+      "bytes": 78948,
+      "sha256": "c25720fdbb52e83f3f0fb22a6cbe2660e87f612afd7214a60666e0635082f80c"
     },
     {
       "tool_id": "art-130-signature-directory-validator",
       "mcp_name": "validate_signature_directory",
       "display_name": "HTTP Signatures Directory Validator",
       "uri": "ui://ainumbers/node/art-130-signature-directory-validator",
-      "bytes": 68342,
-      "sha256": "022d4e1d4e9a9291eff977143cc085aff37a4dcc7e41154321d4762d198da0dd"
+      "bytes": 68308,
+      "sha256": "db218f7778c41846d786090cc708369d0682482006124a626edd48c80d1cf489"
     },
     {
       "tool_id": "art-131-signature-agent-card-validator",
       "mcp_name": "validate_signature_agent_card",
       "display_name": "Signature Agent Card Validator",
       "uri": "ui://ainumbers/node/art-131-signature-agent-card-validator",
-      "bytes": 67895,
-      "sha256": "8d8326c40b652bf421fcb3ef3e525d9a64e21ca31df7339efbc72d898d190905"
+      "bytes": 67861,
+      "sha256": "3655ef1bb895957bec9b3fe4e5b51251472a7a8a10fff059272b17dfa05fafee"
     },
     {
       "tool_id": "art-132-agent-key-rotation-auditor",
       "mcp_name": "audit_agent_key_rotation",
       "display_name": "Agent Key Rotation Auditor",
       "uri": "ui://ainumbers/node/art-132-agent-key-rotation-auditor",
-      "bytes": 69406,
-      "sha256": "3f9704c06d2e8a5c4081fd35835faa828cff86934632abf409123be36322e76d"
+      "bytes": 69372,
+      "sha256": "e9c043160becc6de44d8bad3d9e180dbc9434b683d52b18c5a38c583594bb96f"
     },
     {
       "tool_id": "art-133-agent-payment-rail-trust-crosswalk",
       "mcp_name": "crosswalk_agent_payment_rail_trust",
       "display_name": "Agent Payment Rail Trust Crosswalk",
       "uri": "ui://ainumbers/node/art-133-agent-payment-rail-trust-crosswalk",
-      "bytes": 67953,
-      "sha256": "86d74d2842a3d31db86d96996d89e8604c99837956339ab39a0de89511676047"
+      "bytes": 67919,
+      "sha256": "cef91309cdf705eacd1223bec46f8c98fd6bdf655601c99d649e6b822555c2c2"
     },
     {
       "tool_id": "art-134-agent-directory-publish-readiness",
       "mcp_name": "assess_agent_directory_publish_readiness",
       "display_name": "Agent Directory Publish Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-134-agent-directory-publish-readiness",
-      "bytes": 68397,
-      "sha256": "ed4837b9aaaa99afe354bd2c2c13c6c107bb258cd5af4aa5046753c00effd1e4"
+      "bytes": 68363,
+      "sha256": "0c388684650811d2d8a115826900b33bfdf1a49ebd468cc3e86b48d7fb7e4a50"
     },
     {
       "tool_id": "art-135-cyclonedx-sbom-validator",
       "mcp_name": "validate_cyclonedx_sbom",
       "display_name": "CycloneDX SBOM Validator (EU CRA Annex I)",
       "uri": "ui://ainumbers/node/art-135-cyclonedx-sbom-validator",
-      "bytes": 74481,
-      "sha256": "ce2267372f84014cc418ed230dcc020fb79e7fc179c574f193b9d4fa02ae5cc6"
+      "bytes": 74447,
+      "sha256": "50932bce645f11f650ee6d7c811c6260e8680e654d6cbd122762fcf95f51082c"
     },
     {
       "tool_id": "art-136-slsa-provenance-verifier",
@@ -1340,40 +1340,40 @@
       "mcp_name": "validate_openvex_statement",
       "display_name": "OpenVEX Statement Validator",
       "uri": "ui://ainumbers/node/art-137-openvex-statement-validator",
-      "bytes": 72643,
-      "sha256": "e49ed3efb8730d66400a75edc8ad804bfdca004f6817bd5979ebe279926ff79a"
+      "bytes": 72609,
+      "sha256": "435f8baa124b559e8e9561806931a128b86f2804b33c634c72ef4d6ec1354315"
     },
     {
       "tool_id": "art-138-spdx-sbom-validator",
       "mcp_name": "validate_spdx_sbom",
       "display_name": "SPDX SBOM Validator (EU CRA Annex I)",
       "uri": "ui://ainumbers/node/art-138-spdx-sbom-validator",
-      "bytes": 73902,
-      "sha256": "114da6126477f95db37e29eb318e4ccd54b2cef9c12315669cdf6ebd95d9a6e3"
+      "bytes": 73868,
+      "sha256": "5d677179c55bdd321e00b95ecec6abaf08cfea59fd186745bbb418c9b4ca58d4"
     },
     {
       "tool_id": "art-139-cra-annex1-completeness-checker",
       "mcp_name": "check_cra_annex1_completeness",
       "display_name": "CRA Annex I Completeness Checker",
       "uri": "ui://ainumbers/node/art-139-cra-annex1-completeness-checker",
-      "bytes": 87109,
-      "sha256": "89eafaadaea4f70412ebde8976d0462dafa0b146e8caf615fd76aa2d138cb628"
+      "bytes": 87075,
+      "sha256": "55d21fa1d9f821e88eefee24855b4a60ef68645ec5235676ebb5395fbd6d2e6b"
     },
     {
       "tool_id": "art-140-cra-vuln-reporting-readiness",
       "mcp_name": "assess_cra_vuln_reporting_readiness",
       "display_name": "CRA Vulnerability Reporting Readiness (Art. 14)",
       "uri": "ui://ainumbers/node/art-140-cra-vuln-reporting-readiness",
-      "bytes": 86001,
-      "sha256": "82897af16d3f352c65b1373ab224712f57b63298e6deed8cc4a29faece68d963"
+      "bytes": 85967,
+      "sha256": "35554813a8107877f20f2dbfcced2f238b84b5940bccfa14884d35ca2ffce446"
     },
     {
       "tool_id": "art-141-nis2-entity-scope-classifier",
       "mcp_name": "classify_nis2_entity",
       "display_name": "NIS2 Entity Scope Classifier (Essential / Important / Out-of-Scope)",
       "uri": "ui://ainumbers/node/art-141-nis2-entity-scope-classifier",
-      "bytes": 81642,
-      "sha256": "ee2f33731d3cb05efa09f75f6b1ecfa95e8462b991fd7f6e461dda7dfc7a87f2"
+      "bytes": 81608,
+      "sha256": "865c9e4f12ef19e016012e2637504667c127d9dc2561280c3fbd219263cac230"
     },
     {
       "tool_id": "art-142-nis2-art21-gap-checker",
@@ -1396,16 +1396,16 @@
       "mcp_name": "score_nis2_incident_significance",
       "display_name": "NIS2 Incident Significance Scorer (Art. 23 Reporting Threshold)",
       "uri": "ui://ainumbers/node/art-144-nis2-incident-significance-scorer",
-      "bytes": 85322,
-      "sha256": "4bbc74ec29e52321cf2aa0ae5a71f5e77ff394616128369652b7a152424bb967"
+      "bytes": 85288,
+      "sha256": "626f442ec2565b19da7af33add4e869ac1153c25d7dd5e0c83a9c915806215f2"
     },
     {
       "tool_id": "art-145-nis2-ict-supply-chain-diligence-scorer",
       "mcp_name": "score_nis2_supply_chain_diligence",
       "display_name": "NIS2 ICT Supply-Chain Diligence Scorer (Art. 21(2)(d) / ENISA)",
       "uri": "ui://ainumbers/node/art-145-nis2-ict-supply-chain-diligence-scorer",
-      "bytes": 85073,
-      "sha256": "e8326f696471971f9096294258ecc400eaffbb1e8fb65e0333ea57d1185f610a"
+      "bytes": 85039,
+      "sha256": "6619c30556f92d0cfdaf2fe9a48e1d8d729e05407ac6b143975d41f7dd03a2aa"
     },
     {
       "tool_id": "art-146-nis2-governance-readiness-checker",
@@ -1444,24 +1444,24 @@
       "mcp_name": "audit_mcp_tool_scope_revocation",
       "display_name": "MCP Tool Scope & Revocation Auditor",
       "uri": "ui://ainumbers/node/art-150-mcp-tool-scope-revocation-auditor",
-      "bytes": 78298,
-      "sha256": "795b528007f2d9a778f53d032eb868121b0e238b76bc62d0b1cd547961373643"
+      "bytes": 78264,
+      "sha256": "b7df1b70bd6df0cce9db062918edb4b53bbfb8ee672cf897b3f9425db7807818"
     },
     {
       "tool_id": "art-151-agent-obo-mandate-validator",
       "mcp_name": "validate_agent_obo_mandate",
       "display_name": "Agent On-Behalf-Of (OBO) Mandate Validator",
       "uri": "ui://ainumbers/node/art-151-agent-obo-mandate-validator",
-      "bytes": 55284,
-      "sha256": "1854e32523300258de1ec8e97785db22d799be0c5aace263299776f5ec1aec55"
+      "bytes": 55250,
+      "sha256": "114e8ab763045b2875ab8b83bf958612c13ce2d9df6fe3ac8ed19e5695dadede"
     },
     {
       "tool_id": "art-152-mcp-task-lifecycle-validator",
       "mcp_name": "validate_mcp_task_lifecycle",
       "display_name": "MCP Task Lifecycle State Machine Validator",
       "uri": "ui://ainumbers/node/art-152-mcp-task-lifecycle-validator",
-      "bytes": 72020,
-      "sha256": "439e4cb0c42c674207ffdcf9bf1801a8e488751605be49c4aee5c975348ba936"
+      "bytes": 71986,
+      "sha256": "e4ffe89e7e7d8ca4afc115f445f135801d272a6251a2829f187333c48557f4d5"
     },
     {
       "tool_id": "art-153-emir-trade-report-field-validator",
@@ -1476,16 +1476,16 @@
       "mcp_name": "check_emir_uti_completeness",
       "display_name": "EMIR UTI Completeness Checker",
       "uri": "ui://ainumbers/node/art-154-emir-uti-completeness-checker",
-      "bytes": 72594,
-      "sha256": "191db6b186678048d72268bc2d94b21d25668483478961f821dbbc6556f36f67"
+      "bytes": 72560,
+      "sha256": "4c625a7f3ad074914c806ae8b135399e2a4d1d9add8858bf24c48b8fe4f7e4ea"
     },
     {
       "tool_id": "art-155-emir-upi-validator",
       "mcp_name": "validate_emir_upi",
       "display_name": "EMIR UPI Validator",
       "uri": "ui://ainumbers/node/art-155-emir-upi-validator",
-      "bytes": 70590,
-      "sha256": "b4e55f04e1bb3693974fb0d0325cf7fb70fe260622cb9f07fb03c4bb9aa39b76"
+      "bytes": 70556,
+      "sha256": "ebbbe3e0860dc9002e390cc2292c5a11b9f314121a40aca1966d18de5f2216c4"
     },
     {
       "tool_id": "art-156-emir-counterparty-pairing-reconciler",
@@ -1500,16 +1500,16 @@
       "mcp_name": "validate_emir_lifecycle_event",
       "display_name": "EMIR Lifecycle Event Validator",
       "uri": "ui://ainumbers/node/art-157-emir-lifecycle-event-validator",
-      "bytes": 72623,
-      "sha256": "5ad6f1f9bb0d5f9d73533240f6c70883266051fc3bfdf448d01a6be00a7be968"
+      "bytes": 72589,
+      "sha256": "cdd3f3317818aa82bbe32fc69ceadd73483c62c4987e2f5916aeb967ed086b56"
     },
     {
       "tool_id": "art-158-emir-reporting-readiness-diagnostic",
       "mcp_name": "run_emir_reporting_fit",
       "display_name": "EMIR Reporting Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-158-emir-reporting-readiness-diagnostic",
-      "bytes": 75121,
-      "sha256": "cd6097c725d18d710664c5db0ae7a87492084c057f1213b49614b978ee005032"
+      "bytes": 75087,
+      "sha256": "9519828b34b3882be84cbed9f08ed2ef69869d06e474529c18e1d9fad72cb27f"
     },
     {
       "tool_id": "art-159-vida-einvoice-en16931-conformance-validator",
@@ -1572,24 +1572,24 @@
       "mcp_name": "validate_eudr_geolocation",
       "display_name": "EUDR Geolocation Plot Validator",
       "uri": "ui://ainumbers/node/art-166-eudr-geolocation-plot-validator",
-      "bytes": 75203,
-      "sha256": "bc6ea6cdb035fa32a639587755b61bea4b3f6f7c8511b73f4526106b0c99f211"
+      "bytes": 75169,
+      "sha256": "99b68246fd659de9fb6f64d1338a47b7fc9fd014ef16ca0b6f4e9e4d1ed8e92b"
     },
     {
       "tool_id": "art-167-eudr-commodity-scope-classifier",
       "mcp_name": "classify_eudr_commodity_scope",
       "display_name": "EUDR Commodity Scope Classifier",
       "uri": "ui://ainumbers/node/art-167-eudr-commodity-scope-classifier",
-      "bytes": 79509,
-      "sha256": "41618a5a9739dad67ecfdb6e756c37c02ca1403dc9b41f111ec32ccf3f5bcdb1"
+      "bytes": 79475,
+      "sha256": "7bcf48f0467f3a4f5de6b533571580f1d7c74885282647d7fd43f81979c2509f"
     },
     {
       "tool_id": "art-168-eudr-country-benchmark-risk-scorer",
       "mcp_name": "score_eudr_country_risk",
       "display_name": "EUDR Country Benchmark Risk Scorer",
       "uri": "ui://ainumbers/node/art-168-eudr-country-benchmark-risk-scorer",
-      "bytes": 71862,
-      "sha256": "1c97d0197280989ad7a0da61fd059fb89e3a7187914818e1977a2bc0d0951ed0"
+      "bytes": 71828,
+      "sha256": "1577b8e71351b44e32a39fbc65587791b23cd7488fc4c7aadeda8178093b9b88"
     },
     {
       "tool_id": "art-169-eudr-supply-chain-traceability-linker",
@@ -1644,8 +1644,8 @@
       "mcp_name": "check_gpai_code_conformance",
       "display_name": "GPAI Code of Practice Conformance",
       "uri": "ui://ainumbers/node/art-175-gpai-code-of-practice-conformance",
-      "bytes": 77962,
-      "sha256": "6a68ae2bb861bf2826e577b45d575d43689a7edf4851bec801a739728d36ee5b"
+      "bytes": 77928,
+      "sha256": "f828b3cd9af14f89918a4576ce4131a010be0eadb6541013ddea041a81e8b6dc"
     },
     {
       "tool_id": "art-176-ai-governance-readiness-diagnostic",
@@ -1804,24 +1804,24 @@
       "mcp_name": "choose_cc_license",
       "display_name": "Creative Commons License Chooser",
       "uri": "ui://ainumbers/node/art-195-creative-commons-license-chooser",
-      "bytes": 69378,
-      "sha256": "b44133b62de4b23ae21513c47e22b93be21cb6155175269b63330b8124fbaff3"
+      "bytes": 69344,
+      "sha256": "8980c2eb9a528f3c82d30cb759456f51aa0776bf79d4327e72d70ce19fc8da73"
     },
     {
       "tool_id": "art-196-cant-be-evil-license-selector",
       "mcp_name": "select_cbe_license",
       "display_name": "Can't Be Evil License Selector",
       "uri": "ui://ainumbers/node/art-196-cant-be-evil-license-selector",
-      "bytes": 76375,
-      "sha256": "8879746487c99d5996f2195ec5e83136461e5307209f369d8da98a6dc937be0e"
+      "bytes": 76341,
+      "sha256": "1f821cf4bbb284179c96ca995b111cda336f7a1191c69658a88ec19acaa67dbe"
     },
     {
       "tool_id": "art-197-pil-flavor-mapper",
       "mcp_name": "map_pil_flavor",
       "display_name": "Story PIL Flavor Mapper",
       "uri": "ui://ainumbers/node/art-197-pil-flavor-mapper",
-      "bytes": 70439,
-      "sha256": "7b451408b6af0e106cf21b63dcac0ee83935a24f4d03fff4ee4efae9b6d4b01a"
+      "bytes": 70405,
+      "sha256": "cc792fee825233de3f1630e66055db9271db1a11982e7b119e630aaa7ee90586"
     },
     {
       "tool_id": "art-198-cross-license-rights-comparator",
@@ -1852,8 +1852,8 @@
       "mcp_name": "generate_iscc_code",
       "display_name": "ISCC Content Code Generator",
       "uri": "ui://ainumbers/node/art-201-iscc-content-code-generator",
-      "bytes": 89537,
-      "sha256": "7f4829c921bad8a63149ecf55532b1ee503981f39a535d5f9d9fe4a000ef0376"
+      "bytes": 89503,
+      "sha256": "59976fdc631c6063d9e5cebd38220064bd367719fd436f192e4e3e7981abdacb"
     },
     {
       "tool_id": "art-202-tdmrep-reservation-builder",
@@ -1900,8 +1900,8 @@
       "mcp_name": "generate_attribution_string",
       "display_name": "Attribution String Generator",
       "uri": "ui://ainumbers/node/art-207-attribution-string-generator",
-      "bytes": 68243,
-      "sha256": "261b9f1907ae65d5cbe34afedf850058e005033ff21475284952a5efeba883ae"
+      "bytes": 68209,
+      "sha256": "73b805c84e3d406131149903378b1935e9f30b26aa37fdc0a97a3b9a2eb5298f"
     },
     {
       "tool_id": "art-208-royalty-split-validator",
@@ -1916,16 +1916,16 @@
       "mcp_name": "validate_nft_metadata_art209",
       "display_name": "NFT Metadata Validator",
       "uri": "ui://ainumbers/node/art-209-nft-metadata-validator",
-      "bytes": 65487,
-      "sha256": "d17a82933e788bc049eb33482c7e19dea056bb2509376a32e58add4463b681cd"
+      "bytes": 65453,
+      "sha256": "d58df7d17b6adc16a42ba9ae4acd1ced6f8ebeedca6ee1da15f22215ee4a9fe5"
     },
     {
       "tool_id": "art-210-ipfs-cid-computer",
       "mcp_name": "compute_ipfs_cid",
       "display_name": "IPFS CID Computer",
       "uri": "ui://ainumbers/node/art-210-ipfs-cid-computer",
-      "bytes": 64676,
-      "sha256": "3c3e7f9a3f11486596e0d95e1d642c6f38677a3d57f435bfe3b44971c9df264d"
+      "bytes": 64642,
+      "sha256": "2daa2bbf439f22ea86d5fc7b88185bfe2ebc96816a0a82ee897e591d61721d81"
     },
     {
       "tool_id": "art-211-prediction-market-analyzer",
@@ -1940,8 +1940,8 @@
       "mcp_name": "find_prediction_arbitrage",
       "display_name": "Prediction Market Arbitrage",
       "uri": "ui://ainumbers/node/art-212-prediction-market-arbitrage",
-      "bytes": 69817,
-      "sha256": "e52d67c22ae3311c1e234a432df0bcea5c7fed6b232b2384b2add456e619d904"
+      "bytes": 69783,
+      "sha256": "af60e98d8f23ca9ca413d43ec88955de055e6951a06a222c439a52bc063cee37"
     },
     {
       "tool_id": "art-213-perp-liquidation-calculator",
@@ -2012,8 +2012,8 @@
       "mcp_name": "compute_llpa_stack",
       "display_name": "LLPA Stack Calculator",
       "uri": "ui://ainumbers/node/art-221-llpa-stack",
-      "bytes": 75238,
-      "sha256": "f5e11e8f29d0215563d957d22c06ddcffeec25b110fdd28abef23e3a3224abb2"
+      "bytes": 75204,
+      "sha256": "d28307ec27dbf0a2d158c8037d3633f488454d2f894ea3599b5bb9c6ae6433f6"
     },
     {
       "tool_id": "art-222-agency-eligibility-matrix",
@@ -2044,16 +2044,16 @@
       "mcp_name": "compute_va_funding_fee_residual",
       "display_name": "VA Funding Fee and Residual Income",
       "uri": "ui://ainumbers/node/art-225-va-funding-fee-residual",
-      "bytes": 81209,
-      "sha256": "332af35b59bd5d8a37e36c1818ce118e0225f837250d73b4e33314865d9d9b73"
+      "bytes": 81175,
+      "sha256": "15c928983b199ca113a6e22ef0ae5c8335ad1267c63ed37ad293f6db6c11cd5f"
     },
     {
       "tool_id": "art-226-mismo-uldd-ulad",
       "mcp_name": "lint_mismo_uldd_ulad",
       "display_name": "ULDD/ULAD Structural Linter",
       "uri": "ui://ainumbers/node/art-226-mismo-uldd-ulad",
-      "bytes": 77565,
-      "sha256": "6769ca646c108c849322f21bbbb2d636a7fcaca1d3be0096172668d48d241ba9"
+      "bytes": 77531,
+      "sha256": "18589814ab70437dc7f3509a62e1919488687eecc8d13a177487dd80db770f3d"
     },
     {
       "tool_id": "art-227-validate-adverse-action-notice",
@@ -2076,16 +2076,16 @@
       "mcp_name": "compute_disparity_metrics",
       "display_name": "Compute Disparate Impact Metrics",
       "uri": "ui://ainumbers/node/art-229-compute-disparity-metrics",
-      "bytes": 72918,
-      "sha256": "9d8e1a8e8230adf4dcf74a75d3be1b48bf2c6ba663d8a95a1eb6efd9d1c897af"
+      "bytes": 72884,
+      "sha256": "1b765fd116f488b8acc9d6543d6430659caeea5667ac2697053bc36db525c03a"
     },
     {
       "tool_id": "art-230-compute-hmda-rate-spread",
       "mcp_name": "compute_hmda_rate_spread",
       "display_name": "Compute HMDA Rate Spread",
       "uri": "ui://ainumbers/node/art-230-compute-hmda-rate-spread",
-      "bytes": 67590,
-      "sha256": "4115212e62dda75ad8ca5d5cdb5ccd296d540f0a7c54bc6fde8b1318c94501be"
+      "bytes": 67556,
+      "sha256": "dd56ade3805f0f402afb4c6754e9753082dce6620ba0cf16a40d2f61ee4a694e"
     },
     {
       "tool_id": "art-231-compute-mla-mapr",
@@ -2100,8 +2100,8 @@
       "mcp_name": "compute_scra_rate_cap",
       "display_name": "Compute SCRA Rate Cap",
       "uri": "ui://ainumbers/node/art-232-compute-scra-rate-cap",
-      "bytes": 70134,
-      "sha256": "36273fb120b1975461cf1fdaeb7efb9dc9d25cd2937060d359c4a49d5d8b4b80"
+      "bytes": 70100,
+      "sha256": "910e8731a80dab22fcf4be4ae98f5be70ec014f5bbcd253d69fc1558400e8be0"
     },
     {
       "tool_id": "art-233-check-card-act-ability-to-pay",
@@ -2140,8 +2140,8 @@
       "mcp_name": "validate_agent_audit_trail",
       "display_name": "Agent Audit Trail Conformance Validator (IETF AAT)",
       "uri": "ui://ainumbers/node/art-237-validate-agent-audit-trail",
-      "bytes": 55155,
-      "sha256": "9c1d13ef1d209cfb607880a0c66f37f89fac602fcc257ca0d5245d85c70064fb"
+      "bytes": 55121,
+      "sha256": "2be86e5b24b4345ac1e1c67aabc4f9b556d85dc4efbd78ac66f9ebfb1a804604"
     },
     {
       "tool_id": "art-238-classify-annex3-decisioning-obligations",
@@ -2180,8 +2180,8 @@
       "mcp_name": "validate_pacs008_party_completeness",
       "display_name": "pacs.008 Party Completeness Validator",
       "uri": "ui://ainumbers/node/art-242-pacs008-party-completeness-validator",
-      "bytes": 74951,
-      "sha256": "a79c3d9208fe29e31aad024186ab445f4287b8a6abc4d17d34cb30d529e1180d"
+      "bytes": 74917,
+      "sha256": "9bec1d146f9e498b14c0135d211e90543a8a9bbd9fbc8693fc0961e11700403e"
     },
     {
       "tool_id": "art-243-purpose-code-requirement-checker",
@@ -2196,8 +2196,8 @@
       "mcp_name": "simulate_gpi_tracker_lifecycle",
       "display_name": "SWIFT GPI Tracker Lifecycle Simulator",
       "uri": "ui://ainumbers/node/art-244-gpi-tracker-lifecycle-simulator",
-      "bytes": 69477,
-      "sha256": "678029aa390ce19e0e0587a930c9f7ebba45d89f4dcd361cb92f254037793918"
+      "bytes": 69443,
+      "sha256": "a5ace3e06ded8e7ae776d10c4e5dfeb221bc9698cce9cfe101254fab84645520"
     },
     {
       "tool_id": "art-245-mt-mx-translation-fidelity-scorer",
@@ -2236,8 +2236,8 @@
       "mcp_name": "compare_corridor_cost",
       "display_name": "Corridor Cost Comparator (World Bank RPW)",
       "uri": "ui://ainumbers/node/art-249-compare-corridor-cost",
-      "bytes": 72026,
-      "sha256": "b11dcc8aa3a68050fc443ba9145608c0a5e72ec0759da27eb475bd4d297c504c"
+      "bytes": 71992,
+      "sha256": "3147c14444e77fd80fe389c83fc17698acea65c235f968ebf0b18941eb1ee05b"
     },
     {
       "tool_id": "art-250-model-stablecoin-corridor-economics",
@@ -2292,8 +2292,8 @@
       "mcp_name": "validate_openids_homeowners_record",
       "display_name": "openIDS Homeowners Record Validator",
       "uri": "ui://ainumbers/node/art-256-validate-openids-homeowners-record",
-      "bytes": 65525,
-      "sha256": "df3f1a565bd7989aab3e94ce977273241a77c37d31ceecf4eba762120aae8060"
+      "bytes": 65491,
+      "sha256": "b1dd2fccf6e196bae98bd837eec59b04dbd2a66a46c13ccae7126f3d148f8c31"
     },
     {
       "tool_id": "art-257-calculate-claims-stp-economics",
@@ -2308,8 +2308,8 @@
       "mcp_name": "parse_camt053_reconciliation",
       "display_name": "ISO 20022 camt.053 Statement Reconciliation",
       "uri": "ui://ainumbers/node/art-258-parse-camt053-reconciliation",
-      "bytes": 67239,
-      "sha256": "cfea04b0a49d7a0cfa81c854a9aa35d07da3d6337db1460bcb247f4a4ef17a3e"
+      "bytes": 67205,
+      "sha256": "825badb650e76b9150f0a4f40444ea2b7ba2a2591b4598dbd1d99c6edc2409d8"
     },
     {
       "tool_id": "art-259-compute-multilateral-netting",
@@ -2348,8 +2348,8 @@
       "mcp_name": "score_cash_forecast_accuracy",
       "display_name": "Cash Forecast Accuracy Scoring",
       "uri": "ui://ainumbers/node/art-263-score-cash-forecast-accuracy",
-      "bytes": 63910,
-      "sha256": "6ca365a33281bb6e6b5e5e601d46d0d42129b1dc42aba7640411fa276a24e543"
+      "bytes": 63876,
+      "sha256": "f654f8ed5c0b41437138da31b3299559ae41768aff7ece34f92be7b4dab1dfe0"
     },
     {
       "tool_id": "art-264-validate-commission-hierarchy",
@@ -2380,16 +2380,16 @@
       "mcp_name": "check_producer_license_reciprocity",
       "display_name": "NAIC Producer License Reciprocity Check",
       "uri": "ui://ainumbers/node/art-267-check-producer-license-reciprocity",
-      "bytes": 63729,
-      "sha256": "84654418b280e8e1cf7afc4ffd800878dc5c87f9d4856c476e0d5ae38f12768d"
+      "bytes": 63695,
+      "sha256": "41e0769948db00b7cbceef6e1393c4fe0a4581d675fb7b3dafea85134657cd70"
     },
     {
       "tool_id": "art-268-compute-cdd-ownership-25pct",
       "mcp_name": "compute_cdd_ownership_25pct",
       "display_name": "FinCEN CDD 25% Beneficial Ownership Attribution",
       "uri": "ui://ainumbers/node/art-268-compute-cdd-ownership-25pct",
-      "bytes": 67261,
-      "sha256": "3f9bbdaf76b4c4dc35c7ce2347c710d650b710c4ccb61284e0ee8cc2a5dbe8be"
+      "bytes": 67227,
+      "sha256": "7ee108d975e37df31c5e5937cb3d0b4ddf488c6533f1ec606c0e99b58d13f989"
     },
     {
       "tool_id": "art-269-validate-w8-series-structural",
@@ -2436,8 +2436,8 @@
       "mcp_name": "compile_work_mandate",
       "display_name": "Work Mandate Compiler",
       "uri": "ui://ainumbers/node/art-274-compile-work-mandate",
-      "bytes": 60523,
-      "sha256": "7105a2c5ad26323e2f9e0149afd8e06770ba1238c21e2674d5ae0c54df213c81"
+      "bytes": 60489,
+      "sha256": "6992a2a47b11347e1d79b22f492cf2bb4ef1bad645c4eda94ffa1d60b9a64711"
     },
     {
       "tool_id": "art-275-genius-reserve-disclosure-checker",
@@ -2452,16 +2452,16 @@
       "mcp_name": "assemble_mutual_nda",
       "display_name": "Mutual NDA Composer",
       "uri": "ui://ainumbers/node/art-276-mutual-nda-composer",
-      "bytes": 87912,
-      "sha256": "c764547bb95d8e41080f0db6eff224e98331e9d0cdc48816fb0bce2f983ef4fb"
+      "bytes": 87878,
+      "sha256": "2a37f95b3590a2f3d9430d0db9aad01daf27f289c5a5eb01c3d6d8c1070bd0d9"
     },
     {
       "tool_id": "art-277-agreement-acceptance-binder",
       "mcp_name": "bind_agreement_acceptance",
       "display_name": "Agreement Acceptance Binder",
       "uri": "ui://ainumbers/node/art-277-agreement-acceptance-binder",
-      "bytes": 70686,
-      "sha256": "74117fea2b64dfcddf02e55b7068aed92c43c4029e6b483b42f110f571be6b01"
+      "bytes": 70652,
+      "sha256": "02324d6dd3e2aa6f64507f11475c20218574b27533d7e6271c879ec6f09fbeae"
     },
     {
       "tool_id": "art-278-reputation-score-aggregator",
@@ -2476,8 +2476,8 @@
       "mcp_name": "verify_eth_state_proof",
       "display_name": "State-Proof Verifier",
       "uri": "ui://ainumbers/node/art-279-state-proof-verifier",
-      "bytes": 96177,
-      "sha256": "1cd45b75d7a3a90ea1ea6d63b4075b2272247a43b789583e6042b9429b564e97"
+      "bytes": 96143,
+      "sha256": "662175374541cf5afaf6832bbe1428c54de7b29d6f736979256c3de13938fccc"
     },
     {
       "tool_id": "art-280-reserve-proof-verifier",
@@ -2556,16 +2556,16 @@
       "mcp_name": "lint_besu_settlement_contract",
       "display_name": "Besu Settlement Contract Linter",
       "uri": "ui://ainumbers/node/art-289-lint-besu-settlement-contract",
-      "bytes": 77965,
-      "sha256": "2159fd602d6e6d8273dbda73f22676d57b82efaa41c45d3a6d51cb7062c9a1a7"
+      "bytes": 77931,
+      "sha256": "4253e630a16e2a13d44093e7b61a28ae23264a01ef3ff69b5a20055b3326e383"
     },
     {
       "tool_id": "art-290-check-linea-l2-finality-window",
       "mcp_name": "check_linea_l2_finality_window",
       "display_name": "Linea L2 Finality Window Classifier",
       "uri": "ui://ainumbers/node/art-290-check-linea-l2-finality-window",
-      "bytes": 76095,
-      "sha256": "4bc3422f0417f4b3c53724b1db6d12ef857fc723c80bc9ceca768cf4ae8950c0"
+      "bytes": 76061,
+      "sha256": "2c129863250de68c70dba3191e55faf7ba0377cd1649d83ec9242d1ef2e00e3c"
     },
     {
       "tool_id": "art-291-screen-onledger-transfer-batch",
@@ -2604,8 +2604,8 @@
       "mcp_name": "route_einvoice_jurisdiction_mandate",
       "display_name": "E-Invoice Jurisdiction Mandate Router",
       "uri": "ui://ainumbers/node/art-295-einvoice-jurisdiction-mandate-router",
-      "bytes": 77984,
-      "sha256": "af201195c7603a3dad7286602232886119ce23728542f742ffac0721c8f8af91"
+      "bytes": 77950,
+      "sha256": "3f5d11bca03578b0a3e140d9c592280499410de29730ddcd271bed574a5b396a"
     },
     {
       "tool_id": "art-296-einvoice-transmission-receipt-builder",
@@ -2764,8 +2764,8 @@
       "mcp_name": "map_robinhood_chain_regime",
       "display_name": "Financial-Instrument Regime Mapper",
       "uri": "ui://ainumbers/node/art-318-rhc-regime-mapper",
-      "bytes": 70882,
-      "sha256": "fdeb753e71dd47553cb822d7da6127e0ea1db931f5e487010ba9b32316f5a6b3"
+      "bytes": 70848,
+      "sha256": "5d01918865d7d55c298005d6c8fd6e0dd02e5af3b6950272769f77fc7062f2ea"
     },
     {
       "tool_id": "art-319-rhc-valuation-linter",
@@ -2836,8 +2836,8 @@
       "mcp_name": "compute_annuity",
       "display_name": "Annuity PV / FV / Payment Solver",
       "uri": "ui://ainumbers/node/art-327-tvm-annuity",
-      "bytes": 69083,
-      "sha256": "a38cc83b6f7dcd41c706682600f27c4c37bc5a83ad11965b8d7562de18ab2fc4"
+      "bytes": 69049,
+      "sha256": "97d554d1e9ae481c2d980823c303ef89a087c4afcde1a5219e6dd464bd487ee6"
     },
     {
       "tool_id": "art-328-tvm-breakeven",
@@ -2860,16 +2860,16 @@
       "mcp_name": "compute_dv01",
       "display_name": "Bond DV01 (Price Value of a Basis Point)",
       "uri": "ui://ainumbers/node/art-330-tvm-dv01",
-      "bytes": 69777,
-      "sha256": "353762163fc001d9afbb30198660ba298534c3e4b55e324c13428bffb92dc2b6"
+      "bytes": 69743,
+      "sha256": "4d4255b66c7f6213a84dab978aa2b3199b37cc3503e864d00a2eeae127a7ce74"
     },
     {
       "tool_id": "art-331-tvm-convexity",
       "mcp_name": "compute_convexity",
       "display_name": "Bond Convexity",
       "uri": "ui://ainumbers/node/art-331-tvm-convexity",
-      "bytes": 70291,
-      "sha256": "55a39bc8653d6443e359028e600db3aa8237d4f8500545eadbfa583d98423876"
+      "bytes": 70257,
+      "sha256": "7d91f9213e7e9572f9dc558916c06bf06e0abd516bdf73674bec6ded94c5053c"
     },
     {
       "tool_id": "art-332-build-amortization-schedule",
@@ -3116,8 +3116,8 @@
       "mcp_name": "simulate_var_monte_carlo",
       "display_name": "Portfolio VaR — Monte Carlo (Integer PRNG)",
       "uri": "ui://ainumbers/node/art-371-simulate-var-monte-carlo",
-      "bytes": 81382,
-      "sha256": "e5da3616126dcb0907746c251969c3d7a26b15b3513e53e6d77eb7b603c152b1"
+      "bytes": 81348,
+      "sha256": "6f9a3a9be634b61d09a2d7a7ad5c7b2295b1a1b30011568ebc8deea5d3b6825b"
     },
     {
       "tool_id": "art-373-recompute-fund-nav",
@@ -3148,8 +3148,8 @@
       "mcp_name": "score_payee_name_match",
       "display_name": "Payee Name-Match Score (VoP/CoP)",
       "uri": "ui://ainumbers/node/art-376-score-payee-name-match",
-      "bytes": 78435,
-      "sha256": "1f5ea1be7b6eb94f31eab521bb23d7a7a491d53822785631a9f25eccb4123c10"
+      "bytes": 78401,
+      "sha256": "ecf8cc42aa916ee48cda5ba1bc6b1f20e00c3b34ddc37d258054e6dc81c70348"
     },
     {
       "tool_id": "art-377-build-vop-session-receipt",
@@ -3196,8 +3196,8 @@
       "mcp_name": "lint_cbom_structure",
       "display_name": "CBOM Structural Lint & CNSA-2.0 Classifier",
       "uri": "ui://ainumbers/node/art-386-lint-cbom-structure",
-      "bytes": 76769,
-      "sha256": "a31ab38f638ac8cf5bd1d2d161c3b2616ebb0333002e70106a4394a246996c1e"
+      "bytes": 76735,
+      "sha256": "2af34d02cc47e309ece65b8421ed9d56977cd376f2d99b203460767b4415a5e1"
     },
     {
       "tool_id": "art-387-pqc-deadline-ladder-calculator",
@@ -3468,8 +3468,8 @@
       "mcp_name": "compute_cyber_incident_notification_clock",
       "display_name": "Cyber Incident Notification Clock",
       "uri": "ui://ainumbers/node/art-428-cyber-incident-clock",
-      "bytes": 88661,
-      "sha256": "b6bc16877f7dde1c40a000bff7851b0ac0680811c15c49a6c5ca93bca8d0b119"
+      "bytes": 88627,
+      "sha256": "acc6d48b987efa07cdaab3edfd578d536eddcb6e37890b8ade41794976d61f8a"
     },
     {
       "tool_id": "art-429-var-backtest-traffic-light",
@@ -3756,8 +3756,8 @@
       "mcp_name": "classify_dora_ict_incident_and_clock_deadlines",
       "display_name": "DORA ICT Incident Classifier & Reporting Clock",
       "uri": "ui://ainumbers/node/art-467-dora-incident-classifier",
-      "bytes": 82515,
-      "sha256": "917a0240007286197b2aa8a44636fdce57c805709d37dcf32a19183eaaeefc07"
+      "bytes": 82481,
+      "sha256": "a1ef44b218fba757732df511331fb40dea664dff86db8651515d68ebe57aae38"
     },
     {
       "tool_id": "art-470-lookback-completeness-reconciler",
@@ -3988,24 +3988,24 @@
       "mcp_name": "check_safeguarding_reconciliation",
       "display_name": "CASS 15 Safeguarding Reconciliation Check",
       "uri": "ui://ainumbers/node/art-499-check-safeguarding-reconciliation",
-      "bytes": 63634,
-      "sha256": "8fd9c0ef655acbbf12709b2a94ef10e7abf61477b197e10fe79e6c752525ac6b"
+      "bytes": 63600,
+      "sha256": "7328efe180e4dd564886bdcdde9884157c0061da02b785dc1db086579b20ad93"
     },
     {
       "tool_id": "art-500-classify-safeguarding-method",
       "mcp_name": "classify_safeguarding_method",
       "display_name": "CASS 15 Safeguarding Method Classifier",
       "uri": "ui://ainumbers/node/art-500-classify-safeguarding-method",
-      "bytes": 63265,
-      "sha256": "7d351df63890c7ef617936447018aea8d777de5c2abd9c880e24011f4a8e4a28"
+      "bytes": 63231,
+      "sha256": "9f2629056a1776e6443d24ff508f9b09431f93363be7574468c8d2ee3f880de5"
     },
     {
       "tool_id": "art-501-build-safeguarding-audit-evidence",
       "mcp_name": "build_safeguarding_audit_evidence",
       "display_name": "CASS 15 Safeguarding Audit Evidence Pack",
       "uri": "ui://ainumbers/node/art-501-build-safeguarding-audit-evidence",
-      "bytes": 93478,
-      "sha256": "8237585db51a0ac08b5e7347f1b4412ad2f838d183c2ea1679d3fce46cd3809e"
+      "bytes": 93444,
+      "sha256": "05ea3a0b99d5581d695d6601a93beda03c2e604c3584505a5770e56fb2d5b1bc"
     },
     {
       "tool_id": "art-502-bind-attested-subject",
@@ -4316,8 +4316,8 @@
       "mcp_name": "recompute_best_execution",
       "display_name": "Best-Execution NBBO Recompute",
       "uri": "ui://ainumbers/node/art-541-best-execution-recompute",
-      "bytes": 63983,
-      "sha256": "b6a55b6e3a8184c2aad0fbcc2f6c6a7cd5f512ec22bec3c66edd356d9f33cb7d"
+      "bytes": 63949,
+      "sha256": "3f00b4deaea603a3cdb463b8ec63bf3ffe083a04e107803fae14423419344f4c"
     },
     {
       "tool_id": "art-543-csdr-penalty-recompute",
@@ -4340,8 +4340,8 @@
       "mcp_name": "run_slate_reporting_fit",
       "display_name": "SLATE Reporting Readiness Diagnostic",
       "uri": "ui://ainumbers/node/art-545-slate-readiness-diagnostic",
-      "bytes": 81119,
-      "sha256": "7294dc1ef3f804219c5675f090872326d5831efeb5a5af7ead4746679642fe3b"
+      "bytes": 81085,
+      "sha256": "e204a39dda5e534c4403d6f6e793e99efbd55b97c6f511a36b8c61d27ea6bb4d"
     },
     {
       "tool_id": "art-546-dtcc-ca-iso20022-validator",
@@ -4388,32 +4388,32 @@
       "mcp_name": "record_index_constituents",
       "display_name": "Record Index Constituents",
       "uri": "ui://ainumbers/node/art-557-record-index-constituents",
-      "bytes": 77752,
-      "sha256": "a2c3bbe57639e4565709dfe9a0476d5211d3a73a06d6f5530c3f46b29efe2493"
+      "bytes": 77718,
+      "sha256": "33a304417ff2d407ab2d5be7f34a29a90c7c6ea765b64acddea3ce503f1398ec"
     },
     {
       "tool_id": "art-558-record-fund-positions",
       "mcp_name": "record_fund_positions",
       "display_name": "Record Fund Positions",
       "uri": "ui://ainumbers/node/art-558-record-fund-positions",
-      "bytes": 75585,
-      "sha256": "319d1c424b2f941fc08b8e35e80a9728c92f16c5f59e3cabfb3ab300c85e88c8"
+      "bytes": 75551,
+      "sha256": "373bc8efc0c9225b573d74e9a8c38cd327479dca73fdae03e72765bbb675676d"
     },
     {
       "tool_id": "art-559-attest-calc-agent-independence",
       "mcp_name": "attest_calc_agent_independence",
       "display_name": "Calculation-Agent Independence Attestation",
       "uri": "ui://ainumbers/node/art-559-attest-calc-agent-independence",
-      "bytes": 51907,
-      "sha256": "424c4576b1b52d1e6b82268ce8a009622f50785938e00f418dbed57bb92a4c7f"
+      "bytes": 51873,
+      "sha256": "7c7372457c982e499736160281a54dfe6fed09e7099112931835a88360331866"
     },
     {
       "tool_id": "art-560-oracle-price-aggregation",
       "mcp_name": "oracle_price_aggregation",
       "display_name": "Oracle Price Aggregation",
       "uri": "ui://ainumbers/node/art-560-oracle-price-aggregation",
-      "bytes": 87399,
-      "sha256": "6c38eb020a2248f86095d38b60bbf7618019ef41dd62b5b79c4a4d417030a1f9"
+      "bytes": 87365,
+      "sha256": "b106fe5117193504a593859d68f1779fa280f1deda38ff7d75ad80977ff819cb"
     },
     {
       "tool_id": "art-561-currency-basket-index",
@@ -4452,16 +4452,16 @@
       "mcp_name": "verify_kya_x402_scope",
       "display_name": "KYA Credential x x402 Payload Scope Verifier",
       "uri": "ui://ainumbers/node/art-565-kya-x402-scope-verifier",
-      "bytes": 55699,
-      "sha256": "a0bf338a468c72f1b1c6a85b24a46602afafdbcddb93fdea400d1a77326981e7"
+      "bytes": 55665,
+      "sha256": "7ddceaf4d9b4480f375b3a5979704717c909638162d5dac900ff092e9b320c51"
     },
     {
       "tool_id": "art-566-iolta-three-way-reconciliation",
       "mcp_name": "check_iolta_three_way_reconciliation",
       "display_name": "IOLTA Three-Way Trust Reconciliation",
       "uri": "ui://ainumbers/node/art-566-iolta-three-way-reconciliation",
-      "bytes": 65058,
-      "sha256": "dbf9bf79f20b026f81d7b67864319d142428957c37036202ed52a78766d9d187"
+      "bytes": 65024,
+      "sha256": "50470464003c1a7856226fbdbf0357d4c6aa34e1c21ca6cc1b18160c234136cd"
     },
     {
       "tool_id": "art-567-pe-waterfall-lp-recompute",
@@ -4580,16 +4580,16 @@
       "mcp_name": "classify_emir3_simm_approval_scope",
       "display_name": "EMIR 3 SIMM Approval-Scope Classifier",
       "uri": "ui://ainumbers/node/art-581-emir3-simm-approval-scope-classifier",
-      "bytes": 84862,
-      "sha256": "9e521b3d439accb2a0b8c8ffddea3315e80a137e1f784bdfcdfc1d2d48359c97"
+      "bytes": 84828,
+      "sha256": "8b7cae24c44f7c93836085bb23edbef110fa1b1b820d4ace35e2c8d36db2af91"
     },
     {
       "tool_id": "art-582-genius-reserve-disclosure-conformance-monitor",
       "mcp_name": "check_genius_reserve_disclosure_conformance",
       "display_name": "GENIUS Act Reserve-Disclosure Conformance Monitor",
       "uri": "ui://ainumbers/node/art-582-genius-reserve-disclosure-conformance-monitor",
-      "bytes": 84358,
-      "sha256": "0d99da5e6e9c012339f7d5d407edf41ea1544ab28e8072f41155004a820e83ce"
+      "bytes": 84324,
+      "sha256": "0b1fff47717843d2645be1265e43d7fa0b27adf0c71f59d1df78e20588155cfc"
     },
     {
       "tool_id": "art-583-beacon-seeded-fair-sampling-deriver",
@@ -4612,8 +4612,8 @@
       "mcp_name": "build_sanctions_screening_evidence_pack",
       "display_name": "Sanctions Screening Evidence Pack",
       "uri": "ui://ainumbers/node/art-585-sanctions-screening-evidence-pack",
-      "bytes": 45551,
-      "sha256": "d83adbb4f1279f23890f3ff8a2514085e08118442e081ea4b832593a583d2b74"
+      "bytes": 45517,
+      "sha256": "47c43dc1f1f0fa0e0d715f2eb3c70d9abc69e74cef5ce975ace9a64439aa5a66"
     },
     {
       "tool_id": "art-587-finp2p-ledger-proof-verifier",
@@ -4628,8 +4628,8 @@
       "mcp_name": "sweep_docket_deadlines",
       "display_name": "Docket Deadline Sweep",
       "uri": "ui://ainumbers/node/art-588-docket-deadline-sweep",
-      "bytes": 56113,
-      "sha256": "e1f19595afcb5dc9afe22489df4a1a61d9447eb7c6b2321183dba4157266fb06"
+      "bytes": 56079,
+      "sha256": "55daed7a27632d5ef22a5229af7b00ae9a8eddd489d9899c3893d7a6b0fc8655"
     },
     {
       "tool_id": "art-589-redline-round-classifier",
@@ -4644,32 +4644,32 @@
       "mcp_name": "recompute_x402_eip712_digest",
       "display_name": "x402 EIP-712 Digest Recomputer",
       "uri": "ui://ainumbers/node/art-590-x402-eip712-digest-recomputer",
-      "bytes": 113238,
-      "sha256": "394b16c6ddc3cd1ffe79abda2ab06b77471bd3ae470e3f0eb9ce0e8d13ff2c5e"
+      "bytes": 113204,
+      "sha256": "48b87b6ef5c0610dd4d1eab133766a83448ceaddbff7f93b75c8df65738af703"
     },
     {
       "tool_id": "art-591-x402-signer-recovery-verifier",
       "mcp_name": "verify_x402_signer_recovery",
       "display_name": "x402 Signer Recovery Verifier",
       "uri": "ui://ainumbers/node/art-591-x402-signer-recovery-verifier",
-      "bytes": 289649,
-      "sha256": "d99a90ef49e39d4678fe08e208bd77128457cd5dfac795ae0e65bb464b33fde5"
+      "bytes": 289615,
+      "sha256": "b53c7448a3dc2db5b908440fe1967d6ab199d2dadb5c57026bbc45ea082834d5"
     },
     {
       "tool_id": "art-592-x402-domain-nonce-window-checker",
       "mcp_name": "check_x402_domain_nonce_window",
       "display_name": "x402 Domain & Nonce Window Checker",
       "uri": "ui://ainumbers/node/art-592-x402-domain-nonce-window-checker",
-      "bytes": 80402,
-      "sha256": "bfc9e40855455b7e090c543e234bafc039eeba4ef276cb6c0628c7f915eea7c1"
+      "bytes": 80368,
+      "sha256": "310292b99b3b918ea79de1151d22ede97cffe37be1c1e3080f7a26cdf41886d0"
     },
     {
       "tool_id": "art-593-webbotauth-nonce-replay-check",
       "mcp_name": "check_webbotauth_nonce_replay",
       "display_name": "Web Bot Auth Nonce & Replay-Window Checker",
       "uri": "ui://ainumbers/node/art-593-webbotauth-nonce-replay-check",
-      "bytes": 72501,
-      "sha256": "fda79843258099a84aadbee422ab0c67003abf9755194076a698c2bea4516a8e"
+      "bytes": 72467,
+      "sha256": "fc428b06c27b8f394b76dfb3ace465a23807246ef507cab9f1301b69592108b7"
     },
     {
       "tool_id": "art-594-tempo-mpp-voucher-receipt-verifier",
@@ -4684,16 +4684,16 @@
       "mcp_name": "build_ap2_cartmandate_hashchain",
       "display_name": "AP2 CartMandate Hash-Chain Builder",
       "uri": "ui://ainumbers/node/art-595-ap2-cartmandate-hashchain-builder",
-      "bytes": 80925,
-      "sha256": "f0cde864df00007f7f478a1ea523aea71ff5ca6e2c2aa33804485edb16ecc3c0"
+      "bytes": 80891,
+      "sha256": "9b75b96934ae0fcf63d3abcf5dfb1f5f864361862973d0c3c708bfb1f5bada91"
     },
     {
       "tool_id": "art-596-ap2-x402-cart-correlation",
       "mcp_name": "correlate_ap2_cartmandate_x402",
       "display_name": "Ap2 X402 Cart Correlation",
       "uri": "ui://ainumbers/node/art-596-ap2-x402-cart-correlation",
-      "bytes": 90518,
-      "sha256": "3a70076f584e7434a1b004fa01cd41671b8785750d2d5cd2cd2167b5126762ec"
+      "bytes": 90484,
+      "sha256": "a4cfa269273549e53920ad458bc4dd07774ff56a598c6af13f8b875fa7dd2c44"
     },
     {
       "tool_id": "art-597-c2pa-aiml-assertion-decoder",
@@ -4716,16 +4716,16 @@
       "mcp_name": "digest_gleif_snapshot",
       "display_name": "GLEIF Snapshot Digest",
       "uri": "ui://ainumbers/node/art-599-gleif-snapshot-digest",
-      "bytes": 79856,
-      "sha256": "7a771a0ac5ccbba59c09a383750ab69cfa0790e061f0eb0a9b2ffd58a108d56b"
+      "bytes": 79822,
+      "sha256": "88d81cfb20764d828999c383b37eb8ac87d2890616674c4b74c17e9cc7311ac8"
     },
     {
       "tool_id": "art-600-lei-relationship-consistency",
       "mcp_name": "check_lei_relationship_consistency",
       "display_name": "LEI Relationship Consistency Checker",
       "uri": "ui://ainumbers/node/art-600-lei-relationship-consistency",
-      "bytes": 80794,
-      "sha256": "b3e1392b8678b1df96ee6f7402f6a98ec806f99b944f17f15c99800088686faf"
+      "bytes": 80760,
+      "sha256": "389bd452604695354de18b5f8c69c3d2e79f653f32c6e3f10a8daca7ebced531"
     },
     {
       "tool_id": "art-601-dora-roi-gleif-preflight-pack",
@@ -4764,8 +4764,8 @@
       "mcp_name": "verify_merkle_airdrop_proof",
       "display_name": "Merkle Airdrop-Proof Verifier",
       "uri": "ui://ainumbers/node/art-605-merkle-airdrop-proof-verifier",
-      "bytes": 84978,
-      "sha256": "d0f38d3b5f3890bc0f23ed87d094cff8d3cca6dadc510e53a2c810209580efc6"
+      "bytes": 84944,
+      "sha256": "a38b9e8ea542ed7048605460ccdd4e92c6e993bd47cf8204af3d916855236f29"
     },
     {
       "tool_id": "art-606-erc165-interface-id-verifier",
@@ -4780,32 +4780,32 @@
       "mcp_name": "classify_erc1967_proxy_slot",
       "display_name": "ERC-1967 Proxy Slot Classifier",
       "uri": "ui://ainumbers/node/art-607-erc1967-proxy-slot-classifier",
-      "bytes": 116269,
-      "sha256": "2340b67ce720dcc66ce7d1c71551495e77f62991a2bbcfce50778c854e104d7a"
+      "bytes": 116235,
+      "sha256": "4fad5eb0287536a4ac86bb2bd829cd62668d517e0f1c630aa8247851e4c064fe"
     },
     {
       "tool_id": "art-608-erc2981-royalty-calculator",
       "mcp_name": "calculate_erc2981_royalty",
       "display_name": "ERC-2981 Royalty Calculator",
       "uri": "ui://ainumbers/node/art-608-erc2981-royalty-calculator",
-      "bytes": 78138,
-      "sha256": "55d7013103b2f848a8939311b99b12cad53c0a0df1268d233d210d24fc61bf9a"
+      "bytes": 78104,
+      "sha256": "16d8a36f48859e2a60e7ffc99086604e2ecd177dbeebda863fd9c7d36988a479"
     },
     {
       "tool_id": "art-609-jwks-pinned-directory-check",
       "mcp_name": "check_jwks_pinned_directory",
       "display_name": "JWKS Pinned-Directory Check",
       "uri": "ui://ainumbers/node/art-609-jwks-pinned-directory-check",
-      "bytes": 72322,
-      "sha256": "ae3807939fcdf5a2a7c000a5c5d1f0679a4fb92f84517c03ed323b4065309b6b"
+      "bytes": 72288,
+      "sha256": "da1208ee53a16dee85e76a3821dd6d8479559c2a91d943f7cdfbee0a74636789"
     },
     {
       "tool_id": "art-610-erc4626-vault-share-math",
       "mcp_name": "recompute_erc4626_vault_share_math",
       "display_name": "ERC-4626 Vault Share Math",
       "uri": "ui://ainumbers/node/art-610-erc4626-vault-share-math",
-      "bytes": 88183,
-      "sha256": "a4e8accfd07d4c7e57325a5041a1383f0fec8d11c1077b6f095df99effa5f8e3"
+      "bytes": 88149,
+      "sha256": "431a83556c648b644733350aff4440629395abe0b6461024c076ffa23f6f8dc0"
     },
     {
       "tool_id": "art-611-erc7540-async-vault-request-accounting",
@@ -4828,32 +4828,32 @@
       "mcp_name": "recompute_erc4337_userop_math",
       "display_name": "ERC-4337 UserOperation Math",
       "uri": "ui://ainumbers/node/art-613-erc4337-userop-math",
-      "bytes": 140412,
-      "sha256": "145b4c447bf87364b063b97c1888e24bb32ab8b2e70822e2aed138fb75ac5d92"
+      "bytes": 140378,
+      "sha256": "678cd7fb46e15d315f964b941a0ae164b8a09f63d753f3c6529f4cb8bdee8258"
     },
     {
       "tool_id": "art-614-eip7702-authorization-tuple-decoder",
       "mcp_name": "decode_eip7702_authorization_tuple",
       "display_name": "EIP-7702 Authorization-Tuple Decoder",
       "uri": "ui://ainumbers/node/art-614-eip7702-authorization-tuple-decoder",
-      "bytes": 292813,
-      "sha256": "935693e0e464d576772bd248a1c5f25e0e26518e46a7ceea853981874ec7b008"
+      "bytes": 292779,
+      "sha256": "b1f1b55815c3ae3f2a912d99a81d9c0f722f83dda9e288b9b7d5125e0f0d3542"
     },
     {
       "tool_id": "art-615-mla-charge-inclusion-classifier",
       "mcp_name": "classify_mla_charge_inclusion",
       "display_name": "MLA Charge-Inclusion Classifier",
       "uri": "ui://ainumbers/node/art-615-mla-charge-inclusion-classifier",
-      "bytes": 68336,
-      "sha256": "81d9b77f57550d6512400a7a6b3389d28cf8aabf44cee89277002eb5c8f4176e"
+      "bytes": 68302,
+      "sha256": "c43277b84881e3a8a581e876f90ae883e45209de2ba7114fd55de4a8f889e209"
     },
     {
       "tool_id": "art-616-mla-mapr-actuarial-recompute",
       "mcp_name": "recompute_mla_mapr_actuarial",
       "display_name": "MLA MAPR Actuarial Recompute",
       "uri": "ui://ainumbers/node/art-616-mla-mapr-actuarial-recompute",
-      "bytes": 70128,
-      "sha256": "42158974396b2f7b1ec1a028d4def1dd06757ab9c16bfc28aa82867cb3033295"
+      "bytes": 70094,
+      "sha256": "959df5700e6e436cb8f350581da2d333b566a5001c67a784b5de3ab5dad4c22c"
     },
     {
       "tool_id": "art-618-naic-clo-rbc-factor-calculator",
@@ -4868,8 +4868,8 @@
       "mcp_name": "recompute_ccd2_aprc_annex3",
       "display_name": "CCD2 Annex III APRC Recompute",
       "uri": "ui://ainumbers/node/art-619-ccd2-aprc-annex3-recompute",
-      "bytes": 44167,
-      "sha256": "46f4e76abef9d3eeca6a6d3824cca23da66dd252ff2764a56a5eef05b038e6c2"
+      "bytes": 44133,
+      "sha256": "5ebf06e0ef99b465458721e356ca7d0d89fd95fc9e3acf68a979efeef5ac688d"
     },
     {
       "tool_id": "art-620-summa-mst-inclusion-checker",
@@ -4908,8 +4908,8 @@
       "mcp_name": "evaluate_decision_tree",
       "display_name": "Declarative Decision-Tree Evaluator",
       "uri": "ui://ainumbers/node/art-628-declarative-decision-tree-evaluator",
-      "bytes": 65468,
-      "sha256": "ed024a4e1291d17eb7dd288f89ee92bf70aca7e45ad6bab4fe266a74133cbc45"
+      "bytes": 65434,
+      "sha256": "c6d0d5c0e75232f75aa5d8cedf846904c51287a6137d11b6a99454349246539d"
     },
     {
       "tool_id": "art-633-asc280-reportable-segment-tester",
@@ -4924,16 +4924,16 @@
       "mcp_name": "classify_codm_expense_significance",
       "display_name": "CODM Significant Expense Classifier",
       "uri": "ui://ainumbers/node/art-634-codm-expense-significance-classifier",
-      "bytes": 70917,
-      "sha256": "8cee2d9437ba64494799aab26565216e1b77ca2686d59881be25b80606cf8601"
+      "bytes": 70883,
+      "sha256": "a2254b78de87cb2667fd914321a6ec7c57e230aa6db7607df4f19ff20ad7a8ba"
     },
     {
       "tool_id": "art-635-rate-rec-5pct-threshold-classifier",
       "mcp_name": "classify_rate_rec_5pct_threshold",
       "display_name": "Rate Reconciliation 5% Threshold Classifier",
       "uri": "ui://ainumbers/node/art-635-rate-rec-5pct-threshold-classifier",
-      "bytes": 71352,
-      "sha256": "92d1f471c80c701368947ee7999e41c35a419855c7e0943f592e93b3cff85fdb"
+      "bytes": 71318,
+      "sha256": "0d1fa051fbebbf0334b4d51905fc16c1f23acb8f880ec74b9b86faf492709897"
     },
     {
       "tool_id": "art-636-globe-transition-deferred-tax-tracker",
@@ -5092,8 +5092,8 @@
       "mcp_name": "compute_regulatory_obligations_register",
       "display_name": "Regulatory Obligations Register",
       "uri": "ui://ainumbers/node/art-691-regulatory-obligations-register",
-      "bytes": 73182,
-      "sha256": "e9ee716634deeee093e41d0bcb107adfd57f6402d3a43d57e8686da8e5a239f4"
+      "bytes": 73148,
+      "sha256": "009443a1ddca5f9f6266045010564566ea330a598774272c0776a61dcdec05e5"
     },
     {
       "tool_id": "art-692-close-posting-lineage",
@@ -5116,8 +5116,8 @@
       "mcp_name": "recompute_x402_permit2_digest",
       "display_name": "X402 Permit2 Evidence Recomputer",
       "uri": "ui://ainumbers/node/art-699-x402-permit2-evidence-recomputer",
-      "bytes": 127895,
-      "sha256": "98c0a0f48165d68be944eab10351cd7a8970e18742575923a8c67b7708b26da4"
+      "bytes": 127861,
+      "sha256": "b320563ba18e0930c82768d7cb9f05e31bf238a8eb095630674dde6ee231daed"
     },
     {
       "tool_id": "art-700-authorization-payload-linter",
@@ -5132,88 +5132,88 @@
       "mcp_name": "match_invoice_three_way",
       "display_name": "Three Way Invoice Match",
       "uri": "ui://ainumbers/node/art-701-three-way-invoice-match",
-      "bytes": 86116,
-      "sha256": "9f317c8fc6e61235cf6921612325d80297b7647fc0478d947984c9e5f4201805"
+      "bytes": 86082,
+      "sha256": "17c4dcde6f2c011dbed6d3d2b5216572175fd7522971d2e3c5068aecdfd8494a"
     },
     {
       "tool_id": "art-702-runway-goal-path",
       "mcp_name": "find_runway_goal_path",
       "display_name": "Runway Goal Path",
       "uri": "ui://ainumbers/node/art-702-runway-goal-path",
-      "bytes": 79016,
-      "sha256": "1ae407f26066b8bcf59d27f407fbf20940c5c85ae0895b96297bcdff084ecff7"
+      "bytes": 78982,
+      "sha256": "f6e7d4163f95909d3494dcefdb4029a61e6686db68644dd610209e63b1e31b01"
     },
     {
       "tool_id": "art-703-mandate-authorization-gate",
       "mcp_name": "authorize_payment_against_mandate",
       "display_name": "Mandate Authorization Gate",
       "uri": "ui://ainumbers/node/art-703-mandate-authorization-gate",
-      "bytes": 91728,
-      "sha256": "fbf629b51e02fde84b8f63b15e231c57610f081ba705f7434c64003ed0f0c32a"
+      "bytes": 91694,
+      "sha256": "804bf2859f3affdd6482aa78098ee4b7476badd8fef3a9cab32b87eddd409bed"
     },
     {
       "tool_id": "art-704-ai-token-spend",
       "mcp_name": "estimate_ai_token_spend",
       "display_name": "AI Token Spend",
       "uri": "ui://ainumbers/node/art-704-ai-token-spend",
-      "bytes": 82192,
-      "sha256": "2d36ba251595fe5ec8687621fb45e5bcd2293df04ddd29d2600cd9c022f9b289"
+      "bytes": 82158,
+      "sha256": "964df8c4c73e07a34dbc913cb126a8767299efbff1fa2722549beafbe0d09ec1"
     },
     {
       "tool_id": "art-705-bond-ladder-builder",
       "mcp_name": "build_bond_ladder",
       "display_name": "Bond Ladder Builder",
       "uri": "ui://ainumbers/node/art-705-bond-ladder-builder",
-      "bytes": 82641,
-      "sha256": "19ae45237e2a32f04f9c71f0fa4eaa8157db340ed6d70fa227ec4c9e6d1dbef6"
+      "bytes": 82607,
+      "sha256": "ba8b7991ddea79ab34367563af9b72ad8fc4bba8b1b6d60a3e04a3783d432be7"
     },
     {
       "tool_id": "art-706-yield-curve-gspread",
       "mcp_name": "build_yield_curve_gspread",
       "display_name": "Yield Curve & G-Spread",
       "uri": "ui://ainumbers/node/art-706-yield-curve-gspread",
-      "bytes": 71730,
-      "sha256": "5667d482b8a9626ed41eab15bfff1bfa6a915b3483826138a18f12c2552790fd"
+      "bytes": 71696,
+      "sha256": "e5e3a75996714fa8e051843286abf583bba2e5e1c1054f87b52e07a2e4ff9796"
     },
     {
       "tool_id": "art-707-tsv-tier-cap-ladder",
       "mcp_name": "check_tsv_tier_cap_ladder",
       "display_name": "TSV Tier-Cap Ladder",
       "uri": "ui://ainumbers/node/art-707-tsv-tier-cap-ladder",
-      "bytes": 90434,
-      "sha256": "2181fb2af3e1f3c59ee21f2e1c9d6b74f888c9782e369590e329ee19709e9310"
+      "bytes": 90400,
+      "sha256": "c8c0c29ad33b4660af0df9470ff2cfed397a551e36a5a1066c07fd892745f924"
     },
     {
       "tool_id": "art-708-v4-hook-permission-reconciler",
       "mcp_name": "reconcile_v4_hook_permissions",
       "display_name": "V4 Hook Permission Reconciler",
       "uri": "ui://ainumbers/node/art-708-v4-hook-permission-reconciler",
-      "bytes": 78314,
-      "sha256": "07209f4e4295f95fc54745606050c731c611e11476194a0d9bf31862cfce67a2"
+      "bytes": 78280,
+      "sha256": "d7cf00ac8ba6f481d4cc02e6d5ad6e801fd15c22790a643ba0886bfe8e41d57b"
     },
     {
       "tool_id": "art-709-v4-hook-fee-conformance",
       "mcp_name": "check_v4_hook_fee_conformance",
       "display_name": "V4 Hook Fee Conformance",
       "uri": "ui://ainumbers/node/art-709-v4-hook-fee-conformance",
-      "bytes": 88772,
-      "sha256": "732fc306df76e837053f95f40c782d0938023a23062c33d5ce725c3c2dd1a906"
+      "bytes": 88738,
+      "sha256": "df9cd9166e3b7efc46d617b8af975e561dd0d5620338a175fbb7125b536cc8a7"
     },
     {
       "tool_id": "art-710-tsv-stoppage-concurrency",
       "mcp_name": "check_tsv_stoppage_concurrency",
       "display_name": "TSV Stoppage Concurrency",
       "uri": "ui://ainumbers/node/art-710-tsv-stoppage-concurrency",
-      "bytes": 81814,
-      "sha256": "f8229adc977f5790b5974f3f90add059f9a7f534decdeb56e13c513bfd390382"
+      "bytes": 81780,
+      "sha256": "216741021e73ca2d841ef0432f8294f27dad9b0c32696dfb4ba0843b6ca170c4"
     },
     {
       "tool_id": "art-711-sco60-crypto-asset-exposure-classifier-v2",
       "mcp_name": "classify_sco60_exposure_v2",
       "display_name": "SCO60 Group 2 Exposure Limit V2",
       "uri": "ui://ainumbers/node/art-711-sco60-crypto-asset-exposure-classifier-v2",
-      "bytes": 74412,
-      "sha256": "d9e88369d53fd77be0ddf14f3df0f221376c4c3c87a34d71dcaf3aeaace1bde2"
+      "bytes": 74378,
+      "sha256": "b1a032f657ee2a903f9e0d8ec661ad38a15cdaa2e6c0319a61c70b8e1afc098f"
     },
     {
       "tool_id": "art-712-workforce-board-roi",
@@ -5228,24 +5228,24 @@
       "mcp_name": "model_scorp_break_even",
       "display_name": "S-Corp Election Break-Even Modeler",
       "uri": "ui://ainumbers/node/art-713-scorp-election-break-even",
-      "bytes": 76128,
-      "sha256": "88a70533a066a5f2f5329eb0375436cc7d4b6cf5c11469979f21ccf27bab44d9"
+      "bytes": 76094,
+      "sha256": "250ab71c96009dfb04927d4f8dbbdeda466af33bc04f5abbfe20cf7a6df561dd"
     },
     {
       "tool_id": "art-715-token2022-transfer-fee-reconciler",
       "mcp_name": "reconcile_token2022_transfer_fee",
       "display_name": "Token-2022 Transfer-Fee Payment Reconciler",
       "uri": "ui://ainumbers/node/art-715-token2022-transfer-fee-reconciler",
-      "bytes": 86889,
-      "sha256": "c2c04db4bb611d9d8f5428e67428fee9fd545b0610e312a493970e8edfb80404"
+      "bytes": 86855,
+      "sha256": "129efc7c3d8407d4535845ecbaf5afee3bd75dcff2cdedddfeac95988bf326a4"
     },
     {
       "tool_id": "art-734-force-placed-insurance-checker",
       "mcp_name": "check_force_placed_notice",
       "display_name": "Force-Placed Insurance Notice Checker",
       "uri": "ui://ainumbers/node/art-734-force-placed-insurance-checker",
-      "bytes": 106681,
-      "sha256": "5bf530f25d83b1e88742dd4a8869cc956efc36fe26c3265070eaba2ab6592df6"
+      "bytes": 106647,
+      "sha256": "68488b34f429a2e51d4320b8bea2ab6b5afc2cc563cdedcc6d7cdea0d02d2c32"
     },
     {
       "tool_id": "art-735-solana-dvp-prefund-verifier",
@@ -5260,8 +5260,8 @@
       "mcp_name": "verify_solana_paychan_voucher",
       "display_name": "Solana Paychan Voucher Verifier",
       "uri": "ui://ainumbers/node/art-749-solana-paychan-voucher-verifier",
-      "bytes": 85105,
-      "sha256": "601ff600db3cefca10967fb0cf6684e5a2a77f15c9065ef65d0888fb52fbde60"
+      "bytes": 85071,
+      "sha256": "d21f3f3978192f4b5b1829a13eb37b267e781a2cac598e940c7237e03e4f02c6"
     },
     {
       "tool_id": "art-750-diff-evidence-bundles",
@@ -5284,40 +5284,40 @@
       "mcp_name": "calculate_home_office_augusta",
       "display_name": "Home Office and Augusta Rule",
       "uri": "ui://ainumbers/node/art-753-home-office-augusta",
-      "bytes": 126417,
-      "sha256": "9ea4097df7d87b7d0e9b0220c74c6033cca3bf954b70d1c8b05bed62e58377cf"
+      "bytes": 126383,
+      "sha256": "4c5ec2a7f23bb3bec55b19483be40d33a9b026baf2d7ad69d2d285884b302c8b"
     },
     {
       "tool_id": "art-754-equity-exit-waterfall",
       "mcp_name": "calc_equity_exit_waterfall",
       "display_name": "Equity Exit Waterfall Modeler",
       "uri": "ui://ainumbers/node/art-754-equity-exit-waterfall",
-      "bytes": 84345,
-      "sha256": "97ca7d35c0b067cf3d57a611b5fa5092c5a253490b54feab112677784a777f49"
+      "bytes": 84311,
+      "sha256": "29130ce2023d2556d6264c42e174d2255cff09d556f878ae511bbd44a496dfef"
     },
     {
       "tool_id": "art-756-sales-ote-commission-analyzer",
       "mcp_name": "analyze_sales_ote_commission",
       "display_name": "Sales OTE & Commission Analyzer",
       "uri": "ui://ainumbers/node/art-756-sales-ote-commission-analyzer",
-      "bytes": 55758,
-      "sha256": "83f05611a0f9ce1d16b3587529551588b9fa4a85c4da400666f2a13c486c6c7d"
+      "bytes": 93791,
+      "sha256": "4247f91202c2fef2ff414ae18475a0588c2a787b93481f19b02776d42bad12e2"
     },
     {
       "tool_id": "art-758-hdhp-ppo-break-even",
       "mcp_name": "estimate_hdhp_ppo_breakeven",
       "display_name": "HDHP vs. PPO Break-Even",
       "uri": "ui://ainumbers/node/art-758-hdhp-ppo-break-even",
-      "bytes": 44605,
-      "sha256": "05ce061c156d9701b268ee3b2be4a88841ddbdc315dac54eedd8d8f8f5de5fd7"
+      "bytes": 80707,
+      "sha256": "e362699e69e4367bad647031bbe605295cae782dd61258acde56181f7aeeff0c"
     },
     {
       "tool_id": "art-759-iso-amt-exposure-modeler",
       "mcp_name": "estimate_iso_amt_exposure",
       "display_name": "ISO AMT Exposure Modeler",
       "uri": "ui://ainumbers/node/art-759-iso-amt-exposure-modeler",
-      "bytes": 45965,
-      "sha256": "71519da876f46e32fbec84703b55688cef0801ec34017e30b24963c477508e17"
+      "bytes": 76828,
+      "sha256": "db28b758159cd98fa7c4421fae4dc2790c929579b2340e3bddd84617e4c9f004"
     },
     {
       "tool_id": "art-760-espp-break-even-optimal-sell",
@@ -5332,8 +5332,8 @@
       "mcp_name": "caregiver_income_impact",
       "display_name": "Caregiver Income Impact & Lost Earnings Estimator",
       "uri": "ui://ainumbers/node/art-761-caregiver-income-impact",
-      "bytes": 51606,
-      "sha256": "5d1af15a90bb19a9ae9572874f9960eea8518d01287648f368c4d37e74f94210"
+      "bytes": 88126,
+      "sha256": "aed501218c977fe32ba2009d8406fdc9e1c021fda2f8202dc82dc150a35cfe86"
     },
     {
       "tool_id": "art-763-ai-displacement-risk-screener",
@@ -5564,8 +5564,8 @@
       "mcp_name": "reconcile_omnibus_position",
       "display_name": "Omnibus Token Position Reconciliation",
       "uri": "ui://ainumbers/node/art-828-reconcile-omnibus-token-position",
-      "bytes": 98945,
-      "sha256": "f766e2823e14cb225aef43773205f77024927eda60286015607908cc996e5942"
+      "bytes": 98911,
+      "sha256": "9ea0b8055dbfe9a3c76199a84fec05669ddef362a1a71444135d0aa4eb9d75ed"
     },
     {
       "tool_id": "art-830-eip3009-spend-exposure-reconciler",
@@ -5644,16 +5644,16 @@
       "mcp_name": "assess_pfmi_proportional",
       "display_name": "PFMI proportional self-assessment scorer",
       "uri": "ui://ainumbers/node/art-846-assess-pfmi-proportional",
-      "bytes": 100357,
-      "sha256": "adc89708612b0f1512deca737b21567f509928ca0d1a272a9f0b264a4b98c4b9"
+      "bytes": 100323,
+      "sha256": "776bfb1d69ce2b109e444e6d9ea6d2b268021d930efc7861ff8ee5ecc7d2f45a"
     },
     {
       "tool_id": "art-847-cashleg-window-exposure",
       "mcp_name": "cashleg_window_exposure",
       "display_name": "Cash-Leg Window Exposure",
       "uri": "ui://ainumbers/node/art-847-cashleg-window-exposure",
-      "bytes": 63085,
-      "sha256": "ce4ffd5aec89532f75285ef4d3f270dac1bc1c1e83b2991c7c17eec7bd65a84f"
+      "bytes": 95144,
+      "sha256": "5bdcb25bf3611ce551263e61df78ea2ce5a0535790ed3d2bb540d41f587dd126"
     },
     {
       "tool_id": "art-851-islamic-mmf-placement-limits",
@@ -5662,6 +5662,30 @@
       "uri": "ui://ainumbers/node/art-851-islamic-mmf-placement-limits",
       "bytes": 39108,
       "sha256": "e1d787e8d8669c2467fea8edb8f9c8c1b176a8d172b4dd4503c993fde3904fca"
+    },
+    {
+      "tool_id": "art-852-murabahah-ibra-settlement",
+      "mcp_name": "compute_murabahah_ibra_settle",
+      "display_name": "Murabahah Ibra' Settlement",
+      "uri": "ui://ainumbers/node/art-852-murabahah-ibra-settlement",
+      "bytes": 51433,
+      "sha256": "708ab7dd9686fb1ec74ef481615f7fb786b435038e74ce448087063898618456"
+    },
+    {
+      "tool_id": "art-854-sukuk-tradability-composition",
+      "mcp_name": "check_sukuk_tradability_composition",
+      "display_name": "Sukuk Tradability Composition",
+      "uri": "ui://ainumbers/node/art-854-sukuk-tradability-composition",
+      "bytes": 37623,
+      "sha256": "329f9b269e71231ed756c9b5c91e66b0dd557613297be08715c12d1a031f71c0"
+    },
+    {
+      "tool_id": "art-855-murabahah-tawarruq-sequence",
+      "mcp_name": "check_murabahah_tawarruq_seq",
+      "display_name": "Murabahah Tawarruq Sequence Check",
+      "uri": "ui://ainumbers/node/art-855-murabahah-tawarruq-sequence",
+      "bytes": 53685,
+      "sha256": "fda63593853c98a45bcd2e7649f8afc8adad38421fad6e9d1d4f776ee28686a7"
     },
     {
       "tool_id": "art-856-ijarah-imbt-schedule",
@@ -5692,8 +5716,8 @@
       "mcp_name": "aggregate_execution_receipts",
       "display_name": "Agent-Action Audit-Trail Aggregator",
       "uri": "ui://ainumbers/node/cry-05-agent-action-audit-trail-aggregator",
-      "bytes": 99446,
-      "sha256": "a10f882ce7e1ecf4a4721bd34e5ca0d492638240c2466506a5fcbfe39bf1b021"
+      "bytes": 99412,
+      "sha256": "b24117a58feba881a20fd109b41b66dfead993a1b88670637c34fdc7206b7782"
     },
     {
       "tool_id": "ml-01-isolation-forest",
