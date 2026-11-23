@@ -5656,6 +5656,14 @@
       "sha256": "5bdcb25bf3611ce551263e61df78ea2ce5a0535790ed3d2bb540d41f587dd126"
     },
     {
+      "tool_id": "art-849-deferred-comp-457b",
+      "mcp_name": "compute_deferred_comp_457b",
+      "display_name": "Deferred Comp 457(b) Comparison",
+      "uri": "ui://ainumbers/node/art-849-deferred-comp-457b",
+      "bytes": 45266,
+      "sha256": "f6f2a891a0d54b43ba7e29b839f1cf7836a9de0411af3eef57792a70dff20740"
+    },
+    {
       "tool_id": "art-851-islamic-mmf-placement-limits",
       "mcp_name": "check_islamic_mmf_placement_limits",
       "display_name": "Islamic MMF Placement Limits",

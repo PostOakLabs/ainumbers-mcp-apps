@@ -50442,6 +50442,75 @@
     "additionalProperties": false,
     "x-derived-from": "fixture"
   },
+  "compute_deferred_comp_457b": {
+    "type": "object",
+    "properties": {
+      "valid_input": {
+        "type": "boolean",
+        "description": "False when any input was refused; the scenarios are then null."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "One REFUSED_INPUT_* entry per violated bound."
+      },
+      "inputs": {
+        "type": "object",
+        "description": "Echo of the nine inputs exactly as given (raw, never rounded); null for a refused value."
+      },
+      "limits_used": {
+        "type": "object",
+        "description": "The declared 2026 limit constants the tier comparison used."
+      },
+      "limit_tier": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "STANDARD",
+          "AGE_50_CATCH_UP",
+          "AGE_60_TO_63_CATCH_UP",
+          "SPECIAL_CATCH_UP_RANGE",
+          null
+        ],
+        "description": "Smallest limit tier that would permit the deferral; eligibility is not tested."
+      },
+      "scenario_a": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The 457(b) path: tax saved now, balance at retirement, level annual after-tax withdrawal, total after tax and NPV, all USD at 2dp."
+      },
+      "scenario_b": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "The taxable path: investable cash, gross balance, balance after gains tax, level annual withdrawal, total after tax and NPV, all USD at 2dp."
+      },
+      "advantage": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "total_usd and npv_usd (A minus B), break_even_retirement_rate_pct (4dp, clamped 0 to 100) and the verdict."
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Mirror of the conditional compliance flags."
+      },
+      "note": {
+        "type": "string"
+      }
+    }
+  },
   "compute_murabahah_ibra_settle": {
     "type": "object",
     "properties": {
