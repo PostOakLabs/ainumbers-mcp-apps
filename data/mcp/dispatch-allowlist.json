@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 821,
+  "tool_count": 824,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -192,6 +192,7 @@
     "check_mica_reserve_disclosure",
     "check_mt101_coexistence_readiness",
     "check_muni_arbitrage_spending_exception",
+    "check_murabahah_tawarruq_seq",
     "check_nis2_art21_measures",
     "check_nis2_governance_readiness",
     "check_nway_balance_closure",
@@ -213,6 +214,7 @@
     "check_stablecoin_cash_equiv",
     "check_stablecoin_refunds",
     "check_statement_footing_crossfoot",
+    "check_sukuk_tradability_composition",
     "check_tokenized_collateral_eligibility",
     "check_tsv_stoppage_concurrency",
     "check_tsv_tier_cap_ladder",
@@ -359,6 +361,7 @@
     "compute_mlr_rebate",
     "compute_modified_premium",
     "compute_multilateral_netting",
+    "compute_murabahah_ibra_settle",
     "compute_note_h_margin_debit",
     "compute_npv",
     "compute_odnsf_fee_recompute",
