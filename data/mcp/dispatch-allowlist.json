@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 824,
+  "tool_count": 825,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -308,6 +308,7 @@
     "compute_custody_segregation_ratio",
     "compute_cyber_incident_notification_clock",
     "compute_daycount_year_fraction",
+    "compute_deferred_comp_457b",
     "compute_derivatives_margin_workbench",
     "compute_deterministic_amortization_schedule",
     "compute_diff_evidence_bundles",
