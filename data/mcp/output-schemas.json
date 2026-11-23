@@ -50442,6 +50442,213 @@
     "additionalProperties": false,
     "x-derived-from": "fixture"
   },
+  "compute_murabahah_ibra_settle": {
+    "type": "object",
+    "properties": {
+      "authority": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "authority_profile": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "contracted_rate_bp": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "conventional_comparison": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "cost_of_purchase_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "instalment_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "markup_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "non_delivery": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "not_a_shariah_ruling": {
+        "type": "boolean"
+      },
+      "profit_rounding": {
+        "type": "string"
+      },
+      "refusal_code": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "refused_cost_types": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "CHARGE_LOST_PROFIT_REFUSED",
+            "CHARGE_MARKETING_REFUSED"
+          ]
+        }
+      },
+      "schedule": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cop_payment_minor": {
+              "type": "number"
+            },
+            "deferred_profit_minor": {
+              "type": "number"
+            },
+            "epr_instalment_minor": {
+              "type": "number"
+            },
+            "epr_profit_minor": {
+              "type": "number"
+            },
+            "epr_rate_bp": {
+              "type": "number"
+            },
+            "instalment_minor": {
+              "type": "number"
+            },
+            "month": {
+              "type": "number"
+            },
+            "outstanding_cop_minor": {
+              "type": "number"
+            },
+            "outstanding_selling_price_minor": {
+              "type": "number"
+            },
+            "period_ibra_minor": {
+              "type": "number"
+            },
+            "profit_minor": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "cop_payment_minor",
+            "deferred_profit_minor",
+            "instalment_minor",
+            "month",
+            "outstanding_cop_minor",
+            "outstanding_selling_price_minor",
+            "profit_minor"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "selling_price_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "selling_price_residual_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "selling_price_stated_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "settlement": {
+        "type": [
+          "null",
+          "object"
+        ]
+      },
+      "tenor_months": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "valid_input": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "variable_rate_applied": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "authority",
+      "authority_profile",
+      "contracted_rate_bp",
+      "conventional_comparison",
+      "cost_of_purchase_minor",
+      "domain_errors",
+      "instalment_minor",
+      "markup_minor",
+      "non_delivery",
+      "not_a_shariah_ruling",
+      "profit_rounding",
+      "refusal_code",
+      "refused_cost_types",
+      "schedule",
+      "selling_price_minor",
+      "selling_price_residual_minor",
+      "selling_price_stated_minor",
+      "settlement",
+      "tenor_months",
+      "valid_input",
+      "variable_rate_applied",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {

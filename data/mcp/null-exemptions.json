@@ -373,5 +373,51 @@
         "x_null_distinct": true
       }
     }
+  },
+  "art-852-murabahah-ibra-settlement": {
+    "properties": {
+      "authority": {
+        "x_null_distinct": true
+      },
+      "cost_of_purchase_minor": {
+        "x_null_distinct": true
+      },
+      "cpr_bp": {
+        "x_null_distinct": true
+      },
+      "tenor_months": {
+        "x_null_distinct": true
+      },
+      "instalment_minor": {
+        "x_null_distinct": true
+      },
+      "selling_price_minor": {
+        "x_null_distinct": true
+      },
+      "selling_price_stated_minor": {
+        "x_null_distinct": true
+      },
+      "epr_periods": {
+        "x_null_distinct": true
+      },
+      "settlement_month": {
+        "x_null_distinct": true
+      },
+      "instalment_due_minor": {
+        "x_null_distinct": true
+      },
+      "early_settlement_charges": {
+        "x_null_distinct": true
+      },
+      "late_payment_minor": {
+        "x_null_distinct": true
+      },
+      "non_delivery": {
+        "x_null_distinct": true
+      },
+      "conventional_loan": {
+        "x_null_distinct": true
+      }
+    }
   }
 }
