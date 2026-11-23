@@ -3356,6 +3356,16 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
               idx++;
               continue;
             }
+            // HASH-REFUSAL-WORKER-GUARDS-1: a kernel that ran but could not hash its own OUTPUT
+            // (execution_hash === null — the hasher returns null on an unhashable payload instead
+            // of throwing) is a refusal, never an ok step: the null hash must not be recorded ok,
+            // join the composite, or thread as the next step's parent hash.
+            if (invoked.execution_hash === null) {
+              results[idx] = { order: idx + 1, tool_id: tid, status: 'refused_input', inputs_source,
+                ...(invoked.hash_refusal ? { hash_refusal: invoked.hash_refusal } : {}) };
+              idx++;
+              continue;
+            }
             const artifact = invoked;
             // §17 build_identity (advisory — which SOURCE ran; hash-excluded). Mirror Mode 4.
             const srcImg = Array.isArray(node.compute_images) && node.compute_images.find((im) => im.system === 'sha256-source');
@@ -4289,7 +4299,10 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
           if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
           const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
-          const hash_valid = recomputed === artifact.execution_hash;
+          // HASH-REFUSAL-WORKER-GUARDS-1: once the shared hasher returns null on unhashable input,
+          // `null === null` would serve a BigInt output with hash_valid: true. A null recomputed
+          // hash (or a null stored one) is never a verified hash.
+          const hash_valid = recomputed !== null && recomputed === artifact.execution_hash;
           // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
           // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
           // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.
@@ -6239,7 +6252,9 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
             const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
             if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
             const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
-            const hash_valid = recomputed === artifact.execution_hash;
+            // HASH-REFUSAL-WORKER-GUARDS-1: same guard as emit_chaingraph_artifact Mode 4 — a null
+            // recomputed hash (or a null stored one) is never a verified hash (null === null trap).
+            const hash_valid = recomputed !== null && recomputed === artifact.execution_hash;
             // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
             // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
             // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.
