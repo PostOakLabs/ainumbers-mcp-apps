@@ -1117,6 +1117,38 @@
       }
     }
   },
+  "ai-agent-incident-multi-regime": {
+    "art-467-dora-incident-classifier": {
+      "incident_id": "INC-2026-0100",
+      "classification_at": "2026-07-20T09:00:00Z",
+      "clients_affected_pct": 2,
+      "duration_minutes": 30,
+      "geographical_spread_countries_count": 1,
+      "data_losses": false,
+      "economic_impact_amount": 5000,
+      "critical_services_affected": false,
+      "reputational_impact": false
+    },
+    "art-144-nis2-incident-significance-scorer": {
+      "service_disruption_hours": 4,
+      "estimated_affected_users": 5000,
+      "estimated_financial_loss_eur": 500000,
+      "third_party_cascade_impact": false,
+      "involves_malicious_act": false,
+      "cross_border_impact": false,
+      "entity_classification": "essential"
+    },
+    "art-428-cyber-incident-clock": {},
+    "art-237-validate-agent-audit-trail": {
+      "agent_identity": "did:web:agent.example.com#key-1",
+      "action_class": "EXECUTE",
+      "outcome": "SUCCESS",
+      "trust_level": "HIGH",
+      "sha256_prev_record": "aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344",
+      "ecdsa_present": true,
+      "record_id": "rec-001"
+    }
+  },
   "ai-content-disclosure-conformance": {
     "art-126-ai-act-art50-marking-checker": {
       "actions": [
@@ -12344,7 +12376,8 @@
       "created": 1750000000,
       "expires": 1750000300,
       "now_unix": 1750000060,
-      "max_age_s": 3600
+      "max_age_s": 3600,
+      "seen_nonces": []
     },
     "art-609-jwks-pinned-directory-check": {
       "directory_jwks": {
