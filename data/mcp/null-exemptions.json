@@ -305,6 +305,40 @@
       }
     }
   },
+  "art-756-sales-ote-commission-analyzer": {
+    "properties": {
+      "base_salary": {
+        "x_null_distinct": true
+      },
+      "ote": {
+        "x_null_distinct": true
+      },
+      "quota": {
+        "x_null_distinct": true
+      },
+      "attainment_pct": {
+        "x_null_distinct": true
+      },
+      "federal_tax_rate_pct": {
+        "x_null_distinct": true
+      },
+      "has_accelerator": {
+        "x_null_distinct": true
+      },
+      "accelerator_threshold_pct": {
+        "x_null_distinct": true
+      },
+      "accelerator_multiplier": {
+        "x_null_distinct": true
+      },
+      "has_draw": {
+        "x_null_distinct": true
+      },
+      "draw_monthly": {
+        "x_null_distinct": true
+      }
+    }
+  },
   "art-768-medicare-plan-comparison": {
     "properties": {
       "bad_year_admissions": {

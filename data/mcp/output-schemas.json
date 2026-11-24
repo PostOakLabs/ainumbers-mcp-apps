@@ -33782,50 +33782,11 @@
   },
   "classify_ledger_consensus_finality": {
     "type": "object",
-    "description": "Derived from the kernel's golden conformance fixtures (chaingraph/kernels/fixtures/art-527-classify-ledger-consensus-finality.fixtures.json) per CONTRACT.md §2.7 truth maintenance.",
     "properties": {
-      "settlement_model": {
-        "type": "string",
-        "enum": [
-          "deadline_bounded_inclusion",
-          "federated_bft"
-        ]
+      "as_of_ts": {
+        "type": "number"
       },
-      "outcome": {
-        "type": "string",
-        "enum": [
-          "final_success",
-          "final_failure_tec",
-          "final_never_included",
-          "expired_unprovable",
-          "final",
-          "pending"
-        ]
-      },
-      "finality_tier": {
-        "type": "string",
-        "enum": [
-          "final_success",
-          "final_failure_tec",
-          "final_never_included",
-          "expired_unprovable",
-          "final",
-          "pending"
-        ]
-      },
-      "reorg_exposure": {
-        "type": "string",
-        "enum": [
-          "none"
-        ]
-      },
-      "required_tier": {
-        "type": "string"
-      },
-      "meets_required_tier": {
-        "type": "boolean"
-      },
-      "claimed_tier": {
+      "chain_label": {
         "type": [
           "string",
           "null"
@@ -33834,22 +33795,55 @@
       "claim_verdict": {
         "type": "string",
         "enum": [
-          "claim_supported",
           "claim_overstated",
+          "claim_supported",
           "no_claim"
         ]
       },
-      "chain_label": {
+      "claimed_tier": {
         "type": [
           "string",
           "null"
+        ],
+        "enum": [
+          "final",
+          "final_never_included",
+          "final_success",
+          "notarized_pending",
+          null
         ]
       },
-      "as_of_ts": {
-        "type": "integer"
-      },
       "draft_pinned": {
-        "type": "boolean"
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "finality_tier": {
+        "type": "string"
+      },
+      "highest_validated_ledger": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "included_in_ledger": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "meets_required_tier": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "outcome": {
+        "type": "string"
       },
       "rationale": {
         "type": "array",
@@ -33857,22 +33851,14 @@
           "type": "string"
         }
       },
-      "submitted_at_ledger": {
-        "type": [
-          "integer",
-          "null"
-        ]
+      "reorg_exposure": {
+        "type": "string"
       },
-      "included_in_ledger": {
-        "type": [
-          "integer",
-          "null"
-        ]
-      },
-      "highest_validated_ledger": {
-        "type": [
-          "integer",
-          "null"
+      "required_tier": {
+        "type": "string",
+        "enum": [
+          "final",
+          "final_success"
         ]
       },
       "result_class": {
@@ -33881,19 +33867,53 @@
           "null"
         ],
         "enum": [
-          "tes",
-          "tec",
           "other",
+          "tec",
+          "tes",
           null
+        ]
+      },
+      "settlement_model": {
+        "type": "string",
+        "enum": [
+          "alpenglow",
+          "deadline_bounded_inclusion",
+          "federated_bft"
+        ]
+      },
+      "submitted_at_ledger": {
+        "type": [
+          "number",
+          "null"
         ]
       },
       "time_bounds_max": {
         "type": [
-          "integer",
-          "null"
+          "null",
+          "number"
         ]
       }
-    }
+    },
+    "required": [
+      "as_of_ts",
+      "chain_label",
+      "claim_verdict",
+      "claimed_tier",
+      "draft_pinned",
+      "finality_tier",
+      "highest_validated_ledger",
+      "included_in_ledger",
+      "meets_required_tier",
+      "outcome",
+      "rationale",
+      "reorg_exposure",
+      "required_tier",
+      "result_class",
+      "settlement_model",
+      "submitted_at_ledger",
+      "time_bounds_max"
+    ],
+    "additionalProperties": false
   },
   "compare_cross_ccp_pqd_fields": {
     "type": "object",
@@ -46550,7 +46570,7 @@
   },
   "model_scorp_break_even": {
     "type": "object",
-    "description": "output_payload: verdict (SCORP_WINS when net_annual_savings >= 0), net_se_income, reasonable_salary_pct, annual_admin_cost, filing_status, owner_health_premium_annual, reasonable_w2_salary, distribution, sole_prop_se_tax, scorp_payroll_tax (full-wage FICA: SS capped at $184,500, Medicare 2.9% uncapped), se_tax_savings, net_annual_savings, five_year_savings, break_even_income (first point of the 500-step grid, null when never reached), half_se_tax_deduction and scorp_employer_tax (diagnostics), qbi_199a_income, qbi_199a_deduction_tentative (20%), qbi_199a_value_at_risk (wages at the adjudicated 19.8% effective rate), net_annual_savings_qbi_adjusted, qbi_adjusted_break_even_income, caveats (flag-mirror advisories), scope_note."
+    "description": "output_payload: verdict (SCORP_WINS when net_annual_savings >= 0), tax_year_applied, net_se_income, reasonable_salary_pct, annual_admin_cost, filing_status, owner_health_premium_annual, reasonable_w2_salary, distribution, sole_prop_se_tax, scorp_payroll_tax (full-wage FICA: SS capped at the selected year's base, $184,500 for 2026 or $192,300 for 2027, Medicare 2.9% uncapped), se_tax_savings, net_annual_savings, five_year_savings, break_even_income (first point of the 500-step grid, null when never reached), half_se_tax_deduction and scorp_employer_tax (diagnostics), qbi_199a_income, qbi_199a_deduction_tentative (20%), qbi_199a_value_at_risk (wages at the adjudicated 19.8% effective rate), net_annual_savings_qbi_adjusted, qbi_adjusted_break_even_income, caveats (flag-mirror advisories), scope_note."
   },
   "reconcile_token2022_transfer_fee": {
     "type": "object",
