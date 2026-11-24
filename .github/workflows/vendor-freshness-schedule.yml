@@ -115,7 +115,7 @@ jobs:
           echo "proceed=true" >> "$GITHUB_OUTPUT"
 
   self-heal:
-    name: Compare vendored data/ vs site main — open the vendor PR when stale
+    name: Compare vendored data/, kernels/ and exporters/ vs site main — open the vendor PR when stale
     needs: pin
     if: needs.pin.outputs.proceed == 'true'
     runs-on: ubuntu-latest
@@ -153,7 +153,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: 🔄 Vendor-freshness compare — data/ + kernels/ vs site main (strict, scheduled)
+      - name: 🔄 Vendor-freshness compare — data/ + kernels/ + exporters/ vs site main (strict, scheduled)
         id: compare
         env:
           SITE_REPO: _site
@@ -163,12 +163,14 @@ jobs:
           printf '%s\n' "$OUT"
           echo "stale_rc=$RC" >> "$GITHUB_OUTPUT"
           # Stale-artifact count for the PR title "(N stale)": the compare's own
-          # verdict lines — one for chaingraph.json, one "K of M kernels" summary.
+          # verdict lines — one for chaingraph.json, one "K of M kernels" summary,
+          # plus one line per stale exporter copy (data/ and/or bundled ./exporters/).
           N=0
           if [ "$RC" -ne 0 ]; then
             echo "$OUT" | grep -q 'data/chaingraph/chaingraph.json is STALE' && N=$((N+1))
             K=$(echo "$OUT" | grep -oE '[0-9]+ of [0-9]+ kernels is STALE' | grep -oE '^[0-9]+' || true)
-            N=$((N + ${K:-0}))
+            E=$(echo "$OUT" | grep -c 'missing/differing vendored exporter:' || true)
+            N=$((N + ${K:-0} + ${E:-0}))
           fi
           echo "stale_count=$N" >> "$GITHUB_OUTPUT"
           # The EXACT baseline the compare read — check-vendor-fresh.mjs fetches
@@ -223,7 +225,7 @@ jobs:
           # SIGPIPEs git status (exit 141) when the dirty list exceeds the
           # pipe buffer (run 38763768621). sed reads all input, so the
           # capture-then-slice form cannot 141.
-          DIRTY="$(git status --porcelain -- ./data ./kernels)"
+          DIRTY="$(git status --porcelain -- ./data ./kernels ./exporters)"
           if [ -n "$DIRTY" ]; then
             echo "dirty=true" >> "$GITHUB_OUTPUT"
             echo "Regenerated tree differs from the vendored tree:"
@@ -307,7 +309,7 @@ jobs:
           git checkout -B "$BRANCH"
           git config user.name  "ainumbers-spec-sync[bot]"
           git config user.email "ainumbers-spec-sync[bot]@users.noreply.github.com"
-          git add -A -- data kernels server.json
+          git add -A -- data kernels exporters server.json
           # Two -m flags, not one multi-line literal: an unindented continuation
           # line inside `run: |` silently invalidates the whole workflow file
           # (measured 2026-08-16: 11 zero-job failure runs across every branch).
