@@ -78,6 +78,7 @@ const gates = [
   { name: 'hash-SSOT: no second execution-hash impl in worker.mjs', args: ['scripts/gate-hash-ssot.mjs'] },
   { name: 'I-JSON refusal on the hash surface (WORKER-HASH-SSOT-1)', args: ['scripts/gate-hash-ijson.mjs'] },
   { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
+  { name: 'automerge-label fallback (AUTOMERGE-NO-QUEUE-FALLBACK-1)', args: ['scripts/automerge-label-fallback.test.mjs'] },
   { name: 'id-splice: no string-replacement splice in worker.mjs', args: ['scripts/gate-idreplace-dos.mjs'] },
   { name: 'id-splice DoS runtime regression (WORKER-IDREPLACE-DOS-1)', args: ['scripts/test-idreplace-dos.mjs'] },
   { name: 'error-registry gate self-test (AICONTRACT-PART-B-1)', args: ['scripts/gate-error-registry.selftest.mjs'] },

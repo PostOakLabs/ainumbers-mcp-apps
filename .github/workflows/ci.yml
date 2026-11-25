@@ -253,6 +253,11 @@ jobs:
         # control and five negative controls. Its first run caught a real false-positive in the gate.
         run: node scripts/gate-idreplace-dos.selftest.mjs
 
+      - name: 🧪 automerge-label fallback (AUTOMERGE-NO-QUEUE-FALLBACK-1) — queue-less base merges only on green
+        # Runs the label workflow's own step shell against a stub gh: a base with a merge queue
+        # enqueues; master (no queue) merges directly only when every other check finished green.
+        run: node scripts/automerge-label-fallback.test.mjs
+
       - name: 🔒 id-splice gate — worker.mjs must splice the JSON-RPC id with a replacer FUNCTION
         # `tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id))` let a String.replace replacement
         # token in an attacker-supplied id splice the 1.74MB tools/list template into itself: id

@@ -69,33 +69,41 @@ jobs:
           permission-contents: write
 
       # `gh pr merge --auto` silently no-ops on a PR that is ALREADY green
-      # at label time, given the active merge_queue rule (main-ci-anchor,
-      # 20721322) — measured 2026-08-17 on PR #1348, run 32029898577: the
-      # step exited 0, printed "! The merge strategy for main is set by the
-      # merge queue", posted the comment below, and yet autoMergeRequest
-      # stayed null and the PR was never added to the queue. Still-running
-      # PRs are unaffected (#1345/#1349 merged fine — native auto-merge
-      # waits for their checks, then GitHub itself enqueues them). So this
-      # step no longer trusts the command's exit code: it asserts the end
-      # state via GraphQL and falls back to enqueuePullRequest directly
-      # when native auto-merge left the PR untouched.
+      # at label time, given an active merge_queue rule (measured 2026-08-17
+      # on the site repo, PR #1348: autoMergeRequest stayed null and the PR
+      # was never queued). So this step never trusts the command's exit code:
+      # it asserts the end state via GraphQL and falls back when native
+      # auto-merge left the PR untouched.
+      #
+      # AUTOMERGE-NO-QUEUE-FALLBACK-1: the fallback used to be
+      # enqueuePullRequest alone, but this repo's master has NO merge queue,
+      # so it failed with "No merge queue found for branch 'master'" and the
+      # labelled, green PR sat unmerged (2026-11-25, #646, twice). Now the
+      # fallback asks whether the base branch has a queue: with one, enqueue
+      # as before; without one, merge directly, but only when every other
+      # check run on the head commit has finished and none failed, pinned to
+      # that head SHA so a later push can't ride along.
       - name: Enable auto-merge / enqueue
         if: steps.guard.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          SELF_CHECK: Enable auto-merge on labeled PR
         run: |
           set -euo pipefail
 
           # -R required: no checkout step runs in this job, so gh has no git
           # repo to infer the target from (measured 2026-08-16, run 31980911540:
           # "fatal: not a git repository" without it). `|| true`: this is the
-          # happy path for a still-checking PR, not a fatal condition here —
-          # the assertion below is what decides pass/fail.
+          # happy path for a still-checking PR, not a fatal condition here,
+          # since the assertion below is what decides pass/fail.
           gh pr merge "$PR" -R "$REPO" --auto --squash || true
 
-          NODE_ID=$(gh pr view "$PR" -R "$REPO" --json id -q .id)
+          PRJSON=$(gh pr view "$PR" -R "$REPO" --json id,headRefOid,baseRefName)
+          NODE_ID=$(echo "$PRJSON" | jq -r .id)
+          HEAD_SHA=$(echo "$PRJSON" | jq -r .headRefOid)
+          BASE=$(echo "$PRJSON" | jq -r .baseRefName)
 
           check_state() {
             gh api graphql -f query='
@@ -110,32 +118,59 @@ jobs:
               }' -f id="$NODE_ID"
           }
 
-          RESULT=$(check_state)
-          MERGED=$(echo "$RESULT" | jq -r '.data.node.merged')
-          AUTO=$(echo "$RESULT" | jq -r '.data.node.autoMergeRequest')
-          QUEUED=$(echo "$RESULT" | jq -r '.data.node.mergeQueueEntry')
-
-          if [ "$MERGED" = "true" ] || [ "$AUTO" != "null" ] || [ "$QUEUED" != "null" ]; then
-            echo "auto-merge confirmed: merged=$MERGED autoMergeRequest=$AUTO mergeQueueEntry=$QUEUED"
-          else
-            echo "::notice title=Fallback::native auto-merge left PR #$PR untouched (already green); enqueueing directly via GraphQL enqueuePullRequest"
-            gh api graphql -f query='
-              mutation($id: ID!) {
-                enqueuePullRequest(input: {pullRequestId: $id}) {
-                  mergeQueueEntry { id }
-                }
-              }' -f id="$NODE_ID"
-
+          read_state() {
             RESULT=$(check_state)
             MERGED=$(echo "$RESULT" | jq -r '.data.node.merged')
             AUTO=$(echo "$RESULT" | jq -r '.data.node.autoMergeRequest')
             QUEUED=$(echo "$RESULT" | jq -r '.data.node.mergeQueueEntry')
+          }
 
+          read_state
+          if [ "$MERGED" = "true" ] || [ "$AUTO" != "null" ] || [ "$QUEUED" != "null" ]; then
+            echo "auto-merge confirmed: merged=$MERGED autoMergeRequest=$AUTO mergeQueueEntry=$QUEUED"
+            HOW="auto-merge enabled by automerge-label.yml; GitHub merges this PR itself once every required check passes."
+          else
+            QUEUE_ID=$(gh api graphql -f query='
+              query($owner: String!, $name: String!, $branch: String!) {
+                repository(owner: $owner, name: $name) { mergeQueue(branch: $branch) { id } }
+              }' -f owner="${REPO%%/*}" -f name="${REPO#*/}" -f branch="$BASE" \
+              --jq '.data.repository.mergeQueue.id // empty')
+
+            if [ -n "$QUEUE_ID" ]; then
+              echo "::notice title=Fallback::native auto-merge left PR #$PR untouched (already green); enqueueing directly via GraphQL enqueuePullRequest"
+              gh api graphql -f query='
+                mutation($id: ID!) {
+                  enqueuePullRequest(input: {pullRequestId: $id}) {
+                    mergeQueueEntry { id }
+                  }
+                }' -f id="$NODE_ID"
+              HOW="queued by automerge-label.yml; the merge queue merges this PR once its checks pass."
+            else
+              # No queue on the base: GitHub's auto-merge has nothing to wait
+              # on, so this job is the gate. Every check run on the head commit
+              # except this job's own must be finished, none may have failed,
+              # and at least one must have passed.
+              CI=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs?per_page=100" --jq '
+                [.check_runs[] | select(.name != env.SELF_CHECK)] as $r
+                | if any($r[]; .status != "completed") then "pending"
+                  elif any($r[]; .conclusion as $c | ["failure","cancelled","timed_out","action_required","startup_failure","stale"] | index($c)) then "red"
+                  elif any($r[]; .conclusion == "success") then "green"
+                  else "none" end')
+              if [ "$CI" != "green" ]; then
+                echo "::error title=Automerge held::base '$BASE' has no merge queue and CI on $HEAD_SHA is '$CI', so PR #$PR was not merged. Re-apply the automerge label once CI is green."
+                exit 1
+              fi
+              echo "::notice title=Fallback::base '$BASE' has no merge queue and CI on $HEAD_SHA is green; merging PR #$PR directly"
+              gh pr merge "$PR" -R "$REPO" --squash --match-head-commit "$HEAD_SHA"
+              HOW="merged by automerge-label.yml (no merge queue on $BASE; CI was green on $HEAD_SHA)."
+            fi
+
+            read_state
             if [ "$MERGED" != "true" ] && [ "$AUTO" = "null" ] && [ "$QUEUED" = "null" ]; then
-              echo "::error title=Automerge failed::PR #$PR is neither merged, auto-merge-pending, nor enqueued after the enqueuePullRequest fallback. This step must not report success while leaving the PR untouched (board/STANDING-ORDERS.md #41/#34c)."
+              echo "::error title=Automerge failed::PR #$PR is neither merged, auto-merge-pending, nor enqueued after the fallback. This step must not report success while leaving the PR untouched (board/STANDING-ORDERS.md #41/#34c)."
               exit 1
             fi
             echo "auto-merge confirmed via fallback: merged=$MERGED autoMergeRequest=$AUTO mergeQueueEntry=$QUEUED"
           fi
 
-          gh pr comment "$PR" -R "$REPO" --body "auto-merge enabled by automerge-label.yml; GitHub merges this PR itself once every required check passes. No further \`gh pr merge\` needed."
+          gh pr comment "$PR" -R "$REPO" --body "$HOW No further \`gh pr merge\` needed."
