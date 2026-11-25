@@ -60,8 +60,8 @@
       "mcp_name": "check_event_contract_position_limits",
       "display_name": "Event Contract Position Limit Check",
       "uri": "ui://ainumbers/node/790-event-position-limit-check",
-      "bytes": 72520,
-      "sha256": "71bf4d09254eabcb5234737435640d854420d63d3b26f3e9f38056677aefbfab"
+      "bytes": 74195,
+      "sha256": "af304f43d9327c0431037bfe2e376c587c9efe41b64d4c900aec8d7e7b9ce89c"
     },
     {
       "tool_id": "792-curator-vault-cap-auditor",
@@ -196,8 +196,8 @@
       "mcp_name": "compute_agent_cred_matrix",
       "display_name": "Agent Cred Class Matrix",
       "uri": "ui://ainumbers/node/827-agent-cred-class-matrix",
-      "bytes": 74027,
-      "sha256": "558a254f91333ea54492392f3d13da954711b10c80dd55244c662aa4fa61b26a"
+      "bytes": 74712,
+      "sha256": "8ac85b5e96bcf822b9d672c7326fbf7a9c7e39dedbf01bd9beae970e378b3db9"
     },
     {
       "tool_id": "829-safe-tx-hash-recompute",
@@ -2028,8 +2028,8 @@
       "mcp_name": "check_conforming_loan_limit",
       "display_name": "Conforming Loan Limit Check",
       "uri": "ui://ainumbers/node/art-223-conforming-loan-limit",
-      "bytes": 42502,
-      "sha256": "3b7b56e028e6f80a459c48319c16d46f2c595e1aae085c166294816adf587aa9"
+      "bytes": 43708,
+      "sha256": "aaa0d7ed6e701e4f859e5d85b2806504c5389262c09b39c7f0dd3002ad3d3878"
     },
     {
       "tool_id": "art-224-fha-mip-eligibility",
@@ -4756,8 +4756,8 @@
       "mcp_name": "verify_erc8004_registry_entry",
       "display_name": "ERC-8004 Registry Entry Verifier",
       "uri": "ui://ainumbers/node/art-604-erc8004-registry-entry-verifier",
-      "bytes": 94120,
-      "sha256": "0cfed7941c01552446f9c35955b1ec74e637d5e0080acf48b5b9db1a9569481a"
+      "bytes": 94495,
+      "sha256": "e7d47d9c343f9896dd2e2300bd7d753a23654e178d8b336586f95bb595d21a07"
     },
     {
       "tool_id": "art-605-merkle-airdrop-proof-verifier",
