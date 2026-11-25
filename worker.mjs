@@ -43,6 +43,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 // inline error construction appears outside errors.mjs (or the frozen dev-server baseline).
 import { mintRequestId, protocolErrorResponse, toolDomainErrorResult, toolErrorResult, TOOL_ERRORS } from './errors.mjs';
 import { assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash, jcsStringify } from './kernels/_hash.mjs';
+import { hashesMatch } from './hash-match.mjs';
 import { normalizeNullMembers } from './_null_normalize.mjs';
 import { invokeKernel } from './kernel-invoke.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
@@ -4289,7 +4290,8 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
           if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
           const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
-          const hash_valid = recomputed === artifact.execution_hash;
+          // HASH-NULL-NEVER-MATCHES-1: a null recompute (SSOT refusal) is never a match, even for a null claim.
+          const hash_valid = hashesMatch(recomputed, artifact.execution_hash);
           // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
           // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
           // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.
@@ -6239,7 +6241,8 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
             const ijsonBad = ijsonViolation({ policy_parameters: artifact.policy_parameters, output_payload: artifact.output_payload });
             if (ijsonBad) return ijsonErrorResult(ijsonBad, 'kernel-produced artifact (policy_parameters + output_payload)');
             const recomputed = await sharedExecutionHash(artifact.policy_parameters, artifact.output_payload);
-            const hash_valid = recomputed === artifact.execution_hash;
+            // HASH-NULL-NEVER-MATCHES-1: a null recompute (SSOT refusal) is never a match, even for a null claim.
+            const hash_valid = hashesMatch(recomputed, artifact.execution_hash);
             // §17 — attach the node's published kernel-source identity (advisory: which SOURCE ran — NOT a
             // proof of execution, that is §18). Digest is the Graph Index sha256-source compute_image, which
             // equals sourceDigest() of the vendored kernel that just ran. Hash-excluded; no execution_hash change.

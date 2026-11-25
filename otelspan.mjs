@@ -17,6 +17,7 @@
 // second hand-rolled one); rawPubkeyToDidKey/didKeyToPublicKey are reused from _proof.mjs
 // for the same reason (one did:key <-> Ed25519 raw-key mapping).
 import { jcsStringify, executionHash } from './kernels/_hash.mjs';
+import { hashesMatch } from './hash-match.mjs';
 import { rawPubkeyToDidKey, didKeyToPublicKey } from './kernels/_proof.mjs';
 
 /* ══════════════════════════════════════════════════════════════
@@ -405,7 +406,7 @@ export async function verifySpanReceiptBundle(bundle) {
   let traceExecOk = false;
   if (bundle.trace_receipt.policy_parameters && bundle.trace_receipt.output_payload) {
     const recheckHash = await executionHash(bundle.trace_receipt.policy_parameters, bundle.trace_receipt.output_payload);
-    traceExecOk = recheckHash === bundle.trace_receipt.execution_hash;
+    traceExecOk = hashesMatch(recheckHash, bundle.trace_receipt.execution_hash);
   }
 
   return {

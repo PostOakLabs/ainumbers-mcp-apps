@@ -239,6 +239,14 @@ jobs:
         # execution_hash on the live endpoint. A comment asserting parity is not a gate; this is.
         run: node scripts/gate-hash-ssot.mjs
 
+      - name: 🚫 A null hash never counts as a match (HASH-NULL-NEVER-MATCHES-1)
+        # The site SSOT executionHash() is moving from throwing to returning null on a preimage it
+        # cannot canonicalize (site HASH-REFUSAL-SHARED-1). A bare `recomputed === claimed` would
+        # then read null === null as a verified receipt. Runs checkrun/redline/otelspan against a
+        # null-returning hasher (plus a naive-comparison mutation control) and pins worker.mjs's
+        # kernel round-trip self-checks to hashesMatch().
+        run: node scripts/test-hash-null-never-matches.mjs
+
       - name: 🧮 I-JSON refusal on the hash surface (WORKER-HASH-SSOT-1)
         # Runtime half: over a real tools/call round-trip, verify_execution_hash and
         # emit_chaingraph_artifact must refuse non-round-trippable input with a structured -32602
