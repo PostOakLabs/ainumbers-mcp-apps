@@ -900,8 +900,8 @@
       "mcp_name": "check_allocation_affirmation",
       "display_name": "Allocation/Affirmation Conformance Checker",
       "uri": "ui://ainumbers/node/art-81-allocation-affirmation-conformance",
-      "bytes": 53679,
-      "sha256": "7f725edcbfdf1b81ed6fb1dee148c483f8e4c320915828e22982770176bd68d6"
+      "bytes": 55947,
+      "sha256": "a2f6419e67cff61cbe28f440f2216dccb2e62db7df975bf8f964ddddad59e9ab"
     },
     {
       "tool_id": "art-82-securities-settlement-message-linter",
@@ -2172,8 +2172,8 @@
       "mcp_name": "lint_cbpr_structured_address",
       "display_name": "CBPR+ Structured Address Linter",
       "uri": "ui://ainumbers/node/art-241-cbpr-structured-address-linter",
-      "bytes": 41205,
-      "sha256": "ebca5b3bef5bffb38e8e5ce49d4b0ca6e3a0299769f2d6cc322fe95b27d7ab9a"
+      "bytes": 41271,
+      "sha256": "df4cb417e38c0759104e5cb3438b6bbc311abc6e5ec06efba03871b44c9a3e5f"
     },
     {
       "tool_id": "art-242-pacs008-party-completeness-validator",
@@ -2204,8 +2204,8 @@
       "mcp_name": "score_mt_mx_translation_fidelity",
       "display_name": "MT103 to MX Translation Fidelity Scorer",
       "uri": "ui://ainumbers/node/art-245-mt-mx-translation-fidelity-scorer",
-      "bytes": 46304,
-      "sha256": "d337f92d3841461dc032dac3f56a6d25f3c96891f73fea9c1fe2a2a21205833e"
+      "bytes": 46307,
+      "sha256": "4ba91157e0473571f9daab0106b39f9594dfea89c3c72a023413aa58ed42e49a"
     },
     {
       "tool_id": "art-246-lei-payment-binding-linter",

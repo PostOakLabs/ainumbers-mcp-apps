@@ -7460,6 +7460,18 @@
       "format_nonconformance_count": {
         "type": "integer"
       },
+      "input_valid": {
+        "type": "boolean"
+      },
+      "input_issues": {
+        "type": "array"
+      },
+      "issues": {
+        "type": "array"
+      },
+      "timezone_note": {
+        "type": "string"
+      },
       "note": {
         "type": "string"
       },
@@ -7479,6 +7491,9 @@
             "type": "string"
           },
           "rule": {
+            "type": "string"
+          },
+          "statutory_basis": {
             "type": "string"
           }
         }
@@ -13972,34 +13987,60 @@
     "type": "object",
     "properties": {
       "cbpr_plus_deadline": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "type": "null"
       },
       "cbpr_plus_deadline_status": {
         "type": "string"
       },
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "enum": [
+          false,
+          true,
+          null
+        ]
       },
       "disambiguation": {
         "type": "string"
       },
       "error_count": {
-        "type": "integer"
+        "type": "number"
+      },
+      "missing_required_fields": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "address_lines",
+            "building_number",
+            "country_subdivision",
+            "post_code",
+            "street_name",
+            "town_name"
+          ]
+        }
       },
       "pii_note": {
         "type": "string"
       },
       "readiness_pct": {
-        "type": "integer"
+        "type": "number"
       },
       "regulatory_basis": {
         "type": "string"
       },
       "structure_type": {
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "EMPTY",
+          "FULLY_STRUCTURED",
+          "HYBRID",
+          "MIXED_INVALID",
+          "UNSTRUCTURED"
+        ]
       },
       "table_source": {
         "type": "string"
@@ -14007,10 +14048,58 @@
       "table_version": {
         "type": "string"
       },
+      "verdict": {
+        "type": "string"
+      },
       "violations": {
-        "type": "array"
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "EMPTY_ADDRESS",
+                "INVALID_MIX",
+                "SILENT_FAIL_DUPLICATION",
+                "UNSTRUCTURED_ADDRESS"
+              ]
+            },
+            "field": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "field",
+            "message",
+            "severity"
+          ],
+          "additionalProperties": false
+        }
       }
-    }
+    },
+    "required": [
+      "regulatory_basis",
+      "table_version",
+      "cbpr_plus_deadline",
+      "cbpr_plus_deadline_status",
+      "compliant",
+      "disambiguation",
+      "error_count",
+      "pii_note",
+      "readiness_pct",
+      "structure_type",
+      "table_source",
+      "violations"
+    ],
+    "additionalProperties": false
   },
   "validate_pacs008_party_completeness": {
     "type": "object",
@@ -14303,7 +14392,10 @@
         }
       },
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "error_count": {
         "type": "integer"

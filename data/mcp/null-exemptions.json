@@ -382,6 +382,16 @@
       }
     }
   },
+  "art-81-allocation-affirmation-conformance": {
+    "properties": {
+      "cutoff_local": {
+        "x_null_distinct": true
+      },
+      "events": {
+        "x_null_distinct": true
+      }
+    }
+  },
   "art-846-assess-pfmi-proportional": {
     "properties": {
       "linked_system": {
