@@ -68,8 +68,8 @@
       "mcp_name": "audit_curator_vault_caps",
       "display_name": "Curator Vault Cap Auditor",
       "uri": "ui://ainumbers/node/792-curator-vault-cap-auditor",
-      "bytes": 45046,
-      "sha256": "d293bbc9e6ae1991f9b465ea9612ed5b3a7e7d455157f81be5138a4710e2af56"
+      "bytes": 45546,
+      "sha256": "ba8db5abd354e52d2e6e8e60498bb3c4daa2546332725dd5b0b4468d614786a3"
     },
     {
       "tool_id": "794-event-fee-recompute",
@@ -84,8 +84,8 @@
       "mcp_name": "check_stablecoin_refunds",
       "display_name": "Stablecoin Refund Dispute Check",
       "uri": "ui://ainumbers/node/795-stablecoin-refund-dispute",
-      "bytes": 55585,
-      "sha256": "b720ac87f1d64ef373aedc04919fbea5dfdc2385ad860caf35a6736129d80f72"
+      "bytes": 60571,
+      "sha256": "1c8b16157980687445895edeec414aafaf6cf566612f0262abed26cda892186e"
     },
     {
       "tool_id": "796-payment-system-mi-pack",
@@ -124,8 +124,8 @@
       "mcp_name": "reconcile_lst_share_rate",
       "display_name": "Liquid-Staking Share Rate Reconciler",
       "uri": "ui://ainumbers/node/808-lst-share-rate-reconciler",
-      "bytes": 38269,
-      "sha256": "4d9826ead725f1f0c81f0dd111515cecde6f3d6539b99ebfbbae685aef3693ec"
+      "bytes": 38310,
+      "sha256": "92e7fd37f3674d2514e8288075cba55eef7414065ee3de8165601951fa6e8a4c"
     },
     {
       "tool_id": "810-contract-bytecode-identity-verifier",
@@ -204,8 +204,8 @@
       "mcp_name": "recompute_safe_tx_hash",
       "display_name": "Safe Transaction Hash Recompute",
       "uri": "ui://ainumbers/node/829-safe-tx-hash-recompute",
-      "bytes": 137101,
-      "sha256": "caac55ac5afe20c6ee15de3f0b88fe37ec00156153d2e351f294ed32b924b2cf"
+      "bytes": 137106,
+      "sha256": "0720c043b5b2d13db5b1d93203d4c1d99dd07a0174b440bbbed9973adfe6654d"
     },
     {
       "tool_id": "836-payment-services-activity-classifier",
@@ -300,8 +300,8 @@
       "mcp_name": "precheck_reserve_attestation",
       "display_name": "GENIUS Act Reserve Attestation Pre-Check",
       "uri": "ui://ainumbers/node/art-06-genius-act-reserve-attestation",
-      "bytes": 85870,
-      "sha256": "eb435ec427a031b46b170ee9af4dd5a55ad6427ebb495fa1ac5a3ee4a272ee3d"
+      "bytes": 85781,
+      "sha256": "d3000dfc7fe8139f6e6148d4c3d7e861926cc8ce5970da4230df3c863a8498eb"
     },
     {
       "tool_id": "art-07-basel31-reporting-delta-calculator",
@@ -348,8 +348,8 @@
       "mcp_name": "validate_acp_checkout",
       "display_name": "ACP Checkout Conformance Validator",
       "uri": "ui://ainumbers/node/art-12-acp-checkout-conformance-validator",
-      "bytes": 148026,
-      "sha256": "38030c4772ec407130a5c5d811fc548b0e3143f8a34296f966331084793fa8b9"
+      "bytes": 148031,
+      "sha256": "42f49b043b955e0c35b38eaa8fc77b6e18856acf22eee8f781057be4a834e225"
     },
     {
       "tool_id": "art-13-eudi-wallet-credential-readiness-checker",
@@ -548,8 +548,8 @@
       "mcp_name": "validate_tempo_token_compliance",
       "display_name": "Tempo Stablecoin Issuance Compliance",
       "uri": "ui://ainumbers/node/art-37-tempo-stablecoin-issuance",
-      "bytes": 72722,
-      "sha256": "2b376a63e0999fdfe5151d2a27bda8798bd60efc43224bd7a70f54cb678be5fe"
+      "bytes": 72725,
+      "sha256": "ab33bf4a04c6fa54a4053e29003f4aeef94cda94e7c7a029cef19ba9e91e8535"
     },
     {
       "tool_id": "art-38-tempo-onchain-aml",
@@ -1908,8 +1908,8 @@
       "mcp_name": "validate_royalty_split",
       "display_name": "Royalty Split Validator",
       "uri": "ui://ainumbers/node/art-208-royalty-split-validator",
-      "bytes": 39192,
-      "sha256": "0b4a69e0189e3fedd2d960d79ec8b3e6068c49119884853d64cb2195777b0e27"
+      "bytes": 39195,
+      "sha256": "ea880f8aa66457a5b3b6e2acdd7ea62b029f6a65d2eb5d0b995151bfe2885975"
     },
     {
       "tool_id": "art-209-nft-metadata-validator",
@@ -1948,8 +1948,8 @@
       "mcp_name": "compute_perp_margin",
       "display_name": "Perp Margin and Liquidation Calculator",
       "uri": "ui://ainumbers/node/art-213-perp-liquidation-calculator",
-      "bytes": 43711,
-      "sha256": "9b1d6abc7989c128e6f74bb1a7c6f7ec55bc17616d830af00ca8338fe76e17dc"
+      "bytes": 43712,
+      "sha256": "d86922807486edae700ebe03f5dcd47ec4fc97419d03dbf372966a85e38776d9"
     },
     {
       "tool_id": "art-214-perp-position-lifecycle",
@@ -2060,8 +2060,8 @@
       "mcp_name": "validate_adverse_action_notice",
       "display_name": "Validate Adverse Action Notice",
       "uri": "ui://ainumbers/node/art-227-validate-adverse-action-notice",
-      "bytes": 46848,
-      "sha256": "4e002eba77854606a42a2054376d65bddbb9b1ced0cc1b81fea5f917c9c33393"
+      "bytes": 46851,
+      "sha256": "fdfcb35e559d3e871573961ff995718504253c6f70eba10330da00b713a12258"
     },
     {
       "tool_id": "art-228-build-adverse-action-notice",
@@ -2220,8 +2220,8 @@
       "mcp_name": "prevalidation_readiness_scorer",
       "display_name": "Cross-Border Payment Prevalidation Readiness Scorer",
       "uri": "ui://ainumbers/node/art-247-prevalidation-readiness-scorer",
-      "bytes": 48345,
-      "sha256": "e6289d1ff0ca8377ef48c09cefefa4ff90a58f86c98cba73bb9b2292b130dbc9"
+      "bytes": 48348,
+      "sha256": "f003b0b03e84f36439b3a57c4a7fbd48a805a935758da358243a150b9437f2b3"
     },
     {
       "tool_id": "art-248-compute-remittance-disclosure",
@@ -2901,7 +2901,7 @@
       "display_name": "Federal Withholding Calculator (Percentage Method)",
       "uri": "ui://ainumbers/node/art-338-compute-federal-withholding",
       "bytes": 45614,
-      "sha256": "f39ee3d9e34bf84c033283d6e60366321c1c78c324478de3811e5ad887fd98d1"
+      "sha256": "6d75b4bb05fc07f131659b2d2e4001b9f36ba96f3358a1aa38b5dbbb59d57f83"
     },
     {
       "tool_id": "art-339-compute-gross-to-net",
@@ -2909,7 +2909,7 @@
       "display_name": "Gross-to-Net Payroll Calculator (FICA)",
       "uri": "ui://ainumbers/node/art-339-compute-gross-to-net",
       "bytes": 41386,
-      "sha256": "9e9231830bfd5141705234f9989c306df0faef180b7903a36eef3495feb5aa6b"
+      "sha256": "a946ecb77acccfd23541f9fc02617e5ce5ebe75d48647e6b41ebced7afd15085"
     },
     {
       "tool_id": "art-340-compute-flsa-regular-rate",
@@ -2956,16 +2956,16 @@
       "mcp_name": "lint_fedwire_structured_address",
       "display_name": "Fedwire Structured Address Linter",
       "uri": "ui://ainumbers/node/art-349-fedwire-structured-address-linter",
-      "bytes": 44891,
-      "sha256": "25db2da8a4ca14a9006053b88645c1ce3ab1f893fa8597fdee2e360d23741293"
+      "bytes": 44998,
+      "sha256": "f4a8e8d841c55a909bd35889ff123fbba621b1e9aba253f8f803f8866abc6df5"
     },
     {
       "tool_id": "art-350-fedwire-address-sweep",
       "mcp_name": "sweep_fedwire_addresses",
       "display_name": "Fedwire Payment-File Address Sweep",
       "uri": "ui://ainumbers/node/art-350-fedwire-address-sweep",
-      "bytes": 49371,
-      "sha256": "334b2b4179bd2e4a7eaa67bc6a8836e2f3d19d30d34ef63a3e2415055c1a450b"
+      "bytes": 49438,
+      "sha256": "23f42d3f8185c35e377d22d7cd5842f59d25525ec969ded161e702bd0c9e4dc5"
     },
     {
       "tool_id": "art-352-etr-control-evidence-checker",
@@ -4476,8 +4476,8 @@
       "mcp_name": "recompute_trustee_report_waterfall",
       "display_name": "Securitization Trustee-Report Waterfall Recomputation",
       "uri": "ui://ainumbers/node/art-568-securitization-trustee-report-recompute",
-      "bytes": 67317,
-      "sha256": "3b93da01346f7c18353733b0333a8368dfeabbd978f952669e9d0ad7838301ec"
+      "bytes": 68677,
+      "sha256": "1b4d58d78b0841ba91854f506bde12240d39a86eb6c85087f2668dcc87518175"
     },
     {
       "tool_id": "art-569-muni-arbitrage-spending-exception-checker",
@@ -4508,24 +4508,24 @@
       "mcp_name": "recompute_garnishment_stack",
       "display_name": "Multi-Garnishment Stacking Recomputation",
       "uri": "ui://ainumbers/node/art-572-multi-garnishment-stacking-recompute",
-      "bytes": 68366,
-      "sha256": "2130e366d116eb866ac1df0f96fb3347c444c8e88d37f7a809a2c3412910ba67"
+      "bytes": 70208,
+      "sha256": "0c6ad82b4a6f2fc33180faf075b5f1b1a1e4114ddb6d04a2ca943880d3057526"
     },
     {
       "tool_id": "art-573-section16b-short-swing-profit-recompute",
       "mcp_name": "recompute_section16b_profit",
       "display_name": "Section 16(b) Short-Swing Profit Recomputation",
       "uri": "ui://ainumbers/node/art-573-section16b-short-swing-profit-recompute",
-      "bytes": 62695,
-      "sha256": "75ced5a9ac8151a9395998f2fc958f3113525797a28b9512f3dc7d298c54c2b5"
+      "bytes": 64178,
+      "sha256": "a2337d0101aec38492a8abb5105dd3c96745dee0d83cd032e8d183d7949694fb"
     },
     {
       "tool_id": "art-574-certified-payroll-prevailing-wage-recompute",
       "mcp_name": "recompute_certified_payroll_pwa",
       "display_name": "Certified Payroll / Prevailing Wage Recomputation",
       "uri": "ui://ainumbers/node/art-574-certified-payroll-prevailing-wage-recompute",
-      "bytes": 75232,
-      "sha256": "1ab56e74b1736ad07b90f05a34a865aa78472b16afe1ce69b19970242029bddc"
+      "bytes": 76080,
+      "sha256": "9c95e0126f6c373d2960bde6b7d9a2b229751cb84d831cabd80664dc3f8b65f1"
     },
     {
       "tool_id": "art-575-tmpg-fails-charge-recompute",
@@ -4876,8 +4876,8 @@
       "mcp_name": "verify_summa_mst_inclusion",
       "display_name": "Summa MST Inclusion Checker",
       "uri": "ui://ainumbers/node/art-620-summa-mst-inclusion-checker",
-      "bytes": 35732,
-      "sha256": "b7dac63f65834afae6c15c2d46c9032da54d07678c6f91f75e5f8a9eb4f1468d"
+      "bytes": 36682,
+      "sha256": "b4315e2939b4bf3311181f51b8f4e13134504241b6266ea3e4b222864d22dd81"
     },
     {
       "tool_id": "art-621-summa-mst-liability-aggregator",
@@ -5180,32 +5180,32 @@
       "mcp_name": "check_tsv_tier_cap_ladder",
       "display_name": "TSV Tier-Cap Ladder",
       "uri": "ui://ainumbers/node/art-707-tsv-tier-cap-ladder",
-      "bytes": 92062,
-      "sha256": "4d4d9d3a1ff51e64b05613acd0ec2965500503c9c8d07829072fa1c56349f870"
+      "bytes": 92212,
+      "sha256": "f33dbe451c054c37afd208048248414b7ab2045d7f35bca99119780041334d88"
     },
     {
       "tool_id": "art-708-v4-hook-permission-reconciler",
       "mcp_name": "reconcile_v4_hook_permissions",
       "display_name": "V4 Hook Permission Reconciler",
       "uri": "ui://ainumbers/node/art-708-v4-hook-permission-reconciler",
-      "bytes": 80058,
-      "sha256": "49d8acb8686cfb29ef1307e26dd591a3ed4ee7cfb651706b49f582f68cccac85"
+      "bytes": 80373,
+      "sha256": "2447163d7bf642ae7f20523cac5ea5d4e57c58976ff07bf37b701969691e8592"
     },
     {
       "tool_id": "art-709-v4-hook-fee-conformance",
       "mcp_name": "check_v4_hook_fee_conformance",
       "display_name": "V4 Hook Fee Conformance",
       "uri": "ui://ainumbers/node/art-709-v4-hook-fee-conformance",
-      "bytes": 90486,
-      "sha256": "09c8ea503ab62319f2680b57fcfdce21abf5be5266532a0c1a5fa7928152fa0a"
+      "bytes": 90735,
+      "sha256": "02edd08deda6f8bb26a8d67bab19aefc20269ec974dbdcd101ed963926a4048b"
     },
     {
       "tool_id": "art-710-tsv-stoppage-concurrency",
       "mcp_name": "check_tsv_stoppage_concurrency",
       "display_name": "TSV Stoppage Concurrency",
       "uri": "ui://ainumbers/node/art-710-tsv-stoppage-concurrency",
-      "bytes": 83533,
-      "sha256": "ffdc8fbf85a1b5a65ed6c8c885a58ec91e8ac1d75d77d5bf59049478dcf64a95"
+      "bytes": 83782,
+      "sha256": "05b8475e8c6139585b090024c41e8fc692ac17e44cb069035fc42ffafcf08cab"
     },
     {
       "tool_id": "art-711-sco60-crypto-asset-exposure-classifier-v2",
@@ -5268,8 +5268,8 @@
       "mcp_name": "compute_diff_evidence_bundles",
       "display_name": "Diff Evidence Bundles",
       "uri": "ui://ainumbers/node/art-750-diff-evidence-bundles",
-      "bytes": 46660,
-      "sha256": "c4d2830b451026f8377897edd0979ae7b8bdca84697819dcd71b3e41cd205322"
+      "bytes": 46779,
+      "sha256": "108f3459fdf8f8cf8a2d561eb951d26c6ec45ec582542c5c64c8c9159a9427ed"
     },
     {
       "tool_id": "art-752-freelance-quarterly-estimated-tax",
@@ -5324,8 +5324,8 @@
       "mcp_name": "analyze_espp_disposition",
       "display_name": "ESPP Break-Even & Optimal Sell",
       "uri": "ui://ainumbers/node/art-760-espp-break-even-optimal-sell",
-      "bytes": 50929,
-      "sha256": "f62b609b859a723d2ea4e767ae7734e85004a97ce5a487684c9950b7b28c1029"
+      "bytes": 51309,
+      "sha256": "d8f24968062303d1013f14c9a7505ff112d02fd3f259f9e2d43619b859bf0f78"
     },
     {
       "tool_id": "art-761-caregiver-income-impact",
@@ -5548,8 +5548,8 @@
       "mcp_name": "negotiate_ucp_capabilities",
       "display_name": "UCP Capability Negotiation",
       "uri": "ui://ainumbers/node/art-820-negotiate-ucp-capabilities",
-      "bytes": 42966,
-      "sha256": "adee9df8a9c829c92ec78da17cec7d7ddc1759016ae46e251f6884e66792427a"
+      "bytes": 43088,
+      "sha256": "cc1e8ee09a1ae450e7d73d47deaa112fa03a872e9204010c5429e31e95888fc4"
     },
     {
       "tool_id": "art-826-authenticator-assurance-level",
@@ -5564,8 +5564,8 @@
       "mcp_name": "reconcile_omnibus_position",
       "display_name": "Omnibus Token Position Reconciliation",
       "uri": "ui://ainumbers/node/art-828-reconcile-omnibus-token-position",
-      "bytes": 100447,
-      "sha256": "64a44af1035f2f46b7d43a12f18e2acb5aaca80a196c48d675ad56e18feab9f3"
+      "bytes": 100525,
+      "sha256": "53713136042527b0e6927697755987855183cc7e37079945dad081b79ea2ac5b"
     },
     {
       "tool_id": "art-830-eip3009-spend-exposure-reconciler",
@@ -5662,6 +5662,14 @@
       "uri": "ui://ainumbers/node/art-849-deferred-comp-457b",
       "bytes": 46746,
       "sha256": "e350cb92b6dfa58f2c0440d76a0f2dc7aecd95f1274dae0531474ecf8bbf91af"
+    },
+    {
+      "tool_id": "art-850-shariah-equity-purification",
+      "mcp_name": "screen_shariah_equity",
+      "display_name": "Shariah Equity Purification",
+      "uri": "ui://ainumbers/node/art-850-shariah-equity-purification",
+      "bytes": 74931,
+      "sha256": "38d6e6d3f936f7b7dcaaabce64cf1ccd53d451e14340adb4ea08348bf883ba18"
     },
     {
       "tool_id": "art-851-islamic-mmf-placement-limits",

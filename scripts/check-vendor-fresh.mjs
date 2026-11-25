@@ -57,6 +57,13 @@ const siteListKernels = () => useGit
   ? git(['-C', SITE, 'ls-tree', '--name-only', ref, 'chaingraph/kernels/'], { encoding: 'utf8' })
       .split('\n').filter((l) => l.endsWith('.kernel.mjs')).map((l) => l.split('/').pop())
   : readdirSync(join(SITE, 'chaingraph', 'kernels')).filter((f) => f.endsWith('.kernel.mjs'));
+// Same filter as generate.mjs's EXPORTER_FILE_RE: all *.mjs except *.test.mjs,
+// including the *.bundle.mjs third-party singles an exporter imports.
+const EXPORTER_FILE_RE = /^[a-z0-9_-]+(\.bundle)?\.mjs$/;
+const siteListExporters = () => (useGit
+  ? git(['-C', SITE, 'ls-tree', '--name-only', ref, 'chaingraph/exporters/'], { encoding: 'utf8' })
+      .split('\n').map((l) => l.split('/').pop())
+  : readdirSync(join(SITE, 'chaingraph', 'exporters'))).filter((f) => EXPORTER_FILE_RE.test(f));
 
 console.log(`(comparing vs site ${useGit ? ref : 'working tree'}: ${SITE})`);
 let fails = 0;
@@ -165,7 +172,32 @@ try {
   } else console.log('✓ data/mcp/catalog.json is current');
 } catch (e) { console.error('✗ catalog.json compare error:', e.message); fails++; }
 
+// 4) exporters — generate.mjs vendors every source exporter into BOTH data/exporters/
+// (ASSETS binding) and bundled ./exporters/ (static import in worker.mjs). The
+// self-heal only ever checked/copied data/ + kernels/, so the bundled copy could
+// stay stale for days while this gate stayed green (WORKER-EXPORTERS-VENDOR-GAP-1).
+try {
+  const srcExporters = siteListExporters();
+  let efail = 0;
+  for (const f of srcExporters) {
+    const src = siteRead(`chaingraph/exporters/${f}`);
+    for (const target of [join('data', 'exporters', f), join('exporters', f)]) {
+      if (!existsSync(target) || norm(readFileSync(target, 'utf8').toString()) !== norm(src)) {
+        console.error(`  ${IS_PR ? '⚠' : '✗'} missing/differing vendored exporter: ${f} (${target})`);
+        efail++;
+      }
+    }
+  }
+  if (efail) {
+    fails += reportDrift(
+      `${efail} exporter copies`,
+      'Worker exporters differ from site main in data/exporters/ and/or bundled exporters/.',
+      null,
+    );
+  } else console.log(`✓ ${srcExporters.length} exporter(s) current in data/exporters/ and exporters/`);
+} catch (e) { console.error('✗ exporter compare error:', e.message); fails++; }
+
 console.log(fails
-  ? '\n✗ VENDOR STALE — run `node generate.mjs` (in mcp-apps-poc) and commit data/ + kernels/ in the SAME push.'
-  : '\n✓ vendored data/ + kernels/ are current vs PostOakLabs/ainumbers.');
+  ? '\n✗ VENDOR STALE — run `node generate.mjs` (in mcp-apps-poc) and commit data/ + kernels/ + exporters/ in the SAME push.'
+  : '\n✓ vendored data/ + kernels/ + exporters/ are current vs PostOakLabs/ainumbers.');
 process.exit(fails ? 1 : 0);

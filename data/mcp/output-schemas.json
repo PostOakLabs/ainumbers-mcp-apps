@@ -19719,7 +19719,10 @@
     "type": "object",
     "properties": {
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "disambiguation": {
         "type": "string"
@@ -50006,7 +50009,31 @@
             ],
             "additionalProperties": false
           },
+          "constructor": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version"
+            ],
+            "additionalProperties": false
+          },
           "dev.ucp.shopping.checkout": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "toString": {
             "type": "object",
             "properties": {
               "version": {
@@ -50622,6 +50649,58 @@
         "type": "string"
       }
     }
+  },
+  "screen_shariah_equity": {
+    "type": "object",
+    "properties": {
+      "valid_input": {
+        "type": "boolean"
+      },
+      "not_a_shariah_ruling": {
+        "type": "boolean",
+        "const": true
+      },
+      "methodologies": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "verdicts": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "One verdict group per requested authority profile, keyed by profile name; null on refusal. Groups are never merged."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "purification": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "valid_input",
+      "not_a_shariah_ruling",
+      "verdicts",
+      "warnings"
+    ]
   },
   "compute_murabahah_ibra_settle": {
     "type": "object",
