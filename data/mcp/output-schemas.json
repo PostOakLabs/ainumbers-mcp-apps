@@ -7460,6 +7460,18 @@
       "format_nonconformance_count": {
         "type": "integer"
       },
+      "input_valid": {
+        "type": "boolean"
+      },
+      "input_issues": {
+        "type": "array"
+      },
+      "issues": {
+        "type": "array"
+      },
+      "timezone_note": {
+        "type": "string"
+      },
       "note": {
         "type": "string"
       },
@@ -7479,6 +7491,9 @@
             "type": "string"
           },
           "rule": {
+            "type": "string"
+          },
+          "statutory_basis": {
             "type": "string"
           }
         }
@@ -13972,34 +13987,60 @@
     "type": "object",
     "properties": {
       "cbpr_plus_deadline": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "type": "null"
       },
       "cbpr_plus_deadline_status": {
         "type": "string"
       },
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "enum": [
+          false,
+          true,
+          null
+        ]
       },
       "disambiguation": {
         "type": "string"
       },
       "error_count": {
-        "type": "integer"
+        "type": "number"
+      },
+      "missing_required_fields": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "address_lines",
+            "building_number",
+            "country_subdivision",
+            "post_code",
+            "street_name",
+            "town_name"
+          ]
+        }
       },
       "pii_note": {
         "type": "string"
       },
       "readiness_pct": {
-        "type": "integer"
+        "type": "number"
       },
       "regulatory_basis": {
         "type": "string"
       },
       "structure_type": {
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "EMPTY",
+          "FULLY_STRUCTURED",
+          "HYBRID",
+          "MIXED_INVALID",
+          "UNSTRUCTURED"
+        ]
       },
       "table_source": {
         "type": "string"
@@ -14007,10 +14048,58 @@
       "table_version": {
         "type": "string"
       },
+      "verdict": {
+        "type": "string"
+      },
       "violations": {
-        "type": "array"
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "EMPTY_ADDRESS",
+                "INVALID_MIX",
+                "SILENT_FAIL_DUPLICATION",
+                "UNSTRUCTURED_ADDRESS"
+              ]
+            },
+            "field": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "severity": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "field",
+            "message",
+            "severity"
+          ],
+          "additionalProperties": false
+        }
       }
-    }
+    },
+    "required": [
+      "regulatory_basis",
+      "table_version",
+      "cbpr_plus_deadline",
+      "cbpr_plus_deadline_status",
+      "compliant",
+      "disambiguation",
+      "error_count",
+      "pii_note",
+      "readiness_pct",
+      "structure_type",
+      "table_source",
+      "violations"
+    ],
+    "additionalProperties": false
   },
   "validate_pacs008_party_completeness": {
     "type": "object",
@@ -14303,7 +14392,10 @@
         }
       },
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "error_count": {
         "type": "integer"
@@ -19627,7 +19719,10 @@
     "type": "object",
     "properties": {
       "compliant": {
-        "type": "boolean"
+        "type": [
+          "boolean",
+          "null"
+        ]
       },
       "disambiguation": {
         "type": "string"
@@ -33782,50 +33877,11 @@
   },
   "classify_ledger_consensus_finality": {
     "type": "object",
-    "description": "Derived from the kernel's golden conformance fixtures (chaingraph/kernels/fixtures/art-527-classify-ledger-consensus-finality.fixtures.json) per CONTRACT.md §2.7 truth maintenance.",
     "properties": {
-      "settlement_model": {
-        "type": "string",
-        "enum": [
-          "deadline_bounded_inclusion",
-          "federated_bft"
-        ]
+      "as_of_ts": {
+        "type": "number"
       },
-      "outcome": {
-        "type": "string",
-        "enum": [
-          "final_success",
-          "final_failure_tec",
-          "final_never_included",
-          "expired_unprovable",
-          "final",
-          "pending"
-        ]
-      },
-      "finality_tier": {
-        "type": "string",
-        "enum": [
-          "final_success",
-          "final_failure_tec",
-          "final_never_included",
-          "expired_unprovable",
-          "final",
-          "pending"
-        ]
-      },
-      "reorg_exposure": {
-        "type": "string",
-        "enum": [
-          "none"
-        ]
-      },
-      "required_tier": {
-        "type": "string"
-      },
-      "meets_required_tier": {
-        "type": "boolean"
-      },
-      "claimed_tier": {
+      "chain_label": {
         "type": [
           "string",
           "null"
@@ -33834,22 +33890,55 @@
       "claim_verdict": {
         "type": "string",
         "enum": [
-          "claim_supported",
           "claim_overstated",
+          "claim_supported",
           "no_claim"
         ]
       },
-      "chain_label": {
+      "claimed_tier": {
         "type": [
           "string",
           "null"
+        ],
+        "enum": [
+          "final",
+          "final_never_included",
+          "final_success",
+          "notarized_pending",
+          null
         ]
       },
-      "as_of_ts": {
-        "type": "integer"
-      },
       "draft_pinned": {
-        "type": "boolean"
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "finality_tier": {
+        "type": "string"
+      },
+      "highest_validated_ledger": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "included_in_ledger": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "meets_required_tier": {
+        "type": "boolean",
+        "enum": [
+          false,
+          true
+        ]
+      },
+      "outcome": {
+        "type": "string"
       },
       "rationale": {
         "type": "array",
@@ -33857,22 +33946,14 @@
           "type": "string"
         }
       },
-      "submitted_at_ledger": {
-        "type": [
-          "integer",
-          "null"
-        ]
+      "reorg_exposure": {
+        "type": "string"
       },
-      "included_in_ledger": {
-        "type": [
-          "integer",
-          "null"
-        ]
-      },
-      "highest_validated_ledger": {
-        "type": [
-          "integer",
-          "null"
+      "required_tier": {
+        "type": "string",
+        "enum": [
+          "final",
+          "final_success"
         ]
       },
       "result_class": {
@@ -33881,19 +33962,53 @@
           "null"
         ],
         "enum": [
-          "tes",
-          "tec",
           "other",
+          "tec",
+          "tes",
           null
+        ]
+      },
+      "settlement_model": {
+        "type": "string",
+        "enum": [
+          "alpenglow",
+          "deadline_bounded_inclusion",
+          "federated_bft"
+        ]
+      },
+      "submitted_at_ledger": {
+        "type": [
+          "number",
+          "null"
         ]
       },
       "time_bounds_max": {
         "type": [
-          "integer",
-          "null"
+          "null",
+          "number"
         ]
       }
-    }
+    },
+    "required": [
+      "as_of_ts",
+      "chain_label",
+      "claim_verdict",
+      "claimed_tier",
+      "draft_pinned",
+      "finality_tier",
+      "highest_validated_ledger",
+      "included_in_ledger",
+      "meets_required_tier",
+      "outcome",
+      "rationale",
+      "reorg_exposure",
+      "required_tier",
+      "result_class",
+      "settlement_model",
+      "submitted_at_ledger",
+      "time_bounds_max"
+    ],
+    "additionalProperties": false
   },
   "compare_cross_ccp_pqd_fields": {
     "type": "object",
@@ -46550,7 +46665,7 @@
   },
   "model_scorp_break_even": {
     "type": "object",
-    "description": "output_payload: verdict (SCORP_WINS when net_annual_savings >= 0), net_se_income, reasonable_salary_pct, annual_admin_cost, filing_status, owner_health_premium_annual, reasonable_w2_salary, distribution, sole_prop_se_tax, scorp_payroll_tax (full-wage FICA: SS capped at $184,500, Medicare 2.9% uncapped), se_tax_savings, net_annual_savings, five_year_savings, break_even_income (first point of the 500-step grid, null when never reached), half_se_tax_deduction and scorp_employer_tax (diagnostics), qbi_199a_income, qbi_199a_deduction_tentative (20%), qbi_199a_value_at_risk (wages at the adjudicated 19.8% effective rate), net_annual_savings_qbi_adjusted, qbi_adjusted_break_even_income, caveats (flag-mirror advisories), scope_note."
+    "description": "output_payload: verdict (SCORP_WINS when net_annual_savings >= 0), tax_year_applied, net_se_income, reasonable_salary_pct, annual_admin_cost, filing_status, owner_health_premium_annual, reasonable_w2_salary, distribution, sole_prop_se_tax, scorp_payroll_tax (full-wage FICA: SS capped at the selected year's base, $184,500 for 2026 or $192,300 for 2027, Medicare 2.9% uncapped), se_tax_savings, net_annual_savings, five_year_savings, break_even_income (first point of the 500-step grid, null when never reached), half_se_tax_deduction and scorp_employer_tax (diagnostics), qbi_199a_income, qbi_199a_deduction_tentative (20%), qbi_199a_value_at_risk (wages at the adjudicated 19.8% effective rate), net_annual_savings_qbi_adjusted, qbi_adjusted_break_even_income, caveats (flag-mirror advisories), scope_note."
   },
   "reconcile_token2022_transfer_fee": {
     "type": "object",
@@ -49894,7 +50009,31 @@
             ],
             "additionalProperties": false
           },
+          "constructor": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version"
+            ],
+            "additionalProperties": false
+          },
           "dev.ucp.shopping.checkout": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "toString": {
             "type": "object",
             "properties": {
               "version": {
@@ -50510,6 +50649,58 @@
         "type": "string"
       }
     }
+  },
+  "screen_shariah_equity": {
+    "type": "object",
+    "properties": {
+      "valid_input": {
+        "type": "boolean"
+      },
+      "not_a_shariah_ruling": {
+        "type": "boolean",
+        "const": true
+      },
+      "methodologies": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        }
+      },
+      "verdicts": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "One verdict group per requested authority profile, keyed by profile name; null on refusal. Groups are never merged."
+      },
+      "domain_errors": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "purification": {
+        "type": [
+          "object",
+          "null"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "valid_input",
+      "not_a_shariah_ruling",
+      "verdicts",
+      "warnings"
+    ]
   },
   "compute_murabahah_ibra_settle": {
     "type": "object",
