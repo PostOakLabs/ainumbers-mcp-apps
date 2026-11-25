@@ -253,6 +253,11 @@ jobs:
         # control and five negative controls. Its first run caught a real false-positive in the gate.
         run: node scripts/gate-idreplace-dos.selftest.mjs
 
+      - name: 🧪 hash-sweep classification (HASH-SWEEP-REFUSAL-CODE-1)
+        # The post-deploy hash-sweep runs most nodes on empty inputs; a fail-closed kernel refusing
+        # with a bare code (art-809 "UNIT") is needs-input, not a broken kernel. Crashes still fail.
+        run: node scripts/hash-sweep-classify.test.mjs
+
       - name: 🔒 id-splice gate — worker.mjs must splice the JSON-RPC id with a replacer FUNCTION
         # `tpl.replace(ID_PLACEHOLDER, JSON.stringify(body.id))` let a String.replace replacement
         # token in an attacker-supplied id splice the 1.74MB tools/list template into itself: id
