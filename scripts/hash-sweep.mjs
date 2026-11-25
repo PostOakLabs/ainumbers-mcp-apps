@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { classifyToolError } from './hash-sweep-classify.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MCP_URL = process.env.MCP_URL || 'https://mcp.ainumbers.co/mcp';
@@ -49,7 +50,7 @@ for (const n of nodes) {
   if (r.propagationExhausted) propRetried++;
   if (r.errorText) {
     if (r.propagationExhausted) { console.error('X ' + n.tool_id + ': still -32602 not-found after ' + PROP_RETRIES + ' propagation retries (real miss, not transient)'); fail++; }
-    else if (!usingFixture && /required|missing|provide|non-?finite|nan|must |expected|undefined/i.test(r.errorText)) { console.warn('. ' + n.tool_id + ': needs input - ' + r.errorText.replace(/\s+/g,' ').slice(0,80) + ' (add a fixture)'); needInput++; }
+    else if (classifyToolError(r.errorText, usingFixture) === 'needs-input') { console.warn('. ' + n.tool_id + ': needs input - ' + r.errorText.replace(/\s+/g,' ').slice(0,80) + ' (add a fixture)'); needInput++; }
     else { console.error('X ' + n.tool_id + ': tool error - ' + r.errorText.replace(/\s+/g,' ').slice(0,100)); fail++; }
     await sleep(THROTTLE_MS); continue;
   }
