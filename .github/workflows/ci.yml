@@ -182,6 +182,12 @@ jobs:
         # optional, plus batch and the opt-in OCG gate mode, all with receipts.
         run: node scripts/authzen-cert.test.mjs
 
+      - name: 🔁 gh retry wrapper (transient API errors retry, others pass through)
+        # Proves scripts/gh-retry.sh, which automerge-label.yml puts in front of
+        # gh: transient GitHub API failures retry with backoff up to a cap, and
+        # any other error returns at once with gh's own exit code.
+        run: node --test scripts/gh-retry.test.mjs
+
       - name: 🕐 ttlMs cache-key is input-hash-only (§M1.5)
         # Proves the advertised cacheHint.cacheKey:"input_hash" contract: identical
         # policy_parameters (any key order) -> identical key; a changed input -> a

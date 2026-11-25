@@ -65,6 +65,7 @@ const gates = [
   { name: 'private-inputs gate (§25)',            args: ['scripts/validate-private-inputs.test.mjs'] },
   { name: 'AuthZEN mapping (§21.4)',              args: ['scripts/authzen-mapping.test.mjs'] },
   { name: 'AuthZEN certification fixtures',       args: ['scripts/authzen-cert.test.mjs'] },
+  { name: 'gh retry wrapper',                     args: ['--test', 'scripts/gh-retry.test.mjs'] },
   { name: 'cross-tool artifact round-trip (AUD-C1)', args: ['scripts/gate-crosstool-roundtrip.mjs'] },
   { name: 'export-format consistency (AUD-C2)',    args: ['scripts/gate-export-format-consistency.mjs'] },
   { name: 'negative gate-enforcement (AUD-E2)',    args: ['scripts/gate-negative-enforcement.mjs'] },
