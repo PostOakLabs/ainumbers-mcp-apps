@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 825,
+  "tool_count": 826,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -683,6 +683,7 @@
     "screen_je_ruleset",
     "screen_onledger_transfer_batch",
     "screen_sanctions_private",
+    "screen_shariah_equity",
     "screen_tip20_transfer_batch",
     "select_agentic_checkout_protocol",
     "select_cbe_license",
