@@ -2604,8 +2604,8 @@
       "mcp_name": "route_einvoice_jurisdiction_mandate",
       "display_name": "E-Invoice Jurisdiction Mandate Router",
       "uri": "ui://ainumbers/node/art-295-einvoice-jurisdiction-mandate-router",
-      "bytes": 79763,
-      "sha256": "4409266e5492bcb3687681e62a3f65aa5f9b12dc25d6954b9d3056af16d0d5f2"
+      "bytes": 79790,
+      "sha256": "53478d34056ca4940d265887d0a83902bbb888c396e329ab75058b534d556b79"
     },
     {
       "tool_id": "art-296-einvoice-transmission-receipt-builder",
@@ -2756,8 +2756,8 @@
       "mcp_name": "reconcile_erc8056_multiplier",
       "display_name": "ERC-8056 Multiplier Reconciler",
       "uri": "ui://ainumbers/node/art-317-rhc-multiplier-reconciler",
-      "bytes": 41868,
-      "sha256": "0662a09ed6c6ca2504b064ac8ce8974b32656ced44de190c13ff1fc689bc0cc9"
+      "bytes": 41871,
+      "sha256": "ebe09d00487282f1411dd64b0e86fa998a56d339136ddbeece1324dfe2a457ea"
     },
     {
       "tool_id": "art-318-rhc-regime-mapper",
@@ -2772,8 +2772,8 @@
       "mcp_name": "lint_stock_token_valuation",
       "display_name": "Valuation Double-Count / Decimal Linter",
       "uri": "ui://ainumbers/node/art-319-rhc-valuation-linter",
-      "bytes": 39011,
-      "sha256": "7dd6fc7be7121d9d1cbd8463ec1978083a81613229154606b5a73af4ded25a51"
+      "bytes": 39014,
+      "sha256": "e35bdef835173e4344d507907cb7d6ea672f061b420294eaa226ade5c2531b76"
     },
     {
       "tool_id": "art-320-rhc-collateral-haircut",
@@ -3748,8 +3748,8 @@
       "mcp_name": "build_dora_roi_register",
       "display_name": "DORA Register of Information (RoI) Builder & Cross-Validator",
       "uri": "ui://ainumbers/node/art-466-dora-roi-builder",
-      "bytes": 50199,
-      "sha256": "376ee81fe2bef89030f62c2ac668f2e034c5ddf75f1b008f81c5fe44de8b0aa7"
+      "bytes": 50354,
+      "sha256": "a4c4019ed0c7e6afb1819efe52ab1e711c3e26f4885cca2bfcdb2fb0196cad76"
     },
     {
       "tool_id": "art-467-dora-incident-classifier",
@@ -4500,8 +4500,8 @@
       "mcp_name": "recompute_lease_schedule_asc842_ifrs16",
       "display_name": "Lease Schedule Recompute — ASC 842 / IFRS 16",
       "uri": "ui://ainumbers/node/art-571-lease-schedule-recompute-asc842-ifrs16",
-      "bytes": 74371,
-      "sha256": "0b91c64c274bfa86aee4f533a5c9f60f54770bf591e63450db5005656642023f"
+      "bytes": 74798,
+      "sha256": "653a31a1e8d8ef6aea09098f4060481abcec6ed6c7761bef3c99c7cda72474e0"
     },
     {
       "tool_id": "art-572-multi-garnishment-stacking-recompute",
@@ -4604,8 +4604,8 @@
       "mcp_name": "verify_proof_of_reserves_consistency",
       "display_name": "Proof-of-Reserves Verifier",
       "uri": "ui://ainumbers/node/art-584-proof-of-reserves-verifier",
-      "bytes": 60419,
-      "sha256": "282fbeb3dafc9ce47b3dda29b60ae328a82c00e26b49ed5737e263ac00403b6c"
+      "bytes": 61932,
+      "sha256": "b56fde4c211a24219fc2a514fcaa38b0cb6b1960f84ffd4beb63a9fc93d775b6"
     },
     {
       "tool_id": "art-585-sanctions-screening-evidence-pack",
@@ -5524,8 +5524,8 @@
       "mcp_name": "recompute_quadratic_funding_round",
       "display_name": "Quadratic Funding Round Recompute",
       "uri": "ui://ainumbers/node/art-814-qf-pairwise-recompute",
-      "bytes": 46677,
-      "sha256": "22b14a7ec97d21dfed3bed79942d43c69ca04b8f7de5e2553e098c168c548cf9"
+      "bytes": 46864,
+      "sha256": "ae0fd46f5cf80b9d18ac22dcc4dc9e60fc4566f029473905ab0448f12660b205"
     },
     {
       "tool_id": "art-816-eip3009-agent-spend-gate",
@@ -5668,48 +5668,56 @@
       "mcp_name": "screen_shariah_equity",
       "display_name": "Shariah Equity Purification",
       "uri": "ui://ainumbers/node/art-850-shariah-equity-purification",
-      "bytes": 74931,
-      "sha256": "38d6e6d3f936f7b7dcaaabce64cf1ccd53d451e14340adb4ea08348bf883ba18"
+      "bytes": 75226,
+      "sha256": "d180bcf4e4209648e7c83c2dba12de7d2c39da292a5ea73500cc7baa596eb16d"
     },
     {
       "tool_id": "art-851-islamic-mmf-placement-limits",
       "mcp_name": "check_islamic_mmf_placement_limits",
       "display_name": "Islamic MMF Placement Limits",
       "uri": "ui://ainumbers/node/art-851-islamic-mmf-placement-limits",
-      "bytes": 40628,
-      "sha256": "4680bfadc65d346e8c8f121878f49100cbb0de06f89bc9a7c0fe4dd3f3b0b5f0"
+      "bytes": 40923,
+      "sha256": "16d67c37dffcd255b7753ad5d09fd9b2620ca85035aa5042e92402e8c7bb6db7"
     },
     {
       "tool_id": "art-852-murabahah-ibra-settlement",
       "mcp_name": "compute_murabahah_ibra_settle",
       "display_name": "Murabahah Ibra' Settlement",
       "uri": "ui://ainumbers/node/art-852-murabahah-ibra-settlement",
-      "bytes": 52941,
-      "sha256": "224805de533b6b48da047e95edde5d4ac3781ed149329a904019f829b48cc838"
+      "bytes": 53239,
+      "sha256": "c87c2e0b37fe0268590b4d45a375db6a69cb0c3b3221ddf47eb50d5d91084349"
     },
     {
       "tool_id": "art-854-sukuk-tradability-composition",
       "mcp_name": "check_sukuk_tradability_composition",
       "display_name": "Sukuk Tradability Composition",
       "uri": "ui://ainumbers/node/art-854-sukuk-tradability-composition",
-      "bytes": 39147,
-      "sha256": "377c370d1ba0fb80bbf7138f112b571c67cebb10d9eab143adde774587be4f06"
+      "bytes": 39442,
+      "sha256": "0d10d52c63af1a514d4dc9b00e20cf586e19d08d2cd3198431ba533b67671364"
     },
     {
       "tool_id": "art-855-murabahah-tawarruq-sequence",
       "mcp_name": "check_murabahah_tawarruq_seq",
       "display_name": "Murabahah Tawarruq Sequence Check",
       "uri": "ui://ainumbers/node/art-855-murabahah-tawarruq-sequence",
-      "bytes": 55201,
-      "sha256": "fbfca0f7514bbef3e4be6774b17800dff79b9cb967c3b20e588ccdf42c3b7b2e"
+      "bytes": 55505,
+      "sha256": "49d2edc4170d5d14993825a1a47f27628b9e33009a0b1e4f551770db7e0c0b3a"
     },
     {
       "tool_id": "art-856-ijarah-imbt-schedule",
       "mcp_name": "compute_ijarah_imbt_schedule",
       "display_name": "Ijarah IMBT Rental Schedule",
       "uri": "ui://ainumbers/node/art-856-ijarah-imbt-schedule",
-      "bytes": 47716,
-      "sha256": "ebc4e5810f1c1f548b031ca07b813724f79118f4d845e550bef1a1d843ca3545"
+      "bytes": 48011,
+      "sha256": "9b83322dcfb4a8e56cf64e60794f2b66b115a7f838a5fc09acb12f563016e66c"
+    },
+    {
+      "tool_id": "art-857-average-price-allocation",
+      "mcp_name": "allocate_average_price",
+      "display_name": "Average Price Allocation",
+      "uri": "ui://ainumbers/node/art-857-average-price-allocation",
+      "bytes": 57650,
+      "sha256": "79c2fc995166f4d71224977a8f61936357e7a8fa51318c6a3ca528861a97c6e8"
     },
     {
       "tool_id": "cry-01-zk-compliance-proof-generator",
