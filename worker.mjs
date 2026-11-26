@@ -1922,46 +1922,29 @@ async function mrtrOpen(env, state, expect) {
 // (signature + LTV/anchor + record-hash recompute + approver decision). This compute worker never
 // re-implements any of it — it forwards the pair and reports the verdict verbatim. A transport
 // failure returns valid:false with a reason; it never reports a closure as resolved on a failure.
+// MCP-CLOSURE-VERIFY-HEADERS-1: this used to hand-roll its own POST (no Mcp-Method/Mcp-Name headers,
+// _meta at the body root), which anchor-suite's modern-era validator rejects (-32020 / HTTP 400), so
+// every escalation_resolve ended closure_verifier_error. It now goes through callAnchorSuiteTool
+// (below), which sends params-level _meta + Mcp-Method/Mcp-Name; same 8s AbortController timeout.
 async function verifyClosureViaAnchor(escalation_record, closure) {
   const { record_hash: _dropRecordHash, opened_at: _dropOpenedAt, ...deterministic } = escalation_record;
-  const body = {
-    jsonrpc: '2.0', id: 1, method: 'tools/call',
-    params: {
-      name: 'verify_escalation_closure',
-      arguments: { escalation_record: deterministic, closure: { ...closure, record_hash: escalation_record.record_hash } },
-    },
-    _meta: { 'io.modelcontextprotocol/protocolVersion': '2026-07-28' },
-  };
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
-  try {
-    const res = await fetch(ANCHOR_MCP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream', 'MCP-Protocol-Version': '2026-07-28' },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    });
-    const text = await res.text();
-    let jsonStr = text;
-    if (text.startsWith('event:')) {
-      const line = text.split('\n').find((l) => l.startsWith('data: '));
-      if (line) jsonStr = line.slice(6);
-    }
-    const parsed = JSON.parse(jsonStr);
-    const verdict = parsed?.result?.structuredContent
-      ?? (() => { try { return JSON.parse(parsed?.result?.content?.[0]?.text ?? 'null'); } catch (_) { return null; } })();
-    if (parsed?.error) return { valid: false, reason: 'closure_verifier_error', detail: parsed.error };
-    if (!verdict || typeof verdict !== 'object') return { valid: false, reason: 'closure_verifier_unreadable', http_status: res.status };
-    return verdict;
-  } catch (e) {
-    return { valid: false, reason: 'closure_verifier_unreachable', detail: String(e?.message ?? e) };
-  } finally {
-    clearTimeout(timer);
+  const call = await callAnchorSuiteTool('verify_escalation_closure', {
+    escalation_record: deterministic,
+    closure: { ...closure, record_hash: escalation_record.record_hash },
+  });
+  if (!call.ok) {
+    const r = String(call.reason ?? '');
+    const reason = r.startsWith('anchor_suite_unreachable') ? 'closure_verifier_unreachable'
+      : (r.startsWith('anchor_suite_unreadable_response') || r.startsWith('anchor_suite_unparseable_response')) ? 'closure_verifier_unreadable'
+      : 'closure_verifier_error';
+    return { valid: false, reason, detail: r };
   }
+  if (!call.result || typeof call.result !== 'object') return { valid: false, reason: 'closure_verifier_unreadable' };
+  return call.result;
 }
 
 // anchor_stamp (AGENTGLUE-BUILD-2, AGENT-GLUE-BUILD-SPEC.md §(b)) shares this transport with
-// verifyClosureViaAnchor above: same ANCHOR_MCP_URL, same 8s AbortController timeout, same
+// verifyClosureViaAnchor above (which now delegates here): same ANCHOR_MCP_URL, same 8s AbortController timeout, same
 // SSE-or-JSON response parsing. Generic over the anchor-suite tool name so anchor_hash (single)
 // and anchor_batch (array) both go through one call site. Never synthesizes a result on any
 // failure branch -- returns { ok:false, reason } verbatim for the caller to relay unanchored.
@@ -6475,6 +6458,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
 // buildServer in Node via an in-memory transport to capture the static initialize/tools-list/
 // resources-list/prompts-list responses, so the Worker never rebuilds 162 tools per request on
 // the cold Free-plan CPU budget). Build-time only; the Worker entry point is `default` below.
+export { verifyClosureViaAnchor as __test_verifyClosureViaAnchor }; // test-only (tests/closure-verify-headers.test.mjs)
 export { buildServer, widgetGlue, stripCspMeta, loadData, HOT_TOOLS, fragmentLink, lifecycleStatusOf, orderToolsHotFirst, CALL_TOOL_NAME };
 
 // ---------------------------------------------------------------------------
