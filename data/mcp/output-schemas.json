@@ -50967,6 +50967,201 @@
       "warnings"
     ]
   },
+  "allocate_average_price": {
+    "type": "object",
+    "properties": {
+      "allocations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "account": {
+              "type": "string"
+            },
+            "amount_minor": {
+              "type": "number"
+            },
+            "amount_minor_pre_residual": {
+              "type": "number"
+            },
+            "shares": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "account",
+            "amount_minor",
+            "amount_minor_pre_residual",
+            "shares"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "amount_basis": {
+        "type": "string",
+        "enum": [
+          "rounded_average_dp",
+          "unrounded_average"
+        ]
+      },
+      "amount_label": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "cost",
+          "proceeds",
+          null
+        ]
+      },
+      "average_price": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "average_price_dp": {
+        "type": [
+          "null",
+          "number"
+        ]
+      },
+      "currency": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "BHD",
+          "EUR",
+          "JPY",
+          "USD",
+          null
+        ]
+      },
+      "identity_holds": {
+        "type": [
+          "boolean",
+          "null"
+        ]
+      },
+      "minor_unit_exponent": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "note": {
+        "type": "string"
+      },
+      "overall": {
+        "type": "string",
+        "enum": [
+          "ALLOCATION_COMPUTED",
+          "INPUT_REFUSED"
+        ]
+      },
+      "refusals": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "residual_account": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "residual_handling": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "assign_largest",
+          "report_unallocated",
+          null
+        ]
+      },
+      "residual_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "rounded_average_price": {
+        "type": [
+          "null",
+          "string"
+        ]
+      },
+      "side": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "buy",
+          "sell",
+          null
+        ]
+      },
+      "total_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "total_shares": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "unallocated_residual_minor": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "warnings": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "INPUT_REFUSED",
+            "RESIDUAL_ASSIGNED",
+            "RESIDUAL_UNALLOCATED"
+          ]
+        }
+      }
+    },
+    "required": [
+      "allocations",
+      "amount_basis",
+      "amount_label",
+      "average_price",
+      "average_price_dp",
+      "currency",
+      "identity_holds",
+      "minor_unit_exponent",
+      "note",
+      "overall",
+      "refusals",
+      "residual_account",
+      "residual_handling",
+      "residual_minor",
+      "rounded_average_price",
+      "side",
+      "total_minor",
+      "total_shares",
+      "unallocated_residual_minor",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
   "generate_zk_compliance_proof": {
     "type": "object",
     "properties": {
