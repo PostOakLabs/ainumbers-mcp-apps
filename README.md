@@ -40,7 +40,18 @@ Everything else, including the `ASSETS` binding serving the committed tool data,
 
 **Read-only MCP tools** — count intentionally not hardcoded here (it drifted stale the last time it was). See `data/counts.json` for the live figure; never hand-type this number, `scripts/surface-parity.mjs` and the site repo's count-drift gate both check against it. The flagship widgets below render as interactive widgets, the rest are ChainGraph compute nodes plus a handful of catalog and discovery utility tools: `list_ainumbers_tools`, `find_tool`, `find_chain`, `build_workflow_links`, `run_chain`, `verify_execution_hash`, `build_chaingraph`, `emit_chaingraph_artifact`, `build_session_receipt`.
 
-Every tool declares `readOnlyHint: true`. No account, no auth, zero PII, nothing mutates state.
+Most tools are read-only, local, deterministic compute and declare `readOnlyHint: true`. No account, no auth, zero PII, no payload logging. Eight tools declare `readOnlyHint: false` because they mint something new per call (a fresh signature, key, receipt or bundle) or call an external service; each is excluded from the `call_tool` dispatcher so your host can approve it directly:
+
+- `vc_issue`: signs a W3C Verifiable Credential over a fresh ephemeral `did:key`.
+- `sdjwt_issue`: issues a signed SD-JWT over a fresh ephemeral `did:key`.
+- `sdjwt_present`: builds a redacted SD-JWT presentation, with an optional holder-binding key generated per call.
+- `checklist_step_receipt`: completes one checklist step and returns its chained receipt.
+- `ha_bundle_export`: assembles a human-accountability evidence bundle from supplied records.
+- `build_evidence_pack`: composes a session receipt, an optional accountability bundle and a disclosure manifest.
+- `anchor_stamp`: asks the anchor-suite server to timestamp an `execution_hash` (also `openWorldHint: true`).
+- `otlp_span_receipt`: turns an OpenTelemetry trace into a receipt bundle.
+
+Three tools declare `openWorldHint: true` because they reach outside the worker: `anchor_stamp`, `lei_kyb_check` (fetches a live GLEIF record) and `suggest_tool_idea` (returns a prefilled GitHub issue URL; it never posts anything itself).
 
 ### The flagship widgets
 

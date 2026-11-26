@@ -883,7 +883,7 @@ const HOT_TOOLS = new Set([
 
 // MCP-REACH-DISPATCH-1 D1: the dispatcher's own name, in one place, so the allowlist generator,
 // the self-target refusal and the dispatch-layer unwrap can never drift apart.
-const CALL_TOOL_NAME = 'call_tool';
+const MCP_SERVER_VERSION = '1.2.0'; /* single source: serverInfo, /health, server card */ const CALL_TOOL_NAME = 'call_tool';
 
 // MCP-REACH-DISPATCH-1 D1: the ONE steer sentence the discovery tools append, so a host that only
 // loaded page 1 learns the route to a name it cannot see in its own tool list. Byte-identical text
@@ -2122,7 +2122,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     ? ' FV-status (published/proven/still-trusted for this spec): ' + fvStatusEntries[0].url +
       ' — a snapshot, not a subscription; this receipt verifies offline regardless of whether that file is ever fetched.'
     : '';
-  const server = new McpServer({ name: 'ainumbers-apps', version: '1.2.0' }, { instructions: SERVER_INSTRUCTIONS });
+  const server = new McpServer({ name: 'ainumbers-apps', version: MCP_SERVER_VERSION }, { instructions: SERVER_INSTRUCTIONS });
   // SEP-1865 (final, MCP-728 §T5 A0 delta 2): MCP Apps is negotiated as an EXTENSION, not implied
   // by shipping ui:// resources. Declare it so clients that check capabilities.extensions before
   // rendering a widget see it advertised. We do not gate behavior on the client's own advertisement
@@ -4641,7 +4641,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
 
   // -------------------------------------------------------------------------
   // call_tool (MCP-REACH-DISPATCH-1 D1) — the read-only dispatcher. Measured 2026-09-24: the live
-  // tools/list is 13 pages / 722 tools and six hosts (Cursor, Codex, ChatGPT, Gemini CLI, Zed,
+  // tools/list was 13 pages / 722 tools when measured (2026-09-24; now larger, count intentionally not repeated in the served text) and six hosts (Cursor, Codex, ChatGPT, Gemini CLI, Zed,
   // Cline) issue exactly ONE tools/list request, so 647 tools were unreachable for them — a host
   // refuses to call a tool it never loaded, so "the server would run it" was never enough.
   //
@@ -4657,7 +4657,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
   server.registerTool(CALL_TOOL_NAME, {
     title: 'Run any AINumbers tool by name',
     description:
-      'Runs ONE read-only AINumbers tool that is not in your tool list. tools/list is paginated (13 pages, 722 tools) and many hosts read only the first page; this is the door to the rest. ' +
+      'Runs ONE read-only AINumbers tool that is not in your tool list. tools/list is paginated and many hosts read only the first page; this is the door to the rest. ' +
       'Pass { name: "<exact mcp_name>", arguments: { ... } } — the target\'s own inputSchema is validated and its result is returned verbatim, including execution_hash, so a dispatched call and a direct call are byte-identical. ' +
       'Get a name from find_tool (single calculators), find_chain (workflows) or describe_tool (exact schema). ' +
       'Read-only tools only: anything that issues a credential, stamps an anchor or reaches the network is refused here and must be called directly so your host can approve it.',
@@ -6167,7 +6167,7 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
       inputSchema: {
         policy_parameters: (inputSpec ? policyParamsSchema(inputSpec) : z.record(z.any()).optional())
           .describe('Input parameters for this tool\'s decision function. For gpu:false nodes with a registered kernel, these are computed server-side when compute is "auto" or "server". ' +
-            (inputSpec ? (inputSpec.r?.length ? 'Required: ' + inputSpec.r.join(', ') + '. ' : '') + 'Unknown keys are refused.' : 'See the tool\'s manifest for field names.')),
+            (inputSpec ? (inputSpec.r?.length ? 'Required: ' + inputSpec.r.join(', ') + '. ' : '') + 'Unknown keys return an UNKNOWN_POLICY_PARAMETER warning.' : 'See the tool\'s manifest for field names.')),
         compute: z.enum(['auto', 'server', 'browser']).optional()
           .describe('Compute mode (v0.4 Compute Binding). "auto" (default) = server for gpu:false nodes with registered kernels; "server" = force server-side; "browser" = always return browser delegation URL. gpu:true nodes always delegate.'),
         parent_hashes: z.array(z.string()).optional()
@@ -7144,7 +7144,7 @@ export default {
 
     // Health check
     if (url.pathname === '/health' || url.pathname === '/') {
-      return Response.json({ status: 'ok', server: 'ainumbers-mcp-apps', version: PILOT.version }, { headers: corsHeaders });
+      return Response.json({ status: 'ok', server: 'ainumbers-mcp-apps', version: MCP_SERVER_VERSION }, { headers: corsHeaders });
     }
 
     // Estate federation links (§N4, AGENTIC-NAV-BUILD-SPEC.md) — the 4 Post Oak Labs
@@ -7169,7 +7169,7 @@ export default {
         name: 'ainumbers-mcp-apps',
         title: 'AINumbers MCP Apps',
         description: 'Live MCP endpoint for the AINumbers fintech suite: chainable OpenChainGraph compute nodes with verifiable SHA-256 execution hashes, flagship browser-tool widgets, and catalog search (find_tool / find_chain / run_chain). run_chain and export_artifact responses include a ledger_url fragment link for human verification at ledger.ainumbers.co. Deterministic, zero-PII, zero payload logging.',
-        version: PILOT.version,
+        version: MCP_SERVER_VERSION,
         publisher: { name: 'Post Oak Labs', url: 'https://postoaklabs.com' },
         license: 'CC-BY-4.0',
         endpoints: [
