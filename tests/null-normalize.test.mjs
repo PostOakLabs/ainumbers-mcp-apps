@@ -21,7 +21,7 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { normalizeNullMembers } from '../_null_normalize.mjs';
+import { normalizeNullMembers, findForbiddenKey } from '../_null_normalize.mjs';
 import { buildServer, widgetGlue, stripCspMeta } from '../worker.mjs';
 import { PILOT } from '../pilot.mjs';
 
@@ -98,6 +98,38 @@ test('with no schema (or no properties entry) nulls are removed everywhere', () 
   assert.deepEqual(normalizeNullMembers({ a: null }, undefined), {});
   assert.deepEqual(normalizeNullMembers({ a: null }, {}), {});
   assert.deepEqual(normalizeNullMembers({ a: null }, { properties: {} }), {});
+});
+
+// ---------------------------------------------------------------------------
+// Prototype-key safety: an own "__proto__" key must never re-parent the copy
+// ---------------------------------------------------------------------------
+
+test('own "__proto__" key is copied as a member, never as the prototype', () => {
+  const input = JSON.parse('{"__proto__":{"notional_usd":50000000},"pad":null}');
+  const out = normalizeNullMembers(input);
+  assert.equal(Object.getPrototypeOf(out), Object.prototype);
+  assert.equal(out.notional_usd, undefined);
+  assert.deepEqual(Object.keys(out), ['__proto__']);
+  assert.equal(JSON.stringify(out), '{"__proto__":{"notional_usd":50000000}}');
+});
+
+test('own "__proto__" key survives the x_null_distinct branch and idempotence', () => {
+  const input = JSON.parse('{"__proto__":null,"a":null}');
+  const out = normalizeNullMembers(input, { properties: { __proto__: { x_null_distinct: true } } });
+  assert.equal(Object.getPrototypeOf(out), Object.prototype);
+  const once = normalizeNullMembers(JSON.parse('{"__proto__":{"x":1},"pad":null}'));
+  const twice = normalizeNullMembers(once);
+  assert.equal(twice, once);
+  assert.equal(Object.getPrototypeOf(twice), Object.prototype);
+});
+
+test('findForbiddenKey: finds nested __proto__/constructor/prototype, null for clean input', () => {
+  assert.equal(findForbiddenKey(JSON.parse('{"a":{"__proto__":{"x":1}}}')), 'a.__proto__');
+  assert.equal(findForbiddenKey(JSON.parse('{"a":[{"b":1},{"constructor":{"prototype":{}}}]}')), 'a[1].constructor');
+  assert.equal(findForbiddenKey(JSON.parse('{"prototype":1}')), 'prototype');
+  assert.equal(findForbiddenKey({ a: 1, b: [1, null, { c: 'proto' }], d: null }), null);
+  assert.equal(findForbiddenKey(null), null);
+  assert.equal(findForbiddenKey(5), null);
 });
 
 // ---------------------------------------------------------------------------

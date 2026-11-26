@@ -43,7 +43,7 @@ import { UTILITY_TOOL_NAMES } from './utility-tools.mjs';
 // inline error construction appears outside errors.mjs (or the frozen dev-server baseline).
 import { mintRequestId, protocolErrorResponse, toolDomainErrorResult, toolErrorResult, TOOL_ERRORS } from './errors.mjs';
 import { assertIJson, executionHash as sharedExecutionHash, policyParametersHash as sharedPolicyParametersHash, jcsStringify } from './kernels/_hash.mjs';
-import { normalizeNullMembers } from './_null_normalize.mjs';
+import { normalizeNullMembers, findForbiddenKey } from './_null_normalize.mjs';
 import { invokeKernel } from './kernel-invoke.mjs';
 import { verifyRfc3161, extractMessageImprintHex, FREETSA_ROOT_PEM } from './kernels/_rfc3161.mjs';
 import { compute as c2paCompute } from './kernels/art-123-c2pa-manifest-validator.kernel.mjs';
@@ -3305,6 +3305,11 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
     // and its composite_execution_hash is UNCHANGED — every §21.4 composite key is
     // conditional-presence, emitted only when the chain defines >=1 gate. Mirrors
     // embed/runChain.mjs byte-for-byte (surface-parity gate).
+    // Caller-supplied per-step inputs: refuse __proto__/constructor/prototype own keys up front.
+    {
+      const forbiddenKeyPath = findForbiddenKey(inputs);
+      if (forbiddenKeyPath !== null) return ijsonErrorResult('run_chain inputs contain a forbidden key (__proto__/constructor/prototype) at ' + forbiddenKeyPath, 'run_chain inputs');
+    }
     const chainSteps = chainMeta.steps ?? [];
     const hasGates = chainSteps.some((s) => s && s.gate);
     const idToIndex = {};
@@ -4276,6 +4281,8 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
           // the 16 PILOT manifests. Deliberately NOT folded into _hash.mjs:
           // a hash-only fold would give a null-carrying call and a null-free call identical receipts
           // while they still answer differently.
+          const forbiddenKeyPath = findForbiddenKey(policy_parameters);
+          if (forbiddenKeyPath !== null) return ijsonErrorResult('policy_parameters contains a forbidden key (__proto__/constructor/prototype) at ' + forbiddenKeyPath, 'policy_parameters');
           const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(tool_id));
           const invoked = await invokeKernel(kernel, pp_input, {
             now,
@@ -6226,6 +6233,8 @@ function buildServer({ manifests, nullExemptions, inputSpecs, widgets, loadWidge
             // the 16 PILOT manifests. Deliberately NOT folded into _hash.mjs:
             // a hash-only fold would give a null-carrying call and a null-free call identical receipts
             // while they still answer differently.
+            const forbiddenKeyPath = findForbiddenKey(policy_parameters);
+            if (forbiddenKeyPath !== null) return ijsonErrorResult('policy_parameters contains a forbidden key (__proto__/constructor/prototype) at ' + forbiddenKeyPath, 'policy_parameters');
             const pp_input = normalizeNullMembers(policy_parameters, inputSchemaFor(node.tool_id));
             const invoked = await invokeKernel(kernel, pp_input, {
               now,
