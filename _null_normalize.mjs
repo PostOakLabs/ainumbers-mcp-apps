@@ -24,6 +24,39 @@
 //
 // Input domain is the JSON the MCP transport parses (no cycles, no class instances); values that
 // are neither arrays, objects, nor null are returned unchanged.
+// Own-property assignment that can never reach the prototype setter. `out[k] = n` with
+// k === '__proto__' (an OWN key JSON.parse happily produces) re-parents the copy instead of adding
+// a member: kernels then read the hidden value through the prototype while Object.keys/JSON (the
+// execution_hash preimage and the unknown-key guard) never see it. `out` stays a plain {} so
+// kernels may still call prototype methods.
+function setOwn(obj, k, v) {
+  Object.defineProperty(obj, k, { value: v, enumerable: true, writable: true, configurable: true });
+}
+
+// Returns the first path (e.g. "a.b[2].__proto__") whose OWN key is __proto__, constructor or
+// prototype, else null. Walks objects and arrays; reports the path only, never a value.
+// Called at the worker boundary BEFORE normalization so a caller-supplied key that can alias
+// prototype machinery is refused instead of silently reshaping the receipt's recorded inputs.
+const FORBIDDEN_KEYS = ['__proto__', 'constructor', 'prototype'];
+export function findForbiddenKey(value, path = '') {
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const hit = findForbiddenKey(value[i], path + '[' + i + ']');
+      if (hit !== null) return hit;
+    }
+    return null;
+  }
+  if (value !== null && typeof value === 'object') {
+    for (const k of Object.getOwnPropertyNames(value)) {
+      const here = path === '' ? k : path + '.' + k;
+      if (FORBIDDEN_KEYS.includes(k)) return here;
+      const hit = findForbiddenKey(value[k], here);
+      if (hit !== null) return hit;
+    }
+  }
+  return null;
+}
+
 export function normalizeNullMembers(value, schema) {
   if (Array.isArray(value)) {
     let changed = false;
@@ -44,13 +77,13 @@ export function normalizeNullMembers(value, schema) {
     for (const k of Object.keys(value)) {
       const v = value[k];
       if (v === null) {
-        if (props?.[k]?.x_null_distinct) { out[k] = null; continue; } // declared opt-out honoured
+        if (props?.[k]?.x_null_distinct) { setOwn(out, k, null); continue; } // declared opt-out honoured
         changed = true; // drop the member; its absence IS the kernel's "not supplied"
         continue;
       }
       const n = normalizeNullMembers(v, props?.[k]);
       if (n !== v) changed = true;
-      out[k] = n;
+      setOwn(out, k, n);
     }
     return changed ? out : value;
   }
