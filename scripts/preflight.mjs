@@ -76,6 +76,7 @@ const gates = [
   { name: 'tool-selection eval (§M2.4)',                args: ['scripts/gate-tool-selection-eval.mjs'] },
   { name: 'hash-SSOT gate self-test (WORKER-HASH-SSOT-1)', args: ['scripts/gate-hash-ssot.selftest.mjs'] },
   { name: 'hash-SSOT: no second execution-hash impl in worker.mjs', args: ['scripts/gate-hash-ssot.mjs'] },
+  { name: 'a null hash never counts as a match (HASH-NULL-NEVER-MATCHES-1)', args: ['scripts/test-hash-null-never-matches.mjs'] },
   { name: 'I-JSON refusal on the hash surface (WORKER-HASH-SSOT-1)', args: ['scripts/gate-hash-ijson.mjs'] },
   { name: 'id-splice DoS gate self-test (WORKER-IDREPLACE-DOS-1)', args: ['scripts/gate-idreplace-dos.selftest.mjs'] },
   { name: 'hash-sweep classification (HASH-SWEEP-REFUSAL-CODE-1)', args: ['scripts/hash-sweep-classify.test.mjs'] },

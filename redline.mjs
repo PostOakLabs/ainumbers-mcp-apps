@@ -14,6 +14,7 @@
 //
 // Doctrine fence: pure functions over caller-supplied text. No server state, no storage.
 import { cgCanon, executionHash } from './kernels/_hash.mjs';
+import { hashesMatch } from './hash-match.mjs';
 
 async function sha256Hex(str) {
   const bytes = new TextEncoder().encode(str);
@@ -185,7 +186,7 @@ export async function verifyBundle(originalText, revisedText, bundle) {
   checks.push({ label: 'hunk_count matches recomputed diff', ok: diff.hunks.length === diff_receipt.policy_parameters.hunk_count });
 
   const diffReceiptRecomputed = await executionHash(diff_receipt.policy_parameters, diff_receipt.output_payload);
-  checks.push({ label: 'diff_receipt execution_hash recomputes', ok: diffReceiptRecomputed === diff_receipt.execution_hash });
+  checks.push({ label: 'diff_receipt execution_hash recomputes', ok: hashesMatch(diffReceiptRecomputed, diff_receipt.execution_hash) });
 
   if (diff_receipt.audit_signature && diff_receipt.audit_signature.signed) {
     checks.push({ label: 'diff_receipt eddsa signature', ok: false, detail: 'Signature verification requires a browser WebCrypto Ed25519 import; not checked by this server-side verifier.' });
@@ -201,7 +202,7 @@ export async function verifyBundle(originalText, revisedText, bundle) {
     const recomputedDigest = diff.hunks[i] ? await hunkDigest(diff.hunks[i], i) : null;
     const digestOk = recomputedDigest !== null && recomputedDigest === r.policy_parameters.hunk_digest;
     const recomputedExecHash = await executionHash(r.policy_parameters, r.output_payload);
-    const execHashOk = recomputedExecHash === r.execution_hash;
+    const execHashOk = hashesMatch(recomputedExecHash, r.execution_hash);
     const linkOk = i === 0 ? (r.policy_parameters.prev_hunk_receipt_digest === null) : (r.policy_parameters.prev_hunk_receipt_digest === prev);
     const ok = digestOk && execHashOk && linkOk;
     if (!ok && brokenHunk === null) brokenHunk = i;
@@ -211,7 +212,7 @@ export async function verifyBundle(originalText, revisedText, bundle) {
   }
 
   const dispositionReceiptRecomputed = await executionHash(disposition_receipt.policy_parameters, disposition_receipt.output_payload);
-  checks.push({ label: 'disposition_receipt execution_hash recomputes', ok: dispositionReceiptRecomputed === disposition_receipt.execution_hash });
+  checks.push({ label: 'disposition_receipt execution_hash recomputes', ok: hashesMatch(dispositionReceiptRecomputed, disposition_receipt.execution_hash) });
 
   const acceptedText = reconstructAcceptedText(diff.renderOps, dispositions);
   const acceptedTextDigest = await sha256Hex(acceptedText);

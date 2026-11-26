@@ -13,6 +13,7 @@
 // Doctrine fence: these are RECEIPT-producing pure functions. No server state, no
 // storage, no accounts. A "run" is caller-held; this module never persists anything.
 import { jcsStringify, executionHash } from './kernels/_hash.mjs';
+import { hashesMatch } from './hash-match.mjs';
 
 export const CHECKLIST_CONTEXT = 'https://ainumbers.co/chaingraph/context/v0.3/context.jsonld';
 export const CG_VERSION = '0.4.0';
@@ -140,7 +141,7 @@ export async function verifyRun({ runReceipt, stepReceipts }) {
   for (let i = 0; i < stepReceipts.length; i++) {
     const r = stepReceipts[i];
     const recomputed = await executionHash(r.policy_parameters, r.output_payload);
-    const hashOk = recomputed === r.execution_hash;
+    const hashOk = hashesMatch(recomputed, r.execution_hash);
     const linkOk = i === 0
       ? (r.policy_parameters.prev_step_receipt_digest == null)
       : (r.policy_parameters.prev_step_receipt_digest === prevHash);
@@ -157,7 +158,7 @@ export async function verifyRun({ runReceipt, stepReceipts }) {
   // gates `valid` in that case. Supplying a run_receipt always re-enables both checks.
   const merkleOk = runReceipt ? recomputedRoot === (runReceipt?.output_payload?.merkle_root ?? null) : true;
   const runRecomputed = runReceipt ? await executionHash(runReceipt.policy_parameters, runReceipt.output_payload) : null;
-  const runHashOk = runReceipt ? runRecomputed === runReceipt.execution_hash : true;
+  const runHashOk = runReceipt ? hashesMatch(runRecomputed, runReceipt.execution_hash) : true;
   const chainOk = stepResults.every((s) => s.ok);
   return {
     valid: chainOk && merkleOk && runHashOk,
