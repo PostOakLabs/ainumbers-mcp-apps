@@ -44,8 +44,8 @@
       "mcp_name": "assess_qr_golive_readiness",
       "display_name": "QR Go-Live Readiness Assessor",
       "uri": "ui://ainumbers/node/785-qr-golive-readiness",
-      "bytes": 66498,
-      "sha256": "c25a28a8ed22972a7246c7e192435cb3945c4872d8e8a9a838b44c3d85c5a008"
+      "bytes": 66782,
+      "sha256": "a1dbe6dce16e71ef34709b4b11c983dbc37191dccd24f84c66d0db4eaff34a23"
     },
     {
       "tool_id": "787-corridor-cost-averages",
@@ -1356,16 +1356,16 @@
       "mcp_name": "check_cra_annex1_completeness",
       "display_name": "CRA Annex I Completeness Checker",
       "uri": "ui://ainumbers/node/art-139-cra-annex1-completeness-checker",
-      "bytes": 88880,
-      "sha256": "62759b913f0efb664dd23a67ebd05c67f048119195618c130b72a36bc5db831e"
+      "bytes": 89399,
+      "sha256": "335fa0e954efe3609450efefb4f56d969ffdd34030c15c8a509bad2c0f1f8a27"
     },
     {
       "tool_id": "art-140-cra-vuln-reporting-readiness",
       "mcp_name": "assess_cra_vuln_reporting_readiness",
       "display_name": "CRA Vulnerability Reporting Readiness (Art. 14)",
       "uri": "ui://ainumbers/node/art-140-cra-vuln-reporting-readiness",
-      "bytes": 87757,
-      "sha256": "c41d2bafbde03a685768e6cfb3ebb7c5eeb5f0dd8e0ec635fd38aeef4e89af20"
+      "bytes": 88276,
+      "sha256": "f646327cf309c176e6200fd8ab9275145edb6670520cc7d6610a36dc0d8f8553"
     },
     {
       "tool_id": "art-141-nis2-entity-scope-classifier",
@@ -1380,16 +1380,16 @@
       "mcp_name": "check_nis2_art21_measures",
       "display_name": "NIS2 Article 21 Gap Checker (Ten Cybersecurity Risk-Management Measures)",
       "uri": "ui://ainumbers/node/art-142-nis2-art21-gap-checker",
-      "bytes": 58168,
-      "sha256": "5295a9572bbde6f0abf84e9d2d507c4e3442e7d944c200bd561ee0dd82d1a4a2"
+      "bytes": 58687,
+      "sha256": "cb85770edf7af8cfd5568463f920bef4096f85861e3b022717215147f97eb455"
     },
     {
       "tool_id": "art-143-nis2-penalty-exposure-calculator",
       "mcp_name": "calculate_nis2_penalty_exposure",
       "display_name": "NIS2 Penalty Exposure Calculator (Art. 34)",
       "uri": "ui://ainumbers/node/art-143-nis2-penalty-exposure-calculator",
-      "bytes": 59967,
-      "sha256": "b92d823ce5b898cabbaa23853c1557867156b360228c98eef4e201d29669d3f6"
+      "bytes": 60486,
+      "sha256": "5aff4b01634b8e0d7e571bc5cedda539572265796cdb850b3995b074cb8a0aba"
     },
     {
       "tool_id": "art-144-nis2-incident-significance-scorer",
@@ -1412,8 +1412,8 @@
       "mcp_name": "check_nis2_governance_readiness",
       "display_name": "NIS2 Governance Readiness Checker (Art. 20 — Management Body Accountability)",
       "uri": "ui://ainumbers/node/art-146-nis2-governance-readiness-checker",
-      "bytes": 57811,
-      "sha256": "574637b6a8fa801c9482aeba4300b0359ce87b5a6531596a09e4a2e2d7642530"
+      "bytes": 58330,
+      "sha256": "d4533370563a12f5a937aee46e341fdf120ce6036456c1c7f9c33e1699c7d2f2"
     },
     {
       "tool_id": "art-147-mcp-server-identity-attestation-validator",
@@ -5444,8 +5444,8 @@
       "mcp_name": "audit_solana_pda_ata",
       "display_name": "Solana PDA Bump and ATA Audit",
       "uri": "ui://ainumbers/node/art-780-solana-pda-ata-audit",
-      "bytes": 66222,
-      "sha256": "a669e76ff07984c97c7f826e8225e11d9c3f40d3bf81135035651dc8c3111782"
+      "bytes": 66517,
+      "sha256": "f579a4bfe8febd9bfc09131f1136f6d18f99ead3def6ddcfec45e23c0124cd61"
     },
     {
       "tool_id": "art-781-x402-svm-payment-outcome",
@@ -5508,16 +5508,16 @@
       "mcp_name": "check_reserves_cover_private",
       "display_name": "Private-Input Reserves Cover Outstanding Check",
       "uri": "ui://ainumbers/node/art-809-check-reserves-cover-outstanding-private",
-      "bytes": 47677,
-      "sha256": "952ea68e864d2800b56a6adb0abeaed3b68a1767c2f3463cb256cb89fcbde886"
+      "bytes": 47972,
+      "sha256": "f2899db5383873365d28221e3b783799bb6496c1ba6293dcd8eb5efff37d9752"
     },
     {
       "tool_id": "art-811-check-dti-within-policy-private",
       "mcp_name": "check_dti_within_policy_private",
       "display_name": "Private-Input Debt-to-Income Within Policy Check",
       "uri": "ui://ainumbers/node/art-811-check-dti-within-policy-private",
-      "bytes": 41474,
-      "sha256": "67d35b7903536158d683ab980c9c7e38c327b271931616f7365d79a8f4512e22"
+      "bytes": 41769,
+      "sha256": "abf213eb78c9558913dc1bdd33bea6aab0aae6dae33548d0f2ca9d3f4965df4d"
     },
     {
       "tool_id": "art-814-qf-pairwise-recompute",
