@@ -2532,16 +2532,16 @@
       "mcp_name": "verify_anchored_extract",
       "display_name": "Anchored Extract Verifier",
       "uri": "ui://ainumbers/node/art-286-anchored-extract-verifier",
-      "bytes": 59615,
-      "sha256": "528c7495364559c94c52445d442eed47933fcda924f9c866c07f3234a0b08787"
+      "bytes": 70542,
+      "sha256": "503677fd83119016ffb4bce22f2cd5b2ed27cc03c5fe3ed3b2a3262516e2e1cc"
     },
     {
       "tool_id": "art-287-revocation-status-verifier",
       "mcp_name": "verify_revocation_status",
       "display_name": "Revocation-Status Verifier",
       "uri": "ui://ainumbers/node/art-287-revocation-status-verifier",
-      "bytes": 49778,
-      "sha256": "7ab997310fa712588f0a78ce0dba05108e9d1da26626f03d5854acc9d86ccd27"
+      "bytes": 55548,
+      "sha256": "a173ca398650b1b1ea186ef5d3e819aae02d9f2cae56eb698a1d44b60fe80671"
     },
     {
       "tool_id": "art-288-map-iso20022-to-evm-calldata",
@@ -2572,16 +2572,16 @@
       "mcp_name": "screen_onledger_transfer_batch",
       "display_name": "On-Ledger Transfer Batch Screen",
       "uri": "ui://ainumbers/node/art-291-screen-onledger-transfer-batch",
-      "bytes": 44732,
-      "sha256": "e49388d5bddcaf276d64650272a183d4d1a97fd01056625db847e9e41815f9f3"
+      "bytes": 55138,
+      "sha256": "494be89b6be64a5823f6f602f4725ab843bd5ddaf698a5cd9067f9dbb971367f"
     },
     {
       "tool_id": "art-292-attest-settlement-orchestrator",
       "mcp_name": "lint_settlement_orchestrator_conformance",
       "display_name": "Settlement Orchestrator Attestation",
       "uri": "ui://ainumbers/node/art-292-attest-settlement-orchestrator",
-      "bytes": 47672,
-      "sha256": "8f195bc71fb15b60dcbbb9b432b51142213f7aa4208a1c8d29c144e4b5a28063"
+      "bytes": 59346,
+      "sha256": "fb0f5715817243bd42b830bb31b7dcae42dc8d340fe59bd9e6c0a3c421172089"
     },
     {
       "tool_id": "art-293-einvoice-format-validator",
