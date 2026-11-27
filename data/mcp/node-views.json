@@ -1932,16 +1932,16 @@
       "mcp_name": "analyze_prediction_market",
       "display_name": "Prediction Market Analyzer",
       "uri": "ui://ainumbers/node/art-211-prediction-market-analyzer",
-      "bytes": 50509,
-      "sha256": "4516751f1753a6c60631846ff199fec7a11a96858ec29c6d3dadb127cb3e33b6"
+      "bytes": 56623,
+      "sha256": "6e10f340e23f5024ae1cff7efbe204ece78d8d692160d168a551571919f4d0f9"
     },
     {
       "tool_id": "art-212-prediction-market-arbitrage",
       "mcp_name": "find_prediction_arbitrage",
       "display_name": "Prediction Market Arbitrage",
       "uri": "ui://ainumbers/node/art-212-prediction-market-arbitrage",
-      "bytes": 74190,
-      "sha256": "652f8511b940ec32d4f6c70d7383bb45f60b31ee46c28b009f60fb5b3a0a76a1"
+      "bytes": 83397,
+      "sha256": "757a2337d2d79079698051d72c2229e3defdf09d79bdfe234f31129e788572e4"
     },
     {
       "tool_id": "art-213-perp-liquidation-calculator",
