@@ -1,7 +1,7 @@
 {
   "generated_by": "scripts/precompute-discovery.mjs (MCP-REACH-DISPATCH-1 D1)",
   "rule": "annotations.readOnlyHint === true && annotations.openWorldHint === false, minus call_tool; a tool missing either annotation is excluded (fail closed)",
-  "tool_count": 827,
+  "tool_count": 828,
   "excluded_count": 10,
   "excluded": [
     "anchor_stamp",
@@ -705,6 +705,7 @@
     "size_ccp_default_fund_cover2",
     "stress_test_ap_redemption_path",
     "suite_howto",
+    "summarize_fill_quality",
     "sweep_docket_deadlines",
     "sweep_fedwire_addresses",
     "test_asc280_reportable_segment",
