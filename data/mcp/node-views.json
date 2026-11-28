@@ -2788,24 +2788,24 @@
       "mcp_name": "compute_stock_token_collateral_haircut",
       "display_name": "Halt + Staleness Collateral Haircut",
       "uri": "ui://ainumbers/node/art-320-rhc-collateral-haircut",
-      "bytes": 48843,
-      "sha256": "ae583ffa78458d09ef23826ad3ff10f79b782e33f0a41d6f40d8ff354acb9100"
+      "bytes": 49369,
+      "sha256": "5c0dc13dde868077af5539784aa2cf90f4b1b225ec1f25f2a2352234163ec423"
     },
     {
       "tool_id": "art-321-rhc-bold-finality-classifier",
       "mcp_name": "classify_bold_challenge_finality",
       "display_name": "BoLD Challenge-Window Finality Classifier",
       "uri": "ui://ainumbers/node/art-321-rhc-bold-finality-classifier",
-      "bytes": 48504,
-      "sha256": "3a97d6338a5843245444300df7eab80618052db90346d712c2513bb8567c33b3"
+      "bytes": 48942,
+      "sha256": "bfa6a64f30f2f6374d3715452285b7f455dfc26ca56d57eecf287b5b71c44a47"
     },
     {
       "tool_id": "art-322-rhc-ap-redemption-stress",
       "mcp_name": "stress_test_ap_redemption_path",
       "display_name": "AP Concentration + Redemption-Path Stress",
       "uri": "ui://ainumbers/node/art-322-rhc-ap-redemption-stress",
-      "bytes": 47123,
-      "sha256": "b375e53c6a50c04b0125eb259ad0057976221e912d141b3e6af5de9e3f25fb0e"
+      "bytes": 47482,
+      "sha256": "81c06a39cfd032c688b54cd302dbbe5e65dd2cacc8a126d4a500c9705ee0c717"
     },
     {
       "tool_id": "art-323-rhc-fit-diagnostic",
@@ -3132,8 +3132,8 @@
       "mcp_name": "recompute_fund_nav",
       "display_name": "Recompute Fund NAV",
       "uri": "ui://ainumbers/node/art-373-recompute-fund-nav",
-      "bytes": 60494,
-      "sha256": "5540261328cd9fdf741f2f9119bc7737c1d5aa7dd4557fd1af1a58a7002447d4"
+      "bytes": 74066,
+      "sha256": "14d4786b20ba7bd2ae38c84501a6f288a06b6f56b23d015055d3d16c4dc46c84"
     },
     {
       "tool_id": "art-374-test-nav-error-materiality",
