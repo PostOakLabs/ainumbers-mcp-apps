@@ -74,6 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     outputs:
       site_sha: ${{ steps.pin.outputs.site_sha }}
       proceed: ${{ steps.pin.outputs.proceed }}
@@ -95,6 +96,22 @@ jobs:
           # 6-hourly clock cron and manual dispatch never wait (fallback).
           if [ "$EVENT_SCHEDULE" != '*/20 * * * *' ]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # WORKER-VENDOR-POLL-SKIP-UNCHANGED-1: skip when the pinned site sha is
+          # the one the newest vendor/auto-* PR (open or merged; a closed-unmerged
+          # one never vendored) already carries. Each refresh PR records its sha in
+          # the body line "Site main sha vendored: <sha8>" (the self-heal step
+          # writes it, and rewrites it when it updates a PR in place), so a new
+          # site sha refreshes and an unchanged one exits here with no PR touched.
+          LAST=$(gh pr list --repo "$GITHUB_REPOSITORY" --state all --limit 30 \
+            --json headRefName,state,body,createdAt \
+            --jq '[.[] | select(.headRefName | startswith("vendor/auto-")) | select(.state != "CLOSED")] | sort_by(.createdAt) | reverse | .[0].body // ""' \
+            | sed -n 's/^- Site main sha vendored: \([0-9a-f]*\).*/\1/p' | head -n 1)
+          echo "last vendored site sha8: ${LAST:-<none>}"
+          if [ -n "$LAST" ] && [ "${SHA:0:8}" = "$LAST" ]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Site main ${SHA:0:8} already vendored — skipping the refresh poll."
             exit 0
           fi
           RUNS=$(gh api "repos/PostOakLabs/ainumbers/actions/workflows/derived-artifacts-regen.yml/runs?branch=main&per_page=5" \
