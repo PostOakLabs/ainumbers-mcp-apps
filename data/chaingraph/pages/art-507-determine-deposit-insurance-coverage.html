@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- WEBMCP:OT-META-BEGIN generator=scripts/gen-webmcp-registrations.mjs -->
+<meta http-equiv="origin-trial" content="AvjPE9Ubhx2ZAiql3vUsqFtXvuHuGVZq9xxwxs6FXkgBXIRAnf+mFu3UmPHszhqN3NW8YvRNXbVbAGvEsuFG7w0AAABfeyJvcmlnaW4iOiJodHRwczovL2FpbnVtYmVycy5jbzo0NDMiLCJmZWF0dXJlIjoiV2ViTUNQIiwiZXhwaXJ5IjoxODA2MzY0ODAwLCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+<!-- WEBMCP:OT-META-END -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
@@ -103,6 +106,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
 </style>
 <!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-507-determine-deposit-insurance-coverage.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
 <meta name="kernel-digest" content="sha256:af6ead608e9e4066d16c80dc91534582c71e82ff5d9fc556cb6c9444a00b15d1">
+<meta name="ai-tool" content="determine_deposit_insurance_coverage">
 </head>
 <body>
 <nav>
@@ -137,7 +141,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
   </div>
 </nav>
 
-<div class="wrap">
+<div class="wrap" role="main" aria-description="Computes the insured amount and the uninsured remainder for deposit accounts grouped by ownership right and capacity, and reports every account whose coverage cannot be calculated from the fields supplied. Balances held in the same ownership right and capacity by the same holder combine before an allowance is applied, so splitting a balance across accounts never creates coverage, and a group receives the largest allowance count stated for it rather than the sum across its accounts, so repeating a beneficiary set across accounts never multiplies coverage. The standard maximum deposit insurance amount is supplied by the caller and no statutory amount is held here: supply none and nothing is estimated, because every record is returned as undeterminable naming that field and the totals report zero insured rather than a guess. No table of part 330 ownership categories or allowance rules is held either. Ownership right and capacity codes are opaque strings used for grouping and reporting only, nothing branches on the text of a code, and how many separate insurance allowances a group is entitled to arrives as a per-record input, because that determination belongs to the institution and its counsel. Money is fixed point in integer minor units throughout, so no floating point operation is performed on a balance and a value that is not an integer is reported rather than coerced or rounded. Every account that cannot be calculated names the field that is missing, so a reader is told which field to go and get rather than being handed a bare undetermined count. Accounts held under alternative recordkeeping are undeterminable by construction rather than by failure, because the beneficial ownership detail sits with a third party. The annual certification that the information technology system was tested during the preceding twelve months is a caller-supplied assertion with a caller-supplied date, echoed unchanged and never computed from a clock, and nothing here verifies that any testing occurred; the signature over it is evaluated as a section 27 approval record at a threshold of one by art-503-build-dual-control-certification. Whether an institution has the two million or more deposit accounts that bring it into scope is a caller declaration and is never asserted here. Stated boundary: this is arithmetic over supplied records. It carries no claim that the Federal Deposit Insurance Corporation would accept the result, it does not serve as a filing, it does not produce the prescribed submission format, and it offers no deposit insurance advice.">
   <div class="eyebrow">OpenChainGraph Suite &middot; ART-507 &middot; Deposit Insurance &middot; 12 CFR Part 370</div>
   <h1>Deposit Insurance Coverage Determination</h1>
   <p class="sub">Part 370 asks an institution's system to say, for every deposit account, how much is insured and how much is not, grouped by ownership right and capacity. This page does that arithmetic on the records you give it, and it is equally explicit about the accounts it cannot do it for.</p>
@@ -170,8 +174,8 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
       <div><label class="fld">as_of_date (yyyy-mm-dd, no clock is read)</label><input type="text" id="asOfDate" value="2026-06-30"></div>
     </div>
     <div class="grid2">
-      <div><label class="fld">smdia (integer minor units, YOUR input)</label><input type="number" id="smdia" value="25000000" step="1"></div>
-      <div><label class="fld">currency</label><input type="text" id="currency" value="USD"></div>
+      <div><label class="fld">smdia (integer minor units, YOUR input)</label><input type="number" id="smdia" value="25000000" step="1" aria-label="smdia" aria-description="type not evidenced by kernel source"></div>
+      <div><label class="fld">currency</label><input type="text" id="currency" value="USD" aria-label="currency" aria-description="type not evidenced by kernel source"></div>
     </div>
     <div class="grid2">
       <div><label class="fld">minor_unit_scale</label><input type="number" id="minorUnitScale" value="100" min="1" step="1"></div>
@@ -280,6 +284,81 @@ Over MCP, the run happens on the AINumbers worker. No AINumbers server stores yo
 Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-507-determine-deposit-insurance-coverage.html#p=v1.H4sIAAAAAAAA_wFRA678eyJhc19vZl9kYXRlIjoiMjAyNi0wNi0zMCIsImluc3RpdHV0aW9uX3JlZiI6IklESS1TWU5USC0wMDAxIiwiY3VycmVuY3kiOiJVU0QiLCJtaW5vcl91bml0X3NjYWxlIjoxMDAsInNtZGlhIjoyNTAwMDAwMCwiY292ZXJlZF9pbnN0aXR1dGlvbl9kZWNsYXJlZCI6dHJ1ZSwiZGVjbGFyZWRfZGVwb3NpdF9hY2NvdW50X2NvdW50IjoyNDAwMDAwLCJjZXJ0aWZpY2F0aW9uX2Fzc2VydGlvbiI6eyJ0ZXN0aW5nX3BlcmZvcm1lZF9pbl9wcmVjZWRpbmdfdHdlbHZlX21vbnRocyI6dHJ1ZSwiYXNzZXJ0aW9uX2RhdGUiOiIyMDI2LTAzLTMxIiwic2lnbmVyX3JvbGUiOiJjaGllZiBleGVjdXRpdmUgb2ZmaWNlciJ9LCJhY2NvdW50X3JlY29yZHMiOlt7ImFjY291bnRfcmVmIjoiQUNDVC1BMSIsIm93bmVyc2hpcF9yaWdodF9hbmRfY2FwYWNpdHkiOiJTR0wiLCJpbnN1cmFuY2VfYWdncmVnYXRpb25fa2V5IjoiSE9MREVSLTEiLCJiYWxhbmNlIjoxMjUwMDAwMH0seyJhY2NvdW50X3JlZiI6IkFDQ1QtQTIiLCJvd25lcnNoaXBfcmlnaHRfYW5kX2NhcGFjaXR5IjoiU0dMIiwiaW5zdXJhbmNlX2FnZ3JlZ2F0aW9uX2tleSI6IkhPTERFUi0yIiwiYmFsYW5jZSI6MjAwMDAwMDB9LHsiYWNjb3VudF9yZWYiOiJBQ0NULUEzIiwib3duZXJzaGlwX3JpZ2h0X2FuZF9jYXBhY2l0eSI6IlNHTCIsImluc3VyYW5jZV9hZ2dyZWdhdGlvbl9rZXkiOiJIT0xERVItMiIsImJhbGFuY2UiOjE1MDAwMDAwfSx7ImFjY291bnRfcmVmIjoiQUNDVC1CMSIsIm93bmVyc2hpcF9yaWdodF9hbmRfY2FwYWNpdHkiOiJKTlQiLCJpbnN1cmFuY2VfYWdncmVnYXRpb25fa2V5IjoiSE9MREVSLTMiLCJiYWxhbmNlIjo5MDAwMDAwfV19OTwPEFEDAAA</pre>
 </section>
 <!-- ASK-AGENT:END -->
+
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-507-determine-deposit-insurance-coverage.manifest.json -->
+<script>
+/* OCG-A11Y-TREE v1 */
+/* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
+   by scripts/check-a11y-tree.mjs from chaingraph/_page-chrome.mjs (row
+   TOOLPAGE-A11Y-1). Form-control labels are emitted statically from the
+   manifest (aria-label = property name); this script owns the single
+   aria-live status region and the post-compute announcement. */
+(function () {
+  'use strict';
+  var RUN_TARGET = "runDetermination";
+  var TABLE = {"currency":["currency","type not evidenced by kernel source"],"smdia":["smdia","type not evidenced by kernel source"]};
+  var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
+  var st = null;
+  function ensureRegion() {
+    if (st && document.body && typeof document.body.contains === 'function' && document.body.contains(st)) return st;
+    st = document.createElement('div');
+    st.id = 'ocg-a11y-status';
+    st.setAttribute('role', 'status');
+    st.setAttribute('aria-live', 'polite');
+    st.style.cssText = 'position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important';
+    (document.body || document.documentElement).appendChild(st);
+    return st;
+  }
+  function artifact() {
+    var cands = ['_lastResult', '_lastArtifact'];
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        var v = window[cands[i]];
+        if (v && typeof v === 'object' && typeof v.execution_hash === 'string' && v.execution_hash) return v;
+      } catch (e) { /* pages without either global simply expose nothing */ }
+    }
+    return null;
+  }
+  function verdictOf(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    for (var i = 0; i < VERDICT_KEYS.length; i++) {
+      var v = payload[VERDICT_KEYS[i]];
+      if (typeof v === 'string' && v) return v;
+      if (typeof v === 'boolean' || typeof v === 'number') return VERDICT_KEYS[i] + ': ' + v;
+    }
+    for (var k in payload) {
+      var v2 = payload[k];
+      if (typeof v2 === 'boolean') return k + ': ' + v2;
+    }
+    return null;
+  }
+  function announce() {
+    var region = ensureRegion();
+    var a = artifact();
+    if (!a) { region.textContent = 'Run complete. See the result panel for the full verdict.'; return; }
+    var msg = 'Run complete. execution_hash ' + a.execution_hash;
+    var v = verdictOf(a.output_payload);
+    if (v) msg += '. Verdict: ' + v;
+    region.textContent = msg;
+  }
+  function wrap() {
+    try {
+      var orig = window[RUN_TARGET];
+      if (typeof orig !== 'function' || orig.__ocgA11yWrapped) return;
+      var wrapped = function () {
+        var r = orig.apply(this, arguments);
+        Promise.resolve(r).then(announce, function () { /* the page's own error surface reports failures */ });
+        return r;
+      };
+      wrapped.__ocgA11yWrapped = true;
+      window[RUN_TARGET] = wrapped;
+    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wrap);
+  else wrap();
+})();
+</script>
+<!-- A11Y-TREE:END -->
 
 <footer>
   <div class="footer-inner">
@@ -862,5 +941,362 @@ function toggleMfst(){
   else { b.style.display='none'; }
 }
 </script>
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-507-determine-deposit-insurance-coverage.manifest.json generator=scripts/gen-webmcp-registrations.mjs mode=direct -->
+<script>
+// WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
+// manifests/art-507-determine-deposit-insurance-coverage.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// nothing and restates no computed value). DIRECT emission mode
+// (WEBMCP-DIRECT-MODE-1): this page's manifest inputs have no single control
+// to prefill, so execute() calls the manifest-declared function with the
+// agent's params, stores the result in the page's result global, lets the
+// page's render function paint it, and shows the mandatory "Inputs used by
+// the agent" echo panel so a human still sees exactly what the agent ran.
+// Feature-detected: absent API registers nothing, so this page is
+// byte-identical without the API.
+// Eligibility is static and re-proven on every --check: kernel-digest
+// sentinel matches the kernel; the declared function takes one parameter
+// and reads no DOM; the kernel reproduces fixture 0 execution_hash. Same
+// kernel, same hash, zero network I/O.
+// Trust annotations, truthful-hint posture: deterministic local compute, no
+// untrusted content, so untrustedContentHint is not applicable per tool (n/a);
+// exposedTo intentionally omitted: no cross-origin exposure. A browser agent
+// is untrusted input like any form submission; the never-trust-client rule is
+// honored by construction because the tool is zero-server and only returns
+// computed JSON derived from declared inputs.
+// Browser support (dated observation): WebMCP origin trial from Chrome 149
+// (May 2026) per developer.chrome.com/docs/ai/webmcp (retrieved 2026-09-01).
+const mc = document.modelContext;
+if (mc) {
+  Promise.resolve(mc.registerTool({
+    name: 'determine_deposit_insurance_coverage',
+    description: 'Computes the insured amount and the uninsured remainder for deposit accounts grouped by ownership right and capacity, and reports every account whose coverage cannot be calculated from the fields supplied. Balances held in the same ownership right and capacity by the same holder combine before an allowance is applied, so splitting a balance across accounts never creates coverage, and a group receives the largest allowance count stated for it rather than the sum across its accounts, so repeating a beneficiary set across accounts never multiplies coverage. The standard maximum deposit insurance amount is supplied by the caller and no statutory amount is held here: supply none and nothing is estimated, because every record is returned as undeterminable naming that field and the totals report zero insured rather than a guess. No table of part 330 ownership categories or allowance rules is held either. Ownership right and capacity codes are opaque strings used for grouping and reporting only, nothing branches on the text of a code, and how many separate insurance allowances a group is entitled to arrives as a per-record input, because that determination belongs to the institution and its counsel. Money is fixed point in integer minor units throughout, so no floating point operation is performed on a balance and a value that is not an integer is reported rather than coerced or rounded. Every account that cannot be calculated names the field that is missing, so a reader is told which field to go and get rather than being handed a bare undetermined count. Accounts held under alternative recordkeeping are undeterminable by construction rather than by failure, because the beneficial ownership detail sits with a third party. The annual certification that the information technology system was tested during the preceding twelve months is a caller-supplied assertion with a caller-supplied date, echoed unchanged and never computed from a clock, and nothing here verifies that any testing occurred; the signature over it is evaluated as a section 27 approval record at a threshold of one by art-503-build-dual-control-certification. Whether an institution has the two million or more deposit accounts that bring it into scope is a caller declaration and is never asserted here. Stated boundary: this is arithmetic over supplied records. It carries no claim that the Federal Deposit Insurance Corporation would accept the result, it does not serve as a filing, it does not produce the prescribed submission format, and it offers no deposit insurance advice.',
+    title: 'Deposit Insurance Coverage Determination',
+    inputSchema: {
+      "type": "object",
+      "required": [
+        "account_records",
+        "as_of_date",
+        "certification_assertion",
+        "covered_institution_declared",
+        "currency",
+        "declared_deposit_account_count",
+        "institution_ref",
+        "minor_unit_scale",
+        "smdia"
+      ],
+      "properties": {
+        "account_records": {
+          "description": "type not evidenced by kernel source"
+        },
+        "as_of_date": {
+          "description": "type not evidenced by kernel source"
+        },
+        "certification_assertion": {
+          "description": "type not evidenced by kernel source"
+        },
+        "covered_institution_declared": {
+          "description": "type not evidenced by kernel source"
+        },
+        "currency": {
+          "description": "type not evidenced by kernel source"
+        },
+        "declared_deposit_account_count": {
+          "description": "Count; type not evidenced by kernel source"
+        },
+        "institution_ref": {
+          "description": "type not evidenced by kernel source"
+        },
+        "minor_unit_scale": {
+          "description": "type not evidenced by kernel source"
+        },
+        "smdia": {
+          "description": "type not evidenced by kernel source"
+        }
+      }
+    },
+    outputSchema: {
+      "type": "object",
+      "properties": {
+        "aggregation_groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "account_count": {
+                "type": "integer"
+              },
+              "account_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "aggregated_balance_minor_units": {
+                "type": "integer"
+              },
+              "allowance_minor_units": {
+                "type": "integer"
+              },
+              "coverage_units": {
+                "type": "integer"
+              },
+              "fully_insured": {
+                "type": "boolean"
+              },
+              "insurance_aggregation_key": {
+                "type": "string"
+              },
+              "insured_minor_units": {
+                "type": "integer"
+              },
+              "ownership_right_and_capacity": {
+                "type": "string"
+              },
+              "pass_through_applied": {
+                "type": "boolean"
+              },
+              "uninsured_minor_units": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "alternative_recordkeeping_handling": {
+          "type": "string"
+        },
+        "as_of_date": {
+          "type": "string"
+        },
+        "boundary": {
+          "type": "string"
+        },
+        "by_ownership_right_and_capacity": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "accounts_with_uninsured_deposits_count": {
+                "type": "integer"
+              },
+              "aggregated_balance_minor_units": {
+                "type": "integer"
+              },
+              "deposit_account_count": {
+                "type": "integer"
+              },
+              "distinct_account_holder_count": {
+                "type": "integer"
+              },
+              "fully_insured_account_count": {
+                "type": "integer"
+              },
+              "insured_minor_units": {
+                "type": "integer"
+              },
+              "ownership_right_and_capacity": {
+                "type": "string"
+              },
+              "undeterminable_account_count": {
+                "type": "integer"
+              },
+              "uninsured_minor_units": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "certification_assertion": {
+          "type": "object",
+          "properties": {
+            "assertion_date": {
+              "type": "string"
+            },
+            "assertion_present": {
+              "type": "boolean"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "computed_here": {
+              "type": "boolean"
+            },
+            "signature_evaluated_by": {
+              "type": "string"
+            },
+            "signature_threshold_n": {
+              "type": "integer"
+            },
+            "signer_role": {
+              "type": "string"
+            },
+            "testing_performed_in_preceding_twelve_months": {
+              "type": "boolean"
+            },
+            "verified_here": {
+              "type": "boolean"
+            }
+          }
+        },
+        "coverage_summary": {
+          "type": "object",
+          "properties": {
+            "accounts_with_uninsured_deposits_count": {
+              "type": "integer"
+            },
+            "aggregated_balance_minor_units": {
+              "type": "integer"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "deposit_accounts_determined": {
+              "type": "integer"
+            },
+            "deposit_accounts_supplied": {
+              "type": "integer"
+            },
+            "distinct_account_holder_count": {
+              "type": "integer"
+            },
+            "fully_insured_account_count": {
+              "type": "integer"
+            },
+            "insured_minor_units": {
+              "type": "integer"
+            },
+            "minor_unit_scale": {
+              "type": "integer"
+            },
+            "ownership_right_and_capacity_code_count": {
+              "type": "integer"
+            },
+            "undeterminable_account_count": {
+              "type": "integer"
+            },
+            "uninsured_minor_units": {
+              "type": "integer"
+            }
+          }
+        },
+        "covered_institution": {
+          "type": "object",
+          "properties": {
+            "asserted_here": {
+              "type": "boolean"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "declared_by_caller": {
+              "type": "boolean"
+            },
+            "declared_deposit_account_count": {
+              "type": "integer"
+            }
+          }
+        },
+        "institution_ref": {
+          "type": "string"
+        },
+        "money_representation": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "ownership_code_handling": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "smdia_applied": {
+          "type": "integer"
+        },
+        "smdia_basis": {
+          "type": "string"
+        },
+        "smdia_is_caller_supplied": {
+          "type": "boolean"
+        },
+        "undeterminable_by_missing_field": {
+          "type": "array"
+        },
+        "undeterminable_records": {
+          "type": "array"
+        }
+      }
+    },
+    annotations: { readOnlyHint: true },
+    execute: async function(params) {
+      try {
+      if (params.account_records === undefined) throw new Error('account_records is required; received ' + JSON.stringify(params.account_records) + '.');
+      if (params.as_of_date === undefined) throw new Error('as_of_date is required; received ' + JSON.stringify(params.as_of_date) + '.');
+      if (params.certification_assertion === undefined) throw new Error('certification_assertion is required; received ' + JSON.stringify(params.certification_assertion) + '.');
+      if (params.covered_institution_declared === undefined) throw new Error('covered_institution_declared is required; received ' + JSON.stringify(params.covered_institution_declared) + '.');
+      if (params.currency === undefined) throw new Error('currency is required; received ' + JSON.stringify(params.currency) + '.');
+      if (params.declared_deposit_account_count === undefined) throw new Error('declared_deposit_account_count is required; received ' + JSON.stringify(params.declared_deposit_account_count) + '.');
+      if (params.institution_ref === undefined) throw new Error('institution_ref is required; received ' + JSON.stringify(params.institution_ref) + '.');
+      if (params.minor_unit_scale === undefined) throw new Error('minor_unit_scale is required; received ' + JSON.stringify(params.minor_unit_scale) + '.');
+      if (params.smdia === undefined) throw new Error('smdia is required; received ' + JSON.stringify(params.smdia) + '.');
+      var echo = document.getElementById('webmcp-inputs-echo');
+      if (!echo) {
+        echo = document.createElement('pre');
+        echo.id = 'webmcp-inputs-echo';
+        var panel = document.querySelector('.results-panel');
+        if (panel && panel.parentNode) panel.parentNode.insertBefore(echo, panel);
+        else document.body.insertBefore(echo, document.body.firstChild);
+      }
+      echo.textContent = 'Inputs used by the agent: ' + JSON.stringify(params, null, 2);
+      var __normalizeNullMembers = function __normalizeNullMembers(value, schema) {
+        if (Array.isArray(value)) {
+          var changed = false;
+          var out = new Array(value.length);
+          for (var i = 0; i < value.length; i++) {
+            var el = value[i];
+            if (el === null) { out[i] = null; continue; }
+            var n = __normalizeNullMembers(el, schema && schema.items);
+            if (n !== el) changed = true;
+            out[i] = n;
+          }
+          return changed ? out : value;
+        }
+        if (value !== null && typeof value === 'object') {
+          var props = schema && schema.properties;
+          var out2 = {};
+          var changed2 = false;
+          for (var ks = Object.keys(value), j = 0; j < ks.length; j++) {
+            var k = ks[j];
+            var v = value[k];
+            if (v === null) {
+              if (props && props[k] && props[k].x_null_distinct) { out2[k] = null; continue; }
+              changed2 = true;
+              continue;
+            }
+            var n2 = __normalizeNullMembers(v, props && props[k]);
+            if (n2 !== v) changed2 = true;
+            out2[k] = n2;
+          }
+          return changed2 ? out2 : value;
+        }
+        return value;
+      };
+      var __computeInput = __normalizeNullMembers(params, "{\"type\":\"object\",\"required\":[\"account_records\",\"as_of_date\",\"certification_assertion\",\"covered_institution_declared\",\"currency\",\"declared_deposit_account_count\",\"institution_ref\",\"minor_unit_scale\",\"smdia\"],\"properties\":{\"account_records\":{\"description\":\"type not evidenced by kernel source\"},\"as_of_date\":{\"description\":\"type not evidenced by kernel source\"},\"certification_assertion\":{\"description\":\"type not evidenced by kernel source\"},\"covered_institution_declared\":{\"description\":\"type not evidenced by kernel source\"},\"currency\":{\"description\":\"type not evidenced by kernel source\"},\"declared_deposit_account_count\":{\"description\":\"Count; type not evidenced by kernel source\"},\"institution_ref\":{\"description\":\"type not evidenced by kernel source\"},\"minor_unit_scale\":{\"description\":\"type not evidenced by kernel source\"},\"smdia\":{\"description\":\"type not evidenced by kernel source\"}}}");
+      var __directResult = await compute(__computeInput);
+      if (typeof __directResult !== 'undefined') _lastResult = __directResult;
+      await verifyHash();
+      return _lastResult;
+      } catch (err) {
+        return { error: 'compute_failed', detail: String((err && err.message) || err) };
+      }
+    }
+  })).catch(() => {});
+}
+</script>
+<!-- WEBMCP:GEN-END -->
+
 </body>
 </html>
