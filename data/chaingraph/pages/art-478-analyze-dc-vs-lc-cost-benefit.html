@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- WEBMCP:OT-META-BEGIN generator=scripts/gen-webmcp-registrations.mjs -->
+<meta http-equiv="origin-trial" content="AvjPE9Ubhx2ZAiql3vUsqFtXvuHuGVZq9xxwxs6FXkgBXIRAnf+mFu3UmPHszhqN3NW8YvRNXbVbAGvEsuFG7w0AAABfeyJvcmlnaW4iOiJodHRwczovL2FpbnVtYmVycy5jbzo0NDMiLCJmZWF0dXJlIjoiV2ViTUNQIiwiZXhwaXJ5IjoxODA2MzY0ODAwLCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+<!-- WEBMCP:OT-META-END -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
@@ -102,6 +105,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
 <style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
 <!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-478-analyze-dc-vs-lc-cost-benefit.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
 <meta name="kernel-digest" content="sha256:399294433cf13af7c9c72820fff550fb25f97a09c279902523b938e2a657ff0e">
+<meta name="ai-tool" content="analyze_dc_vs_lc_cost_benefit">
 </head>
 <body>
 <nav>
@@ -136,7 +140,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
   </div>
 </nav>
 
-<div class="wrap">
+<div class="wrap" role="main" aria-description="Compares the total cost and risk-adjusted exposure of Documentary Collections (D/P, D/A) against Letters of Credit (Sight, Usance, Confirmed, SBLC) for a trade transaction. Returns a fee breakdown, break-even non-payment probability, and a recommendation, plus a disclosed heuristic LC protection score. Provable node counterpart to tools/423-dc-vs-lc-analyzer.html; that tool page's URC 522 checklist and jurisdiction D/A enforceability reference panels stay browser-only reference material, not computed outputs.">
   <div class="eyebrow">OpenChainGraph Suite &middot; ART-478 &middot; Trade Finance</div>
   <h1>Documentary Collection vs Letter of Credit Cost-Benefit</h1>
   <p class="sub">Compares the total cost and risk-adjusted exposure of Documentary Collections (D/P, D/A) against Letters of Credit (Sight, Usance, Confirmed, SBLC) for a trade transaction. Returns a fee breakdown, break-even non-payment probability, and a recommendation. Provable version of <a href="../tools/423-dc-vs-lc-analyzer.html">tools/423-dc-vs-lc-analyzer.html</a>; that tool page's URC 522 checklist and jurisdiction D/A enforceability reference panels stay browser-only reference material, not computed outputs.</p>
@@ -167,7 +171,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
         <select id="paymentDays"><option value="0">0: At Sight</option><option value="30">30</option><option value="60" selected>60</option><option value="90">90</option><option value="120">120</option><option value="180">180</option></select>
       </div>
       <div class="q"><label class="q-label" for="goodsStatus">Goods Status</label>
-        <select id="goodsStatus"><option value="shipped" selected>Shipped</option><option value="transit">In Transit</option><option value="manufacture">To be Manufactured</option></select>
+        <select id="goodsStatus" aria-label="goodsStatus" aria-description="type not evidenced by kernel source"><option value="shipped" selected>Shipped</option><option value="transit">In Transit</option><option value="manufacture">To be Manufactured</option></select>
       </div>
     </div>
   </div>
@@ -176,7 +180,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
     <div class="section-head">Letter of Credit Parameters</div>
     <div class="row3">
       <div class="q"><label class="q-label" for="lcType">LC Type</label>
-        <select id="lcType"><option value="sight" selected>Sight LC</option><option value="usance">Usance LC</option><option value="confirmed_sight">Confirmed Sight LC</option><option value="confirmed_usance">Confirmed Usance LC</option><option value="sblc">Standby LC</option></select>
+        <select id="lcType" aria-label="lcType" aria-description="type not evidenced by kernel source"><option value="sight" selected>Sight LC</option><option value="usance">Usance LC</option><option value="confirmed_sight">Confirmed Sight LC</option><option value="confirmed_usance">Confirmed Usance LC</option><option value="sblc">Standby LC</option></select>
       </div>
       <div class="q"><label class="q-label" for="lcIssuePct">Issuing Bank Fee (% per quarter)</label><input type="number" id="lcIssuePct" value="0.125" min="0" max="5" step="0.0125"></div>
       <div class="q"><label class="q-label" for="lcAdvisingFee">Advising Bank Fee (USD)</label><input type="number" id="lcAdvisingFee" value="100" min="0" step="25"></div>
@@ -193,7 +197,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
     <div class="section-head">Documentary Collection Parameters</div>
     <div class="row3">
       <div class="q"><label class="q-label" for="dcType">Collection Type</label>
-        <select id="dcType"><option value="dp" selected>D/P: Documents against Payment</option><option value="da">D/A: Documents against Acceptance</option></select>
+        <select id="dcType" aria-label="dcType" aria-description="type not evidenced by kernel source"><option value="dp" selected>D/P: Documents against Payment</option><option value="da">D/A: Documents against Acceptance</option></select>
       </div>
       <div class="q"><label class="q-label" for="dcCollectPct">Collecting Bank Commission (%)</label><input type="number" id="dcCollectPct" value="0.15" min="0" max="5" step="0.05"></div>
       <div class="q"><label class="q-label" for="dcRemitFee">Remitting Bank Fee (USD)</label><input type="number" id="dcRemitFee" value="65" min="0" step="5"></div>
@@ -270,6 +274,81 @@ Over MCP, the run happens on the AINumbers worker. No AINumbers server stores yo
 Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-478-analyze-dc-vs-lc-cost-benefit.html#p=v1.H4sIAAAAAAAA_wHDATz-eyJpbnZvaWNlVmFsdWVVU0QiOjUwMDAwMCwic2VsbGVyQ291bnRyeVJpc2siOiJtZWRpdW0iLCJidXllckNvdW50cnlSaXNrIjoibWVkaXVtIiwiYnV5ZXJSZWxhdGlvbnNoaXAiOiJsdDIiLCJwYXltZW50VGVybURheXMiOjYwLCJnb29kc1N0YXR1cyI6InNoaXBwZWQiLCJsY1R5cGUiOiJzaWdodCIsImxjSXNzdWFuY2VQY3RQZXJRdWFydGVyIjowLjEyNSwibGNBZHZpc2luZ0ZlZVVTRCI6MTAwLCJsY0NvbmZpcm1hdGlvblBjdFBlclF1YXJ0ZXIiOjAsImxjTmVnb3RpYXRpb25QY3QiOjAsImxjQW1lbmRtZW50RmVlVVNEIjo3NSwibGNFeHBlY3RlZEFtZW5kbWVudHMiOjEsImRjVHlwZSI6ImRwIiwiZGNDb2xsZWN0aW5nQ29tbWlzc2lvblBjdCI6MC4xNSwiZGNSZW1pdHRpbmdGZWVVU0QiOjY1LCJkY1Byb3Rlc3RGZWVVU0QiOjEwMDAsImRjTm9uUGF5bWVudFByb2JhYmlsaXR5UGN0Ijo1fT4_j9_DAQAA</pre>
 </section>
 <!-- ASK-AGENT:END -->
+
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-478-analyze-dc-vs-lc-cost-benefit.manifest.json -->
+<script>
+/* OCG-A11Y-TREE v1 */
+/* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
+   by scripts/check-a11y-tree.mjs from chaingraph/_page-chrome.mjs (row
+   TOOLPAGE-A11Y-1). Form-control labels are emitted statically from the
+   manifest (aria-label = property name); this script owns the single
+   aria-live status region and the post-compute announcement. */
+(function () {
+  'use strict';
+  var RUN_TARGET = "runKernel";
+  var TABLE = {"dcType":["dcType","type not evidenced by kernel source"],"goodsStatus":["goodsStatus","type not evidenced by kernel source"],"lcType":["lcType","type not evidenced by kernel source"]};
+  var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
+  var st = null;
+  function ensureRegion() {
+    if (st && document.body && typeof document.body.contains === 'function' && document.body.contains(st)) return st;
+    st = document.createElement('div');
+    st.id = 'ocg-a11y-status';
+    st.setAttribute('role', 'status');
+    st.setAttribute('aria-live', 'polite');
+    st.style.cssText = 'position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important';
+    (document.body || document.documentElement).appendChild(st);
+    return st;
+  }
+  function artifact() {
+    var cands = ['_lastResult', '_lastArtifact'];
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        var v = window[cands[i]];
+        if (v && typeof v === 'object' && typeof v.execution_hash === 'string' && v.execution_hash) return v;
+      } catch (e) { /* pages without either global simply expose nothing */ }
+    }
+    return null;
+  }
+  function verdictOf(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    for (var i = 0; i < VERDICT_KEYS.length; i++) {
+      var v = payload[VERDICT_KEYS[i]];
+      if (typeof v === 'string' && v) return v;
+      if (typeof v === 'boolean' || typeof v === 'number') return VERDICT_KEYS[i] + ': ' + v;
+    }
+    for (var k in payload) {
+      var v2 = payload[k];
+      if (typeof v2 === 'boolean') return k + ': ' + v2;
+    }
+    return null;
+  }
+  function announce() {
+    var region = ensureRegion();
+    var a = artifact();
+    if (!a) { region.textContent = 'Run complete. See the result panel for the full verdict.'; return; }
+    var msg = 'Run complete. execution_hash ' + a.execution_hash;
+    var v = verdictOf(a.output_payload);
+    if (v) msg += '. Verdict: ' + v;
+    region.textContent = msg;
+  }
+  function wrap() {
+    try {
+      var orig = window[RUN_TARGET];
+      if (typeof orig !== 'function' || orig.__ocgA11yWrapped) return;
+      var wrapped = function () {
+        var r = orig.apply(this, arguments);
+        Promise.resolve(r).then(announce, function () { /* the page's own error surface reports failures */ });
+        return r;
+      };
+      wrapped.__ocgA11yWrapped = true;
+      window[RUN_TARGET] = wrapped;
+    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wrap);
+  else wrap();
+})();
+</script>
+<!-- A11Y-TREE:END -->
 
 <footer>
   <div class="footer-inner">
@@ -589,5 +668,226 @@ function toggleMfst() {
   } else { b.style.display = 'none'; }
 }
 </script>
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-478-analyze-dc-vs-lc-cost-benefit.manifest.json generator=scripts/gen-webmcp-registrations.mjs mode=direct -->
+<script>
+// WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
+// manifests/art-478-analyze-dc-vs-lc-cost-benefit.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// nothing and restates no computed value). DIRECT emission mode
+// (WEBMCP-DIRECT-MODE-1): this page's manifest inputs have no single control
+// to prefill, so execute() calls the manifest-declared function with the
+// agent's params, stores the result in the page's result global, lets the
+// page's render function paint it, and shows the mandatory "Inputs used by
+// the agent" echo panel so a human still sees exactly what the agent ran.
+// Feature-detected: absent API registers nothing, so this page is
+// byte-identical without the API.
+// Eligibility is static and re-proven on every --check: kernel-digest
+// sentinel matches the kernel; the declared function takes one parameter
+// and reads no DOM; the kernel reproduces fixture 0 execution_hash. Same
+// kernel, same hash, zero network I/O.
+// Trust annotations, truthful-hint posture: deterministic local compute, no
+// untrusted content, so untrustedContentHint is not applicable per tool (n/a);
+// exposedTo intentionally omitted: no cross-origin exposure. A browser agent
+// is untrusted input like any form submission; the never-trust-client rule is
+// honored by construction because the tool is zero-server and only returns
+// computed JSON derived from declared inputs.
+// Browser support (dated observation): WebMCP origin trial from Chrome 149
+// (May 2026) per developer.chrome.com/docs/ai/webmcp (retrieved 2026-09-01).
+const mc = document.modelContext;
+if (mc) {
+  Promise.resolve(mc.registerTool({
+    name: 'analyze_dc_vs_lc_cost_benefit',
+    description: 'Compares the total cost and risk-adjusted exposure of Documentary Collections (D/P, D/A) against Letters of Credit (Sight, Usance, Confirmed, SBLC) for a trade transaction. Returns a fee breakdown, break-even non-payment probability, and a recommendation, plus a disclosed heuristic LC protection score. Provable node counterpart to tools/423-dc-vs-lc-analyzer.html; that tool page\'s URC 522 checklist and jurisdiction D/A enforceability reference panels stay browser-only reference material, not computed outputs.',
+    title: 'Documentary Collection vs Letter of Credit Cost-Benefit',
+    inputSchema: {
+      "type": "object",
+      "required": [
+        "buyerCountryRisk",
+        "buyerRelationship",
+        "dcCollectingCommissionPct",
+        "dcNonPaymentProbabilityPct",
+        "dcProtestFeeUSD",
+        "dcRemittingFeeUSD",
+        "dcType",
+        "goodsStatus",
+        "invoiceValueUSD",
+        "lcAdvisingFeeUSD",
+        "lcAmendmentFeeUSD",
+        "lcConfirmationPctPerQuarter",
+        "lcExpectedAmendments",
+        "lcIssuancePctPerQuarter",
+        "lcNegotiationPct",
+        "lcType",
+        "paymentTermDays",
+        "sellerCountryRisk"
+      ],
+      "properties": {
+        "buyerCountryRisk": {
+          "description": "type not evidenced by kernel source"
+        },
+        "buyerRelationship": {
+          "description": "type not evidenced by kernel source"
+        },
+        "dcCollectingCommissionPct": {
+          "description": "type not evidenced by kernel source"
+        },
+        "dcNonPaymentProbabilityPct": {
+          "description": "type not evidenced by kernel source"
+        },
+        "dcProtestFeeUSD": {
+          "description": "type not evidenced by kernel source"
+        },
+        "dcRemittingFeeUSD": {
+          "description": "type not evidenced by kernel source"
+        },
+        "dcType": {
+          "description": "type not evidenced by kernel source"
+        },
+        "goodsStatus": {
+          "description": "type not evidenced by kernel source"
+        },
+        "invoiceValueUSD": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcAdvisingFeeUSD": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcAmendmentFeeUSD": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcConfirmationPctPerQuarter": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcExpectedAmendments": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcIssuancePctPerQuarter": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcNegotiationPct": {
+          "description": "type not evidenced by kernel source"
+        },
+        "lcType": {
+          "description": "type not evidenced by kernel source"
+        },
+        "paymentTermDays": {
+          "description": "type not evidenced by kernel source"
+        },
+        "sellerCountryRisk": {
+          "description": "type not evidenced by kernel source"
+        }
+      }
+    },
+    outputSchema: {
+      "type": "object",
+      "properties": {
+        "breakEvenProbabilityPct": {
+          "type": "integer"
+        },
+        "dcRiskAdjCostUSD": {
+          "type": "integer"
+        },
+        "dcRiskExposureUSD": {
+          "type": "integer"
+        },
+        "dcTotalFeesUSD": {
+          "type": "integer"
+        },
+        "heuristic_note": {
+          "type": "string"
+        },
+        "lcProtectionScore": {
+          "type": "integer"
+        },
+        "lcRiskAdjCostUSD": {
+          "type": "integer"
+        },
+        "lcTotalFeesUSD": {
+          "type": "integer"
+        },
+        "lc_protection_score_heuristic": {
+          "type": "boolean"
+        },
+        "recommendation": {
+          "type": "string"
+        }
+      }
+    },
+    annotations: { readOnlyHint: true },
+    execute: async function(params) {
+      try {
+      if (params.buyerCountryRisk === undefined) throw new Error('buyerCountryRisk is required; received ' + JSON.stringify(params.buyerCountryRisk) + '.');
+      if (params.buyerRelationship === undefined) throw new Error('buyerRelationship is required; received ' + JSON.stringify(params.buyerRelationship) + '.');
+      if (params.dcCollectingCommissionPct === undefined) throw new Error('dcCollectingCommissionPct is required; received ' + JSON.stringify(params.dcCollectingCommissionPct) + '.');
+      if (params.dcNonPaymentProbabilityPct === undefined) throw new Error('dcNonPaymentProbabilityPct is required; received ' + JSON.stringify(params.dcNonPaymentProbabilityPct) + '.');
+      if (params.dcProtestFeeUSD === undefined) throw new Error('dcProtestFeeUSD is required; received ' + JSON.stringify(params.dcProtestFeeUSD) + '.');
+      if (params.dcRemittingFeeUSD === undefined) throw new Error('dcRemittingFeeUSD is required; received ' + JSON.stringify(params.dcRemittingFeeUSD) + '.');
+      if (params.dcType === undefined) throw new Error('dcType is required; received ' + JSON.stringify(params.dcType) + '.');
+      if (params.goodsStatus === undefined) throw new Error('goodsStatus is required; received ' + JSON.stringify(params.goodsStatus) + '.');
+      if (params.invoiceValueUSD === undefined) throw new Error('invoiceValueUSD is required; received ' + JSON.stringify(params.invoiceValueUSD) + '.');
+      if (params.lcAdvisingFeeUSD === undefined) throw new Error('lcAdvisingFeeUSD is required; received ' + JSON.stringify(params.lcAdvisingFeeUSD) + '.');
+      if (params.lcAmendmentFeeUSD === undefined) throw new Error('lcAmendmentFeeUSD is required; received ' + JSON.stringify(params.lcAmendmentFeeUSD) + '.');
+      if (params.lcConfirmationPctPerQuarter === undefined) throw new Error('lcConfirmationPctPerQuarter is required; received ' + JSON.stringify(params.lcConfirmationPctPerQuarter) + '.');
+      if (params.lcExpectedAmendments === undefined) throw new Error('lcExpectedAmendments is required; received ' + JSON.stringify(params.lcExpectedAmendments) + '.');
+      if (params.lcIssuancePctPerQuarter === undefined) throw new Error('lcIssuancePctPerQuarter is required; received ' + JSON.stringify(params.lcIssuancePctPerQuarter) + '.');
+      if (params.lcNegotiationPct === undefined) throw new Error('lcNegotiationPct is required; received ' + JSON.stringify(params.lcNegotiationPct) + '.');
+      if (params.lcType === undefined) throw new Error('lcType is required; received ' + JSON.stringify(params.lcType) + '.');
+      if (params.paymentTermDays === undefined) throw new Error('paymentTermDays is required; received ' + JSON.stringify(params.paymentTermDays) + '.');
+      if (params.sellerCountryRisk === undefined) throw new Error('sellerCountryRisk is required; received ' + JSON.stringify(params.sellerCountryRisk) + '.');
+      var echo = document.getElementById('webmcp-inputs-echo');
+      if (!echo) {
+        echo = document.createElement('pre');
+        echo.id = 'webmcp-inputs-echo';
+        var panel = document.querySelector('.results-panel');
+        if (panel && panel.parentNode) panel.parentNode.insertBefore(echo, panel);
+        else document.body.insertBefore(echo, document.body.firstChild);
+      }
+      echo.textContent = 'Inputs used by the agent: ' + JSON.stringify(params, null, 2);
+      var __normalizeNullMembers = function __normalizeNullMembers(value, schema) {
+        if (Array.isArray(value)) {
+          var changed = false;
+          var out = new Array(value.length);
+          for (var i = 0; i < value.length; i++) {
+            var el = value[i];
+            if (el === null) { out[i] = null; continue; }
+            var n = __normalizeNullMembers(el, schema && schema.items);
+            if (n !== el) changed = true;
+            out[i] = n;
+          }
+          return changed ? out : value;
+        }
+        if (value !== null && typeof value === 'object') {
+          var props = schema && schema.properties;
+          var out2 = {};
+          var changed2 = false;
+          for (var ks = Object.keys(value), j = 0; j < ks.length; j++) {
+            var k = ks[j];
+            var v = value[k];
+            if (v === null) {
+              if (props && props[k] && props[k].x_null_distinct) { out2[k] = null; continue; }
+              changed2 = true;
+              continue;
+            }
+            var n2 = __normalizeNullMembers(v, props && props[k]);
+            if (n2 !== v) changed2 = true;
+            out2[k] = n2;
+          }
+          return changed2 ? out2 : value;
+        }
+        return value;
+      };
+      var __computeInput = __normalizeNullMembers(params, "{\"type\":\"object\",\"required\":[\"buyerCountryRisk\",\"buyerRelationship\",\"dcCollectingCommissionPct\",\"dcNonPaymentProbabilityPct\",\"dcProtestFeeUSD\",\"dcRemittingFeeUSD\",\"dcType\",\"goodsStatus\",\"invoiceValueUSD\",\"lcAdvisingFeeUSD\",\"lcAmendmentFeeUSD\",\"lcConfirmationPctPerQuarter\",\"lcExpectedAmendments\",\"lcIssuancePctPerQuarter\",\"lcNegotiationPct\",\"lcType\",\"paymentTermDays\",\"sellerCountryRisk\"],\"properties\":{\"buyerCountryRisk\":{\"description\":\"type not evidenced by kernel source\"},\"buyerRelationship\":{\"description\":\"type not evidenced by kernel source\"},\"dcCollectingCommissionPct\":{\"description\":\"type not evidenced by kernel source\"},\"dcNonPaymentProbabilityPct\":{\"description\":\"type not evidenced by kernel source\"},\"dcProtestFeeUSD\":{\"description\":\"type not evidenced by kernel source\"},\"dcRemittingFeeUSD\":{\"description\":\"type not evidenced by kernel source\"},\"dcType\":{\"description\":\"type not evidenced by kernel source\"},\"goodsStatus\":{\"description\":\"type not evidenced by kernel source\"},\"invoiceValueUSD\":{\"description\":\"type not evidenced by kernel source\"},\"lcAdvisingFeeUSD\":{\"description\":\"type not evidenced by kernel source\"},\"lcAmendmentFeeUSD\":{\"description\":\"type not evidenced by kernel source\"},\"lcConfirmationPctPerQuarter\":{\"description\":\"type not evidenced by kernel source\"},\"lcExpectedAmendments\":{\"description\":\"type not evidenced by kernel source\"},\"lcIssuancePctPerQuarter\":{\"description\":\"type not evidenced by kernel source\"},\"lcNegotiationPct\":{\"description\":\"type not evidenced by kernel source\"},\"lcType\":{\"description\":\"type not evidenced by kernel source\"},\"paymentTermDays\":{\"description\":\"type not evidenced by kernel source\"},\"sellerCountryRisk\":{\"description\":\"type not evidenced by kernel source\"}}}");
+      var __directResult = await computeDcVsLc(__computeInput);
+      if (typeof __directResult !== 'undefined') _lastResult = __directResult;
+      await verifyHash();
+      return _lastResult;
+      } catch (err) {
+        return { error: 'compute_failed', detail: String((err && err.message) || err) };
+      }
+    }
+  })).catch(() => {});
+}
+</script>
+<!-- WEBMCP:GEN-END -->
+
 </body>
 </html>
