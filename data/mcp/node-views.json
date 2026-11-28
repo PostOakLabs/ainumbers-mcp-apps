@@ -1052,32 +1052,32 @@
       "mcp_name": "assess_mica_casp_readiness",
       "display_name": "CASP Authorization-Readiness Assessor",
       "uri": "ui://ainumbers/node/art-100-mica-casp-authorization-readiness",
-      "bytes": 63609,
-      "sha256": "fa388d4fda12b93b23c8048ed2b4c29d3e5bd6879a3bd8a9010ca3e2fb9500ed"
+      "bytes": 77129,
+      "sha256": "06dac0bcfa0f2bca0ffde325bedd9c7bd467c19afef9bf58037fb345d054cb31"
     },
     {
       "tool_id": "art-101-mica-art67-own-funds-calculator",
       "mcp_name": "calculate_mica_own_funds",
       "display_name": "Art 67 Own-Funds Calculator",
       "uri": "ui://ainumbers/node/art-101-mica-art67-own-funds-calculator",
-      "bytes": 55022,
-      "sha256": "b20774eff577e35824d619d4c23791d319e510d88bdc1d35276f38f69f1a85b1"
+      "bytes": 66253,
+      "sha256": "e839b985edafa060b9fae91cb036e3f261c27c5f5d097fab1227a5043830371d"
     },
     {
       "tool_id": "art-102-crypto-asset-whitepaper-linter",
       "mcp_name": "lint_crypto_asset_whitepaper",
       "display_name": "Crypto-Asset Whitepaper Linter (iXBRL)",
       "uri": "ui://ainumbers/node/art-102-crypto-asset-whitepaper-linter",
-      "bytes": 58972,
-      "sha256": "48add864722199fdfd13bb2644c9135f19cb4627e7b8bcdd296b4b43d76f0a8b"
+      "bytes": 64733,
+      "sha256": "a2a3a4684216abb25618d22b3e0ca778e7d589f08bab222c04bf5f227bf2eeba"
     },
     {
       "tool_id": "art-103-mar-crypto-surveillance-readiness",
       "mcp_name": "assess_mar_crypto_surveillance",
       "display_name": "MAR-Crypto Surveillance-Readiness Assessor",
       "uri": "ui://ainumbers/node/art-103-mar-crypto-surveillance-readiness",
-      "bytes": 55041,
-      "sha256": "09a05c5d623c020ec8fb3de5caeb4b210056f5a26c3893da9efdf9e3bbace624"
+      "bytes": 61293,
+      "sha256": "4b3fb3e1a4f1736b3df400b9ca0c7ba1cb0237f66c6462b683a88c1a2d337e59"
     },
     {
       "tool_id": "art-104-tfr-travel-rule-batch-validator",
@@ -1092,8 +1092,8 @@
       "mcp_name": "scope_mica_token_and_service",
       "display_name": "MiCA Token & Service Scoper",
       "uri": "ui://ainumbers/node/art-105-mica-token-service-scoper",
-      "bytes": 53082,
-      "sha256": "db3cd9f2a375ad4216e49765679c289fafd245b43d4aceffb8d4c16b46929e49"
+      "bytes": 58856,
+      "sha256": "a16ff93e845bb1cb71f590cd8595e3c49127b073a18b3df7383c92783be521ed"
     },
     {
       "tool_id": "art-106-tempo-subscription-reconciler",
@@ -2788,24 +2788,24 @@
       "mcp_name": "compute_stock_token_collateral_haircut",
       "display_name": "Halt + Staleness Collateral Haircut",
       "uri": "ui://ainumbers/node/art-320-rhc-collateral-haircut",
-      "bytes": 48843,
-      "sha256": "ae583ffa78458d09ef23826ad3ff10f79b782e33f0a41d6f40d8ff354acb9100"
+      "bytes": 49369,
+      "sha256": "5c0dc13dde868077af5539784aa2cf90f4b1b225ec1f25f2a2352234163ec423"
     },
     {
       "tool_id": "art-321-rhc-bold-finality-classifier",
       "mcp_name": "classify_bold_challenge_finality",
       "display_name": "BoLD Challenge-Window Finality Classifier",
       "uri": "ui://ainumbers/node/art-321-rhc-bold-finality-classifier",
-      "bytes": 48504,
-      "sha256": "3a97d6338a5843245444300df7eab80618052db90346d712c2513bb8567c33b3"
+      "bytes": 48942,
+      "sha256": "bfa6a64f30f2f6374d3715452285b7f455dfc26ca56d57eecf287b5b71c44a47"
     },
     {
       "tool_id": "art-322-rhc-ap-redemption-stress",
       "mcp_name": "stress_test_ap_redemption_path",
       "display_name": "AP Concentration + Redemption-Path Stress",
       "uri": "ui://ainumbers/node/art-322-rhc-ap-redemption-stress",
-      "bytes": 47123,
-      "sha256": "b375e53c6a50c04b0125eb259ad0057976221e912d141b3e6af5de9e3f25fb0e"
+      "bytes": 47482,
+      "sha256": "81c06a39cfd032c688b54cd302dbbe5e65dd2cacc8a126d4a500c9705ee0c717"
     },
     {
       "tool_id": "art-323-rhc-fit-diagnostic",
@@ -3132,8 +3132,8 @@
       "mcp_name": "recompute_fund_nav",
       "display_name": "Recompute Fund NAV",
       "uri": "ui://ainumbers/node/art-373-recompute-fund-nav",
-      "bytes": 60494,
-      "sha256": "5540261328cd9fdf741f2f9119bc7737c1d5aa7dd4557fd1af1a58a7002447d4"
+      "bytes": 74122,
+      "sha256": "345f88e7c1cdb19baf86d771565af4987eed3c7588d5971f74542972d6384c7c"
     },
     {
       "tool_id": "art-374-test-nav-error-materiality",
@@ -3148,8 +3148,8 @@
       "mcp_name": "compute_fund_expense_ratios",
       "display_name": "Compute Fund Expense Ratios",
       "uri": "ui://ainumbers/node/art-375-compute-fund-expense-ratios",
-      "bytes": 59077,
-      "sha256": "929b226236600b84d379a5611a5fdf837aa317067328319a649c098845ffbdea"
+      "bytes": 72926,
+      "sha256": "d6d726020564655bd1e1bc4496c4bde010d0b575dfd23ce415f9386177feb1cb"
     },
     {
       "tool_id": "art-376-score-payee-name-match",
@@ -3188,8 +3188,8 @@
       "mcp_name": "build_ai_workpaper_record",
       "display_name": "AI-Tool-Usage Workpaper Record",
       "uri": "ui://ainumbers/node/art-380-build-ai-workpaper-record",
-      "bytes": 48229,
-      "sha256": "9f110b6b4a9a59e68da11825122ac2d653174980f18ac1c33d3eea2b3e4dc42f"
+      "bytes": 60027,
+      "sha256": "41ae920b021204640946d8b2810705fc95027fe3d3f93bddd7488b584adf2195"
     },
     {
       "tool_id": "art-385-agent-token-scope-checker",
@@ -3284,16 +3284,16 @@
       "mcp_name": "lint_trace_cat_reports",
       "display_name": "TRACE / CAT Reporting Lint",
       "uri": "ui://ainumbers/node/art-397-lint-trace-cat-reports",
-      "bytes": 42994,
-      "sha256": "2542b3fdd5e149df8472a00ad735a6efc8273fb9c1bbdc789baddd28db1501ed"
+      "bytes": 51575,
+      "sha256": "31812df60283938e81857fb01e7eda6aa51a4f2069f29471e27c5a714f427606"
     },
     {
       "tool_id": "art-398-lint-metro2-record",
       "mcp_name": "lint_metro2_record",
       "display_name": "Metro 2 Credit-Reporting Record Lint",
       "uri": "ui://ainumbers/node/art-398-lint-metro2-record",
-      "bytes": 45592,
-      "sha256": "129a45f3579f9caea8be0ab70bf72283d5df97bed2d929b25481b54d1ec75aa1"
+      "bytes": 55019,
+      "sha256": "fa981c0ad86f85f09273710cedb48dbf851adc2924175f4da80beb3366834f0e"
     },
     {
       "tool_id": "art-399-lint-x12-claim-records",
@@ -3324,8 +3324,8 @@
       "mcp_name": "validate_regf_call_frequency",
       "display_name": "Reg F Call-Frequency Presumption Validator",
       "uri": "ui://ainumbers/node/art-402-validate-regf-call-frequency",
-      "bytes": 39493,
-      "sha256": "4916fa8fcd671206a514080c93d6952a43320b23eb6fef792c3d0f107ec95fc6"
+      "bytes": 46382,
+      "sha256": "bde24be32227ff3c7468327a2e425c625b8cc0516dd33dcdd154e0e7bb855e4a"
     },
     {
       "tool_id": "art-403-check-debt-validation-notice",
@@ -3460,8 +3460,8 @@
       "mcp_name": "calculate_cecl_ecl_allowance",
       "display_name": "CECL Expected Credit Loss & Allowance Calculator",
       "uri": "ui://ainumbers/node/art-426-cecl-ecl-calculator",
-      "bytes": 47571,
-      "sha256": "cda8dcb46e5f401881ab3e845d56c10f7d95820c9d04b5edf2eb3aef4e571980"
+      "bytes": 58325,
+      "sha256": "73597b8d83693ace50e4c952b4f7ac1fd5f60fd197836dbdda98d13b9244803a"
     },
     {
       "tool_id": "art-427-discount-window-capacity",
@@ -3484,56 +3484,56 @@
       "mcp_name": "compute_var_backtest_traffic_light",
       "display_name": "VaR Backtesting Traffic-Light Zone Calculator",
       "uri": "ui://ainumbers/node/art-429-var-backtest-traffic-light",
-      "bytes": 72924,
-      "sha256": "bcd0c35d6422302b9fef1b0f47734bf8681fe562a705aa458f10f423c619bb19"
+      "bytes": 79450,
+      "sha256": "3ffe4c00eaa2975090049f411d51193d3598b15ef7a2396c49d6f52c3da7c699"
     },
     {
       "tool_id": "art-431-fdic-assessment-rate-calculator",
       "mcp_name": "compute_fdic_assessment_rate",
       "display_name": "FDIC Deposit-Insurance Assessment Rate Calculator",
       "uri": "ui://ainumbers/node/art-431-fdic-assessment-rate-calculator",
-      "bytes": 44168,
-      "sha256": "7882dd78d70eef945f373f165bd2581747af0c5e1cf54285dc231ac3e9846364"
+      "bytes": 52732,
+      "sha256": "5331916ae78b0a76968c573372d6885f8243ae08b239330f7161445c8721558b"
     },
     {
       "tool_id": "art-432-call-report-rc-balance-sheet",
       "mcp_name": "map_call_report_schedule_rc",
       "display_name": "Call Report Schedule RC (Balance Sheet) Mapper",
       "uri": "ui://ainumbers/node/art-432-call-report-rc-balance-sheet",
-      "bytes": 43101,
-      "sha256": "4e8a538f22c2acc42eda6947047b2973dc2d2f50c21da8f707b6110ffe34ba30"
+      "bytes": 52520,
+      "sha256": "0db71e0bfe020ed495a34391d9b4898e173d1c1b02f4cfa8d6e9c0686b7d5d51"
     },
     {
       "tool_id": "art-433-call-report-rcr-capital",
       "mcp_name": "map_call_report_schedule_rcr",
       "display_name": "Call Report Schedule RC-R (Regulatory Capital) Mapper",
       "uri": "ui://ainumbers/node/art-433-call-report-rcr-capital",
-      "bytes": 42772,
-      "sha256": "5bfb72abeed88d71a83565ecb4f3e718d3ef4ded4e02cdf7e7f8044379920dd2"
+      "bytes": 58534,
+      "sha256": "d98003add76d38fadbfd7b7998020d936613a5bb9afbd0ff96cfbb3ff879eac2"
     },
     {
       "tool_id": "art-434-call-report-edit-check-gate",
       "mcp_name": "run_call_report_edit_checks",
       "display_name": "Call Report Published Edit-Check Gate",
       "uri": "ui://ainumbers/node/art-434-call-report-edit-check-gate",
-      "bytes": 48270,
-      "sha256": "f2201e86bc5f37c5740e4a03d8a9e3cba5044d1ca2cb3cebcd9cfb971b37b562"
+      "bytes": 56166,
+      "sha256": "4a38628c48fe2de293db179129bbccb43b28e1b2050cec5ecbcbe278d20ad366"
     },
     {
       "tool_id": "art-435-bhc-schedule-hc-balance-sheet",
       "mcp_name": "map_bhc_schedule_hc",
       "display_name": "FR Y-9C Schedule HC (Consolidated Balance Sheet) Mapper",
       "uri": "ui://ainumbers/node/art-435-bhc-schedule-hc-balance-sheet",
-      "bytes": 43966,
-      "sha256": "de95909f6085909662e10229cad45fd959d6e45ca4a9ab70a61b2db13e952a6c"
+      "bytes": 53690,
+      "sha256": "a0e0773df755321d6285e65379b0726ab019fa6febfc246758c62b2bbc9fdde2"
     },
     {
       "tool_id": "art-436-bhc-schedule-hcr-capital",
       "mcp_name": "map_bhc_schedule_hcr",
       "display_name": "FR Y-9C Schedule HC-R (Regulatory Capital) Calculator",
       "uri": "ui://ainumbers/node/art-436-bhc-schedule-hcr-capital",
-      "bytes": 43278,
-      "sha256": "a7d3fe8f6a8273c2e810a6dd836d6355d3171ea850e603675c6133f807da06c0"
+      "bytes": 58882,
+      "sha256": "59a6ea1b2a4d7b700d1f9b4ada91fef53fd99cce0856a87b6837b36ed6bb4fb9"
     },
     {
       "tool_id": "art-437-fr2052a-inflow-outflow-classifier",
@@ -3556,8 +3556,8 @@
       "mcp_name": "rollforward_y14_capital_worksheet",
       "display_name": "FR Y-14 Capital Worksheet Roll-Forward & Cross-Check",
       "uri": "ui://ainumbers/node/art-439-y14-capital-worksheet-rollforward",
-      "bytes": 43326,
-      "sha256": "c96c4cb47a81b6821dc9a435527a1a763410920807ac95a1f7bef10d10cf318c"
+      "bytes": 55415,
+      "sha256": "8003860007ee81abfabdc5f097d0be0388b2da9ea3c919d14d010455da961c24"
     },
     {
       "tool_id": "art-442-nmd-behavioral-repricing-mapper",
@@ -3596,16 +3596,16 @@
       "mcp_name": "compute_counterparty_limit_check",
       "display_name": "Counterparty Internal Limit Check",
       "uri": "ui://ainumbers/node/art-446-counterparty-internal-limit-check",
-      "bytes": 41508,
-      "sha256": "8c44fd03c15aab8a2e07302ab1ed61d50a235b4a9a566f7218aa8ba04c6b174d"
+      "bytes": 48898,
+      "sha256": "0262bf82b50c89d76de88327830b5bf3093615089ed7b3396623c382099b0a04"
     },
     {
       "tool_id": "art-447-securitization-risk-retention-check",
       "mcp_name": "check_securitization_risk_retention",
       "display_name": "Securitization Risk Retention Check",
       "uri": "ui://ainumbers/node/art-447-securitization-risk-retention-check",
-      "bytes": 40747,
-      "sha256": "a3391241d253012c810bb82a17e49ee2bad0b7db4c9bbb1ce2383b25dcdf0c8d"
+      "bytes": 57462,
+      "sha256": "d1303b76fef16a55f2693dd4d9d3af4350c13af8ea0da851eeacfb1cf7dde102"
     },
     {
       "tool_id": "art-448-ifrs17-loss-component-tracker",
