@@ -48,6 +48,29 @@ jobs:
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # gh with bounded retries (scripts/gh-retry.sh): a single flaky GitHub
+      # API call used to fail this job or leave a labeled PR unarmed (#646,
+      # 2026-11-25: GraphQL "Something went wrong" on the state read). The
+      # wrapper is installed as `gh` at the front of PATH, so every gh call
+      # below retries transient failures without changing; any other error
+      # returns at once. Only the one script is checked out.
+      - name: Check out the gh retry wrapper
+        if: steps.guard.outputs.proceed == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/gh-retry.sh
+          sparse-checkout-cone-mode: false
+
+      - name: Retry transient GitHub API failures
+        if: steps.guard.outputs.proceed == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/gh-retry"
+          install -m 0755 scripts/gh-retry.sh "$RUNNER_TEMP/gh-retry/gh"
+          echo "GH_RETRY_REAL=$(command -v gh)" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/gh-retry" >> "$GITHUB_PATH"
+
       # Mints a credential scoped to this one repo, expiring with the job.
       # Same App + same action pin as derived-artifacts-regen.yml and
       # sync-chaingraph-spec.yml. BOTH permissions below are required: a
@@ -88,9 +111,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          # -R required: no checkout step runs in this job, so gh has no git
-          # repo to infer the target from (measured 2026-08-16, run 31980911540:
-          # "fatal: not a git repository" without it). `|| true`: this is the
+          # -R kept explicit: before the retry wrapper's sparse checkout this
+          # job had no git repo for gh to infer the target from (measured
+          # 2026-08-16, run 31980911540: "fatal: not a git repository"). `|| true`: this is the
           # happy path for a still-checking PR, not a fatal condition here —
           # the assertion below is what decides pass/fail.
           gh pr merge "$PR" -R "$REPO" --auto --squash || true
@@ -124,7 +147,9 @@ jobs:
                 enqueuePullRequest(input: {pullRequestId: $id}) {
                   mergeQueueEntry { id }
                 }
-              }' -f id="$NODE_ID"
+              }' -f id="$NODE_ID" \
+              || echo "::warning title=Enqueue call failed::enqueuePullRequest errored for PR #$PR; reading the PR state to decide"
+            # The state read below decides pass or fail, not the call above.
 
             RESULT=$(check_state)
             MERGED=$(echo "$RESULT" | jq -r '.data.node.merged')
@@ -138,4 +163,8 @@ jobs:
             echo "auto-merge confirmed via fallback: merged=$MERGED autoMergeRequest=$AUTO mergeQueueEntry=$QUEUED"
           fi
 
-          gh pr comment "$PR" -R "$REPO" --body "auto-merge enabled by automerge-label.yml; GitHub merges this PR itself once every required check passes. No further \`gh pr merge\` needed."
+          # Non-fatal: by here the PR is armed, queued or merged, so a failed
+          # confirmation comment must not turn the run red (ainumbers #3285,
+          # 2026-11-25: queued fine, then the comment call errored).
+          gh pr comment "$PR" -R "$REPO" --body "auto-merge enabled by automerge-label.yml; GitHub merges this PR itself once every required check passes. No further \`gh pr merge\` needed." \
+            || echo "::warning title=Comment not posted::PR #$PR is armed or queued, but the confirmation comment could not be posted"
