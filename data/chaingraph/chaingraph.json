@@ -118,13 +118,13 @@
       "status": "live",
       "conformance_fixtures": true,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:57a3a1bd70235be6b46ba6d177b784665e1480eb8f0c59047d84f3498611cfe8","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:57a3a1bd70235be6b46ba6d177b784665e1480eb8f0c59047d84f3498611cfe8","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
       "compute_proof": {
         "type": "ZkVmReceipt",
         "system": "risc0",
         "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "JAe5wHiJyv6BoYU2dOG/8xnIGZ9TBngYJJ7zqDCrE5ck/gkWK/QyJ+Nf+wKBoqK3KauA2W4agGH2LMrFDT5SlA9szP1yhhQslGu/swVTFB2EzT6Js+kQ4W9UfDi7yTGXMCB01mIhxBj69H+2yJFTMPfxeUaNoBSQNuL7c9cqQ3onEapGmE8F8xYbZ5X8c4r5birTFVQM6oucOr3dHHR5XytznQcKZ2uREpzWn/rU00WuE7HDJ15R8SHCcUuqh1M6BIHeeAoNHlIsiJsnOmGAWxbdGeHctioMoQae+YAn0h4P+xZSYSk8hXpQ3MvAWHf7BcNL7T8sVf9K+tD8LsD28w==",
+        "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+        "seal": "DCyumbnRXg6yyWWgyxZLdMsZY7Omr4T0du8b1HcxGkUV4VLs9NKTCp04pQEKqSgb9Xs9b9H9yepm9DMrNRt26h0RqnnkFb87mCfe5yk1ELrhXmShUL10ErZ9VWCmDVGeI8/ktY420K/fbD7mgl02fit8l3jj2F48yY/y9F5LMzoKbLCBTXDsHymma/UmJ6cjSFxXZscNHZNR83B/Z6g+4w4zcJp6KUd4uxde+55tzVhiSG5BWIY/ogaG07X0sMaLCdXeuCGJBB+WQMw/QHZtJfeoEr/scM4aIkiKydw5BqgbrMYDL1IwSokvz8vMaiBtd8P3ta++uJPezWEFQVeMCw==",
         "journal": {
           "chaingraph_version": "0.4.0",
           "kernel_digest": "sha256:57a3a1bd70235be6b46ba6d177b784665e1480eb8f0c59047d84f3498611cfe8",
@@ -355,13 +355,13 @@
       "status": "live",
       "conformance_fixtures": true,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:7acd49f6f660a85da84398f65f694822d18b97e1241d8b3fc15fc177b11285a5","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:7acd49f6f660a85da84398f65f694822d18b97e1241d8b3fc15fc177b11285a5","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
       "compute_proof": {
         "type": "ZkVmReceipt",
         "system": "risc0",
         "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "ApnRKejsHZv0uoeOD8YfRT1FmaQHfffK29K2/5lN3H8nVeAEdANpIUK4X+r24yNAfpJ6DaaEgrsXne1x4ypjWwAHkz7j9m1O4om8zD6kDkkPgrHqcjQHC/0OWf0DS5HmDTwVFAC/3EP/pcPRZn1Jvf0pkXB8lP3E4S5ag6L8V4EGEKGEs4Yil/95MdJUuPzSYRYfQiMgj65rumEwQ+PqVAJmFpg06yvROy9NsOJ1M1CuJnN5IRJR7cSjBfdTumx3HUuLybDIMxtT5+UcMfXPjCnOICU12DyCVIBpQQVj/a8mW4rh6IdGlVKxa+1jJ+iWse3RRbWzNjm3SDnsnA82YQ==",
+        "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+        "seal": "Dp7XmHtcu2J/qAGkyqpNRvqRV5k8DY6tlMP08EF/YpAHczlNINlHu1O4amm44d7YoOJbAIcZs+J5sP0vcaUMDgK+iHfKBYumfxk4yo1PSCUkokfPiPJdKEKIFBGLSJu+BNUK1psjSbfGiFK6ZalI1s/X0xkzyjHZw6KihV6h3sUYf1QtJYEPukXrP+503xBIM9XH4k1XRNlVgDpXOhle8C1l6VOEvKpOqDWOv2zHYYdZ7bp0xCLlOQzqV3lAqeS6KMvkvcxelKRzeEiFuWFu9bH0N10zT2U7Cv3edqRIdRcvLrUdcVbVBSH0myhrnSw9eqp9YQFtDNRiu6coCNwUlg==",
         "journal": {
           "chaingraph_version": "0.4.0",
           "kernel_digest": "sha256:7acd49f6f660a85da84398f65f694822d18b97e1241d8b3fc15fc177b11285a5",
@@ -544,13 +544,13 @@
       "status": "live",
       "conformance_fixtures": true,
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:2675f0d22096ace35e1dfb500c6f332c77fc66bba78a1e3878575bb466267925","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:2675f0d22096ace35e1dfb500c6f332c77fc66bba78a1e3878575bb466267925","valid_from":"2026-07-10"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
       "compute_proof": {
         "type": "ZkVmReceipt",
         "system": "risc0",
         "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "L9+CAL+Zj+DaHZO94sq7yPuA17FzE3vueocWRO8sQ3EgxG5O1saMf4LHpvq4eHtzTf+i8dA/Mf6D3oGlr/XnAiK7W8V7+eGryG3ucjWgR++2SI2FW7f0dwyRDNiCJFn6LyY6cFXmjLeOXJbpdj+7BjB2DrSMQWgWwC9XDIHho80t/lbd8MWvgX5In5jUsgWEly16+G7pizo1GfsUxCYhUyj0chxIO4VwYI51qI8oo1lYNmkmvjz/jHNZALA5wh0QEiLHZ9iqDcuFlIHasOpj/p2sauLDDyb4RL5Tp3yxxMMkUFWgS7ZASDyfYBa5oSwW7SeEjchl3jzGcbQGElvdOw==",
+        "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+        "seal": "Aq/2Nr0xhiIGL8slp2VjI7q91UP3QbaKNWtzgVCWtZgFqgTDtDsa2DJ23IuDdYbLRVdpytBN7fGumpp/n0F7mS9i3aYzYao/CpaElP2SwtTW761tFQnRCHg2gG/RAoQAFbDkm+3v/pDski6XNa16ob0boId1cGfNs1axpHhwVlsUB+EFlyHApQwhxjk4/RVr3GXu/ZqMldV9SKMyUO1kEyOIwGEkV2KFJysyq1ertA+Pbq/kTuoWuEmKY4tvw+cWF9mvWMNhoPozUcFvFCiF20bXMZh7LyALAsevBbUDgvwIF8pF4HJ2B3YbRZZxP5MDNia5GnjzCjXXt2y7cgpeXQ==",
         "journal": {
           "chaingraph_version": "0.4.0",
           "kernel_digest": "sha256:2675f0d22096ace35e1dfb500c6f332c77fc66bba78a1e3878575bb466267925",
@@ -733,14 +733,14 @@
         }
       ],
       "compute_capability": "server",
-      "compute_images": [{"system":"sha256-source","image_id":"sha256:50741b9d96f28fae793b5612ef94aa0a7d4d82c7caee633d71ef57ed9a5430fe","valid_from":"2026-09-02"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-06-28"}],
+      "compute_images": [{"system":"sha256-source","image_id":"sha256:50741b9d96f28fae793b5612ef94aa0a7d4d82c7caee633d71ef57ed9a5430fe","valid_from":"2026-09-02"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-26"}],
       "compute_proof_ready": "ready",
       "compute_proof": {
         "type": "ZkVmReceipt",
         "system": "risc0",
         "receiptFormat": "groth16-bn254",
-        "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-        "seal": "IEV8vI9Sk2+t7X1kjNOFna2IeRH6VtsQMuFzcDF8fUkdWR1QfvODxKYLoSovMwh/I/IQNtjH1AKIldimOvZ+2h53aDJIlu0BLKDjX/ypi3uf/WQQ7oD5rESxG+lswN2iHq3PvVclSBxExGqfOOZkWGAF0oxB1+1+KStSZeC8jt0GjxH+a/IBO5hD46xLt5LMfS4KoSYPVvA+lf8up03ZowaHM8qtmbYW9T5UaV6ig4zRvvUDwjBLi5ZtgHGEhGyRJU1oDQPUNbhC0VClZIkDwNnk0b3b+daZBZml9w/yKCcHIK5bnZGcjeVU5aOm2yJuN7M7sd5YXGEe6cbkk4RuKw==",
+        "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+        "seal": "JgEMorn3xMqZXNSYLNJt+2e9ihgkGbyoBIC6vB0qeBka6X33wVrFB9naN1N7cCXICMcVRuGyQfai6MkOAWOLche4jMyhSk3PkLCdKR/JVe37S0C3IvxqwTsirsl4+lhsGqbfhKLhOYOj+ue/eneIjbuW1avMZqAdOvwqRK2nqhQAvYjkxWYBqDz4Swy6/D2Nt0FoS28hJWxLyXGyFxnI2Qnik/R/PUrVwWT5GTMtDrAWj1eIcSfb33VV2N+q4hWNBFMJ9D3OcFVmnH7iuYDyKB5wNXfaPF6QOaU7u7TKAgAdK2l2ESzsNA8A5RI3dkhniNJOgewThg0Up/zxN0CCGA==",
         "journal": {
           "chaingraph_version": "0.4.0",
           "kernel_digest": "sha256:50741b9d96f28fae793b5612ef94aa0a7d4d82c7caee633d71ef57ed9a5430fe",
@@ -830,7 +830,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:b9e2ac19f3a7bba67b8bef47d7c1ef77a631ed51cb3d865f9859117e790164cd","valid_from":"2026-10-16"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-10-18"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:b9e2ac19f3a7bba67b8bef47d7c1ef77a631ed51cb3d865f9859117e790164cd","valid_from":"2026-10-16"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
   "export_capability": [
     "json"
   ],
@@ -858,8 +858,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "FoG5F7YOndI+ph1d5feUbNJj5a7N7gUjZVwRh+q8ZwMFQiUytg+BdHERjU3Moog7B0SxMQ+a6Cc3TyOMv0ufFiAMzFDp3pT/rpBgR1G0a/FzYbEpAT93iJcWrtEmD4/QGQPshgRYaqHV5bevsNdbMh/sKxuj4f8+TKrzHS89G7AKEoY8u1//Iv7oBuqKWtOBFGhEZCXaEtSIyp16KGg8IiWShs7XyefE3JDoZIjjMC1RDVrl+O6ifPyH9CsRQwVMK4xZwnBSuQv166oImRvGks3NksSoFwPnYr7s3ttWhCMACFkGabH/QnuYTbJnNfmeqstQ8LibGCuxFAiMAZGkJQ==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "Kd+jW4mFvr5Gn5GuRr+JiA6UuP0VKm5FcM7Y+v1OxwoIlS2UPKJ7Nymdf2utx0O7XwAN7r5SBd9hfYmKlRTvDAG2A8h/LVdACM3B/AaaXND0lxdmMx4Kh5vKEW4JfP2DBBIQ/tFNBIwb2taMAxY4vfOQlHzekeNiffd4VndcylUEwW9M1ng9kSmGBY+aiRuyXXleBiKFZKta2fGZrZyBbQXHbF+yXq2jdrMFV3XhoAdZXNyda739l5D4gad3odK/Eig/b8v1uBabVpJEfyBAPt9EB17v5GwZGna8YoS38ZUC3zaWCRZrcXzxR46xdcTKmw2vM6G8oauJPnJLde1fMQ==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:b9e2ac19f3a7bba67b8bef47d7c1ef77a631ed51cb3d865f9859117e790164cd",
@@ -942,7 +942,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:e7eac9a4322542b6e39434f60df84cdc6eb24ceee9887b282aadc16f319bb4ea","valid_from":"2026-10-16"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-10-18"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:e7eac9a4322542b6e39434f60df84cdc6eb24ceee9887b282aadc16f319bb4ea","valid_from":"2026-10-16"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
   "export_capability": ["json"],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
@@ -1000,8 +1000,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "CVfINrRN1EAWgKe4dSeO85SHCl+2YfgF5jFD9fTEocMg8I7DrEshwT9WbVTKhE3vBNu3oYRiggsEg1xLEsZavh3nKVAf2rZHI7JKnbZoFVxi2U4gIxK8XHuh3QxD9H1LJoTFHEprXM743/P4mNUxOYaaR570jhxOjqE+tankB64kYfYpPyFtDQ/csrSONDAdrSKNA5dbWt/MUfhOSSynRylbDUiRZOa9yja6hY9BiAS+iWZjR88YK7C5vRDLmnUgDcMWm9Z0xg5O7asc8zs5UhHi+huKm5czymkFDPnGL0YOhjAA5sOR07wFPMiAA/r1X71ccm3MFVOYQmu61R3FRA==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "KNKd9kehkyBUloR+CkbtMqHselptmtGPS1V5ZmkgQ5Aduh81eyKYHym56pF0QAssIRgPNp2/lnsthgogds0VkgScuVqnGRgALKPUzKG3wlPOxcTMGIwZ/pOFwGWTxqswH6ZlDKkXNjJL3hiZumFjgr2RS1jt8qaAoOPrHlixdyATrURExe921oD9a87U9Vk7FEhmWE93E39//m8zuPxz2gwa6EMdrthdILJL11fzm51oVQikLSWag83kLQ5PoKCeEhOQcQIMqeeeZhNgrIOM8GxMiWkboSrk6bPQeAJlXs0dy+iuCsrzjhGH/U5KQpFx0IPeX9yhiB7zRzpPGSEBEg==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:e7eac9a4322542b6e39434f60df84cdc6eb24ceee9887b282aadc16f319bb4ea",
@@ -1117,7 +1117,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:6db8e707c2076c107ff6e822f5d0472eae91ee706aab0d16b635dd4c68709e29","valid_from":"2026-10-30"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:6db8e707c2076c107ff6e822f5d0472eae91ee706aab0d16b635dd4c68709e29","valid_from":"2026-10-30"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
   "export_capability": [
     "json"
   ],
@@ -1154,8 +1154,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "FG6R41cYLoG/AWC+C5Q9Gsy3EnfhSClI7LJ5jYEHwEYhL6Hu8F9y0oHO46rRgM5Ujf7jPfXS+mW9gMMmOI+KlwxWsXUmv944LMt2OHFY6qybvZ2K781ILvKF9ojosRvLFsEAhLUN75+66bSa/UNNYIinH8KyZIOkL6fqJSAUcYcL9GWIpmqFjSLzbMgB90KdI4CG+CUy3B+EBafIYgcqGwUqt2yS7jRatz22BmJqKU4qDhZC4iQAvxF53ep3VF6RGmzilb66O/37ApvoHnReHO5CUiOOZ90WbZvifV7Quc0THJ0SnzD3keU0qH2VvP79fpyWcA+Yv0YOHoYVNEH63Q==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "I7NTiEHbRpv639+syEMjTSYdfr8YXUbtDuiOL0EEBBklCGZDeKUh09n+wJ0oYgDZxzHn7+KID5b3h+heXArRKgNhEojoQ2ZQ4mTeKGXhGhhsDgVpvToj05oRv3rzmOqWAcKs2pBXvQHdXfY4tdY3tX/iEhmwmNRGukF/dic/L4gkfrUdq1W/KBPP1Yr4KpKnQ5h/Gs8Isaj284cnYN3A4xpfsIOw18NTRKIwQWuLty/Il6csPEo93KSe13r9Y/suFp6jYNVCpsIiCwTEF0Q6HoDaeRT2nHM4KBAmhxiYisApRJU3u167wfR83gcVNRYcoi6WuSWFtPPaEVNtmsfWHw==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:6db8e707c2076c107ff6e822f5d0472eae91ee706aab0d16b635dd4c68709e29",
@@ -1281,8 +1281,8 @@
     },
     {
       "system": "risc0",
-      "image_id": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-      "valid_from": "2026-09-12"
+      "image_id": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+      "valid_from": "2026-11-27"
     }
   ],
   "export_capability": [
@@ -1329,8 +1329,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "MCis1IIKGa9zjnAm6fKRqFu7My0RCVIKw5he4Vzk3zkBpY7yTjK5furijgWJjfI/pkILvYxGmQtwzW7LH70GCCPcIXMJl9KLjVBiXsXXPGpbXDy2i8LkGyTc40e8bUVoKU5zng1ktkibFbwFTy2JE30f4Ok3haZ5JYMRbwAxyK0ja8ZmCMYGCgKSicm4qe4emy3YAXxdcEd63qky7LmrgBVoxucv+CoG2VSmSorB7yrIRpy9LeDLi6fANlYffajVArwAd8I63pBOzpoDAl71HdR6nWrSasDfgI9al/iJAlcR8dwuHhCimRL5kWjJbDoRuTeBdgGu7t2D9/I66/WoHg==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "ARGUaojVu91T3mfZDkg+cK3f5poM2lPQrevYCX5xTqYqWWxD030ol5B+7yLe14HoQXwi53jhIyo2t0+wEURM4S0y+cIf7REWdL8fgSGpPXt0l3+HDruDgW+SrkERZCxCMDS0FS+FTnlBbjEX0aDp/+/QjaSFBFuGEvXk1sqFaCgbmFZxHaJUa4aTnUCA2nZnvSyVoKJzfSQynp4PeAiDbQjibWX3WB7v+nkH/W3DKuqmkuQKxNW6/TUB4tWUZPtPEVdnzgURYBrEnm3oivkUCeTMrqcqpouwyUKosEejVm4jZZJG9f2ff1VSbQTo2kCeh50bL6czr9pUCb5iilf+mQ==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:3f15eda7d86118242457565ba8092451718ef4bcb3ab37c400e78abc8a9cdf8d",
@@ -1464,7 +1464,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:4acc868648ee3b4a2e474aa09cced8aa966e36dbc2500a40698f3218d4498a72","valid_from":"2026-11-20"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:4acc868648ee3b4a2e474aa09cced8aa966e36dbc2500a40698f3218d4498a72","valid_from":"2026-11-20"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
   "export_capability": [
     "json"
   ],
@@ -1485,8 +1485,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "A0gNf5bdsh5MXkZ+gawC8VoAzXol2zLjsqQPCVvT1KgSWe8wASRxzsbzQWXO02cFwaw5BrNzqehruHl9fyDOaxya9hVSad0Min/Q9a7FPqsGi9Ej/STFq4ojhwHk8KVPF3ohYzZMdHyp1LccmQeSDJuMIkk7GLmg3atR3HwmrakalHRxVlpBZ0YLhc4frRVfH+Mu9F126Cra/7mulH8zdiPmr1xSbNaO+3BAlXfdGEHUggie7IdA0JVjEyTBr7IsLzFqDYHgW3obiMz+8flcClglBH+k4CDD3xXEbo7vPP4kUup/nEd6HyqxhHxys55po7IzNsVCcmoR9m4aMarRpQ==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "HK1RzerDoLfZXN5Bj12eBYPUm24DU9/V4J6jyDlkfNoOCTmGyXNy8Fga3NGmXEpLzkHu0ukTFa369oPMa5j8gAbD2EM/7G3IDE5l/tSQW9S0ImKWdBYMvID1wFTciGzYGLzY1jsb3a7olWgQRtqT5I92M+lznicoAdccW4WdSd4igtkk25Mjcmsizs9NEIQY3UcCkQ4PRTMd33Jrh2YIMgzFDkNjF4wzxJNt7Y0JwbBoFSQJo3GKoawjaLWemdjjCnMv0EWkTHz6F86aZ1dcK+go+23oDy3iYsaNNvexaO4fESbHW6umOPCGpo3mn9Tp/uOZJnwIsGJXBDonzXwf/w==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:4acc868648ee3b4a2e474aa09cced8aa966e36dbc2500a40698f3218d4498a72",
@@ -1571,7 +1571,7 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:4d7a86b07be753ede278b2f9eee405d5519e6d9c90fad8cd96f7985abea3d775","valid_from":"2026-11-20"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:4d7a86b07be753ede278b2f9eee405d5519e6d9c90fad8cd96f7985abea3d775","valid_from":"2026-11-20"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-27"}],
   "export_capability": [
     "json"
   ],
@@ -1592,8 +1592,8 @@
     "type": "ZkVmReceipt",
     "system": "risc0",
     "receiptFormat": "groth16-bn254",
-    "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-    "seal": "DkTriOa0vm0Bi3IFSWp+Ld0G6VkVdMB4AwQnhCXU5PEGmEI8Q0JLsqn8ulRlof45JvSc1Rlrm54+kjG/dV6qRRB0xRVZT01LF08BgT3RNJ0Ee6ahQ2pHn2xNFeL0l+v0AXZwfdfhzsZdpVAm79ok/QqyR9NjRErT+n6ZjEQREpAkPv5x2IkY33MV3eShzcIVevDtbI3zSsbX3GInx3V3iyq8B+6KrMad8OUshwvX10vjxVP4E9R4sXndoYZCaEWgEMZLIDBbgAYlXA0bTEChM6NJa8JT3lvFPXfcVVKlo64UpfC+brjeNHZMQXFXBk9xXkI+RdO7ds7z5tixepAhNQ==",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "ImBXOOeLDda92tWT8hPATurfUvP5v85jszVShYY2lYcr2VwhEMXOF94RzIZAefRp8wQgqClw1j/C811ROt0QYRtuzjUVERXUH+F+40/VajXi6Xz+O6cV9rXZjM/36ZpUJr9r2IYakn2zF+/p0Qe5rOaugdf4HgeDtOrvKkqESQMZWXpygiyBYIuMblB1ATeNnkcVbZdx7TjGsqIUUGFvdBKKS3zC3u78cNuFHFNiKs6+ew1vDpQdvcD8h433iNKeDV92P5QxrBBtYTKCDCuvJ6IY6rYoOMUNIs4iKsNKEDcEph9lqczsjUhMw0CtFxMSs8aP1o+RXBIF8o45zmXeGQ==",
     "journal": {
       "chaingraph_version": "0.4.0",
       "kernel_digest": "sha256:4d7a86b07be753ede278b2f9eee405d5519e6d9c90fad8cd96f7985abea3d775",
@@ -60582,7 +60582,7 @@
   "wave": 142,
   "gpu": false,
   "url": "https://ainumbers.co/chaingraph/art-807-erc3643-transfer-decision.html",
-  "description": "Recomputes whether one proposed ERC-3643 (T-REX) transfer or mint would go through, from caller-declared state only: identity registry entries (identity present, investor country, claims with caller-declared validity), required claim topics, trusted issuers per topic, bound compliance modules and token state (paused, frozen wallets, frozen token amounts, balances, total supply). Gate order follows the reference implementation pinned at commit 2f0704d: for a transfer the pause gate, then either party frozen, then the amount against the sender's unfrozen balance, then receiver identity verification, then every bound module in declared order as a logical AND; a mint skips the first three. The output names the first failing gate (and the failing module or claim topics) while still reporting every gate. Four module rules are re-implemented from the pinned legacy compliance features: max balance per identity, supply limit on mints, country restriction and country whitelist, reading the receiver's registry country. Any other module can be declared as a pass-through outcome, which the node aggregates but does not judge. An optional fund covenant (jurisdiction allowlist, holder cap, lock-up date) is evaluated separately over the same state and any divergence from the token-level outcome is reported. Declared-state recompute only: no chain is read, claim signatures are not checked, and the node cannot confirm the declared state matches a deployed contract. The output is not legal advice and not a determination that a transfer is lawful. Malformed or missing inputs refuse with INPUT_REFUSED rather than being coerced: the required claim topics, the trusted-issuer map and the bound compliance modules are required inputs, so an absent or null one refuses with no decision and never ALLOWED, while an explicit empty list is the caller's own statement that nothing is required, trusted or bound.",
+  "description": "Recomputes whether one proposed ERC-3643 (T-REX) transfer or mint would go through, from caller-declared state only: identity registry entries (identity present, investor country, claims with caller-declared validity), required claim topics, trusted issuers per topic, bound compliance modules and token state (paused, frozen wallets, frozen token amounts, balances, total supply). Gate order follows the reference implementation pinned at commit 2f0704d: for a transfer the pause gate, then either party frozen, then the amount against the sender's unfrozen balance, then receiver identity verification, then every bound module in declared order as a logical AND; a mint skips the first three. The output names the first failing gate (and the failing module or claim topics) while still reporting every gate. Four module rules are re-implemented from the pinned legacy compliance features: max balance per identity, supply limit on mints, country restriction and country whitelist, reading the receiver's registry country. Any other module can be declared as a pass-through outcome, which the node aggregates but does not judge. An optional fund covenant (jurisdiction allowlist, holder cap, lock-up date) is evaluated separately over the same state and any divergence from the token-level outcome is reported. Declared-state recompute only: no chain is read, claim signatures are not checked, and the node cannot confirm the declared state matches a deployed contract. The output is not legal advice and not a determination that a transfer is lawful. Malformed or missing inputs refuse with INPUT_REFUSED rather than being coerced: the required claim topics, the trusted-issuer map and the bound compliance modules are required inputs, so an absent or null one refuses with no decision and never ALLOWED, while an explicit empty list is the caller's own statement that nothing is required, trusted or bound. A mint without a supply-limit module also requires token_state: a deleted, null, non-object or empty token_state refuses with TOKEN_STATE_MISSING rather than evaluating against a defaulted empty state.",
   "input_schema_ref": "chaingraph/art-807-erc3643-transfer-decision.html#manifest",
   "deadline": null,
   "deadline_note": "No regulatory deadline: this node recomputes a declared transfer decision, it does not carry a dated obligation.",
@@ -60591,8 +60591,10 @@
   "status": "live",
   "conformance_fixtures": true,
   "compute_capability": "server",
-  "compute_images": [{"system":"sha256-source","image_id":"sha256:8414998d60f89bb7841e516b0d9fedf7aa8038973a47ecf91876fc8105c6f899","valid_from":"2026-11-13"},{"system":"risc0","image_id":"sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6","valid_from":"2026-09-12"}],
-  "export_capability": ["json"],
+  "compute_images": [{"system":"sha256-source","image_id":"sha256:e9129dad58541f1aa86887c5e2f34a4a6fe5bf02c03af8797fb28a4cc5d802c0","valid_from":"2026-11-20"},{"system":"risc0","image_id":"sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68","valid_from":"2026-11-28"}],
+  "export_capability": [
+    "json"
+  ],
   "standards_basis": "implements_standard",
   "cited_clause_digest": [
     {
@@ -60669,82 +60671,82 @@
     }
   ],
   "compute_proof_ready": "ready",
-  "cycle_preflight": "FAST - 8,734,034 user_cycles max across all 29 fixture vectors, measured exec-only 2026-11-09; 0.29x the 30,000,000 line.",
+  "cycle_preflight": "FAST - 8,918,791 user_cycles max across all 35 fixture vectors, measured exec-only 2026-11-22; 0.30x the 30,000,000 line.",
   "compute_proof": {
-      "type": "ZkVmReceipt",
-      "system": "risc0",
-      "receiptFormat": "groth16-bn254",
-      "imageId": "sha256:a1a0bc89b5b1febaeda3519f6dbade0fa5ac16beeb143c4e1b01689573567bc6",
-      "seal": "B0cPR5PrkgOnpoSRpb+o7bOdmRbWTauOVT4hSMA4B+QCuokkGJ4M6dtYRJRqf8jMdVYb4DeY9aoi0lJtWWkVtAFFGN0hUPZyHXRKvSV4tnwdrj0G17BgepnruPxzPwbrIlN004eLXrGmtRMXhjK+rq+Fr32i15giRWU6RUshmTQRMQsYhvS2+2DZ41/I045pPabvyPN5iyw7CK0UpJCGHhKK8nB2dtgW04ND7/VxXZqFpKZDkSB64fmnRPk4nlUGHMXtaS9soFYDK3gm03jA3fLlPsxK2E68vXZT2w6hBEsFVxMC8Ni4g7WKiuplXdwu1wPu4PnQ27eBr50LCh8qSg==",
-      "journal": {
-        "chaingraph_version": "0.4.0",
-        "kernel_digest": "sha256:8414998d60f89bb7841e516b0d9fedf7aa8038973a47ecf91876fc8105c6f899",
-        "output": {
-          "compliance_report": [
+    "type": "ZkVmReceipt",
+    "system": "risc0",
+    "receiptFormat": "groth16-bn254",
+    "imageId": "sha256:bc07da19c899768781e91e439961b7c4da40bb103fcedba161f93fb5ccaa6d68",
+    "seal": "Hnn9R3FFNOhrSHXZ5rmeRC1O5U8JX3ChguKjiBSXVvEQrWomMH20ux4030OWAGNQ1x79jKR6YmPNkLwdUycvZSAPqYHWSwKsIUdsUxV4Qo2x5uzUWB0diZNRj9lGnPkvAbBwCeC1stvjoRiObAxGGOFppJK8HNfH3FpgClg7FaQGZ6hlkpHueJSRS39qfgQ0vR02gJMfnWXQBzHFXIkegB2uqggcjnmzJ66eef75+ZiXBluPNIG+jCZPpnle5fA3K2yy8yMwa7x0i0M2Xd840fnm8qexCx9jYVWLoKfC7zcRE+mJGKHx/RIyqJaTX11OgdHsslrX3tYmnXdcR4VA2A==",
+    "journal": {
+      "chaingraph_version": "0.4.0",
+      "kernel_digest": "sha256:e9129dad58541f1aa86887c5e2f34a4a6fe5bf02c03af8797fb28a4cc5d802c0",
+      "output": {
+        "compliance_report": [
+          {
+            "detail": "identity_balance_after 100 <= max_balance 1000",
+            "id": "max_balance",
+            "passes": true,
+            "type": "max_balance"
+          }
+        ],
+        "covenant_decision": null,
+        "covenant_divergence": "NOT_DECLARED",
+        "covenant_failures": [],
+        "decision": "ALLOWED",
+        "declared_context": {
+          "caveat": "Recomputed from caller-declared state only. No chain was read; the node cannot confirm that the declared registry, claims, modules or token state match any deployed contract. Not legal advice and not a determination that a transfer is lawful.",
+          "chain_id": "1",
+          "network_label": "declared-example"
+        },
+        "denied_by": null,
+        "errors": [],
+        "failing_module": null,
+        "gates": [
+          {
+            "gate": "TOKEN_PAUSED",
+            "passes": true
+          },
+          {
+            "detail": "sender_frozen false, receiver_frozen false",
+            "gate": "FROZEN",
+            "passes": true
+          },
+          {
+            "detail": "amount 100, unfrozen_balance 500",
+            "gate": "INSUFFICIENT_UNFROZEN_BALANCE",
+            "passes": true
+          },
+          {
+            "detail": "failing_topics []",
+            "gate": "IDENTITY_NOT_VERIFIED",
+            "passes": true
+          },
+          {
+            "detail": "all 1 modules pass",
+            "gate": "COMPLIANCE_MODULE",
+            "passes": true
+          }
+        ],
+        "identity_report": {
+          "failing_topics": [],
+          "identity_present": true,
+          "topics": [
             {
-              "detail": "identity_balance_after 100 <= max_balance 1000",
-              "id": "max_balance",
-              "passes": true,
-              "type": "max_balance"
+              "satisfied": true,
+              "topic": 1,
+              "trusted_claim_found": true,
+              "trusted_claim_valid": true,
+              "trusted_issuer_count": 1
             }
           ],
-          "covenant_decision": null,
-          "covenant_divergence": "NOT_DECLARED",
-          "covenant_failures": [],
-          "decision": "ALLOWED",
-          "declared_context": {
-            "caveat": "Recomputed from caller-declared state only. No chain was read; the node cannot confirm that the declared registry, claims, modules or token state match any deployed contract. Not legal advice and not a determination that a transfer is lawful.",
-            "chain_id": "1",
-            "network_label": "declared-example"
-          },
-          "denied_by": null,
-          "errors": [],
-          "failing_module": null,
-          "gates": [
-            {
-              "gate": "TOKEN_PAUSED",
-              "passes": true
-            },
-            {
-              "detail": "sender_frozen false, receiver_frozen false",
-              "gate": "FROZEN",
-              "passes": true
-            },
-            {
-              "detail": "amount 100, unfrozen_balance 500",
-              "gate": "INSUFFICIENT_UNFROZEN_BALANCE",
-              "passes": true
-            },
-            {
-              "detail": "failing_topics []",
-              "gate": "IDENTITY_NOT_VERIFIED",
-              "passes": true
-            },
-            {
-              "detail": "all 1 modules pass",
-              "gate": "COMPLIANCE_MODULE",
-              "passes": true
-            }
-          ],
-          "identity_report": {
-            "failing_topics": [],
-            "identity_present": true,
-            "topics": [
-              {
-                "satisfied": true,
-                "topic": 1,
-                "trusted_claim_found": true,
-                "trusted_claim_valid": true,
-                "trusted_issuer_count": 1
-              }
-            ],
-            "verified": true
-          },
-          "operation": "transfer",
-          "refusal_reasons": []
-        }
+          "verified": true
+        },
+        "operation": "transfer",
+        "refusal_reasons": []
       }
     }
+  }
 },
     {
   "tool_id": "art-809-check-reserves-cover-outstanding-private",

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- WEBMCP:OT-META-BEGIN generator=scripts/gen-webmcp-registrations.mjs -->
+<meta http-equiv="origin-trial" content="AvjPE9Ubhx2ZAiql3vUsqFtXvuHuGVZq9xxwxs6FXkgBXIRAnf+mFu3UmPHszhqN3NW8YvRNXbVbAGvEsuFG7w0AAABfeyJvcmlnaW4iOiJodHRwczovL2FpbnVtYmVycy5jbzo0NDMiLCJmZWF0dXJlIjoiV2ViTUNQIiwiZXhwaXJ5IjoxODA2MzY0ODAwLCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+<!-- WEBMCP:OT-META-END -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; frame-src 'none'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'none';">
@@ -106,6 +109,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
 <style>.generated-at{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.06em;text-align:center;margin-bottom:10px}</style>
 <!-- Kernel this page was built against. Machine-checked by scripts/check-page-kernel-digest.mjs against chaingraph/kernels/art-488-model-replication-diff.kernel.mjs; restamp with --digest whenever the inline compute() is rebuilt. -->
 <meta name="kernel-digest" content="sha256:5ff2146f1ae9457d37e4e6699dc331e6f8f69701f3f32a400f848761bc254ed8">
+<meta name="ai-tool" content="replicate_model_outputs">
 </head>
 <body>
 <nav>
@@ -140,7 +144,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
   </div>
 </nav>
 
-<div class="wrap">
+<div class="wrap" role="main" aria-description="Independently recomputes a model's reported outputs from a declared model specification (version, as-of date, transform, intercept, coefficients) and a stated input record set, then diffs the recomputation against the model's own reported outputs within a caller-supplied tolerance. Returns a per-record diff (reported, recomputed, absolute and relative diff, within-tolerance), aggregate tolerance stats, an overall replicated / not-replicated verdict, and the failing segment(s) named when not replicated. If the declared specification cannot be recomputed as stated -- unrecognized transform, no coefficients, no tolerance -- the honest result is not_replicable_as_specified with a reason, not a forced pass or fail. Deterministic recompute-and-diff only: this node never opines on conceptual soundness, assumption reasonableness, or fitness for use -- that judgment belongs in a validator's approval record, not here. Model inputs and specifications are expected to arrive as a workbook export via the shipped WB-BRIDGE-1 workbook-to-OCG artifact bridge (tool 554); this node itself accepts plain JSON records so any upstream source can feed it. Distinct from the shipped model-passport nodes (art-450/451/453), which track a model's inventory tier and revalidation cadence rather than recomputing its numeric output. Inline deterministic transcendental math (no engine Math.exp/log) so the same input always produces the same execution_hash on every surface. NaN-safe. Zero network, zero PII.">
   <div class="eyebrow">OpenChainGraph Suite &middot; ART-488 &middot; Model Risk Management</div>
   <h1>Model Replication Diff</h1>
   <p class="sub">Independently recomputes a model's reported outputs from its declared specification (transform, intercept, coefficients) and stated inputs, then diffs the recomputation against the model's own reported outputs within your tolerance. Returns replicated or not-replicated, with the failing segment named. If the declared specification can't be recomputed as stated, the honest result is not-replicable-as-specified &mdash; not a forced pass or fail. Step 1 of the <a href="chains/model-validation-cycle.html">Model Validation Replication Cycle</a>, where anything other than a successful replication puts the cycle on a &sect;27 <code>hold</code> gate.</p>
@@ -193,7 +197,7 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
     </div>
     <div class="q">
       <span class="q-label">Records (JSON array: id, segment, features, reported_value)</span>
-      <textarea id="records" rows="8">[
+      <textarea id="records" rows="8" aria-label="records">[
   { "id": "r1", "segment": "prime", "features": { "x1": 5, "x2": 3 }, "reported_value": 17 },
   { "id": "r2", "segment": "prime", "features": { "x1": 2, "x2": 4 }, "reported_value": 9.8 },
   { "id": "r3", "segment": "subprime", "features": { "x1": 1, "x2": 1 }, "reported_value": 20 }
@@ -265,13 +269,88 @@ footer{border-top:1px solid var(--border);background:var(--bg-2);padding:24px 0;
   <p style="margin:.5rem 0 .6rem;font-size:.72rem;color:var(--muted)">Copy this paragraph into Claude, OpenClaw, or any MCP-aware agent to run this exact tool, with this sample, and verify the artifact.</p>
   <pre id="ask-agent-copy" style="white-space:pre-wrap;word-break:break-word;margin:0;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-size:.62rem;line-height:1.5;color:var(--body)">Run the AINumbers MCP tool `replicate_model_outputs`. Task: Independently recomputes a model's reported outputs from a declared model specification (version, as-of date, transform, intercept, coefficients) and a stated input record set, then diffs the recomputation against the model's own reported outputs within a caller-supplied tolerance.
 Call it with arguments: {"policy_parameters":{"model_spec":{"version":"credit-scorecard-v3.2","as_of_date":"2026-01-01","transform":"linear","intercept":10,"coefficients":{"x1":2,"x2":-1}},"tolerance":{"abs_tolerance":0.5,"rel_tolerance":null},"records":[{"id":"r1","segment":"prime","features":{"x1":5,"x2":3},"reported_value":17},{"id":"r2","segment":"prime","features":{"x1":2,"x2":4},"reported_value":9.8}]}}
-Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string.
+Verify before trusting: call `verify_execution_hash` on mcp.ainumbers.co (https://mcp.ainumbers.co/mcp) with the parameter `claimed_hash` set to the returned `execution_hash`, passing the full artifact the run returned (the object containing `policy_parameters` + `output_payload` + `execution_hash`; equivalently `policy_parameters` + `output_payload` with `claimed_hash`), not the bare hash string, or re-run the in-page WebMCP tool `replicate_model_outputs`.
 Return the ledger link https://ledger.ainumbers.co/ so a human can re-verify without contacting us.
 PII rule: All inputs are processed locally in your browser. No data is transmitted. Do not enter real personal data — use synthetic or anonymised inputs only.
 Over MCP, the run happens on the AINumbers worker. No AINumbers server stores your inputs.
 Open the tool with the sample prefilled: https://ainumbers.co/chaingraph/art-488-model-replication-diff.html#p=v1.H4sIAAAAAAAA_wFuAZH-eyJtb2RlbF9zcGVjIjp7InZlcnNpb24iOiJjcmVkaXQtc2NvcmVjYXJkLXYzLjIiLCJhc19vZl9kYXRlIjoiMjAyNi0wMS0wMSIsInRyYW5zZm9ybSI6ImxpbmVhciIsImludGVyY2VwdCI6MTAsImNvZWZmaWNpZW50cyI6eyJ4MSI6MiwieDIiOi0xfX0sInRvbGVyYW5jZSI6eyJhYnNfdG9sZXJhbmNlIjowLjUsInJlbF90b2xlcmFuY2UiOm51bGx9LCJyZWNvcmRzIjpbeyJpZCI6InIxIiwic2VnbWVudCI6InByaW1lIiwiZmVhdHVyZXMiOnsieDEiOjUsIngyIjozfSwicmVwb3J0ZWRfdmFsdWUiOjE3fSx7ImlkIjoicjIiLCJzZWdtZW50IjoicHJpbWUiLCJmZWF0dXJlcyI6eyJ4MSI6MiwieDIiOjR9LCJyZXBvcnRlZF92YWx1ZSI6OS44fV19Dbx_8G4BAAA</pre>
 </section>
 <!-- ASK-AGENT:END -->
+
+<!-- A11Y-TREE:BEGIN generator=scripts/check-a11y-tree.mjs manifest=manifests/art-488-model-replication-diff.manifest.json -->
+<script>
+/* OCG-A11Y-TREE v1 */
+/* Accessibility-tree enhancement for this node page. DO NOT hand-edit; emitted
+   by scripts/check-a11y-tree.mjs from chaingraph/_page-chrome.mjs (row
+   TOOLPAGE-A11Y-1). Form-control labels are emitted statically from the
+   manifest (aria-label = property name); this script owns the single
+   aria-live status region and the post-compute announcement. */
+(function () {
+  'use strict';
+  var RUN_TARGET = "runReplication";
+  var TABLE = {"records":["records",null]};
+  var VERDICT_KEYS = ["verdict","final_verdict","overall_verdict","significance_verdict","classification","entity_classification","conclusion","outcome","decision","grade","overall_status","status"];
+  var st = null;
+  function ensureRegion() {
+    if (st && document.body && typeof document.body.contains === 'function' && document.body.contains(st)) return st;
+    st = document.createElement('div');
+    st.id = 'ocg-a11y-status';
+    st.setAttribute('role', 'status');
+    st.setAttribute('aria-live', 'polite');
+    st.style.cssText = 'position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;overflow:hidden!important;white-space:nowrap!important';
+    (document.body || document.documentElement).appendChild(st);
+    return st;
+  }
+  function artifact() {
+    var cands = ['_lastResult', '_lastArtifact'];
+    for (var i = 0; i < cands.length; i++) {
+      try {
+        var v = window[cands[i]];
+        if (v && typeof v === 'object' && typeof v.execution_hash === 'string' && v.execution_hash) return v;
+      } catch (e) { /* pages without either global simply expose nothing */ }
+    }
+    return null;
+  }
+  function verdictOf(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    for (var i = 0; i < VERDICT_KEYS.length; i++) {
+      var v = payload[VERDICT_KEYS[i]];
+      if (typeof v === 'string' && v) return v;
+      if (typeof v === 'boolean' || typeof v === 'number') return VERDICT_KEYS[i] + ': ' + v;
+    }
+    for (var k in payload) {
+      var v2 = payload[k];
+      if (typeof v2 === 'boolean') return k + ': ' + v2;
+    }
+    return null;
+  }
+  function announce() {
+    var region = ensureRegion();
+    var a = artifact();
+    if (!a) { region.textContent = 'Run complete. See the result panel for the full verdict.'; return; }
+    var msg = 'Run complete. execution_hash ' + a.execution_hash;
+    var v = verdictOf(a.output_payload);
+    if (v) msg += '. Verdict: ' + v;
+    region.textContent = msg;
+  }
+  function wrap() {
+    try {
+      var orig = window[RUN_TARGET];
+      if (typeof orig !== 'function' || orig.__ocgA11yWrapped) return;
+      var wrapped = function () {
+        var r = orig.apply(this, arguments);
+        Promise.resolve(r).then(announce, function () { /* the page's own error surface reports failures */ });
+        return r;
+      };
+      wrapped.__ocgA11yWrapped = true;
+      window[RUN_TARGET] = wrapped;
+    } catch (e) { /* a chrome-less harness must never break the tool itself */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wrap);
+  else wrap();
+})();
+</script>
+<!-- A11Y-TREE:END -->
 
 <footer>
   <div class="footer-inner">
@@ -691,5 +770,121 @@ function toggleMfst() {
 // §0 adoption contract: a stranger sees a replication verdict immediately, no typing required.
 window.addEventListener('DOMContentLoaded', loadDemo);
 </script>
+<!-- WEBMCP:GEN-BEGIN manifest=manifests/art-488-model-replication-diff.manifest.json generator=scripts/gen-webmcp-registrations.mjs mode=direct -->
+<script>
+// WebMCP registration generated by scripts/gen-webmcp-registrations.mjs from
+// manifests/art-488-model-replication-diff.manifest.json (mcp_tool_definition reused verbatim; the generator computes
+// nothing and restates no computed value). DIRECT emission mode
+// (WEBMCP-DIRECT-MODE-1): this page's manifest inputs have no single control
+// to prefill, so execute() calls the manifest-declared function with the
+// agent's params, stores the result in the page's result global, lets the
+// page's render function paint it, and shows the mandatory "Inputs used by
+// the agent" echo panel so a human still sees exactly what the agent ran.
+// Feature-detected: absent API registers nothing, so this page is
+// byte-identical without the API.
+// Eligibility is static and re-proven on every --check: kernel-digest
+// sentinel matches the kernel; the declared function takes one parameter
+// and reads no DOM; the kernel reproduces fixture 0 execution_hash. Same
+// kernel, same hash, zero network I/O.
+// Trust annotations, truthful-hint posture: deterministic local compute, no
+// untrusted content, so untrustedContentHint is not applicable per tool (n/a);
+// exposedTo intentionally omitted: no cross-origin exposure. A browser agent
+// is untrusted input like any form submission; the never-trust-client rule is
+// honored by construction because the tool is zero-server and only returns
+// computed JSON derived from declared inputs.
+// Browser support (dated observation): WebMCP origin trial from Chrome 149
+// (May 2026) per developer.chrome.com/docs/ai/webmcp (retrieved 2026-09-01).
+const mc = document.modelContext;
+if (mc) {
+  Promise.resolve(mc.registerTool({
+    name: 'replicate_model_outputs',
+    description: 'Independently recomputes a model\'s reported outputs from a declared model specification (version, as-of date, transform, intercept, coefficients) and a stated input record set, then diffs the recomputation against the model\'s own reported outputs within a caller-supplied tolerance. Returns a per-record diff (reported, recomputed, absolute and relative diff, within-tolerance), aggregate tolerance stats, an overall replicated / not-replicated verdict, and the failing segment(s) named when not replicated. If the declared specification cannot be recomputed as stated -- unrecognized transform, no coefficients, no tolerance -- the honest result is not_replicable_as_specified with a reason, not a forced pass or fail. Deterministic recompute-and-diff only: this node never opines on conceptual soundness, assumption reasonableness, or fitness for use -- that judgment belongs in a validator\'s approval record, not here. Model inputs and specifications are expected to arrive as a workbook export via the shipped WB-BRIDGE-1 workbook-to-OCG artifact bridge (tool 554); this node itself accepts plain JSON records so any upstream source can feed it. Distinct from the shipped model-passport nodes (art-450/451/453), which track a model\'s inventory tier and revalidation cadence rather than recomputing its numeric output. Inline deterministic transcendental math (no engine Math.exp/log) so the same input always produces the same execution_hash on every surface. NaN-safe. Zero network, zero PII.',
+    title: 'Model Replication Diff',
+    inputSchema: {
+      "type": "object",
+      "required": [
+        "model_spec",
+        "records",
+        "tolerance"
+      ],
+      "properties": {
+        "model_spec": {
+          "description": "type not evidenced by kernel source"
+        },
+        "records": {
+          "type": "array"
+        },
+        "tolerance": {
+          "description": "type not evidenced by kernel source",
+          "properties": {
+            "rel_tolerance": {
+              "x_null_distinct": true
+            }
+          }
+        }
+      }
+    },
+    annotations: { readOnlyHint: true },
+    execute: async function(params) {
+      try {
+      if (params.model_spec === undefined) throw new Error('model_spec is required; received ' + JSON.stringify(params.model_spec) + '.');
+      if (!Array.isArray(params.records)) throw new Error('records must be an array; received ' + JSON.stringify(params.records) + '.');
+      if (params.tolerance === undefined) throw new Error('tolerance is required; received ' + JSON.stringify(params.tolerance) + '.');
+      var echo = document.getElementById('webmcp-inputs-echo');
+      if (!echo) {
+        echo = document.createElement('pre');
+        echo.id = 'webmcp-inputs-echo';
+        var panel = document.querySelector('.results-panel');
+        if (panel && panel.parentNode) panel.parentNode.insertBefore(echo, panel);
+        else document.body.insertBefore(echo, document.body.firstChild);
+      }
+      echo.textContent = 'Inputs used by the agent: ' + JSON.stringify(params, null, 2);
+      var __normalizeNullMembers = function __normalizeNullMembers(value, schema) {
+        if (Array.isArray(value)) {
+          var changed = false;
+          var out = new Array(value.length);
+          for (var i = 0; i < value.length; i++) {
+            var el = value[i];
+            if (el === null) { out[i] = null; continue; }
+            var n = __normalizeNullMembers(el, schema && schema.items);
+            if (n !== el) changed = true;
+            out[i] = n;
+          }
+          return changed ? out : value;
+        }
+        if (value !== null && typeof value === 'object') {
+          var props = schema && schema.properties;
+          var out2 = {};
+          var changed2 = false;
+          for (var ks = Object.keys(value), j = 0; j < ks.length; j++) {
+            var k = ks[j];
+            var v = value[k];
+            if (v === null) {
+              if (props && props[k] && props[k].x_null_distinct) { out2[k] = null; continue; }
+              changed2 = true;
+              continue;
+            }
+            var n2 = __normalizeNullMembers(v, props && props[k]);
+            if (n2 !== v) changed2 = true;
+            out2[k] = n2;
+          }
+          return changed2 ? out2 : value;
+        }
+        return value;
+      };
+      var __computeInput = __normalizeNullMembers(params, "{\"type\":\"object\",\"required\":[\"model_spec\",\"records\",\"tolerance\"],\"properties\":{\"model_spec\":{\"description\":\"type not evidenced by kernel source\"},\"records\":{\"type\":\"array\"},\"tolerance\":{\"description\":\"type not evidenced by kernel source\",\"properties\":{\"rel_tolerance\":{\"x_null_distinct\":true}}}}}");
+      var __directResult = await computeReplication(__computeInput);
+      if (typeof __directResult !== 'undefined') _lastResult = __directResult;
+      await verifyHash();
+      return _lastResult;
+      } catch (err) {
+        return { error: 'compute_failed', detail: String((err && err.message) || err) };
+      }
+    }
+  })).catch(() => {});
+}
+</script>
+<!-- WEBMCP:GEN-END -->
+
 </body>
 </html>
