@@ -1,0 +1,21 @@
+{
+  // Separate Worker from ainumbers-mcp; deployed by the same gated CI job
+  // (.github/workflows/ci.yml, "Deploy referrer-log worker"), never by hand.
+  "name": "ainumbers-referrer-log",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": false,
+  // Page paths only, so CSS/JS/feeds/scanner noise and /mcp never invoke it.
+  // The account shares the Free plan's 100k requests/day across all Workers;
+  // a catch-all ainumbers.co/* route would exceed that on spike days.
+  "routes": [
+    { "pattern": "ainumbers.co/", "zone_name": "ainumbers.co" },
+    { "pattern": "ainumbers.co/index.html", "zone_name": "ainumbers.co" },
+    { "pattern": "ainumbers.co/tools/*", "zone_name": "ainumbers.co" },
+    { "pattern": "ainumbers.co/guides/*", "zone_name": "ainumbers.co" },
+    { "pattern": "ainumbers.co/chaingraph/*", "zone_name": "ainumbers.co" }
+  ],
+  "analytics_engine_datasets": [
+    { "binding": "REFERRERS", "dataset": "site_referrers" }
+  ]
+}

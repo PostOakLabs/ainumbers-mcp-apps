@@ -41,6 +41,9 @@ jobs:
         # broken bundle now blocks the deploy instead of taking the worker down.
         run: npx wrangler@4.99.0 deploy --dry-run --outdir /tmp/worker-build
 
+      - name: 🧱 referrer-log worker bundles (dry-run)
+        run: npx wrangler@4.99.0 deploy --dry-run --config referrer-log/wrangler.jsonc --outdir /tmp/referrer-build
+
       - name: 🔁 Preflight↔CI parity (no gate drift)
         # Fails if this Validate job runs a `node scripts/*.mjs` gate that the local
         # pre-push preflight.mjs does NOT run — the drift that let §23 reach CI-red on
@@ -693,4 +696,18 @@ jobs:
         env:
           MCP_URL: https://mcp.ainumbers.co/mcp
           RL_SPACING_MS: '2300'
+
+      - name: 🧭 Deploy referrer-log worker (ainumbers.co page referrers)
+        # Separate pass-through Worker (referrer-log/). Runs last, even when an
+        # MCP check above failed, and is continue-on-error so it can never block
+        # or redden the MCP deploy. Needs Workers Routes:Edit on the ainumbers.co
+        # zone in CLOUDFLARE_API_TOKEN.
+        if: ${{ always() }}
+        continue-on-error: true
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.99.0'
+          command: deploy --config referrer-log/wrangler.jsonc
 
